@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  enrolment: one
+  owner: one
+  owner_type: Owner
+  proposal: MyString
+  feedback: MyString
+  status: 1
+
+two:
+  enrolment: two
+  owner: two
+  owner_type: Owner
+  proposal: MyString
+  feedback: MyString
+  status: 1
