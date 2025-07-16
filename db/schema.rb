@@ -10,23 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_14_151105) do
-  create_table "enrollments", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "subject_id", null: false
-    t.integer "group_id", null: false
+ActiveRecord::Schema[8.0].define(version: 2025_07_15_105517) do
+  create_table "courses", force: :cascade do |t|
+    t.string "course_name", null: false
+    t.integer "number_of_updates", null: false
+    t.integer "starting_week", null: false
+    t.boolean "student_access", null: false
+    t.boolean "lecturer_access", null: false
+    t.string "topic_suggestions"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["group_id"], name: "index_enrollments_on_group_id"
-    t.index ["subject_id"], name: "index_enrollments_on_subject_id"
-    t.index ["user_id"], name: "index_enrollments_on_user_id"
   end
 
-  create_table "groups", force: :cascade do |t|
-    t.string "group_name", null: false
-    t.integer "group_role", null: false
+  create_table "enrolments", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "course_id", null: false
+    t.integer "role", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_enrolments_on_course_id"
+    t.index ["user_id"], name: "index_enrolments_on_user_id"
   end
 
   create_table "progress_updates", force: :cascade do |t|
@@ -38,16 +41,33 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_151105) do
     t.index ["proposal_id"], name: "index_progress_updates_on_proposal_id"
   end
 
-  create_table "proposals", force: :cascade do |t|
+  create_table "project_group_members", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "group_id", null: false
+    t.integer "course_id", null: false
+    t.integer "project_group_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_project_group_members_on_course_id"
+    t.index ["project_group_id"], name: "index_project_group_members_on_project_group_id"
+    t.index ["user_id"], name: "index_project_group_members_on_user_id"
+  end
+
+  create_table "project_groups", force: :cascade do |t|
+    t.string "group_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "proposals", force: :cascade do |t|
+    t.integer "enrolment_id", null: false
+    t.integer "project_group_id", null: false
     t.string "student_proposal", null: false
-    t.string "instructor_feedback"
+    t.string "feedback"
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["group_id"], name: "index_proposals_on_group_id"
-    t.index ["user_id"], name: "index_proposals_on_user_id"
+    t.index ["enrolment_id"], name: "index_proposals_on_enrolment_id"
+    t.index ["project_group_id"], name: "index_proposals_on_project_group_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -57,16 +77,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_151105) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
-  end
-
-  create_table "subjects", force: :cascade do |t|
-    t.string "subject_name", null: false
-    t.integer "number_of_updates", null: false
-    t.integer "starting_week", null: false
-    t.boolean "restricted_view", null: false
-    t.string "topic_suggestions"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -82,11 +92,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_151105) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
-  add_foreign_key "enrollments", "groups"
-  add_foreign_key "enrollments", "subjects"
-  add_foreign_key "enrollments", "users"
+  add_foreign_key "enrolments", "courses"
+  add_foreign_key "enrolments", "users"
   add_foreign_key "progress_updates", "proposals"
-  add_foreign_key "proposals", "groups"
-  add_foreign_key "proposals", "users"
+  add_foreign_key "project_group_members", "courses"
+  add_foreign_key "project_group_members", "project_groups"
+  add_foreign_key "project_group_members", "users"
+  add_foreign_key "proposals", "enrolments"
+  add_foreign_key "proposals", "project_groups"
   add_foreign_key "sessions", "users"
 end
