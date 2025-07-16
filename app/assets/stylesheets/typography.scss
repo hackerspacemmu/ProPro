@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap');
+
+:root {
+  --font-sans: 'Inter', sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+
+  --h1-size: 2.25rem;  
+  --h2-size: 1.875rem;   
+  --h3-size: 1.5rem;     
+  --h4-size: 1.25rem;   
+  --h5-size: 1rem;       
+  --h6-size: 0.875rem;   
+}
+
+html {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-family: var(--font-sans);
+  color: #333;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-family: var(--font-sans);
+  line-height: 1.2;
+}
+
+h1 { font-size: var(--h1-size); font-weight: var(--font-weight-bold); }
+h2 { font-size: var(--h2-size); font-weight: var(--font-weight-semibold); }
+h3 { font-size: var(--h3-size); font-weight: var(--font-weight-medium); }
+h4 { font-size: var(--h4-size); font-weight: var(--font-weight-medium); }
+h5 { font-size: var(--h5-size); font-weight: var(--font-weight-normal); }
+h6 { font-size: var(--h6-size); font-weight: var(--font-weight-normal); }
+
+p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+ul, ol {
+  margin-top: 0;
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+a {
+  color: #1D4ED8;
+  text-decoration: none;
+}
+a:hover, a:focus {
+  text-decoration: underline;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status {
+  display: inline-block;
+  margin-right: 0.5em;
+  font-weight: var(--font-weight-medium);
+}
+
+.alert {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 1em;
+}
+
+aside, footer {
+  font-size: 0.875rem;
+  color: #555;
+}
