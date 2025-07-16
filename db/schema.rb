@@ -10,14 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_15_105517) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_192516) do
+  create_table "comments", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "proposal_id", null: false
+    t.string "text", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["proposal_id"], name: "index_comments_on_proposal_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
   create_table "courses", force: :cascade do |t|
     t.string "course_name", null: false
     t.integer "number_of_updates", null: false
     t.integer "starting_week", null: false
-    t.boolean "student_access", null: false
-    t.boolean "lecturer_access", null: false
-    t.string "topic_suggestions"
+    t.integer "student_access", null: false
+    t.integer "lecturer_access", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -60,14 +69,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_105517) do
 
   create_table "proposals", force: :cascade do |t|
     t.integer "enrolment_id", null: false
-    t.integer "project_group_id", null: false
-    t.string "student_proposal", null: false
+    t.string "owner_type", null: false
+    t.integer "owner_id", null: false
+    t.string "proposal", null: false
     t.string "feedback"
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["enrolment_id"], name: "index_proposals_on_enrolment_id"
-    t.index ["project_group_id"], name: "index_proposals_on_project_group_id"
+    t.index ["owner_type", "owner_id"], name: "index_proposals_on_owner"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -92,6 +102,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_105517) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "comments", "proposals"
+  add_foreign_key "comments", "users"
   add_foreign_key "enrolments", "courses"
   add_foreign_key "enrolments", "users"
   add_foreign_key "progress_updates", "proposals"
@@ -99,6 +111,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_105517) do
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "proposals", "enrolments"
-  add_foreign_key "proposals", "project_groups"
   add_foreign_key "sessions", "users"
 end
