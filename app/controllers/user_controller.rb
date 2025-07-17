@@ -40,7 +40,7 @@ class UserController < ApplicationController
       end
 
     elsif response[:role] == "staff"
-      '''
+      =begin
       if response[:mmu_directory].blank?
         redirect_to user_new_path, alert: "MMU Directory cannot be blank"
         return
@@ -48,12 +48,12 @@ class UserController < ApplicationController
         redirect_to user_new_path, alert: "MMU Directory has already been claimed by another user"
         return
       end
-      '''
+      =end
       if response[:username].blank?
         redirect_to user_new_path, alert: "Name cannot be empty"
         return
       end
-      '''
+      =begin
       uri = URI.parse("https://mmuexpert.mmu.edu.my/" + response[:mmu_directory].to_s.strip)
       
       http = Net::HTTP.new(uri.host, uri.port)
@@ -66,7 +66,7 @@ class UserController < ApplicationController
         redirect_to user_new_path, alert: "Invalid MMU Directory"
         return
       end
-      '''
+      =end
       if User.create(email_address: response[:email_address].strip, password: response[:password], username: response[:username].strip, has_registered: true, is_staff: true)
         redirect_to user_new_path, notice: "Account created successfully"
       else
