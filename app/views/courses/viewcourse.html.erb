@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <%= stylesheet_link_tag "courses", media: "all" %>
+    <%= stylesheet_link_tag "courses" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alex's 2510 Course View</title>
+    <title><%= @current_user.name %>'s Course View</title>
   </head>
   
   <body>
     <header>
-      <h1>Alex's 2510 Course View</h1>
+      <h1><%= @course.course_name %></h1>
       <nav>
         <ul>
           <li>Course</li>
-          <li>Proposal</li>
+          <li>Proposals</li>
         </ul>
       </nav>
     </header>

@@ -1,7 +1,7 @@
 class CoursesController < ApplicationController
-before_action :set_course_name
-before_action :set_group_by_course
-before_action :set_proposal 
+    before_action :set_course_name
+    before_action :set_group_by_course
+    before_action :set_proposal 
 
     def viewcourse
         @course = {
@@ -12,7 +12,6 @@ before_action :set_proposal
             members: @group.users
         }
     end
-end 
 
     private 
     def set_course_name
@@ -26,3 +25,4 @@ end
     def set_proposal 
         @proposal = Proposal.find_by(group_id: @group.id)
     end
+end 
