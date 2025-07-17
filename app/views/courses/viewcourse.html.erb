@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= stylesheet_link_tag "courses" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= @current_user.name %>'s Course View</title>
+  </head>
+  
+  <body>
+    <header>
+      <h1><%= @course.course_name %></h1>
+      <nav>
+        <ul>
+          <li>Course</li>
+          <li>Proposals</li>
+        </ul>
+      </nav>
+    </header>
+    
+    <main>
+      <section>
+        
+        <header>
+          <p>FOUN-FCI-2510</p>
+          <h2>CSP1123-MINI IT PROJECT</h2>
+        </header>
+        
+        <article>
+          <h3>Proposal Guidelines</h3>
+          <p>Welcome to Multimedia Fundamentals for the trimester 2430. As IT students, you may not be training in design or artistic skill, but so much of art, design and entertainment takes place through computers that a strong understanding of how these things are handled digitally is important in your studies.</p>
+          <p>I also suspect that many of you are have at least some art or design talents and motivations, and like all things, these things can be learned through practice. So this course is an opportunity to put those leanings to practice. Looking forward to seeing all the amazing things you will create this trimester!</p>
+          <p>CSP1123 Project Guidelines 2420</p>
+        </article>
+        
+        <section>
+          <h3>Proposal Status</h3>
+          <p>You have not submitted for CSP1123, please propose through supervisors.</p>
+          <ol>
+            <li>Rejected</li>
+            <li>Pending</li>
+            <li>Redo</li>
+            <li>In review</li>
+            <li>Approved</li>
+          </ol>
+        </section>
+        
+        <section>
+          <h3>Supervisors Available</h3>
+          <ul>
+            <li>
+              <h4>Mr. Willie Poh Kaw Lik</h4>
+              <p>last seen yesterday</p>
+              <p>avg response time - 1 day</p>
+              <p>0/4</p>
+            </li>
+          </ul>
+        </section>
+        
+        <section>
+          <h3>Topics</h3>
+          <ul>
+            <li>
+              <h4>Student Peer Review System</h4>
+              <p>Mr. Willie Poh Kaw Lik</p>
+                <ul>
+                  <li>
+                    <p>group members: Alex Chiam, Keith Chong, John Doe</p>
+                    <p>o Users – create, delete, login, logout, change password</p>
+                  </li>
+                </ul>
+            </li>
+          </ul>
+        </section>
+        
+        <section>
+          <h3>Participants</h3>
+          <ul>
+            <li>
+              <h4>Mr. Alex Chiam</h4>
+              <p>proposal status: pending</p>
+            </li>
+          </ul>
+        </section>
+      </section>
+    </main>
+    
+    <aside>
+      <nav>
+        <h3>Sidebar</h3>
+        <ul>
+          <li>Proposal Guidelines</li>
+          <li>Supervisors Available</li>
+          <li>Topics</li>
+          <li>Participants</li>
+        </ul>
+      </nav>
+    </aside>
+  </body>
+</html>

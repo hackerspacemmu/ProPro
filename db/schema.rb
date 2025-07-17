@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_192516) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_17_031621) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "proposal_id", null: false
@@ -67,6 +67,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_192516) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "project_template_fields", force: :cascade do |t|
+    t.integer "project_template_id", null: false
+    t.integer "field_type", null: false
+    t.integer "applicable_to", null: false
+    t.string "label", null: false
+    t.text "hint"
+    t.json "options"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
+  end
+
+  create_table "project_templates", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_project_templates_on_course_id"
+  end
+
   create_table "proposals", force: :cascade do |t|
     t.integer "enrolment_id", null: false
     t.string "owner_type", null: false
@@ -110,6 +129,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_192516) do
   add_foreign_key "project_group_members", "courses"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
+  add_foreign_key "project_template_fields", "project_templates"
+  add_foreign_key "project_templates", "courses"
   add_foreign_key "proposals", "enrolments"
   add_foreign_key "sessions", "users"
 end
