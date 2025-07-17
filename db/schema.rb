@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_031621) do
     t.integer "starting_week", null: false
     t.integer "student_access", null: false
     t.integer "lecturer_access", null: false
+    t.boolean "grouped", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -86,17 +87,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_031621) do
     t.index ["course_id"], name: "index_project_templates_on_course_id"
   end
 
-  create_table "proposals", force: :cascade do |t|
+  create_table "projects", force: :cascade do |t|
     t.integer "enrolment_id", null: false
     t.string "owner_type", null: false
     t.integer "owner_id", null: false
     t.string "proposal", null: false
-    t.string "feedback"
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["enrolment_id"], name: "index_proposals_on_enrolment_id"
-    t.index ["owner_type", "owner_id"], name: "index_proposals_on_owner"
+    t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
+    t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -131,6 +131,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_031621) do
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_template_fields", "project_templates"
   add_foreign_key "project_templates", "courses"
-  add_foreign_key "proposals", "enrolments"
+  add_foreign_key "projects", "enrolments"
   add_foreign_key "sessions", "users"
 end

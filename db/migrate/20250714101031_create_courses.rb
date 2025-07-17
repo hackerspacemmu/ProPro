@@ -6,6 +6,7 @@ class CreateCourses < ActiveRecord::Migration[8.0]
       t.integer :starting_week, null: false
       t.integer :student_access, null: false
       t.integer :lecturer_access, null: false
+      t.boolean :grouped, null: false
 
       t.timestamps
     end
