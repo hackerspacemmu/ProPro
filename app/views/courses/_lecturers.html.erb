@@ -1,0 +1,13 @@
+<section>
+  <h3>Supervisors Available</h3>
+  <ul>
+    <% @supervisors.each do |supervisor| %>
+      <li>
+        <h4><%= supervisor.username %></h4>
+        <p>Last seen: yesterday</p>
+        <p>Avg response time: 1 day</p>
+        <p><%= supervisor.projects.where(enrolment: { course_id: @course.id }).count %>/4</p>
+      </li>
+    <% end %>
+  </ul>
+</section>

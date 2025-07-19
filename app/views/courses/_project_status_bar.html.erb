@@ -1,0 +1,9 @@
+<section>
+ <h3>Proposal Status</h3>
+ <% if @latest_instance.present? %>
+  <p>Your latest submission: <%= @latest_instance.submitted_at&.strftime("%d %b %Y")</p>
+  <p>Status: <%= @latest_instance.project.status.titleize %></p>
+ <% else %>
+  <p>You have not submitted for <%= @course.course_name %>, Please propose through supervisors.</p>
+ <% end %>
+</section>
