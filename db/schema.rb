@@ -42,6 +42,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
     t.index ["user_id"], name: "index_enrolments_on_user_id"
   end
 
+  create_table "otps", force: :cascade do |t|
+    t.string "email_address", null: false
+    t.string "otp", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "progress_updates", force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "rating", null: false
