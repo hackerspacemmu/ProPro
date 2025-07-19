@@ -8,8 +8,6 @@ class CreateProjectInstances < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    remove_column :projects, :proposal, :string
-    remove_column :projects, :title, :string
     add_index :project_instances, [:project_id, :version], unique: true
   end
 end

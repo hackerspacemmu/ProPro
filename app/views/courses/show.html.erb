@@ -4,12 +4,12 @@
     <%= stylesheet_link_tag "courses" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= @current_user.name %>'s CourseView </title>
+    <title><%= @current_user.username %>'s CourseView </title>
   </head>
   
   <body>
     <header>
-      <h1><%= @current_user.name %>'s CourseView </h1>
+      <h1><%= @current_user.username %>'s CourseView </h1>
       <nav>
         <ul>
           <li>Course</li>
@@ -20,66 +20,70 @@
     
     <main>
       <section>
-        
         <header>
-          <p>FOUN-FCI-2510</p>
-          <h2>CSP1123-MINI IT PROJECT</h2>
+          <h2>@course.course_name</h2>
         </header>
         
-        <article>
-          <h3>Proposal Guidelines</h3>
-          <p>Welcome to Multimedia Fundamentals for the trimester 2430. As IT students, you may not be training in design or artistic skill, but so much of art, design and entertainment takes place through computers that a strong understanding of how these things are handled digitally is important in your studies.</p>
-          <p>I also suspect that many of you are have at least some art or design talents and motivations, and like all things, these things can be learned through practice. So this course is an opportunity to put those leanings to practice. Looking forward to seeing all the amazing things you will create this trimester!</p>
-          <p>CSP1123 Project Guidelines 2420</p>
+        <% if @project_template.present? %>
+          <article>
+            <h3>Proposal Guidelines</h3>
+            <%= simple_format(@project_template.description) %>
         </article>
         
         <section>
           <h3>Proposal Status</h3>
-          <p>You have not submitted for CSP1123, please propose through supervisors.</p>
-          <ol>
-            <li>Rejected</li>
-            <li>Pending</li>
-            <li>Redo</li>
-            <li>In review</li>
-            <li>Approved</li>
-          </ol>
+          <% if @latest_instance.present? %>
+            <p>Your latest submission: <%= @latest_instance.submitted_at&.strftime("%d %b %Y")</p>
+            <p>Status: <%= @latest_instance.project.status.titleize %></p>
+          <% else %>
+            <p>You have not submitted for <%= @course.course_name %>, Please propose through supervisors.</p>
+          <% end %>
         </section>
         
         <section>
           <h3>Supervisors Available</h3>
           <ul>
-            <li>
-              <h4>Mr. Willie Poh Kaw Lik</h4>
-              <p>last seen yesterday</p>
-              <p>avg response time - 1 day</p>
-              <p>0/4</p>
-            </li>
+            <% @supervisors.each do |supervisor| %>
+              <li>
+                <h4><%= supervisor.username %></h4>
+                <p>Last seen: yesterday</p>
+                <p>Avg response time: 1 day</p>
+                <p><%= supervisor.projects.where(enrolment: { course_id: @course.id }).count %>/4</p>
+              </li>
+            <% end %>
           </ul>
         </section>
         
         <section>
           <h3>Topics</h3>
           <ul>
+            <% @topics.each do |project| %>
+              <% latest_instance = project.latest_instance %>
             <li>
-              <h4>Student Peer Review System</h4>
-              <p>Mr. Willie Poh Kaw Lik</p>
-                <ul>
-                  <li>
-                    <p>group members: Alex Chiam, Keith Chong, John Doe</p>
-                    <p>o Users – create, delete, login, logout, change password</p>
-                  </li>
-                </ul>
+              <h4><%= project_instance_title(latest_instance) %></h4>
+              <p><%= project.supervisor.username %></p>
+              <ul>
+                <li>
+                  <p>Group Members: <%= project.members.map(&:username).join(", ") %></p>
+                  <p>Features: <%= truncate(project_instance_description(latest_instance), length: 100) %></p>
+                </li>
+              </ul>
             </li>
-          </ul>
+          <% end %>
+         </ul>
         </section>
         
         <section>
           <h3>Participants</h3>
           <ul>
-            <li>
-              <h4>Mr. Alex Chiam</h4>
-              <p>proposal status: pending</p>
+            <% @participants.each do |user| %>
+              <% enrolment = user.enrolments.find_by(course_id: @course.id) %>
+              <% proj = enrolment&.project %>
             </li>
+              <h4><%= user.username %></h4>
+              <p>Proposal status: <%= proj&.status&.titleize || "Not submitted" %></p>
+            </li>
+            <% end %>
           </ul>
         </section>
       </section>
@@ -89,10 +93,10 @@
       <nav>
         <h3>Sidebar</h3>
         <ul>
-          <li>Proposal Guidelines</li>
-          <li>Supervisors Available</li>
-          <li>Topics</li>
-          <li>Participants</li>
+          <li><a href="#guidelines">Proposal Guidelines</a></li>
+          <li><a href="#supervisors">Supervisors Available</a></li>
+          <li><a href="#topics">Topics</a></li>
+          <li><a href="#participants">Participants</a></li>
         </ul>
       </nav>
     </aside>

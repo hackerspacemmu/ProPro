@@ -9,7 +9,5 @@ class CreateProjectInstanceFields < ActiveRecord::Migration[8.0]
     end
         add_index :project_instance_fields, [:project_instance_id, :project_template_field_id], unique: true, 
         name: "index_project_instance_fields_on_instance_and_template_field"
-
-        add_column :project_template_fields, :is_primary_title, :boolean, default: false, null: false
   end
 end
