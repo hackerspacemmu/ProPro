@@ -10,9 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema[8.0].define(version: 2025_07_17_115533) do
-
+ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -95,6 +93,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_115533) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title", null: false
     t.index ["created_by_id"], name: "index_project_instances_on_created_by_id"
     t.index ["project_id", "version"], name: "index_project_instances_on_project_id_and_version", unique: true
     t.index ["project_id"], name: "index_project_instances_on_project_id"
@@ -117,6 +116,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_115533) do
     t.integer "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "description"
     t.index ["course_id"], name: "index_project_templates_on_course_id"
   end
 

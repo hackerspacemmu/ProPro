@@ -1,0 +1,13 @@
+<section>
+  <h3>Participants</h3>
+  <ul>
+  <% @participants.each do |user| %>
+    <% enrolment = user.enrolments.find_by(course_id: @course.id) %>
+    <% proj = enrolment&.project %>
+      </li>
+        <h4><%= user.username %></h4>
+        <p>Proposal status: <%= proj&.status&.titleize || "Not submitted" %></p>
+      </li>
+    <% end %>
+  </ul>
+</section>

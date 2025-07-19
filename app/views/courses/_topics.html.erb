@@ -1,0 +1,18 @@
+<section>
+  <h3>Topics</h3>
+  <ul>
+    <% @topics.each do |project| %>
+      <% latest_instance = project.latest_instance %>
+      <li>
+        <h4><%= project_instance_title(latest_instance) %></h4>
+        <p><%= project.supervisor.username %></p>
+        <ul>
+          <li>
+            <p>Group Members: <%= project.members.map(&:username).join(", ") %></p>
+            <p>Features: <%= truncate(project_instance_description(latest_instance), length: 100) %></p>
+          </li>
+        </ul>
+      </li>
+    <% end %>
+  </ul>
+</section>
