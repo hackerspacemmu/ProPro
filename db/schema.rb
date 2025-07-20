@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_20_112606) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -108,7 +108,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
     t.json "options"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "is_primary_title", default: false, null: false
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end
 
