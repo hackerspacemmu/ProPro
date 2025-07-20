@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
   get "user/new"
   post "user/create"
-  get "user/sign_in"
+  get "user/get_otp"
+  post "user/create_otp"
+  get "user/new_staff"
+  get "user/new_student"
+
   resource :session
   resources :passwords, param: :token
   resources :courses, only: [:show]
