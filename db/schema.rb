@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -47,6 +47,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
     t.string "otp", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "ownerships", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.integer "owner_id", null: false
+    t.integer "ownership_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_ownerships_on_owner"
   end
 
   create_table "progress_updates", force: :cascade do |t|
@@ -108,7 +117,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
     t.json "options"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "is_primary_title", default: false, null: false
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end
 
@@ -127,8 +135,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "course_id", null: false
+    t.integer "supervisor_enrolment_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
+    t.index ["supervisor_enrolment_id"], name: "index_projects_on_supervisor_enrolment_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -168,5 +179,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_075613) do
   add_foreign_key "project_template_fields", "project_templates"
   add_foreign_key "project_templates", "courses"
   add_foreign_key "projects", "enrolments"
+  add_foreign_key "projects", "enrolments", column: "supervisor_enrolment_id"
   add_foreign_key "sessions", "users"
 end
