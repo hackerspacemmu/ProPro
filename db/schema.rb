@@ -10,6 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -25,11 +26,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
     t.string "course_name", null: false
     t.integer "number_of_updates", null: false
     t.integer "starting_week", null: false
-    t.integer "student_access", null: false
+    t.boolean "student_access", null: false
     t.integer "lecturer_access", null: false
     t.boolean "grouped", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "supervisor_projects_limit", null: false
+    t.boolean "require_coordinator_approval", null: false
   end
 
   create_table "enrolments", force: :cascade do |t|
@@ -69,19 +72,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
 
   create_table "project_group_members", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "course_id", null: false
     t.integer "project_group_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["course_id"], name: "index_project_group_members_on_course_id"
     t.index ["project_group_id"], name: "index_project_group_members_on_project_group_id"
     t.index ["user_id"], name: "index_project_group_members_on_user_id"
   end
 
   create_table "project_groups", force: :cascade do |t|
+    t.integer "course_id", null: false
     t.string "group_name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_project_groups_on_course_id"
   end
 
   create_table "project_instance_fields", force: :cascade do |t|
@@ -130,16 +133,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
 
   create_table "projects", force: :cascade do |t|
     t.integer "enrolment_id", null: false
-    t.string "owner_type", null: false
-    t.integer "owner_id", null: false
+    t.integer "course_id", null: false
+    t.integer "ownership_id", null: false
+    t.string "proposal", null: false
+    t.string "title", null: false
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "course_id", null: false
-    t.integer "supervisor_enrolment_id"
+    t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
-    t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
-    t.index ["supervisor_enrolment_id"], name: "index_projects_on_supervisor_enrolment_id"
+    t.index ["ownership_id"], name: "index_projects_on_ownership_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -178,7 +181,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   add_foreign_key "project_instances", "users", column: "created_by_id"
   add_foreign_key "project_template_fields", "project_templates"
   add_foreign_key "project_templates", "courses"
+  add_foreign_key "projects", "courses"
   add_foreign_key "projects", "enrolments"
+  add_foreign_key "projects", "ownerships"
   add_foreign_key "projects", "enrolments", column: "supervisor_enrolment_id"
   add_foreign_key "sessions", "users"
 end

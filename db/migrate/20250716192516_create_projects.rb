@@ -1,4 +1,4 @@
-class CreateProjects < ActiveRecord::Migration[9.0]
+class CreateProjects < ActiveRecord::Migration[8.0]
   def change
     create_table :projects do |t|
       t.references :enrolment, null: false, foreign_key: true
