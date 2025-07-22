@@ -173,6 +173,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   add_foreign_key "progress_updates", "projects"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
+  add_foreign_key "project_groups", "courses"
   add_foreign_key "project_instance_fields", "project_instances"
   add_foreign_key "project_instance_fields", "project_template_fields"
   add_foreign_key "project_instances", "projects"
