@@ -1,12 +1,12 @@
 class Project < ApplicationRecord
   belongs_to :enrolment
+  belongs_to :ownership
   belongs_to :course
-  belongs_to :owner, polymorphic: true
-  delegate :course, to: :enrolment
+  #delegate :course, to: :enrolment
 
   enum :status, { pending: 0, approved: 1, rejected: 2 }
 
-  has_one :course, through: :enrolment
+  #has_one :course, through: :enrolment
 
   scope :supervisor, -> () {joins(:enrolments).where(enrolments: {role: :lecturer})}
 end

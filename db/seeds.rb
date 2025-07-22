@@ -56,7 +56,9 @@ course_no_groups = Course.create!(
   starting_week: 1,
   student_access: 1,
   lecturer_access: 2,
-  grouped: false
+  grouped: false,
+  supervisor_projects_limit: 10,
+  require_coordinator_approval: false
 )
 
 course_with_groups = Course.create!(
@@ -65,7 +67,9 @@ course_with_groups = Course.create!(
   starting_week: 2,
   student_access: 1,
   lecturer_access: 2,
-  grouped: true
+  grouped: true,
+  supervisor_projects_limit: 6,
+  require_coordinator_approval: false
 )
 
 # Create Enrolments
@@ -119,19 +123,20 @@ niilesh_student_enrolment = Enrolment.create!(
 
 # Create Project Group
 blabla_group = ProjectGroup.create!(
-  group_name: "Blabla"
+  group_name: "Blabla",
+  course: course_with_groups
 )
 
 # Create Project Group Members
 ProjectGroupMember.create!(
   user: soo,
-  course: course_with_groups,
+  #course: course_with_groups,
   project_group: blabla_group
 )
 
 ProjectGroupMember.create!(
   user: niilesh,
-  course: course_with_groups,
+  #course: course_with_groups,
   project_group: blabla_group
 )
 
@@ -207,21 +212,21 @@ group_ownership = Ownership.create!(
 # Create Projects
 alex_project = Project.create!(
   enrolment: alex_student_enrolment,
-  owner: alex,
+  ownership: alex_ownership,
   course_id: alex_student_enrolment.course_id,
   status: 0 # pending/draft status
 )
 
 suhaini_project = Project.create!(
   enrolment: suhaini_lecturer_enrolment,
-  owner: suhaini,
+  ownership: suhaini_ownership,
   course_id: suhaini_lecturer_enrolment.course_id,
   status: 1 # approved/active status
 )
 
 group_project = Project.create!(
   enrolment: soo_student_enrolment,
-  owner: blabla_group,
+  ownership: group_ownership,
   course_id: soo_student_enrolment.course_id,
   status: 0 # pending/draft status
 )
