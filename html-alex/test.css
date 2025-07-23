@@ -1,0 +1,390 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: #F2F3F7;
+}
+
+body {
+  display: grid;
+  grid-template-rows:
+    80px   
+    44px  
+    1fr;   
+  grid-template-columns:
+    255px 
+    1fr;   
+  grid-template-areas:
+    "topbar topbar"
+    "breadcrumb breadcrumb"
+    "sidebar course";
+}
+
+p {
+  color: #454343;
+  font-size: 14px;
+  font-weight: regular;
+  line-height: 1.5;
+}
+
+#top-bar {  
+  grid-area: topbar;
+  background: #E1E1E1;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;   
+  padding-left: 24px;
+}
+
+#breadcrumb {
+  grid-area: breadcrumb;
+  background: #B5B5B5;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;  
+}
+
+#breadcrumb h1 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+}
+
+#breadcrumb nav ul {
+  list-style: none;
+  display: flex;
+}
+
+#breadcrumb nav li + li {
+  margin-left: 16px;
+}
+
+#breadcrumb li a:hover {
+  text-decoration: underline;
+}
+
+#breadcrumb nav a {
+  text-decoration: none;
+  font-size: 16px;
+  color: #000;
+  padding: 8px;
+}
+
+#sidebar {
+  grid-area: sidebar;
+  width: 255px;
+  height: 900px;
+  background: #F8F9FA;
+  padding: 20px 8px;
+  overflow-y: auto;
+}
+
+#sidebar ul {
+  list-style: none;
+}
+
+#sidebar li + li {
+  margin-top: 12px;
+}
+
+#sidebar a {
+  text-decoration: none;
+  font-size: 16px;
+  color: #000;
+  display: block;
+  padding: 8px;
+}
+
+#course {
+  grid-area: course;
+  overflow-y: auto;
+  padding: 24px 40px;
+}
+
+#description,
+#status-bar,
+#lecturer-list,
+#topic-list,
+#participants {
+  background: #F8F9FA;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+#description h3,
+#status-bar h3,
+#lecturer-list h3,
+#topic-list h3,
+#participants h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+#course > section > header p {
+  font-size: 12px;
+  color: #7e7e7e;
+}
+
+#course > section > header h2 {
+  font-size: 24px;
+  color: #000;
+  margin-bottom: 24px;
+}
+
+#status-bar ol {
+  list-style: decimal inside;
+  margin-top: 12px;
+}
+
+#status-bar ol li {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+#lecturer-list ul,
+#topic-list ul,
+#participants ul {
+  list-style: none;
+}
+
+#lecturer-list li,
+#topic-list li,
+#participants li {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#lecturer-list li:last-child,
+#topic-list li:last-child,
+#participants li:last-child {
+  border-bottom: none;
+}
+
+#topic-list li ul {
+  margin-top: 12px;
+  padding-left: 16px;
+}
+
+#topic-list li ul li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+@media screen and (max-width: 1280px) {
+  body {
+    grid-template-columns: 80px 1fr;
+  }
+  #sidebar {
+    padding: 16px 4px;
+  }
+}
+
+/* progress_bar.css */
+:root {
+  --primary-color: #8E8E8E;
+  --secondary-color: #8E8E8E;
+}
+
+.container {
+  text-align: center;
+  background: #F8F9FA;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.progress-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 30px;
+  max-width: 100%;
+  width: 350px;
+  height: 60px; 
+  margin: 0 auto 30px auto;
+}
+
+.progress-container::before {
+  content: "";
+  background-color: var(--secondary-color);
+  position: absolute;
+  top: 20px; 
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 1;
+}
+
+.progress {
+  background-color: var(--primary-color);
+  position: absolute;
+  top: 20px; 
+  left: 0;
+  height: 4px;
+  width: 0%;
+  z-index: 2;
+  transition: 0.4s ease;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 3;
+}
+
+.circle {
+  background-color: #fff;
+  color: #999;
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--secondary-color);
+  transition: 0.4s ease;
+  margin-bottom: 8px;
+  position: absolute;
+  top: 12.5px; 
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.circle img {
+  width: 12px;
+  height: 12px;
+  display: none;
+}
+
+.step.active .circle img {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.step.active .circle {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  width: 40px;
+  height: 40px;
+  top: 0px; 
+}
+
+.label {
+  font-size: 12px;
+  color: #454343;
+  opacity: 0.6;
+  text-align: center;
+  white-space: nowrap;
+  position: absolute;
+  top: 45px; 
+  padding: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.step.active .label {
+  color: #000000;
+  opacity: 1;
+}
+
+.btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: 0;
+  font-family: inherit;
+  padding: 8px 30px;
+  margin: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  background-color: var(--secondary-color);
+  cursor: not-allowed;
+}
+
+/* supervisor-list css */
+#lecturer-list .supervisors {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.supervisor-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 25px;           
+  margin-bottom: 16px; 
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #D9D9D9;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.supervisor-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.supervisor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;         
+  margin-bottom: 4px; 
+  font-size: 14px;
+}
+
+.supervisor-header h4 {
+  color: #454343;
+  margin: 0;
+}
+
+.supervisor-name {
+  color: #454343;
+}
+
+.capacity {
+  font-size: 16px;
+  color: #000000;
+  margin-left: 20px;
+}
+
+.last-seen,
+.avg-time {
+  font-size: 12px;
+  opacity: 0.8;
+  color: #7e7e7e;
+  margin: 2px 0;
+  line-height: 0.7;
+}
