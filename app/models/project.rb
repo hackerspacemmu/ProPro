@@ -2,6 +2,8 @@ class Project < ApplicationRecord
   belongs_to :enrolment
   belongs_to :ownership
   belongs_to :course
+
+  has_many :project_instances
   #delegate :course, to: :enrolment
 
   enum :status, { pending: 0, approved: 1, rejected: 2 }

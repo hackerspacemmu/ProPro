@@ -1,0 +1,28 @@
+<h1>Edit Proposal</h1>
+
+<%= form_with(model: [@course, @instance], url: course_proposal_path(@course, @proposal), method: :patch) do %>
+  <% @template_fields.each do |field| %>
+    <% next unless field.applicable_to == "topics" %>
+
+    <div class="field">
+      <%= label_tag "fields_#{field.id}", field.label, title: field.hint %>
+
+      <% if field.field_type == "shorttext" %>
+        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control" %>
+      <% elsif field.field_type == "textarea" %>
+        <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control" %>
+      <% else %>
+        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= submit_tag "Update Proposal", class: "btn btn-primary" %>
+
+  <p>
+  <%= link_to "Back to Proposal", course_proposal_path(@course, @proposal) %>
+</p>
+<% end %>
+
+
+

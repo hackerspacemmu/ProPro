@@ -1,0 +1,10 @@
+<h1>Proposals for <%= @course.course_name %></h1>
+
+<ul>
+  <% @proposals.each do |proposal| %>
+    <li>
+      <%= link_to proposal.project_instances.order(version: :desc).first&.title || "Untitled Proposal",
+                  course_proposal_path(@course, proposal) %>
+    </li>
+  <% end %>
+</ul>
