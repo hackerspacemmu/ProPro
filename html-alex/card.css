@@ -21,39 +21,70 @@ body {
 
 .project-card {
     color: #FFFFFF;
-    background-color: #212925;
+    background-color: #1d2f24;
     display: flex;
     flex-wrap: wrap;
     z-index: 0;
     width: 327px;
     height: 175px;
-    overflow: hidden;
     font-size: 14px;
-    border-radius: 15px;
+    border-radius: 12px;
     border: 2px solid #B5B5B5;
+    overflow: visible;
+}
+
+.project-card .lecturer {
+  position: relative;
+  right: -30px;
+  top: -20px;
+
 }
 
 .project-card h4 {
-    margin: 0;
-    padding: 0;
-    position: relative;
-    left: -20px;
-    top: -5px;
+  position: relative;
+  right: -30px;
 }
 
-.project-card p.lecturer {
-    margin: 0;
-    padding: 0;
-    position: relative;
-    left: -20px;
-    top: -7px;
+.project-card ul {
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.project-card li {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
 }
 
 .project-card.inner {
-    position: relative;
-    width: 304px;
-    height: 95px;
-    background-color: #F8F9FA;
-    z-index: 1;
-    left: -10px;
+  position: relative;
+  width: 304px;
+  height: 105px;
+  background-color: #F8F9FA;
+  z-index: 1;
+  right: -30px;
+  top: -20px;
+  border-radius: none;
+  overflow: hidden;
+}
+
+.project-card.inner .text{
+  color: #5D5D5D;
+  white-space: pre-line;
+  line-height: 1.4;
+} 
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-link:hover .project-card {
+  background-color: #275d42; 
+  transition: background-color 0.2s ease-in-out;
+}
+
+.card-link:hover .project-card.inner {
+  background-color: #F8F9FA;
 }
