@@ -1,0 +1,59 @@
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: #F8F9FA;
+}
+
+body {
+  display: grid;
+  grid-template-rows:
+    80px   
+    44px  
+    1fr;   
+  grid-template-columns:
+    255px 
+    1fr;   
+  grid-template-areas:
+    "topbar topbar"
+    "breadcrumb breadcrumb"
+    "sidebar course";
+}
+
+.project-card {
+    color: #FFFFFF;
+    background-color: #212925;
+    display: flex;
+    flex-wrap: wrap;
+    z-index: 0;
+    width: 327px;
+    height: 175px;
+    overflow: hidden;
+    font-size: 14px;
+    border-radius: 15px;
+    border: 2px solid #B5B5B5;
+}
+
+.project-card h4 {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    left: -20px;
+    top: -5px;
+}
+
+.project-card p.lecturer {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    left: -20px;
+    top: -7px;
+}
+
+.project-card.inner {
+    position: relative;
+    width: 304px;
+    height: 95px;
+    background-color: #F8F9FA;
+    z-index: 1;
+    left: -10px;
+}

@@ -6,7 +6,15 @@ class Course < ApplicationRecord
     attribute :student_access, :integer, default: 2
     attribute :lecturer_access, :integer, default: 1
 
-    scope :coordinator, -> () {joins(:enrolments).where(enrolments: {role: :coordinator})}
-    scope :lecturers, -> () {joins(:enrolments).where(enrolments: {role: :lecturers})}
-    scope :students, -> () {joins(:enrolments).where(enrolments: {role: :students})}
+    def coordinator
+        self.enrolments.where(role: :coordinator)
+    end
+
+    def students
+        self.enrolments.where(role: :student)
+    end
+
+    def lecturers
+        self.enrolments.where(role: :lecturer)
+    end
 end
