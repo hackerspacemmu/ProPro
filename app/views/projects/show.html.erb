@@ -54,9 +54,9 @@
 <!-- Change Status --!>
 
 <% if staff? %>
-  <%= form_with url: change_status_course_project_path(@course, @proposal), method: :patch, local: true do |f| %>
+  <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true do |f| %>
     <%= f.label :status, "Change Project Status:" %>
-    <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @proposal.status) %>
+    <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @project.status) %>
     <%= f.submit "Update Status" %>
   <% end %>
 <% end %>
