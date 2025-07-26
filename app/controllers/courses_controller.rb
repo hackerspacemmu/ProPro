@@ -2,37 +2,57 @@ require "csv"
 
 class CoursesController < ApplicationController
   allow_unauthenticated_access only: %i[ new create]
+
     def show
-        @course = Course.find(params[:id])
+    
+      @course = Course.find(params[:id])
+      
+      if @course.grouped?
+        @group = current_user.project_groups.joins(:project_group_members).find_by(project_group_members: {course_id: @course.id})
         
-        if @course.grouped?
-            @group = current_user.project_groups.joins(:project_group_members).find_by(project_group_members: {course_id: @course.id})
-            @project = Project.find_by(owner: @group)
-            @group_list = @course.project_group
+        if @group
+          group_ownership = Ownership.find_by(
+            owner_type: @group.class.name,
+            owner_id: @group.id,
+            ownership_type: :student  
+            )
+          @project = group_ownership ? Project.find_by(ownership: group_ownership, course: @course) : nil
+        end
 
-        else:
-            @group = nil
-            @project = Project.find_by(owner: current_user, course_id: @course.id)
+        @group_list = @ccourse.project_groups
 
-        @description = @course.project_template.description
-        @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
-        @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
-        @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
-        @students_with_projects = @student_list.select do |student|students_with_projects.include?(student.id)
-        @students_without_projects = @student_list.reject do |student|students_with_projects.include?(student.id)
+      else
+          @group = nil
+          user_ownership = Ownership.find_by(
+            owner_type: "User",
+            owner_id: current_user.id,
+            ownership_type: :student  
+          )
+          @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
+      end
+
+      @description = @course.project_template.description
+      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
+      
+      
+      projects_ownerships = Project.joins(:ownership)
+      .where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
+      .where.not(status: :rejected)
+      .pluck("ownerships.owner_id")
+      
+      @students_with_projects = @student_list.select do |student|
+        projects_ownerships.include?(student.id)
+      end 
+    
+      @students_without_projects = @student_list.reject do |student|
+        projects_ownerships.include?(student.id)
+      end
 
     end
-    private 
-    def students_with_projects
-        Project.joins(:ownership).where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
-        .where.not(status: :rejected)
-        .pluck("ownerships.owner_id")
-    end
 
-    def new
-    end
-
-    def create
+      def create
       if !Current.user
         redirect_back_or_to "/", alert: params
         return
@@ -106,17 +126,18 @@ class CoursesController < ApplicationController
         redirect_back_or_to "/", alert: "Invited lecturers cannot be empty"
         return
       end
-=begin
-      if new_course = Course.create(course_name: response[:course_name], )
-      else
-      end
-=end
     end
     
-    private
+    # for testing
+    def new
+        head :no_content
+    end
+    
+    private 
+    
     def parse_csv(grouped, file)
       if grouped
       else
       end
     end
-end
+  end

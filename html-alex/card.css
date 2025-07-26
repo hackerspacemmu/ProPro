@@ -19,6 +19,20 @@ body {
     "sidebar course";
 }
 
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 327px);
+    gap: 20px;
+    justify-content: start;
+}
+
+#topic-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 327px);
+    gap: 20px;
+    justify-content: start;
+}
+
 .project-card {
     color: #FFFFFF;
     background-color: #1d2f24;
@@ -30,7 +44,7 @@ body {
     font-size: 14px;
     border-radius: 12px;
     border: 2px solid #B5B5B5;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .project-card .lecturer {
