@@ -5,9 +5,9 @@
 <! -- Version Selector -->
 
 <% if current_version < oldest_version %>
-  <%= link_to "Previous <", course_proposal_path(@course, @proposal, version: current_version + 1) %>
+  <%= link_to "< Previous", course_proposal_path(@course, @proposal, version: current_version + 1) %>
 <% else %>
-  <span style="color: gray;">Previous < </span>
+  <span style="color: gray;">< Previous</span>
 <% end %>
 
 <% if current_version > latest_version %>
@@ -70,6 +70,8 @@
   <p>Unable to Edit Proposal</p>
   <% end %>
 <% end %>
+
+<p><% @lecturers %></p>
 
 
 

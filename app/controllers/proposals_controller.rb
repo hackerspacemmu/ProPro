@@ -8,10 +8,11 @@ class ProposalsController < ApplicationController
   end
 
 def show
+  
   @courses = Current.user.courses
-  @course = Course.find(params[:course_id]) 
-
+  @course = Course.find(params[:course_id])  
   @proposal = @course.projects.find(params[:id])
+
   @instances = @proposal.project_instances.order(version: :desc)
   @owner = @proposal.ownership&.owner
   @status = @proposal.status
@@ -20,6 +21,7 @@ def show
 
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
+  @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
 
   
 
@@ -57,16 +59,44 @@ end
 
 def edit
   @course = Course.find(params[:course_id])
-  @proposal = @course.projects.find(params[:id])   #for going back
-  #@project = @course.projects.find(params[:id]) #idk why but i cant use proposal so project it is
-  @instance = @proposal.project_instances.find(params[:id])
-
-  # Get template fields linked to the same template as your instance
-  template = ProjectTemplate.find_by(course_id: @course.id)
-  @template_fields = template.project_template_fields if template
-end
-
-
-
-end
+  @proposal = @course.projects.find(params[:id])
+  @instance = @proposal.project_instances.last || @proposal.project_instances.build
   
+  # Exclude lecturer-only fields (applicable_to == 1)
+  @template_fields = @course.project_template.project_template_fields
+                            .where.not(applicable_to: 1)
+
+
+end
+
+def update
+  @course = Course.find(params[:course_id])
+  @proposal = @course.projects.find(params[:id])
+  @instance = @proposal.project_instances.last
+
+
+  unless @instance
+    redirect_to course_proposal_path(@course, @proposal), alert: "No project instance found to update."
+    return
+  end
+
+  # You probably want to update the title — let's get it from the first field
+  title_field_id = params[:fields].keys.first if params[:fields].present?
+  @instance.title = params[:fields][title_field_id] if title_field_id.present?
+
+  if @instance.save
+    if params[:fields].present?
+      params[:fields].each do |field_id, value|
+        field_record = @instance.project_instance_fields.find_or_initialize_by(project_template_field_id: field_id)
+        field_record.value = value
+        field_record.save!
+      end
+    end
+    redirect_to course_proposal_path(@course, @proposal), notice: "Proposal updated successfully."
+  else
+    flash.now[:alert] = "Error saving proposal: #{@instance.errors.full_messages.join(", ")}"
+    @template_fields = @course.project_template.project_template_fields
+    render :edit
+  end
+end
+end
