@@ -3,7 +3,7 @@ class ProjectsController < ApplicationController
   def index
   @courses = Current.user.courses
   @course = Course.find(params[:course_id]) 
-    @projects = @proposals = @course.projects.joins(:enrolment)
+    @projects = @course.projects.joins(:enrolment)
                       .where(enrolments: { course_id: @course.id, user_id: current_user.id, role: :student })
 
   end
