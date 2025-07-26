@@ -5,13 +5,13 @@
 <! -- Version Selector -->
 
 <% if current_version < oldest_version %>
-  <%= link_to "< Previous", course_proposal_path(@course, @proposal, version: current_version + 1) %>
+  <%= link_to "< Previous", course_project_path(@course, @project, version: current_version + 1) %>
 <% else %>
   <span style="color: gray;">< Previous</span>
 <% end %>
 
 <% if current_version > latest_version %>
-  <%= link_to "Next >", course_proposal_path(@course, @proposal, version: current_version - 1) %>
+  <%= link_to "Next >", course_project_path(@course, @project, version: current_version - 1) %>
 <% else %>
   <span style="color: gray;">Next ></span>
 <% end %>
@@ -49,25 +49,24 @@
 <% end %>
 
 
-<p><strong>Status: </strong><%= @proposal.status %></p>
+<p><strong>Status: </strong><%= @project.status %></p>
 
 <!-- Change Status --!>
+
 <% if staff? %>
-  <% if staff? %>
-  <%= form_with url: change_status_course_proposal_path(@course, @proposal), method: :patch, local: true do |f| %>
+  <%= form_with url: change_status_course_project_path(@course, @proposal), method: :patch, local: true do |f| %>
     <%= f.label :status, "Change Project Status:" %>
     <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @proposal.status) %>
     <%= f.submit "Update Status" %>
   <% end %>
 <% end %>
-<% end %>
 
 <!-- Student Edit -->
 <% if @members.include?(current_user) %>
-   <% if @proposal.status == "pending" && current_version == latest_version %>
-   <%= link_to "Edit Proposal", edit_course_proposal_path(@course, @proposal), class: "btn" %>
+   <% if @project.status == "pending" && current_version == latest_version %>
+   <%= link_to "Edit Proposal", edit_course_project_path(@course, @project), class: "btn" %>
    <% else %>
-  <p>Unable to Edit Proposal</p>
+  <p>Unable to Edit Project</p>
   <% end %>
 <% end %>
 
@@ -77,5 +76,5 @@
 
 
 <p>
-  <%= link_to "Back to all proposals", course_proposals_path(@course) %>
+  <%= link_to "Back to all proposals", course_projects_path(@course) %>
 </p>

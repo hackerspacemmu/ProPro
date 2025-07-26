@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
   resources :courses, only: [:show, :new, :create] do
-  resources :proposals, only: [:index, :show, :edit, :update] do
+  resources :projects, only: [:index, :show, :edit, :update] do
     member do
       patch :change_status
     end

@@ -1,23 +1,24 @@
-class ProposalsController < ApplicationController
+class ProjectsController < ApplicationController
 
   def index
   @courses = Current.user.courses
   @course = Course.find(params[:course_id]) 
-    @proposals = @course.projects.joins(:enrolment)
-                        .where(enrolments: { course_id: @course.id, user_id: current_user.id })
+    @projects = @proposals = @course.projects.joins(:enrolment)
+                      .where(enrolments: { course_id: @course.id, user_id: current_user.id, role: :student })
+
   end
 
 def show
   
   @courses = Current.user.courses
   @course = Course.find(params[:course_id])  
-  @proposal = @course.projects.find(params[:id])
+  @project = @course.projects.find(params[:id])
 
-  @instances = @proposal.project_instances.order(version: :desc)
-  @owner = @proposal.ownership&.owner
-  @status = @proposal.status
+  @instances = @project.project_instances.order(version: :desc)
+  @owner = @project.ownership&.owner
+  @status = @project.status
 
-  @type = @proposal.ownership&.ownership_type
+  @type = @project.ownership&.ownership_type
 
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
@@ -47,20 +48,20 @@ end
 def change_status
   @courses = Current.user.courses
   @course = Course.find(params[:course_id]) 
-  @proposal = @course.projects.find(params[:id])
+  @project = @course.projects.find(params[:id])
 
   if current_user.is_staff
-    @proposal.update(status: Project.statuses.key(params[:status].to_i))
-    redirect_to course_proposal_path(@course, @proposal), notice: "Status updated."
+    @project.update(status: Project.statuses.key(params[:status].to_i))
+    redirect_to course_project_path(@course, @project), notice: "Status updated."
   else
-    redirect_to course_proposal_path(@course, @proposal), alert: "You are not authorized to perform this action."
+    redirect_to course_project_path(@course, @project), alert: "You are not authorized to perform this action."
   end
 end
 
 def edit
   @course = Course.find(params[:course_id])
-  @proposal = @course.projects.find(params[:id])
-  @instance = @proposal.project_instances.last || @proposal.project_instances.build
+  @project = @course.projects.find(params[:id])
+  @instance = @project.project_instances.last || @project.project_instances.build
   
   # Exclude lecturer-only fields (applicable_to == 1)
   @template_fields = @course.project_template.project_template_fields
@@ -71,12 +72,12 @@ end
 
 def update
   @course = Course.find(params[:course_id])
-  @proposal = @course.projects.find(params[:id])
-  @instance = @proposal.project_instances.last
+  @project = @course.projects.find(params[:id])
+  @instance = @project.project_instances.last
 
 
   unless @instance
-    redirect_to course_proposal_path(@course, @proposal), alert: "No project instance found to update."
+    redirect_to course_project_path(@course, @project), alert: "No project instance found to update."
     return
   end
 
@@ -92,9 +93,9 @@ def update
         field_record.save!
       end
     end
-    redirect_to course_proposal_path(@course, @proposal), notice: "Proposal updated successfully."
+    redirect_to course_project_path(@course, @project), notice: "project updated successfully."
   else
-    flash.now[:alert] = "Error saving proposal: #{@instance.errors.full_messages.join(", ")}"
+    flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(", ")}"
     @template_fields = @course.project_template.project_template_fields
     render :edit
   end
