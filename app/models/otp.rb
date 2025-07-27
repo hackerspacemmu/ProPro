@@ -1,3 +1,3 @@
 class Otp < ApplicationRecord
-    validates :email_address, uniqueness: true
+    belongs_to :user
 end

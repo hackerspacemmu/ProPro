@@ -1,0 +1,12 @@
+<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+
+<%= form_with url: handle_add_people_course_path, method: :post do |form| %>
+  <p>Upload CSV export from EBwise: </p>
+  <%= form.file_field :csv_file %>
+
+  <p>Add lecturers<br>Use format <strong>EMAIL&semi;</strong> for each entry</p>
+  <%= form.text_field :invited_lecturers, required: true, placeholder: "Additions"%><br>
+
+  <%= form.submit "Add Lecturer/Students" %>
+<% end %>
