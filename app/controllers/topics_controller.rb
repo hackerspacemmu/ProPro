@@ -1,4 +1,4 @@
-class ProjectsController < ApplicationController
+class TopicsController < ApplicationController
 
 before_action :access
 
@@ -16,7 +16,7 @@ def show
 
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
-  @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+  @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
 
   if @owner.is_a?(ProjectGroup)
@@ -39,17 +39,21 @@ end
 
 def change_status
 
-  if current_user.is_staff
+  @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
+
+
+  if @is_coordinator
     @project.update(status: Project.statuses.key(params[:status].to_i))
-    redirect_to course_project_path(@course, @project), notice: "Status updated."
+    redirect_to course_topic_path(@course, @project), notice: "Status updated."
   else
-    redirect_to course_project_path(@course, @project), alert: "You are not authorized to perform this action."
+    redirect_to course_topic_path(@course, @project), alert: "You are not authorized to perform this action."
   end
 
 end
 
 def edit
 
+  @project = @course.projects.find(params[:id])
   @instance = @project.project_instances.last || @project.project_instances.build
   
   # Exclude lecturer-only fields (applicable_to == 1)
@@ -63,7 +67,7 @@ def update
   @instance = @project.project_instances.last
 
   unless @instance
-    redirect_to course_project_path(@course, @project), alert: "No project instance found to update."
+    redirect_to course_topic_path(@course, @project), alert: "No project instance found to update."
     return
   end
 
@@ -75,8 +79,6 @@ def update
     redirect_to course_projects_path(@course), alert: "You are not authorized"
   end
 
-
-
   if @instance.save
     if params[:fields].present?
       params[:fields].each do |field_id, value|
@@ -85,7 +87,7 @@ def update
         field_record.save!
       end
     end
-    redirect_to course_project_path(@course, @project), notice: "project updated successfully."
+    redirect_to course_topic_path(@course, @project), notice: "project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(", ")}"
     @template_fields = @course.project_template.project_template_fields
@@ -99,40 +101,40 @@ def access
   @courses = Current.user.courses
   @course = Course.find(params[:course_id])
 
-  student_projects = @course.projects.select do |project|
+  lecturer_projects = @course.projects.select do |project|
     owner = project.ownership&.owner
-    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :student)
+    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
   end
 
   if @course.owner_only?
 
    if params[:id]
-      @project = student_project.find { |p| p.id == params[:id].to_i }
+      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
       redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
     else
-      @projects = student_project.select { |p| p.ownership&.owner == current_user }
+      @projects = lecturer_projects.select { |p| p.ownership&.owner == current_user }
     end
 
   elsif @course.own_lecturer_only?
 
   if params[:id]
-      @project = student_projects.find { |p| p.id == params[:id].to_i }
+      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
       redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
     else
       if current_user.is_staff?
-        @projects = student_projects  # all lecturer projects
+        @projects = lecturer_projects  # all lecturer projects
       else
-        @projects = student_projects.select { |p| p.ownership&.owner == current_user }
+        @projects = lecturer_projects.select { |p| p.ownership&.owner == current_user }
       end
     end
 
  
   elsif @course.no_restriction?
     if params[:id]
-      @project = student_project.find { |p| p.id == params[:id].to_i }
+      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
       redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
     else
-      @projects = student_project
+      @projects = lecturer_projects
     end
   end
 end

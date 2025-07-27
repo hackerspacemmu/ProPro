@@ -14,6 +14,11 @@ Rails.application.routes.draw do
       patch :change_status
     end
   end
+  resources :topics, only: [:index, :show, :edit, :update] do 
+    member do
+      patch :change_status
+    end
+  end
 end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -1,0 +1,32 @@
+<h1>Edit Topic</h1>
+
+<%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch) do %>
+  <% @template_fields.each do |field| %>
+    <div class="field">
+      <%= label_tag "fields_#{field.id}", field.label, title: field.hint %>
+
+      <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
+
+      <% case field.field_type %>
+      <% when "shorttext" %>
+        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+      <% when "textarea" %>
+        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+      <% when "dropdown" %>
+        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
+      <% else %>
+        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= submit_tag "Update Topic", class: "btn btn-primary" %>
+<% end %>
+
+  <p>
+  <%= link_to "Back to Topics", course_topic_path(@course, @project) %>
+</p>
+
+
+
+
