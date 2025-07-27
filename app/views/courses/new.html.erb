@@ -1,56 +1,28 @@
 <%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
 <%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
 
-<%= form_with url: courses_path, method: :post do |form| %>
-  <%= form.label :course_name, "Course Name:" %><br>
-  <%= form.search_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name"%><br>
-  <%= form.label :projects_per_supervisor, "Maximum projects per supervisor:" %><br>
-  <%= form.search_field :projects_per_supervisor, required: true, placeholder: "Enter maximum number of projects per supervisor"%><br>
-  
-  <p>Lecturer proposed topics require coordinator approval?</p>
-  <%= form.radio_button :require_coordinator_approval, "true" %>
-  <%= form.label :require_coordinator_approval, "True" %>
-  <%= form.radio_button :require_coordinator_approval, "false" %>
-  <%= form.label :require_coordinator_approval, "False" %><br>
+<%= form_with url: courses_path, model: @new_course, method: :post do |form| %>
+  <% if @new_course.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@new_course.errors.count, "error") %> prohibited this course from being saved:</h2>
+      <ul>
+        <% @new_course.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form.label :course_name, "Course Name:" %>
+  <%= form.text_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name"%>
+  <br>
 
   <p>Use groups?</p>
   <%= form.radio_button :grouped, "true" %>
-  <%= form.label :grouped, "True" %>
+  <%= form.label :grouped, "True", value: true %>
   <%= form.radio_button :grouped, "false" %>
-  <%= form.label :grouped, "False" %><br>
-  
-  <p>Upload CSV export from EBwise: </p>
-  <%= form.file_field :csv_file %>
-
-  <p>Use progress updates?</p>
-  <%= form.radio_button :use_progress_updates, "true" %>
-  <%= form.label :use_progress_updates, "True" %>
-  <%= form.radio_button :use_progress_updates, "false" %>
-  <%= form.label :use_progress_updates, "False" %><br>
-  <%= form.search_field :number_of_progress_updates, placeholder: "Number of progress updates" %><br>
-
-  <p>Lecturer views public for other lecturers?</p>
-  <%= form.radio_button :lecturer_access, "true" %>
-  <%= form.label :lecturer_access, "True" %>
-  <%= form.radio_button :lecturer_access, "false" %>
-  <%= form.label :lecturer_access, "False" %><br>
-  
-  <p>Students can see projects from?</p>
-  <%= form.collection_radio_buttons :student_access, Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] }, :first, :last do |b| %>
-    <%= b.radio_button %>
-    <%= b.label %>
-  <% end %>
-
-  <p>Add lecturers<br>Use format <strong>NAME, &ltEMAIL&gt&semi;</strong> for each entry</p>
-  <%= form.search_field :invited_lecturers, required: true, placeholder: "Additions"%><br>
+  <%= form.label :grouped, "False", value: false %>
   <br>
 
   <%= form.submit "Create Course" %>
 <% end %>
-
-<script>
-  var progressUpdateField = document.getElementById("number_of_progress_updates")
-  progressUpdateField.hidden = true
-  document.getElementById("progress_updates_true").addEventListener("click", () => {progressUpdateField.hidden = false});
-  document.getElementById("progress_updates_false").addEventListener("click", () => {progressUpdateField.hidden = true});
-</script>

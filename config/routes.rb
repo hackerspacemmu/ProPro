@@ -1,10 +1,8 @@
 Rails.application.routes.draw do
-  get "user/new"
   post "user/create"
-  get "user/get_otp"
-  post "user/create_otp"
   get "user/new_staff"
   get "user/new_student"
+
 
   resource :session
   resources :passwords, param: :token
@@ -14,7 +12,13 @@ Rails.application.routes.draw do
       patch :change_status
     end
   end
-end
+
+  member do
+    get 'add_people'
+    post 'handle_add_people'
+  end
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -54,22 +54,24 @@ course_no_groups = Course.create!(
   course_name: "CSP1123NoGroups",
   number_of_updates: 3,
   starting_week: 1,
-  student_access: 1,
-  lecturer_access: 2,
+  student_access: "no_restriction",
+  lecturer_access: true,
   grouped: false,
   supervisor_projects_limit: 10,
-  require_coordinator_approval: false
+  require_coordinator_approval: false,
+  use_progress_updates: false
 )
 
 course_with_groups = Course.create!(
   course_name: "SubjectUsingGroups", 
   number_of_updates: 2,
   starting_week: 2,
-  student_access: 1,
-  lecturer_access: 2,
+  student_access: "own_lecturer_only",
+  lecturer_access: false,
   grouped: true,
   supervisor_projects_limit: 6,
-  require_coordinator_approval: false
+  require_coordinator_approval: false,
+  use_progress_updates: true
 )
 
 # Create Enrolments
@@ -335,13 +337,15 @@ ProgressUpdate.create!(
 
 # Create OTPs
 Otp.create!(
-  email_address: "alex@student.mmu.edu.my",
-  otp: "123456"
+  user: soo,
+  otp: "123456",
+  token: "d46c8b1e-f6b7-4b1c-ad1b-baf8c6f8b87e"
 )
 
 Otp.create!(
-  email_address: "willie@mmu.edu.my", 
-  otp: "654321"
+  user: willie,
+  otp: "654321",
+  token: "c69bf258-ec55-4f06-900a-d4cd298308e1"
 )
 
 # Create Sessions
