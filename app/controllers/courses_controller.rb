@@ -26,12 +26,6 @@ class CoursesController < ApplicationController
         @students_without_projects = @student_list.reject do |student|students_with_projects.include?(student.id) end
 
     end
-    private 
-    def students_with_projects
-        Project.joins(:ownership).where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
-        .where.not(status: :rejected)
-        .pluck("ownerships.owner_id")
-    end
 
     def new
       if !Current.user.is_staff
@@ -40,9 +34,6 @@ class CoursesController < ApplicationController
       end
 
       @new_course = Course.new
-    end
-
-    def settings
     end
 
     def add_people
@@ -71,7 +62,7 @@ class CoursesController < ApplicationController
         redirect_back_or_to "/", alert: "Permission denied"
         return
       end
-      
+
       unregistered_students = Set[]
       unregistered_lecturers = Set[]
 
@@ -94,7 +85,7 @@ class CoursesController < ApplicationController
         redirect_back_or_to "/", alert: "CSV parsing failed"
         return
       end
-      
+
       columns_to_check = ["Last name", "ID number", "Email address"]
 
       columns_to_check.each do |column|
@@ -165,12 +156,19 @@ class CoursesController < ApplicationController
         @new_course.destroy
         redirect_back_or_to "/", alert: "Course creation failed"
       end
-    
-      redirect_to @new_course, notice: "Course successfully created"
+
+      redirect_to add_people_course_path(@new_course), notice: "Course successfully created"
     end
   end
-    
+
   private
+  def students_with_projects
+      Project.joins(:ownership).where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
+      .where.not(status: :rejected)
+      .pluck("ownerships.owner_id")
+  end
+
+    
   def parse_csv_grouped(csv_obj, columns_to_check)
     ret = {}
 
@@ -234,10 +232,16 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        new_group_member = ProjectGroupMember.find_or_create_by!(
-          user: new_user,
-          project_group: new_group
-        )
+        new_group_member = ProjectGroupMember.find_by(user: new_user)
+
+        if new_group_member
+          new_group_member.update!(project_group: new_group)
+        else
+          new_group_member = ProjectGroupMember.create!(
+            user: new_user,
+            project_group: new_group
+          )
+        end
       end
     end
   end
