@@ -4,12 +4,12 @@
     <%= stylesheet_link_tag "courses" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= @course.course_name %> - Course View</title>
+    <title><%= current_user.username %>'s <%= @course.course_name %> Course View</title>
   </head>
   
   <body>
     <header id="top-bar">
-      <h1><%= @course.course_name %> - Course View</h1>
+      <h1><%= current_user.username %>'s Course View</h1>
     </header>
 
     <header id="breadcrumb">
@@ -24,254 +24,130 @@
     <main id="course">
       <section>
         <header>
-          <h2><%= @course.course_name %></h2>
+          <h2><%= @course.course_name.upcase %></h2>
         </header>
         
-        <!-- Project Details Section -->
         <article id="description">
-          <h3 id="description-title">Project Description</h3>
-          <p id="text">
-            <%= @description || "No project description available. Please contact your coordinator." %>
-          </p>
+          <h3 id="description-title">Proposal Guidelines</h3>
+          <p id="text"><%= @description || "No description available for this course." %></p>
         </article>
         
-        <!-- Student Only: Project Status -->
-        <% if @current_user_role == 'student' %>
-          <section id="status-bar">
-            <h3>Your Proposal Status</h3>
-            <div class="container">
-              <div class="progress-container">
-                <div class="progress" id="progress"></div> 
-                  <div class="step <%= 'active' if @user_project_status == 'not_submitted' || @user_project_status == 'pending' %>">
-                    <div class="circle"><img src="pending.svg"></div>
-                    <div class="label">Pending</div>
-                  </div>
-                  <div class="step <%= 'active' if @user_project_status == 'rejected' %>">
-                    <div class="circle"><img src="redo.svg"></div>
-                    <div class="label">Redo</div>
-                  </div>
-                  <div class="step <%= 'active' if @user_project_status == 'under_review' %>">
-                    <div class="circle"><img src="in_review.svg"></div>
-                    <div class="label">In review</div>
-                  </div>
-                  <div class="step <%= 'active' if @user_project_status == 'approved' %>">
-                    <div class="circle"><img src="approved.svg"></div>
-                    <div class="label">Approved</div>
-                  </div>
+        <section id="status-bar">
+          <h3>Proposal Status</h3>
+          <div class="container">
+            <div class="progress-container">
+              <div class="progress" id="progress"></div> 
+                <div class="step <%= @project&.status == 'pending' ? 'active' : '' %>">
+                  <div class="circle"><%= image_tag("pending.svg") %></div>
+                  <div class="label">Pending</div>
                 </div>
-                <div class="status-info">
-                  <p><strong>Current Status:</strong> <%= @user_project_status.humanize %></p>
-                  <% if @project&.project_instance %>
-                    <p><strong>Last Submitted:</strong> <%= @project.project_instance.submitted_at&.strftime("%B %d, %Y at %I:%M %p") || "Draft" %></p>
-                  <% end %>
+                <div class="step <%= @project&.status == 'redo' ? 'active' : '' %>">
+                  <div class="circle"><%= image_tag("redo.svg") %></div>
+                  <div class="label">Redo</div>
+                </div>
+                <div class="step <%= @project&.status == 'in_review' ? 'active' : '' %>">
+                  <div class="circle"><%= image_tag("in_review.svg") %></div>
+                  <div class="label">In review</div>
+                </div>
+                <div class="step <%= @project&.status == 'approved' ? 'active' : '' %>">
+                  <div class="circle"><%= image_tag("approved.svg") %></div>
+                  <div class="label">Approved</div>
                 </div>
               </div>
-          </section>
-        <% end %>
-
-        <!-- Lecturer Only: Submitted Proposals -->
-        <% if @current_user_role == 'lecturer' %>
-          <section id="submitted-proposals">
-            <h3>Proposals Submitted to You</h3>
-            <% if @submitted_proposals.any? %>
-              <div class="proposals-list">
-                <% @submitted_proposals.each do |proposal| %>
-                  <div class="proposal-card">
-                    <h4><%= proposal.project_instance&.title || "Untitled Proposal" %></h4>
-                    <p class="proposal-owner">
-                      By: <%= proposal.ownership.owner_type == 'User' ? proposal.ownership.owner.username : proposal.ownership.owner.group_name %>
-                    </p>
-                    <p class="proposal-status">Status: <span class="<%= proposal.status %>"><%= proposal.status.humanize %></span></p>
-                    <p class="proposal-date">
-                      Submitted: <%= proposal.project_instance&.submitted_at&.strftime("%B %d, %Y") || "Not submitted" %>
-                    </p>
-                    <a href="#" class="btn-review">Review Proposal</a>
-                  </div>
-                <% end %>
-              </div>
-            <% else %>
-              <p>No proposals have been submitted to you yet.</p>
-            <% end %>
-          </section>
-        <% end %>
+            </div>
+        </section>
         
-        <!-- Supervisor List -->
         <section id="lecturer-list">
           <h3>Supervisors Available</h3>
           <ul class="supervisors">
-            <% @lecturers.each do |lecturer_enrolment| %>
-              <% lecturer = lecturer_enrolment %>
+            <% @lecturers.each do |lecturer| %>
               <li class="profile">
                 <div class="avatar"><%= lecturer.username.first.upcase %></div>
                 <div class="info">
                   <div class="top">
                     <div class="name"><%= lecturer.username %></div>
-                    <span class="capacity> 0/4 </span>
+                    <span class="capacity">0/4</span> 
                   </div>
-                  <div class="last-seen"> 4 hours ago</div>
-                  <div class="avg-time"> avg response time - 1 day</div>
-                  <% if @current_user_role == 'student' %>
-                  <% end %>
+                  <div class="last-seen">last seen yesterday</div> <!-- Placeholder -->
+                  <div class="avg-time">avg response time – 1 day</div> <!-- Placeholder -->
                 </div>
               </li>
             <% end %>
           </ul>
         </section>
-
-        <!-- Student Only: Available Topics -->
-        <% if @current_user_role == 'student' && @available_topics.any? %>
-          <section id="topic-list">
-            <h3>Available Topics</h3>
-            <div class="cards-container">
-              <% @available_topics.each do |topic| %>
-                <% lecturer = topic.ownership.owner %>
-                <a href="#" class="card-link" data-topic-id="<%= topic.id %>">
+        
+        <section id="topic-list">
+          <h3>Topics</h3>
+          <div class="cards-container">
+            <% @topic_list.each do |project| %>
+              <% project_instance = project.project_instances.order(:version).last %>
+              <% if project_instance %>
+                <a href="#" class="card-link">
                   <div class="project-card">
-                    <h4><%= topic.project_instance&.title || "Topic #{topic.id}" %></h4>
-                    <p class="lecturer">Supervisor: <%= lecturer.username %></p>
-                    <div class="topic-description">
-                      <% if topic.project_instance %>
-                        <% topic.project_instance.project_instance_fields.each do |field| %>
-                          <p><strong><%= field.project_template_field.label %>:</strong></p>
-                          <p class="field-value"><%= truncate(field.value, length: 150) %></p>
-                        <% end %>
-                      <% else %>
-                        <p>No detailed description available. Contact supervisor for more information.</p>
-                      <% end %>
-                    </div>
-                    <div class="topic-actions">
-                      <button class="btn-propose">Submit Proposal for This Topic</button>
-                    </div>
+                    <ul>
+                      <h4><%= project_instance.title %></h4>
+                      <p class="lecturer"><%= project.ownership.owner.username if project.ownership.owner.respond_to?(:username) %></p>
+                      <ul>
+                        <li class="project-card inner">
+                          <% description_field = project_instance.project_instance_fields.joins(:project_template_field).find_by(project_template_fields: { label: 'Description' }) %>
+                          <p class="text"><%= description_field&.value || "No description available" %></p>
+                        </li>   
+                      </ul>
+                    </ul>
                   </div>
                 </a>
               <% end %>
-            </div>
-          </section>
-        <% end %>
-
-        <!-- Lecturer Only: Pending Students/Groups -->
-        <% if @current_user_role == 'lecturer' %>
-          <section id="pending-students">
-            <h3>Students/Groups Without Approved Projects</h3>
-            <% if @pending_students.any? %>
-              <ul class="pending-list">
-                <% @pending_students.each do |student_enrolment| %>
-                  <li class="pending-item">
-                    <h4><%= student_enrolment.user.username %></h4>
-                    <p>Status: No approved project</p>
-                    <p>Student ID: <%= student_enrolment.user.student_id %></p>
-                    <% if @course.grouped? %>
-                      <% group = student_enrolment.user.project_groups.joins(:course).find_by(courses: { id: @course.id }) %>
-                      <% if group %>
-                        <p>Group: <%= group.group_name %></p>
-                      <% else %>
-                        <p class="warning">Not assigned to any group</p>
-                      <% end %>
+            <% end %>
+          </div>
+        </section>
+        
+        <section id="participants">
+          <h3>Participants</h3>
+          <ul>
+            <% if @course.grouped? %>
+              <% @group_list&.each do |group| %>
+                <li>
+                  <h4><%= group.group_name %></h4>
+                  <% group_project = Project.joins(:ownership).find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id }, course: @course) %>
+                  <p>proposal status: <%= group_project&.status || 'no project' %></p>
+                  <ul>
+                    <% group.project_group_members.includes(:user).each do |member| %>
+                      <li><%= member.user.username %></li>
                     <% end %>
-                    <a href="#" class="btn-contact">Contact Student</a>
-                  </li>
-                <% end %>
-              </ul>
+                  </ul>
+                </li>
+              <% end %>
             <% else %>
-              <p>All students have approved projects.</p>
+              <% @students_with_projects.each do |student| %>
+                <% student_project = Project.joins(:ownership).find_by(ownerships: { owner_type: 'User', owner_id: student.id }, course: @course) %>
+                <li>
+                  <h4><%= student.username %></h4>
+                  <p>proposal status: <%= student_project&.status || 'pending' %></p>
+                </li>
+              <% end %>
+              
+              <% @students_without_projects.each do |student| %>
+                <li>
+                  <h4><%= student.username %></h4>
+                  <p>proposal status: no project</p>
+                </li>
+              <% end %>
             <% end %>
-          </section>
-
-          <!-- My Topics Section -->
-          <section id="my-topics">
-            <h3>My Topics</h3>
-            <% if @my_topics.any? %>
-              <div class="my-topics-list">
-                <% @my_topics.each do |topic| %>
-                  <div class="topic-card">
-                    <h4><%= topic.project_instance&.title || "Topic #{topic.id}" %></h4>
-                    <p class="topic-status">Status: <%= topic.status.humanize %></p>
-                    <p class="created-date">Created: <%= topic.created_at.strftime("%B %d, %Y") %></p>
-                    <div class="topic-actions">
-                      <a href="#" class="btn-edit">Edit Topic</a>
-                      <a href="#" class="btn-view-proposals">View Proposals (<%= count_proposals_for_topic(topic) %>)</a>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-            <% else %>
-              <p>You haven't created any topics yet.</p>
-              <a href="#" class="btn-create-topic">Create New Topic</a>
-            <% end %>
-          </section>
-        <% end %>
-
-        <!-- Coordinator Only: All Submitted Topics -->
-        <% if @current_user_role == 'coordinator' %>
-          <section id="all-topics">
-            <h3>All Submitted Topics</h3>
-            <% if @all_submitted_topics.any? %>
-              <div class="all-topics-grid">
-                <% @all_submitted_topics.group_by { |topic| topic.ownership.owner }.each do |lecturer, topics| %>
-                  <div class="lecturer-topics">
-                    <h4><%= lecturer.username %> (<%= topics.count %> topics)</h4>
-                    <% topics.each do |topic| %>
-                      <div class="topic-summary">
-                        <h5><%= topic.project_instance&.title || "Topic #{topic.id}" %></h5>
-                        <p>Status: <%= topic.status.humanize %></p>
-                        <p>Proposals: <%= count_proposals_for_topic(topic) %></p>
-                      </div>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            <% else %>
-              <p>No topics have been submitted yet.</p>
-            <% end %>
-          </section>
-
-          <section id="all-proposals">
-            <h3>All Student Proposals</h3>
-            <% if @all_proposals.any? %>
-              <div class="proposals-overview">
-                <% @all_proposals.group_by(&:status).each do |status, proposals| %>
-                  <div class="status-group">
-                    <h4><%= status.humanize %> (<%= proposals.count %>)</h4>
-                    <% proposals.each do |proposal| %>
-                      <div class="proposal-summary">
-                        <p><strong><%= proposal.project_instance&.title || "Untitled" %></strong></p>
-                        <p>By: <%= proposal.ownership.owner_type == 'User' ? proposal.ownership.owner.username : proposal.ownership.owner.group_name %></p>
-                        <p>Supervisor: <%= proposal.enrolment.user.username if proposal.enrolment %></p>
-                      </div>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            <% else %>
-              <p>No proposals have been submitted yet.</p>
-            <% end %>
-          </section>
-        <% end %>
+          </ul>
+        </section>
+      </section>
     </main>
-      
-      
     
     <aside id="sidebar">
       <nav>
         <ul>
-          <li><a href="#description">Project Description</a></li>
-          <% if @current_user_role == 'student' %>
-            <li><a href="#status-bar">Your Status</a></li>
-            <li><a href="#topic-list">Available Topics</a></li>
-          <% elsif @current_user_role == 'lecturer' %>
-            <li><a href="#submitted-proposals">Submitted Proposals</a></li>
-            <li><a href="#pending-students">Pending Students</a></li>
-            <li><a href="#my-topics">My Topics</a></li>
-          <% elsif @current_user_role == 'coordinator' %>
-            <li><a href="#all-topics">All Topics</a></li>
-            <li><a href="#all-proposals">All Proposals</a></li>
-          <% end %>
-          <li><a href="#lecturer-list">Supervisors</a></li>
+          <li><a href="#description">Proposal Guidelines</a></li>
+          <li><a href="#lecturer-list">Supervisors Available</a></li>
+          <li><a href="#topic-list">Topics</a></li>
           <li><a href="#participants">Participants</a></li>
         </ul>
       </nav>
     </aside>
-  
-    <script src="app.js"></script>
+    <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
   </body>
 </html>
