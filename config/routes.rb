@@ -8,7 +8,13 @@ Rails.application.routes.draw do
 
   resource :session
   resources :passwords, param: :token
-  resources :courses, only: [:show, :new, :create]
+  resources :courses, only: [:show, :new, :create] do
+  resources :projects, only: [:index, :show, :edit, :update] do
+    member do
+      patch :change_status
+    end
+  end
+end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

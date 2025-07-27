@@ -1,25 +1,28 @@
 require "csv"
 
 class CoursesController < ApplicationController
-  allow_unauthenticated_access only: %i[ new create]
+
     def show
         @course = Course.find(params[:id])
         
         if @course.grouped?
             @group = current_user.project_groups.joins(:project_group_members).find_by(project_group_members: {course_id: @course.id})
-            @project = Project.find_by(owner: @group)
+            @project = Project.find_by(ownership: @group)
             @group_list = @course.project_group
 
-        else:
+        else
             @group = nil
-            @project = Project.find_by(owner: current_user, course_id: @course.id)
+            @project = Project.find_by(ownership: current_user, course_id: @course.id)
 
-        @description = @course.project_template.description
+        end
+
+        
+        #@description = @course.project_template.description errors out since project_template has no desc
         @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
         @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
         @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
-        @students_with_projects = @student_list.select do |student|students_with_projects.include?(student.id)
-        @students_without_projects = @student_list.reject do |student|students_with_projects.include?(student.id)
+        @students_with_projects = @student_list.select do |student|students_with_projects.include?(student.id) end
+        @students_without_projects = @student_list.reject do |student|students_with_projects.include?(student.id) end
 
     end
     private 
