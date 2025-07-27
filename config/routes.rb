@@ -7,16 +7,15 @@ Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
   resources :courses, only: [:show, :new, :create] do
+    member do
+      get 'add_people'
+      post 'handle_add_people'
+    end
+  end
   resources :projects, only: [:index, :show, :edit, :update] do
     member do
       patch :change_status
     end
-  end
-
-  member do
-    get 'add_people'
-    post 'handle_add_people'
-  end
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
