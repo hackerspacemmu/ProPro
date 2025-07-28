@@ -97,6 +97,7 @@ end
 
 private 
 
+
 def access
   @courses = Current.user.courses
   @course = Course.find(params[:course_id])
@@ -105,17 +106,6 @@ def access
     owner = project.ownership&.owner
     owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
   end
-
-  if @course.owner_only?
-
-   if params[:id]
-      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
-      redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
-    else
-      @projects = lecturer_projects.select { |p| p.ownership&.owner == current_user }
-    end
-
-  elsif @course.own_lecturer_only?
 
   if params[:id]
       @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
@@ -127,15 +117,5 @@ def access
         @projects = lecturer_projects.select { |p| p.ownership&.owner == current_user }
       end
     end
-
- 
-  elsif @course.no_restriction?
-    if params[:id]
-      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
-      redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
-    else
-      @projects = lecturer_projects
-    end
   end
-end
 end
