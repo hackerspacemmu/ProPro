@@ -18,7 +18,6 @@ def show
 
   @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
-
   if @owner.is_a?(ProjectGroup)
     @members = @owner.users  #All memebers if group project
   else
@@ -107,15 +106,21 @@ def access
     owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
   end
 
+  @is_student = @course.enrolments.exists?(user: current_user, role: :student)
+
+
   if params[:id]
-      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
-      redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
+    @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
+
+    if @project.nil? || (@is_student && !@project.approved?)
+      redirect_to course_topics_path(@course), alert: "You are not authorized"
+    end
+  else
+    if @is_student
+      @projects = lecturer_projects.select(&:approved?)
     else
-      if current_user.is_staff?
-        @projects = lecturer_projects  # all lecturer projects
-      else
-        @projects = lecturer_projects.select { |p| p.ownership&.owner == current_user }
-      end
+      @projects = lecturer_projects # all lecturers can see all lecturer topics
     end
   end
+end
 end
