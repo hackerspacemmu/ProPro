@@ -104,35 +104,58 @@ def access
     owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :student)
   end
 
-  if @course.owner_only?
+  if @course.enrolments.exists?(user: current_user, role: :coordinator)
+    @projects = student_projects
+    @project = @projects.find { |p| p.id == params[:id].to_i } if params[:id]
+    return
+  end
 
-   if params[:id]
+  #If lecturer_access is true then lecturer can view all projects
+  if @course.lecturer_access && @course.lecturers.exists?(user: current_user)
+    @projects = student_projects
+    @project = @projects.find { |p| p.id == params[:id].to_i } if params[:id]
+    return
+  end
+
+  if @course.owner_only?
+    
+    if params[:id]
       @project = student_projects.find { |p| p.id == params[:id].to_i }
       redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
     else
       @projects = student_projects.select { |p| p.ownership&.owner == current_user }
     end
 
-  elsif @course.own_lecturer_only?
-
-  if params[:id]
-      @project = student_projects.find { |p| p.id == params[:id].to_i }
-      redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
-    else
-      if current_user.is_staff?
-        @projects = student_projects  # all lecturer projects
+    elsif @course.own_lecturer_only?
+      if params[:id]
+        @project = student_projects.find { |p| p.id == params[:id].to_i }
+        unless @project && (
+          @project.ownership&.owner == current_user ||    # owner
+          @project.supervisor.user == current_user        # supervisor
+        )
+          redirect_to course_projects_path(@course), alert: "You are not authorized"
+        end
       else
-        @projects = student_projects.select { |p| p.ownership&.owner == current_user }
+        @projects = student_projects.select do |p|
+          p.ownership&.owner == current_user || p.supervisor.user == current_user
+        end
       end
-    end
 
- 
-  elsif @course.no_restriction?
-    if params[:id]
-      @project = student_projects.find { |p| p.id == params[:id].to_i }
-      redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
-    else
-      @projects = student_projects
+    elsif @course.no_restriction?
+      if params[:id]
+        @project = student_projects.find { |p| p.id == params[:id].to_i }
+        unless @project && (
+          @course.students.exists?(user: current_user) ||  # any student in the course
+          @project.supervisor.user == current_user         # supervisor
+        )
+          redirect_to course_projects_path(@course), alert: "You are not authorized"
+        end
+      else
+        if @course.students.exists?(user: current_user)
+          @projects = student_projects
+        else
+          @projects = student_projects.select { |p| p.supervisor.user == current_user }
+      end
     end
   end
 end
