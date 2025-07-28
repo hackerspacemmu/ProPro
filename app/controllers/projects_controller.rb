@@ -107,10 +107,10 @@ def access
   if @course.owner_only?
 
    if params[:id]
-      @project = student_project.find { |p| p.id == params[:id].to_i }
+      @project = student_projects.find { |p| p.id == params[:id].to_i }
       redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
     else
-      @projects = student_project.select { |p| p.ownership&.owner == current_user }
+      @projects = student_projects.select { |p| p.ownership&.owner == current_user }
     end
 
   elsif @course.own_lecturer_only?
@@ -129,10 +129,10 @@ def access
  
   elsif @course.no_restriction?
     if params[:id]
-      @project = student_project.find { |p| p.id == params[:id].to_i }
+      @project = student_projects.find { |p| p.id == params[:id].to_i }
       redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
     else
-      @projects = student_project
+      @projects = student_projects
     end
   end
 end
