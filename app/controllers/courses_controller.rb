@@ -3,6 +3,10 @@ require "set"
 require "securerandom"
 
 class CoursesController < ApplicationController
+    before_action :validate_course_id, only: [ :add_people, :handle_add_people, :settings, :handle_settings ]
+    before_action :disallow_noncoordinator_requests, only: [ :add_people, :handle_add_people, :settings, :handle_settings ]
+    before_action :check_staff, only: [ :new, :create ]
+
     def show
         @course = Course.find(params[:id])
         
@@ -28,44 +32,15 @@ class CoursesController < ApplicationController
     end
 
     def new
-      if !Current.user.is_staff
-        redirect_to "/", alert: "Only staff can create courses"
-        return
-      end
-
       @new_course = Course.new
     end
 
     def add_people
-      begin
-        @course = Course.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        redirect_back_or_to "/", alert: "Invalid Course ID"
-        return
-      end
-
-      if Current.user.is_staff && !Current.user.courses.include?(@course)
-        redirect_back_or_to "/", alert: "Permission denied"
-        return
-      end
     end
 
     def handle_add_people
-      begin
-        @course = Course.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        redirect_back_or_to "/", alert: "Invalid Course ID"
-        return
-      end
-
-      if Current.user.is_staff && !Current.user.courses.include?(@course)
-        redirect_back_or_to "/", alert: "Permission denied"
-        return
-      end
-
       unregistered_students = Set[]
       unregistered_lecturers = Set[]
-
 
       if params[:invited_lecturers].blank?
         redirect_back_or_to "/", alert: "Invited lecturers cannot be empty"
@@ -122,11 +97,6 @@ class CoursesController < ApplicationController
     end
 
     def create
-      if !Current.user.is_staff
-        redirect_to "/", alert: "Only staff can create courses"
-        return
-      end
-
       response = params.require(:course).permit(:course_name, :grouped)
 
       @new_course = Course.new(
@@ -152,13 +122,36 @@ class CoursesController < ApplicationController
             course: @new_course,
             role: :lecturer
           )
+        end
       rescue StandardError => e
         @new_course.destroy
         redirect_back_or_to "/", alert: "Course creation failed"
       end
 
-      redirect_to add_people_course_path(@new_course), notice: "Course successfully created"
+    redirect_to add_people_course_path(@new_course), notice: "Course successfully created"
+  end
+
+  def settings
+  end
+
+  def handle_settings
+    @course.update(
+      course_description: params[:course][:course_description],
+      supervisor_projects_limit: params[:course][:supervisor_projects_limit],
+      require_coordinator_approval: params[:course][:require_coordinator_approval],
+      starting_week: params[:course][:starting_week],
+      use_progress_updates: params[:course][:use_progress_updates],
+      number_of_updates: params[:course][:number_of_progress_updates],
+      lecturer_access: params[:course][:lecturer_access],
+      student_access: params[:course][:student_access]
+    )
+
+    if !@course.save
+      render :settings, status: :unprocessable_entity
+      return
     end
+
+    redirect_to settings_course_path(@course), notice: "Course successfully updated"
   end
 
   private
@@ -168,7 +161,29 @@ class CoursesController < ApplicationController
       .pluck("ownerships.owner_id")
   end
 
-    
+  def disallow_noncoordinator_requests
+    if Current.user.is_staff && !Current.user.courses.include?(@course)
+      redirect_back_or_to "/", alert: "Permission denied"
+      return
+    end
+  end
+
+  def validate_course_id
+    begin
+      @course = Course.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      redirect_back_or_to "/", alert: "Invalid Course ID"
+      return
+    end
+  end
+
+  def check_staff
+    if !Current.user.is_staff
+      redirect_to "/", alert: "Only staff can create courses"
+      return
+    end
+  end
+
   def parse_csv_grouped(csv_obj, columns_to_check)
     ret = {}
 

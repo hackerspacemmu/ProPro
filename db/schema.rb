@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_25_172103) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_28_132612) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -33,6 +33,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_172103) do
     t.integer "student_access", null: false
     t.boolean "lecturer_access", null: false
     t.boolean "use_progress_updates", null: false
+    t.string "course_description"
   end
 
   create_table "enrolments", force: :cascade do |t|

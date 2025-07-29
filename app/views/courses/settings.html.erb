@@ -1,18 +1,37 @@
+<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+
+<%= form_with url: handle_settings_course_path, model:@course, method: :post do |form| %>
+  <% if @course.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@course.errors.count, "error") %> prohibited this course from being saved:</h2>
+      <ul>
+        <% @course.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <p>Project description</p>
+  <%= form.text_area :course_description %>
+  <br>
+
   <%= form.label :supervisor_projects_limit, "Maximum projects per supervisor:" %>
   <%= form.text_field :supervisor_projects_limit, required: true, placeholder: "Enter maximum number of projects per supervisor"%>
   <br>
 
-    <p>Lecturer proposed topics require coordinator approval?</p>
+  <p>Lecturer proposed topics require coordinator approval?</p>
   <%= form.radio_button :require_coordinator_approval, "true" %>
   <%= form.label :require_coordinator_approval, "True", value: true %>
   <%= form.radio_button :require_coordinator_approval, "false" %>
   <%= form.label :require_coordinator_approval, "False", value: false %>
   <br>
 
-    <p>Starting week</p>
+  <p>Starting week</p>
   <%= form.text_field :starting_week, required: true, placeholder: "Enter starting week"%>
 
-    <p>Use progress updates?</p>
+  <p>Use progress updates?</p>
   <%= form.radio_button :use_progress_updates, "true" %>
   <%= form.label :use_progress_updates, "True", value: true %>
   <%= form.radio_button :use_progress_updates, "false" %>
@@ -21,7 +40,7 @@
   <p>Number of progress updates?</p>
   <%= form.text_field :number_of_updates, placeholder: "Number of progress updates" %>
 
-    <p>Lecturer views public for other lecturers?</p>
+  <p>Lecturer views public for other lecturers?</p>
   <%= form.radio_button :lecturer_access, "true" %>
   <%= form.label :lecturer_access, "True", value: true %>
   <%= form.radio_button :lecturer_access, "false" %>
@@ -32,4 +51,7 @@
     <%= b.radio_button %>
     <%= b.label %>
   <% end %>
+  <br>
 
+  <%= form.submit "Save" %>
+<% end %>
