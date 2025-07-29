@@ -7,20 +7,35 @@
     </div>
     <ul class="breadcrumb">
         <li><a href="user_course.html">Course</a></li>
-        <li><a>></a></li>
-        <li><a class="active" href="create_proposal.html">Your Proposal</a></li>
     </ul>
 </head>
 <body>
     <div class="sidenav">
-        <a href="#home">Create Proposal</a>
+        <a href="#home">Proposal Guidelines</a>
+        <a href="#home">Proposal Status</a>
+        <a href="#home">Supervisors Available</a>
+        <a href="#home">Group Members</a>
     </div>
     <div class="main">
         <h2>FOUN-FCI-2510</h2>
         <h1>CSP1123-MINI IT PROJECT</h1>
         <h3>Your Proposal</h3>
-        <div class="remindergap">
-            <h5><img src="info.png" class="icon" size="20S"> You have not submitted a proposal. Please create it below.</h5>
+        <br>
+        <div class="status-bar">
+            <input type="radio" id="rejected" name="status">
+            <label for="rejected">Rejected</label>
+
+            <input type="radio" id="pending" name="status">
+            <label for="pending">Pending</label>
+
+            <input type="radio" id="redo" name="status">
+            <label for="redo">Redo</label>
+
+            <input type="radio" id="review" name="status">
+            <label for="review">In review</label>
+
+            <input type="radio" id="approved" name="status">
+            <label for="approved">Approved</label>
         </div>
         <div class="container">
             <form>
@@ -37,12 +52,12 @@
                     <option value="option3">Option 3</option>
                 </select>
                 <p>Checkbox field</p>
-                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-                <label for="vehicle1">Option 1</label><br>
-                <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
-                <label for="vehicle2">Option 2</label><br>
-                <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-                <label for="vehicle3">Option 3</label><br>
+                <input type="checkbox" id="option1" name="option1" value="option1">
+                <label for="option1">Option 1</label><br>
+                <input type="checkbox" id="option2" name="option2" value="option2">
+                <label for="option2">Option 2</label><br>
+                <input type="checkbox" id="option3" name="option3" value="option3">
+                <label for="option3">Option 3</label><br>
                 <input type="submit" value="Submit">
             </form>
         </div>
