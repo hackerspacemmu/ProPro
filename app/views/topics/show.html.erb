@@ -36,7 +36,7 @@
 
 <p><strong>Owner:</strong>
   <% if @owner.is_a?(User) %>
-    <%= @owner.username %>
+    <%= link_to @owner.username, course_lecturer_path(@course, @owner) %>
   <% else %>
     <%= @owner.group_name %>
   <% end %>
@@ -45,9 +45,12 @@
 <!-- End of Field Desc -->
 
 <!-- Member -->
+
+<!-- 
 <% if @members.any? %>
   <p><strong>Group Members:</strong> <%= @members.map(&:username).join(", ") %></p>
 <% end %>
+--!>
 
 
 <p><strong>Status: </strong><%= @project.status %></p>
@@ -72,9 +75,6 @@
 <% end %>
 
 <p><% @lecturers %></p>
-
-
-
 
 <p>
   <%= link_to "Back to all Topics", course_topics_path(@course) %>
