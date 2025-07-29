@@ -1,0 +1,10 @@
+<h1>Topics for <%= @course.course_name %></h1>
+
+<ul>
+  <% @projects.each do |project| %>
+    <li>
+      <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Topic",
+                  course_topic_path(@course, project) %>
+    </li>
+  <% end %>
+</ul>

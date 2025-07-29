@@ -6,6 +6,15 @@ class SessionsController < ApplicationController
   end
 
   def create
+    response = params.permit(:email_address)
+
+    user = User.find_by(email_address: response[:email_address])
+
+    if user && !user.has_registered
+      redirect_back_or_to "/", alert: "Please claim your account first"
+      return
+    end
+
     if user = User.authenticate_by(params.permit(:email_address, :password))
       start_new_session_for user
       redirect_to after_authentication_url
