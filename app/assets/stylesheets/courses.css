@@ -195,11 +195,6 @@ p {
 }
 
 /* progress_bar.css */
-:root {
-  --primary-color: #8E8E8E;
-  --secondary-color: #8E8E8E;
-}
-
 .container {
   text-align: center;
   background: #F8F9FA;
@@ -221,7 +216,7 @@ p {
 
 .progress-container::before {
   content: "";
-  background-color: var(--secondary-color);
+  background-color: #8E8E8E;
   position: absolute;
   top: 20px; 
   left: 0;
@@ -231,7 +226,7 @@ p {
 }
 
 .progress {
-  background-color: var(--primary-color);
+  background-color: #8E8E8E;
   position: absolute;
   top: 20px; 
   left: 0;
@@ -258,7 +253,7 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid var(--secondary-color);
+  border: 2px solid #8E8E8E;
   transition: 0.4s ease;
   margin-bottom: 8px;
   position: absolute;
@@ -280,8 +275,8 @@ p {
 }
 
 .step.active .circle {
-  border-color: var(--primary-color);
-  background-color: var(--primary-color);
+  border-color: #8E8E8E;
+  background-color: #F2F3F7;
   width: 40px;
   height: 40px;
   top: 0px; 

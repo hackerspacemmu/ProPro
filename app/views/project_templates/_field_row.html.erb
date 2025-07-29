@@ -1,0 +1,47 @@
+<div class="field-row">
+  <div class="row">
+    <div class="column">
+      <%= f.label :label %>
+      <%= f.text_field :label, placeholder: "Field Label" %>
+    </div>
+
+    <div class="column">
+      <%= f.label :field_type %>
+      <%= f.select :field_type,
+          options_for_select(
+            ProjectTemplateField.field_types.keys.map { |key| [key.humanize, key] },
+            f.object.field_type
+          ),
+          { prompt: "Select field type" } %>
+    </div>
+
+    <div class="column">
+      <%= f.label :applicable_to %>
+      <%= f.select :applicable_to,
+          options_for_select(
+            ProjectTemplateField.applicable_tos.keys.map { |key| [key.humanize, key] },
+            f.object.applicable_to
+          ),
+          { prompt: "Select applicability" } %>
+    </div>
+  </div>
+
+  <div class="hint-row">
+    <%= f.label :hint %>
+    <%= f.text_area :hint, placeholder: "Optional guidance text" %>
+  </div>
+
+  <% if f.object.field_type.in?(['dropdown', 'radio']) %>
+    <div class="options-section">
+      <%= f.label :options, "Options (one per line)" %>
+      <%= f.text_area :options,
+          value: f.object.options&.join("\n"),
+          placeholder: "Option 1\nOption 2\nOption 3" %>
+    </div>
+  <% end %>
+
+  <div class="field-actions">
+    <%= f.check_box :_destroy %>
+    <%= f.label :_destroy, "Remove this field" %>
+  </div>
+</div>
