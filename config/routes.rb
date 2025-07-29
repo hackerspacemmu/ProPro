@@ -10,12 +10,16 @@ Rails.application.routes.draw do
     member do
       get 'add_people'
       post 'handle_add_people'
+      get 'settings'
+      post 'handle_settings'
     end
-  resources :projects, only: [:index, :show, :edit, :update] do
-    member do
-      patch :change_status
-    end
+
+    resources :projects, only: [:index, :show, :edit, :update] do
+      member do
+        patch :change_status
+      end
   end
+
   resources :topics, only: [:index, :show, :edit, :update] do
     member do
       patch :change_status
