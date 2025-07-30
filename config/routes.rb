@@ -9,7 +9,9 @@ Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
   resources :courses, only: [:show, :new, :create] do
-    resource  :project_template, only: [:new, :create, :edit, :update, :show]
+    resource  :project_template, only: [:new, :create, :edit, :update, :show] do
+      get 'new_field', on: :member
+    end
   end
     
   root to: "courses#show", defaults: { id: Course.first&.id || 1 }

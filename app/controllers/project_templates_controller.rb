@@ -40,6 +40,10 @@ before_action :set_project_template
   def edit
   end
 
+  def new_field
+    @index = params[:index].to_i
+    render partial: 'project_templates/new_field', locals: { index: @index}
+  end
 
 
   private 

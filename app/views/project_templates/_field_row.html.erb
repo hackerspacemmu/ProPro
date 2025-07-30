@@ -1,47 +1,46 @@
 <div class="field-row">
   <div class="row">
     <div class="column">
-      <%= f.label :label %>
-      <%= f.text_field :label, placeholder: "Field Label" %>
+      <%= field_form.label :label %>
+      <%= field_form.text_field :label, placeholder: "Field Label" %>
     </div>
 
     <div class="column">
-      <%= f.label :field_type %>
-      <%= f.select :field_type,
+      <%= field_form.label :field_type %>
+      <%= field_form.select :field_type, 
           options_for_select(
             ProjectTemplateField.field_types.keys.map { |key| [key.humanize, key] },
-            f.object.field_type
-          ),
-          { prompt: "Select field type" } %>
+            field_form.object.field_type
+          ), 
+          { prompt: "Select field type" },
+          { class: "field-type-select" } %>
     </div>
 
     <div class="column">
-      <%= f.label :applicable_to %>
-      <%= f.select :applicable_to,
+      <%= field_form.label :applicable_to %>
+      <%= field_form.select :applicable_to,
           options_for_select(
             ProjectTemplateField.applicable_tos.keys.map { |key| [key.humanize, key] },
-            f.object.applicable_to
+            field_form.object.applicable_to
           ),
           { prompt: "Select applicability" } %>
     </div>
   </div>
 
   <div class="hint-row">
-    <%= f.label :hint %>
-    <%= f.text_area :hint, placeholder: "Optional guidance text" %>
+    <%= field_form.label :hint %>
+    <%= field_form.text_area :hint, placeholder: "Hint Text" %>
   </div>
 
-  <% if f.object.field_type.in?(['dropdown', 'radio']) %>
-    <div class="options-section">
-      <%= f.label :options, "Options (one per line)" %>
-      <%= f.text_area :options,
-          value: f.object.options&.join("\n"),
+  <div class="options-section" style="display: <%= field_form.object.field_type.in?(['dropdown', 'radio']) ? 'block' : 'none' %>;">
+      <%= field_form.label :options, "Options (one per line)" %>
+      <%= field_form.text_area :options, 
+          value: field_form.object.options&.join("\n"), 
           placeholder: "Option 1\nOption 2\nOption 3" %>
-    </div>
-  <% end %>
+  </div>
 
   <div class="field-actions">
-    <%= f.check_box :_destroy %>
-    <%= f.label :_destroy, "Remove this field" %>
+    <%= field_form.check_box :_destroy %>
+    <%= field_form.label :_destroy, "Remove this field" %>
   </div>
 </div>

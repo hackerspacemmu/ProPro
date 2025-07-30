@@ -1,0 +1,3 @@
+<%= fields_for :project_template_fields, ProjectTemplateField.new, child_index: index do |field_form| %>
+  <%= render 'field_row', field_form: field_form %>
+<% end %>

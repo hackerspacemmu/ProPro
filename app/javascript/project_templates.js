@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var url = '/courses/' + courseId + '/project_template/new_field' + '?index=' + fieldIndex;
 
     fetch(url).then(function(response) { return response.text();})
-    .then(function(html) {templateFields.insertedAdjacentHTML('beforehand', html); fieldIndex++;
+    .then(function(html) {templateFields.insertAdjacentHTML('beforeend', html); 
+      fieldIndex++;
     });
   });
 
