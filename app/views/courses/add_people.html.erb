@@ -1,12 +1,30 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<!DOCTYPE html>
+<html lang="en">
 
-<%= form_with url: handle_add_people_course_path, method: :post do |form| %>
-  <p>Upload CSV export from EBwise: </p>
-  <%= form.file_field :csv_file %>
+<head>
+    <%= stylesheet_link_tag "application" %>
+</head>
 
-  <p>Add lecturers<br>Use format <strong>EMAIL&semi;</strong> for each entry</p>
-  <%= form.text_field :invited_lecturers, required: true, placeholder: "Additions"%><br>
+<body>
+    <div class="main">
+        <h2>FOUN-FCI-2510</h2>
+        <h1><%= @course.course_name %></h1>
+        <h3>Add Lecturer/Students</h3>
+        <br>
 
-  <%= form.submit "Add Lecturer/Students" %>
-<% end %>
+        <div class="container">
+            <%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+            <%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+
+            <%= form_with url: handle_add_people_course_path, method: :post do |form| %>
+            <p>Upload CSV export from EBwise: </p>
+            <%= form.file_field :csv_file %>
+
+            <p>Add lecturers<br>Use format <strong>EMAIL&semi;</strong> for each entry</p>
+            <%= form.text_field :invited_lecturers, required: true, placeholder: "Additions"%><br>
+
+            <%= form.submit "Add Lecturer/Students" %>
+            <% end %>
+        </div>
+    </div>
+</body>

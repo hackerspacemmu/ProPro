@@ -8,8 +8,8 @@
 <body>
     <div class="main">
         <h2>FOUN-FCI-2510</h2>
-        <h1>CSP1123-MINI IT PROJECT</h1>
-        <h3>Your Proposal</h3>
+        <h1><%= @course.course_name %></h1>
+        <h3>Project Settings</h3>
         <br>
 
         <div class="container">
@@ -32,7 +32,7 @@
             <%= form.text_area :course_description %>
             <br>
 
-            <%= form.label :supervisor_projects_limit, "Maximum projects per supervisor:" %>
+            <P><%= form.label :supervisor_projects_limit, "Maximum projects per supervisor:" %></p>
             <%= form.text_field :supervisor_projects_limit, required: true, placeholder: "Enter maximum number of projects per supervisor"%>
             <br>
 

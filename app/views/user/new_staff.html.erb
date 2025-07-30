@@ -1,10 +1,28 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<!DOCTYPE html>
+<html lang="en">
 
-<%= form_with url: user_create_path do |form| %>
-  <%= form.hidden_field :token, value: params[:token]%>
-  <%= form.password_field :otp, required: true, placeholder: "OTP"%><br>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-  <%= form.search_field :username, placeholder: "Name", required: true%><br>
-  <%= form.submit "Create Account" %>
-<% end %>
+<head>
+    <%= stylesheet_link_tag "application" %>
+</head>
+
+<body>
+    <div class="main">
+        <h2>FOUN-FCI-2510</h2>
+        <h1><%= @course.course_name %></h1>
+        <h3>New Staff</h3>
+        <br>
+
+        <div class="container">
+            <%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+            <%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+
+            <%= form_with url: user_create_path do |form| %>
+            <%= form.hidden_field :token, value: params[:token]%>
+            <%= form.password_field :otp, required: true, placeholder: "OTP"%><br>
+            <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
+            <%= form.search_field :username, placeholder: "Name", required: true%><br>
+            <%= form.submit "Create Account" %>
+            <% end %>
+        </div>
+    </div>
+</body>
