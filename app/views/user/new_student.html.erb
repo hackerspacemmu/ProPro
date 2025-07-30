@@ -13,8 +13,9 @@
         <br>
 
         <div class="container">
-            <%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-            <%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+            <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+            <br>
 
             <%= form_with url: user_create_path do |form| %>
             <%= form.hidden_field :token, value: params[:token] %>
