@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const templateFields = document.getElementById('template-fields');
   var courseId = addFieldBtn.dataset.courseId;
   
+  console.log("🛠 project_templates.js loaded");
+  
   if (!addFieldBtn) return;
   
   let fieldIndex = parseInt(addFieldBtn.dataset.fieldIndex) || 0;

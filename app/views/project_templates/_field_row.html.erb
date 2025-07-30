@@ -30,7 +30,7 @@
   <div class="hint-row">
     <%= field_form.label :hint %>
     <%= field_form.text_area :hint, placeholder: "Hint Text" %>
-  </div>
+  </div>  
 
   <div class="options-section" style="display: <%= field_form.object.field_type.in?(['dropdown', 'radio']) ? 'block' : 'none' %>;">
       <%= field_form.label :options, "Options (one per line)" %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_28_132612) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -23,15 +23,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
 
   create_table "courses", force: :cascade do |t|
     t.string "course_name", null: false
-    t.integer "number_of_updates", null: false
+    t.integer "number_of_updates"
     t.integer "starting_week", null: false
-    t.boolean "student_access", null: false
-    t.integer "lecturer_access", null: false
     t.boolean "grouped", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "supervisor_projects_limit", null: false
     t.boolean "require_coordinator_approval", null: false
+    t.integer "student_access", null: false
+    t.boolean "lecturer_access", null: false
+    t.boolean "use_progress_updates", null: false
+    t.string "course_description"
   end
 
   create_table "enrolments", force: :cascade do |t|
@@ -45,10 +47,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   end
 
   create_table "otps", force: :cascade do |t|
-    t.string "email_address", null: false
     t.string "otp", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "token", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_otps_on_user_id"
   end
 
   create_table "ownerships", force: :cascade do |t|
@@ -156,7 +160,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest"
-    t.string "username", null: false
+    t.string "username"
     t.boolean "has_registered", null: false
     t.string "student_id"
     t.string "mmu_directory"
@@ -170,6 +174,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_101829) do
   add_foreign_key "comments", "users"
   add_foreign_key "enrolments", "courses"
   add_foreign_key "enrolments", "users"
+  add_foreign_key "otps", "users"
   add_foreign_key "progress_updates", "projects"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
