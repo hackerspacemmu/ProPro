@@ -2,8 +2,8 @@
 <% oldest_version = @instances.size - 1 %>
 <% latest_version = 0 %>
 
-<! -- Version Selector -->
 
+<! -- Version Selector -->
 <% if current_version < oldest_version %>
   <%= link_to "< Previous", course_topic_path(@course, @project, version: current_version + 1) %>
 <% else %>
@@ -20,7 +20,6 @@
 
 <% enrolment = @course.enrolments.find_by(user: current_user) %>
 
-<p><%= current_user&.username %></p> <%= enrolment.role %></p>
 
 
 <!-- Title -->

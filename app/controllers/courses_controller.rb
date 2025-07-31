@@ -8,34 +8,52 @@ class CoursesController < ApplicationController
     before_action :check_staff, only: [ :new, :create ]
 
     def show
-        @course = Course.find(params[:id])
+    
+      @course = Course.find(params[:id])
+      
+      if @course.grouped?
+        @group = current_user.project_groups.joins(:project_group_members).find_by(project_group_members: {course_id: @course.id})
         
-        if @course.grouped?
-            @group = current_user.project_groups.joins(:project_group_members).find_by(project_group_members: {course_id: @course.id})
-            @project = Project.find_by(ownership: @group)
-            @group_list = @course.project_group
-
-        else
-            @group = nil
-            @project = Project.find_by(ownership: current_user, course_id: @course.id)
-
+        if @group
+          group_ownership = Ownership.find_by(
+            owner_type: @group.class.name,
+            owner_id: @group.id,
+            ownership_type: :student  
+            )
+          @project = group_ownership ? Project.find_by(ownership: group_ownership, course: @course) : nil
         end
 
-        
-        #@description = @course.project_template.description errors out since project_template has no desc
-        @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
-        @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
-        @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
-        @students_with_projects = @student_list.select do |student|students_with_projects.include?(student.id) end
-        @students_without_projects = @student_list.reject do |student|students_with_projects.include?(student.id) end
+        @group_list = @ccourse.project_groups
 
-    end
+      else
+          @group = nil
+          user_ownership = Ownership.find_by(
+            owner_type: "User",
+            owner_id: current_user.id,
+            ownership_type: :student  
+          )
+          @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
+      end
 
-    def new
-      @new_course = Course.new
-    end
+      @description = @course.project_template.description
+      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
+      
+      
+      projects_ownerships = Project.joins(:ownership)
+      .where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
+      .where.not(status: :rejected)
+      .pluck("ownerships.owner_id")
+      
+      @students_with_projects = @student_list.select do |student|
+        projects_ownerships.include?(student.id)
+      end 
+    
+      @students_without_projects = @student_list.reject do |student|
+        projects_ownerships.include?(student.id)
+      end
 
-    def add_people
     end
 
     def handle_add_people

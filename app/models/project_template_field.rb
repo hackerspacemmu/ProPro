@@ -3,5 +3,10 @@ class ProjectTemplateField < ApplicationRecord
 
   enum :field_type, {shorttext: 0, textarea: 1, dropdown: 2, radio: 3}
   enum :applicable_to, {topics: 0, proposals: 1, both: 2}
+
+  validates :label, presence: true
+  validates :field_type, presence: true
+  validates :applicable_to, presence: true
+  validates :options, presence: true, if: -> { field_type.in?(['dropdown', 'radio']) }
 end
 

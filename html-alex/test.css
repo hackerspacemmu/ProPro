@@ -130,6 +130,10 @@ p {
   color: #333;
 }
 
+#description p{
+  white-space: pre-line;
+}
+
 #course > section > header p {
   font-size: 12px;
   color: #7e7e7e;
@@ -331,17 +335,27 @@ p {
 #lecturer-list .supervisors {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 24px 0 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  justify-content: center
 }
 
-.supervisor-item {
+#lecturer-list .supervisors li {
+  padding: 0;
+  border-bottom: none;
+}
+
+#lecturer-list .profile {
   display: flex;
   align-items: flex-start;
-  gap: 25px;           
-  margin-bottom: 16px; 
+  gap: 15px;          
+  margin-bottom: 0; 
 }
 
-.avatar {
+
+#lecturer-list .avatar {
   width: 40px;
   height: 40px;
   background-color: #D9D9D9;
@@ -352,39 +366,123 @@ p {
   align-items: center;
 }
 
-.supervisor-info {
+#lecturer-list .info {
   display: flex;
   flex-direction: column;
 }
 
-.supervisor-header {
+#lecturer-list .top {
   display: flex;
   align-items: center;
-  gap: 10px;         
-  margin-bottom: 4px; 
+  gap: 10px;        
+  margin-bottom: 4px;
   font-size: 14px;
 }
 
-.supervisor-header h4 {
+#lecturer-list .name {
   color: #454343;
   margin: 0;
 }
 
-.supervisor-name {
-  color: #454343;
-}
-
-.capacity {
+#lecturer-list .capacity {
   font-size: 16px;
   color: #000000;
   margin-left: 20px;
 }
 
-.last-seen,
-.avg-time {
+#lecturer-list .last-seen,
+#lecturer-list .avg-time {
   font-size: 12px;
   opacity: 0.8;
   color: #7e7e7e;
   margin: 2px 0;
   line-height: 0.7;
+}
+
+/* project-list styles */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 327px);
+  grid-auto-rows: 175px;
+  gap: 21px;
+  justify-content: start;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  flex-shrink: 0; 
+}
+
+.project-card {
+    color: #FFFFFF;
+    background-color: #1d2f24;
+    display: flex;
+    flex-wrap: wrap;
+    z-index: 0;
+    width: 327px;
+    height: 175px;
+    font-size: 14px;
+    border-radius: 12px;
+    border: 2px solid #B5B5B5;
+    overflow: hidden;
+}
+
+.project-card .lecturer {
+  position: relative;
+  right: -30px;
+  top: 20px;
+  color: #FFFFFF;
+
+}
+
+.project-card h4 {
+  position: relative;
+  right: -30px;
+  top: 20px;
+}
+
+.project-card ul {
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.project-card li {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.project-card.inner {
+  position: relative;
+  width: 304px;
+  height: 105px;
+  background-color: #F8F9FA;
+  z-index: 1;
+  right: -30px;
+  top: 35px;
+  border-radius: none;
+  overflow: hidden;
+}
+
+.project-card.inner .text{
+  color: #5D5D5D;
+  white-space: pre-line;
+  line-height: 1.4;
+} 
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-link:hover .project-card {
+  background-color: #275d42; 
+  transition: background-color 0.2s ease-in-out;
+}
+
+.card-link:hover .project-card.inner {
+  background-color: #F8F9FA;
 }
