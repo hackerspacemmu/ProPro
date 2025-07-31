@@ -122,5 +122,31 @@ def access
       @projects = lecturer_projects # all lecturers can see all lecturer topics
     end
   end
+
+  query = params[:query].to_s.downcase
+
+@projects = if @is_student
+  lecturer_projects.select(&:approved?)
+else
+  lecturer_projects
+end
+
+if query.present?
+  @projects = @projects.select do |project|
+    latest = project.project_instances.order(version: :desc).first
+    title = latest&.title&.downcase
+    description = latest&.project_instance_fields
+      &.includes(:project_template_field)
+      &.find { |f| f.project_template_field.label.downcase.include?("description") }
+      &.value&.downcase
+
+    title&.include?(query) || description&.include?(query)
+  end
+end
+
+
+
+
+
 end
 end
