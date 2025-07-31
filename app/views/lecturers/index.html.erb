@@ -1,0 +1,10 @@
+<h1>Lecturers in <%= @course.course_name %></h1>
+
+<ul>
+    <% @lecturers.each do |lecturer| %>
+        <li>
+            <p><strong>Name: </strong><%= link_to lecturer.username, course_lecturer_path(@course, lecturer) %></p>
+
+        </li>
+    <% end %>
+</ul>

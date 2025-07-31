@@ -1,0 +1,26 @@
+<h1><%= @lecturer.username %></h1>
+
+<h2>Info<h2>
+<h3>
+    <strong>Role: </strong><%= @enrolment.role %>
+    <br>
+    <strong>Email: </strong><%= @lecturer.email_address %>
+</h3>
+
+<h2>Topics</h2>
+<ul>
+    <% if @approved_projects.empty? %>
+        <p>No Topics Available</p>
+    <% else %>
+        <% @approved_projects.each do |project| %>
+            <% latest_instance = project.project_instances.order(version: :desc).first %>
+            <li>
+                <%= link_to (latest_instance&.title || "Untitled Topic"),
+                course_topic_path(@course, project) %>
+            </li>
+        <% end %>
+    <% end %>
+</ul>
+<p>
+  <%= link_to "Back to Lecturers", course_lecturers_path(@course) %>
+</p>

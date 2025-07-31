@@ -25,6 +25,14 @@ Rails.application.routes.draw do
       patch :change_status
     end
   end
+  
+  resources :lecturers, only: [:index, :show] do
+    resources :topics, only: [:index, :show, :edit, :update] do
+    member do
+      patch :change_status
+    end
+  end
+end
 end
   resources :courses, only: [:show, :new, :create] do
     resource  :project_template, only: [:new, :create, :edit, :update, :show] do
