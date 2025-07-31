@@ -3,7 +3,7 @@ class Project < ApplicationRecord
   belongs_to :ownership
   belongs_to :course
 
-  has_many :project_instances
+  has_many :project_instances, dependent: :destroy
   #delegate :course, to: :enrolment
   #has_one :course, through: :enrolment
   enum :status, { pending: 0, approved: 1, rejected: 2 }

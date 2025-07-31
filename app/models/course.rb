@@ -1,6 +1,8 @@
 class Course < ApplicationRecord
     has_many :enrolments
+    has_many :projects
     has_many :project_groups
+    has_one :project_template
 
     has_many :projects
     has_one :project_template
