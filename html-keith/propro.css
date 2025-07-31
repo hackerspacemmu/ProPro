@@ -1,9 +1,9 @@
 body {
     background-color: #efefef;
-    font-family: Inter;
+    font-family: 'Inter', sans-serif;
 }
 
-.topnav {
+.topbar {
     background-color: #e0e0e0;
     overflow: hidden;
     position: fixed;
@@ -13,7 +13,7 @@ body {
     height: 45px;
 }
 
-.topnav a {
+.topbar a {
     float: left;
     color: #000000;
     text-align: center;
@@ -67,7 +67,7 @@ ul.breadcrumb li b {
     margin: 0px 0px;
 }
 
-.sidenav {
+.sidebar {
     height: 100%;
     width: 240px;
     position: fixed;
@@ -79,7 +79,7 @@ ul.breadcrumb li b {
     padding-top: 20px;
 }
 
-.sidenav a {
+.sidebar a {
     padding: 0px 15px 15px 15px;
     text-decoration: none;
     font-size: 12px;
@@ -87,7 +87,7 @@ ul.breadcrumb li b {
     display: block;
 }
 
-.sidenav a:hover {
+.sidebar a:hover {
     color: #58c7ff;
 }
 
