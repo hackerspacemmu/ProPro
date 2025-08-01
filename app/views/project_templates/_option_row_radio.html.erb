@@ -1,0 +1,12 @@
+<div class="radio-option-cell"
+     data-field-index="<%= field_index %>"
+     data-option-index="<%= option_index %>">
+  <input type="radio"
+         name="preview_field_<%= field_index %>"
+         disabled>
+  <input type="text"
+         name="project_template[project_template_fields_attributes][<%= field_index %>][options][]"
+         value="<%= option_value %>"
+         placeholder="Option <%= option_index + 1 %>">
+  <button type="button" class="remove-option">×</button>
+</div>

@@ -16,14 +16,22 @@
 
         <%= form_with model: [@course, @project_template], local: true, class: "form" do |form| %>
 
+          <div class="row header-row">
+            <div class="column"><strong>Field Label</strong></div>
+            <div class="column"><strong>Hint Text (Optional)</strong></div>
+            <div class="column"><strong>Field Type</strong></div>
+            <div class="column"><strong>Applicable To</strong></div>
+            <div class="column"><strong>Options</strong></div>
+          </div>
+
           <div id="template-fields">
             <%= form.fields_for :project_template_fields do |field_form| %>
-               <%= render 'field_row', field_form: field_form %>
+               <%= render 'field_row', field_form: field_form %>  
             <% end %>
           </div>
 
           <div class="add-field-section">
-            <button 
+            <button type="button"
               id="add-field-btn" 
               data-course-id="<%= @course.id %>" 
               data-field-index="<%= @project_template.project_template_fields.size %>"> 
