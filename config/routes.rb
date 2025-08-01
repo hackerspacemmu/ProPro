@@ -2,10 +2,14 @@ Rails.application.routes.draw do
   post "user/create"
   get "user/new_staff"
   get "user/new_student"
+  get "user/profile"
+  post "user/edit"
 
-  
-  resource :session
+  root "homescreen#show"
+
+  resource :session, path_names: { new: 'login', destroy: 'logout' }
   resources :passwords, param: :token
+
   resources :courses, only: [:show, :new, :create] do
     member do
       get 'add_people'
@@ -18,21 +22,22 @@ Rails.application.routes.draw do
       member do
         patch :change_status
       end
-  end
 
-  resources :topics, only: [:index, :show, :edit, :update] do
-    member do
-      patch :change_status
+      resources :comments, only:[:create]
     end
-  end
-end
-  resources :courses, only: [:show, :new, :create] do
-    resource  :project_template, only: [:new, :create, :edit, :update, :show] do
+
+    resources :topics, only: [:index, :show, :edit, :update] do
+      member do
+        patch :change_status
+      end
+    end
+
+    resource :project_template, only: [:new, :create, :edit, :update, :show] do
       get 'new_field', on: :member
     end
   end
     
-  root to: "courses#show", defaults: { id: Course.first&.id || 1 }
+  #root to: "courses#show", defaults: { id: Course.first&.id || 1 }
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

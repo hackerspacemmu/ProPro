@@ -114,6 +114,10 @@ class CoursesController < ApplicationController
       redirect_to "/", notice: "Success"
     end
 
+    def new
+      @new_course = Course.new
+    end
+
     def create
       response = params.require(:course).permit(:course_name, :grouped)
 
@@ -144,6 +148,7 @@ class CoursesController < ApplicationController
       rescue StandardError => e
         @new_course.destroy
         redirect_back_or_to "/", alert: "Course creation failed"
+        return
       end
 
     redirect_to add_people_course_path(@new_course), notice: "Course successfully created"
