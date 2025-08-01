@@ -97,6 +97,7 @@ ul.breadcrumb li b {
     margin-right: 40px;
     font-size: 28px;
     padding: 10px 0px;
+    flex: auto;
 }
 
 .remindergap {
@@ -117,6 +118,11 @@ ul.breadcrumb li b {
     width: 100%;
     padding: 15px;
     background-color: #ffffff;
+}
+
+h1, h2, h3, h4, h5, p {
+    word-break: break-word;
+    white-space: pre-line;
 }
 
 h1 {
@@ -207,11 +213,11 @@ input[type="submit"] {
 }
 
 @media screen and (max-height: 450px) {
-    .sidenav {
+    .sidebar {
         padding-top: 15px;
     }
 
-    .sidenav a {
+    .sidebar a {
         font-size: 18px;
     }
 }
