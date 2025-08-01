@@ -1,10 +1,27 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<!DOCTYPE html>
+<html lang="en">
 
-<%= form_with url: user_create_path do |form| %>
-  <%= form.hidden_field :token, value: params[:token]%>
-  <%= form.password_field :otp, required: true, placeholder: "OTP"%><br>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-  <%= form.search_field :username, placeholder: "Name", required: true%><br>
-  <%= form.submit "Create Account" %>
-<% end %>
+<head>
+    <%= stylesheet_link_tag "application" %>
+</head>
+
+<body>
+    <div class="main">
+        <h3>New Staff</h3>
+        <br>
+
+        <div class="container">
+            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+            <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+            <br>
+
+            <%= form_with url: user_create_path do |form| %>
+            <%= form.hidden_field :token, value: params[:token]%>
+            <%= form.password_field :otp, required: true, placeholder: "OTP"%><br>
+            <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
+            <%= form.search_field :username, placeholder: "Name", required: true%><br>
+            <%= form.submit "Create Account" %>
+            <% end %>
+        </div>
+    </div>
+</body>
