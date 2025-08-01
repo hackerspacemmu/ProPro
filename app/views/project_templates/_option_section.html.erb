@@ -1,0 +1,29 @@
+<% options = Array(field_form.object.options) %>
+
+<% if field_type == 'dropdown' %>
+  <div class="options-list">
+    <% (options.present? ? options : ['']).each_with_index do |opt, i| %>
+      <%= render "project_templates/option_row_dropdown",
+                 field_index:  field_form.index,
+                 option_index:  i,
+                 option_value:  opt %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="radio-grid">
+    <% (options.present? ? options : ['']).each_with_index do |opt, i| %>
+      <%= render "project_templates/option_row_radio",
+                 field_index:  field_form.index,
+                 option_index:  i,
+                 option_value:  opt %>
+    <% end %>
+  </div>
+<% end %>
+
+<button type="button"
+        class="add-option-btn"
+        data-field-index="<%= field_form.index %>"
+        data-field-type="<%= field_type %>"
+        data-option-index="<%= options.size %>">
+  + Add Option
+</button>
