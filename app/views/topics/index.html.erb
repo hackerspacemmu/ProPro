@@ -1,10 +1,33 @@
 <h1>Topics for <%= @course.course_name %></h1>
 
 <ul>
+
+  <%= form_with url: course_topics_path(@course), method: :get, local: true do %>
+  <%= label_tag :query, "Search topics:" %>
+  <%= text_field_tag :query, params[:query], placeholder: "Enter keyword..." %>
+  <%= submit_tag "Search" %>
+  <% end %>
+
+
   <% @projects.each do |project| %>
+
+    <% latest_instance = project.project_instances.order(version: :desc).first %>
+    <% description_field = latest_instance&.project_instance_fields
+    &.includes(:project_template_field)
+    &.find { |f| f.project_template_field.label.downcase.include?("description") } %>
+
     <li>
-      <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Topic",
-                  course_topic_path(@course, project) %>
+      <p> <strong> Topic: </strong> <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Topic",
+                  course_topic_path(@course, project) %> </p>
+      <p> <strong>Lecturer: </strong> <%= project.supervisor.user.username %></p>
+
+      <% if description_field.present? %>
+        <p><strong>Description:</strong> <%= description_field.value %></p>
+      <% else %>
+        <p><em>No description available</em></p>
+      <% end %>
+
     </li>
   <% end %>
+
 </ul>

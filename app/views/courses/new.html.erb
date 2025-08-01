@@ -1,28 +1,47 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<!DOCTYPE html>
+<html lang="en">
 
-<%= form_with url: courses_path, model:@new_course, method: :post do |form| %>
-  <% if @new_course.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@new_course.errors.count, "error") %> prohibited this course from being saved:</h2>
-      <ul>
-        <% @new_course.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+<head>
+    <%= stylesheet_link_tag "application" %>
+</head>
+
+<body>
+    <div class="main">
+        <h2>FOUN-FCI-2510</h2>
+        <h1>CourseName</h1>
+        <h3>Create Course</h3>
+        <br>
+
+        <div class="container">
+            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+            <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+            <br>
+
+            <%= form_with url: courses_path, model:@new_course, method: :post do |form| %>
+            <% if @new_course.errors.any? %>
+            <div id="error_explanation">
+                <h2><%= pluralize(@new_course.errors.count, "error") %> prohibited this course from being saved:</h2>
+                <ul>
+                    <% @new_course.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                    <% end %>
+                </ul>
+            </div>
+            <% end %>
+
+            <p><%= form.label :course_name, "Course Name:" %></p>
+            <%= form.text_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name"%>
+            <br>
+
+            <p>Use groups?</p>
+            <%= form.radio_button :grouped, "true" %>
+            <%= form.label :grouped, "True", value: true %>
+            <%= form.radio_button :grouped, "false" %>
+            <%= form.label :grouped, "False", value: false %>
+            <br>
+
+            <%= form.submit "Create Course" %>
+            <% end %>
+        </div>
     </div>
-  <% end %>
-
-  <%= form.label :course_name, "Course Name:" %>
-  <%= form.text_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name"%>
-  <br>
-
-  <p>Use groups?</p>
-  <%= form.radio_button :grouped, "true" %>
-  <%= form.label :grouped, "True", value: true %>
-  <%= form.radio_button :grouped, "false" %>
-  <%= form.label :grouped, "False", value: false %>
-  <br>
-
-  <%= form.submit "Create Course" %>
-<% end %>
+</body>

@@ -115,6 +115,7 @@ ul.breadcrumb li b {
     display: flex;
     border-radius: 10px;
     width: 100%;
+    max-width: 1200px;
     padding: 15px;
     background-color: #ffffff;
 }

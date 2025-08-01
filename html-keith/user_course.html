@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="propro.css">
+
+<head>
+    <div class="topbar">
+        <a href="#home">Alex's 2510 Course View</a>
+    </div>
+    <ul class="breadcrumb">
+        <li><a href="user_course.html">Course</a></li>
+    </ul>
+</head>
+
+<body>
+    <div class="sidebar">
+        <a href="#home">Proposal Guidelines</a>
+        <a href="#home">Proposal Status</a>
+        <a href="#home">Supervisors Available</a>
+        <a href="#home">Group Members</a>
+    </div>
+    <div class="main">
+        <h2>FOUN-FCI-2510</h2>
+        <h1>CourseName</h1>
+        <h3>Your Course</h3>
+        <br>
+        <div class="container">
+            <form>
+                <h4>Proposal Guidelines</h4>
+                <h2>Welcome to Multimedia Fundamentals for the trimester 2430. As IT students, you may not be training in design or artistic skill, but so much of art, design and entertainment takes place through computers that a strong understanding of how these things are handled digitally is important in your studies.
+
+                    I also suspect that many of you are have at least some art or design talents and motivations, and like all things, these things can be learned through practice. So this course is an opportunity to put those leanings to practice. Looking forward to seeing all the amazing things you will create this trimester!
+                </h2>
+            </form>
+        </div>
+        <div class="status-bar">
+            <input type="radio" id="rejected" name="status">
+            <label for="rejected">Rejected</label>
+
+            <input type="radio" id="pending" name="status">
+            <label for="pending">Pending</label>
+
+            <input type="radio" id="redo" name="status">
+            <label for="redo">Redo</label>
+
+            <input type="radio" id="review" name="status">
+            <label for="review">In review</label>
+
+            <input type="radio" id="approved" name="status">
+            <label for="approved">Approved</label>
+        </div>
+        <div class="container">
+            <form>
+                <h4>Create Proposal</h4>
+                <p>Short text field</p>
+                <input type="text" id="shorttextfield" name="shorttextfield" placeholder="Placeholder" required>
+                <p>Long text field</p>
+                <textarea id="longtextfield" name="longtextfield" placeholder="Placeholder" rows="4" cols="50" required></textarea>
+                <p>Selection field</p>
+                <select id="selectionfield" name="selectionfield" required>
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+                <p>Checkbox field</p>
+                <input type="checkbox" id="option1" name="option1" value="option1">
+                <label for="option1">Option 1</label><br>
+                <input type="checkbox" id="option2" name="option2" value="option2">
+                <label for="option2">Option 2</label><br>
+                <input type="checkbox" id="option3" name="option3" value="option3">
+                <label for="option3">Option 3</label><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

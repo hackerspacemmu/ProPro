@@ -4,11 +4,10 @@ class Project < ApplicationRecord
   belongs_to :course
 
   has_many :project_instances, dependent: :destroy
-  #delegate :course, to: :enrolment
-  #has_one :course, through: :enrolment
+  has_many :comments, dependent: :destroy
   enum :status, { pending: 0, approved: 1, rejected: 2 }
 
   def supervisor
-    Enrolment.find(self.enrolment_id)
+    User.find(Enrolment.find(self.enrolment_id).user_id)
   end
 end

@@ -1,8 +1,27 @@
-<h1>Forgot your password?</h1>
+<!DOCTYPE html>
+<html lang="en">
 
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+<head>
+    <%= stylesheet_link_tag "application" %>
+</head>
 
-<%= form_with url: passwords_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.submit "Email reset instructions" %>
-<% end %>
+<body>
+    <div class="main">
+        <h2>FOUN-FCI-2510</h2>
+        <h1>CourseName</h1>
+        <h3>New Password</h3>
+        <br>
+
+        <div class="container">
+            <h1>Forgot your password?</h1>
+
+            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+            <br>
+
+            <%= form_with url: passwords_path do |form| %>
+            <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
+            <%= form.submit "Email reset instructions" %>
+            <% end %>
+        </div>
+    </div>
+</body>
