@@ -34,6 +34,8 @@ def show
 
   @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
+  @comments = @project.comments
+  @new_comment = Comment.new
 
 end
 
@@ -74,8 +76,6 @@ def update
   if params[:id] && @project.nil?
     redirect_to course_projects_path(@course), alert: "You are not authorized"
   end
-
-
 
   if @instance.save
     if params[:fields].present?

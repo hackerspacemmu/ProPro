@@ -1,32 +1,126 @@
-document.addEventListener('DOMContentLoaded', function() {
-  const addFieldBtn = document.getElementById('add-field-btn');
+document.addEventListener("turbo:load", function() {
+  const addFieldBtn    = document.getElementById('add-field-btn');
   const templateFields = document.getElementById('template-fields');
-  var courseId = addFieldBtn.dataset.courseId;
-  
-  console.log("🛠 project_templates.js loaded");
-  
+  const courseId       = addFieldBtn.dataset.courseId;
+
   if (!addFieldBtn) return;
-  
-  let fieldIndex = parseInt(addFieldBtn.dataset.fieldIndex) || 0;
 
-  addFieldBtn.addEventListener('click', function() {
-    var url = '/courses/' + courseId + '/project_template/new_field' + '?index=' + fieldIndex;
+  let fieldIndex = parseInt(addFieldBtn.dataset.fieldIndex, 10) || 0;
 
-    fetch(url).then(function(response) { return response.text();})
-    .then(function(html) {templateFields.insertAdjacentHTML('beforeend', html); 
-      fieldIndex++;
-    });
+  addFieldBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const url = '/courses/' + courseId + '/project_template/new_field' +
+                '?index=' + fieldIndex;
+
+    fetch(url)
+      .then(response => response.text())
+      .then(html => {
+        templateFields.insertAdjacentHTML('beforeend', html);
+        const rows          = templateFields.querySelectorAll('.field-row');
+        const newFieldRow   = rows[rows.length - 1];
+        const optionsSection = newFieldRow.querySelector('.options-section');
+
+        if (optionsSection) {
+          optionsSection.classList.add('hidden');
+        }
+
+        fieldIndex++;
+      });
   });
 
   templateFields.addEventListener('change', function(e) {
-    if (e.target.classList.contains('field-type-select')) {
-      const fieldRow = e.target.closest('.field-row');
-      const optionsSection = fieldRow.querySelector('.options-section');
-      const fieldType = e.target.value;
-      
-      if (optionsSection) {
-        optionsSection.style.display = (fieldType === 'dropdown' || fieldType === 'radio') ? 'block' : 'none'; 
+    if (!e.target.classList.contains('field-type-select')) return;
+
+    const fieldRow      = e.target.closest('.field-row');
+    const optionsSection = fieldRow.querySelector('.options-section');
+    const fieldType     = e.target.value;
+
+    if (optionsSection) {
+      optionsSection.style.display = '';
+      if (fieldType === 'dropdown' || fieldType === 'radio') {
+        optionsSection.classList.remove('hidden');
+      } else {
+        optionsSection.classList.add('hidden');
       }
     }
   });
+
+  templateFields.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-field')) {
+      e.preventDefault();
+      
+      const fieldRow = e.target.closest('.field-row');
+      const destroyFlag = fieldRow.querySelector('.destroy-flag');
+      
+      if (destroyFlag) {
+        destroyFlag.value = 'true';
+        fieldRow.style.display = 'none';
+      } else {
+        fieldRow.remove();
+      }
+    }
+  });
+
+  templateFields.addEventListener('click', function(e) {
+    if (e.target.classList.contains('add-option-btn')) {
+      e.preventDefault();
+
+      const btn         = e.target;
+      const fieldIndex  = btn.dataset.fieldIndex;
+      const optionIndex = parseInt(btn.dataset.optionIndex, 10);
+      const fieldType   = btn.dataset.fieldType;
+      const containerSelector = fieldType === 'dropdown'
+                                ? '.options-list'
+                                : '.radio-grid';
+      const container   = btn.closest('.options-section')
+                           .querySelector(containerSelector);
+
+      const fetcher = fieldType === 'dropdown' ? createDropdownOption: createRadioOption;
+
+      fetcher(fieldIndex, optionIndex).then(html => {
+        container.insertAdjacentHTML('beforeend', html);
+        btn.dataset.optionIndex = optionIndex + 1;
+      });
+    }
+
+    if (e.target.classList.contains('remove-option')) {
+      e.preventDefault();
+      const optionRow = e.target.closest('.dropdown-option-row, .radio-option-cell');
+      optionRow && optionRow.remove();
+    }
+  });
+
+  templateFields.addEventListener('focusin', function(e) {
+    const row = e.target.closest('.field-row');
+    if (row) row.classList.add('focus-within');
+  });
+
+  templateFields.addEventListener('focusout', function(e) {
+    const row = e.target.closest('.field-row');
+    if (row && !row.contains(document.activeElement)) {
+      row.classList.remove('focus-within');
+    }
+  });
+
+  function createDropdownOption(fieldIndex, optionIndex) {
+    const url = '/courses/' + courseId +
+                '/project_template/new_option' +
+                '?field_index='  + fieldIndex +
+                '&option_index=' + optionIndex +
+                '&field_type=dropdown';
+
+    return fetch(url).then(response => response.text());
+  }
+
+  function createRadioOption(fieldIndex, optionIndex) {
+    const url = '/courses/' + courseId +
+                '/project_template/new_option' +
+                '?field_index='  + fieldIndex +
+                '&option_index=' + optionIndex +
+                '&field_type=radio';
+
+    return fetch(url).then(response => response.text());
+  }
+
 });

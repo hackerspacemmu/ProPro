@@ -155,7 +155,6 @@ GEM
     marcel (1.0.4)
     matrix (0.4.3)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.9)
     minitest (5.25.5)
     msgpack (1.8.0)
     net-imap (0.5.9)
@@ -173,9 +172,6 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     nio4r (2.7.4)
-    nokogiri (1.18.8)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
     nokogiri (1.18.8-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.8-aarch64-linux-musl)
@@ -183,8 +179,6 @@ GEM
     nokogiri (1.18.8-arm-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.8-arm-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.18.8-x64-mingw-ucrt)
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
@@ -311,13 +305,10 @@ GEM
       fugit (~> 1.11.0)
       railties (>= 7.1)
       thor (~> 1.3.1)
-    sqlite3 (2.7.2)
-      mini_portile2 (~> 2.8.0)
     sqlite3 (2.7.2-aarch64-linux-gnu)
     sqlite3 (2.7.2-aarch64-linux-musl)
     sqlite3 (2.7.2-arm-linux-gnu)
     sqlite3 (2.7.2-arm-linux-musl)
-    sqlite3 (2.7.2-x64-mingw-ucrt)
     sqlite3 (2.7.2-x86_64-linux-gnu)
     sqlite3 (2.7.2-x86_64-linux-musl)
     sshkit (1.24.0)
@@ -340,8 +331,6 @@ GEM
       railties (>= 7.1.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2025.2)
-      tzinfo (>= 1.0.0)
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
@@ -367,8 +356,6 @@ PLATFORMS
   aarch64-linux-musl
   arm-linux-gnu
   arm-linux-musl
-  ruby
-  x64-mingw-ucrt
   x86_64-linux
   x86_64-linux-gnu
   x86_64-linux-musl

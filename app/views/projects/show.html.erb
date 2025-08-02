@@ -73,8 +73,26 @@
 <p><% @lecturers %></p>
 
 
-
-
 <p>
   <%= link_to "Back to all proposals", course_projects_path(@course) %>
 </p>
+
+<div>
+  <h2>Comments</h2>
+  <% if @comments %>
+    <% @comments.each do |comment| %>
+      <div>
+        <h4><%= comment.user.username %></h4>
+        <p><%= comment.text %></p>
+      </div>
+      <% end %>
+  <% else %>
+    <p>There are no comments<p>
+  <% end %>
+
+  <%= form_with model:[@course, @project, @new_comment] do |form| %>
+    <%= form.label :user_comment, "Your Comment" %>
+    <%= form.text_area :user_comment %>
+    <%= form.submit "Post Comment" %>
+  <% end %>
+</div>

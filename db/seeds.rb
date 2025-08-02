@@ -213,7 +213,7 @@ group_ownership = Ownership.create!(
 
 # Create Projects
 alex_project = Project.create!(
-  enrolment: alex_student_enrolment,
+  enrolment: willie_lecturer_enrolment,
   ownership: alex_ownership,
   course_id: alex_student_enrolment.course_id,
   status: 0 # pending/draft status
