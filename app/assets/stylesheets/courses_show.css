@@ -407,7 +407,7 @@ p {
   text-decoration: none;
   color: inherit;
   display: block;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .project-card {
@@ -465,7 +465,7 @@ p {
   color: #5D5D5D;
   white-space: pre-line;
   line-height: 1.4;
-} 
+}
 
 .card-link {
   text-decoration: none;
@@ -474,7 +474,7 @@ p {
 }
 
 .card-link:hover .project-card {
-  background-color: #275d42; 
+  background-color: #275d42;
   transition: background-color 0.2s ease-in-out;
 }
 
