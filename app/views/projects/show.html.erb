@@ -83,7 +83,14 @@
     <% @comments.each do |comment| %>
       <div>
         <h4><%= comment.user.username %></h4>
-        <p><%= comment.text %></p>
+        <% if !comment.deleted %>
+          <p><%= comment.text %></p>
+          <% if Current.user == comment.user %>
+            <%= link_to "X", soft_delete_course_project_comment_path(@course, @project, comment), data: { turbo_method: :patch } %>
+          <% end %>
+        <% else %>
+          <p>This comment was deleted</p>
+        <% end %>
       </div>
       <% end %>
   <% else %>

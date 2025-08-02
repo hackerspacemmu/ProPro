@@ -4,7 +4,7 @@ willie = User.create!(
   username: "willie",
   has_registered: true,
   student_id: nil,
-  mmu_directory: "willie",
+  web_link: "willie",
   is_staff: true,
   password: "password123"
 )
@@ -14,7 +14,7 @@ suhaini = User.create!(
   username: "suhaini",
   has_registered: true,
   student_id: nil,
-  mmu_directory: "suhaini",
+  web_link: "suhaini",
   is_staff: true,
   password: "password123"
 )
@@ -24,7 +24,7 @@ alex = User.create!(
   username: "alex",
   has_registered: true,
   student_id: "1191202123",
-  mmu_directory: "alex_student",
+  web_link: "alex_student",
   is_staff: false,
   password: "password123"
 )
@@ -34,7 +34,7 @@ soo = User.create!(
   username: "soo", 
   has_registered: true,
   student_id: "1191202124",
-  mmu_directory: "soo_student",
+  web_link: "soo_student",
   is_staff: false,
   password: "password123"
 )
@@ -44,7 +44,7 @@ niilesh = User.create!(
   username: "niilesh",
   has_registered: true, 
   student_id: "1191202125",
-  mmu_directory: "niilesh_student",
+  web_link: "niilesh_student",
   is_staff: false,
   password: "password123"
 )
