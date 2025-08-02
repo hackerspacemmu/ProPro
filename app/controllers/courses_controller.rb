@@ -104,6 +104,13 @@ class CoursesController < ApplicationController
           end
 
           create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
+
+          if @course.grouped
+            @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
+          else
+            @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
+          end
+
         end
       rescue StandardError => e
         redirect_back_or_to "/", alert: e.message
@@ -123,7 +130,7 @@ class CoursesController < ApplicationController
 
       @new_course = Course.new(
         course_name: response[:course_name],
-        grouped: response[:grouped],
+        grouped: response[:grouped]
       )
 
       begin
@@ -144,6 +151,8 @@ class CoursesController < ApplicationController
             course: @new_course,
             role: :lecturer
           )
+
+
         end
       rescue StandardError => e
         @new_course.destroy

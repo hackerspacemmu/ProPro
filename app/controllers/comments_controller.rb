@@ -6,7 +6,7 @@ class CommentsController < ApplicationController
     parent_project = Project.find(params[:project_id])
     parent_course = Course.find(params[:course_id])
 
-    if Current.user.nil? or parent_project.nil? or parent_course.nil?
+    if Current.user.nil?
       return
     end
 
@@ -27,6 +27,22 @@ class CommentsController < ApplicationController
       project: parent_project,
       text: params[:comment][:user_comment]
       )
+
+    redirect_to course_project_path(parent_course, parent_project)
+  end
+
+  def soft_delete
+    parent_project = Project.find(params[:project_id])
+    parent_course = Course.find(params[:course_id])
+    comment = Comment.find(params[:id])
+
+    if Current.user.nil?
+      return
+    end
+
+    if Current.user == comment.user
+      comment.update!(deleted: true)
+    end
 
     redirect_to course_project_path(parent_course, parent_project)
   end
