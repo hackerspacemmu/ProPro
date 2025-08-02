@@ -1,0 +1,18 @@
+<section class="project-fields">
+  <header class="section-header">
+    <h2 class="section-title">Project Details</h2>
+  </header>
+  
+  <div class="fields-container">
+    <% fields.each do |field| %>
+      <div class="field-row">
+        <div class="field-label">
+          <%= field.project_template_field.label %>
+        </div>
+        <div class="field-value">
+          <%= simple_format(field.value.presence || "No content provided") %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

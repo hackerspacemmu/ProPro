@@ -1,0 +1,49 @@
+<header class="project-header">
+  <h1 class="project-title"><%= current_instance.title %></h1>
+  
+  <div class="project-metadata">
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <span class="metadata-label">Owner</span>
+        <span class="metadata-value">
+          <% if owner.is_a?(User) %>
+            <%= owner.username %>
+          <% else %>
+            <%= owner.group_name %>
+          <% end %>
+        </span>
+      </div>
+
+      <div class="metadata-item">
+        <span class="metadata-label">Type</span>
+        <span class="metadata-value"><%= type %></span>
+      </div>
+
+      <div class="metadata-item">
+        <span class="metadata-label">Status</span>
+        <span class="metadata-value status-<%= project.status %>">
+          <%= project.status.humanize %>
+        </span>
+      </div>
+
+      <% if members.any? %>
+        <div class="metadata-item members">
+          <span class="metadata-label">Group Members</span>
+          <span class="metadata-value">
+            <%= members.map(&:username).join(", ") %>
+          </span>
+        </div>
+      <% end %>
+
+      <% if current_version != latest_version %>
+        <div class="metadata-item version-info">
+          <span class="metadata-label">Version</span>
+          <span class="metadata-value">
+            <%= instances.size - current_version %> of <%= instances.size %>
+            <em class="version-note">(viewing older version)</em>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</header>

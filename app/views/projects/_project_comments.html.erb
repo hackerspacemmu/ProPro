@@ -1,0 +1,42 @@
+<section class="project-comments">
+  <header class="section-header">
+    <h2 class="section-title">Comments</h2>
+  </header>
+
+  <div class="comments-container">
+    <% if comments.any? %>
+      <div class="comments-list">
+        <% comments.each do |comment| %>
+          <article class="comment">
+            <header class="comment-header">
+              <h4 class="comment-author"><%= comment.user.username %></h4>
+              <time class="comment-date">
+                <%= time_ago_in_words(comment.created_at) %> ago
+              </time>
+            </header>
+            <div class="comment-body">
+              <%= simple_format(comment.text) %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="no-comments">
+        <p>There are no comments yet.</p>
+      </div>
+    <% end %>
+
+    <!-- Comment Form -->
+    <div class="comment-form-container">
+      <%= form_with model: [course, project, new_comment], local: true, class: "comment-form" do |form| %>
+        <div class="form-group">
+          <%= form.label :user_comment, "Add a comment", class: "form-label" %>
+          <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "Share your thoughts..." %>
+        </div>
+        <div class="form-actions">
+          <%= form.submit "Post Comment", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
