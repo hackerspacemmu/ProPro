@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
     resource :project_template, only: [:new, :create, :edit, :update, :show] do
       get 'new_field', on: :member
+      get 'new_option', on: :member
     end
   end
 
