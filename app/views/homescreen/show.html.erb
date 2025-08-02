@@ -29,8 +29,9 @@
                     <a href="<%= course_path(course) %>" class="card-link">
                     <div class="project-card">
                         <ul>
-                        <h4><%= course.course_name %></h4>
-                        <p class="lecturer"> Coordinator: <%= course.coordinator.user.username %></p>
+                        <b style="font-weight: bold;"><%= course.course_name %></b>
+                        <br>
+                        <b> Coordinator: <%= course.coordinator.user.username %></b>
                         <ul>
                             <li class="project-card inner">
                             <p class="text"><%= course.course_description || "No description available" %></p>
