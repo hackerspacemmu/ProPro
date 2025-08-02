@@ -34,7 +34,7 @@ class Course < ApplicationRecord
     before_validation :null_number_of_updates_if_not_used
 
     def coordinator
-        self.enrolments.where(role: :coordinator)
+        self.enrolments.find_by(role: :coordinator)
     end
 
     def students

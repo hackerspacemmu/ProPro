@@ -2,14 +2,13 @@
 <html lang="en">
 
 <head>
-    <%= stylesheet_link_tag "application" %>
+    <%= stylesheet_link_tag "courses" %>
 </head>
 
 <body>
     <div class="main">
-        <h2>FOUN-FCI-2510</h2>
-        <h1>CourseName</h1>
-        <h3>New Student</h3>
+        <h1><%= Current.user.username.humanize %>'s profile</h1>
+        <h3>Editing</h3>
         <br>
 
         <div class="container">
@@ -24,7 +23,7 @@
             <%= form.text_field :web_link %>
             <%= form.label :description, "Description" %>
             <%= form.text_area :description %>
-            <%= form.submit "Save" %>
+            <%= form.submit "Save changes" %>
             <% end %>
         </div>
     </div>

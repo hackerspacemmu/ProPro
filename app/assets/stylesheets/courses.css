@@ -111,12 +111,108 @@ ul.breadcrumb li b {
     vertical-align: middle;
 }
 
-.container {
+.rounded-add-button
+{
+    background-color: green;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    line-height: 50px;
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+}
+
+/* Copied alex's css */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 327px);
+  grid-auto-rows: 175px;
+  gap: 21px;
+  justify-content: start;
+}
+
+.card-link {
+  text-decoration: none;
+  color: #FFFFFF;
+  display: block;
+  flex-shrink: 0;
+}
+
+.project-card {
+    color: #FFFFFF;
+    background-color: #1d2f24;
     display: flex;
-    border-radius: 10px;
-    width: 100%;
-    padding: 15px;
-    background-color: #ffffff;
+    flex-wrap: wrap;
+    z-index: 0;
+    width: 327px;
+    height: 175px;
+    font-size: 14px;
+    border-radius: 12px;
+    border: 2px solid #B5B5B5;
+    overflow: hidden;
+}
+
+.project-card .lecturer {
+  position: relative;
+  right: -30px;
+  top: 20px;
+  color: #FFFFFF;
+
+}
+
+.project-card h4 {
+  position: relative;
+  right: -30px;
+  top: 20px;
+}
+
+.project-card ul {
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.project-card li {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.project-card.inner {
+  position: relative;
+  width: 304px;
+  height: 105px;
+  background-color: #F8F9FA;
+  z-index: 1;
+  right: -30px;
+  top: 35px;
+  border-radius: none;
+  overflow: hidden;
+}
+
+.project-card.inner .text{
+  color: #5D5D5D;
+  white-space: pre-line;
+  line-height: 1.4;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-link:hover .project-card {
+  background-color: #275d42;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.card-link:hover .project-card.inner {
+  background-color: #F8F9FA;
 }
 
 h1 {
@@ -215,3 +311,5 @@ input[type="submit"] {
         font-size: 18px;
     }
 }
+
+

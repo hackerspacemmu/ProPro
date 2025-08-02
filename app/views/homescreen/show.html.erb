@@ -3,10 +3,15 @@
 <%= stylesheet_link_tag "courses" %>
 <head>
     <div class="topbar">
-        <a href="#home">Willie's Dashboard</a>
+    <% if Current.user.is_staff %>
+        <%= link_to "#{Current.user.username}'s Dashboard", user_profile_path %>
+    <% else %>
+        <%= link_to "#{Current.user.username}'s Dashboard" %>
+    <% end %>
     </div>
     <ul class="breadcrumb">
-        <li><a href="user_course.html">Home</a></li>
+        <li><%= link_to "Home", root_url %></li>
+        <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
     </ul>
 </head>
 
@@ -18,11 +23,29 @@
         <h1>Dashboard</h1>
         <h3>Your Courses</h3>
         <br>
-        <div class="remindergap">
-            <h5><img src="info.png" class="icon" size="20S">You have no courses at the moment. Please create one.</h5>
+        <div class="cards-container">
+            <% if @courses %>
+                <% @courses.each do |course| %>
+                    <a href="<%= course_path(course) %>" class="card-link">
+                    <div class="project-card">
+                        <ul>
+                        <h4><%= course.course_name %></h4>
+                        <p class="lecturer"> Coordinator: <%= course.coordinator.user.username %></p>
+                        <ul>
+                            <li class="project-card inner">
+                            <p class="text"><%= course.course_description || "No description available" %></p>
+                            </li>
+                        </ul>
+                        </ul>
+                    </div>
+                    </a>
+                <% end %>
+            <% else %>
+                <h5><img src="info.png" class="icon" size="20S">You have no courses at the moment. Please create one.</h5>
+            <% end %>
         </div>
-        <h3 style="text-align: center;">// button with centered styling //</h3>
+        <%= link_to "+", new_course_path, class: "rounded-add-button" if Current.user.is_staff %>
     </div>
 </body>
-
 </html>
+

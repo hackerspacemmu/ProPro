@@ -7,7 +7,7 @@ Rails.application.routes.draw do
 
   root "homescreen#show"
 
-  resources :sessions
+  resource :session
   resources :passwords, param: :token
 
   resources :courses, only: [:show, :new, :create] do
