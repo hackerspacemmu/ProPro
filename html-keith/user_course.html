@@ -3,6 +3,8 @@
 <link rel="stylesheet" href="propro.css">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <div class="topbar">
         <a href="#home">Alex's 2510 Course View</a>
     </div>
@@ -19,7 +21,6 @@
         <a href="#home">Group Members</a>
     </div>
     <div class="main">
-        <h2>FOUN-FCI-2510</h2>
         <h1>CourseName</h1>
         <h3>Your Course</h3>
         <br>
@@ -32,45 +33,168 @@
                 </h2>
             </form>
         </div>
-        <div class="status-bar">
-            <input type="radio" id="rejected" name="status">
-            <label for="rejected">Rejected</label>
-
-            <input type="radio" id="pending" name="status">
-            <label for="pending">Pending</label>
-
-            <input type="radio" id="redo" name="status">
-            <label for="redo">Redo</label>
-
-            <input type="radio" id="review" name="status">
-            <label for="review">In review</label>
-
-            <input type="radio" id="approved" name="status">
-            <label for="approved">Approved</label>
+        <div class="container">
+            <h4>Proposal Status</h4>
+            <div class="progress-container">
+                <div class="progress" id="progress"></div>
+                <div class="step active">
+                    <div class="circle"><img src="pending.svg"></div>
+                    <div class="label">Pending</div>
+                </div>
+                <div class="step">
+                    <div class="circle"><img src="redo.svg"></div>
+                    <div class="label">Redo</div>
+                </div>
+                <div class="step">
+                    <div class="circle"><img src="in_review.svg"></div>
+                    <div class="label">In review</div>
+                </div>
+                <div class="step">
+                    <div class="circle"><img src="approved.svg"></div>
+                    <div class="label">Approved</div>
+                </div>
+            </div>
+            <button class="btn" id="prev">Previous</button>
+            <button class="btn" id="next">Next</button>
         </div>
         <div class="container">
-            <form>
-                <h4>Create Proposal</h4>
-                <p>Short text field</p>
-                <input type="text" id="shorttextfield" name="shorttextfield" placeholder="Placeholder" required>
-                <p>Long text field</p>
-                <textarea id="longtextfield" name="longtextfield" placeholder="Placeholder" rows="4" cols="50" required></textarea>
-                <p>Selection field</p>
-                <select id="selectionfield" name="selectionfield" required>
-                    <option value="" disabled selected>Select an option</option>
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                </select>
-                <p>Checkbox field</p>
-                <input type="checkbox" id="option1" name="option1" value="option1">
-                <label for="option1">Option 1</label><br>
-                <input type="checkbox" id="option2" name="option2" value="option2">
-                <label for="option2">Option 2</label><br>
-                <input type="checkbox" id="option3" name="option3" value="option3">
-                <label for="option3">Option 3</label><br>
-                <input type="submit" value="Submit">
-            </form>
+            <h4>Supervisors Available</h4>
+            <ul class="supervisors">
+                <li class="profile">
+                    <div class="avatar">W</div>
+                    <div class="info">
+                        <div class="top">
+                            <div class="name">Mr. Willie Poh Kaw Lik</div>
+                            <span class="capacity">0/4</span>
+                        </div>
+                        <div class="last-seen">last seen yesterday</div>
+                        <div class="avg-time">avg response time – 1 day</div>
+                    </div>
+                </li>
+                <li class="profile">
+                    <div class="avatar">W</div>
+                    <div class="info">
+                        <div class="top">
+                            <div class="name">Wesley Lim Khai</div>
+                            <span class="capacity">0/4</span>
+                        </div>
+                        <div class="last-seen">last seen 2 years ago</div>
+                        <div class="avg-time">avg response time – 2 months</div>
+                    </div>
+                </li>
+                <li class="profile">
+                    <div class="avatar">W</div>
+                    <div class="info">
+                        <div class="top">
+                            <div class="name">Wesley Lim Khai</div>
+                            <span class="capacity">0/4</span>
+                        </div>
+                        <div class="last-seen">last seen 2 years ago</div>
+                        <div class="avg-time">avg response time – 2 months</div>
+                    </div>
+                </li>
+                <li class="profile">
+                    <div class="avatar">W</div>
+                    <div class="info">
+                        <div class="top">
+                            <div class="name">Wesley Lim Khai</div>
+                            <span class="capacity">0/4</span>
+                        </div>
+                        <div class="last-seen">last seen 2 years ago</div>
+                        <div class="avg-time">avg response time – 2 months</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="container">
+            <h4>Topics</h4>
+            <div class="project-list-gapper">
+                <div class="cards-container">
+                    <a href="#" class="card-link">
+                        <div class="project-card">
+                            <ul>
+                                <b style="font-weight: bold;">Student Peer Review System</b>
+                                <br>
+                                <b>Mr. Willie Poh Kaw Lik</b>
+                                </b>
+                                <ul>
+                                    <li class="project-card inner">
+                                        <p class="text">o Users – create, delete, login, logout, change password
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes
+                                            o Review (Student) – review group member, add comment o Data – import students/groups from CSV, export results to CSV
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+                <div class="cards-container">
+                    <a href="#" class="card-link">
+                        <div class="project-card">
+                            <ul>
+                                <b style="font-weight: bold;">Student Peer Review System</b>
+                                <br>
+                                <b>Mr. Willie Poh Kaw Lik</b>
+                                </b>
+                                <ul>
+                                    <li class="project-card inner">
+                                        <p class="text">o Users – create, delete, login, logout, change password
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes
+                                            o Review (Student) – review group member, add comment o Data – import students/groups from CSV, export results to CSV
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+                <div class="cards-container">
+                    <a href="#" class="card-link">
+                        <div class="project-card">
+                            <ul>
+                                <b style="font-weight: bold;">Student Peer Review System</b>
+                                <br>
+                                <b>Mr. Willie Poh Kaw Lik</b>
+                                </b>
+                                <ul>
+                                    <li class="project-card inner">
+                                        <p class="text">o Users – create, delete, login, logout, change password
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes
+                                            o Review (Student) – review group member, add comment o Data – import students/groups from CSV, export results to CSV
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+                <div class="cards-container">
+                    <a href="#" class="card-link">
+                        <div class="project-card">
+                            <ul>
+                                <b style="font-weight: bold;">Student Peer Review System</b>
+                                <br>
+                                <b>Mr. Willie Poh Kaw Lik</b>
+                                </b>
+                                <ul>
+                                    <li class="project-card inner">
+                                        <p class="text">o Users – create, delete, login, logout, change password
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes
+                                            o Review (Student) – review group member, add comment o Data – import students/groups from CSV, export results to CSV
+                                            o Extra – Flexible/options in review settings/calculations, multiple classes.
+                                        </p>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 </body>
