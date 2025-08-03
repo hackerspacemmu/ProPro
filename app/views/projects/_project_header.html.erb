@@ -4,40 +4,48 @@
   <div class="project-metadata">
     <div class="metadata-grid">
       <div class="metadata-item">
-        <span class="metadata-label">Owner</span>
-        <span class="metadata-value">
+        <span class="metadata-label"><%= image_tag("person.svg") %> Assignee</span>
+        <div class="metadata-value">
           <% if owner.is_a?(User) %>
-            <%= owner.username %>
+              <p class="assignee-row">
+                <span class="user-badge"><%= owner.username[0].upcase %></span>  
+                <%= owner.username %>
+              </p>
           <% else %>
-            <%= owner.group_name %>
+            <% project.owner.users.each do |user| %>
+              <p class="assignee-row">
+                <span class="user-badge"><%= user.username[0].upcase %></span>  
+                <%= user.username %>
+              </p>
+            <% end %>
           <% end %>
-        </span>
+        </div>
       </div>
 
+      <% if project.owner.is_a?(ProjectGroup) %>
+        <div class="metadata-item">
+          <span class="metadata-label"><%= image_tag("group.svg") %> Group Name</span>
+          <span class="metadata-value">
+            <%= project.owner.group_name %>
+          </span>
+        </div>
+      <% end %>
+
       <div class="metadata-item">
-        <span class="metadata-label">Type</span>
+        <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
         <span class="metadata-value"><%= type %></span>
       </div>
 
       <div class="metadata-item">
-        <span class="metadata-label">Status</span>
+        <span class="metadata-label"><%= image_tag("status.svg") %> Status</span>
         <span class="metadata-value status-<%= project.status %>">
           <%= project.status.humanize %>
         </span>
       </div>
 
-      <% if members.any? %>
-        <div class="metadata-item members">
-          <span class="metadata-label">Group Members</span>
-          <span class="metadata-value">
-            <%= members.map(&:username).join(", ") %>
-          </span>
-        </div>
-      <% end %>
-
       <% if current_version != latest_version %>
         <div class="metadata-item version-info">
-          <span class="metadata-label">Version</span>
+          <span class="metadata-label"><%= image_tag("version.svg") %> Version</span>
           <span class="metadata-value">
             <%= instances.size - current_version %> of <%= instances.size %>
             <em class="version-note">(viewing older version)</em>

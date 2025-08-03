@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%= stylesheet_link_tag "courses" %>
+</head>
+
+<body>
+    <div class="main">
+        <h1><%= Current.user.username.humanize %>'s profile</h1>
+        <h3>Editing</h3>
+        <br>
+
+        <div class="container">
+            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+            <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+            <br>
+
+            <%= form_with url: user_edit_path, model: @user, method: :post do |form| %>
+            <%= form.label :username, "Username" %>
+            <%= form.text_field :username %>
+            <%= form.label :web_link, "Link to MMU directory/Portfolio" %>
+            <%= form.text_field :web_link %>
+            <%= form.label :description, "Description" %>
+            <%= form.text_area :description %>
+            <%= form.submit "Save changes" %>
+            <% end %>
+        </div>
+    </div>
+</body>

@@ -5,6 +5,7 @@ class Project < ApplicationRecord
 
   has_many :project_instances, dependent: :destroy
   has_many :comments, dependent: :destroy
+  delegate :owner, to: :ownership
   enum :status, { pending: 0, approved: 1, rejected: 2 }
 
   def supervisor

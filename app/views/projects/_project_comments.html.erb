@@ -8,14 +8,19 @@
       <div class="comments-list">
         <% comments.each do |comment| %>
           <article class="comment">
-            <header class="comment-header">
-              <h4 class="comment-author"><%= comment.user.username %></h4>
-              <time class="comment-date">
-                <%= time_ago_in_words(comment.created_at) %> ago
-              </time>
-            </header>
-            <div class="comment-body">
-              <%= simple_format(comment.text) %>
+            <div class="comment-marker">
+              <span class="user-badge"><%= comment.user.username[0].upcase %></span>
+            </div>
+            <div class="comment-body-wrapper">
+              <header class="comment-header">
+                <h4 class="comment-author"><%= comment.user.username %></h4>
+                <time class="comment-date">
+                  <%= time_ago_in_words(comment.created_at) %> ago
+                </time>
+              </header>
+              <div class="comment-body">
+                <%= simple_format(comment.text) %>
+              </div>
             </div>
           </article>
         <% end %>
@@ -25,16 +30,16 @@
         <p>There are no comments yet.</p>
       </div>
     <% end %>
-
-    <!-- Comment Form -->
+          
     <div class="comment-form-container">
       <%= form_with model: [course, project, new_comment], local: true, class: "comment-form" do |form| %>
         <div class="form-group">
-          <%= form.label :user_comment, "Add a comment", class: "form-label" %>
-          <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "Share your thoughts..." %>
-        </div>
-        <div class="form-actions">
-          <%= form.submit "Post Comment", class: "btn btn-primary" %>
+          <div class="comment-input-wrapper">
+            <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "add a comment..." %>
+            <%= form.button class: "send-btn", type: "submit", title: "Send comment" do %>
+              <%= image_tag "send.svg" %>
+            <% end %>
+          </div>
         </div>
       <% end %>
     </div>

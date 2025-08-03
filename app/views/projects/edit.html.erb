@@ -1,32 +1,64 @@
-<h1>Edit Proposal</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%= stylesheet_link_tag "projects" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Project</title>
+</head>
+<body>
+    <main class="project-edit">
+        <header class="edit-header">
+          <div class="edit-header-row">
+            <h1 class="edit-title"> Edit Proposal  <%= image_tag("edit.svg") %></h1>
+          </div>
+          <p class="edit-description">Update your project details and information below.</p>
+        </header>
 
-<%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch) do %>
-  <% @template_fields.each do |field| %>
-    <div class="field">
-      <%= label_tag "fields_#{field.id}", field.label, title: field.hint %>
+        <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
+            <div class="fields-container">
+                <% @template_fields.each do |field| %>
+                    <div class="field-row">
+                        <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
+                        
+                        <% if field.hint.present? %>
+                            <p class="field-hint"><%= field.hint %></p>
+                        <% end %>
 
-      <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
+                        <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
+                        
+                        <% case field.field_type %>
+                        <% when "shorttext" %>
+                            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: "Your answer" %>
+                            
+                        <% when "textarea" %>
+                            <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: "Your answer", rows: 6 %>
+                            
+                        <% when "dropdown" %>
+                            <%= select_tag "fields[#{field.id}]", options_for_select(field.options.map { |opt| [opt, opt] }, existing_value), class: "form-control", prompt: "Choose an option" %>
+                            
+                        <% when "radio" %>
+                            <div class="radio-group">
+                                <% field.options.each_with_index do |option, index| %>
+                                    <div class="radio-option">
+                                        <%= radio_button_tag "fields[#{field.id}]", option, existing_value == option, id: "fields_#{field.id}_#{index}" %>
+                                        <%= label_tag "fields_#{field.id}_#{index}", option %>
+                                    </div>
+                                <% end %>
+                            </div>
+                            
+                        <% else %>
+                            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+                        <% end %>
+                    </div>
+                <% end %>
+            </div>
 
-      <% case field.field_type %>
-      <% when "shorttext" %>
-        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-      <% when "textarea" %>
-        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-      <% when "dropdown" %>
-        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
-      <% else %>
-        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <%= submit_tag "Update Proposal", class: "btn btn-primary" %>
-<% end %>
-
-  <p>
-  <%= link_to "Back to Proposal", course_project_path(@course, @project) %>
-</p>
-
-
-
-
+            <div class="form-actions">
+                <%= link_to "← Back to Proposal", course_project_path(@course, @project)  %>
+                <%= submit_tag "Submit", class: "btn btn-primary" %>
+            </div>
+        <% end %>
+    </main>
+</body>
+</html>
