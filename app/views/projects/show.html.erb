@@ -53,7 +53,7 @@
 
 <!-- Change Status --!>
 
-<% if staff? %>
+<%  if @project.supervisor == current_user  %>
   <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true do |f| %>
     <%= f.label :status, "Change Project Status:" %>
     <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @project.status) %>
@@ -63,12 +63,11 @@
 
 <!-- Student Edit -->
 <% if @members.include?(current_user) %>
-   <% if @project.status == "pending" && current_version == latest_version %>
-   <%= link_to "Edit Proposal", edit_course_project_path(@course, @project), class: "btn" %>
-   <% else %>
-  <p>Unable to Edit Project</p>
+  <% if @project.status == "pending" || @project.status == "rejected"%> 
+    <%= link_to "Edit Project", edit_course_project_path(@course, @project), class: "btn btn-primary" %>
   <% end %>
 <% end %>
+
 
 <p><% @lecturers %></p>
 

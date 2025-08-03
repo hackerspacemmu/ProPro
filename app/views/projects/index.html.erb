@@ -6,5 +6,11 @@
       <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Proposal",
                   course_project_path(@course, project) %>
     </li>
+
+  <% enrolment = current_user.enrolments.find_by(course: @course) %>
+  <% unless enrolment && Project.exists?(enrolment: enrolment) %>
+    <%= link_to "Create Project", new_course_project_path(@course), class: "btn btn-primary" %>
+  <% end %>
+
   <% end %>
 </ul>

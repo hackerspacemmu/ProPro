@@ -31,6 +31,11 @@ def show
 
   @current_instance = @instances[index]
 
+  if @current_instance.nil?
+    redirect_to course_topics_path(@course), alert: "No project instance available."
+    return
+  end
+
   @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
 
@@ -52,101 +57,178 @@ end
 
 def edit
 
-  @project = @course.projects.find(params[:id])
-  @instance = @project.project_instances.last || @project.project_instances.build
-  
-  # Exclude lecturer-only fields (applicable_to == 1)
-  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: 1)
-
-
-end
-
-def update
-
-  @instance = @project.project_instances.last
-
-  unless @instance
-    redirect_to course_topic_path(@course, @project), alert: "No project instance found to update."
+  if @project.status == "pending"
+    @instance = @project.project_instances.last || @project.project_instances.build
+  elsif @project.status == "rejected"
+    # Create a new version
+    version = @project.project_instances.maximum(:version).to_i + 1
+    @instance = @project.project_instances.build(version: version, created_by: current_user)
+  else
+    redirect_to course_project_path(@course, @project), alert: "This project cannot be edited."
     return
   end
 
-  #Sets Title 
+  # Exclude lecturer-only fields (optional)
+  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+end
+
+def update
+  if @project.status == "rejected"
+    version = @project.project_instances.maximum(:version).to_i + 1
+    @instance = @project.project_instances.build(version: version, created_by: current_user)
+  else
+    @instance = @project.project_instances.last
+  end
+
+  # Set title
   title_field_id = params[:fields].keys.first if params[:fields].present?
   @instance.title = params[:fields][title_field_id] if title_field_id.present?
-
-  if params[:id] && @project.nil?
-    redirect_to course_projects_path(@course), alert: "You are not authorized"
-  end
 
   if @instance.save
     if params[:fields].present?
       params[:fields].each do |field_id, value|
-        field_record = @instance.project_instance_fields.find_or_initialize_by(project_template_field_id: field_id)
-        field_record.value = value
-        field_record.save!
+        @instance.project_instance_fields.create!(
+          project_template_field_id: field_id,
+          value: value
+        )
       end
     end
-    redirect_to course_topic_path(@course, @project), notice: "project updated successfully."
+
+    @project.update(status: :pending) if @project.status == "rejected"
+
+    redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
   else
-    flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(", ")}"
+    flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
     @template_fields = @course.project_template.project_template_fields
     render :edit
   end
 end
 
+
+def new
+
+  enrolment = Enrolment.find_by(user: current_user, course: Course.find(params[:course_id]))
+
+  unless Current.user.is_staff
+    redirect_to course_topics_path(@course), alert: "You are not authorized"
+  end
+
+  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+end
+
+
+def create
+  enrolment = Enrolment.find_by(user: current_user, course: @course)
+
+  @course = Course.find(params[:course_id])
+
+  # Create enrolment for current_user as lecturer (if not already enrolled)
+  @enrolment = Enrolment.find_or_create_by!(
+    user: current_user,
+    course: @course,
+    role: enrolment&.role
+  )
+
+  # Create ownership with current_user as the owner
+  @ownership = Ownership.find_or_create_by!(
+    owner: @enrolment.user,
+    ownership_type: :lecturer
+  )
+
+  status = @course.require_coordinator_approval? ? :pending : :approved
+
+
+  # Create project with valid enrolment and ownership
+  @project = Project.create!(
+    course: @course,
+    enrolment: @enrolment,
+    ownership: @ownership,
+    status: status
+  )
+
+title_value = nil
+
+params[:fields]&.each do |field_id, value|
+  template_field = ProjectTemplateField.find(field_id)
+  if template_field.label.strip.downcase.include?("title")
+    title_value = value
+  end
+end
+
+#creates the instance
+@instance = @project.project_instances.create!(
+  version: 0,
+  title: title_value,
+  created_by: current_user
+)
+
+# saves all fields to the instance
+params[:fields]&.each do |field_id, value|
+  template_field = ProjectTemplateField.find(field_id)
+
+  @instance.project_instance_fields.create!(
+    project_template_field: template_field,
+    value: value
+  )
+end
+
+
+  redirect_to course_topics_path(@course), notice: "Topic created!"
+end
+end
+
+
+
+
 private 
 
 
-def access
-  @courses = Current.user.courses
-  @course = Course.find(params[:course_id])
+  def access
+    @courses = Current.user.courses
+    @course = Course.find(params[:course_id])
 
-  lecturer_projects = @course.projects.select do |project|
-    owner = project.ownership&.owner
-    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
-  end
-
-  @is_student = @course.enrolments.exists?(user: current_user, role: :student)
-
-
-  if params[:id]
-    @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
-
-    if @project.nil? || (@is_student && !@project.approved?)
-      redirect_to course_topics_path(@course), alert: "You are not authorized"
+    lecturer_projects = @course.projects.select do |project|
+      owner = project.ownership&.owner
+      owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
     end
-  else
-    if @is_student
-      @projects = lecturer_projects.select(&:approved?)
+
+    @is_student = @course.enrolments.exists?(user: current_user, role: :student)
+    @is_lecturer = @course.enrolments.exists?(user: current_user, role: :lecturer)
+    @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
+
+
+    if params[:id]
+      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
+
+      if @project.nil? || (@is_student && !@project.approved?)
+        redirect_to course_topics_path(@course), alert: "You are not authorized"
+      end
     else
-      @projects = lecturer_projects # all lecturers can see all lecturer topics
+      if @is_student
+        @projects = lecturer_projects.select(&:approved?)
+      else
+        @projects = lecturer_projects # all lecturers can see all lecturer topics
+      end
     end
-  end
 
   query = params[:query].to_s.downcase
 
-@projects = if @is_student
-  lecturer_projects.select(&:approved?)
-else
-  lecturer_projects
-end
-
-if query.present?
-  @projects = @projects.select do |project|
-    latest = project.project_instances.order(version: :desc).first
-    title = latest&.title&.downcase
-    description = latest&.project_instance_fields
-      &.includes(:project_template_field)
-      &.find { |f| f.project_template_field.label.downcase.include?("description") }
-      &.value&.downcase
-
-    title&.include?(query) || description&.include?(query)
+  @projects = if @is_student
+    lecturer_projects.select(&:approved?)
+  else
+    lecturer_projects
   end
-end
 
+  if query.present?
+    @projects = @projects.select do |project|
+      latest = project.project_instances.order(version: :desc).first
+      title = latest&.title&.downcase
+      description = latest&.project_instance_fields
+        &.includes(:project_template_field)
+        &.find { |f| f.project_template_field.label.downcase.include?("description") }
+        &.value&.downcase
 
-
-
-
-end
+      title&.include?(query) || description&.include?(query)
+    end
+  end
 end

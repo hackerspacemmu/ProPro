@@ -22,15 +22,13 @@
 
 
 
-<!-- Title -->
-<h2><%= @current_instance.title %></h2>
-
-<br>
-
 <!-- Field Desc, basically everythign from the form -->
 
 <% @fields.each do |field| %>
-  <p><strong><%= field.project_template_field.label %>:</strong> <%= field.value %></p>
+  <p>
+    <strong><%= field.project_template_field.label %>:</strong>
+    <%= field.value.presence || "No response." %>
+  </p>
 <% end %>
 
 <p><strong>Owner:</strong>
@@ -66,8 +64,8 @@
 
 <!-- Lecturer Edit -->
 <% if @members.include?(current_user) %>
-   <% if @project.status == "pending" && current_version == latest_version %>
-   <%= link_to "Edit Topic", edit_course_topic_path(@course, @project), class: "btn" %>
+   <% if @project.status == "pending" || @project.status == "rejected" && current_version == latest_version %>
+    <%= link_to "Edit Project", edit_course_topic_path(@course, @project), class: "btn btn-primary" %> 
    <% else %>
   <p>Unable to Edit Project</p>
   <% end %>
