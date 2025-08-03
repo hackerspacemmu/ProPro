@@ -222,17 +222,16 @@ private
 
 def access
   @course = Course.find(params[:course_id])
-  @courses = Current.user.courses
   @projects = @course.projects.select do |project|
     owner = project.ownership&.owner
     if owner.is_a?(User)
       @course.enrolments.exists?(user: owner, role: :student)
     elsif owner.is_a?(ProjectGroup)
-      # All members of the group must be students
+      # Optional check: all group members are students
       owner.users.all? { |user| @course.enrolments.exists?(user: user, role: :student) }
-  else
-    false
-  end
+    else
+      false
+    end
   end
 
   if params[:id]
