@@ -17,54 +17,36 @@
   <% end %>
 </p>
 
-<!-- End of Field Desc -->
+<ul>
+  <% @projects.each do |project| %>
+    <% latest_instance = project.project_instances.order(version: :desc).first %>
+    <% description_field = latest_instance&.project_instance_fields&.find do |field|
+         field.project_template_field.label.strip.downcase.include?("description")
+       end %>
 
-<!-- Member -->
-<% if @members.any? %>
-  <p><strong>Group Members:</strong> <%= @members.map(&:username).join(", ") %></p>
-<% end %>
+    <li>
+      <p>
+        <strong>Project:</strong>
+        <%= link_to latest_instance&.title || "Untitled Topic", course_project_path(@course, project) %>
+      </p>
 
+      <% owner = project.ownership&.owner %>
+      <% if owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :student) %>
+        <p><strong>Owner:</strong> <%= owner.username %></p>
+      <% end %>
 
-<p><strong>Status: </strong><%= @project.status %></p>
-
-<!-- Change Status --!>
-
-<% if staff? %>
-  <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true do |f| %>
-    <%= f.label :status, "Change Project Status:" %>
-    <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @project.status) %>
-    <%= f.submit "Update Status" %>
+      <% if description_field.present? %>
+        <p><strong>Description:</strong> <%= description_field.value %></p>
+      <% else %>
+        <p><em>No description available</em></p>
+      <% end %>
+    </li>
   <% end %>
+</ul>
+
+<% enrolment = current_user.enrolments.find_by(course: @course) %>
+<% unless enrolment && Project.exists?(enrolment: enrolment) %>
+  <%= link_to "Create Project", new_course_project_path(@course), class: "btn btn-primary" %>
 <% end %>
 
-<!-- Student Edit -->
-<% if @members.include?(current_user) %>
-   <% if @project.status == "pending" && current_version == latest_version %>
-   <%= link_to "Edit Proposal", edit_course_project_path(@course, @project), class: "btn" %>
-   <% else %>
-  <p>Unable to Edit Project</p>
-  <% end %>
-<% end %>
-
-<p><% @lecturers %></p>
-
-
-<p>
-  <%= link_to "Back to all proposals", course_projects_path(@course) %>
-</p>
-
-<div>
-  <h2>Comments</h2>
-  <% if @comments %>
-    <% @comments.each do |comment| %>
-      <div>
-        <h4><%= comment.user.username %></h4>
-        <% if !comment.deleted %>
-          <p><%= comment.text %></p>
-          <% if Current.user == comment.user %>
-            <%= link_to "X", soft_delete_course_project_comment_path(@course, @project, comment), data: { turbo_method: :patch } %>
-          <% end %>
-        <% else %>
-          <p>This comment was deleted</p>
-        <% end %>
-</div>
+<p><%= link_to "Back to Course", course_path(@course) %></p>

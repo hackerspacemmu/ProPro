@@ -25,34 +25,20 @@
                             <p class="field-hint"><%= field.hint %></p>
                         <% end %>
 
-                        <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
-                        
-                        <% case field.field_type %>
-                        <% when "shorttext" %>
-                            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: "Your answer" %>
-                            
-                        <% when "textarea" %>
-                            <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: "Your answer", rows: 6 %>
-                            
-                        <% when "dropdown" %>
-                            <%= select_tag "fields[#{field.id}]", options_for_select(field.options.map { |opt| [opt, opt] }, existing_value), class: "form-control", prompt: "Choose an option" %>
-                            
-                        <% when "radio" %>
-                            <div class="radio-group">
-                                <% field.options.each_with_index do |option, index| %>
-                                    <div class="radio-option">
-                                        <%= radio_button_tag "fields[#{field.id}]", option, existing_value == option, id: "fields_#{field.id}_#{index}" %>
-                                        <%= label_tag "fields_#{field.id}_#{index}", option %>
-                                    </div>
-                                <% end %>
-                            </div>
-                            
-                        <% else %>
-                            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-                        <% end %>
-                    </div>
-                <% end %>
-            </div>
+      <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
+
+      <% case field.field_type %>
+      <% when "shorttext" %>
+        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+      <% when "textarea" %>
+        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+      <% when "dropdown" %>
+        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
+      <% else %>
+        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+      <% end %>
+    </div>
+  <% end %>
 
             <div class="form-actions">
                 <%= link_to "← Back to Proposal", course_project_path(@course, @project)  %>

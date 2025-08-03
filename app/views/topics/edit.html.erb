@@ -14,6 +14,11 @@
         <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
       <% when "dropdown" %>
         <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
+      <% when "radio" %>
+        <% field.options.split(',').each_with_index do |option, idx| %>
+          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}" %>
+          <%= label_tag "field_#{field.id}_#{idx}", option.strip %>
+      <% end %>
       <% else %>
         <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
       <% end %>

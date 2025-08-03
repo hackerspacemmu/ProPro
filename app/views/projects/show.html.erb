@@ -1,74 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%= stylesheet_link_tag "projects" %>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= @current_instance.title %> - Project Details</title>
-  </head>
-  <body>
-    <% current_version = params[:version].to_i %>
-    <% oldest_version = @instances.size - 1 %>
-    <% latest_version = 0 %>
+ <head>
+   <%= stylesheet_link_tag "projects" %>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title><%= @current_instance.title %> - Project Details</title>
+ </head>
+ <body>
+   <% current_version = params[:version].to_i %>
+   <% oldest_version = @instances.size - 1 %>
+   <% latest_version = 0 %>
+   <main id="project">
+     <div class="project-layout">
+       <% if current_version < oldest_version %>
+         <%= link_to course_project_path(@course, @project, version: current_version + 1), class: "version-btn version-btn-left" do %>
+           <span class="arrow"><%= image_tag("arrow_back.svg") %></span>
+         <% end %>
+       <% else %>
+         <span class="version-btn version-btn-left disabled">
+           <span class="arrow"><%= image_tag("arrow_back.svg") %></span>
+         </span>
+       <% end %>
+       
+       <% if current_version > latest_version %>
+         <%= link_to course_project_path(@course, @project, version: current_version - 1), class: "version-btn version-btn-right" do %>
+           <span class="arrow"><%= image_tag("arrow_forward.svg") %></span>
+         <% end %>
+       <% else %>
+         <span class="version-btn version-btn-right disabled">
+           <span class="arrow"><%= image_tag("arrow_forward.svg") %></span>
+         </span>
+       <% end %>
 
-    <main id="project">
-      <div class="project-layout">
-        <aside class="version-navigation">
-          <nav class="version-controls">
-            <% if current_version < oldest_version %>
-              <%= link_to course_project_path(@course, @project, version: current_version + 1), class: "version-btn previous" do %>
-                <span class="arrow">‹</span>
-              <% end %>
-            <% else %>
-              <span class="version-btn disabled previous">
-                <span class="arrow">‹</span>
-              </span>
-            <% end %>
-
-            <% if current_version > latest_version %>
-              <%= link_to course_project_path(@course, @project, version: current_version - 1), class: "version-btn next" do %>
-                <span class="arrow">›</span>
-              <% end %>
-            <% else %>
-              <span class="version-btn disabled next">
-                <span class="arrow">›</span>
-              </span>
-            <% end %>
-          </nav>
-        </aside>
-
-        <section class="project-content">
-          <%= render 'project_header', 
-                     current_instance: @current_instance,
-                     owner: @owner,
-                     type: @type,
-                     project: @project,
-                     members: @members,
-                     current_version: current_version,
-                     latest_version: latest_version,
-                     instances: @instances %>
-
-          <%= render 'project_actions',
-                     members: @members,
-                     current_user: current_user,
-                     project: @project,
-                     current_version: current_version,
-                     latest_version: latest_version,
-                     course: @course %>
-
-          <%= render 'project_comments',
-                     comments: @comments,
-                     new_comment: @new_comment,
-                     course: @course,
-                     project: @project %>
-
-          <%= render 'project_fields', fields: @fields %>
-
-          <footer class="project-footer">
-            <%= link_to "← Back to Projects", course_projects_path(@course) %>
-          </footer>
-        </section>
-      </div>
-    </main>
-  </body>
+       <section class="project-content">
+         <%= render 'project_header',
+                    current_instance: @current_instance,
+                    owner: @owner,
+                    type: @type,
+                    project: @project,
+                    members: @members,
+                    current_version: current_version,
+                    latest_version: latest_version,
+                    instances: @instances %>
+         <%= render 'project_actions',
+                    members: @members,
+                    current_user: current_user,
+                    project: @project,
+                    current_version: current_version,
+                    latest_version: latest_version,
+                    course: @course %>
+         <%= render 'project_comments',
+                    comments: @comments,
+                    new_comment: @new_comment,
+                    course: @course,
+                    project: @project %>
+         <%= render 'project_fields', fields: @fields %>
+         <footer class="project-footer">
+           <%= link_to "← Back to Projects", course_projects_path(@course) %>
+         </footer>
+       </section>
+     </div>
+   </main>
+ </body>
 </html>
