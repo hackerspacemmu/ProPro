@@ -1,0 +1,289 @@
+/* ============================================= */
+/* RESET AND BASE STYLES */
+/* ============================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #F2F3F7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+/* ============================================= */
+/* MAIN LAYOUT WRAPPERS */
+/* ============================================= */
+#lecturer {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.lecturer-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.lecturer-content {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 60px 40px;
+}
+
+/* ============================================= */
+/* HEADER & TITLE SECTION */
+/* ============================================= */
+.lecturer-header {
+  width: 100%;
+  margin-bottom: 48px;
+}
+
+.lecturer-title {
+  margin-top: 60px;
+}
+
+.lecturer-title-text {
+  display: block;
+  font-size: 16px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.title-line {
+  width: 100%;
+  height: 1px;
+  background-color: #454343;
+  opacity: 0.5;
+}
+
+/* ============================================= */
+/* NAME AND BADGE */
+/* ============================================= */
+.lecturer-name-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.lecturer-badge {
+  width: 60px;
+  height: 60px;
+  background-color: #8E8E8E;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.lecturer-name {
+  font-size: 42px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0 10px;
+}
+
+/* ============================================= */
+/* INFO SECTION */
+/* ============================================= */
+.lecturer-subtitle {
+  font-size: 16px;
+  display: block;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.lecturer-info {
+  margin-top: 50px;
+  padding-bottom: 1px;
+}
+
+.lecturer-line {
+  width: 100%;
+  height: 1px;
+  background-color: #454343;
+  opacity: 0.5;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  min-width: 0px;
+  font-weight: 550;
+  color: black;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  color: #454343;
+  font-size: 15px;
+}
+
+/* ============================================= */
+/* TOPICS SECTION */
+/* ============================================= */
+.lecturer-topics {
+  margin-bottom: 48px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  display: block;
+  font-size: 18px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.topics-container {
+  width: 100%;
+}
+
+.topics-list {
+  list-style: none;
+}
+
+.topic-item {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.topic-item:last-child {
+  border-bottom: none;
+}
+
+.topic-item:hover {
+  background-color: #f9fafb;
+}
+
+.topic-link {
+  display: block;
+  padding: 20px 24px;
+  text-decoration: none;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.15s ease-in-out;
+}
+
+.topic-link:hover {
+  color: #3b82f6;
+}
+
+.no-topics {
+  padding: 40px 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* ============================================= */
+/* FOOTER */
+/* ============================================= */
+.lecturer-footer {
+  padding-top: 40px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #6b7280;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.back-link:hover {
+  background-color: #4b5563;
+}
+
+/* ============================================= */
+/* RESPONSIVE BREAKPOINTS */
+/* ============================================= */
+@media (max-width: 1024px) {
+  .lecturer-content {
+    padding: 40px 32px;
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lecturer-content {
+    padding: 32px 20px;
+    max-width: 100%;
+  }
+
+  .lecturer-title {
+    margin-top: 40px;
+  }
+
+  .lecturer-info {
+    padding: 20px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .info-label {
+    margin-bottom: 4px;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .lecturer-content {
+    padding: 24px 16px;
+  }
+
+  .lecturer-header {
+    margin-bottom: 32px;
+  }
+
+  .lecturer-topics {
+    margin-bottom: 32px;
+  }
+
+  .topic-link {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
+
+  .lecturer-info {
+    padding: 16px;
+  }
+}

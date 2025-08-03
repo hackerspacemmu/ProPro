@@ -1,13 +1,32 @@
-<section>
-  <h3>Participants</h3>
-  <ul>
-  <% @participants.each do |user| %>
-    <% enrolment = user.enrolments.find_by(course_id: @course.id) %>
-    <% proj = enrolment&.project %>
-      </li>
-        <h4><%= user.username %></h4>
-        <p>Proposal status: <%= proj&.status&.titleize || "Not submitted" %></p>
+<ul>
+  <% if grouped %>
+    <% group_list&.each do |group| %>
+      <li>
+        <h4><%= group.group_name %></h4>
+        <% gp = Project.joins(:ownership)
+                    .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id }, course: course) %>
+        <p>proposal status: <%= gp&.status || 'no project' %></p>
+        <ul>
+          <% group.project_group_members.includes(:user).each do |m| %>
+            <li><%= m.user.username %></li>
+          <% end %>
+        </ul>
       </li>
     <% end %>
-  </ul>
-</section>
+  <% else %>
+    <% students_with.each do |student| %>
+      <% sp = Project.joins(:ownership)
+                .find_by(ownerships: { owner_type: 'User', owner_id: student.id }, course: course) %>
+      <li>
+        <h4><%= student.username %></h4>
+        <p>proposal status: <%= sp&.status || 'pending' %></p>
+      </li>
+    <% end %>
+    <% students_without.each do |student| %>
+      <li>
+        <h4><%= student.username %></h4>
+        <p>proposal status: no project</p>
+      </li>
+    <% end %>
+  <% end %>
+</ul>
