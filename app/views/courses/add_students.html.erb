@@ -7,9 +7,8 @@
 
 <body>
     <div class="main">
-        <h2>FOUN-FCI-2510</h2>
-        <h1>CourseName</h1>
-        <h3>Add Lecturer/Students</h3>
+        <h1><%= @course.course_name %></h1>
+        <h3>Add Students</h3>
         <br>
 
         <div class="container">
@@ -17,14 +16,11 @@
             <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
             <br>
 
-            <%= form_with url: handle_add_people_course_path, method: :post do |form| %>
+            <%= form_with url: handle_add_students_course_path, method: :post do |form| %>
             <p>Upload CSV export from EBwise: </p>
             <%= form.file_field :csv_file %>
 
-            <p>Add lecturers<br>Use format <strong>EMAIL&semi;</strong> for each entry</p>
-            <%= form.text_field :invited_lecturers, required: true, placeholder: "Additions"%><br>
-
-            <%= form.submit "Add Lecturer/Students" %>
+            <%= form.submit "Add Students" %>
             <% end %>
         </div>
     </div>
