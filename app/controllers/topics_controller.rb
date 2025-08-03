@@ -114,7 +114,13 @@ def new
   end
 
   @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+
+  if @template_fields.blank?
+    redirect_to course_topics_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
+    return
+  end
 end
+
 
 
 def create
