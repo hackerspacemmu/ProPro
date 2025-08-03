@@ -1,6 +1,6 @@
 class TopicsController < ApplicationController
 
-before_action :access
+before_action :access_one
 
 def index
 
@@ -114,7 +114,13 @@ def new
   end
 
   @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+
+  if @template_fields.blank?
+    redirect_to course_topics_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
+    return
+  end
 end
+
 
 
 def create
@@ -183,7 +189,7 @@ end
 private 
 
 
-  def access
+  def access_one
   @course = Course.find(params[:course_id])
   @courses = Current.user.courses
 
@@ -192,10 +198,12 @@ private
   @is_coordinator = @course.enrolments.exists?(user: Current.user, role: :coordinator)
 
   # Only includes projects created by lecturers
-  @projects = @course.projects.select do |project|
-    owner = project.ownership&.owner
-    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
+  if Current.user.is_staff
+  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer })
+    else
+  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer }, status: :approved)
   end
+
 
   @projects = @projects.select(&:approved?) if @is_student
 

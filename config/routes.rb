@@ -12,13 +12,15 @@ Rails.application.routes.draw do
 
   resources :courses, only: [:show, :new, :create] do
     member do
-      get 'add_people'
-      post 'handle_add_people'
+      get 'add_students'
+      post 'handle_add_students'
+      get 'add_lecturers'
+      post 'handle_add_lecturers'
       get 'settings'
       post 'handle_settings'
     end
 
-    resources :projects, only: [:index, :show, :edit, :update, :create, :new] do
+    resources :projects, only: [:show, :edit, :update, :create, :new] do
       member do
         patch :change_status
       end
