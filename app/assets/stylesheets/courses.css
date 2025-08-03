@@ -253,6 +253,11 @@ ul.breadcrumb li b {
 
 /* lecturer list (alex) */
 
+.supervisors a {
+  text-decoration: none;
+  color: inherit;
+}
+
 .supervisors {
     list-style: none;
     padding: 0;
@@ -270,7 +275,7 @@ ul.breadcrumb li b {
 
 .profile {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
     margin-left: 10px;
     margin-bottom: 5px;
