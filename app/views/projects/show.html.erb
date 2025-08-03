@@ -71,11 +71,6 @@
 
 <p><% @lecturers %></p>
 
-
-<p>
-  <%= link_to "Back to all proposals", course_projects_path(@course) %>
-</p>
-
 <div>
   <h2>Comments</h2>
   <% if @comments %>
@@ -102,3 +97,7 @@
     <%= form.submit "Post Comment" %>
   <% end %>
 </div>
+
+<p>
+  <%= link_to "Back to all proposals", course_projects_path(@course) %>
+</p>

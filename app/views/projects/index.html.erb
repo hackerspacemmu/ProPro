@@ -31,3 +31,5 @@
 <% unless enrolment && Project.exists?(enrolment: enrolment) %>
   <%= link_to "Create Project", new_course_project_path(@course), class: "btn btn-primary" %>
 <% end %>
+
+<p><%= link_to "Back to Course", course_path(@course) %></p>
