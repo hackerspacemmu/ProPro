@@ -1,153 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%= stylesheet_link_tag "courses" %>
+
+<head>
+    <%= stylesheet_link_tag "courses.css" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= current_user.username %>'s <%= @course.course_name %> Course View</title>
-  </head>
-  
-  <body>
-    <header id="top-bar">
-      <h1><%= current_user.username %>'s Course View</h1>
-    </header>
+    <div class="topbar">
+        <a href="#home"><%= current_user.username %>'s Course View</a>
+    </div>
+    <ul class="breadcrumb">
+        <li><a href="#course">Course</a></li>
+        <li><b>></b></li>
+        <li><a href="#your_proposal">Proposal</a></li>
+    </ul>
+</head>
 
-    <header id="breadcrumb">
-      <nav>
-        <ul>
-          <li><a href="#course">Course</a></li>
-          <li><a href="#your_proposal">Proposal</a></li>
-        </ul>
-      </nav>
-    </header>
-    
-    <main id="course">
-      <section>
-        <header>
-          <h2><%= @course.course_name.upcase %></h2>
-        </header>
-        
-        <article id="description">
-          <h3 id="description-title">Proposal Guidelines</h3>
-          <p id="text"><%= @description || "No description available for this course." %></p>
-        </article>
-        
-        <section id="status-bar">
-          <h3>Proposal Status</h3>
-          <div class="container">
+<body>
+    <div class="sidebar">
+        <a href="#home">Proposal Guidelines</a>
+        <a href="#home">Proposal Status</a>
+        <a href="#home">Supervisors Available</a>
+        <a href="#home">Group Members</a>
+    </div>
+    <div class="main">
+        <h1><%= @course.course_name.upcase %></h1>
+        <h3>Your Course</h3>
+        <br>
+
+        <div class="container">
+            <form>
+                <h4>Proposal Guidelines</h4>
+                <h2><%= @description || "No description available for this course." %>
+                </h2>
+            </form>
+        </div>
+
+        <div class="container">
+            <h4>Proposal Status</h4>
             <div class="progress-container">
-              <div class="progress" id="progress"></div> 
+                <div class="progress" id="progress"></div>
                 <div class="step <%= @project&.status == 'pending' ? 'active' : '' %>">
-                  <div class="circle"><%= image_tag("pending.svg") %></div>
-                  <div class="label">Pending</div>
+                    <div class="circle"><%= image_tag("pending.svg") %></div>
+                    <div class="label">Pending</div>
                 </div>
                 <div class="step <%= @project&.status == 'redo' ? 'active' : '' %>">
-                  <div class="circle"><%= image_tag("redo.svg") %></div>
-                  <div class="label">Redo</div>
+                    <div class="circle"><%= image_tag("redo.svg") %></div>
+                    <div class="label">Redo</div>
                 </div>
                 <div class="step <%= @project&.status == 'in_review' ? 'active' : '' %>">
-                  <div class="circle"><%= image_tag("in_review.svg") %></div>
-                  <div class="label">In review</div>
+                    <div class="circle"><%= image_tag("in_review.svg") %></div>
+                    <div class="label">In review</div>
                 </div>
                 <div class="step <%= @project&.status == 'approved' ? 'active' : '' %>">
-                  <div class="circle"><%= image_tag("approved.svg") %></div>
-                  <div class="label">Approved</div>
+                    <div class="circle"><%= image_tag("approved.svg") %></div>
+                    <div class="label">Approved</div>
                 </div>
-              </div>
             </div>
-        </section>
-        
-        <section id="lecturer-list">
-          <h3>Supervisors Available</h3>
-          <ul class="supervisors">
-            <% @lecturers.each do |lecturer| %>
-              <li class="profile">
-                <div class="avatar"><%= lecturer.username.first.upcase %></div>
-                <div class="info">
-                  <div class="top">
-                    <div class="name"><%= lecturer.username %></div>
-                    <span class="capacity">0/4</span> 
-                  </div>
-                  <div class="last-seen">last seen yesterday</div> <!-- Placeholder -->
-                  <div class="avg-time">avg response time – 1 day</div> <!-- Placeholder -->
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        </section>
-        
-        <section id="topic-list">
-          <h3>Topics</h3>
-          <div class="cards-container">
-            <% @topic_list.each do |project| %>
-              <% project_instance = project.project_instances.order(:version).last %>
-              <% if project_instance %>
-                <a href="#" class="card-link">
-                  <div class="project-card">
-                    <ul>
-                      <h4><%= project_instance.title %></h4>
-                      <p class="lecturer"><%= project.ownership.owner.username if project.ownership.owner.respond_to?(:username) %></p>
-                      <ul>
-                        <li class="project-card inner">
-                          <% description_field = project_instance.project_instance_fields.joins(:project_template_field).find_by(project_template_fields: { label: 'Description' }) %>
-                          <p class="text"><%= description_field&.value || "No description available" %></p>
-                        </li>   
-                      </ul>
-                    </ul>
-                  </div>
-                </a>
-              <% end %>
-            <% end %>
-          </div>
-        </section>
-        
-        <section id="participants">
-          <h3>Participants</h3>
-          <ul>
-            <% if @course.grouped? %>
-              <% @group_list&.each do |group| %>
-                <li>
-                  <h4><%= group.group_name %></h4>
-                  <% group_project = Project.joins(:ownership).find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id }, course: @course) %>
-                  <p>proposal status: <%= group_project&.status || 'no project' %></p>
-                  <ul>
-                    <% group.project_group_members.includes(:user).each do |member| %>
-                      <li><%= member.user.username %></li>
-                    <% end %>
-                  </ul>
+        </div>
+
+        <div class="container">
+            <h4>Supervisors Available</h4>
+            <ul class="supervisors">
+                <% @lecturers.each do |lecturer| %>
+                <li class="profile">
+                    <div class="avatar"><%= lecturer.username.first.upcase %></div>
+                    <div class="info">
+                        <div class="top">
+                            <div class="name"><%= lecturer.username %></div>
+                            <span class="capacity">0/4</span>
+                        </div>
+                        <div class="last-seen">last seen yesterday</div> <!-- Placeholder -->
+                        <div class="avg-time">avg response time – 1 day</div> <!-- Placeholder -->
+                    </div>
                 </li>
-              <% end %>
-            <% else %>
-              <% @students_with_projects.each do |student| %>
+                <% end %>
+            </ul>
+        </div>
+
+        <div class="container">
+            <h4>Topics</h4>
+            <div class="project-list-gapper">
+                <div class="cards-container">
+                    <% @topic_list.each do |project| %>
+                    <% project_instance = project.project_instances.order(:version).last %>
+                    <% if project_instance %>
+                    <a href="#" class="card-link">
+                        <div class="project-card">
+                            <ul>
+                                <b style="font-weight: bold;"><%= project_instance.title %></b>
+                                <br>
+                                <b><%= project.ownership.owner.username if project.ownership.owner.respond_to?(:username) %></b>
+                                <ul>
+                                    <li class="project-card inner">
+                                        <% description_field = project_instance.project_instance_fields.joins(:project_template_field).find_by(project_template_fields: { label: 'Description' }) %>
+                                        <p class="text"><%= description_field&.value || "No description available" %></p>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </a>
+                    <% end %>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h4>Participants</h4>
+            <ul>
+                <% if @course.grouped? %>
+                <% @group_list&.each do |group| %>
+                <li>
+                    <h4><%= group.group_name %></h4>
+                    <% group_project = Project.joins(:ownership).find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id }, course: @course) %>
+                    <p>proposal status: <%= group_project&.status || 'no project' %></p>
+                    <ul>
+                        <% group.project_group_members.includes(:user).each do |member| %>
+                        <li><%= member.user.username %></li>
+                        <% end %>
+                    </ul>
+                </li>
+                <% end %>
+                <% else %>
+                <% @students_with_projects.each do |student| %>
                 <% student_project = Project.joins(:ownership).find_by(ownerships: { owner_type: 'User', owner_id: student.id }, course: @course) %>
                 <li>
-                  <h4><%= student.username %></h4>
-                  <p>proposal status: <%= student_project&.status || 'pending' %></p>
+                    <h4><%= student.username %></h4>
+                    <p>proposal status: <%= student_project&.status || 'pending' %></p>
                 </li>
-              <% end %>
-              
-              <% @students_without_projects.each do |student| %>
+                <% end %>
+
+                <% @students_without_projects.each do |student| %>
                 <li>
-                  <h4><%= student.username %></h4>
-                  <p>proposal status: no project</p>
+                    <h4><%= student.username %></h4>
+                    <p>proposal status: no project</p>
                 </li>
-              <% end %>
-            <% end %>
-          </ul>
-        </section>
-      </section>
-    </main>
+                <% end %>
+                <% end %>
+            </ul>
+        </div>
+    </div>
     
-    <aside id="sidebar">
-      <nav>
-        <ul>
-          <li><a href="#description">Proposal Guidelines</a></li>
-          <li><a href="#lecturer-list">Supervisors Available</a></li>
-          <li><a href="#topic-list">Topics</a></li>
-          <li><a href="#participants">Participants</a></li>
-        </ul>
-      </nav>
-    </aside>
     <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
-  </body>
+</body>
+
 </html>

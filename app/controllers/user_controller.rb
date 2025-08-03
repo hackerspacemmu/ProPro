@@ -1,7 +1,3 @@
-#require 'net/http'
-#require 'uri'
-require 'securerandom'
-
 class UserController < ApplicationController
   allow_unauthenticated_access only: %i[ new_staff new_student create ]
   def new_student
@@ -81,6 +77,35 @@ class UserController < ApplicationController
     end
 
     user.otp.destroy
+  end
+
+  def profile
+    @user = Current.user
+  end
+
+  def edit
+    if !Current.user.is_staff
+      redirect_back_or_to "/", alert: "Only staff can edit profiles"
+      return
+    end
+
+    if params[:user][:username].blank?
+      redirect_back_or_to "/", alert: "Username cannot be empty"
+      return
+    end
+
+    begin
+      Current.user.update!(
+        username: params[:user][:username],
+        web_link: params[:user][:web_link],
+        description: params[:user][:description]
+        )
+    rescue StandardError => e
+      render :profile, status: :unprocessable_entity
+      return
+    end
+
+    redirect_back_or_to "/", notice: "Profile updated successfully"
   end
 end
 

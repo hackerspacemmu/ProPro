@@ -7,7 +7,7 @@ Rails.application.routes.draw do
 
   root "homescreen#show"
 
-  resources :sessions
+  resource :session
   resources :passwords, param: :token
 
   resources :courses, only: [:show, :new, :create] do
@@ -23,7 +23,11 @@ Rails.application.routes.draw do
         patch :change_status
       end
 
-      resources :comments, only:[:create]
+      resources :comments do
+        member do
+          patch 'soft_delete'
+        end
+      end
     end
 
     resources :topics, only: [:index, :show, :edit, :update, :create, :new] do
@@ -40,8 +44,9 @@ Rails.application.routes.draw do
       end
     end
 
-    resource  :project_template, only: [:new, :create, :edit, :update, :show] do
+    resource :project_template, only: [:new, :create, :edit, :update, :show] do
       get 'new_field', on: :member
+      get 'new_option', on: :member
     end
   end
 
