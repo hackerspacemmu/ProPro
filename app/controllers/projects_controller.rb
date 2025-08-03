@@ -1,12 +1,17 @@
 class ProjectsController < ApplicationController
 
 before_action :access
+before_action :check_existing_project, only: [:new, :create]
 
 def index
-
+ 
 end
 
 def show
+
+  if @project.nil?
+    redirect_to course_projects_path(@course), alert: "Project not found or access denied." and return
+  end
 
   @instances = @project.project_instances.order(version: :desc)
   @owner = @project.ownership&.owner
@@ -14,9 +19,7 @@ def show
 
   @type = @project.ownership&.ownership_type
 
-  @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
-
-  @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+  @lecturers = @course.enrolments.where(role: [:lecturer, :coordinator]).includes(:user).map(&:user)
 
 
   if @owner.is_a?(ProjectGroup)
@@ -41,7 +44,7 @@ end
 
 def change_status
 
-  if current_user.is_staff
+  if @project.supervisor == current_user 
     @project.update(status: Project.statuses.key(params[:status].to_i))
     redirect_to course_project_path(@course, @project), notice: "Status updated."
   else
@@ -52,111 +55,217 @@ end
 
 def edit
 
-  @instance = @project.project_instances.last || @project.project_instances.build
-  
-  # Exclude lecturer-only fields (applicable_to == 1)
-  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: 1)
-
-
-end
-
-def update
-
-  @instance = @project.project_instances.last
-
-  unless @instance
-    redirect_to course_project_path(@course, @project), alert: "No project instance found to update."
+  if @project.status == "pending"
+    @instance = @project.project_instances.last || @project.project_instances.build
+  elsif @project.status == "rejected"
+    # Create a new version
+    version = @project.project_instances.maximum(:version).to_i + 1
+    @instance = @project.project_instances.build(version: version, created_by: current_user)
+  else
+    redirect_to course_project_path(@course, @project), alert: "This project cannot be edited."
     return
   end
 
-  #Sets Title 
+  # Exclude lecturer-only fields (optional)
+  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :topics)
+end
+
+def update
+  if @project.status == "rejected"
+    version = @project.project_instances.maximum(:version).to_i + 1
+    @instance = @project.project_instances.build(version: version, created_by: current_user)
+  else
+    @instance = @project.project_instances.last
+  end
+
+  # Set title
   title_field_id = params[:fields].keys.first if params[:fields].present?
   @instance.title = params[:fields][title_field_id] if title_field_id.present?
-
-  if params[:id] && @project.nil?
-    redirect_to course_projects_path(@course), alert: "You are not authorized"
-  end
 
   if @instance.save
     if params[:fields].present?
       params[:fields].each do |field_id, value|
-        field_record = @instance.project_instance_fields.find_or_initialize_by(project_template_field_id: field_id)
-        field_record.value = value
-        field_record.save!
+        @instance.project_instance_fields.create!(
+          project_template_field_id: field_id,
+          value: value
+        )
       end
     end
-    redirect_to course_project_path(@course, @project), notice: "project updated successfully."
+
+    @project.update(status: :pending) if @project.status == "rejected"
+
+    redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
   else
-    flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(", ")}"
+    flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
     @template_fields = @course.project_template.project_template_fields
     render :edit
   end
 end
 
+def new
+  unless @is_student
+  redirect_to course_projects_path(@course), alert: "You are not authorized"
+  return
+end
+
+enrolment = Enrolment.find_by(user: current_user, course: @course)
+if enrolment && Project.exists?(enrolment: enrolment)
+  redirect_to course_projects_path(@course), alert: "You already have a project."
+  return
+end
+
+@template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+
+  
+
+end
+
+
+def create
+  @course = Course.find(params[:course_id])
+  grouped = @course.grouped?
+  title_value = nil
+
+  if grouped
+    #Grouped project
+    group = current_user.project_groups.find_by(course_id: @course.id)
+
+    unless group
+      redirect_to course_projects_path(@course), alert: "You're not part of a project group." and return
+    end
+
+    existing_project = Project.joins(:ownership)
+                              .where(ownerships: { owner: group, ownership_type: :project_group })
+                              .first
+
+    if existing_project
+      redirect_to course_projects_path(@course), alert: "Your group already has a project." and return
+    end
+
+    @ownership = Ownership.create!(
+      owner: group,
+      ownership_type: :project_group
+    )
+
+    @enrolment = Enrolment.find_or_create_by!(user: current_user, course: @course)
+
+  else
+    # Individual student project 
+    @enrolment = Enrolment.find_by(user: current_user, course: @course)
+    existing_project = Project.find_by(enrolment: @enrolment)
+
+    if existing_project
+      redirect_to course_projects_path(@course), alert: "You already have a project for this course." and return
+    end
+
+    @enrolment = Enrolment.find_or_create_by!(
+      user: current_user,
+      course: @course,
+      role: @enrolment&.role || :student
+    )
+
+    @ownership = Ownership.create!(
+      owner: current_user,
+      ownership_type: :student
+    )
+  end
+
+  # Create project
+  @project = Project.create!(
+    course: @course,
+    enrolment: @enrolment,
+    ownership: @ownership
+  )
+
+
+params[:fields]&.each do |field_id, value|
+  template_field = ProjectTemplateField.find(field_id)
+  if template_field.label.strip.downcase.include?("title")
+    title_value = value
+  end
+end
+
+#Create Instance
+@instance = @project.project_instances.create!(
+  version: 0,
+  title: title_value,
+  created_by: current_user
+)
+
+# Saves all fields to the instance
+params[:fields]&.each do |field_id, value|
+  template_field = ProjectTemplateField.find(field_id)
+
+  @instance.project_instance_fields.create!(
+    project_template_field: template_field,
+    value: value
+  )
+end
+
+
+  redirect_to course_topics_path(@course), notice: "Project created!"
+end
+end
+
+def check_existing_project
+  @course = Course.find(params[:course_id])
+  enrolment = Enrolment.find_by(user: current_user, course: @course)
+
+  if enrolment && Project.exists?(enrolment: enrolment)
+    redirect_to course_projects_path(@course), alert: "You have already created a project for this course."
+  end
+end
+
+
+
 private 
 
 def access
-  @courses = Current.user.courses
   @course = Course.find(params[:course_id])
-
-  student_projects = @course.projects.select do |project|
+  @projects = @course.projects.select do |project|
     owner = project.ownership&.owner
-    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :student)
+    if owner.is_a?(User)
+      @course.enrolments.exists?(user: owner, role: :student)
+    elsif owner.is_a?(ProjectGroup)
+      # Optional check: all group members are students
+      owner.users.all? { |user| @course.enrolments.exists?(user: user, role: :student) }
+    else
+      false
+    end
   end
+
+  if params[:id]
+    @project = @projects.find { |p| p.id == params[:id].to_i }
+    if @project.nil?
+        redirect_to course_projects_path(@course), alert: "You are not authorized"
+      end
+  end
+
+  authorized = false
 
   if @course.enrolments.exists?(user: current_user, role: :coordinator)
-    @projects = student_projects
-    @project = @projects.find { |p| p.id == params[:id].to_i } if params[:id]
-    return
+    authorized = true
+
+  elsif @course.lecturer_access && @course.lecturers.exists?(user: current_user)
+    authorized = true
+
+  elsif @course.owner_only?
+    authorized = @project.nil? || @project.ownership&.owner == current_user
+
+  elsif @course.own_lecturer_only?
+    authorized = @project.nil? || (
+      @project.ownership&.owner == current_user ||
+      @project.supervisor&.user == current_user
+    )
+
+  elsif @course.no_restriction?
+    authorized = @project.nil? || (
+      @course.students.exists?(user: current_user) ||
+      @project.supervisor&.user == current_user
+    )
   end
 
-  #If lecturer_access is true then lecturer can view all projects
-  if @course.lecturer_access && @course.lecturers.exists?(user: current_user)
-    @projects = student_projects
-    @project = @projects.find { |p| p.id == params[:id].to_i } if params[:id]
-    return
+  unless authorized
+    redirect_to course_projects_path(@course), alert: "You are not authorized"
   end
-
-  if @course.owner_only?
-    
-    if params[:id]
-      @project = student_projects.find { |p| p.id == params[:id].to_i }
-      redirect_to course_projects_path(@course), alert: "You are not authorized" if @project.nil?
-    else
-      @projects = student_projects.select { |p| p.ownership&.owner == current_user }
-    end
-
-    elsif @course.own_lecturer_only?
-      if params[:id]
-        @project = student_projects.find { |p| p.id == params[:id].to_i }
-        unless @project && (
-          @project.ownership&.owner == current_user ||    # owner
-          @project.supervisor.user == current_user        # supervisor
-        )
-          redirect_to course_projects_path(@course), alert: "You are not authorized"
-        end
-      else
-        @projects = student_projects.select do |p|
-          p.ownership&.owner == current_user || p.supervisor.user == current_user
-        end
-      end
-
-    elsif @course.no_restriction?
-      if params[:id]
-        @project = student_projects.find { |p| p.id == params[:id].to_i }
-        unless @project && (
-          @course.students.exists?(user: current_user) ||  # any student in the course
-          @project.supervisor.user == current_user         # supervisor
-        )
-          redirect_to course_projects_path(@course), alert: "You are not authorized"
-        end
-      else
-        if @course.students.exists?(user: current_user)
-          @projects = student_projects
-        else
-          @projects = student_projects.select { |p| p.supervisor.user == current_user }
-      end
-    end
-  end
-end
 end

@@ -1,6 +1,7 @@
 <h1>Edit Proposal</h1>
 
 <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch) do %>
+  <% @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals) %>
   <% @template_fields.each do |field| %>
     <div class="field">
       <%= label_tag "fields_#{field.id}", field.label, title: field.hint %>
@@ -14,6 +15,11 @@
         <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
       <% when "dropdown" %>
         <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
+      <% when "radio" %>
+        <% field.options.split(',').each_with_index do |option, idx| %>
+          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}" %>
+          <%= label_tag "field_#{field.id}_#{idx}", option.strip %>
+      <% end %>
       <% else %>
         <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
       <% end %>

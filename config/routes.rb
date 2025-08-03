@@ -18,7 +18,7 @@ Rails.application.routes.draw do
       post 'handle_settings'
     end
 
-    resources :projects, only: [:index, :show, :edit, :update] do
+    resources :projects, only: [:index, :show, :edit, :update, :create, :new] do
       member do
         patch :change_status
       end
@@ -30,14 +30,14 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :topics, only: [:index, :show, :edit, :update] do
+    resources :topics, only: [:index, :show, :edit, :update, :create, :new] do
       member do
         patch :change_status
       end
     end
   
     resources :lecturers, only: [:index, :show] do
-      resources :topics, only: [:index, :show, :edit, :update] do
+      resources :topics, only: [:index, :show, :edit, :update, :create, :new] do
         member do
           patch :change_status
         end

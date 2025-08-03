@@ -1,0 +1,30 @@
+
+<h1>Create Proposal for <%= @course.course_name %></h1>
+
+<%= form_with url: course_topics_path(@course), method: :post do %>
+  <% @template_fields.each do |field| %>
+    <div class="field">
+      <%= label_tag "fields_#{field.id}", field.label %>
+
+      <% case field.field_type when "shorttext" %>
+        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control" %>
+      <% when "textarea" %>
+        <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control" %>
+      <% when "dropdown" %>
+        <%= select_tag "fields[#{field.id}]", options_for_select(field.options.split(',')), class: "form-control" %>
+      <% when "radio" %>
+        <% field.options.split(',').each_with_index do |option, idx| %>
+          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}" %>
+          <%= label_tag "field_#{field.id}_#{idx}", option.strip %>
+        <% end %>
+      <% else %>
+        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control" %>
+      <% end %>
+    </div>
+  <% end %>
+  <%= submit_tag "Create Proposal" %>
+<% end %>
+
+<p>
+  <%= link_to "Back to Proposal", course_topics_path(@course) %>
+</p>
