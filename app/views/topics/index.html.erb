@@ -19,7 +19,10 @@
     <li>
       <p> <strong> Topic: </strong> <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Topic",
                   course_topic_path(@course, project) %> </p>
-      <p> <strong>Lecturer: </strong> <%= project.supervisor.username %></p>
+      <% owner = project.ownership&.owner %>
+      <% if owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer) %>
+        <p><strong>Lecturer:</strong> <%= owner.username %></p>
+      <% end %>
 
       <% if description_field.present? %>
         <p><strong>Description:</strong> <%= description_field.value %></p>

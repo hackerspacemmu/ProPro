@@ -64,7 +64,7 @@ def edit
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
   else
-    redirect_to course_project_path(@course, @project), alert: "This project cannot be edited."
+    redirect_to course_topic_path(@course, @project), alert: "This project cannot be edited."
     return
   end
 
@@ -184,41 +184,31 @@ private
 
 
   def access
-    @courses = Current.user.courses
-    @course = Course.find(params[:course_id])
+  @course = Course.find(params[:course_id])
+  @courses = Current.user.courses
 
-    lecturer_projects = @course.projects.select do |project|
-      owner = project.ownership&.owner
-      owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
-    end
+  @is_student     = @course.enrolments.exists?(user: Current.user, role: :student)
+  @is_lecturer    = @course.enrolments.exists?(user: Current.user, role: :lecturer)
+  @is_coordinator = @course.enrolments.exists?(user: Current.user, role: :coordinator)
 
-    @is_student = @course.enrolments.exists?(user: current_user, role: :student)
-    @is_lecturer = @course.enrolments.exists?(user: current_user, role: :lecturer)
-    @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
-
-
-    if params[:id]
-      @project = lecturer_projects.find { |p| p.id == params[:id].to_i }
-
-      if @project.nil? || (@is_student && !@project.approved?)
-        redirect_to course_topics_path(@course), alert: "You are not authorized"
-      end
-    else
-      if @is_student
-        @projects = lecturer_projects.select(&:approved?)
-      else
-        @projects = lecturer_projects # all lecturers can see all lecturer topics
-      end
-    end
-
-  query = params[:query].to_s.downcase
-
-  @projects = if @is_student
-    lecturer_projects.select(&:approved?)
-  else
-    lecturer_projects
+  # Only includes projects created by lecturers
+  @projects = @course.projects.select do |project|
+    owner = project.ownership&.owner
+    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
   end
 
+  @projects = @projects.select(&:approved?) if @is_student
+
+  if params[:id]
+    @project = @projects.find { |p| p.id == params[:id].to_i }
+    unless @project
+      redirect_to course_topics_path(@course), alert: "You are not authorized to view this topic."
+      return
+    end
+  end
+
+  #Search
+  query = params[:query].to_s.downcase
   if query.present?
     @projects = @projects.select do |project|
       latest = project.project_instances.order(version: :desc).first

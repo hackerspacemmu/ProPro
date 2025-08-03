@@ -2,15 +2,32 @@
 
 <ul>
   <% @projects.each do |project| %>
+    <% latest_instance = project.project_instances.order(version: :desc).first %>
+    <% description_field = latest_instance&.project_instance_fields&.find do |field|
+         field.project_template_field.label.strip.downcase.include?("description")
+       end %>
+
     <li>
-      <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Proposal",
-                  course_project_path(@course, project) %>
+      <p>
+        <strong>Project:</strong>
+        <%= link_to latest_instance&.title || "Untitled Topic", course_project_path(@course, project) %>
+      </p>
+
+      <% owner = project.ownership&.owner %>
+      <% if owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :student) %>
+        <p><strong>Owner:</strong> <%= owner.username %></p>
+      <% end %>
+
+      <% if description_field.present? %>
+        <p><strong>Description:</strong> <%= description_field.value %></p>
+      <% else %>
+        <p><em>No description available</em></p>
+      <% end %>
     </li>
-
-  <% enrolment = current_user.enrolments.find_by(course: @course) %>
-  <% unless enrolment && Project.exists?(enrolment: enrolment) %>
-    <%= link_to "Create Project", new_course_project_path(@course), class: "btn btn-primary" %>
-  <% end %>
-
   <% end %>
 </ul>
+
+<% enrolment = current_user.enrolments.find_by(course: @course) %>
+<% unless enrolment && Project.exists?(enrolment: enrolment) %>
+  <%= link_to "Create Project", new_course_project_path(@course), class: "btn btn-primary" %>
+<% end %>

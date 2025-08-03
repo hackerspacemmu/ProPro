@@ -4,14 +4,10 @@ before_action :access
 before_action :check_existing_project, only: [:new, :create]
 
 def index
-
+ 
 end
 
 def show
-  @projects = @course.projects.select do |project|
-    owner = project.ownership&.owner
-    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :student)
-  end
 
   if @project.nil?
     redirect_to course_projects_path(@course), alert: "Project not found or access denied." and return
