@@ -4,13 +4,14 @@
 <head>
     <div class="topbar">
     <% if Current.user.is_staff %>
-        <%= link_to "#{Current.user.username}'s Dashboard", user_profile_path %>
+        <%= link_to "#{Current.user.username}'s Dashboard" %>
     <% else %>
         <%= link_to "#{Current.user.username}'s Dashboard" %>
     <% end %>
     </div>
     <ul class="breadcrumb">
         <li><%= link_to "Home", root_url %></li>
+        <li><%= link_to "Edit Profile", user_profile_path if Current.user.is_staff %></li>
         <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
     </ul>
 </head>
@@ -24,7 +25,7 @@
         <h3>Your Courses</h3>
         <br>
         <div class="cards-container">
-            <% if @courses %>
+            <% if @courses.present? %>
                 <% @courses.each do |course| %>
                     <a href="<%= course_path(course) %>" class="card-link">
                     <div class="project-card">

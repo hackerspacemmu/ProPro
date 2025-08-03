@@ -3,8 +3,7 @@ require "set"
 require "securerandom"
 
 class CoursesController < ApplicationController
-    before_action :validate_course_id, only: [ :add_people, :handle_add_people, :settings, :handle_settings ]
-    before_action :disallow_noncoordinator_requests, only: [ :add_people, :handle_add_people, :settings, :handle_settings ]
+    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings ]
     before_action :check_staff, only: [ :new, :create ]
 
     def show
@@ -12,7 +11,7 @@ class CoursesController < ApplicationController
       @course = Course.find(params[:id])
       
       if @course.grouped?
-        @group = current_user.project_groups.joins(:project_group_members).find_by(project_group_members: {course_id: @course.id})
+        @group = current_user.project_groups.find_by(course: @course)
         
         if @group
           group_ownership = Ownership.find_by(
@@ -23,7 +22,7 @@ class CoursesController < ApplicationController
           @project = group_ownership ? Project.find_by(ownership: group_ownership, course: @course) : nil
         end
 
-        @group_list = @ccourse.project_groups
+        @group_list = @course.project_groups
 
       else
           @group = nil
@@ -35,7 +34,7 @@ class CoursesController < ApplicationController
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
       end
 
-      @description = @course.project_template.description
+      @description = @course.course_description
       @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
       @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
@@ -56,8 +55,13 @@ class CoursesController < ApplicationController
 
     end
 
-    def handle_add_people
-      unregistered_students = Set[]
+    def add_students
+    end
+
+    def add_lecturers
+    end
+
+    def handle_add_lecturers
       unregistered_lecturers = Set[]
 
       if params[:invited_lecturers].blank?
@@ -66,6 +70,29 @@ class CoursesController < ApplicationController
       end
 
       lecturer_emails = params[:invited_lecturers].split(";").map {|email| email.strip}
+
+      begin
+        ActiveRecord::Base.transaction do
+          create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
+        end
+
+        if @course.grouped
+          @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
+        else
+          @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
+        end
+      rescue StandardError => e
+        redirect_back_or_to "/", alert: e.message
+        return
+      end
+
+      send_emails(unregistered_lecturers, true)
+
+      redirect_to add_students_course_path(@course)
+    end
+
+    def handle_add_students
+      unregistered_students = Set[]
 
       if params[:csv_file].blank? || params[:csv_file].content_type != "text/csv"
         redirect_back_or_to "/", alert: "Please provide a CSV file from ebwise"
@@ -103,8 +130,6 @@ class CoursesController < ApplicationController
             create_db_entries_solo(student_set, @course, unregistered_students)
           end
 
-          create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
-
           if @course.grouped
             @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
           else
@@ -117,8 +142,8 @@ class CoursesController < ApplicationController
         return
       end
 
-      send_emails(unregistered_students, unregistered_lecturers)
-      redirect_to "/", notice: "Success"
+      send_emails(unregistered_students, false)
+      redirect_to settings_course_path(@course)
     end
 
     def new
@@ -160,7 +185,7 @@ class CoursesController < ApplicationController
         return
       end
 
-    redirect_to add_people_course_path(@new_course), notice: "Course successfully created"
+    redirect_to add_lecturers_course_path(@new_course), notice: "Course successfully created"
   end
 
   def settings
@@ -194,17 +219,10 @@ class CoursesController < ApplicationController
   end
 
   def disallow_noncoordinator_requests
+    @course = Course.find(params[:id])
+
     if Current.user.is_staff && !Current.user.courses.include?(@course)
       redirect_back_or_to "/", alert: "Permission denied"
-      return
-    end
-  end
-
-  def validate_course_id
-    begin
-      @course = Course.find(params[:id])
-    rescue ActiveRecord::RecordNotFound
-      redirect_back_or_to "/", alert: "Invalid Course ID"
       return
     end
   end
@@ -293,13 +311,15 @@ class CoursesController < ApplicationController
     end
   end
 
-  def send_emails(unregistered_students, unregistered_lecturers)
-    unregistered_students.each do |student|
-      GeneralMailer.with(email_address: student[:email_address], otp_token: student[:otp_token], otp: student[:otp]).send_student_invite.deliver_now
-    end
-
-    unregistered_lecturers.each do |lecturer|
-      GeneralMailer.with(email_address: lecturer[:email_address], otp_token: lecturer[:otp_token], otp: lecturer[:otp]).send_lecturer_invite.deliver_now
+  def send_emails(unregistered_users, is_staff)
+    if is_staff
+      unregistered_users.each do |user|
+        GeneralMailer.with(email_address: user[:email_address], otp_token: user[:otp_token], otp: user[:otp]).send_lecturer_invite.deliver_now
+      end
+    else
+      unregistered_users.each do |user|
+        GeneralMailer.with(email_address: user[:email_address], otp_token: user[:otp_token], otp: user[:otp]).send_student_invite.deliver_now
+      end
     end
   end
   
