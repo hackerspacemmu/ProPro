@@ -29,11 +29,15 @@
 
       <% case field.field_type %>
       <% when "shorttext" %>
-        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
       <% when "textarea" %>
-        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
       <% when "dropdown" %>
-        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
+        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control", required: true %>
+      <% when "radio" %>
+        <% field.options.split(',').each_with_index do |option, idx| %>
+          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
+          <%= label_tag "field_#{field.id}_#{idx}", option.strip %>
       <% else %>
         <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
       <% end %>
