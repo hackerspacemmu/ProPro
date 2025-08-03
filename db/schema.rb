@@ -17,7 +17,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_164200) do
     t.string "text", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "deleted", default: false, null: false
+    t.boolean "deleted", null: false
     t.index ["project_id"], name: "index_comments_on_project_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end

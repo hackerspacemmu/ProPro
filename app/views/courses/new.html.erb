@@ -33,11 +33,11 @@
             <%= form.text_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name"%>
             <br>
 
-            <p>Use groups?</p>
+            <p>Students would work?</p>
             <%= form.radio_button :grouped, "true" %>
-            <%= form.label :grouped, "True", value: true %>
+            <%= form.label :grouped, "In groups", value: true %>
             <%= form.radio_button :grouped, "false" %>
-            <%= form.label :grouped, "False", value: false %>
+            <%= form.label :grouped, "By themselves", value: false %>
             <br>
 
             <%= form.submit "Create Course" %>
