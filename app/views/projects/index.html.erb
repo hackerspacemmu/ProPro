@@ -1,4 +1,21 @@
-<h1>Proposals for <%= @course.course_name %></h1>
+<!-- Title -->
+<h2><%= @current_instance.title %></h2>
+
+<br>
+
+<!-- Field Desc, basically everythign from the form -->
+
+<% @fields.each do |field| %>
+  <p><strong><%= field.project_template_field.label %>:</strong> <%= field.value %></p>
+<% end %>
+
+<p><strong>Owner:</strong>
+  <% if @owner.is_a?(User) %>
+    <%= @owner.username %>
+  <% else %>
+    <%= @owner.group_name %>
+  <% end %>
+</p>
 
 <ul>
   <% @projects.each do |project| %>

@@ -1,103 +1,65 @@
-<% current_version = params[:version].to_i %>
-<% oldest_version = @instances.size - 1 %>
-<% latest_version = 0 %>
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <%= stylesheet_link_tag "projects" %>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title><%= @current_instance.title %> - Project Details</title>
+ </head>
+ <body>
+   <% current_version = params[:version].to_i %>
+   <% oldest_version = @instances.size - 1 %>
+   <% latest_version = 0 %>
+   <main id="project">
+     <div class="project-layout">
+       <% if current_version < oldest_version %>
+         <%= link_to course_project_path(@course, @project, version: current_version + 1), class: "version-btn version-btn-left" do %>
+           <span class="arrow"><%= image_tag("arrow_back.svg") %></span>
+         <% end %>
+       <% else %>
+         <span class="version-btn version-btn-left disabled">
+           <span class="arrow"><%= image_tag("arrow_back.svg") %></span>
+         </span>
+       <% end %>
+       
+       <% if current_version > latest_version %>
+         <%= link_to course_project_path(@course, @project, version: current_version - 1), class: "version-btn version-btn-right" do %>
+           <span class="arrow"><%= image_tag("arrow_forward.svg") %></span>
+         <% end %>
+       <% else %>
+         <span class="version-btn version-btn-right disabled">
+           <span class="arrow"><%= image_tag("arrow_forward.svg") %></span>
+         </span>
+       <% end %>
 
-<! -- Version Selector -->
-
-<% if current_version < oldest_version %>
-  <%= link_to "< Previous", course_project_path(@course, @project, version: current_version + 1) %>
-<% else %>
-  <span style="color: gray;">< Previous</span>
-<% end %>
-
-<% if current_version > latest_version %>
-  <%= link_to "Next >", course_project_path(@course, @project, version: current_version - 1) %>
-<% else %>
-  <span style="color: gray;">Next ></span>
-<% end %>
-
-<!-- End of Version Selector -->
-
-<p><%= current_user&.username %></p>
-<p><%= @type %></p>
-
-
-<!-- Title -->
-<h2><%= @current_instance.title %></h2>
-
-<br>
-
-<!-- Field Desc, basically everythign from the form -->
-
-<% @fields.each do |field| %>
-  <p><strong><%= field.project_template_field.label %>:</strong> <%= field.value %></p>
-<% end %>
-
-<p><strong>Owner:</strong>
-  <% if @owner.is_a?(User) %>
-    <%= @owner.username %>
-  <% else %>
-    <%= @owner.group_name %>
-  <% end %>
-</p>
-
-<!-- End of Field Desc -->
-
-<!-- Member -->
-<% if @members.any? %>
-  <p><strong>Group Members:</strong> <%= @members.map(&:username).join(", ") %></p>
-<% end %>
-
-
-<p><strong>Status: </strong><%= @project.status %></p>
-
-<!-- Change Status --!>
-
-<%  if @project.supervisor == current_user  %>
-  <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true do |f| %>
-    <%= f.label :status, "Change Project Status:" %>
-    <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @project.status) %>
-    <%= f.submit "Update Status" %>
-  <% end %>
-<% end %>
-
-<!-- Student Edit -->
-<% if @members.include?(current_user) %>
-  <% if @project.status == "pending" || @project.status == "rejected"%> 
-    <%= link_to "Edit Project", edit_course_project_path(@course, @project), class: "btn btn-primary" %>
-  <% end %>
-<% end %>
-
-
-<p><% @lecturers %></p>
-
-<div>
-  <h2>Comments</h2>
-  <% if @comments %>
-    <% @comments.each do |comment| %>
-      <div>
-        <h4><%= comment.user.username %></h4>
-        <% if !comment.deleted %>
-          <p><%= comment.text %></p>
-          <% if Current.user == comment.user %>
-            <%= link_to "X", soft_delete_course_project_comment_path(@course, @project, comment), data: { turbo_method: :patch } %>
-          <% end %>
-        <% else %>
-          <p>This comment was deleted</p>
-        <% end %>
-      </div>
-      <% end %>
-  <% else %>
-    <p>There are no comments<p>
-  <% end %>
-
-  <%= form_with model:[@course, @project, @new_comment] do |form| %>
-    <%= form.label :user_comment, "Your Comment" %>
-    <%= form.text_area :user_comment %>
-    <%= form.submit "Post Comment" %>
-  <% end %>
-</div>
-
-<p>
-  <%= link_to "Back to all proposals", course_projects_path(@course) %>
-</p>
+       <section class="project-content">
+         <%= render 'project_header',
+                    current_instance: @current_instance,
+                    owner: @owner,
+                    type: @type,
+                    project: @project,
+                    members: @members,
+                    current_version: current_version,
+                    latest_version: latest_version,
+                    instances: @instances %>
+         <%= render 'project_actions',
+                    members: @members,
+                    current_user: current_user,
+                    project: @project,
+                    current_version: current_version,
+                    latest_version: latest_version,
+                    course: @course %>
+         <%= render 'project_comments',
+                    comments: @comments,
+                    new_comment: @new_comment,
+                    course: @course,
+                    project: @project %>
+         <%= render 'project_fields', fields: @fields %>
+         <footer class="project-footer">
+           <%= link_to "← Back to Projects", course_projects_path(@course) %>
+         </footer>
+       </section>
+     </div>
+   </main>
+ </body>
+</html>
