@@ -1,0 +1,19 @@
+<% project_instance = project.project_instances.order(:version).last %>
+<% if project_instance %>
+  <a href="#" class="card-link">
+    <div class="project-card">
+      <ul>
+        <b><%= project_instance.title %></b><br>
+        <b><%= project.ownership.owner.username if project.ownership.owner.respond_to?(:username) %></b>
+        <ul>
+          <li class="project-card inner">
+            <% desc = project_instance.project_instance_fields
+                        .joins(:project_template_field)
+                        .find_by(project_template_fields: { label: 'Description' }) %>
+            <p class="text"><%= desc&.value || "No description available" %></p>
+          </li>
+        </ul>
+      </ul>
+    </div>
+  </a>
+<% end %>

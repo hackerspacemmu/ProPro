@@ -1,9 +1,10 @@
-<section>
- <h3>Proposal Status</h3>
- <% if @latest_instance.present? %>
-  <p>Your latest submission: <%= @latest_instance.submitted_at&.strftime("%d %b %Y")</p>
-  <p>Status: <%= @latest_instance.project.status.titleize %></p>
- <% else %>
-  <p>You have not submitted for <%= @course.course_name %>, Please propose through supervisors.</p>
- <% end %>
-</section>
+<h4>Proposal Status</h4>
+<div class="progress-container">
+  <div class="progress" id="progress"></div>
+  <% %w[pending redo in_review approved].each do |status| %>
+    <div class="step <%= project&.status == status ? 'active' : '' %>">
+      <div class="circle"><%= image_tag("#{status}.svg") %></div>
+      <div class="label"><%= status.humanize %></div>
+    </div>
+  <% end %>
+</div>

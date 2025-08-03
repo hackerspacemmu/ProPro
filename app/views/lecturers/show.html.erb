@@ -1,26 +1,73 @@
-<h1><%= @lecturer.username %></h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= stylesheet_link_tag "lecturers" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= @lecturer.username %> - Lecturer Details</title>
+  </head>
+  <body>
+    <main id="lecturer">
+      <div class="lecturer-layout">
+        <section class="lecturer-content">
+          <header class="lecturer-header">
+            <div class="lecturer-title">
+              <span class="lecturer-title-text">View Supervisor</span>
+              <div class="title-line"></div>
+            </div>
+            <div class="lecturer-name-row">
+              <div class="lecturer-badge"><%= @lecturer.username[0].upcase %></div>
+              <h1 class="lecturer-name"><%= @lecturer.username %></h1>
+            </div>
+            
+            <div class="lecturer-info">
+              <h2 class="lecturer-subtitle">Profile Information</h2>
+              <div class="lecturer-line"></div>
+              
+              <div class="info-item">
+                <span class="info-label">Role</span>
+                <span class="info-value"><%= @enrolment.role %></span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value"><%= @lecturer.email_address %></span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Description</span>
+                <span class="info-value"><%= @lecturer.description.presence || "No description provided." %></span>
+              </div>
+            </div>
+          </header>
 
-<h2>Info<h2>
-<h3>
-    <strong>Role: </strong><%= @enrolment.role %>
-    <br>
-    <strong>Email: </strong><%= @lecturer.email_address %>
-</h3>
+          <section class="lecturer-topics">
+            <header class="section-header">
+              <h2 class="section-title">Topics</h2>
+            </header>
+            <div class="lecturer-line"></div>
+            <div class="topics-container">
+              <% if @approved_projects.empty? %>
+                <div class="no-topics">
+                  <p>No Topics Available</p>
+                </div>
+              <% else %>
+                <ul class="topics-list">
+                  <% @approved_projects.each do |project| %>
+                    <% latest_instance = project.project_instances.order(version: :desc).first %>
+                    <li class="topic-item">
+                      <%= link_to (latest_instance&.title || "Untitled Topic"),
+                          course_topic_path(@course, project), class: "topic-link" %>
+                    </li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </div>
+          </section>
 
-<h2>Topics</h2>
-<ul>
-    <% if @approved_projects.empty? %>
-        <p>No Topics Available</p>
-    <% else %>
-        <% @approved_projects.each do |project| %>
-            <% latest_instance = project.project_instances.order(version: :desc).first %>
-            <li>
-                <%= link_to (latest_instance&.title || "Untitled Topic"),
-                course_topic_path(@course, project) %>
-            </li>
-        <% end %>
-    <% end %>
-</ul>
-<p>
-  <%= link_to "Back to Lecturers", course_lecturers_path(@course) %>
-</p>
+          <footer class="lecturer-footer">
+            <%= link_to "← Back to Lecturers", course_path(@course)  %>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
