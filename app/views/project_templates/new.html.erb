@@ -14,7 +14,7 @@
           <h2>Create Project Template</h2>
         </header>
 
-        <%= form_with model: [@course, @project_template], local: true, class: "form" do |form| %>
+        <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "form" do |form| %>
 
           <div class="row header-row">
             <div class="column"><strong>Field Label</strong></div>
