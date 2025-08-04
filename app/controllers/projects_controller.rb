@@ -44,13 +44,19 @@ end
 def change_status
 
   if @project.supervisor == current_user 
-    @project.update(status: Project.statuses.key(params[:status].to_i))
-    redirect_to course_project_path(@course, @project), notice: "Status updated."
+    new_status = params[:status]
+
+    if Project.statuses.key?(new_status)
+      @project.update(status: new_status)
+      redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
+    else
+      redirect_to course_project_path(@course, @project), notice: "Status updated."
+    end
   else
     redirect_to course_project_path(@course, @project), alert: "You are not authorized to perform this action."
   end
-
 end
+
 
 def edit
 

@@ -1,23 +1,39 @@
 <div class="field-row" data-field-index="<%= field_form.index %>">
-  <button type="button" class="remove-field">
-    <%= image_tag("delete.svg") %>
-  </button>
+  <% is_project_title = field_form.object.label == "Project Title" %>
+  
+  <% unless is_project_title %>
+    <button type="button" class="remove-field">
+      <%= image_tag("delete.svg") %>
+    </button>
+  <% end %>
  
   <div class="row">
     <div class="column">
-      <%= field_form.text_field :label, placeholder: "Field Label" %>
+      <% if is_project_title %>
+        <%= field_form.text_field :label, placeholder: "Field Label", disabled: true %>
+      <% else %>
+        <%= field_form.text_field :label, placeholder: "Field Label" %>
+      <% end %>
     </div>
     <div class="hint-row">
       <%= field_form.text_area :hint, placeholder: "Hint Text" %>
     </div>  
     <div class="column">
-      <%= field_form.select :field_type,
-          options_for_select(
-            ProjectTemplateField.field_types.keys.map { |key| [key.humanize, key] },
-            field_form.object.field_type
-          ),
-          { prompt: "Select field type" },
-          { class: "field-type-select" } %>
+      <% if is_project_title %>
+        <%= field_form.select :field_type,
+            options_for_select([["Shorttext", "shorttext"]], "shorttext"),
+            {},
+            { class: "field-type-select", disabled: true } %>
+        <%= field_form.hidden_field :field_type, value: "shorttext" %>
+      <% else %>
+        <%= field_form.select :field_type,
+            options_for_select(
+              ProjectTemplateField.field_types.keys.map { |key| [key.humanize, key] },
+              field_form.object.field_type
+            ),
+            { prompt: "Select field type" },
+            { class: "field-type-select" } %>
+      <% end %>
     </div>
     <div class="column">
       <%= field_form.select :applicable_to,
@@ -28,11 +44,13 @@
           { prompt: "Select applicability" } %>
     </div>
     <div class="column options-column">
-      <% field_type = field_form.object.field_type %>
-      <% show_options = ['dropdown', 'radio'].include?(field_type) %>
-      <div class="options-section <%= 'hidden' unless show_options %>">
-        <%= render 'option_section', field_form: field_form, field_type: field_type %>
-      </div>
+      <% unless is_project_title %>
+        <% field_type = field_form.object.field_type %>
+        <% show_options = ['dropdown', 'radio'].include?(field_type) %>
+        <div class="options-section <%= 'hidden' unless show_options %>">
+          <%= render 'option_section', field_form: field_form, field_type: field_type %>
+        </div>
+      <% end %>
     </div>
   </div>
  

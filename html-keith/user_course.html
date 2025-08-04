@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html>
-<link rel="stylesheet" href="propro.css">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="propro.css">
+</head>
+
+<body>
     <div class="topbar">
         <a href="#home">Alex's 2510 Course View</a>
+        <div class="topbar-actions">
+            <a href="#settings" class="topbar-icon" title="Settings">
+                <img src="settings.svg" alt="Settings" />
+                <span class="topbar-info">Course Settings</span>
+            </a>
+            <a href="#project_templates" class="topbar-icon" title="Edit Project Templates">
+                <img src="project_templates.svg" alt="Edit Project Templates" />
+                <span class="topbar-info">Edit Project Templates</span>
+            </a>
+        </div>
     </div>
     <ul class="breadcrumb">
         <li><a href="user_course.html">Course</a></li>
     </ul>
-</head>
-
-<body>
     <div class="sidebar">
         <a href="#home">Proposal Guidelines</a>
         <a href="#home">Proposal Status</a>
@@ -192,7 +202,23 @@
                     </a>
                 </div>
             </div>
-
+        </div>
+        <div class="container">
+            <h4>Participants</h4>
+            <ul class="participants">
+                <li class="participants-block">
+                    <avatar>C</avatar>
+                    <name>Mr. Chiam Juin Hoong</name>
+                    <span class="blob" style="background: #4d7c5f">Proposal submitted</span>
+                    <span class="blob-group">Group 7</span>
+                </li>
+                <li class="participants-block">
+                    <avatar>C</avatar>
+                    <name>Mr. Chong Seng Kiat</name>
+                    <span class="blob" style="background: #7c4d4d">Proposal not submitted</span>
+                    <span class="blob-group">Group 7</span>
+                </li>
+            </ul>
         </div>
     </div>
 </body>

@@ -6,23 +6,60 @@ body {
 /* top bar (keith) */
 
 .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: #e1e1e1;
     overflow: hidden;
     position: fixed;
-    top: 0;
+    top: 0;     
     left: 0;
     width: 100%;
     height: 70px;
     z-index: 5;
 }
 
-.topbar a {
-    float: left;
+.topbar > a:first-child {
     color: #000000;
     padding: 20px 20px;
     text-decoration: none;
     font-size: 25px;
     font-weight: bold;
+    flex-shrink: 0;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: 64px;
+    margin-left: auto;
+}
+
+.topbar-icon {
+    display: flex;
+    align-items: center;
+    color: #999999;
+    font-size: 18px;
+    font-weight: normal;
+    text-decoration: none;
+    padding: 0 24px 0 0;
+    height: 100%;
+}
+
+.topbar-icon img {
+    width: 28px;
+    height: 28px;
+    display: block;
+    color: black;
+}
+
+.topbar-info {
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: normal;
+    color: #7e7e7e;
+    margin-left: 8px;
 }
 
 /* breadcrumb (keith) */
@@ -100,6 +137,10 @@ ul.breadcrumb li b {
 
 /* page (keith) */
 
+.course-header {
+    margin-bottom: 20px;
+}
+
 .main {
     margin-top: 120px;
     margin-left: 300px;
@@ -131,6 +172,9 @@ ul.breadcrumb li b {
 
 /* progress container (alex) */
 
+.status-bar-header {
+    margin-left: 16px;
+}
 .status-bar-container {
     background-color: inherit;
     margin-bottom: 30px;
@@ -261,11 +305,6 @@ ul.breadcrumb li b {
 
 /* lecturer list (alex) */
 
-.supervisors a {
-  text-decoration: none;
-  color: inherit;
-}
-
 .supervisors {
     list-style: none;
     padding: 0;
@@ -274,7 +313,15 @@ ul.breadcrumb li b {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     justify-content: center
+    
 }
+
+.supervisors a {
+  text-decoration: none; 
+  color: inherit;        
+}
+
+
 
 .supervisors li {
     padding: 0;
@@ -283,7 +330,7 @@ ul.breadcrumb li b {
 
 .profile {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 15px;
     margin-left: 10px;
     margin-bottom: 5px;
@@ -426,6 +473,84 @@ ul.breadcrumb li b {
 
 .card-link:hover .project-card.inner {
     background-color: #F8F9FA;
+}
+
+/* participants list (keith) */
+
+.participants {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0 0;
+    display: block;
+    gap: 20px;
+    justify-content: center;
+    height: 500px;
+    overflow-y: scroll;
+}
+
+.participants li {
+    padding: 0;
+    border-bottom: none;
+}
+
+.participants-block {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.participants-block avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #D9D9D9;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+}
+
+.participants-block name {
+    min-width: 400px;
+    font-size: 20px;
+    color: #454343;
+    margin: 0;
+    align-self: center;
+    display: block;
+}
+
+.blob {
+    height: 30px;
+    min-width: 200px;
+    border-radius: 12px;
+    margin-left: 100px;
+    background: #d9d9d9;
+    display: flex;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    font-style: normal;
+    padding: 0 10px;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.blob-group{
+    height: 30px;
+    min-width: 100px;
+    border-radius: 12px;
+    margin-left: 100px;
+    background: #d9d9d9;
+    display: flex;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    font-style: normal;
+    padding: 0 10px;
+    font-size: 14px;
 }
 
 /* typography (keith) */

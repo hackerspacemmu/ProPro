@@ -79,6 +79,13 @@ body {
   background: #F8F9FA;
 }
 
+select:disabled,
+input:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
 .remove-field {
   display: none;
   position: absolute;
