@@ -3,6 +3,8 @@ class Project < ApplicationRecord
   belongs_to :ownership
   belongs_to :course
 
+  belongs_to :supervisor_enrolment, class_name: "Enrolment", foreign_key: "enrolment_id"
+
   has_many :project_instances, dependent: :destroy
   has_many :comments, dependent: :destroy
   delegate :owner, to: :ownership
