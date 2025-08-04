@@ -1,0 +1,108 @@
+<html>
+
+<head>
+    <style>
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            min-width: 0;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            background: #efefef;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #f8f9fa;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            min-height: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .topbar {
+            background-color: #e1e1e1;
+            border-radius: 16px 16px 0 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .main {
+            margin: 0 auto;
+            padding: 24px 24px 24px 24px;
+        }
+
+        .otp {
+            border-radius: 8px;
+            border: 1px solid;
+            background: #fff;
+            width: 100%;
+            min-height: 40px;
+            margin: 16px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #000000;
+        }
+
+        h1 {
+            color: #000000;
+            font-size: 24px;
+            margin: 0;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            font-size: 16px;
+            color: #222;
+            margin: 16px 0 0 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="topbar">
+            <h1>Welcome to ProPro</h1>
+        </div>
+        <div class="main">
+            <p>
+                A lecturer has imported your account into ProPro, your OTP is:
+            </p>
+            <br>
+            <div class="otp">
+                <strong><%= @otp %></strong>
+            </div>
+            <br>
+            <p>
+            To claim your account visit: https://domain.com/user/new_student?token=<%= @otp_token %>
+            </p>
+            <br>
+            <p><strong>Do not share this information with a third-party.</strong></p>
+        </div>
+    </div>
+</body>
+
+</html>
