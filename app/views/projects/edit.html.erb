@@ -71,6 +71,14 @@
           </div>
         </div>
       <% end %>
+    </div>
+  <% end %>
+
+            <div class="form-actions">
+                <%= link_to "← Back to Proposal", course_path(@course)  %>
+                <%= submit_tag "Submit", class: "btn btn-primary" %>
+            </div>
+        <% end %>
     </main>
   </body>
 </html>
