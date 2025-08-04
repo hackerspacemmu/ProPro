@@ -22,7 +22,12 @@
         <a href="#home">Proposal Status</a>
         <a href="#home">Supervisors Available</a>
         <a href="#home">Group Members</a>
-    </div>
+
+        <% if Current.user == @course.supervisor %>
+        <%= link_to "Edit Course", settings_course_path(@course) %>
+        <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
+        <% end%>
+  </div>
     <div class="main">
         <h1><%= @course.course_name.upcase %></h1>
         <h3>Your Course</h3>
