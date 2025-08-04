@@ -19,13 +19,46 @@ body {
     z-index: 5;
 }
 
-.topbar a {
-    float: left;
+.topbar > a:first-child {
     color: #000000;
     padding: 20px 20px;
     text-decoration: none;
     font-size: 25px;
     font-weight: bold;
+    flex-shrink: 0;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: 64px;
+    margin-left: auto;
+}
+
+.topbar-icon {
+    display: flex;
+    align-items: center;
+    color: #999999;
+    font-size: 18px;
+    font-weight: normal;
+    text-decoration: none;
+    padding: 0 24px 0 0;
+    height: 100%;
+}
+
+.topbar-icon img {
+    width: 28px;
+    height: 28px;
+    display: block;
+}
+
+.topbar-info {
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: normal;
+    color: #7e7e7e;
+    margin-left: 8px;
 }
 
 /* breadcrumb (keith) */
