@@ -1,7 +1,7 @@
 <% project_instance = project.project_instances.order(:version).last %>
 <% if project_instance %>
   <% if project_viewable_by_current_user?(@course, project) %>
-    <%= link_to course_project_path(@course, project), class: "card-link" do %>
+    <%= link_to course_topic_path(@course, project), class: "card-link" do %>
       <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
     <% end %>
   <% else %>
