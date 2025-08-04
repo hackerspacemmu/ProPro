@@ -6,6 +6,9 @@ body {
 /* top bar (keith) */
 
 .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: #e1e1e1;
     overflow: hidden;
     position: fixed;
