@@ -51,6 +51,7 @@ body {
     width: 28px;
     height: 28px;
     display: block;
+    color: black;
 }
 
 .topbar-info {
@@ -167,6 +168,9 @@ ul.breadcrumb li b {
 
 /* progress container (alex) */
 
+.status-bar-header {
+    margin-left: 16px;
+}
 .status-bar-container {
     background-color: inherit;
     margin-bottom: 30px;
@@ -305,7 +309,15 @@ ul.breadcrumb li b {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     justify-content: center
+    
 }
+
+.supervisors a {
+  text-decoration: none; 
+  color: inherit;        
+}
+
+
 
 .supervisors li {
     padding: 0;
