@@ -1,0 +1,17 @@
+<section class="project-actions">
+  <div class="action-group">
+    <!-- Lecturer Edit Actions -->
+    <% if members.include?(current_user) %>
+      <% if (project.status == "pending" && current_version == latest_version) || (!@course.require_coordinator_approval) %>
+        <div class="action-note"> Latest Version </div> <%= link_to "Edit Proposal", edit_course_topic_path(course, project) %> <%= image_tag("edit.svg") %>
+      <% else %>
+        <span class="action-note"><%= image_tag("lock.svg") %> Unable to Edit Project</span>
+      <% end %>
+    <% end %>
+    
+    <!-- Version Jump -->
+    <% if current_version != latest_version %>
+      <%= link_to "Jump to Current Version", course_topic_path(course, project) %>
+    <% end %>
+  </div>
+</section>
