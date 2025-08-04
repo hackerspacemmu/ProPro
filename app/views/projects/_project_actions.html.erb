@@ -1,4 +1,3 @@
-<!-- app/views/projects/_project_actions.html.erb -->
 <section class="project-actions">
   <div class="action-group">
     <!-- Student Edit Actions -->
@@ -9,23 +8,10 @@
         <span class="action-note"><%= image_tag("lock.svg") %> Unable to Edit Project</span>
       <% end %>
     <% end %>
-
+    
     <!-- Version Jump -->
     <% if current_version != latest_version %>
       <%= link_to "Jump to Current Version", course_project_path(course, project) %>
-    <% end %>
-
-    <!-- Staff Status Change -->
-    <% if current_user.is_staff %>
-      <div class="status-change">
-        <%= form_with url: change_status_course_project_path(course, project), method: :patch, local: true, class: "status-form" do |f| %>
-          <%= f.label :status, "Change Status:", class: "form-label" %>
-          <%= f.select :status, 
-              options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], project.status),
-              {}, { class: "status-select" } %>
-          <%= f.submit "Update Status", class: "btn btn-secondary" %>
-        <% end %>
-      </div>
     <% end %>
   </div>
 </section>
