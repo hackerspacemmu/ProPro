@@ -143,4 +143,34 @@ class ProjectTemplatesController < ApplicationController
     
     return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
   end
+  
+  if params[:id]
+    @project = @projects.find { |p| p.id == params[:id].to_i }
+    return redirect_to(course_path(@course), alert: "You are not authorized") if @project.nil?
+  end
+  
+  # Coordinators are always authorized - skip further checks
+  return if is_coordinator
+  
+  # Authorization logic for non-coordinators
+  authorized = false
+  
+  if @course.lecturer_access && @course.lecturers.exists?(user: current_user)
+    authorized = true
+  elsif @course.owner_only?
+    authorized = @project.nil? || @project.ownership&.owner == current_user
+  elsif @course.own_lecturer_only?
+    authorized = @project.nil? || (
+      @project.ownership&.owner == current_user ||
+      @project.supervisor&.user == current_user
+    )
+  elsif @course.no_restriction?
+    authorized = @project.nil? || (
+      @course.students.exists?(user: current_user) ||
+      @project.supervisor&.user == current_user
+    )
+  end
+  
+  return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
+end
 end
