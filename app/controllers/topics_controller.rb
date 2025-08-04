@@ -2,11 +2,19 @@ class TopicsController < ApplicationController
 
 before_action :access_one
 
+def index
+  redirect_to course_path(@course)
+end
+
+
 def show
 
   @instances = @project.project_instances.order(version: :desc)
   @owner = @project.ownership&.owner
   @status = @project.status
+  @comments = @project.comments
+  @new_comment = Comment.new
+
 
   @type = @project.ownership&.ownership_type
 
@@ -137,7 +145,7 @@ def create
   # Create project with valid enrolment and ownership
   @project = Project.create!(
     course: @course,
-    enrolment: @enrolment,
+    enrolment: @course.coordinator,
     ownership: @ownership,
     status: status
   )
@@ -177,10 +185,6 @@ end
 
 
 private 
-
-  def index
-
-  end
 
 
   def access_one

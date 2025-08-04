@@ -36,6 +36,13 @@ Rails.application.routes.draw do
       member do
         patch :change_status
       end
+
+      resources :comments do
+        member do
+          patch 'soft_delete'
+        end
+      end
+      
     end
   
     resources :lecturers, only: [:index, :show] do
@@ -43,6 +50,13 @@ Rails.application.routes.draw do
         member do
           patch :change_status
         end
+
+        resources :comments do
+          member do
+            patch 'soft_delete'
+          end
+        end
+
       end
     end
 
