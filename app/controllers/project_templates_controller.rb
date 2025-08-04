@@ -2,16 +2,6 @@ class ProjectTemplatesController < ApplicationController
 before_action :set_course
 before_action :set_project_template
 
-  TEMPLATE_FIELD_PARAMS = %i[
-    id
-    label
-    hint
-    field_type
-    applicable_to
-    options
-    _destroy
-  ].freeze
-
   def new
     if @course.project_template
       @project_template = @course.project_template 
@@ -35,13 +25,9 @@ before_action :set_project_template
   def update
     safe_params = filter_undeletable_fields(project_template_params)
 
-    # Debug output - remove in production
-    Rails.logger.debug "Safe params: #{safe_params.inspect}"
-
     if @project_template.update(safe_params)
       redirect_to edit_course_project_template_path(@course), notice: 'Template updated successfully.'
     else
-      Rails.logger.debug "Validation errors: #{@project_template.errors.full_messages}"
       render :edit
     end
   end
@@ -81,7 +67,18 @@ before_action :set_project_template
   end 
 
   def project_template_params
-    params.require(:project_template).permit(:description, project_template_fields_attributes: TEMPLATE_FIELD_PARAMS + [{options: []}])
+    params.require(:project_template).permit(
+      :description,
+      project_template_fields_attributes: [
+        :id,
+        :label,
+        :hint,
+        :field_type,
+        :applicable_to,
+        :_destroy,
+        { options: [] }
+      ]
+  )
   end
 
   def filter_undeletable_fields(params)
