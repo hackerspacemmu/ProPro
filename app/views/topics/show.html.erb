@@ -54,7 +54,7 @@
 
 <!-- Change Status --!>
 
-<% if @is_coordinator %>
+<% if @is_coordinator && @course.require_coordinator_approval %>
   <%= form_with url: change_status_course_topic_path(@course, @project), method: :patch, local: true do |f| %>
     <%= f.label :status, "Change Topic Status:" %>
     <%= f.select :status, options_for_select([["Pending", 0], ["Approved", 1], ["Rejected", 2]], @project.status) %>
@@ -64,7 +64,8 @@
 
 <!-- Lecturer Edit -->
 <% if @members.include?(current_user) %>
-   <% if @project.status == "pending" || @project.status == "rejected" && current_version == latest_version %>
+   <% if ((@project.status == "pending" || @project.status == "rejected") && current_version == latest_version) || 
+   (@project.status == "approved" && !@course.require_coordinator_approval && current_version == latest_version) %>
     <%= link_to "Edit Project", edit_course_topic_path(@course, @project), class: "btn btn-primary" %> 
    <% else %>
   <p>Unable to Edit Project</p>
