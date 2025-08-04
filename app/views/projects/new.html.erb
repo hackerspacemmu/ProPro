@@ -7,18 +7,22 @@
       <%= label_tag "fields_#{field.id}", field.label %>
 
       <% case field.field_type when "shorttext" %>
-        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control",field.hint, required: true %>
+        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
       <% when "textarea" %>
-        <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control",field.hint, required: true %>
+        <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
       <% when "dropdown" %>
-        <%= select_tag "fields[#{field.id}]", options_for_select(field.options.split(',')), class: "form-control",field.hint, required: true %>
+        <%= select_tag "fields[#{field.id}]",
+      options_for_select(
+        field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
+      ),
+      prompt: "Select an option",class: "form-control", required: true %>
       <% when "radio" %>
-        <% field.options.split(',').each_with_index do |option, idx| %>
+        <% field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip).each_with_index do |option, idx| %>
           <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
-          <%= label_tag "field_#{field.id}_#{idx}", option.strip %>
+          <%= label_tag "field_#{field.id}_#{idx}", option %>
         <% end %>
       <% else %>
-        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control" %>
+        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
       <% end %>
     </div>
   <% end %>
