@@ -1,6 +1,6 @@
 class ProjectTemplatesController < ApplicationController
-before_action :set_course
-before_action :set_project_template
+  before_action :set_course
+  before_action :set_project_template
 
   def new
     if @course.project_template
@@ -19,6 +19,8 @@ before_action :set_project_template
     @project_template = @course.build_project_template(project_template_params)
     if @project_template.save
       redirect_to edit_course_project_template_path(@course)
+    else
+      render :new
     end 
   end
 
@@ -42,17 +44,6 @@ before_action :set_project_template
         applicable_to: "both"
       )
     end
-  end
-  
-
-  def new_field
-    @index = params[:index].to_i
-    render partial: 'project_templates/new_field', locals: { index: @index}
-  end
-
-  def new_option
-    render partial: "project_templates/option_row_#{params[:field_type]}",
-           locals: {field_index:  params[:field_index].to_i, option_index: params[:option_index].to_i, option_value: ''  }
   end
 
 
@@ -78,7 +69,7 @@ before_action :set_project_template
         :_destroy,
         { options: [] }
       ]
-  )
+    )
   end
 
   def filter_undeletable_fields(params)
@@ -96,59 +87,60 @@ before_action :set_project_template
     params
   end
 
-def access
-  @course = Course.find(params[:course_id])
-  
-  # Check if user is coordinator first
-  is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
-  
-  # Build the list of projects/topics visible to the current user:
-  if is_coordinator
-    # Coordinators see everything
-    @projects = @course.projects
-  else
-    # Non-coordinators:
-    @projects = @course.projects.select do |project|
-      owner = project.ownership&.owner
-      # 1) Student-owned proposals (all statuses except rejected are OK)
-      next true if owner.is_a?(User) &&
-                   @course.enrolments.exists?(user: owner, role: :student)
-      # 2) Group-owned proposals (all members are students)
-      next true if owner.is_a?(ProjectGroup) &&
-                   owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
-      # 3) Lecturer-proposed topics, but only once approved
-      next true if project.ownership.lecturer? &&
-                   project.status.to_s == "approved"
-      false
+  def access
+    @course = Course.find(params[:course_id])
+    
+    # Check if user is coordinator first
+    is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
+    
+    # Build the list of projects/topics visible to the current user:
+    if is_coordinator
+      # Coordinators see everything
+      @projects = @course.projects
+    else
+      # Non-coordinators:
+      @projects = @course.projects.select do |project|
+        owner = project.ownership&.owner
+        # 1) Student-owned proposals (all statuses except rejected are OK)
+        next true if owner.is_a?(User) &&
+                     @course.enrolments.exists?(user: owner, role: :student)
+        # 2) Group-owned proposals (all members are students)
+        next true if owner.is_a?(ProjectGroup) &&
+                     owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
+        # 3) Lecturer-proposed topics, but only once approved
+        next true if project.ownership.lecturer? &&
+                     project.status.to_s == "approved"
+        false
+      end
     end
+    
+    if params[:id]
+      @project = @projects.find { |p| p.id == params[:id].to_i }
+      return redirect_to(course_path(@course), alert: "You are not authorized") if @project.nil?
+    end
+    
+    # Coordinators are always authorized - skip further checks
+    return if is_coordinator
+    
+    # Authorization logic for non-coordinators
+    authorized = false
+    
+    if @course.lecturer_access && @course.lecturers.exists?(user: current_user)
+      authorized = true
+    elsif @course.owner_only?
+      authorized = @project.nil? || @project.ownership&.owner == current_user
+    elsif @course.own_lecturer_only?
+      authorized = @project.nil? || (
+        @project.ownership&.owner == current_user ||
+        @project.supervisor&.user == current_user
+      )
+    elsif @course.no_restriction?
+      authorized = @project.nil? || (
+        @course.students.exists?(user: current_user) ||
+        @project.supervisor&.user == current_user
+      )
+    end
+    
+    return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
   end
-  
-  if params[:id]
-    @project = @projects.find { |p| p.id == params[:id].to_i }
-    return redirect_to(course_path(@course), alert: "You are not authorized") if @project.nil?
-  end
-  
-  # Coordinators are always authorized - skip further checks
-  return if is_coordinator
-  
-  # Authorization logic for non-coordinators
-  authorized = false
-  
-  if @course.lecturer_access && @course.lecturers.exists?(user: current_user)
-    authorized = true
-  elsif @course.owner_only?
-    authorized = @project.nil? || @project.ownership&.owner == current_user
-  elsif @course.own_lecturer_only?
-    authorized = @project.nil? || (
-      @project.ownership&.owner == current_user ||
-      @project.supervisor&.user == current_user
-    )
-  elsif @course.no_restriction?
-    authorized = @project.nil? || (
-      @course.students.exists?(user: current_user) ||
-      @project.supervisor&.user == current_user
-    )
-  end
-  
-  return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
 end
