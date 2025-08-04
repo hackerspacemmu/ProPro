@@ -17,7 +17,7 @@
     <a href="#home">Supervisors Available</a>
     <a href="#home">Group Members</a>
 
-    <% if Current.user == @course.supervisor %>
+    <% if Current.user == @course.coordinator.user %>
     <%= link_to "Edit Course", settings_course_path(@course) %>
     <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
     <% end%>

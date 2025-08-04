@@ -122,18 +122,9 @@ end
 def create
   enrolment = Enrolment.find_by(user: current_user, course: @course)
 
-  @course = Course.find(params[:course_id])
-
-  # Create enrolment for current_user as lecturer (if not already enrolled)
-  @enrolment = Enrolment.find_or_create_by!(
-    user: current_user,
-    course: @course,
-    role: enrolment&.role
-  )
-
   # Create ownership with current_user as the owner
   @ownership = Ownership.find_or_create_by!(
-    owner: @enrolment.user,
+    owner: enrolment.user,
     ownership_type: :lecturer
   )
 
