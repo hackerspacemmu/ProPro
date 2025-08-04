@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   post "user/create"
-  get "user/new_staff"
-  get "user/new_student"
+  get "user/new_staff", to: "user#new_staff", as: :new_staff
+  get "user/new_student", to: "user#new_student", as: :new_student
   get "user/profile"
   post "user/edit"
 
