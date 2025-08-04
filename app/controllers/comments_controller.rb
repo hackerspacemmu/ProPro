@@ -56,7 +56,6 @@ class CommentsController < ApplicationController
       redirect_to course_topic_path(parent_course, parent_project)
     end
 
-   Rails.logger.info params
   end
 end
 
