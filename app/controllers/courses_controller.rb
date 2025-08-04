@@ -37,7 +37,14 @@ class CoursesController < ApplicationController
       @description = @course.course_description
       @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
-      @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
+      
+      # coordinator topics view
+      if @course.enrolments.exists?(user: current_user, role: :coordinator)
+        @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
+      else
+        @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer }).where(status: :approved)
+      end
+
       
       
       projects_ownerships = Project.joins(:ownership)

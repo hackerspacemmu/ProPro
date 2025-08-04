@@ -215,22 +215,34 @@ end
 
 private 
 
+private
+
+# make sure that same logic in helpers/projects_helper.rb
 def access
   @course = Course.find(params[:course_id])
 
-  # coordinators see every project
+  # Build the list of projects/topics visible to the current user:
   if @course.enrolments.exists?(user: current_user, role: :coordinator)
+    # Coordinators see everything
     @projects = @course.projects
   else
+    # Non-coordinators:
     @projects = @course.projects.select do |project|
       owner = project.ownership&.owner
-      if owner.is_a?(User)
-        @course.enrolments.exists?(user: owner, role: :student)
-      elsif owner.is_a?(ProjectGroup)
-        owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
-      else
-        false
-      end
+
+      # 1) Student-owned proposals (all statuses except rejected are OK)
+      next true if owner.is_a?(User) &&
+                   @course.enrolments.exists?(user: owner, role: :student)
+
+      # 2) Group-owned proposals (all members are students)
+      next true if owner.is_a?(ProjectGroup) &&
+                   owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
+
+      # 3) Lecturer-proposed topics, but only once approved
+      next true if project.ownership.ownership_type == "lecturer" &&
+                   project.status.to_s == "approved"
+
+      false
     end
   end
 
@@ -243,19 +255,18 @@ def access
 
   if @course.enrolments.exists?(user: current_user, role: :coordinator)
     authorized = true
-
+  
   elsif @course.lecturer_access && @course.lecturers.exists?(user: current_user)
     authorized = true
-
+  
   elsif @course.owner_only?
     authorized = @project.nil? || @project.ownership&.owner == current_user
-
+  
   elsif @course.own_lecturer_only?
     authorized = @project.nil? || (
       @project.ownership&.owner == current_user ||
       @project.supervisor&.user == current_user
     )
-
   elsif @course.no_restriction?
     authorized = @project.nil? || (
       @course.students.exists?(user: current_user) ||
@@ -266,4 +277,5 @@ def access
   return redirect_to(course_projects_path(@course), alert: "You are not authorized") unless authorized
 end
 end
+
 

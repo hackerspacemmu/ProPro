@@ -100,7 +100,6 @@ body {
   pointer-events: none;
 }
 
-/* Notion-style invisible inputs with word wrapping */
 input[type="text"],
 input[type="email"],
 input[type="number"],
@@ -146,7 +145,7 @@ select {
   padding-right: 2rem;
 }
 
-/* Hint row special styling */
+
 .hint-row {
   padding: 0.5rem 1rem;
   border-right: 1px solid #e5e7eb;

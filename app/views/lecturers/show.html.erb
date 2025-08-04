@@ -50,15 +50,12 @@
                   <p>No Topics Available</p>
                 </div>
               <% else %>
-                <ul class="topics-list">
-                  <% @approved_projects.each do |project| %>
-                    <% latest_instance = project.project_instances.order(version: :desc).first %>
-                    <li class="topic-item">
-                      <%= link_to (latest_instance&.title || "Untitled Topic"),
-                          course_topic_path(@course, project), class: "topic-link" %>
-                    </li>
-                  <% end %>
-                </ul>
+                <div class="cards-container">
+                  <%= render partial: 'courses/project_card',
+                             collection: @approved_projects,
+                             as: :project,
+                             locals: { course: @course } %>
+                </div>
               <% end %>
             </div>
           </section>
