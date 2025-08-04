@@ -7,28 +7,6 @@ class UserController < ApplicationController
   end
 
   def create
-    # mmu_directory validation code
-     #if response[:mmu_directory].blank?
-     #  redirect_to user_new_path, alert: "MMU Directory cannot be blank"
-     #  return
-     #elsif User.find_by(mmu_directory: response[:mmu_directory].strip)
-     #  redirect_to user_new_path, alert: "MMU Directory has already been claimed by another user"
-     #  return
-     #end
-     
-     #uri = URI.parse("https://mmuexpert.mmu.edu.my/" + response[:mmu_directory].to_s.strip)
-     #
-     #http = Net::HTTP.new(uri.host, uri.port)
-     #http.use_ssl = (uri.scheme == "https")
-     #http.read_timeout = 3
-
-     #request = Net::HTTP::Head.new(uri.request_uri)
-
-     #if http.request(request).code.to_i != 200
-     #  redirect_to user_new_path, alert: "Invalid MMU Directory"
-     #  return
-     #end
-
     response = params.permit(:password, :username, :token, :otp)
     if response[:token].blank?
       return
@@ -94,18 +72,32 @@ class UserController < ApplicationController
       return
     end
 
+    if !params[:user][:new_password].blank?
+      if params[:user][:new_password_confirmation].blank? or params[:user][:new_password] != params[:user][:new_password_confirmation]
+        redirect_back_or_to "/", alert: "New passwords do not match"
+        return
+      elsif params[:user][:new_password].length > 72
+        redirect_back_or_to "/", alert: "Password must be less than 72 characters"
+        return
+      end
+    end
+
     begin
       Current.user.update!(
         username: params[:user][:username],
         web_link: params[:user][:web_link],
         description: params[:user][:description]
         )
+
+      if !params[:user][:new_password].blank?
+        Current.user.update!(password: params[:user][:new_password])
+      end
     rescue StandardError => e
       render :profile, status: :unprocessable_entity
       return
     end
 
-    redirect_back_or_to "/", notice: "Profile updated successfully"
+    redirect_to user_profile_path, notice: "Profile updated successfully"
   end
 end
 
