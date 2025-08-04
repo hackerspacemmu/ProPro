@@ -2,10 +2,6 @@ class TopicsController < ApplicationController
 
 before_action :access_one
 
-def index
-
-end
-
 def show
 
   @instances = @project.project_instances.order(version: :desc)
@@ -68,8 +64,7 @@ def edit
     return
   end
 
-  # Exclude lecturer-only fields (optional)
-  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end
 
 def update
@@ -187,6 +182,10 @@ end
 
 
 private 
+
+  def index
+
+  end
 
 
   def access_one

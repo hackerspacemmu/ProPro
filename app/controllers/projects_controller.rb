@@ -114,7 +114,7 @@ if enrolment && Project.exists?(enrolment: enrolment)
   return
 end
 
-@template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+@template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
 
   
 
