@@ -28,7 +28,7 @@ def show
   @current_instance = @instances[index]
 
   if @current_instance.nil?
-    redirect_to course_topics_path(@course), alert: "No project instance available."
+    redirect_to course_path(@course), alert: "No project instance available."
     return
   end
 
@@ -105,13 +105,14 @@ def new
   enrolment = Enrolment.find_by(user: current_user, course: Course.find(params[:course_id]))
 
   unless Current.user.is_staff
-    redirect_to course_topics_path(@course), alert: "You are not authorized"
+    redirect_to course_path(@course), alert: "You are not authorized"
   end
 
-  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
+
 
   if @template_fields.blank?
-    redirect_to course_topics_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
+    redirect_to course_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
     return
   end
 end
@@ -174,7 +175,7 @@ params[:fields]&.each do |field_id, value|
 end
 
 
-  redirect_to course_topics_path(@course), notice: "Topic created!"
+  redirect_to course_path(@course), notice: "Topic created!"
 end
 end
 
@@ -209,7 +210,7 @@ private
   if params[:id]
     @project = @projects.find { |p| p.id == params[:id].to_i }
     unless @project
-      redirect_to course_topics_path(@course), alert: "You are not authorized to view this topic."
+      redirect_to course_path(@course), alert: "You are not authorized to view this topic."
       return
     end
   end
