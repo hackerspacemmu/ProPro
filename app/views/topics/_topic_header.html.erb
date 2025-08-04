@@ -41,7 +41,7 @@
               <%= form_with url: change_status_course_topic_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
                 <% 
                   statuses = ["pending", "approved", "rejected"]
-                  current_index = statuses.index(project.status) || 0
+                  current_index = statuses.index(@project.status) || 0
                   prev_status = current_index > 0 ? statuses[current_index - 1] : nil
                   next_status = current_index < statuses.length - 1 ? statuses[current_index + 1] : nil
                 %>
@@ -60,8 +60,8 @@
                   </span>
                 <% end %>
                 
-                <span class="status-badge status-<%= project.status %>">
-                  <%= project.status.humanize %>
+                <span class="status-badge status-<%= @project.status %>">
+                  <%= @project.status.humanize %>
                 </span>
                 
                 <% if next_status %>
@@ -80,8 +80,8 @@
               <% end %>
             </div>
           <% else %>
-            <span class="metadata-value status-<%= project.status %>">
-              <%= project.status.humanize %>
+            <span class="metadata-value status-<%= @project.status %>">
+              <%= @project.status.humanize %>
             </span>
           <% end %>
         </div>

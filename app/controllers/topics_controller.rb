@@ -51,7 +51,7 @@ def change_status
 
 
   if @is_coordinator
-    @project.update(status: Project.statuses.key(params[:status].to_i))
+    @project.update(status: params[:status])
     redirect_to course_topic_path(@course, @project), notice: "Status updated."
   else
     redirect_to course_topic_path(@course, @project), alert: "You are not authorized to perform this action."
