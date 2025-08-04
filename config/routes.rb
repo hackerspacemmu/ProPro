@@ -20,7 +20,7 @@ Rails.application.routes.draw do
       post 'handle_settings'
     end
 
-    resources :projects, only: [:index, :show, :edit, :update, :create, :new] do
+    resources :projects, only: [:show, :edit, :update, :create, :new] do
       member do
         patch :change_status
       end

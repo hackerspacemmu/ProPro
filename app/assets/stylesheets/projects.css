@@ -118,35 +118,73 @@ body {
   width: auto;        
 }
 
-.metadata-value.status-pending,
-.metadata-value.status-approved,
-.metadata-value.status-rejected {
-  display: inline-block;     
+.status-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: -13px;
+}
+
+.status-change-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-arrow-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s ease-in-out;
+}
+
+.status-arrow-btn:hover:not(.disabled) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.status-arrow-btn.disabled {
+  opacity: 0;
+  cursor: not-allowed;
+}
+
+.status-arrow-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+.status-badge {
+  display: inline-block;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: capitalize;
-  width: auto;
-  align-self: flex-start;               
+  color: white;
 }
 
-
-.metadata-value.status-pending {
-  background-color: #d97706;  
+.status-badge.status-pending {
+  background-color: #d97706;
 }
 
-.metadata-value.status-approved {
+.status-badge.status-approved {
   background-color: #059669;
 }
 
-.metadata-value.status-rejected {
-  background-color: #dc2626; 
+.status-badge.status-rejected {
+  background-color: #dc2626;
 }
 
-.assignee-row {
-  display: flex;
-  align-items: center;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .status-control {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
 }
 
 .user-badge {
