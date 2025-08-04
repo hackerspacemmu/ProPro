@@ -12,6 +12,9 @@ def show
   @instances = @project.project_instances.order(version: :desc)
   @owner = @project.ownership&.owner
   @status = @project.status
+  @comments = @project.comments
+  @new_comment = Comment.new
+
 
   @type = @project.ownership&.ownership_type
 
