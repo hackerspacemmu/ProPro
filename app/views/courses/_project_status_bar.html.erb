@@ -1,10 +1,23 @@
+
 <h4>Proposal Status</h4>
 <div class="progress-container">
   <div class="progress" id="progress"></div>
-  <% %w[pending redo in_review approved].each do |status| %>
+  <% %w[rejected pending approved].each do |status| %>
     <div class="step <%= project&.status == status ? 'active' : '' %>">
-      <div class="circle"><%= image_tag("#{status}.svg") %></div>
+      <div class="circle"><%= image_tag "#{status}.svg" %></div>
       <div class="label"><%= status.humanize %></div>
     </div>
   <% end %>
 </div>
+
+<% if project %>
+  <div class="student-proposal">
+    <h4>Your Current Proposal</h4>
+    <div class="cards-container">
+      <%= render partial: 'project_card', object: project, as: :project %>
+    </div>
+  </div>
+<% else %>
+  <p class="no-proposal">No proposal submitted yet.</p>
+  <%= link_to "Submit Proposal", new_course_project_path(@course), class: "btn" %>
+<% end %>

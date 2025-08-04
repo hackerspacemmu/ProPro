@@ -13,6 +13,7 @@ body {
     left: 0;
     width: 100%;
     height: 70px;
+    z-index: 5;
 }
 
 .topbar a {
@@ -34,6 +35,7 @@ body {
     left: 0px;
     height: 36px;
     width: 100%;
+    z-index: 5;
 }
 
 .breadcrumb a {
@@ -129,12 +131,18 @@ ul.breadcrumb li b {
 
 /* progress container (alex) */
 
+.status-bar-container {
+    background-color: inherit;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
 .progress-container {
     display: flex;
     justify-content: space-between;
     position: relative;
     max-width: 100%;
-    width: 350px;
+    width: 500px;
     height: 60px;
     margin: auto;
 }
@@ -366,7 +374,7 @@ ul.breadcrumb li b {
     margin-left: 30px;
     top: 10px;
     vertical-align: middle;
-    color: #FFFFFF;
+    color: #ffffff;
     font-weight: normal;
     flex: 1;
 }

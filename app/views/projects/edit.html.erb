@@ -1,50 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <%= stylesheet_link_tag "projects" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Project</title>
-</head>
-<body>
+  </head>
+  <body>
     <main class="project-edit">
-        <header class="edit-header">
-          <div class="edit-header-row">
-            <h1 class="edit-title"> Edit Proposal  <%= image_tag("edit.svg") %></h1>
+      <header class="edit-header">
+        <div class="edit-header-row">
+          <h1 class="edit-title">Edit Proposal <%= image_tag("edit.svg") %></h1>
+        </div>
+        <p class="edit-description">Update your project details and information below.</p>
+      </header>
+      
+      <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
+        <div class="fields-container">
+          <% @template_fields.each do |field| %>
+            <div class="field-row">
+              <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
+              
+              <% if field.hint.present? %>
+                <p class="field-hint"><%= field.hint %></p>
+              <% end %>
+              
+              <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
+              
+              <% case field.field_type %>
+                <% when "shorttext" %>
+                  <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
+                  
+                <% when "textarea" %>
+                  <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
+                  
+                <% when "dropdown" %>
+                  <% options = field.options.is_a?(String) ? field.options.split(',').map(&:strip) : field.options %>
+                  <%= select_tag "fields[#{field.id}]", 
+                      options_for_select(options.map { |opt| [opt, opt] }, existing_value), 
+                      class: "form-control", 
+                      required: true, 
+                      title: field.hint,
+                      prompt: "Select an option..." %>
+                      
+                <% when "radio" %>
+                  <div class="radio-group">
+                    <% options = field.options.is_a?(String) ? field.options.split(',') : field.options %>
+                    <% options.each_with_index do |option, idx| %>
+                      <% option_value = option.is_a?(String) ? option.strip : option %>
+                      <div class="radio-option">
+                        <%= radio_button_tag "fields[#{field.id}]", 
+                            option_value, 
+                            existing_value == option_value, 
+                            id: "field_#{field.id}_#{idx}", 
+                            required: (idx == 0) %>
+                        <%= label_tag "field_#{field.id}_#{idx}", option_value %>
+                      </div>
+                    <% end %>
+                  </div>
+                  
+                <% else %>
+                  <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+              <% end %>
+            </div>
+          <% end %>
+          
+          <div class="form-actions">
+            <%= link_to "← Back to Proposal", course_project_path(@course, @project) %>
+            <%= submit_tag "Submit", class: "btn btn-primary" %>
           </div>
-          <p class="edit-description">Update your project details and information below.</p>
-        </header>
-
-        <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
-            <div class="fields-container">
-                <% @template_fields.each do |field| %>
-                    <div class="field-row">
-                        <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
-                        
-                        <% if field.hint.present? %>
-                            <p class="field-hint"><%= field.hint %></p>
-                        <% end %>
-
-      <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
-
-      <% case field.field_type %>
-      <% when "shorttext" %>
-        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-      <% when "textarea" %>
-        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-      <% when "dropdown" %>
-        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
-      <% else %>
-        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+        </div>
       <% end %>
     </div>
   <% end %>
 
             <div class="form-actions">
-                <%= link_to "← Back to Proposal", course_project_path(@course, @project)  %>
+                <%= link_to "← Back to Proposal", course_path(@course)  %>
                 <%= submit_tag "Submit", class: "btn btn-primary" %>
             </div>
         <% end %>
     </main>
-</body>
+  </body>
 </html>

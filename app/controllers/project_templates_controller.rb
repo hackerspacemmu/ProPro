@@ -17,7 +17,11 @@ before_action :set_project_template
       @project_template = @course.project_template 
     else
       @project_template = @course.build_project_template
-      @project_template.project_template_fields.build
+      @project_template.project_template_fields.build(
+        label: "Project Title",
+        field_type: "shorttext",
+        applicable_to: "both"
+      )
     end
   end
 
@@ -31,9 +35,13 @@ before_action :set_project_template
   def update
     safe_params = filter_undeletable_fields(project_template_params)
 
+    # Debug output - remove in production
+    Rails.logger.debug "Safe params: #{safe_params.inspect}"
+
     if @project_template.update(safe_params)
-      redirect_to edit_course_project_template_path(@course)
+      redirect_to edit_course_project_template_path(@course), notice: 'Template updated successfully.'
     else
+      Rails.logger.debug "Validation errors: #{@project_template.errors.full_messages}"
       render :edit
     end
   end
@@ -42,7 +50,11 @@ before_action :set_project_template
     @project_template = @course.project_template
 
     if @project_template.project_template_fields.empty?
-      @project_template.project_template_fields.build
+      @project_template.project_template_fields.build(
+        label: "Project Title",
+        field_type: "shorttext",
+        applicable_to: "both"
+      )
     end
   end
   

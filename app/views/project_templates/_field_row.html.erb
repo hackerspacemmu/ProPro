@@ -1,8 +1,8 @@
-<div class="field-row">
+<div class="field-row" data-field-index="<%= field_form.index %>">
   <button type="button" class="remove-field">
     <%= image_tag("delete.svg") %>
   </button>
-  
+ 
   <div class="row">
     <div class="column">
       <%= field_form.text_field :label, placeholder: "Field Label" %>
@@ -35,6 +35,6 @@
       </div>
     </div>
   </div>
-  
+ 
   <%= field_form.hidden_field :_destroy, value: false, class: "destroy-flag" %>
 </div>

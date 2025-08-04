@@ -3,14 +3,10 @@ class ProjectsController < ApplicationController
 before_action :access
 before_action :check_existing_project, only: [:new, :create]
 
-def index
- 
-end
-
 def show
 
   if @project.nil?
-    redirect_to course_projects_path(@course), alert: "Project not found or access denied." and return
+    redirect_to course_path(@course), alert: "Project not found or access denied." and return
   end
 
   @instances = @project.project_instances.order(version: :desc)
@@ -104,17 +100,18 @@ end
 
 def new
   unless @is_student
-  redirect_to course_projects_path(@course), alert: "You are not authorized"
+  redirect_to course_path(@course), alert: "You are not authorized"
   return
 end
 
 enrolment = Enrolment.find_by(user: current_user, course: @course)
 if enrolment && Project.exists?(enrolment: enrolment)
-  redirect_to course_projects_path(@course), alert: "You already have a project."
+  redirect_to course_path(@course), alert: "You already have a project."
   return
 end
 
-@template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+@template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+
 
   
 
@@ -131,7 +128,7 @@ def create
     group = current_user.project_groups.find_by(course_id: @course.id)
 
     unless group
-      redirect_to course_projects_path(@course), alert: "You're not part of a project group." and return
+      redirect_to course_path(@course), alert: "You're not part of a project group." and return
     end
 
     existing_project = Project.joins(:ownership)
@@ -139,7 +136,7 @@ def create
                               .first
 
     if existing_project
-      redirect_to course_projects_path(@course), alert: "Your group already has a project." and return
+      redirect_to course_path(@course), alert: "Your group already has a project." and return
     end
 
     @ownership = Ownership.create!(
@@ -155,7 +152,7 @@ def create
     existing_project = Project.find_by(enrolment: @enrolment)
 
     if existing_project
-      redirect_to course_projects_path(@course), alert: "You already have a project for this course." and return
+      redirect_to course_path(@course), alert: "You already have a project for this course." and return
     end
 
     @enrolment = Enrolment.find_or_create_by!(
@@ -205,14 +202,13 @@ end
 
   redirect_to course_topics_path(@course), notice: "Project created!"
 end
-end
 
 def check_existing_project
   @course = Course.find(params[:course_id])
   enrolment = Enrolment.find_by(user: current_user, course: @course)
 
   if enrolment && Project.exists?(enrolment: enrolment)
-    redirect_to course_projects_path(@course), alert: "You have already created a project for this course."
+    redirect_to course_path(@course), alert: "You have already created a project for this course."
   end
 end
 
@@ -220,44 +216,58 @@ end
 
 private 
 
+private
+
+# make sure that same logic in helpers/projects_helper.rb
 def access
   @course = Course.find(params[:course_id])
-  @projects = @course.projects.select do |project|
-    owner = project.ownership&.owner
-    if owner.is_a?(User)
-      @course.enrolments.exists?(user: owner, role: :student)
-    elsif owner.is_a?(ProjectGroup)
-      # Optional check: all group members are students
-      owner.users.all? { |user| @course.enrolments.exists?(user: user, role: :student) }
-    else
+
+  # Build the list of projects/topics visible to the current user:
+  if @course.enrolments.exists?(user: current_user, role: :coordinator)
+    # Coordinators see everything
+    @projects = @course.projects
+  else
+    # Non-coordinators:
+    @projects = @course.projects.select do |project|
+      owner = project.ownership&.owner
+
+      # 1) Student-owned proposals (all statuses except rejected are OK)
+      next true if owner.is_a?(User) &&
+                   @course.enrolments.exists?(user: owner, role: :student)
+
+      # 2) Group-owned proposals (all members are students)
+      next true if owner.is_a?(ProjectGroup) &&
+                   owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
+
+      # 3) Lecturer-proposed topics, but only once approved
+      next true if project.ownership.ownership_type == "lecturer" &&
+                   project.status.to_s == "approved"
+
       false
     end
   end
 
   if params[:id]
     @project = @projects.find { |p| p.id == params[:id].to_i }
-    if @project.nil?
-        redirect_to course_projects_path(@course), alert: "You are not authorized"
-      end
+    return redirect_to(course_path(@course), alert: "You are not authorized") if @project.nil?
   end
 
   authorized = false
 
   if @course.enrolments.exists?(user: current_user, role: :coordinator)
     authorized = true
-
+  
   elsif @course.lecturer_access && @course.lecturers.exists?(user: current_user)
     authorized = true
-
+  
   elsif @course.owner_only?
     authorized = @project.nil? || @project.ownership&.owner == current_user
-
+  
   elsif @course.own_lecturer_only?
     authorized = @project.nil? || (
       @project.ownership&.owner == current_user ||
       @project.supervisor&.user == current_user
     )
-
   elsif @course.no_restriction?
     authorized = @project.nil? || (
       @course.students.exists?(user: current_user) ||
@@ -265,7 +275,8 @@ def access
     )
   end
 
-  unless authorized
-    redirect_to course_projects_path(@course), alert: "You are not authorized"
-  end
+  return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
 end
+end
+
+
