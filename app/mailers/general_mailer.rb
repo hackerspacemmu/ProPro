@@ -1,5 +1,5 @@
 class GeneralMailer < ApplicationMailer
-    default from: "example@example.com"
+    default from: "noreply@propro.click"
 
     def send_student_invite
       @otp = params[:otp]
