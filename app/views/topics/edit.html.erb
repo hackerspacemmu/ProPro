@@ -9,14 +9,14 @@
 
       <% case field.field_type %>
       <% when "shorttext" %>
-        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+        <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
       <% when "textarea" %>
-        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
+        <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
       <% when "dropdown" %>
-        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control" %>
+        <%= select_tag "fields[#{field.id}]", options_for_select(field.options, existing_value), class: "form-control", placeholder: field.hint, required: true %>
       <% when "radio" %>
         <% field.options.split(',').each_with_index do |option, idx| %>
-          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}" %>
+          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
           <%= label_tag "field_#{field.id}_#{idx}", option.strip %>
       <% end %>
       <% else %>
@@ -29,5 +29,5 @@
 <% end %>
 
   <p>
-  <%= link_to "Back to Topics", course_topic_path(@course, @project) %>
+  <%= link_to "Back to Topics", course_path(@course)%>
 </p>

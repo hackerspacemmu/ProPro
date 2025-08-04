@@ -1,10 +1,6 @@
 class TopicsController < ApplicationController
 
-before_action :access
-
-def index
-
-end
+before_action :access_one
 
 def show
 
@@ -32,7 +28,7 @@ def show
   @current_instance = @instances[index]
 
   if @current_instance.nil?
-    redirect_to course_topics_path(@course), alert: "No project instance available."
+    redirect_to course_path(@course), alert: "No project instance available."
     return
   end
 
@@ -68,8 +64,7 @@ def edit
     return
   end
 
-  # Exclude lecturer-only fields (optional)
-  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end
 
 def update
@@ -110,11 +105,18 @@ def new
   enrolment = Enrolment.find_by(user: current_user, course: Course.find(params[:course_id]))
 
   unless Current.user.is_staff
-    redirect_to course_topics_path(@course), alert: "You are not authorized"
+    redirect_to course_path(@course), alert: "You are not authorized"
   end
 
-  @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :proposals)
+  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
+
+
+  if @template_fields.blank?
+    redirect_to course_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
+    return
+  end
 end
+
 
 
 def create
@@ -173,7 +175,7 @@ params[:fields]&.each do |field_id, value|
 end
 
 
-  redirect_to course_topics_path(@course), notice: "Topic created!"
+  redirect_to course_path(@course), notice: "Topic created!"
 end
 end
 
@@ -182,8 +184,12 @@ end
 
 private 
 
+  def index
 
-  def access
+  end
+
+
+  def access_one
   @course = Course.find(params[:course_id])
   @courses = Current.user.courses
 
@@ -192,17 +198,19 @@ private
   @is_coordinator = @course.enrolments.exists?(user: Current.user, role: :coordinator)
 
   # Only includes projects created by lecturers
-  @projects = @course.projects.select do |project|
-    owner = project.ownership&.owner
-    owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer)
+  if Current.user.is_staff
+  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer })
+    else
+  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer }, status: :approved)
   end
+
 
   @projects = @projects.select(&:approved?) if @is_student
 
   if params[:id]
     @project = @projects.find { |p| p.id == params[:id].to_i }
     unless @project
-      redirect_to course_topics_path(@course), alert: "You are not authorized to view this topic."
+      redirect_to course_path(@course), alert: "You are not authorized to view this topic."
       return
     end
   end

@@ -1,13 +1,13 @@
-<section>
-  <h3>Supervisors Available</h3>
-  <ul>
-    <% @supervisors.each do |supervisor| %>
-      <li>
-        <h4><%= supervisor.username %></h4>
-        <p>Last seen: yesterday</p>
-        <p>Avg response time: 1 day</p>
-        <p><%= supervisor.projects.where(enrolment: { course_id: @course.id }).count %>/4</p>
-      </li>
-    <% end %>
-  </ul>
-</section>
+<li>
+  <%= link_to course_lecturer_path(course, lecturer), class: "profile" do %>
+    <div class="avatar"><%= lecturer.username.first.upcase %></div>
+    <div class="info">
+      <div class="top">
+        <div class="name"><%= lecturer.username %></div>
+        <span class="capacity">0/4</span>
+      </div>
+      <div class="last-seen">last seen yesterday</div>
+      <div class="avg-time">avg response time – 1 day</div>
+    </div>
+  <% end %>
+</li>

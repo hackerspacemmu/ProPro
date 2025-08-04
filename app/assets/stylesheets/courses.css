@@ -13,6 +13,7 @@ body {
     left: 0;
     width: 100%;
     height: 70px;
+    z-index: 5;
 }
 
 .topbar a {
@@ -34,6 +35,7 @@ body {
     left: 0px;
     height: 36px;
     width: 100%;
+    z-index: 5;
 }
 
 .breadcrumb a {
@@ -253,6 +255,11 @@ ul.breadcrumb li b {
 
 /* lecturer list (alex) */
 
+.supervisors a {
+  text-decoration: none;
+  color: inherit;
+}
+
 .supervisors {
     list-style: none;
     padding: 0;
@@ -270,7 +277,7 @@ ul.breadcrumb li b {
 
 .profile {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
     margin-left: 10px;
     margin-bottom: 5px;
@@ -365,7 +372,7 @@ ul.breadcrumb li b {
 .project-card b {
     margin-left: 30px;
     top: 10px;
-    vertical-align: middle
+    vertical-align: middle;
     color: #ffffff;
     font-weight: normal;
     flex: 1;
