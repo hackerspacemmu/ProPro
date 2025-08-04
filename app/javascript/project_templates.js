@@ -5,7 +5,6 @@ document.addEventListener("turbo:load", function() {
 
   if (!addFieldBtn) return;
 
-  // Use a timestamp-based index to ensure uniqueness
   let fieldIndex = Date.now();
 
   addFieldBtn.addEventListener('click', function(e) {
@@ -27,7 +26,6 @@ document.addEventListener("turbo:load", function() {
           optionsSection.classList.add('hidden');
         }
 
-        // Increment for next field
         fieldIndex++;
       })
       .catch(error => {
@@ -35,18 +33,26 @@ document.addEventListener("turbo:load", function() {
       });
   });
 
-  // Rest of your existing event listeners remain the same...
   templateFields.addEventListener('change', function(e) {
     if (!e.target.classList.contains('field-type-select')) return;
 
     const fieldRow      = e.target.closest('.field-row');
+    const labelInput    = fieldRow.querySelector('input[name*="[label]"]');
+    const isProjectTitle = labelInput && labelInput.value === "Project Title";
+    
+    if (isProjectTitle) return;
+
     const optionsSection = fieldRow.querySelector('.options-section');
-    const fieldType     = e.target.value;
+    const addOptionBtn   = optionsSection.querySelector('.add-option-btn');
+    const fieldType      = e.target.value;
 
     if (optionsSection) {
       optionsSection.style.display = '';
       if (fieldType === 'dropdown' || fieldType === 'radio') {
         optionsSection.classList.remove('hidden');
+        if (addOptionBtn) {
+          addOptionBtn.dataset.fieldType = fieldType;
+        }
       } else {
         optionsSection.classList.add('hidden');
       }
@@ -58,6 +64,14 @@ document.addEventListener("turbo:load", function() {
       e.preventDefault();
       
       const fieldRow = e.target.closest('.field-row');
+      const labelInput = fieldRow.querySelector('input[name*="[label]"]');
+      const isProjectTitle = labelInput && labelInput.value === "Project Title";
+      
+      if (isProjectTitle) {
+        console.log('Cannot delete Project Title field');
+        return;
+      }
+      
       const destroyFlag = fieldRow.querySelector('.destroy-flag');
       
       if (destroyFlag) {
@@ -77,17 +91,40 @@ document.addEventListener("turbo:load", function() {
       const fieldIndex  = btn.dataset.fieldIndex;
       const optionIndex = parseInt(btn.dataset.optionIndex, 10);
       const fieldType   = btn.dataset.fieldType;
-      const containerSelector = fieldType === 'dropdown'
-                                ? '.options-list'
-                                : '.radio-grid';
-      const container   = btn.closest('.options-section')
-                           .querySelector(containerSelector);
+      
+      console.log('Add option clicked:', { fieldIndex, optionIndex, fieldType });
+      
+      const optionsSection = btn.closest('.options-section');
+      console.log('Options section found:', optionsSection);
+      
+      const containerSelector = fieldType === 'dropdown' ? '.options-list' : '.radio-grid';
+      let container = optionsSection.querySelector(containerSelector);
+      
+      console.log('Container selector:', containerSelector);
+      console.log('Container found:', container);
+      
+      if (!container) {
+        const containerHTML = fieldType === 'dropdown' 
+          ? '<div class="options-list"></div>'
+          : '<div class="radio-grid"></div>';
+        optionsSection.insertAdjacentHTML('afterbegin', containerHTML);
+        container = optionsSection.querySelector(containerSelector);
+        console.log('Created new container:', container);
+      }
 
-      const fetcher = fieldType === 'dropdown' ? createDropdownOption: createRadioOption;
+      if (!container) {
+        console.error('Could not find or create container for options');
+        return;
+      }
+
+      const fetcher = fieldType === 'dropdown' ? createDropdownOption : createRadioOption;
 
       fetcher(fieldIndex, optionIndex).then(html => {
+        console.log('Received option HTML:', html);
         container.insertAdjacentHTML('beforeend', html);
         btn.dataset.optionIndex = optionIndex + 1;
+      }).catch(error => {
+        console.error('Error creating option:', error);
       });
     }
 
