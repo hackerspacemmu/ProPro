@@ -1,3 +1,48 @@
-<%= fields_for :project_template_fields, ProjectTemplateField.new, child_index: index do |field_form| %>
-  <%= render 'field_row', field_form: field_form %>
-<% end %>
+<% Rails.logger.debug "New field index: #{index}" %>
+
+<div class="field-row" data-field-index="<%= index %>">
+  <button type="button" class="remove-field">
+    <%= image_tag("delete.svg") %>
+  </button>
+ 
+  <div class="row">
+    <div class="column">
+      <input type="text" 
+             name="project_template[project_template_fields_attributes][<%= index %>][label]" 
+             placeholder="Field Label" />
+    </div>
+    <div class="hint-row">
+      <textarea name="project_template[project_template_fields_attributes][<%= index %>][hint]" 
+                placeholder="Hint Text"></textarea>
+    </div>  
+    <div class="column">
+      <select name="project_template[project_template_fields_attributes][<%= index %>][field_type]" 
+              class="field-type-select">
+        <option value="">Select field type</option>
+        <% ProjectTemplateField.field_types.keys.each do |key| %>
+          <option value="<%= key %>"><%= key.humanize %></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="column">
+      <select name="project_template[project_template_fields_attributes][<%= index %>][applicable_to]">
+        <option value="">Select applicability</option>
+        <% ProjectTemplateField.applicable_tos.keys.each do |key| %>
+          <option value="<%= key %>"><%= key.humanize %></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="column options-column">
+      <div class="options-section hidden">
+        <!-- Options will be added dynamically -->
+        <button type="button"
+                class="add-option-btn"
+                data-field-index="<%= index %>"
+                data-field-type="dropdown"
+                data-option-index="0">
+          + Add Option
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

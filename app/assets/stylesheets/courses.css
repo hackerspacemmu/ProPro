@@ -131,12 +131,18 @@ ul.breadcrumb li b {
 
 /* progress container (alex) */
 
+.status-bar-container {
+    background-color: inherit;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
 .progress-container {
     display: flex;
     justify-content: space-between;
     position: relative;
     max-width: 100%;
-    width: 350px;
+    width: 500px;
     height: 60px;
     margin: auto;
 }
