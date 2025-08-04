@@ -11,13 +11,13 @@ class CommentsController < ApplicationController
     end
 
     if !parent_course.grouped
-      unless Current.user == User.find(parent_project.ownership.owner_id) || Current.user == parent_project.supervisor
+      unless Current.user == User.find(parent_project.ownership.owner_id) || Current.user == parent_project.supervisor || Current.user == parent_course.coordinator.user
         return
       end
-    else
+    elsif
       group_members = ProjectGroup.find(parent_project.ownership.owner_id).project_group_members.map { |member| User.find(member.user_id) }
 
-      unless group_members.includes? Current.user || Current.user == parent_project.supervisor
+      unless group_members.includes? Current.user || Current.user == parent_project.supervisor || Current.user == parent_course.coordinator.user
         return
       end
     end
