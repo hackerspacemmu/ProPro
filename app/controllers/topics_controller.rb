@@ -53,7 +53,7 @@ end
 
 def edit
 
-  if @project.status == "pending"
+  if @project.status == "pending" || (@project.status == "approved" && !@course.require_coordinator_approval)
     @instance = @project.project_instances.last || @project.project_instances.build
   elsif @project.status == "rejected"
     # Create a new version
@@ -68,7 +68,7 @@ def edit
 end
 
 def update
-  if @project.status == "rejected"
+  if @project.status == "rejected" 
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
   else
@@ -82,15 +82,18 @@ def update
   if @instance.save
     if params[:fields].present?
       params[:fields].each do |field_id, value|
-        @instance.project_instance_fields.create!(
-          project_template_field_id: field_id,
-          value: value
-        )
+        field = @instance.project_instance_fields.find_or_initialize_by(project_template_field_id: field_id)
+        field.value = value
+        field.save!
       end
     end
 
-    @project.update(status: :pending) if @project.status == "rejected"
-
+    if @course.require_coordinator_approval
+      @project.update(status: :pending) if @project.status == "approved"
+    else
+      @project.update(status: :pending) if @project.status == "rejected"
+    end
+    
     redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
@@ -175,7 +178,7 @@ params[:fields]&.each do |field_id, value|
 end
 
 
-  redirect_to course_path(@course), notice: "Topic created!"
+  redirect_to course_topic_path(@course, @project), notice: "Topic created!"
 end
 end
 
