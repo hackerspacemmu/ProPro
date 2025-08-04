@@ -112,6 +112,7 @@ end
 
 @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
 
+
   
 
 end
@@ -236,7 +237,7 @@ def access
 
   if params[:id]
     @project = @projects.find { |p| p.id == params[:id].to_i }
-    return redirect_to(course_projects_path(@course), alert: "You are not authorized") if @project.nil?
+    return redirect_to(course_path(@course), alert: "You are not authorized") if @project.nil?
   end
 
   authorized = false
@@ -263,7 +264,7 @@ def access
     )
   end
 
-  return redirect_to(course_projects_path(@course), alert: "You are not authorized") unless authorized
+  return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
 end
 end
 
