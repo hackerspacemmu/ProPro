@@ -5,7 +5,8 @@ document.addEventListener("turbo:load", function() {
 
   if (!addFieldBtn) return;
 
-  let fieldIndex = parseInt(addFieldBtn.dataset.fieldIndex, 10) || 0;
+  // Use a timestamp-based index to ensure uniqueness
+  let fieldIndex = Date.now();
 
   addFieldBtn.addEventListener('click', function(e) {
     e.preventDefault();
@@ -16,6 +17,7 @@ document.addEventListener("turbo:load", function() {
     fetch(url)
       .then(response => response.text())
       .then(html => {
+        console.log('Adding field HTML:', html);
         templateFields.insertAdjacentHTML('beforeend', html);
         const rows          = templateFields.querySelectorAll('.field-row');
         const newFieldRow   = rows[rows.length - 1];
@@ -25,10 +27,15 @@ document.addEventListener("turbo:load", function() {
           optionsSection.classList.add('hidden');
         }
 
+        // Increment for next field
         fieldIndex++;
+      })
+      .catch(error => {
+        console.error('Error adding field:', error);
       });
   });
 
+  // Rest of your existing event listeners remain the same...
   templateFields.addEventListener('change', function(e) {
     if (!e.target.classList.contains('field-type-select')) return;
 
@@ -122,5 +129,4 @@ document.addEventListener("turbo:load", function() {
 
     return fetch(url).then(response => response.text());
   }
-
 });

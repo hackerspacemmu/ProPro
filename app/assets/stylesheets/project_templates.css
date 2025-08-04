@@ -95,6 +95,13 @@ body {
   justify-content: center;
 }
 
+.field-row:hover  .remove-field,
+.field-row.focus-within .remove-field {
+  display: inline-flex;    
+  align-items: center;
+  justify-content: center;
+}
+
 .remove-field img,
 .remove-field svg {
   pointer-events: none;
@@ -292,6 +299,7 @@ select {
 #add-field-btn:hover {
   color: #111827;           
 }
+
 
 
 
