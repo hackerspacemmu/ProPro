@@ -35,33 +35,19 @@
                   <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
                   
                 <% when "dropdown" %>
-                  <% options = field.options.is_a?(String) ? field.options.split(',').map(&:strip) : field.options %>
-                  <%= select_tag "fields[#{field.id}]", 
-                      options_for_select(options.map { |opt| [opt, opt] }, existing_value), 
-                      class: "form-control", 
-                      required: true, 
-                      title: field.hint,
-                      prompt: "Select an option..." %>
-                      
+                  <%= select_tag "fields[#{field.id}]",
+                options_for_select(
+                  field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
+                ),
+                prompt: "Select an option",class: "form-control", required: true %>
                 <% when "radio" %>
-                  <div class="radio-group">
-                    <% options = field.options.is_a?(String) ? field.options.split(',') : field.options %>
-                    <% options.each_with_index do |option, idx| %>
-                      <% option_value = option.is_a?(String) ? option.strip : option %>
-                      <div class="radio-option">
-                        <%= radio_button_tag "fields[#{field.id}]", 
-                            option_value, 
-                            existing_value == option_value, 
-                            id: "field_#{field.id}_#{idx}", 
-                            required: (idx == 0) %>
-                        <%= label_tag "field_#{field.id}_#{idx}", option_value %>
-                      </div>
-                    <% end %>
-                  </div>
-                  
+                  <% field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip).each_with_index do |option, idx| %>
+                    <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
+                    <%= label_tag "field_#{field.id}_#{idx}", option %>
+                  <% end %>
                 <% else %>
-                  <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control" %>
-              <% end %>
+                  <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
+      <% end %>
             </div>
           <% end %>
           

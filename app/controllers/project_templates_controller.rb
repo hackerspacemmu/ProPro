@@ -152,3 +152,4 @@ def access
   
   return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
 end
+end
