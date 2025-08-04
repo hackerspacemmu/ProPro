@@ -12,66 +12,213 @@
   <%= render 'breadcrumb' %>
 
   <div class="sidebar">
-    <a href="#home">Proposal Guidelines</a>
-    <a href="#home">Proposal Status</a>
-    <a href="#home">Supervisors Available</a>
-    <a href="#home">Group Members</a>
+    <a href="#proposal-guidelines">Proposal Guidelines</a>
+    <a href="#proposal-status">Proposal Status</a>
+    <a href="#supervisors-available">Supervisors Available</a>
+    <a href="#group-members">Group Members</a>
 
-    <% if Current.user == @course.coordinator.user %>
-    <%= link_to "Edit Course", settings_course_path(@course) %>
-    <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
-    <% end%>
+    <% if current_user == @course.coordinator.user %>
+      <%= link_to "Edit Course", settings_course_path(@course) %>
+      <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
+    <% end %>
   </div>
 
   <div class="main">
-    <h1><%= @course.course_name.upcase %></h1>
-    <h3>Your Course</h3>
-    <br>
+    <header class="course-header">
+      <h1><%= @course.course_name.upcase %></h1>
+      <h3>Your Course</h3>
+    </header>
 
-    <div class="container">
-      <form>
-        <h4>Proposal Guidelines</h4>
-        <h2><%= @description || "No description available for this course." %></h2>
-      </form>
-    </div>
-
-    <div class="status-bar-container">
-      <%= render 'project_status_bar', project: @project %>
-    </div>
-
-    <div class="container">
-      <h4>Supervisors Available</h4>
-      <ul class="supervisors">
-        <%= render partial: 'lecturers', collection: @lecturers, as: :lecturer, locals: { course: @course } %>
-      </ul>
-    </div>
-
-    <div class="container">
-      <h4>Topics</h4>
-      <div class="project-list-gapper">
-        <div class="cards-container">
-          <%= render partial: 'project_card', collection: @topic_list, as: :project %>
-        </div>
+    <section class="proposal-guidelines" id="proposal-guidelines">
+      <div class="container">
+        <form>
+          <h4>Proposal Guidelines</h4>
+          <h2><%= @description || "No description available for this course." %></h2>
+        </form>
       </div>
-    </div>
+    </section>
 
-    <div class="container">
-      <h4>Participants</h4>
-      <ul class="participants">
-        <li class="participants-block">
-          <avatar>C</avatar>
-          <name>Mr. Chiam Juin Hoong</name>
-          <span class="blob" style="background: #4d7c5f">Proposal submitted</span>
-          <span class="blob-group">Group 7</span>
-        </li>
-        <li class="participants-block">
-          <avatar>C</avatar>
-          <name>Mr. Chong Seng Kiat</name>
-          <span class="blob" style="background: #7c4d4d">Proposal not submitted</span>
-          <span class="blob-group">Group 7</span>
-        </li>
-      </ul>
-    </div>
+    <section class="proposal-status" id="proposal-status">
+      <div class="status-bar-container">
+        <%= render 'project_status_bar', project: @project %>
+      </div>
+    </section>
+
+    <section class="supervisors-available" id="supervisors-available">
+      <div class="container">
+        <h4>Supervisors Available</h4>
+        <ul class="supervisors">
+          <%= render partial: 'lecturers', collection: @lecturers, as: :lecturer, locals: { course: @course } %>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Role-based Topics and Proposals Sections -->
+    <% current_user_enrolment = @course.enrolments.find_by(user: current_user) %>
+    <% if current_user_enrolment&.coordinator? %>
+      <!-- Coordinator View: My Topics, Pending Topics, Pending Proposals -->
+      
+      <section class="my-topics" id="my-topics">
+        <div class="container">
+          <header class="section-header">
+            <h4>My Topics</h4>
+            <p class="section-description">Topics you have created for this course</p>
+          </header>
+          <div class="project-list-gapper">
+            <div class="cards-container">
+              <% coordinator_topics = @topic_list.select { |project| 
+                   project.ownership&.owner == current_user && 
+                   project.ownership&.lecturer? 
+                 } %>
+              <% if coordinator_topics.any? %>
+                <%= render partial: 'project_card', collection: coordinator_topics, as: :project %>
+              <% else %>
+                <p class="empty-state">You haven't created any topics yet.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pending-topics" id="pending-topics">
+        <div class="container">
+          <header class="section-header">
+            <h4>Pending Topics</h4>
+            <p class="section-description">Lecturer-proposed topics awaiting your approval</p>
+          </header>
+          <div class="project-list-gapper">
+            <div class="cards-container">
+              <% pending_topics = @topic_list.select { |project| 
+                   project.ownership&.lecturer? && 
+                   project.status == 'pending' &&
+                   project.ownership&.owner != current_user
+                 } %>
+              <% if pending_topics.any? %>
+                <%= render partial: 'project_card', collection: pending_topics, as: :project %>
+              <% else %>
+                <p class="empty-state">No pending topics require your approval.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pending-proposals" id="pending-proposals">
+        <div class="container">
+          <header class="section-header">
+            <h4>Pending Proposals</h4>
+            <p class="section-description">Student proposals awaiting coordinator approval</p>
+          </header>
+          <div class="project-list-gapper">
+            <div class="cards-container">
+              <% pending_proposals = @course.projects.includes(:ownership)
+                                            .where(status: 'pending')
+                                            .joins(:ownership)
+                                            .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] }) %>
+              <% if pending_proposals.any? %>
+                <%= render partial: 'project_card', collection: pending_proposals, as: :project %>
+              <% else %>
+                <p class="empty-state">No student proposals are pending approval.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <% elsif current_user_enrolment&.lecturer? %>
+      <!-- Lecturer View: My Topics, Pending Proposals -->
+      
+      <section class="my-topics" id="my-topics">
+        <div class="container">
+          <header class="section-header">
+            <h4>My Topics</h4>
+            <div class="section-actions">
+              <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "btn btn-secondary" %>
+            </div>
+            <p class="section-description">Topics you have created for this course</p>
+          </header>
+          <div class="project-list-gapper">
+            <div class="cards-container">
+              <% lecturer_topics = @topic_list.select { |project| 
+                   project.ownership&.owner == current_user && 
+                   project.ownership&.lecturer? 
+                 } %>
+              <% if lecturer_topics.any? %>
+                <%= render partial: 'project_card', collection: lecturer_topics, as: :project %>
+              <% else %>
+                <p class="empty-state">You haven't created any topics yet.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pending-proposals" id="pending-proposals">
+        <div class="container">
+          <header class="section-header">
+            <h4>Pending Proposals</h4>
+            <p class="section-description">Student proposals assigned to you for supervision</p>
+          </header>
+          <div class="project-list-gapper">
+            <div class="cards-container">
+              <% assigned_proposals = @course.projects.includes(:ownership, :supervisor_enrolment)
+                                             .where(status: 'pending', supervisor_enrolment: current_user_enrolment)
+                                             .joins(:ownership)
+                                             .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] }) %>
+              <% if assigned_proposals.any? %>
+                <%= render partial: 'project_card', collection: assigned_proposals, as: :project %>
+              <% else %>
+                <p class="empty-state">No proposals are assigned to you for supervision.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <% else %>
+      <!-- Student View: All Topics -->
+      
+      <section class="available-topics" id="available-topics">
+        <div class="container">
+          <header class="section-header">
+            <h4>Available Topics</h4>
+            <p class="section-description">Topics available for selection</p>
+          </header>
+          <div class="project-list-gapper">
+            <div class="cards-container">
+              <% available_topics = @topic_list.select { |project| 
+                   project_viewable_by_current_user?(@course, project) 
+                 } %>
+              <% if available_topics.any? %>
+                <%= render partial: 'project_card', collection: available_topics, as: :project %>
+              <% else %>
+                <p class="empty-state">No topics are currently available.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+    <% end %>
+
+    <section class="participants" id="participants">
+      <div class="container">
+        <h4>Participants</h4>
+        <ul class="participants">
+          <li class="participants-block">
+            <avatar>C</avatar>
+            <name>Mr. Chiam Juin Hoong</name>
+            <span class="blob" style="background: #4d7c5f">Proposal submitted</span>
+            <span class="blob-group">Group 7</span>
+          </li>
+          <li class="participants-block">
+            <avatar>C</avatar>
+            <name>Mr. Chong Seng Kiat</name>
+            <span class="blob" style="background: #7c4d4d">Proposal not submitted</span>
+            <span class="blob-group">Group 7</span>
+          </li>
+        </ul>
+      </div>
+    </section>
 
   </div>
 
