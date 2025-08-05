@@ -1,26 +1,30 @@
 <header class="project-header">
   <h1 class="project-title"><%= current_instance.title %></h1>
- 
+
   <div class="project-metadata">
     <div class="metadata-grid">
+
+      <!-- Assignee -->
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("person.svg") %> Assignee</span>
         <div class="metadata-value">
           <% if owner.is_a?(User) %>
-              <p class="assignee-row">
-                <span class="user-badge"><%= owner.username[0].upcase %></span>  
-                <%= owner.username %>
-              </p>
+            <p class="assignee-row">
+              <span class="user-badge"><%= owner.username[0].upcase %></span>
+              <%= owner.username %>
+            </p>
           <% else %>
             <% project.owner.users.each do |user| %>
               <p class="assignee-row">
-                <span class="user-badge"><%= user.username[0].upcase %></span>  
+                <span class="user-badge"><%= user.username[0].upcase %></span>
                 <%= user.username %>
               </p>
             <% end %>
           <% end %>
         </div>
       </div>
+
+      <!-- Group Name (only if group project) -->
       <% if project.owner.is_a?(ProjectGroup) %>
         <div class="metadata-item">
           <span class="metadata-label"><%= image_tag("group.svg") %> Group Name</span>
@@ -29,53 +33,24 @@
           </span>
         </div>
       <% end %>
+
+      <!-- Type -->
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
         <span class="metadata-value"><%= type %></span>
       </div>
+
+      <!-- Status -->
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("status.svg") %> Status</span>
         <div class="metadata-value">
           <% if current_user.is_staff %>
             <div class="status-control">
               <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
-                <% 
-                  statuses = ["pending", "approved", "rejected"]
-                  current_index = statuses.index(project.status) || 0
-                  prev_status = current_index > 0 ? statuses[current_index - 1] : nil
-                  next_status = current_index < statuses.length - 1 ? statuses[current_index + 1] : nil
-                %>
-                
-                <% if prev_status %>
-                  <%= button_to change_status_course_project_path(@course, @project), 
-                      method: :patch, 
-                      class: "status-arrow-btn status-arrow-left",
-                      params: { status: prev_status },
-                      title: "Change to #{prev_status.humanize}" do %>
-                    <%= image_tag("change_status_left.svg") %>
-                  <% end %>
-                <% else %>
-                  <span class="status-arrow-btn status-arrow-left disabled">
-                    <%= image_tag("change_status_left.svg") %>
-                  </span>
-                <% end %>
-                
-                <span class="status-badge status-<%= project.status %>">
-                  <%= project.status.humanize %>
-                </span>
-                
-                <% if next_status %>
-                  <%= button_to change_status_course_project_path(@course, @project), 
-                      method: :patch, 
-                      class: "status-arrow-btn status-arrow-right",
-                      params: { status: next_status },
-                      title: "Change to #{next_status.humanize}" do %>
-                    <%= image_tag("change_status_right.svg") %>
-                  <% end %>
-                <% else %>
-                  <span class="status-arrow-btn status-arrow-right disabled">
-                    <%= image_tag("change_status_right.svg") %>
-                  </span>
+                <% statuses = Project.statuses.keys %>
+                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, project.status), {}, class: "status-select status-#{@project.status}" %>
+                <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
+                  <%= image_tag("check.svg", width: 16, height: 16, alt: "Save") %>
                 <% end %>
               <% end %>
             </div>
@@ -86,15 +61,44 @@
           <% end %>
         </div>
       </div>
+
+      <!-- Version Info with Arrows -->
       <div class="metadata-item version-info">
-        <span class="metadata-label"><%= image_tag("version.svg") %> Version</span>
-          <span class="metadata-value">
-            <%= instances.size - current_version %> of <%= instances.size %>
-            <% if current_version != latest_version %>
-              <em class="version-note">(viewing older version)</em>
+        <span 
+          class="metadata-label"><%= image_tag("version.svg") %> Version 
+          <% if current_version != 0 %>
+            <em class="version-note">(viewing older version)</em>
+          <% end %>
+        </span>
+
+        <div class="metadata-value version-navigation">
+          <% # Back arrow: newer version (lower index) %>
+          <% if current_version < instances.size - 1 %>
+            <%= link_to course_project_path(@course, project, version: current_version + 1), class: "version-btn back-arrow" do %>
+              <%= image_tag("arrow_back.svg", class:"back-arrow") %>
             <% end %>
-          </span>
+          <% else %>
+            <span class="version-btn back-arrow disabled">
+              <%= image_tag("arrow_back.svg", class:"back-arrow") %>
+            </span>
+          <% end %>
+
+          <span class="version-text"><%= instances.size - current_version %> of <%= instances.size %></span>
+
+          <% # Next arrow: older version (higher index) %>
+          <% if current_version > 0 %>
+            <%= link_to course_project_path(@course, project, version: current_version - 1), class: "version-btn next-arrow" do %>
+              <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
+            <% end %>
+          <% else %>
+            <span class="version-btn next-arrow disabled">
+              <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
+            </span>
+          <% end %>
+
+        </div>
       </div>
+
     </div>
   </div>
 </header>
