@@ -64,20 +64,23 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 0px;
-  width: 100%;
+  align-items: start;
 }
 
+
 .metadata-item {
-  min-height: 60px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 8px; 
 }
 
 .metadata-label {
   color: #454343;
   font-weight: 550;
   font-size: 16px;
+  text-align: left;
 }
 
 .metadata-label img {
@@ -90,7 +93,15 @@ body {
   width: auto;
   display: flex;
   align-items: center;
-  gap: 8px;        
+  gap: 8px;       
+  text-align: left; 
+}
+
+.owner-metadata .metadata-value {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;        
+  align-items: flex-start;
 }
 
 .status-control {
