@@ -190,6 +190,7 @@ private
   def access_one
   @course = Course.find(params[:course_id])
   @courses = Current.user.courses
+  @current_user_enrolment = @course.enrolments.find_by(user: Current.user)
 
   @is_student     = @course.enrolments.exists?(user: Current.user, role: :student)
   @is_lecturer    = @course.enrolments.exists?(user: Current.user, role: :lecturer)

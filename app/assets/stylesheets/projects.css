@@ -535,12 +535,11 @@ textarea.form-control {
 .radio-option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 12px; 
 }
 
 .radio-option input[type="radio"] {
-  width: 16px;
-  height: 16px;
   margin: 0;
 }
 
@@ -588,15 +587,6 @@ textarea.form-control {
 
 .btn-primary:hover {
   background-color: #f4c4bc;
-}
-
-.btn-secondary {
-  background-color: #6b7280;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #4b5563;
 }
 
 .send-btn {

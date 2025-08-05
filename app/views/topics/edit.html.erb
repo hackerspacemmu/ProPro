@@ -1,57 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= stylesheet_link_tag "projects" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Topic</title>
+  </head>
+  <body>
+    <main class="project-edit">
+      <header class="edit-header">
+        <div class="edit-header-row">
+          <h1 class="edit-title">Edit Topic <%= image_tag("edit.svg") %></h1>
+        </div>
+        <p class="edit-description">Update your topic details and information below.</p>
+      </header>
 
-<head>
-    <%= stylesheet_link_tag "courses" %>
-</head>
-<body>
-<div class = "main">
-  <%= render 'topbar', user: current_user %>
-    <%= render 'breadcrumb' %>
+      <%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
+        <div class="fields-container">
+          <% @template_fields.each do |field| %>
+            <div class="field-row">
+              <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
+              <% if field.hint.present? %>
+                <p class="field-hint"><%= field.hint %></p>
+              <% end %>
 
-    <div class="sidebar">
-      <a href="#proposal-guidelines">Proposal Guidelines</a>
-      <a href="#proposal-status">Proposal Status</a>
-      <a href="#supervisors-available">Supervisors Available</a>
-      <a href="#group-members">Group Members</a>
+              <% case field.field_type %>
+              <% when "shorttext" %>
+                <%= text_field_tag "fields[#{field.id}]", @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value, class: "form-control", placeholder: field.hint, required: true %>
 
-      <% if current_user == @course.coordinator.user %>
-        <%= link_to "Edit Course", settings_course_path(@course) %>
-        <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
-      <% end %>
-    </div>
+              <% when "textarea" %>
+                <%= text_area_tag "fields[#{field.id}]", @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value, class: "form-control", placeholder: field.hint, required: true %>
 
-  <h1>Edit Topic</h1>
+              <% when "dropdown" %>
+                <%= select_tag "fields[#{field.id}]",
+                  options_for_select(
+                    field.options.to_s.delete("[]").split(',').map(&:strip),
+                    @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value
+                  ),
+                  prompt: "Select an option", class: "form-control", required: true %>
 
-  <%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch) do %>
-    <% @template_fields.each do |field| %>
-      <div class="field">
-        <%= label_tag "fields_#{field.id}", field.label %>
-
-        <% case field.field_type when "shorttext" %>
-          <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
-        <% when "textarea" %>
-          <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
-        <% when "dropdown" %>
-          <%= select_tag "fields[#{field.id}]",
-        options_for_select(
-          field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
-        ),
-        prompt: "Select an option",class: "form-control", required: true %>
-        <% when "radio" %>
-          <% field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip).each_with_index do |option, idx| %>
-            <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
-            <%= label_tag "field_#{field.id}_#{idx}", option %>
+              <% when "radio" %>
+                  <% field.options.to_s.delete("[]").split(',').map(&:strip).each_with_index do |option, idx| %>
+                    <%= radio_button_tag "fields[#{field.id}]", option, @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value == option, id: "field_#{field.id}_#{idx}", required: true %>
+                    <%= label_tag "field_#{field.id}_#{idx}", option %>
+                  <% end %>
+              <% else %>
+                <%= text_field_tag "fields[#{field.id}]", @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value, class: "form-control", required: true %>
+              <% end %>
+            </div>
           <% end %>
-        <% else %>
-          <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
-        <% end %>
-      </div>
-    <% end %>
+        </div>
 
-    <%= submit_tag "Update Topic", class: "btn btn-primary" %>
-  <% end %>
-
-    <p>
-    <%= link_to "Back to Topics", course_path(@course)%>
-  </p>
-  </div>
-</body>
+        <div class="form-actions">
+          <%= link_to "← Back to Topics", course_topics_path(@course) %>
+          <%= submit_tag "Update Topic", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </main>
+  </body>
+</html>
