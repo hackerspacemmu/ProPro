@@ -1,11 +1,8 @@
 class Course < ApplicationRecord
-    has_many :enrolments
-    has_many :projects
-    has_many :project_groups
-    has_one :project_template
-
-    has_many :projects
-    has_one :project_template
+    has_many :enrolments, dependent: :destroy
+    has_many :projects, dependent: :destroy
+    has_many :project_groups, dependent: :destroy
+    has_one :project_template, dependent: :destroy
 
 
     attribute :student_access, :integer, default: :no_restriction

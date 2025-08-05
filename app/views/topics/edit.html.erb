@@ -1,34 +1,57 @@
-<h1>Edit Topic</h1>
 
-<%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch) do %>
-  <% @template_fields.each do |field| %>
-    <div class="field">
-      <%= label_tag "fields_#{field.id}", field.label %>
+<head>
+    <%= stylesheet_link_tag "courses" %>
+</head>
+<body>
+<div class = "main">
+  <%= render 'topbar', user: current_user %>
+    <%= render 'breadcrumb' %>
 
-      <% case field.field_type when "shorttext" %>
-        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
-      <% when "textarea" %>
-        <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
-      <% when "dropdown" %>
-        <%= select_tag "fields[#{field.id}]",
-      options_for_select(
-        field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
-      ),
-      prompt: "Select an option",class: "form-control", required: true %>
-      <% when "radio" %>
-        <% field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip).each_with_index do |option, idx| %>
-          <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
-          <%= label_tag "field_#{field.id}_#{idx}", option %>
-        <% end %>
-      <% else %>
-        <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
+    <div class="sidebar">
+      <a href="#proposal-guidelines">Proposal Guidelines</a>
+      <a href="#proposal-status">Proposal Status</a>
+      <a href="#supervisors-available">Supervisors Available</a>
+      <a href="#group-members">Group Members</a>
+
+      <% if current_user == @course.coordinator.user %>
+        <%= link_to "Edit Course", settings_course_path(@course) %>
+        <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
       <% end %>
     </div>
+
+  <h1>Edit Topic</h1>
+
+  <%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch) do %>
+    <% @template_fields.each do |field| %>
+      <div class="field">
+        <%= label_tag "fields_#{field.id}", field.label %>
+
+        <% case field.field_type when "shorttext" %>
+          <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+        <% when "textarea" %>
+          <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+        <% when "dropdown" %>
+          <%= select_tag "fields[#{field.id}]",
+        options_for_select(
+          field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
+        ),
+        prompt: "Select an option",class: "form-control", required: true %>
+        <% when "radio" %>
+          <% field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip).each_with_index do |option, idx| %>
+            <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
+            <%= label_tag "field_#{field.id}_#{idx}", option %>
+          <% end %>
+        <% else %>
+          <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= submit_tag "Update Topic", class: "btn btn-primary" %>
   <% end %>
 
-  <%= submit_tag "Update Topic", class: "btn btn-primary" %>
-<% end %>
-
-  <p>
-  <%= link_to "Back to Topics", course_path(@course)%>
-</p>
+    <p>
+    <%= link_to "Back to Topics", course_path(@course)%>
+  </p>
+  </div>
+</body>

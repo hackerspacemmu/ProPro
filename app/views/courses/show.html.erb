@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <%= render 'topbar', user: current_user %>
+  <%= render 'topbar', user: current_user, course: @course %>
   <%= render 'breadcrumb' %>
 
   <div class="sidebar">
@@ -49,7 +49,7 @@
     <!-- Only show the status bar + proposal card to students -->
     <section class="proposal-status" id="proposal-status">
       <div class="status-bar-container">
-        <%= render 'project_status_bar', project: @project, enrolment: @current_user_enrolment %>
+        <%= render 'project_status_bar', project: @project, course: @course, enrolment: @current_user_enrolment %>
       </div>
     </section>
 
@@ -142,6 +142,9 @@
             <h4>My Topics</h4>
             <div class="section-actions">
               <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "btn btn-secondary" %>
+              <% if @current_user_enrolment&.lecturer? || @current_user_enrolment&.coordinator?  %>
+                <%= link_to "Create Topics", new_course_topic_path(@course), class: "btn btn-secondary" %>
+              <% end %>
             </div>
             <p class="section-description">Topics you have created for this course</p>
           </header>
