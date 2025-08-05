@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :project_template, only: [:new, :create, :edit, :update, :show] 
+    resource :project_template, only: [:edit, :update, :show]
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

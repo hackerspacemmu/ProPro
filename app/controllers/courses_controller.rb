@@ -169,7 +169,6 @@ class CoursesController < ApplicationController
       begin
         ActiveRecord::Base.transaction do
           if !@new_course.save
-            render :new, status: :unprocessable_entity
             raise StandardError, "Course failed verification"
           end
 
@@ -185,11 +184,15 @@ class CoursesController < ApplicationController
             role: :lecturer
           )
 
+          default_template = @new_course.build_project_template
 
+          if !default_template.save
+            raise StandardError, "Template creation failed"
+          end
         end
       rescue StandardError => e
         @new_course.destroy
-        redirect_back_or_to "/", alert: "Course creation failed"
+        render :new, status: :unprocessable_entity
         return
       end
 
@@ -395,7 +398,8 @@ class CoursesController < ApplicationController
           email_address: email,
           password: SecureRandom.base64(24),
           has_registered: false,
-          is_staff: true
+          is_staff: true,
+          username: "Lecturer-#{SecureRandom.hex(2)}"
         )
 
         new_otp_instance = Otp.create!(
