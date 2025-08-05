@@ -3,7 +3,7 @@ class TopicsController < ApplicationController
 before_action :access_one
 
 def index
-  redirect_to course_path(@course)
+
 end
 
 
