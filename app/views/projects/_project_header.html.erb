@@ -4,18 +4,18 @@
   <div class="project-metadata">
     <div class="metadata-grid">
 
-      <!-- Assignee -->
-      <div class="metadata-item">
-        <span class="metadata-label"><%= image_tag("person.svg") %> Assignee</span>
+      <!-- Owner -->
+      <div class="metadata-item owner-metadata">
+        <span class="metadata-label"><%= image_tag("person.svg") %> Owner</span>
         <div class="metadata-value">
           <% if owner.is_a?(User) %>
-            <p class="assignee-row">
+            <p class="owner-row">
               <span class="user-badge"><%= owner.username[0].upcase %></span>
               <%= owner.username %>
             </p>
           <% else %>
             <% project.owner.users.each do |user| %>
-              <p class="assignee-row">
+              <p class="owner-row">
                 <span class="user-badge"><%= user.username[0].upcase %></span>
                 <%= user.username %>
               </p>
