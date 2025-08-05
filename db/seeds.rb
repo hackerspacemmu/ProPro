@@ -220,14 +220,14 @@ alex_project = Project.create!(
 )
 
 suhaini_project = Project.create!(
-  enrolment: suhaini_lecturer_enrolment,
+  enrolment: willie_coordinator_enrolment,
   ownership: suhaini_ownership,
   course_id: suhaini_lecturer_enrolment.course_id,
   status: 1 # approved/active status
 )
 
 group_project = Project.create!(
-  enrolment: soo_student_enrolment,
+  enrolment: willie_lecturer_enrolment,
   ownership: group_ownership,
   course_id: soo_student_enrolment.course_id,
   status: 0 # pending/draft status
