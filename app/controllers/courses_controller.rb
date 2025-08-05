@@ -229,8 +229,8 @@ class CoursesController < ApplicationController
   def disallow_noncoordinator_requests
     @course = Course.find(params[:id])
 
-    if Current.user.is_staff && !Current.user.courses.include?(@course)
-      redirect_back_or_to "/", alert: "Permission denied"
+    unless Current.user == @course.coordinator.user
+      redirect_back_or_to "/", alert: "Access denied"
       return
     end
   end
