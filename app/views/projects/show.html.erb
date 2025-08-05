@@ -12,25 +12,6 @@
    <% latest_version = 0 %>
    <main id="project">
      <div class="project-layout">
-       <% if current_version < oldest_version %>
-         <%= link_to course_project_path(@course, @project, version: current_version + 1), class: "version-btn version-btn-left" do %>
-           <span class="arrow"><%= image_tag("arrow_back.svg") %></span>
-         <% end %>
-       <% else %>
-         <span class="version-btn version-btn-left disabled">
-           <span class="arrow"><%= image_tag("arrow_back.svg") %></span>
-         </span>
-       <% end %>
-       
-       <% if current_version > latest_version %>
-         <%= link_to course_project_path(@course, @project, version: current_version - 1), class: "version-btn version-btn-right" do %>
-           <span class="arrow"><%= image_tag("arrow_forward.svg") %></span>
-         <% end %>
-       <% else %>
-         <span class="version-btn version-btn-right disabled">
-           <span class="arrow"><%= image_tag("arrow_forward.svg") %></span>
-         </span>
-       <% end %>
 
        <section class="project-content">
          <%= render 'project_header',
@@ -41,6 +22,7 @@
                     members: @members,
                     current_version: current_version,
                     latest_version: latest_version,
+                    oldest_version: oldest_version,
                     instances: @instances %>
          <%= render 'project_actions',
                     members: @members,

@@ -37,6 +37,7 @@ class CoursesController < ApplicationController
       @description = @course.course_description
       @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @current_user_enrolment = @course.enrolments.find_by(user: current_user)
       
       # coordinator topics view
       if @course.enrolments.exists?(user: current_user, role: :coordinator)

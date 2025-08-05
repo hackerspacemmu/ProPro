@@ -55,8 +55,7 @@
     </section>
 
     <!-- Role-based Topics and Proposals Sections -->
-    <% current_user_enrolment = @course.enrolments.find_by(user: current_user) %>
-    <% if current_user_enrolment&.coordinator? %>
+    <% if @current_user_enrolment&.coordinator? %>
       <!-- Coordinator View: My Topics, Pending Topics, Pending Proposals -->
       
       <section class="my-topics" id="my-topics">
@@ -126,7 +125,7 @@
         </div>
       </section>
 
-    <% elsif current_user_enrolment&.lecturer? %>
+    <% elsif @current_user_enrolment&.lecturer? %>
       <!-- Lecturer View: My Topics, Pending Proposals -->
       
       <section class="my-topics" id="my-topics">
