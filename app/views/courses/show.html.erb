@@ -134,6 +134,9 @@
             <h4>My Topics</h4>
             <div class="section-actions">
               <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "btn btn-secondary" %>
+              <% if @current_user_enrolment&.lecturer? || @current_user_enrolment&.coordinator?  %>
+                <%= link_to "Create Topics", new_course_topic_path(@course), class: "btn btn-secondary" %>
+              <% end %>
             </div>
             <p class="section-description">Topics you have created for this course</p>
           </header>
