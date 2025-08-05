@@ -1,41 +1,73 @@
-<h1>Topics for <%= @course.course_name %></h1>
+<!DOCTYPE html>
+<html lang="en">
 
-<ul>
+<head>
+  <%= stylesheet_link_tag "courses.css" %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= current_user.username %>'s <%= @course.course_name %> Course View</title>
+</head>
 
+<body>
+
+<%= render 'topbar', user: current_user %>
+  <%= render 'breadcrumb' %>
+
+  <div class="sidebar">
+    <a href="#proposal-guidelines">Proposal Guidelines</a>
+    <a href="#proposal-status">Proposal Status</a>
+    <a href="#supervisors-available">Supervisors Available</a>
+    <a href="#group-members">Group Members</a>
+
+    <% if current_user == @course.coordinator.user %>
+      <%= link_to "Edit Course", settings_course_path(@course) %>
+      <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
+    <% end %>
+  </div>
+
+<div class="main">
+  <h1>Topics for <%= @course.course_name %></h1>
+
+  <div class = "search_bar">
   <%= form_with url: course_topics_path(@course), method: :get, local: true do %>
-  <%= label_tag :query, "Search topics:" %>
-  <%= text_field_tag :query, params[:query], placeholder: "Enter keyword..." %>
-  <%= submit_tag "Search" %>
-  <% end %>
+    <%= label_tag :query, "Search topics:" %>
+    <%= text_field_tag :query, params[:query], placeholder: "Enter keyword..." %>
+    <%= submit_tag "Search" %>
+    <% end %>
+  </div>
 
+  <div>
+    <ul>
+      <% @projects.each do |project| %>
 
-  <% @projects.each do |project| %>
+        <% latest_instance = project.project_instances.order(version: :desc).first %>
+        <% description_field = latest_instance&.project_instance_fields
+        &.includes(:project_template_field)
+        &.find { |f| f.project_template_field.label.downcase.include?("description") } %>
 
-    <% latest_instance = project.project_instances.order(version: :desc).first %>
-    <% description_field = latest_instance&.project_instance_fields
-    &.includes(:project_template_field)
-    &.find { |f| f.project_template_field.label.downcase.include?("description") } %>
+        <li>
+          <p> <strong> Topic: </strong> <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Topic",
+                      course_topic_path(@course, project) %> </p>
+          <% owner = project.ownership&.owner %>
+          <% if owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer) %>
+            <p><strong>Lecturer:</strong> <%= owner.username %></p>
+          <% end %>
 
-    <li>
-      <p> <strong> Topic: </strong> <%= link_to project.project_instances.order(version: :desc).first&.title || "Untitled Topic",
-                  course_topic_path(@course, project) %> </p>
-      <% owner = project.ownership&.owner %>
-      <% if owner.is_a?(User) && @course.enrolments.exists?(user: owner, role: :lecturer) %>
-        <p><strong>Lecturer:</strong> <%= owner.username %></p>
+          <% if description_field.present? %>
+            <p><strong>Description:</strong> <%= description_field.value %></p>
+          <% else %>
+            <p><em>No description available</em></p>
+          <% end %>
+        </li>
       <% end %>
 
-      <% if description_field.present? %>
-        <p><strong>Description:</strong> <%= description_field.value %></p>
-      <% else %>
-        <p><em>No description available</em></p>
+      <% if @is_lecturer || @is_coordinator %>
+        <p><%= link_to "Create Topic", new_course_topic_path(@course) %></p>
       <% end %>
-    </li>
-  <% end %>
 
-  <% if @is_lecturer || @is_coordinator %>
-    <p><%= link_to "Create Topic", new_course_topic_path(@course) %></p>
-  <% end %>
-
-  <p><%= link_to "Back to Course", course_path(@course) %></p>
-
-</ul>
+      <p><%= link_to "Back to Course", course_path(@course) %></p>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
