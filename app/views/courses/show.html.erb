@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <%= render 'topbar', user: current_user %>
+  <%= render 'topbar', user: current_user, course: @course %>
   <%= render 'breadcrumb' %>
 
   <div class="sidebar">
@@ -16,11 +16,6 @@
     <a href="#proposal-status">Proposal Status</a>
     <a href="#supervisors-available">Supervisors Available</a>
     <a href="#group-members">Group Members</a>
-
-    <% if current_user == @course.coordinator.user %>
-      <%= link_to "Edit Course", settings_course_path(@course) %>
-      <%= link_to "Setup Course Template", new_course_project_template_path(@course) %>
-    <% end %>
   </div>
 
   <div class="main">
