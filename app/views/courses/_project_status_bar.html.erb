@@ -21,6 +21,6 @@
     </div>
   <% else %>
     <p class="no-proposal">No proposal submitted yet.</p>
-    <%= link_to "Submit Proposal", new_course_project_path(project.course), class: "btn" %>
+    <%= link_to "Submit Proposal", new_course_project_path(@course), class: "btn" %>
   <% end %>
 <% end %>
