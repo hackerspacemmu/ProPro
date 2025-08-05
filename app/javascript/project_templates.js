@@ -4,7 +4,7 @@ document.addEventListener("turbo:load", function() {
   
   if (!addFieldBtn) return;
 
-  let fieldIndex = Date.now();
+  let fieldIndex = Number(addFieldBtn.dataset.fieldIndex) || templateFields.querySelectorAll('.field-row').length;
 
   // Field type options from Rails enum
   const fieldTypeOptions = [
@@ -246,6 +246,14 @@ document.addEventListener("turbo:load", function() {
       if (optionRow) {
         optionRow.remove();
       }
+    }
+  });
+
+  templateFields.querySelectorAll('.field-row').forEach(row => {
+  const labelInput = row.querySelector('input[name*="[label]"]');
+    if (labelInput && labelInput.value === "Project Title") {
+      const btn = row.querySelector('.remove-field');
+      if (btn) { btn.disabled = true; btn.title = "Cannot remove title"; }
     }
   });
 

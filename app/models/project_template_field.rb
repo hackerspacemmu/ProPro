@@ -9,5 +9,15 @@ class ProjectTemplateField < ApplicationRecord
   validates :field_type, presence: true
   validates :applicable_to, presence: true
   validates :options, presence: true, if: -> { field_type.in?(['dropdown', 'radio']) }
+
+  before_destroy :cannot_delete_if_in_use
+
+  private
+  def cannot_delete_if_in_use
+    if project_instance_fields.exists?
+      errors.add(:base, "Field “#{label}” is in use and can’t be removed")
+      throw :abort
+    end
+  end
 end
 
