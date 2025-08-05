@@ -135,6 +135,14 @@ ul.breadcrumb li b {
     color: #58c7ff;
 }
 
+.side-action {
+    margin-top: 350px;
+}
+
+.sidebar-divider {
+    opacity: 0.6;
+}
+
 /* page (keith) */
 
 .course-header {
@@ -169,6 +177,16 @@ ul.breadcrumb li b {
     background-color: #f8f9fa;
     margin-bottom: 20px;
 }
+
+.section-description {
+    color: #454343;
+    opacity: 0.7;
+}
+
+.empty-state {
+    margin-top: 10px;
+}
+
 
 /* progress container (alex) */
 

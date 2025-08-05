@@ -16,6 +16,19 @@
     <a href="#proposal-status">Proposal Status</a>
     <a href="#supervisors-available">Supervisors Available</a>
     <a href="#group-members">Group Members</a>
+
+    <div class="side-action">
+    <hr class="sidebar-divider" />
+      <% if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer? %>
+         <%= link_to "Create Topics", new_course_topic_path(@course) %>
+         <%= link_to "View All Topics ", course_topics_path(@course) %>
+      <% end %>
+
+      <% if @current_user_enrolment&.student? %>
+         <%= link_to "Create Proposal", new_course_project_path(@course) %>
+         <%= link_to "View All Topics ", course_topics_path(@course) %>
+      <% end %>
+    </div>
   </div>
 
   <div class="main">
@@ -58,7 +71,7 @@
           <header class="section-header">
             <h4>My Topics</h4>
             <p class="section-description">Topics you have created for this course</p>
-          </header>
+          </header> 
           <div class="project-list-gapper">
             <div class="cards-container">
               <% coordinator_topics = @topic_list.select { |project| 
@@ -102,7 +115,7 @@
         <div class="container">
           <header class="section-header">
             <h4>Pending Proposals</h4>
-            <p class="section-description">Student proposals awaiting coordinator approval</p>
+            <p class="section-description">Student proposals awaiting your approval</p>
           </header>
           <div class="project-list-gapper">
             <div class="cards-container">
