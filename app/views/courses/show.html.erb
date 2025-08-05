@@ -37,10 +37,11 @@
         </form>
       </div>
     </section>
-
+    
+    <!-- Only show the status bar + proposal card to students -->
     <section class="proposal-status" id="proposal-status">
       <div class="status-bar-container">
-        <%= render 'project_status_bar', project: @project %>
+        <%= render 'project_status_bar', project: @project, enrolment: @current_user_enrolment %>
       </div>
     </section>
 
