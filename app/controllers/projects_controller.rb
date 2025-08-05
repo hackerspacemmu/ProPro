@@ -16,7 +16,13 @@ def show
   @new_comment = Comment.new
 
 
-  @type = @project.ownership&.ownership_type
+  user_type = @project.ownership&.ownership_type
+
+  if user_type == "lecturer"
+    @type = "topic"
+  else
+    @type = "proposal"
+  end
 
   @lecturers = @course.enrolments.where(role: [:lecturer, :coordinator]).includes(:user).map(&:user)
 

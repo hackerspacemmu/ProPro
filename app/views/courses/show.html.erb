@@ -129,6 +129,9 @@
             <h4>My Topics</h4>
             <div class="section-actions">
               <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "btn btn-secondary" %>
+              <% if @current_user_enrolment&.lecturer? || @current_user_enrolment&.coordinator?  %>
+                <%= link_to "Create Topics", new_course_topic_path(@course), class: "btn btn-secondary" %>
+              <% end %>
             </div>
             <p class="section-description">Topics you have created for this course</p>
           </header>
@@ -157,7 +160,7 @@
           <div class="project-list-gapper">
             <div class="cards-container">
               <% assigned_proposals = @course.projects.includes(:ownership, :supervisor_enrolment)
-                                             .where(status: 'pending', supervisor_enrolment: current_user_enrolment)
+                                             .where(status: 'pending', supervisor_enrolment: @current_user_enrolment)
                                              .joins(:ownership)
                                              .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] }) %>
               <% if assigned_proposals.any? %>
