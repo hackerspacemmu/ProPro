@@ -43,17 +43,6 @@ class CommentsController < ApplicationController
       redirect_to course_topic_path(parent_course, parent_project)
     end
 
-    
-    if @comment.save
-      if @is_coordinator && @comment.body.present?
-        last_instance = @project.project_instances.order(version: :desc).first
-
-        # Check if the topic has changed since the last instance
-        if @project.has_changes_since?(last_instance)
-          @project.duplicate_instance(current_user)
-        end
-      end
-
   end
 
   def soft_delete
