@@ -13,7 +13,7 @@ class CommentsController < ApplicationController
 
     whitelist = [parent_course.coordinator.user, parent_project.supervisor]
 
-    if type == :student
+    if type == "student"
       if !parent_course.grouped
         whitelist.push(parent_project.owner)
       else
@@ -23,7 +23,7 @@ class CommentsController < ApplicationController
           whitelist.push(group_member.user)
         end
       end
-    elsif type == :lecturer
+    elsif type == "lecturer"
       whitelist.push(parent_project.owner)
     end
 
