@@ -15,9 +15,6 @@ def show
   @comments = @project.comments
   @new_comment = Comment.new
 
-
-  @type = @project.ownership&.ownership_type
-
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
   @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
@@ -42,7 +39,13 @@ def show
 
   @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
+  user_type = @project.ownership&.ownership_type
 
+  if user_type == "lecturer"
+    @type = "topic"
+  else
+    @type = "proposal"
+  end
 end
 
 def change_status
@@ -73,6 +76,10 @@ def edit
   end
 
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
+
+  @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
+    h[f.project_template_field_id] = f.value
+  end
 end
 
 def update

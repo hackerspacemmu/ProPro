@@ -42,6 +42,12 @@ class CoursesController < ApplicationController
       # coordinator topics view
       if @course.enrolments.exists?(user: current_user, role: :coordinator)
         @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
+      elsif @current_user_enrolment&.lecturer?
+        base = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
+
+        @topic_list = base.where("(ownerships.owner_id = :you) OR (projects.status = :approved)", 
+                      you:  current_user.id, 
+                      approved: Project.statuses[:approved])
       else
         @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer }).where(status: :approved)
       end

@@ -25,7 +25,7 @@
                 <p class="field-hint"><%= field.hint %></p>
               <% end %>
               
-              <% existing_value = @instance.project_instance_fields.find { |f| f.project_template_field_id == field.id }&.value %>
+              <% existing_value = @existing_values[field.id] %>
               
               <% case field.field_type %>
                 <% when "shorttext" %>
@@ -35,27 +35,32 @@
                   <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
                   
                 <% when "dropdown" %>
+                  <% options = field.option_list %>
                   <%= select_tag "fields[#{field.id}]",
-                options_for_select(
-                  field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
-                ),
-                prompt: "Select an option",class: "form-control", required: true %>
+                    options_for_select(options, existing_value),
+                    prompt: "Select an option",
+                    class: "form-control",
+                    required: true %>
+                  
                 <% when "radio" %>
-                  <% field.options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip).each_with_index do |option, idx| %>
-                    <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
+                  <% options = field.option_list %>
+                  <% options.each_with_index do |option, idx| %>
+                    <%= radio_button_tag "fields[#{field.id}]", option, (option == existing_value), id: "field_#{field.id}_#{idx}", required: true %>
                     <%= label_tag "field_#{field.id}_#{idx}", option %>
                   <% end %>
+                  
                 <% else %>
-                  <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
-      <% end %>
+                  <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
+              <% end %>
             </div>
           <% end %>
-
-            <div class="form-actions">
-                <%= link_to "← Back to Proposal", course_path(@course)  %>
-                <%= submit_tag "Submit", class: "btn btn-primary" %>
-            </div>
-        <% end %>
+        </div>
+        
+        <div class="form-actions">
+          <%= link_to "← Back to Proposal", course_path(@course), class: "btn btn-secondary" %>
+          <%= submit_tag "Submit", class: "btn btn-primary" %>
+        </div>
+      <% end %>
     </main>
   </body>
 </html>
