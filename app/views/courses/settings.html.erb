@@ -116,6 +116,10 @@
           <%= link_to "← Back to Course",
                       course_path(@course),
                       class: "btn btn-secondary" %>
+          <%= link_to "DELETE COURSE",
+                      course_path(@course),
+                      class: "btn btn-primary",
+                      data: { turbo_method: :delete } %>
           <%= form.submit "Save Settings",
                           class: "btn btn-primary" %>
         </div>
