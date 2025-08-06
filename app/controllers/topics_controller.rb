@@ -94,6 +94,7 @@ def update
   title_field_id = params[:fields].keys.first if params[:fields].present?
   @instance.title = params[:fields][title_field_id] if title_field_id.present?
 
+  # Save instance first to ensure it has an ID
   if @instance.save
     if params[:fields].present?
       params[:fields].each do |field_id, value|
@@ -103,12 +104,13 @@ def update
       end
     end
 
+    # Update project status based on course settings
     if @course.require_coordinator_approval
       @project.update(status: :pending) if @project.status == "approved"
     else
-      @project.update(status: :pending) if @project.status == "rejected"
+      @project.update(status: :pending) if @project.status == "pending"
     end
-    
+
     redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
@@ -116,6 +118,17 @@ def update
     render :edit
   end
 end
+
+def has_changes_since?(last_instance)
+  return true if last_instance.nil?
+
+  current_fields = project_instances.last.project_instance_fields.map { |f| [f.project_template_field_id, f.value] }.to_h
+  previous_fields = last_instance.project_instance_fields.map { |f| [f.project_template_field_id, f.value] }.to_h
+
+  current_fields != previous_fields
+end
+
+
 
 
 def new
@@ -204,7 +217,7 @@ private
   @is_coordinator = @course.enrolments.exists?(user: Current.user, role: :coordinator)
 
   # Only includes projects created by lecturers
-  if Current.user.is_staff
+  if @is_coordinator
   @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer })
     else
   @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer }, status: :approved)

@@ -15,7 +15,8 @@
         <p class="edit-description">Update your project details and information below.</p>
       </header>
       
-      <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
+      <%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
+
         <div class="fields-container">
           <% @template_fields.each do |field| %>
             <div class="field-row">
@@ -57,7 +58,7 @@
         </div>
         
         <div class="form-actions">
-          <%= link_to "← Back to Proposal", course_path(@course), class: "btn btn-secondary" %>
+          <%= link_to "← Back to Topics", course_path(@course), class: "btn btn-secondary" %>
           <%= submit_tag "Submit", class: "btn btn-primary" %>
         </div>
       <% end %>
