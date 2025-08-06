@@ -13,7 +13,7 @@ class CommentsController < ApplicationController
 
     whitelist = [parent_course.coordinator.user, parent_project.supervisor]
 
-    if type == :student
+    if type == "student"
       if !parent_course.grouped
         whitelist.push(parent_project.owner)
       else
@@ -23,7 +23,7 @@ class CommentsController < ApplicationController
           whitelist.push(group_member.user)
         end
       end
-    elsif type == :lecturer
+    elsif type == "lecturer"
       whitelist.push(parent_project.owner)
     end
 
@@ -42,17 +42,6 @@ class CommentsController < ApplicationController
     else
       redirect_to course_topic_path(parent_course, parent_project)
     end
-
-    
-    if @comment.save
-      if @is_coordinator && @comment.body.present?
-        last_instance = @project.project_instances.order(version: :desc).first
-
-        # Check if the topic has changed since the last instance
-        if @project.has_changes_since?(last_instance)
-          @project.duplicate_instance(current_user)
-        end
-      end
 
   end
 

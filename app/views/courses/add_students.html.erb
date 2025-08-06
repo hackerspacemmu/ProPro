@@ -8,6 +8,7 @@
 <body>
     <div class="main">
         <h1><%= @course.course_name %></h1>
+        <h3>This course is: <%= @course.grouped? ? "grouped" : "not grouped" %></h3>
         <h3>Add Students</h3>
         <br>
 

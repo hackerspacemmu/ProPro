@@ -12,7 +12,11 @@
             </div>
             <div class="comment-body-wrapper">
               <header class="comment-header">
-                <h4 class="comment-author"><%= comment.user.username %></h4>
+                <% if Current.user == comment.user %>
+                  <h4 class="comment-author" style="color: green"><%= comment.user.username %></h4>
+                <% else %>
+                  <h4 class="comment-author"><%= comment.user.username %></h4>
+                <% end %>
                 <time class="comment-date">
                   <%= time_ago_in_words(comment.created_at) %> ago
                 </time>

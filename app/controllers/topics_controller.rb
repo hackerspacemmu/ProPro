@@ -209,6 +209,7 @@ def access_one
 
   lt = Ownership.ownership_types[:lecturer]
 
+
   if action_name == 'index'
     # FOR TOPICS/INDEX
     @projects = @course.projects
@@ -247,6 +248,7 @@ def access_one
     @projects = @course.projects
                        .joins(:ownership)
                        .where(ownerships: { ownership_type: lt }, status: :approved)
+
   end
 
   @project = @projects.find_by(id: params[:id])
