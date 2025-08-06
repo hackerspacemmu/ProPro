@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
 
-  resources :courses, only: [:show, :new, :create] do
+  resources :courses, only: [:show, :new, :create, :destroy] do
     member do
       get 'add_students'
       post 'handle_add_students'
