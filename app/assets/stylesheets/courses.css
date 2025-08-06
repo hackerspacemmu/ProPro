@@ -453,6 +453,7 @@ ul.breadcrumb li b {
     border-radius: 12px;
     border: 2px solid #B5B5B5;
     overflow: hidden;
+    background-color:#193b2a;
 }
 
 .project-card b {
@@ -511,9 +512,9 @@ ul.breadcrumb li b {
     background-color: #F8F9FA;
 }
 
-.project-card.pending  { background-color: #284555; } 
-.project-card.redo     { background-color: #212925; } 
-.project-card.rejected { background-color: #284555; } 
+.project-card.status-pending  { background-color: #284555 !important; } 
+.project-card.status-redo     { background-color: #212925 !important; } 
+.project-card.status-rejected { background-color: #284555 !important; } 
 
 /* participants list (keith) */
 
