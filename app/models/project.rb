@@ -14,4 +14,12 @@ class Project < ApplicationRecord
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
   end
+
+  def member
+    if ownership.owner.is_a?(ProjectGroup)
+      ownership.owner.users
+    else
+      [ ownership.user ]
+    end
+  end
 end
