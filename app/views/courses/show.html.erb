@@ -50,8 +50,13 @@
       <section class="my-topics" id="my-topics">
         <div class="container">
           <header class="section-header">
-            <h4>My Topics</h4>
-            <p class="section-description">Topics you have created for this course</p>
+            <div class="section-actions">
+              <p class="section-description">Topics you have created for this course</p>
+              <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "link" %>
+              <% if @current_user_enrolment&.lecturer? || @current_user_enrolment&.coordinator?  %>
+                <%= link_to "Create Topics", new_course_topic_path(@course), class: "link" %>
+              <% end %>
+            </div>
           </header> 
           <div class="project-list-gapper">
             <div class="cards-container">
@@ -122,12 +127,12 @@
           <header class="section-header">
             <h4>My Topics</h4>
             <div class="section-actions">
-              <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "btn btn-secondary" %>
+              <p class="section-description">Topics you have created for this course</p>
+              <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "link" %>
               <% if @current_user_enrolment&.lecturer? || @current_user_enrolment&.coordinator?  %>
-                <%= link_to "Create Topics", new_course_topic_path(@course), class: "btn btn-secondary" %>
+                <%= link_to "Create Topics", new_course_topic_path(@course), class: "link" %>
               <% end %>
             </div>
-            <p class="section-description">Topics you have created for this course</p>
           </header>
           <div class="project-list-gapper">
             <div class="cards-container">
