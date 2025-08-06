@@ -47,6 +47,7 @@
             </div>
           </header>
 
+        <!-- View Topics for Students & Lecturers Viewing Others --!>
         <% if @is_student || ((current_user.username != @lecturer.username) && @lecturer) %>
           <section class="lecturer-topics">
             <header class="section-header">
