@@ -7,6 +7,12 @@
       <% else %>
         <span class="action-note"><%= image_tag("lock.svg") %> Unable to Edit Topic</span>
       <% end %>
+      
+      <% if current_version == latest_version %>
+      <%= button_to "Delete Topic", course_topic_path(course, project), method: :delete, 
+                  data: { confirm: "Are you sure you want to delete this topic?" },
+                  class: "back-btn " %>
+      <% end %>
     <% end %>
     
     <!-- Version Jump -->

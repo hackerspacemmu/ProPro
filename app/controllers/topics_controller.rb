@@ -48,6 +48,19 @@ def show
   end
 end
 
+def destroy
+  owner = @project.ownership.owner
+  allowed_users = owner.is_a?(ProjectGroup) ? owner.users : [owner]
+
+  if allowed_users.include?(Current.user)
+    @project.destroy
+    redirect_to course_path(@course), notice: "Topic was successfully deleted."
+  else
+    redirect_to course_topic_path(@course, @project), alert: "You are not authorized to delete this topic."
+  end
+  
+end
+
 def change_status
 
   @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
@@ -201,7 +214,14 @@ end
 end
 end
 
-
+def destroy
+  if members.include?(Current.user)
+    @project.destroy
+    redirect_to course_path(@course), notice: "Topic is deleted"
+  else
+    redirect_to course_topic_path(@course, @project), alert: "You are not authorized to delete this topic."
+  end
+end
 
 
 private 

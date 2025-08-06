@@ -32,9 +32,9 @@
             <br>
 
             <p>Students would work?</p>
-            <%= form.radio_button :grouped, "true" %>
+            <%= form.radio_button :grouped, "true", required: true %>
             <%= form.label :grouped, "In groups", value: true %>
-            <%= form.radio_button :grouped, "false" %>
+            <%= form.radio_button :grouped, "false", required: true %>
             <%= form.label :grouped, "By themselves", value: false %>
             <br>
 

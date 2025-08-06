@@ -36,12 +36,20 @@
       <% end %>
     </div>
     <div class="column">
-      <%= field_form.select :applicable_to,
-          options_for_select(
-            ProjectTemplateField.applicable_tos.keys.map { |key| [key.humanize, key] },
-            field_form.object.applicable_to
-          ),
-          { prompt: "Select applicability" } %>
+      <% if is_project_title %>
+        <%= field_form.select :applicable_to,
+            options_for_select([["Both", "both"]], "both"),
+            {},
+            { disabled: true } %>
+        <%= field_form.hidden_field :applicable_to, value: "both" %>
+      <% else %>
+        <%= field_form.select :applicable_to,
+            options_for_select(
+              ProjectTemplateField.applicable_tos.keys.map { |key| [key.humanize, key] },
+              field_form.object.applicable_to
+            ),
+            { prompt: "Select applicability" } %>
+      <% end %>
     </div>
     <div class="column options-column">
       <% unless is_project_title %>

@@ -32,7 +32,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :topics, only: [:index, :show, :edit, :update, :create, :new] do
+    resources :topics, only: [:index, :show, :edit, :update, :create, :new, :destroy] do
       member do
         patch :change_status
       end
