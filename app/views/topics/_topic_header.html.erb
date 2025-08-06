@@ -37,7 +37,13 @@
       <!-- Type -->
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
-        <span class="metadata-value"><%= type %></span>
+        <span class="metadata-value">
+          <% if type == "topic" %>
+            <p>Topic</p>
+          <% elsif type == "proposal" %>
+              <p>Project</p>
+          <% end %>
+        </span>
       </div>
 
       <!-- Status -->
@@ -46,42 +52,11 @@
         <div class="metadata-value">
           <% if @is_coordinator && @course.require_coordinator_approval %>
             <div class="status-control">
-              <%= form_with url: change_status_course_topic_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
-                <% statuses = ["pending", "approved", "rejected"] %>
-                <% current_index = statuses.index(@project.status) || 0 %>
-                <% prev_status = current_index > 0 ? statuses[current_index - 1] : nil %>
-                <% next_status = current_index < statuses.length - 1 ? statuses[current_index + 1] : nil %>
-
-                <% if prev_status %>
-                  <%= button_to change_status_course_topic_path(@course, @project),
-                                method: :patch,
-                                class: "status-arrow-btn status-arrow-left",
-                                params: { status: prev_status },
-                                title: "Change to #{prev_status.humanize}" do %>
-                    <%= image_tag("change_status_left.svg") %>
-                  <% end %>
-                <% else %>
-                  <span class="status-arrow-btn status-arrow-left disabled">
-                    <%= image_tag("change_status_left.svg") %>
-                  </span>
-                <% end %>
-
-                <span class="status-badge status-<%= @project.status %>">
-                  <%= @project.status.humanize %>
-                </span>
-
-                <% if next_status %>
-                  <%= button_to change_status_course_topic_path(@course, @project),
-                                method: :patch,
-                                class: "status-arrow-btn status-arrow-right",
-                                params: { status: next_status },
-                                title: "Change to #{next_status.humanize}" do %>
-                    <%= image_tag("change_status_right.svg") %>
-                  <% end %>
-                <% else %>
-                  <span class="status-arrow-btn status-arrow-right disabled">
-                    <%= image_tag("change_status_right.svg") %>
-                  </span>
+              <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
+                <% statuses = Project.statuses.keys %>
+                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, project.status), {}, class: "status-select status-#{@project.status}" %>
+                <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
+                  <%= image_tag("check.svg", width: 16, height: 16, alt: "Save") %>
                 <% end %>
               <% end %>
             </div>

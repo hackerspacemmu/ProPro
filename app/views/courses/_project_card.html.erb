@@ -1,6 +1,7 @@
 <% project_instance = project.project_instances.order(:version).last %>
 <% if project_instance %>
-  <% if project_viewable_by_current_user?(@course, project) %>
+  <% is_my_topic = project.ownership.lecturer? && project.ownership.owner == current_user %>
+  <% if is_my_topic || project_viewable_by_current_user?(@course, project) %>
     <% path =
       if project.ownership.lecturer?
         course_topic_path(@course, project)

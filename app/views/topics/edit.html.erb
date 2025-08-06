@@ -43,7 +43,7 @@
               <% when "radio" %>
                 <% options = field.option_list %>
                 <% options.each_with_index do |option, idx| %>
-                  <%= radio_button_tag "fields[#{field.id}]", option, (option == existing_value), id: "field_#{field.id}_#{idx}", required: true %>
+                  <%= radio_button_tag "fields[#{field.id}]", option, (option.to_s == existing_value.to_s), id: "field_#{field.id}_#{idx}", required: true %>
                   <%= label_tag "field_#{field.id}_#{idx}", option %>
                 <% end %>
               <% else %>
@@ -54,11 +54,7 @@
         </div>
         
         <div class="form-actions">
-<<<<<<< HEAD
-          <%= link_to "← Back to Topics", course_path(@course), class: "btn btn-secondary" %>
-=======
           <%= link_to "← Back to Topic", course_path(@course), class: "btn btn-secondary" %>
->>>>>>> f9cb221b6ebdc3a9a58b014ccf3a1d821a8f339d
           <%= submit_tag "Submit", class: "btn btn-primary" %>
         </div>
       <% end %>

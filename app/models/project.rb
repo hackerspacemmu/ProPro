@@ -9,9 +9,17 @@ class Project < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
   delegate :owner, to: :ownership
-  enum :status, { pending: 0, approved: 1, rejected: 2 }
+  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3 }
 
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
+  end
+
+  def member
+    if ownership.owner.is_a?(ProjectGroup)
+      ownership.owner.users
+    else
+      [ ownership.user ]
+    end
   end
 end

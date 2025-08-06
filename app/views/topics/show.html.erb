@@ -12,7 +12,8 @@
    <% latest_version = @instances.size %>
    <main id="project">
      <div class="project-layout">
-
+      <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+      <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
        <section class="project-content">
          <%= render 'topic_header',
                     current_instance: @current_instance,
