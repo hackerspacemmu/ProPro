@@ -39,7 +39,7 @@
             </div>
           </header>
 
-        <% if @is_student || @lecturer %>
+        <% if @is_student || ((current_user.username != @lecturer.username) && @lecturer) %>
           <section class="lecturer-topics">
             <header class="section-header">
               <h2 class="section-title">Topics</h2>
