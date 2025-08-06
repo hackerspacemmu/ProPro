@@ -77,8 +77,12 @@ def edit
     return
   end
 
-  # Exclude lecturer-only fields (optional)
+  # Exclude lecturer-only fields 
   @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :topics)
+
+  @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
+    h[f.project_template_field_id] = f.value
+  end
 end
 
 def update
