@@ -39,9 +39,10 @@
             </div>
           </header>
 
+        <% if @is_student %>
           <section class="lecturer-topics">
             <header class="section-header">
-              <h2 class="section-title">Released Topics</h2>
+              <h2 class="section-title">Topics</h2>
             </header>
             <div class="lecturer-line"></div>
             <div class="topics-container">
@@ -52,37 +53,56 @@
               <% else %>
                 <div class="cards-container">
                   <%= render partial: 'courses/project_card',
-                             collection: @approved_projects,
-                             as: :project,
-                             locals: { course: @course } %>
+                            collection: @approved_projects,
+                            as: :project,
+                            locals: { course: @course } %>
                 </div>
               <% end %>
-            </div>
-          </section>
+        <% end %>
 
-          <!-- Pending Topics --!>
           <% if current_user.username == @lecturer.username || @is_coordinator %>
-
             <section class="lecturer-topics">
               <header class="section-header">
-                <h2 class="section-title">Pending Topics</h2>
+                <h2 class="section-title">Released Topics</h2>
               </header>
               <div class="lecturer-line"></div>
               <div class="topics-container">
-                <% if @not_approved_projects.empty? %>
+                <% if @approved_projects.empty? %>
                   <div class="no-topics">
-                    <p>No Topics Available</p>
+                    <p>No Topics Released</p>
                   </div>
                 <% else %>
                   <div class="cards-container">
                     <%= render partial: 'courses/project_card',
-                              collection: @not_approved_projects,
+                              collection: @approved_projects,
                               as: :project,
                               locals: { course: @course } %>
                   </div>
                 <% end %>
               </div>
-          </section>
+            </section>
+
+            <!-- Pending Topics --!>
+              <section class="lecturer-topics">
+                <header class="section-header">
+                  <h2 class="section-title">Pending Topics</h2>
+                </header>
+                <div class="lecturer-line"></div>
+                <div class="topics-container">
+                  <% if @not_approved_projects.empty? %>
+                    <div class="no-topics">
+                      <p>No Topics Available</p>
+                    </div>
+                  <% else %>
+                    <div class="cards-container">
+                      <%= render partial: 'courses/project_card',
+                                collection: @not_approved_projects,
+                                as: :project,
+                                locals: { course: @course } %>
+                    </div>
+                  <% end %>
+                </div>
+            </section>
           <% end %>
 
           <footer class="lecturer-footer">
