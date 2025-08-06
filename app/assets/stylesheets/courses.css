@@ -434,9 +434,16 @@ ul.breadcrumb li b {
     flex-shrink: 0;
 }
 
+.status-header {
+    color: #7e7e7e;
+    font-size: 16px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+
 .project-card {
     color: #FFFFFF;
-    background-color: #1d2f24;
     display: flex;
     flex-wrap: wrap;
     z-index: 0;
@@ -503,6 +510,10 @@ ul.breadcrumb li b {
 .card-link:hover .project-card.inner {
     background-color: #F8F9FA;
 }
+
+.project-card.pending  { background-color: #284555; } 
+.project-card.redo     { background-color: #212925; } 
+.project-card.rejected { background-color: #284555; } 
 
 /* participants list (keith) */
 

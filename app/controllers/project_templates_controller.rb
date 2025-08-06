@@ -7,6 +7,7 @@ class ProjectTemplatesController < ApplicationController
     if @project_template.update(project_template_params)
       redirect_to edit_course_project_template_path(@course), notice: "Template updated"
     else
+      flash.now[:alert] = "Please correct the errors below before saving."
       render :edit
     end
   rescue
