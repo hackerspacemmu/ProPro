@@ -9,14 +9,8 @@
 
 <body>
   <%= render 'topbar', user: current_user, course: @course %>
-  <%= render 'breadcrumb' %>
-
-  <div class="sidebar">
-    <a href="#proposal-guidelines">Proposal Guidelines</a>
-    <a href="#proposal-status">Proposal Status</a>
-    <a href="#supervisors-available">Supervisors Available</a>
-    <a href="#group-members">Group Members</a>
-  </div>
+  <%= render 'breadcrumb', course: @course %>
+  <%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
   <div class="main">
     <header class="course-header">
@@ -27,8 +21,8 @@
     <section class="proposal-guidelines" id="proposal-guidelines">
       <div class="container">
         <form>
-          <h4>Proposal Guidelines</h4>
-          <h2><%= @description || "No description available for this course." %></h2>
+          <h4>Proposal Description</h4>
+          <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
         </form>
       </div>
     </section>
@@ -58,7 +52,7 @@
           <header class="section-header">
             <h4>My Topics</h4>
             <p class="section-description">Topics you have created for this course</p>
-          </header>
+          </header> 
           <div class="project-list-gapper">
             <div class="cards-container">
               <% coordinator_topics = @topic_list.select { |project| 
@@ -102,7 +96,7 @@
         <div class="container">
           <header class="section-header">
             <h4>Pending Proposals</h4>
-            <p class="section-description">Student proposals awaiting coordinator approval</p>
+            <p class="section-description">Student proposals awaiting your approval</p>
           </header>
           <div class="project-list-gapper">
             <div class="cards-container">
@@ -197,27 +191,6 @@
         </div>
       </section>
     <% end %>
-
-    <section class="participants" id="participants">
-      <div class="container">
-        <h4>Participants</h4>
-        <ul class="participants">
-          <li class="participants-block">
-            <avatar>C</avatar>
-            <name>Mr. Chiam Juin Hoong</name>
-            <span class="blob" style="background: #4d7c5f">Proposal submitted</span>
-            <span class="blob-group">Group 7</span>
-          </li>
-          <li class="participants-block">
-            <avatar>C</avatar>
-            <name>Mr. Chong Seng Kiat</name>
-            <span class="blob" style="background: #7c4d4d">Proposal not submitted</span>
-            <span class="blob-group">Group 7</span>
-          </li>
-        </ul>
-      </div>
-    </section>
-
   </div>
 
   <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>

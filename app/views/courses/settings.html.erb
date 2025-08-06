@@ -2,75 +2,125 @@
 <html lang="en">
 
 <head>
-    <%= stylesheet_link_tag "courses" %>
+  <%= stylesheet_link_tag "projects" %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Settings – <%= @course.course_name %></title>
 </head>
 
 <body>
-    <div class="main">
-        <h3>Project Settings</h3>
-        <h1><%= @course.course_name %></h1>
-        <h3>This course is: <%= @course.grouped ? "Grouped" : "Individual" %></h3>
-        <br>
+  <main class="project-edit">
+    <header class="edit-header">
+      <div class="edit-header-row">
+        <h1 class="edit-title">
+          Course Settings
+          <%= image_tag("edit.svg") %>
+        </h1>
+      </div>
+      <p class="edit-description">
+        Update your course configuration below.
+      </p>
+    </header>
 
-        <div class="container">
-            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-            <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-            <br>
+    <div class="container">
+      <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+      <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
 
-            <%= form_with url: handle_settings_course_path, model:@course, method: :post do |form| %>
-            <% if @course.errors.any? %>
-            <div id="error_explanation">
-                <h2><%= pluralize(@course.errors.count, "error") %> prohibited this course from being saved:</h2>
-                <ul>
-                    <% @course.errors.full_messages.each do |message| %>
-                    <li><%= message %></li>
-                    <% end %>
-                </ul>
-            </div>
-            <% end %>
+      <%= form_with url: handle_settings_course_path(@course),
+                    model: @course,
+                    method: :post,
+                    class: "edit-form" do |form| %>
 
-            <p>Project details</p>
-            <%= form.text_area :course_description %>
-            <br>
+        <% if @course.errors.any? %>
+          <div id="error_explanation">
+            <h2><%= pluralize(@course.errors.count, "error") %> prohibited this course from being saved:</h2>
+            <ul>
+              <% @course.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
 
-            <P><%= form.label :supervisor_projects_limit, "Maximum projects per supervisor:" %></p>
-            <%= form.text_field :supervisor_projects_limit, required: true, placeholder: "Enter maximum number of projects per supervisor"%>
-            <br>
+        <div class="fields-container">
+          <div class="field-row">
+            <%= form.label :course_description, "Project details", class: "field-label" %><br>
+            <%= form.text_area :course_description,
+                               class: "form-control",
+                               placeholder: "Enter course description" %>
+          </div>
 
-            <p>Lecturer proposed topics require coordinator approval?</p>
-            <%= form.radio_button :require_coordinator_approval, "true" %>
+          <div class="field-row">
+            <%= form.label :supervisor_projects_limit,
+                           "Maximum projects per supervisor",
+                           class: "field-label" %><br>
+            <%= form.text_field :supervisor_projects_limit,
+                                class: "form-control",
+                                required: true,
+                                placeholder: "Enter maximum number" %>
+          </div>
+
+          <div class="field-row">
+            <p class="field-label">Lecturer topics require approval?</p>
+            <%= form.radio_button :require_coordinator_approval, true %>
             <%= form.label :require_coordinator_approval, "True", value: true %>
-            <%= form.radio_button :require_coordinator_approval, "false" %>
+            <%= form.radio_button :require_coordinator_approval, false %>
             <%= form.label :require_coordinator_approval, "False", value: false %>
-            <br>
+          </div>
 
-            <p>Starting week</p>
-            <%= form.text_field :starting_week, required: true, placeholder: "Enter starting week"%>
+          <div class="field-row">
+            <%= form.label :starting_week, "Starting week", class: "field-label" %><br>
+            <%= form.text_field :starting_week,
+                                class: "form-control",
+                                required: true,
+                                placeholder: "Enter starting week" %>
+          </div>
 
-            <p>Use progress updates?</p>
-            <%= form.radio_button :use_progress_updates, "true" %>
+          <div class="field-row">
+            <p class="field-label">Use progress updates?</p>
+            <%= form.radio_button :use_progress_updates, true %>
             <%= form.label :use_progress_updates, "True", value: true %>
-            <%= form.radio_button :use_progress_updates, "false" %>
+            <%= form.radio_button :use_progress_updates, false %>
             <%= form.label :use_progress_updates, "False", value: false %>
+          </div>
 
-            <p>Number of progress updates?</p>
-            <%= form.text_field :number_of_updates, placeholder: "Number of progress updates" %>
+          <div class="field-row">
+            <%= form.label :number_of_updates,
+                           "Number of progress updates",
+                           class: "field-label" %><br>
+            <%= form.text_field :number_of_updates,
+                                class: "form-control",
+                                placeholder: "Enter number of updates" %>
+          </div>
 
-            <p>Lecturer views public for other lecturers?</p>
-            <%= form.radio_button :lecturer_access, "true" %>
+          <div class="field-row">
+            <p class="field-label">Lecturer views public?</p>
+            <%= form.radio_button :lecturer_access, true %>
             <%= form.label :lecturer_access, "True", value: true %>
-            <%= form.radio_button :lecturer_access, "false" %>
+            <%= form.radio_button :lecturer_access, false %>
             <%= form.label :lecturer_access, "False", value: false %>
+          </div>
 
-            <p>Students can see projects from?</p>
-            <%= form.collection_radio_buttons :student_access, Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] }, :first, :last do |b| %>
-            <%= b.radio_button %>
-            <%= b.label %>
+          <div class="field-row">
+            <p class="field-label">Student can see projects from:</p>
+            <%= form.collection_radio_buttons :student_access,
+                Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] },
+                :first, :last do |b| %>
+              <%= b.radio_button(class: "form-control") %>
+              <%= b.label(class: "field-label") %>
             <% end %>
-            <br>
-
-            <%= form.submit "Save" %>
-            <% end %>
+          </div>
         </div>
+
+        <div class="form-actions">
+          <%= link_to "← Back to Course",
+                      course_path(@course),
+                      class: "btn btn-secondary" %>
+          <%= form.submit "Save Settings",
+                          class: "btn btn-primary" %>
+        </div>
+      <% end %>
     </div>
+  </main>
 </body>
+</html>

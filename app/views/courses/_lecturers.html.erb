@@ -1,13 +1,15 @@
 <li>
   <%= link_to course_lecturer_path(course, lecturer), class: "profile" do %>
-    <div class="avatar"><%= lecturer.username.first.upcase %></div>
-    <div class="info">
-      <div class="top">
-        <div class="name"><%= lecturer.username %></div>
+    <div class="lecturer-avatar"><%= lecturer.username.first.upcase %></div>
+    <div class="lecturer-item">
+      <div class="lecturer-content">
+        <div class="lecturer-name"><%= lecturer.username %></div>
         <span class="capacity">0/4</span>
       </div>
-      <div class="last-seen">last seen yesterday</div>
-      <div class="avg-time">avg response time – 1 day</div>
+      <div class="lecturer-information">
+        <div class="last-seen">last seen yesterday</div>
+        <div class="avg-time">avg response time – 1 day</div>
+      </div>
     </div>
   <% end %>
 </li>

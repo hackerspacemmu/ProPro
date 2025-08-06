@@ -77,8 +77,12 @@ def edit
     return
   end
 
-  # Exclude lecturer-only fields (optional)
+  # Exclude lecturer-only fields 
   @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :topics)
+
+  @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
+    h[f.project_template_field_id] = f.value
+  end
 end
 
 def update
@@ -115,8 +119,8 @@ end
 
 def new
   unless @is_student
-  redirect_to course_path(@course), alert: "You are not authorized"
-  return
+    redirect_to course_path(@course), alert: "You are not authorized"
+    return
 end
 
 enrolment = Enrolment.find_by(user: current_user, course: @course)
@@ -229,13 +233,13 @@ end
 
 
 
-private 
-
 private
 
 # make sure that same logic in helpers/projects_helper.rb
 def access
   @course = Course.find(params[:course_id])
+
+  @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
   # Build the list of projects/topics visible to the current user:
   if @course.enrolments.exists?(user: current_user, role: :coordinator)
