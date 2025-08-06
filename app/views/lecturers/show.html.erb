@@ -36,6 +36,14 @@
                 <span class="info-label">Description</span>
                 <span class="info-value"><%= @lecturer.description.presence || "No description provided." %></span>
               </div>
+              <div class="info-item">
+                <span class="info-label">Portfolio/MMU Directory</span>
+                <% if @lecturer.web_link.present? %>
+                  <span class="info-value"><a href="<%= @lecturer.web_link %>"><%= @lecturer.web_link %></a></span>
+                <% else %>
+                  <span class="info-value"><%= "No web link provided." %></span>
+                <% end %>
+              </div>
             </div>
           </header>
 
