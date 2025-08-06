@@ -102,27 +102,27 @@
           <% end %>
         </span>
         <div class="metadata-value version-navigation">
-          <%# Back arrow: newer version (lower index) %>
-          <% if current_version < instances.size - 1 %>
-            <%= link_to course_topic_path(@course, @project, version: current_version + 1), class: "version-btn back-arrow" do %>
-              <%= image_tag("arrow_back.svg", class: "back-arrow") %>
+          <% # Back arrow: older version (lower index) %>
+          <% if current_version > 1 %>
+            <%= link_to course_project_path(@course, project, version: current_version - 1), class: "version-btn back-arrow" do %>
+              <%= image_tag("arrow_back.svg", class:"back-arrow") %>
             <% end %>
           <% else %>
             <span class="version-btn back-arrow disabled">
-              <%= image_tag("arrow_back.svg", class: "back-arrow") %>
+              <%= image_tag("arrow_back.svg", class:"back-arrow") %>
             </span>
           <% end %>
 
-          <span class="version-text"><%= instances.size - current_version %> of <%= instances.size %></span>
+          <span class="version-text"><%= current_version %> of <%= instances.size %></span>
 
-          <%# Next arrow: older version (higher index) %>
-          <% if current_version > 0 %>
-            <%= link_to course_topic_path(@course, @project, version: current_version - 1), class: "version-btn next-arrow" do %>
-              <%= image_tag("arrow_forward.svg", class: "forward-arrow") %>
+          <% # Next arrow: newer version (higher index) %>
+          <% if current_version < instances.size %>
+            <%= link_to course_project_path(@course, project, version: current_version + 1), class: "version-btn next-arrow" do %>
+              <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
             <% end %>
           <% else %>
             <span class="version-btn next-arrow disabled">
-              <%= image_tag("arrow_forward.svg", class: "forward-arrow") %>
+              <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
             </span>
           <% end %>
         </div>
