@@ -5,10 +5,10 @@ require "securerandom"
 class CoursesController < ApplicationController
     before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy ]
     before_action :check_staff, only: [ :new, :create ]
+    before_action :access_topics, only: :show
+
 
     def show
-    
-      @course = Course.find(params[:id])
       
       if @course.grouped?
         @group = current_user.project_groups.find_by(course: @course)
@@ -37,21 +37,6 @@ class CoursesController < ApplicationController
       @description = @course.course_description
       @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
-      @current_user_enrolment = @course.enrolments.find_by(user: current_user)
-      
-      # coordinator topics view
-      if @course.enrolments.exists?(user: current_user, role: :coordinator)
-        @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
-      elsif @current_user_enrolment&.lecturer?
-        base = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer })
-
-        @topic_list = base.where("(ownerships.owner_id = :you) OR (projects.status = :approved)", 
-                      you:  current_user.id, 
-                      approved: Project.statuses[:approved])
-      else
-        @topic_list = @course.projects.joins(:ownership).where(ownerships: { ownership_type: :lecturer }).where(status: :approved)
-      end
-
       
       
       projects_ownerships = Project.joins(:ownership)
@@ -429,4 +414,46 @@ class CoursesController < ApplicationController
       )
     end
   end
+
+  private
+
+def access_topics
+  @course                 = Course.find(params[:id])
+  @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+
+  lt = Ownership.ownership_types[:lecturer]
+
+  # 1) Coordinator: sees all topics (any status)
+  if @current_user_enrolment&.coordinator?
+    @topic_list = @course.projects
+                         .joins(:ownership)
+                         .where(ownerships: { ownership_type: lt })
+
+  # Lecturer: sees their own topics (any status)
+  # plus other lecturers’ only if approved
+  elsif @current_user_enrolment&.lecturer?
+    own = @course.projects
+                 .joins(:ownership)
+                 .where(ownerships: {
+                   owner_type:     "User",
+                   owner_id:       current_user.id,
+                   ownership_type: lt
+                 })
+
+    approved = @course.projects
+                      .joins(:ownership)
+                      .where(ownerships: { ownership_type: lt },
+                             status:     :approved)
+
+    @topic_list = own.or(approved)
+
+  #Students: see only approved topics
+  else
+    @topic_list = @course.projects
+                         .joins(:ownership)
+                         .where(ownerships: { ownership_type: lt },
+                                status:     :approved)
+  end
 end
+end
+
