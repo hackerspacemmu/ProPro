@@ -188,8 +188,13 @@ end
 end
 
 def destroy
-  members = @project.ownership.is_a?(ProjectGroup) ? @project.ownership.users : [ @project.ownership.owner ]
-  if members.include?(Current.user)
+  allowed = if @project.ownership.is_a?(ProjectGroup)
+              @project.ownership.users
+            else
+              [ @project.ownership.owner ]
+            end
+
+  if allowed.include?(current_user)
     @project.destroy
     redirect_to course_path(@course), notice: "Topic deleted"
   else
