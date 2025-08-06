@@ -84,6 +84,7 @@ input:disabled {
   color: #9ca3af;
   cursor: not-allowed;
   background-color: #f9fafb;
+  opacity: 0.7;
 }
 
 .remove-field {
