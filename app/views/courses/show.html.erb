@@ -50,6 +50,7 @@
       <section class="my-topics" id="my-topics">
         <div class="container">
           <header class="section-header">
+            <h4>My Topics</h4>
             <div class="section-actions">
               <p class="section-description">Topics you have created for this course</p>
               <%= link_to "View All Lecturer Topics", course_topics_path(@course), class: "link" %>
@@ -58,19 +59,26 @@
               <% end %>
             </div>
           </header> 
-          <div class="project-list-gapper">
-            <div class="cards-container">
-              <% coordinator_topics = @topic_list.select { |project| 
-                   project.ownership&.owner == current_user && 
-                   project.ownership&.lecturer? 
-                 } %>
-              <% if coordinator_topics.any? %>
-                <%= render partial: 'project_card', collection: coordinator_topics, as: :project %>
-              <% else %>
-                <p class="empty-state">You haven't created any topics yet.</p>
+
+          <% my_topics = @topic_list.select { |project| project.ownership.lecturer? && project.ownership.owner == current_user } %>
+
+          <% if my_topics.empty? %>
+            <p class="empty-state">You haven't created any topics yet.</p>
+          <% else %>
+            <% %w[pending redo rejected].each do |stat| %>
+              <% group = my_topics.select { |p| p.status.to_s == stat } %>
+              <% if group.any? %>
+                <div class="status-group status-<%= stat %>">
+                  <h5 class="status-header"><%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
+                  <div class="cards-container">
+                    <div class="project-card <%= stat %>">
+                      <%= render partial: 'project_card', collection: group, as: :project, locals: { status_class: stat } %>
+                    </div>
+                  </div>
+                </div>
               <% end %>
-            </div>
-          </div>
+            <% end %>
+          <% end %>
         </div>
       </section>
 
@@ -80,20 +88,30 @@
             <h4>Pending Topics</h4>
             <p class="section-description">Lecturer-proposed topics awaiting your approval</p>
           </header>
-          <div class="project-list-gapper">
-            <div class="cards-container">
-              <% pending_topics = @topic_list.select { |project| 
-                   project.ownership&.lecturer? && 
-                   project.status == 'pending' &&
-                   project.ownership&.owner != current_user
-                 } %>
-              <% if pending_topics.any? %>
-                <%= render partial: 'project_card', collection: pending_topics, as: :project %>
-              <% else %>
-                <p class="empty-state">No pending topics require your approval.</p>
+
+          <% submitted_topics = @topic_list.select do |project| 
+              project.ownership&.lecturer? &&
+              project.ownership&.owner != current_user &&
+              %w[pending redo rejected].include?(project.status.to_s)
+            end %> 
+
+          <% if submitted_topics.empty? %>
+            <p class="empty-state">No Topics submmited to you.</p>
+          <% else %>
+            <% %w[pending redo rejected].each do |stat| %>
+              <% group = submitted_topics.select { |p| p.status.to_s == stat } %>
+              <% if group.any? %>
+                <div class="status-group status-<%= stat %>">
+                  <h5 class="status-header">
+                    <%= stat.titleize %> Topics
+                  </h5>
+                  <div class="cards-container">
+                    <%= render partial: 'project_card', collection: group, as: :project %>
+                  </div>
+                </div>
               <% end %>
-            </div>
-          </div>
+            <% end %>
+          <% end %>
         </div>
       </section>
 

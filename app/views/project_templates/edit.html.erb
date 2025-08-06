@@ -16,6 +16,17 @@
 
         <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "form" do |form| %>
 
+          <% if @project_template.errors.any? %>
+            <div class="form-errors">
+              <h3><%= pluralize(@project_template.errors.count, "error") %> prevented this template from being saved:</h3>
+              <ul>
+                <% @project_template.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+                <% end %>
+              </ul>
+           </div>
+          <% end %>
+          
           <div class="row header-row">
             <div class="column"><strong>Field Label</strong></div>
             <div class="column"><strong>Hint Text (Optional)</strong></div>
