@@ -237,11 +237,15 @@ private
   @is_coordinator = @course.enrolments.exists?(user: Current.user, role: :coordinator)
 
   # Only includes projects created by lecturers
-  if @is_coordinator
+ if @is_coordinator
   @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer })
-    else
-  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer }, status: :approved)
-  end
+
+elsif @is_lecturer
+  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer }).where(
+    'projects.status = ? OR ownership.owner_id = ?', 'approved', Current.user.id
+  )
+end
+
 
 
   @projects = @projects.select(&:approved?) if @is_student
@@ -249,7 +253,7 @@ private
   if params[:id]
     @project = @projects.find { |p| p.id == params[:id].to_i }
     unless @project
-      redirect_to course_path(@course), alert: "You are not authorized to view this topic."
+      redirect_to course_topics_path(@course), alert: "You are not authorized to view this topic."
       return
     end
   end
