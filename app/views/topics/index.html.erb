@@ -26,6 +26,11 @@
       <% end %>
     </section>
 
+        
+    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+
+
     <section class="topics-list" id="topics-list">
       <div class="cards-container">
         <% if @projects.any? %>
