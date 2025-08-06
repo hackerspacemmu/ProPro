@@ -72,7 +72,7 @@
                   <h5 class="status-header"><%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
                   <div class="cards-container">
                     <div class="project-card <%= stat %>">
-                      <%= render partial: 'project_card', collection: group, as: :project, locals: { status_class: stat } %>
+                      <%= render partial: 'project_card', collection: group, as: :project %>
                     </div>
                   </div>
                 </div>
@@ -102,10 +102,8 @@
               <% group = submitted_topics.select { |p| p.status.to_s == stat } %>
               <% if group.any? %>
                 <div class="status-group status-<%= stat %>">
-                  <h5 class="status-header">
-                    <%= stat.titleize %> Topics
-                  </h5>
-                  <div class="cards-container">
+                  <h5 class="status-header"> <%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
+                  <div class="cards-container <%= stat %>">
                     <%= render partial: 'project_card', collection: group, as: :project %>
                   </div>
                 </div>
