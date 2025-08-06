@@ -23,16 +23,4 @@
     <a href="#participants">Participants</a>
   <% end %>
 
-  <div class="side-action">
-    <hr class="sidebar-divider" />
-      <% if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer? %>
-         <%= link_to "Create Topics", new_course_topic_path(@course) %>
-         <%= link_to "View All Topics", course_topics_path(@course)%>
-      <% end %>
-
-      <% if @current_user_enrolment&.student? %>
-         <%= link_to "Create Proposal", new_course_project_path(@course) %>
-         <%= link_to "View All Topics", course_topics_path(@course)%>
-      <% end %>
-  </div>
 </div>

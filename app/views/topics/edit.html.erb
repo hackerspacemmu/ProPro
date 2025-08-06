@@ -4,7 +4,7 @@
     <%= stylesheet_link_tag "projects" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Project</title>
+    <title>Edit Topic</title>
   </head>
   <body>
     <main class="project-edit">
@@ -15,7 +15,8 @@
         <p class="edit-description">Update your project details and information below.</p>
       </header>
       
-      <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
+      <%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
+
         <div class="fields-container">
           <% @template_fields.each do |field| %>
             <div class="field-row">
@@ -28,36 +29,36 @@
               <% existing_value = @existing_values[field.id] %>
               
               <% case field.field_type %>
-                <% when "shorttext" %>
-                  <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
-                  
-                <% when "textarea" %>
-                  <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
-                  
-                <% when "dropdown" %>
-                  <% options = field.option_list %>
-                  <%= select_tag "fields[#{field.id}]",
-                    options_for_select(options, existing_value),
-                    prompt: "Select an option",
-                    class: "form-control",
-                    required: true %>
-                  
-                <% when "radio" %>
-                  <% options = field.option_list %>
-                  <% options.each_with_index do |option, idx| %>
-                    <%= radio_button_tag "fields[#{field.id}]", option, (option == existing_value), id: "field_#{field.id}_#{idx}", required: true %>
-                    <%= label_tag "field_#{field.id}_#{idx}", option %>
-                  <% end %>
-                  
-                <% else %>
-                  <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
+              <% when "shorttext" %>
+                <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
+              <% when "textarea" %>
+                <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
+              <% when "dropdown" %>
+                <% options = field.option_list %>
+                <%= select_tag "fields[#{field.id}]",
+                              options_for_select(options, existing_value),
+                              prompt: "Select an option",
+                              class: "form-control",
+                              required: true %>
+              <% when "radio" %>
+                <% options = field.option_list %>
+                <% options.each_with_index do |option, idx| %>
+                  <%= radio_button_tag "fields[#{field.id}]", option, (option == existing_value), id: "field_#{field.id}_#{idx}", required: true %>
+                  <%= label_tag "field_#{field.id}_#{idx}", option %>
+                <% end %>
+              <% else %>
+                <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
               <% end %>
             </div>
           <% end %>
         </div>
         
         <div class="form-actions">
-          <%= link_to "← Back to Proposal", course_path(@course), class: "btn btn-secondary" %>
+<<<<<<< HEAD
+          <%= link_to "← Back to Topics", course_path(@course), class: "btn btn-secondary" %>
+=======
+          <%= link_to "← Back to Topic", course_path(@course), class: "btn btn-secondary" %>
+>>>>>>> f9cb221b6ebdc3a9a58b014ccf3a1d821a8f339d
           <%= submit_tag "Submit", class: "btn btn-primary" %>
         </div>
       <% end %>
