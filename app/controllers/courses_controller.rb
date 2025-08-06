@@ -3,7 +3,7 @@ require "set"
 require "securerandom"
 
 class CoursesController < ApplicationController
-    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings ]
+    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy ]
     before_action :check_staff, only: [ :new, :create ]
 
     def show
@@ -226,6 +226,11 @@ class CoursesController < ApplicationController
     end
 
     redirect_to settings_course_path(@course), notice: "Course successfully updated"
+  end
+
+  def destroy
+    @course.destroy
+    redirect_to "/"
   end
 
   private
