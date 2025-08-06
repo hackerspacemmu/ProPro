@@ -79,7 +79,7 @@
         <div class="metadata-value version-navigation">
           <% # Back arrow: older version (lower index) %>
           <% if current_version > 1 %>
-            <%= link_to course_project_path(@course, project, version: current_version - 1), class: "version-btn back-arrow" do %>
+            <%= link_to course_topic_path(@course, project, version: current_version - 1), class: "version-btn back-arrow" do %>
               <%= image_tag("arrow_back.svg", class:"back-arrow") %>
             <% end %>
           <% else %>
@@ -92,7 +92,7 @@
 
           <% # Next arrow: newer version (higher index) %>
           <% if current_version < instances.size %>
-            <%= link_to course_project_path(@course, project, version: current_version + 1), class: "version-btn next-arrow" do %>
+            <%= link_to course_topic_path(@course, project, version: current_version + 1), class: "version-btn next-arrow" do %>
               <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
             <% end %>
           <% else %>
