@@ -9,6 +9,11 @@ class LecturersController < ApplicationController
     @enrolment = @course.enrolments.find_by(user_id: params[:id], role: [:lecturer, :coordinator])
     @lecturer  = @enrolment&.user
 
+    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+    @is_coordinator = @current_user_enrolment&.coordinator?
+    @is_student = @current_user_enrolment&.student?
+
+
     unless @enrolment&.role.in?(%w[lecturer coordinator])
       redirect_to course_lecturers_path(@course), alert: "Not a lecturer."
       return
