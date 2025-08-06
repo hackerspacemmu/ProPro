@@ -71,9 +71,9 @@
                 <div class="status-group status-<%= stat %>">
                   <h5 class="status-header"><%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
                   <div class="cards-container">
-                    <div class="project-card <%= stat %>">
-                      <%= render partial: 'project_card', collection: group, as: :project %>
-                    </div>
+                    <% group.each do |project| %>
+                      <%= render partial: 'project_card', collection: group, as: :project, locals: { project: project} %>
+                    <% end %>
                   </div>
                 </div>
               <% end %>
@@ -103,8 +103,10 @@
               <% if group.any? %>
                 <div class="status-group status-<%= stat %>">
                   <h5 class="status-header"> <%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
-                  <div class="cards-container <%= stat %>">
-                    <%= render partial: 'project_card', collection: group, as: :project %>
+                  <div class="cards-container">
+                    <% group.each do |project| %>
+                      <%= render partial: 'project_card', collection: group, as: :project, locals: { project: project, status: stat } %>
+                    <% end %>
                   </div>
                 </div>
               <% end %>
