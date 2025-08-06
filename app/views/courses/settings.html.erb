@@ -104,7 +104,7 @@
           <div class="field-row">
             <p class="field-label">Student can see projects from:</p>
             <%= form.collection_radio_buttons :student_access,
-                Course.student_accesses.keys.map { |key| [key.to_s.humanize, key] },
+                Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] },
                 :first, :last do |b| %>
               <%= b.radio_button(class: "form-control") %>
               <%= b.label(class: "field-label") %>
