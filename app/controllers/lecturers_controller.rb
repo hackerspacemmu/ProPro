@@ -32,6 +32,15 @@ class LecturersController < ApplicationController
           }
         ).where(status: :approved)
     end
+
+    @not_approved_projects = @course.projects.joins(:ownership).where(
+          ownerships: {
+            owner_type:  "User",
+            owner_id:    @lecturer.id,
+            ownership_type: :lecturer
+          },  
+        projects: {status: ["pending", "rejected", "redo"]}
+        )
   end
 
   private

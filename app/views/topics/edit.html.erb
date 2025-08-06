@@ -43,7 +43,7 @@
               <% when "radio" %>
                 <% options = field.option_list %>
                 <% options.each_with_index do |option, idx| %>
-                  <%= radio_button_tag "fields[#{field.id}]", option, (option == existing_value), id: "field_#{field.id}_#{idx}", required: true %>
+                  <%= radio_button_tag "fields[#{field.id}]", option, (option.to_s == existing_value.to_s), id: "field_#{field.id}_#{idx}", required: true %>
                   <%= label_tag "field_#{field.id}_#{idx}", option %>
                 <% end %>
               <% else %>

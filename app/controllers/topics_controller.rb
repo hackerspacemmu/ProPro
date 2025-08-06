@@ -66,7 +66,7 @@ def edit
 
   if @project.status == "pending" || (@project.status == "approved" && !@course.require_coordinator_approval)
     @instance = @project.project_instances.last || @project.project_instances.build
-  elsif @project.status == "rejected"
+  elsif @project.status == "rejected" || @project.status == "redo"
     # Create a new version
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
@@ -83,7 +83,7 @@ def edit
 end
 
 def update
-  if @project.status == "rejected" 
+  if @project.status == "rejected" || @project.status == "redo"
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
   else
@@ -106,7 +106,7 @@ def update
     if @course.require_coordinator_approval
       @project.update(status: :pending) if @project.status == "approved"
     else
-      @project.update(status: :pending) if @project.status == "rejected"
+      @project.update(status: :pending) if @project.status == "pending"
     end
     
     redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
