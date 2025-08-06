@@ -1,7 +1,7 @@
 class TopicsController < ApplicationController
 
-before_action :access_one
-
+before_action :access_one,  only: [:index, :show, :edit, :update, :destroy, :change_status]
+before_action :set_course_and_enrolment, only: [:new, :create]
 def index
 
 end
@@ -46,19 +46,6 @@ def show
   else
     @type = "proposal"
   end
-end
-
-def destroy
-  owner = @project.ownership.owner
-  allowed_users = owner.is_a?(ProjectGroup) ? owner.users : [owner]
-
-  if allowed_users.include?(Current.user)
-    @project.destroy
-    redirect_to course_path(@course), notice: "Topic was successfully deleted."
-  else
-    redirect_to course_topic_path(@course, @project), alert: "You are not authorized to delete this topic."
-  end
-  
 end
 
 def change_status
@@ -107,7 +94,6 @@ def update
   title_field_id = params[:fields].keys.first if params[:fields].present?
   @instance.title = params[:fields][title_field_id] if title_field_id.present?
 
-  # Save instance first to ensure it has an ID
   if @instance.save
     if params[:fields].present?
       params[:fields].each do |field_id, value|
@@ -117,13 +103,12 @@ def update
       end
     end
 
-    # Update project status based on course settings
     if @course.require_coordinator_approval
       @project.update(status: :pending) if @project.status == "approved"
     else
-      @project.update(status: :pending) if @project.status == "pending"
+      @project.update(status: :pending) if @project.status == "rejected"
     end
-
+    
     redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
@@ -131,17 +116,6 @@ def update
     render :edit
   end
 end
-
-def has_changes_since?(last_instance)
-  return true if last_instance.nil?
-
-  current_fields = project_instances.last.project_instance_fields.map { |f| [f.project_template_field_id, f.value] }.to_h
-  previous_fields = last_instance.project_instance_fields.map { |f| [f.project_template_field_id, f.value] }.to_h
-
-  current_fields != previous_fields
-end
-
-
 
 
 def new
@@ -212,10 +186,9 @@ end
 
   redirect_to course_topic_path(@course, @project), notice: "Topic created!"
 end
-end
 
 def destroy
-  if members.include?(Current.user)
+    if members.include?(Current.user)
     @project.destroy
     redirect_to course_path(@course), notice: "Topic is deleted"
   else
@@ -227,32 +200,60 @@ end
 private 
 
 
-  def access_one
-  @course = Course.find(params[:course_id])
-  @courses = Current.user.courses
-  @current_user_enrolment = @course.enrolments.find_by(user: Current.user)
+def access_one
+  @course                 = Course.find(params[:course_id])
+  @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+  @is_coordinator         = @current_user_enrolment&.coordinator?
+  @is_lecturer            = @current_user_enrolment&.lecturer?
+  @is_student             = @current_user_enrolment&.student?
 
-  @is_student     = @course.enrolments.exists?(user: Current.user, role: :student)
-  @is_lecturer    = @course.enrolments.exists?(user: Current.user, role: :lecturer)
-  @is_coordinator = @course.enrolments.exists?(user: Current.user, role: :coordinator)
+  lt = Ownership.ownership_types[:lecturer]
 
-  # Only includes projects created by lecturers
+  if action_name == 'index'
+    # FOR TOPICS/INDEX
+    @projects = @course.projects
+                       .joins(:ownership)
+                       .where(ownerships: { ownership_type: lt }, status: :approved)
+    return
+  end
+
+  # FOR COURSES/SHOW
+
   if @is_coordinator
-  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer })
-    else
-  @projects = @course.projects.joins(:ownership).where(ownership: { ownership_type: :lecturer }, status: :approved)
+    # Coordinators see every lecturer topic (any status)
+    @projects = @course.projects
+                       .joins(:ownership)
+                       .where(ownerships: { ownership_type: lt })
+
+  elsif @is_lecturer
+    # Lecturers see their own (any status) OR others' approved
+    own = @course.projects
+                 .joins(:ownership)
+                 .where(ownerships: {
+                   owner_type:     "User",
+                   owner_id:       current_user.id,
+                   ownership_type: lt
+                 })
+
+    approved = @course.projects
+                      .joins(:ownership)
+                      .where(ownerships: { ownership_type: lt },
+                             status:     :approved)
+
+    @projects = own.or(approved)
+
+  else
+    # Students see only approved
+    @projects = @course.projects
+                       .joins(:ownership)
+                       .where(ownerships: { ownership_type: lt }, status: :approved)
   end
 
-
-  @projects = @projects.select(&:approved?) if @is_student
-
-  if params[:id]
-    @project = @projects.find { |p| p.id == params[:id].to_i }
-    unless @project
-      redirect_to course_path(@course), alert: "You are not authorized to view this topic."
-      return
-    end
-  end
+  @project = @projects.find_by(id: params[:id])
+  unless @project
+    redirect_to course_path(@course), alert: "You are not authorized to view this topic."
+    return
+   end
 
   #Search
   query = params[:query].to_s.downcase
@@ -268,4 +269,10 @@ private
       title&.include?(query) || description&.include?(query)
     end
   end
+end
+
+ def set_course_and_enrolment
+   @course  = Course.find(params[:course_id])
+   @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+ end
 end
