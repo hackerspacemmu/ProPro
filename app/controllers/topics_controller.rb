@@ -80,13 +80,21 @@ def change_status
 end
 
 def edit
+    has_coordinator_comment = Comment.where(
+      project: @project,
+      project_version_number: @project.project_instances.count,
+      user_id: @project.supervisor
+    ).exists?
+
 
   if @project.status == "pending" || (@project.status == "approved" && !@course.require_coordinator_approval)
     @instance = @project.project_instances.last || @project.project_instances.build
+
     @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
       h[f.project_template_field_id] = f.value
     end
-  elsif @project.status == "rejected" || @project.status == "redo"
+  elsif @project.status == "rejected" || @project.status == "redo" || has_coordinator_comment
+
     # Create a new version
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
@@ -107,7 +115,13 @@ def edit
 end
 
 def update
-  if @project.status == "rejected" || @project.status == "redo"
+  has_coordinator_comment = Comment.where(
+    project: @project,
+    project_version_number: @project.project_instances.count,
+    user_id: @project.supervisor
+  ).exists?
+
+  if @project.status == "rejected" || @project.status == "redo" || has_coordinator_comment
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
   else
