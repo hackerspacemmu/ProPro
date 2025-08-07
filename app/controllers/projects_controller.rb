@@ -84,7 +84,7 @@ end
 def edit
   if @project.status == "pending"
     @instance = @project.project_instances.last || @project.project_instances.build
-  elsif @project.status == "rejected"
+  elsif @project.status == "rejected" || @project.status == "redo"
     # Create a new version
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
