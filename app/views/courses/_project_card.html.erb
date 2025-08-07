@@ -1,3 +1,4 @@
+<div class="project-card  status-<%= project.status %>">
 <% project_instance = project.project_instances.order(:version).last %>
 <% if project_instance %>
   <% is_my_topic = project.ownership.lecturer? && project.ownership.owner == current_user %>
@@ -16,3 +17,4 @@
     <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
   <% end %>
 <% end %>
+</div>

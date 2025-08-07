@@ -434,9 +434,17 @@ ul.breadcrumb li b {
     flex-shrink: 0;
 }
 
+.status-header {
+    color: #7e7e7e;
+    font-size: 18px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    height: auto;
+}
+
+
 .project-card {
     color: #FFFFFF;
-    background-color: #1d2f24;
     display: flex;
     flex-wrap: wrap;
     z-index: 0;
@@ -446,6 +454,7 @@ ul.breadcrumb li b {
     border-radius: 12px;
     border: 2px solid #B5B5B5;
     overflow: hidden;
+    background-color:#193b2a;
 }
 
 .project-card b {
@@ -503,6 +512,12 @@ ul.breadcrumb li b {
 .card-link:hover .project-card.inner {
     background-color: #F8F9FA;
 }
+
+.project-card.status-pending  { background-color: #284555 } 
+.project-card.status-redo     { background-color: #4E4307} 
+.project-card.status-rejected { background-color: #342626 } 
+
+
 
 /* participants list (keith) */
 
@@ -652,6 +667,10 @@ p {
     font-size: 2px;
 }
 
+.link {
+    margin-left: 15px;
+    margin-bottom: 12px;
+}
 
 
 /* forms (keith) */
