@@ -33,6 +33,9 @@ class CommentsController < ApplicationController
     end
 
     unless whitelist.include? Current.user
+      Rails.logger.info Current.user.inspect
+      Rails.logger.info whitelist
+      Rails.logger.info type
       return
     end
 
