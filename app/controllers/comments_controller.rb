@@ -6,7 +6,7 @@ class CommentsController < ApplicationController
     parent_project = Project.find(params[:project_id])
     parent_course = parent_project.course
     type = parent_project.ownership&.ownership_type
-    version_number = params[:comment][:project_version_number].to_i
+    version_number = parent_project.project_instances.count
 
     if Current.user.nil?
       return
@@ -40,7 +40,7 @@ class CommentsController < ApplicationController
       user: Current.user,
       project: parent_project,
       text: params[:comment][:user_comment],
-      project_version_number: params[:comment][:project_version_number]
+      project_version_number: version_number
       )
 
     if type == "student"
@@ -57,6 +57,10 @@ class CommentsController < ApplicationController
     comment = Comment.find(params[:id])
 
     if Current.user.nil?
+      return
+    end
+
+    if !comment.deletable
       return
     end
 

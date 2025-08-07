@@ -63,6 +63,15 @@ def change_status
 
   if @is_coordinator
     @project.update(status: params[:status])
+
+    Comment.create!(
+      user: Current.user,
+      project: @project,
+      text: "Updated status to #{new_status.capitalize}",
+      project_version_number: @project.project_instances.count,
+      deletable: false
+    )
+
     redirect_to course_topic_path(@course, @project), notice: "Status updated."
   else
     redirect_to course_topic_path(@course, @project), alert: "You are not authorized to perform this action."
