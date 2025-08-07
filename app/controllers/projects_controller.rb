@@ -150,6 +150,7 @@ def new
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
 end
 
+#TODO: MAKE ENROLMENT POINT TO THE CORRECT SUPERVISOR
 def create
   @course = Course.find(params[:course_id])
   grouped = @course.grouped?
@@ -157,7 +158,7 @@ def create
 
   if grouped
     #Grouped project
-    group = current_user.project_groups.find_by(course_id: @course.id)
+    group = current_user.project_groups.find_by(course: @course)
 
     unless group
       redirect_to course_path(@course), alert: "You're not part of a project group." and return
@@ -176,7 +177,7 @@ def create
       ownership_type: :project_group
     )
 
-    @enrolment = Enrolment.find_or_create_by!(user: current_user, course: @course)
+    #@enrolment = Enrolment.find_or_create_by!(user: current_user, course: @course)
 
   else
     # Individual student project 
@@ -207,29 +208,29 @@ def create
   )
 
 
-params[:fields]&.each do |field_id, value|
-  template_field = ProjectTemplateField.find(field_id)
-  if template_field.label.strip.downcase.include?("title")
-    title_value = value
+  params[:fields]&.each do |field_id, value|
+    template_field = ProjectTemplateField.find(field_id)
+    if template_field.label.strip.downcase.include?("title")
+      title_value = value
+    end
   end
-end
 
-#Create Instance
-@instance = @project.project_instances.create!(
-  version: 0,
-  title: title_value,
-  created_by: current_user
-)
-
-# Saves all fields to the instance
-params[:fields]&.each do |field_id, value|
-  template_field = ProjectTemplateField.find(field_id)
-
-  @instance.project_instance_fields.create!(
-    project_template_field: template_field,
-    value: value
+  #Create Instance
+  @instance = @project.project_instances.create!(
+    version: 0,
+    title: title_value,
+    created_by: current_user
   )
-end
+
+  # Saves all fields to the instance
+  params[:fields]&.each do |field_id, value|
+    template_field = ProjectTemplateField.find(field_id)
+
+    @instance.project_instance_fields.create!(
+      project_template_field: template_field,
+      value: value
+    )
+  end
 
 
   redirect_to course_topics_path(@course), notice: "Project created!"

@@ -50,19 +50,19 @@
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("status.svg") %> Status</span>
         <div class="metadata-value">
-          <% if @is_coordinator && @course.require_coordinator_approval %>
+          <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
             <div class="status-control">
               <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
                 <% statuses = Project.statuses.keys %>
-                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, project.status), {}, class: "status-select status-#{@project.status}" %>
+                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@project.status}" %>
                 <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
                   <%= image_tag("check.svg", width: 16, height: 16, alt: "Save") %>
                 <% end %>
               <% end %>
             </div>
           <% else %>
-            <span class="metadata-value status-<%= @project.status %>">
-              <%= @project.status.humanize %>
+            <span class="metadata-value status-<%= current_instance.status %>">
+              <%= current_instance.status.humanize %>
             </span>
           <% end %>
         </div>
