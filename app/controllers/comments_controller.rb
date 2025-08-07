@@ -33,9 +33,6 @@ class CommentsController < ApplicationController
     end
 
     unless whitelist.include? Current.user
-      Rails.logger.info Current.user.inspect
-      Rails.logger.info whitelist
-      Rails.logger.info type
       return
     end
 
@@ -60,10 +57,6 @@ class CommentsController < ApplicationController
     comment = Comment.find(params[:id])
 
     if Current.user.nil?
-      return
-    end
-
-    if !comment.deletable
       return
     end
 

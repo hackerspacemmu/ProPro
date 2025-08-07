@@ -62,14 +62,6 @@ def change_status
     if Project.statuses.key?(new_status)
       @project.project_instances.last.update(status: new_status)
 
-      Comment.create!(
-        user: Current.user,
-        project: @project,
-        text: "Updated status to #{new_status.capitalize}",
-        project_version_number: @project.project_instances.count,
-        deletable: false
-      )
-
       redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
     else
       redirect_to course_project_path(@course, @project), notice: "Status updated."
