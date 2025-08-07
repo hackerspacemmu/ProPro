@@ -203,7 +203,7 @@ def create
   # Create project
   @project = Project.create!(
     course: @course,
-    enrolment: @enrolment,
+    enrolment: @enrolment, # TODO: point to lecturer enrolment
     ownership: @ownership
   )
 
