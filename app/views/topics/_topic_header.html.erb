@@ -47,6 +47,7 @@
       </div>
 
       <!-- Status -->
+    <% if !@is_student %>
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("status.svg") %> Status</span>
         <div class="metadata-value">
@@ -102,6 +103,7 @@
           <% end %>
         </div>
       </div>
+    <% end %>
 
     </div>
   </div>
