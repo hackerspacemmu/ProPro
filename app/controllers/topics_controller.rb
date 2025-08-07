@@ -93,8 +93,7 @@ def edit
     
     latest_instance = @project.project_instances.order(version: :desc).first
     if latest_instance
-      @existing_values = latest_instance
-      latest_instance.project_instance_fields.each_with_object( {} ) do |f, h|
+      @existing_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
         h[f.project_template_field_id] = f.value
       end
     else
