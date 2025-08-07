@@ -415,7 +415,6 @@ class CoursesController < ApplicationController
     end
   end
 
-  private
 
 def access_topics
   @course                 = Course.find(params[:id])

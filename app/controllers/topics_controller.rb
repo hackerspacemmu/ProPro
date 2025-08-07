@@ -9,11 +9,10 @@ end
 
 def show
 
-  @instances = @project.project_instances.order(version: :desc)
+  @instances = @project.project_instances.order(version: :asc)
   @owner = @project.ownership&.owner
   @status = @project.status
-  @comments = @project.comments
-  @new_comment = Comment.new
+
 
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
@@ -26,16 +25,25 @@ def show
   end
 
 
-  # Determine which version to show (default: newest, i.e., index 0)
-  index = params[:version].to_i
-  index = 0 if index >= @instances.size || index < 0
+  if !params[:version].blank?
+    @index = params[:version].to_i
+  else
+    @index = @instances.size
+  end
 
-  @current_instance = @instances[index]
+  if @index <= 0 || @index > @instances.size
+    @index = @instances.size
+  end
+
+  @current_instance = @instances[@index - 1]
 
   if @current_instance.nil?
     redirect_to course_path(@course), alert: "No project instance available."
     return
   end
+
+  @comments = @project.comments.where(project_version_number: @index)
+  @new_comment = Comment.new
 
   @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
@@ -55,6 +63,15 @@ def change_status
 
   if @is_coordinator
     @project.update(status: params[:status])
+
+    Comment.create!(
+      user: Current.user,
+      project: @project,
+      text: "Updated status to #{new_status.capitalize}",
+      project_version_number: @project.project_instances.count,
+      deletable: false
+    )
+
     redirect_to course_topic_path(@course, @project), notice: "Status updated."
   else
     redirect_to course_topic_path(@course, @project), alert: "You are not authorized to perform this action."

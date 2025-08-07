@@ -36,10 +36,19 @@
                 <span class="info-label">Description</span>
                 <span class="info-value"><%= @lecturer.description.presence || "No description provided." %></span>
               </div>
+              <div class="info-item">
+                <span class="info-label">Portfolio/MMU Directory</span>
+                <% if @lecturer.web_link.present? %>
+                  <span class="info-value"><a href="<%= @lecturer.web_link %>"><%= @lecturer.web_link %></a></span>
+                <% else %>
+                  <span class="info-value"><%= "No web link provided." %></span>
+                <% end %>
+              </div>
             </div>
           </header>
 
-        <% if @is_student %>
+        <!-- View Topics for Students & Lecturers Viewing Others --!>
+        <% if @is_student || ((current_user.username != @lecturer.username) && !@is_coordinator) %>
           <section class="lecturer-topics">
             <header class="section-header">
               <h2 class="section-title">Topics</h2>
@@ -53,7 +62,7 @@
               <% else %>
                 <div class="cards-container">
                   <%= render partial: 'courses/project_card',
-                            collection: @approved_projects,
+                            collection: @own_approved_projects,
                             as: :project,
                             locals: { course: @course } %>
                 </div>
@@ -74,7 +83,7 @@
                 <% else %>
                   <div class="cards-container">
                     <%= render partial: 'courses/project_card',
-                              collection: @approved_projects,
+                              collection: @own_approved_projects,
                               as: :project,
                               locals: { course: @course } %>
                   </div>
@@ -89,14 +98,14 @@
                 </header>
                 <div class="lecturer-line"></div>
                 <div class="topics-container">
-                  <% if @not_approved_projects.empty? %>
+                  <% if @not_own_approved_projects.empty? %>
                     <div class="no-topics">
                       <p>No Topics Available</p>
                     </div>
                   <% else %>
                     <div class="cards-container">
                       <%= render partial: 'courses/project_card',
-                                collection: @not_approved_projects,
+                                collection: @not_own_approved_projects,
                                 as: :project,
                                 locals: { course: @course } %>
                     </div>

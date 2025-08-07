@@ -7,9 +7,9 @@
    <title><%= @current_instance.title %> - Project Details</title>
  </head>
  <body>
-   <% current_version = params[:version].to_i %>
-   <% oldest_version = @instances.size - 1 %>
-   <% latest_version = 0 %>
+   <% current_version = @index %>
+   <% oldest_version = 1 %>
+   <% latest_version = @instances.size %>
    <main id="project">
      <div class="project-layout">
       <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
@@ -36,7 +36,9 @@
                     comments: @comments,
                     new_comment: @new_comment,
                     course: @course,
-                    project: @project %>
+                    project: @project,
+                    current_version: current_version,
+                    latest_version: latest_version %>
          <%= render 'topic_fields', fields: @fields %>
          <footer class="project-footer">
            <%= link_to "← Back to Courses", course_path(@course) %>

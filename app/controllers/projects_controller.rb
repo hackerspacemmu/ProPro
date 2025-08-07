@@ -9,7 +9,7 @@ def show
     redirect_to course_path(@course), alert: "Project not found or access denied." and return
   end
 
-  @instances = @project.project_instances.order(version: :desc)
+  @instances = @project.project_instances.order(version: :asc)
   @owner = @project.ownership&.owner
   @status = @project.status
   @comments = @project.comments
@@ -34,26 +34,43 @@ def show
   end
 
 
-  # Determine which version to show (default: newest, i.e., index 0)
-  index = params[:version].to_i
-  index = 0 if index >= @instances.size || index < 0
+  # Determine which version to show (default: newest, i.e., array length - 1)
 
-  @current_instance = @instances[index]
+  if !params[:version].blank?
+    @index = params[:version].to_i
+  else
+    @index = @instances.size
+  end
+
+  if @index <= 0 || @index > @instances.size
+    @index = @instances.size
+  end
+
+  @current_instance = @instances[@index - 1]
 
   @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
-  @comments = @project.comments
+  @comments = @project.comments.where(project_version_number: @index)
   @new_comment = Comment.new
 
 end
 
 def change_status
 
-  if @project.supervisor == current_user 
+  if @project.supervisor == current_user
     new_status = params[:status]
 
     if Project.statuses.key?(new_status)
       @project.update(status: new_status)
+
+      Comment.create!(
+        user: Current.user,
+        project: @project,
+        text: "Updated status to #{new_status.capitalize}",
+        project_version_number: @project.project_instances.count,
+        deletable: false
+      )
+
       redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
     else
       redirect_to course_project_path(@course, @project), notice: "Status updated."
