@@ -41,11 +41,15 @@
                               class: "form-control",
                               required: true %>
               <% when "radio" %>
+                <div class="radio-group">
                 <% options = field.option_list %>
                 <% options.each_with_index do |option, idx| %>
-                  <%= radio_button_tag "fields[#{field.id}]", option, (option.to_s == existing_value.to_s), id: "field_#{field.id}_#{idx}", required: true %>
-                  <%= label_tag "field_#{field.id}_#{idx}", option %>
+                  <div class="radio-option">
+                    <%= radio_button_tag "fields[#{field.id}]", option, (option.to_s == existing_value.to_s), id: "field_#{field.id}_#{idx}", required: true %>
+                    <%= label_tag "field_#{field.id}_#{idx}", option %>
+                  </div>
                 <% end %>
+                </div>
               <% else %>
                 <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
               <% end %>

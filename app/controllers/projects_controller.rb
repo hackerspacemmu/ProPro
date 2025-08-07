@@ -73,6 +73,7 @@ end
 
 
 def edit
+
   @instance = @project.project_instances.last || @project.project_instances.build
   # Exclude lecturer-only fields 
   @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :topics)
