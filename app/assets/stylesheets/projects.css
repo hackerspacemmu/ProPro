@@ -540,7 +540,7 @@ textarea.form-control {
 }
 
 .radio-option input[type="radio"] {
-  margin: 0;
+  margin-right: 20px;
 }
 
 .radio-option label {
