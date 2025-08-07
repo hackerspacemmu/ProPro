@@ -200,7 +200,7 @@ class CoursesController < ApplicationController
       require_coordinator_approval: params[:course][:require_coordinator_approval],
       starting_week: params[:course][:starting_week],
       use_progress_updates: params[:course][:use_progress_updates],
-      number_of_updates: params[:course][:number_of_progress_updates],
+      number_of_updates: params[:course][:number_of_updates],
       lecturer_access: params[:course][:lecturer_access],
       student_access: params[:course][:student_access]
     )

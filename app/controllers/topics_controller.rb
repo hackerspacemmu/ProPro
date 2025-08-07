@@ -60,17 +60,8 @@ def change_status
 
   @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
-
-  if @is_coordinator
-    @project.update(status: params[:status])
-
-    Comment.create!(
-      user: Current.user,
-      project: @project,
-      text: "Updated status to #{new_status.capitalize}",
-      project_version_number: @project.project_instances.count,
-      deletable: false
-    )
+  if @is_coordinator && Project.statuses.key?(params[:status])
+    @project.project_instances.last.update(status: params[:status])
 
     redirect_to course_topic_path(@course, @project), notice: "Status updated."
   else
@@ -80,8 +71,10 @@ def change_status
 end
 
 def edit
+  @instance = @project.project_instances.last || @project.project_instances.build
+=begin
   if @project.status == "pending" || (@project.status == "approved" && !@course.require_coordinator_approval)
-    @instance = @project.project_instances.last || @project.project_instances.build
+    @instance = @project.project_instances.last #|| @project.project_instances.build
 
     @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
       h[f.project_template_field_id] = f.value
@@ -89,7 +82,7 @@ def edit
   elsif @project.status == "rejected" || @project.status == "redo"
 
     # Create a new version
-    version = @project.project_instances.maximum(:version).to_i + 1
+    version = @project.project_instances.count + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
     
     latest_instance = @project.project_instances.order(version: :desc).first
@@ -104,6 +97,7 @@ def edit
     redirect_to course_topic_path(@course, @project), alert: "This project cannot be edited."
     return
   end
+=end
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end
 
@@ -113,9 +107,16 @@ def update
     project_version_number: @project.project_instances.count,
     user_id: @project.supervisor
   ).exists?
-
-  if @project.status == "rejected" || @project.status == "redo" || has_coordinator_comment
-    version = @project.project_instances.maximum(:version).to_i + 1
+=begin
+  if has_coordinator_comment
+    version = @project.project_instances.count + 1
+    @instance = @project.project_instances.build(version: version, created_by: current_user)
+  else
+    @instance = @project.project_instances.last
+  end
+=end
+  if @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_coordinator_comment)
+    version = @project.project_instances.count + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
   else
     @instance = @project.project_instances.last
@@ -127,19 +128,43 @@ def update
 
   if @instance.save
     if params[:fields].present?
+=begin
       params[:fields].each do |field_id, value|
         field = @instance.project_instance_fields.find_or_initialize_by(project_template_field_id: field_id)
         field.value = value
         field.save!
       end
     end
+=end
+      begin
+        ActiveRecord::Base.transaction do
+          params[:fields].each do |field_id, value|
+            existing_field = ProjectInstanceField.find_by(
+              project_template_field_id: field_id,
+              project_instance: @instance
+            )
 
+            if existing_field
+              existing_field.update!(value: value)
+            else
+              @instance.project_instance_fields.create!(
+                project_template_field_id: field_id,
+                value: value
+              )
+            end
+          end
+        end
+      rescue StandardError => e
+        redirect_to course_project_path(@course, @project), alert: "Project update failed"
+      end
+    end
+=begin
     if @course.require_coordinator_approval
       @project.update(status: :pending) if @project.status == "approved"
     else
       @project.update(status: :pending) if @project.status == "pending"
     end
-    
+=end
     redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
@@ -170,50 +195,54 @@ end
 
 def create
   enrolment = Enrolment.find_by(user: current_user, course: @course)
+  begin
+    ActiveRecord::Base.transaction do
+      # Create ownership with current_user as the owner
+      @ownership = Ownership.find_or_create_by!(
+        owner: current_user,
+        ownership_type: :lecturer
+      )
 
-  # Create ownership with current_user as the owner
-  @ownership = Ownership.find_or_create_by!(
-    owner: enrolment.user,
-    ownership_type: :lecturer
-  )
-
-  status = @course.require_coordinator_approval? ? :pending : :approved
+      status = @course.require_coordinator_approval? ? :pending : :approved
 
 
-  # Create project with valid enrolment and ownership
-  @project = Project.create!(
-    course: @course,
-    enrolment: @course.coordinator,
-    ownership: @ownership,
-    status: status
-  )
+      # Create project with valid enrolment and ownership
+      @project = Project.create!(
+        course: @course,
+        enrolment: @course.coordinator,
+        ownership: @ownership,
+        status: status
+      )
 
-title_value = nil
+      title_value = nil
 
-params[:fields]&.each do |field_id, value|
-  template_field = ProjectTemplateField.find(field_id)
-  if template_field.label.strip.downcase.include?("title")
-    title_value = value
+      params[:fields]&.each do |field_id, value|
+        template_field = ProjectTemplateField.find(field_id)
+        if template_field.label.strip.downcase.include?("title")
+          title_value = value
+        end
+      end
+
+      #creates the instance
+      @instance = @project.project_instances.create!(
+        version: 0,
+        title: title_value,
+        created_by: current_user
+      )
+
+      # saves all fields to the instance
+      params[:fields]&.each do |field_id, value|
+        template_field = ProjectTemplateField.find(field_id)
+
+        @instance.project_instance_fields.create!(
+          project_template_field: template_field,
+          value: value
+        )
+      end
+    end
+  rescue StandardError => e
+    redirect_to course_topic_path(@course, @project), alert: "Topic creation failed"
   end
-end
-
-#creates the instance
-@instance = @project.project_instances.create!(
-  version: 0,
-  title: title_value,
-  created_by: current_user
-)
-
-# saves all fields to the instance
-params[:fields]&.each do |field_id, value|
-  template_field = ProjectTemplateField.find(field_id)
-
-  @instance.project_instance_fields.create!(
-    project_template_field: template_field,
-    value: value
-  )
-end
-
 
   redirect_to course_topic_path(@course, @project), notice: "Topic created!"
 end

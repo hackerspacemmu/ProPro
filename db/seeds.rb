@@ -215,22 +215,19 @@ group_ownership = Ownership.create!(
 alex_project = Project.create!(
   enrolment: willie_lecturer_enrolment,
   ownership: alex_ownership,
-  course_id: alex_student_enrolment.course_id,
-  status: 0 # pending/draft status
+  course_id: alex_student_enrolment.course_id
 )
 
 suhaini_project = Project.create!(
   enrolment: willie_coordinator_enrolment,
   ownership: suhaini_ownership,
-  course_id: suhaini_lecturer_enrolment.course_id,
-  status: 1 # approved/active status
+  course_id: suhaini_lecturer_enrolment.course_id
 )
 
 group_project = Project.create!(
   enrolment: willie_lecturer_enrolment,
   ownership: group_ownership,
-  course_id: soo_student_enrolment.course_id,
-  status: 0 # pending/draft status
+  course_id: soo_student_enrolment.course_id
 )
 
 # Create Project Instances
@@ -239,7 +236,8 @@ alex_instance_v1 = ProjectInstance.create!(
   version: 1,
   created_by: alex,
   submitted_at: "2025-07-15 10:30:00",
-  title: "Happy Go Lucky"
+  title: "Happy Go Lucky",
+  status: "rejected"
 )
 
 suhaini_instance = ProjectInstance.create!(
@@ -247,7 +245,8 @@ suhaini_instance = ProjectInstance.create!(
   version: 1,
   created_by: suhaini,
   submitted_at: "2025-07-10 14:20:00",
-  title: "My Nice Topic"
+  title: "My Nice Topic",
+  status: "pending"
 )
 
 group_instance = ProjectInstance.create!(
@@ -255,7 +254,8 @@ group_instance = ProjectInstance.create!(
   version: 1, 
   created_by: soo,
   submitted_at: "2025-07-18 16:45:00",
-  title: "Difficult Group Project"
+  title: "Difficult Group Project",
+  status: "pending"
 )
 
 alex_instance_v2 = ProjectInstance.create!(
@@ -263,7 +263,8 @@ alex_instance_v2 = ProjectInstance.create!(
   version: 2,
   created_by: alex,
   submitted_at: nil,
-  title: "Happy Go Lucky - Revised"
+  title: "Happy Go Lucky - Revised",
+  status: "approved"
 )
 
 # Create Project Instance Fields
