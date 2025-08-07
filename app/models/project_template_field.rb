@@ -14,7 +14,7 @@ class ProjectTemplateField < ApplicationRecord
   
   
   def option_list
-    options.to_s.gsub(/[\[\]]/, '').split(',').map(&:strip)
+    options.to_s.gsub(/[\[\]"]/, '').split(',').map(&:strip)
   end
 
   private
