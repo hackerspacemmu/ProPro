@@ -436,9 +436,10 @@ ul.breadcrumb li b {
 
 .status-header {
     color: #7e7e7e;
-    font-size: 16px;
+    font-size: 18px;
     margin-top: 12px;
     margin-bottom: 6px;
+    height: auto;
 }
 
 
@@ -512,9 +513,11 @@ ul.breadcrumb li b {
     background-color: #F8F9FA;
 }
 
-.project-card.status-pending  { background-color: #284555 !important; } 
-.project-card.status-redo     { background-color: #212925 !important; } 
-.project-card.status-rejected { background-color: #284555 !important; } 
+.project-card.status-pending  { background-color: #284555 } 
+.project-card.status-redo     { background-color: #4E4307} 
+.project-card.status-rejected { background-color: #342626 } 
+
+
 
 /* participants list (keith) */
 
@@ -664,6 +667,10 @@ p {
     font-size: 2px;
 }
 
+.link {
+    margin-left: 15px;
+    margin-bottom: 12px;
+}
 
 
 /* forms (keith) */
