@@ -108,7 +108,7 @@ def update
     user_id: @project.supervisor
   ).exists?
 
-  if @project.status == "rejected" || has_supervisor_comment
+  if @project.status == "rejected" || @project.status == "redo" || has_supervisor_comment 
     version = @project.project_instances.maximum(:version).to_i + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
   else
@@ -129,7 +129,7 @@ def update
       end
     end
 
-    @project.update(status: :pending) if @project.status == "rejected"
+    @project.update(status: :pending) if (@project.status == "rejected" || @project.status == "redo")
 
     redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
   else
