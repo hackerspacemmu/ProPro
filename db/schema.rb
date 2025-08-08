@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_07_191601) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_184231) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -36,6 +36,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_07_191601) do
     t.boolean "lecturer_access", null: false
     t.boolean "use_progress_updates", null: false
     t.string "course_description"
+    t.string "file_link"
   end
 
   create_table "enrolments", force: :cascade do |t|
@@ -144,9 +145,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_07_191601) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
+    t.integer "parent_project_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
     t.index ["ownership_id"], name: "index_projects_on_ownership_id"
+    t.index ["parent_project_id"], name: "index_projects_on_parent_project_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -190,5 +193,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_07_191601) do
   add_foreign_key "projects", "courses"
   add_foreign_key "projects", "enrolments"
   add_foreign_key "projects", "ownerships"
+  add_foreign_key "projects", "projects", column: "parent_project_id"
   add_foreign_key "sessions", "users"
 end
