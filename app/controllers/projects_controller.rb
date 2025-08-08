@@ -94,7 +94,7 @@ def update
     return
   elsif @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_supervisor_comment)
     version = @project.project_instances.count + 1
-    @instance = @project.project_instances.build(version: version, created_by: current_user)
+    @instance = @project.project_instances.build(version: version, created_by: current_user, enrolment: @project.supervisor)
   else
     @instance = @project.project_instances.last
   end
@@ -220,7 +220,7 @@ def create
   @instance = @project.project_instances.create!(
     version: 1,
     title: title_value,
-    created_by: current_user
+    created_by: current_user, # TODO: point to lecturer enrolment
   )
 
   # Saves all fields to the instance
