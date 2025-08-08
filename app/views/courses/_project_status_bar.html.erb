@@ -1,4 +1,3 @@
-<% if enrolment&.student? %>
   <div class="status-bar-header">
     <h4 class="status-title">Proposal Status</h4>
   </div>
@@ -23,4 +22,4 @@
     <p class="no-proposal">No proposal submitted yet.</p>
     <%= link_to "Submit Proposal", new_course_project_path(@course), class: "btn" %>
   <% end %>
-<% end %>
+

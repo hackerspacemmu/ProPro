@@ -13,6 +13,19 @@ class Project < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3 }
 
+  scope :pending_for_lecturer, ->(lecturer_enrolment) {
+  includes(:ownership, :enrolment)
+    .where(status: :pending, enrolment: lecturer_enrolment)
+    .joins(:ownership)
+    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+ }
+
+  scope :pending_student_proposals, -> { 
+    includes(:ownership).where(status: 'pending').joins(:ownership)
+    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+  }
+
+
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
   end
@@ -24,4 +37,5 @@ class Project < ApplicationRecord
       [ ownership.user ]
     end
   end
+  
 end

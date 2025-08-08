@@ -38,6 +38,9 @@ class CoursesController < ApplicationController
       @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
       
+      @assigned_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+      @pending_proposals = @course.projects.pending_student_proposals
+      
       
       projects_ownerships = Project.joins(:ownership)
       .where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
