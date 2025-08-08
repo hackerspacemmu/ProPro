@@ -1,0 +1,71 @@
+<section class="supervisors-available" id="supervisors-available">
+  <div class="container">
+    <h4>Supervisors Available</h4>
+    <ul class="supervisors">
+      <%= render partial: 'lecturers', collection: lecturers, as: :lecturer, locals: { course: course } %>
+    </ul>
+  </div>
+</section>
+
+<section class="my-topics" id="my-topics">
+  <div class="container">
+    <header class="section-header">
+      <h4>My Topics</h4>
+      <div class="section-actions">
+        <p class="section-description">Draft topics here. Approved topics appear in your Lecturer View (visible to students)</p>
+        <%= link_to "View All Lecturer Topics", course_topics_path(course), class: "link" %>
+        <% if current_user_enrolment&.lecturer? || current_user_enrolment&.coordinator?  %>
+          <%= link_to "Create Topics", new_course_topic_path(course), class: "link" %>
+        <% end %>
+      </div>
+    </header>
+
+    <% lecturer_topics = topic_list.select { |project| 
+         project.ownership&.owner == current_user && 
+         project.ownership&.lecturer? 
+       } %>
+
+    <% if lecturer_topics.empty? %>
+      <p class="empty-state">You haven't created any topics yet.</p>
+    <% else %>
+      <% %w[pending redo rejected].each do |stat| %>
+        <% group = lecturer_topics.select { |p| p.status.to_s == stat } %>
+        <% if group.any? %>
+          <div class="status-group status-<%= stat %>">
+            <h5 class="status-header"><%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
+            <div class="cards-container">
+              <%= render partial: 'project_card', collection: group, as: :project %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
+<section class="supervisors-available" id="supervisors-available">
+  <div class="container">
+    <h4>Supervisors Available</h4>
+    <ul class="supervisors">
+      <%= render partial: 'lecturers', collection: lecturers, as: :lecturer, locals: { course: course } %>
+    </ul>
+  </div>
+</section>
+
+<section class="pending-proposals" id="pending-proposals">
+  <div class="container">
+    <header class="section-header">
+      <h4>Pending Proposals</h4>
+      <p class="section-description">Student proposals assigned to you for supervision</p>
+    </header>
+    <div class="project-list-gapper">
+      <div class="cards-container">
+        <% if assigned_proposals.any? %>
+          <%= render partial: 'project_card', collection: assigned_proposals, as: :project %>
+        <% else %>
+          <p class="empty-state">No proposals are assigned to you for supervision.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
