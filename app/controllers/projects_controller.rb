@@ -218,7 +218,7 @@ def create
 
   #Create Instance
   @instance = @project.project_instances.create!(
-    version: 0,
+    version: 1,
     title: title_value,
     created_by: current_user
   )
