@@ -22,7 +22,6 @@
      <div class="container">
        <form>
          <h4>Project Details</h4>
-         <h4>Project Details</h4>
          <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
        </form> 
      </div>
@@ -35,7 +34,8 @@
          current_user_enrolment: @current_user_enrolment, 
          topic_list: @topic_list,
          current_user: @current_user, 
-         pending_proposals: @pending_proposals,
+         my_student_projects: @my_student_projects,
+         incoming_proposals: @incoming_proposals,
          lecturers: @lecturers %>
 
    <% elsif @current_user_enrolment&.lecturer? %>
@@ -45,7 +45,8 @@
          current_user_enrolment: @current_user_enrolment,
          topic_list: @topic_list,
          current_user: @current_user,
-         assigned_proposals: @assigned_proposals,
+         my_student_projects: @my_student_projects,
+         incoming_proposals: @incoming_proposals,
          lecturers: @lecturers %>
 
    <% else %>

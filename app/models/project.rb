@@ -21,9 +21,24 @@ class Project < ApplicationRecord
  }
 
   scope :pending_student_proposals, -> { 
-    includes(:ownership).where(status: 'pending').joins(:ownership)
+    includes(:ownership).where(status: ['pending', 'redo', 'rejected']).joins(:ownership)
     .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
   }
+
+  scope :approved_student_proposals, -> {
+  includes(:ownership, :enrolment)
+    .where(status: :approved)
+    .joins(:ownership)
+    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+}
+
+scope :approved_for_lecturer, ->(lecturer_enrolment) {
+  includes(:ownership, :enrolment)
+    .where(status: :approved, enrolment: lecturer_enrolment)
+    .joins(:ownership)
+    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+}
+
 
 
   def supervisor
