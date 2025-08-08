@@ -180,7 +180,7 @@
          </header>
          <div class="project-list-gapper">
            <div class="cards-container">
-             <% assigned_proposals = @course.projects.includes(:ownership, :supervisor_enrolment)
+             <% assigned_proposals = @course.projects.includes(:ownership, :enrolment)
                                             .where(status: 'pending', enrolment: @current_user_enrolment)
                                             .joins(:ownership)
                                             .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] }) %>
