@@ -62,10 +62,16 @@
 
           <div class="field-row">
             <p class="field-label">Lecturer topics require approval?</p>
-            <%= form.radio_button :require_coordinator_approval, true %>
-            <%= form.label :require_coordinator_approval, "True", value: true %>
-            <%= form.radio_button :require_coordinator_approval, false %>
-            <%= form.label :require_coordinator_approval, "False", value: false %>
+            <div class="radio-group">
+              <div class="radio-option">
+                <%= form.radio_button :require_coordinator_approval, true %>
+                <%= form.label :require_coordinator_approval, "True", value: true %>
+              </div>
+              <div class="radio-option">
+                <%= form.radio_button :require_coordinator_approval, false %>
+                <%= form.label :require_coordinator_approval, "False", value: false %>
+              </div>
+            </div>
           </div>
 
           <div class="field-row">
@@ -78,10 +84,16 @@
 
           <div class="field-row">
             <p class="field-label">Use progress updates?</p>
-            <%= form.radio_button :use_progress_updates, true %>
-            <%= form.label :use_progress_updates, "True", value: true %>
-            <%= form.radio_button :use_progress_updates, false %>
-            <%= form.label :use_progress_updates, "False", value: false %>
+            <div class="radio-group">
+              <div class="radio-option">
+                <%= form.radio_button :use_progress_updates, true %>
+                <%= form.label :use_progress_updates, "True", value: true %>
+              </div>
+              <div class="radio-option">
+                <%= form.radio_button :use_progress_updates, false %>
+                <%= form.label :use_progress_updates, "False", value: false %>
+              </div>
+            </div>
           </div>
 
           <div class="field-row">
@@ -95,20 +107,28 @@
 
           <div class="field-row">
             <p class="field-label">Lecturer views public?</p>
-            <%= form.radio_button :lecturer_access, true %>
-            <%= form.label :lecturer_access, "True", value: true %>
-            <%= form.radio_button :lecturer_access, false %>
-            <%= form.label :lecturer_access, "False", value: false %>
+            <div class="radio-group">
+              <div class="radio-option">
+                <%= form.radio_button :lecturer_access, true %>
+                <%= form.label :lecturer_access, "True", value: true %>
+              </div>
+              <div class="radio-option">
+                <%= form.radio_button :lecturer_access, false %>
+                <%= form.label :lecturer_access, "False", value: false %>
+              </div>
+            </div>
           </div>
 
           <div class="field-row">
             <p class="field-label">Student can see projects from:</p>
-            <%= form.collection_radio_buttons :student_access,
-                Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] },
-                :first, :last do |b| %>
-              <%= b.radio_button(class: "form-control") %>
-              <%= b.label(class: "field-label") %>
-            <% end %>
+            <div class="radio-group">
+              <% Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] }.each_with_index do |(value, label_text), idx| %>
+                <div class="radio-option">
+                  <%= form.radio_button :student_access, value, class: "form-control", id: "student_access_#{idx}" %>
+                  <%= form.label :student_access, label_text, value: value, class: "field-label", for: "student_access_#{idx}" %>
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
 
