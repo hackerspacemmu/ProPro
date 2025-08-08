@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_184231) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_194500) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -145,11 +145,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_184231) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
-    t.integer "parent_project_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
     t.index ["ownership_id"], name: "index_projects_on_ownership_id"
-    t.index ["parent_project_id"], name: "index_projects_on_parent_project_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -159,6 +157,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_184231) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "topic_responses", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "project_instance_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_topic_responses_on_project_id"
+    t.index ["project_instance_id"], name: "index_topic_responses_on_project_instance_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -193,6 +200,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_184231) do
   add_foreign_key "projects", "courses"
   add_foreign_key "projects", "enrolments"
   add_foreign_key "projects", "ownerships"
-  add_foreign_key "projects", "projects", column: "parent_project_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "topic_responses", "project_instances"
+  add_foreign_key "topic_responses", "projects"
 end
