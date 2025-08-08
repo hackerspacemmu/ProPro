@@ -1,0 +1,35 @@
+<section class="proposal-status" id="proposal-status">
+  <div class="status-bar-container">
+    <%= render 'project_status_bar', project: project, course: course, enrolment: current_user_enrolment %>
+  </div>
+</section>
+
+<section class="supervisors-available" id="supervisors-available">
+  <div class="container">
+    <h4>Supervisors Available</h4>
+    <ul class="supervisors">
+      <%= render partial: 'lecturers', collection: lecturers, as: :lecturer, locals: { course: course } %>
+    </ul>
+  </div>
+</section>
+
+<section class="available-topics" id="available-topics">
+  <div class="container">
+    <header class="section-header">
+      <h4>Available Topics</h4>
+      <p class="section-description">Topics available for selection</p>
+    </header>
+    <div class="project-list-gapper">
+      <div class="cards-container">
+        <% available_topics = topic_list.select { |project| 
+             project_viewable_by_current_user?(course, project) 
+           } %>
+        <% if available_topics.any? %>
+          <%= render partial: 'project_card', collection: available_topics, as: :project %>
+        <% else %>
+          <p class="empty-state">No topics are currently available.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

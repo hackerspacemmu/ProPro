@@ -1,7 +1,6 @@
 class ProjectsController < ApplicationController
 
 before_action :access
-before_action :check_existing_project, only: [:new, :create]
 
 def show
 
@@ -81,6 +80,8 @@ def edit
   @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
     h[f.project_template_field_id] = f.value
   end
+
+  @preselected_lecturer_id = params[:supervisor_id] || @project.enrolment&.user_id
 end
 
 def update
@@ -102,6 +103,17 @@ def update
   # Set title
   title_field_id = params[:fields].keys.first if params[:fields].present?
   @instance.title = params[:fields][title_field_id] if title_field_id.present?
+
+  if params[:supervisor_id].present?
+    supervisor_enrolment = Enrolment.find_by(user_id: params[:supervisor_id], course_id: @course.id, role: :lecturer)
+    if supervisor_enrolment
+      @project.enrolment = supervisor_enrolment
+      @project.save!
+    else
+      flash[:alert] = "Supervisor not found or invalid."
+      redirect_to course_project_path(@course, @project) and return
+    end
+  end
 
   if @instance.save
     if params[:fields].present?
@@ -142,6 +154,16 @@ def new
     return
   end
 
+  has_project = @course.projects
+    .joins(:ownership)
+    .where(ownerships: { owner: current_user, ownership_type: :student })
+    .exists?
+
+  if has_project
+    redirect_to course_path(@course), alert: "You already have a project in this course."
+    return
+  end
+
   enrolment = Enrolment.find_by(user: current_user, course: @course)
   if enrolment && Project.exists?(enrolment: enrolment)
     redirect_to course_path(@course), alert: "You already have a project."
@@ -149,106 +171,80 @@ def new
   end
 
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+  @preselected_lecturer_id = params[:lecturer_id]
 end
 
-#TODO: MAKE ENROLMENT POINT TO THE CORRECT SUPERVISOR
 def create
   @course = Course.find(params[:course_id])
   grouped = @course.grouped?
   title_value = nil
 
   if grouped
-    #Grouped project
     group = current_user.project_groups.find_by(course: @course)
-
     unless group
       redirect_to course_path(@course), alert: "You're not part of a project group." and return
     end
 
-    existing_project = Project.joins(:ownership)
-                              .where(ownerships: { owner: group, ownership_type: :project_group })
-                              .first
-
-    if existing_project
+    if Project.joins(:ownership).where(ownerships: { owner: group, ownership_type: :project_group }).exists?
       redirect_to course_path(@course), alert: "Your group already has a project." and return
     end
 
-    @ownership = Ownership.create!(
-      owner: group,
-      ownership_type: :project_group
-    )
-
-    #@enrolment = Enrolment.find_or_create_by!(user: current_user, course: @course)
-
+    @ownership = Ownership.create!(owner: group, ownership_type: :project_group)
   else
-    # Individual student project 
     @enrolment = Enrolment.find_by(user: current_user, course: @course)
-    existing_project = Project.find_by(enrolment: @enrolment)
-
-    if existing_project
+    if Project.exists?(enrolment: @enrolment)
       redirect_to course_path(@course), alert: "You already have a project for this course." and return
     end
 
-    @enrolment = Enrolment.find_or_create_by!(
-      user: current_user,
-      course: @course,
-      role: @enrolment&.role || :student
-    )
-
-    @ownership = Ownership.create!(
-      owner: current_user,
-      ownership_type: :student
-    )
+    @enrolment ||= Enrolment.create!(user: current_user, course: @course, role: :student)
+    @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
   end
 
-  # Create project
+  # Supervisor selection
+  supervisor_id = params[:supervisor_id]
+  supervisor_enrolment = Enrolment.find_by(user_id: supervisor_id, course_id: @course.id, role: :lecturer)
+
+  if supervisor_enrolment.nil?
+    redirect_to course_path(@course), alert: "Supervisor not found." and return
+  end
+
+  # Create project, supervised via enrolment
   @project = Project.create!(
     course: @course,
-    enrolment: @enrolment, # TODO: point to lecturer enrolment
+    enrolment: supervisor_enrolment,  # this links to the lecturer
     ownership: @ownership
   )
 
-
+  # Get title
   params[:fields]&.each do |field_id, value|
-    template_field = ProjectTemplateField.find(field_id)
-    if template_field.label.strip.downcase.include?("title")
+    if ProjectTemplateField.find(field_id).label.strip.downcase.include?("title")
       title_value = value
     end
   end
 
-  #Create Instance
   @instance = @project.project_instances.create!(
     version: 1,
     title: title_value,
     created_by: current_user, # TODO: point to lecturer enrolment
   )
 
-  # Saves all fields to the instance
+  #  Save fields
   params[:fields]&.each do |field_id, value|
-    template_field = ProjectTemplateField.find(field_id)
-
     @instance.project_instance_fields.create!(
-      project_template_field: template_field,
+      project_template_field_id: field_id,
       value: value
     )
   end
 
-
   redirect_to course_projects_path(@course), notice: "Project created!"
 end
 
-def check_existing_project
-  @course = Course.find(params[:course_id])
-  enrolment = Enrolment.find_by(user: current_user, course: @course)
-
-  if enrolment && Project.exists?(enrolment: enrolment)
-    redirect_to course_path(@course), alert: "You have already created a project for this course."
-  end
-end
-
-
 
 private
+
+def project_params
+  params.require(:project).permit(:supervisor_id)
+end
 
 # make sure that same logic in helpers/projects_helper.rb
 def access
@@ -308,6 +304,10 @@ def access
       @project.supervisor&.user == current_user
     )
   end
+
+  @lecturers = User.joins(:enrolments)
+                   .where(enrolments: { course_id: @course.id, role: :lecturer })
+                   .distinct
 
   return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
 end

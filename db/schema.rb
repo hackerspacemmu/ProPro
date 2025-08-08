@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema[8.0].define(version: 2025_08_08_202624) do
+=======
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_194500) do
+>>>>>>> c8b7a01ae5afb172c72ca8f8283e458af678b2a5
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -36,6 +40,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_202624) do
     t.boolean "lecturer_access", null: false
     t.boolean "use_progress_updates", null: false
     t.string "course_description"
+    t.string "file_link"
   end
 
   create_table "enrolments", force: :cascade do |t|
@@ -160,6 +165,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_202624) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "topic_responses", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "project_instance_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_topic_responses_on_project_id"
+    t.index ["project_instance_id"], name: "index_topic_responses_on_project_instance_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -193,4 +207,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_202624) do
   add_foreign_key "projects", "enrolments"
   add_foreign_key "projects", "ownerships"
   add_foreign_key "sessions", "users"
+  add_foreign_key "topic_responses", "project_instances"
+  add_foreign_key "topic_responses", "projects"
 end

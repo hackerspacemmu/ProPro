@@ -38,6 +38,16 @@ class CoursesController < ApplicationController
       @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
       
+    if @current_user_enrolment&.coordinator?
+      # Coordinators see all approved and pending student proposals
+      @my_student_projects = @course.projects.approved_student_proposals
+      @incoming_proposals = @course.projects.pending_student_proposals
+    elsif @current_user_enrolment&.lecturer?
+      # Lecturers see only their approved and assigned pending proposals
+      @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+    end
+      
       
       projects_ownerships = Project.joins(:ownership)
       .where(course_id: @course.id, ownerships: { ownership_type: :student, owner_type: "User" })
@@ -202,7 +212,8 @@ class CoursesController < ApplicationController
       use_progress_updates: params[:course][:use_progress_updates],
       number_of_updates: params[:course][:number_of_updates],
       lecturer_access: params[:course][:lecturer_access],
-      student_access: params[:course][:student_access]
+      student_access: params[:course][:student_access],
+      file_link: params[:course][:file_link]
     )
 
     if !@course.save
