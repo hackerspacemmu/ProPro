@@ -154,6 +154,16 @@ def new
     return
   end
 
+  has_project = @course.projects
+    .joins(:ownership)
+    .where(ownerships: { owner: current_user, ownership_type: :student })
+    .exists?
+
+  if has_project
+    redirect_to course_path(@course), alert: "You already have a project in this course."
+    return
+  end
+
   enrolment = Enrolment.find_by(user: current_user, course: @course)
   if enrolment && Project.exists?(enrolment: enrolment)
     redirect_to course_path(@course), alert: "You already have a project."
