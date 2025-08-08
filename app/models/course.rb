@@ -12,6 +12,7 @@ class Course < ApplicationRecord
 
     attribute :supervisor_projects_limit, :integer, default: 1
     attribute :starting_week, :integer, default: 1
+    attribute :number_of_updates, :integer
 
 
     enum :student_access, { owner_only: 0, own_lecturer_only: 1, no_restriction: 2 }
