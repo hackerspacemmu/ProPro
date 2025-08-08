@@ -395,20 +395,35 @@ body {
   display: grid;
   grid-template-columns: 200px 1fr;
   width: 100%;
-  min-height: 60px;
+  min-height: 40px;
 }
 
 .field-label {
   display: flex;
   align-items: flex-start;
   padding: 16px 20px;
+  white-space: pre-line;
 }
 
 .field-value {
   display: flex;
   align-items: flex-start;
   padding: 16px 20px;
+  white-space: pre-line;
 }
+
+.field-value p
+.field-hint p {
+  white-space: pre-line;
+  margin: 0;
+  margin-bottom: 1em;
+}
+
+.field-value p:last-child
+.field-hint p:last-child {
+  margin-bottom: 0;
+}
+
 
 /* ============================================= */
 /* PROJECT FOOTER CONTAINER */
@@ -476,8 +491,8 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 32px;
-  padding: 24px;
+  margin-bottom: 12px;
+  padding: 12px;
 }
 
 .edit-form .field-label {
@@ -496,6 +511,7 @@ body {
   color: #6b7280;
   margin-bottom: 12px;
   line-height: 1.5;
+  white-space: pre-line;
 }
 
 .form-control {
@@ -508,6 +524,7 @@ body {
   line-height: 1.5;
   background-color: #ffffff;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  font-family: inherit;
 }
 
 .form-control:focus {
@@ -523,6 +540,8 @@ body {
 textarea.form-control {
   min-height: 120px;
   resize: vertical;
+  font-size: 16px;
+  font-family: inherit;
 }
 
 .radio-group {
@@ -600,10 +619,32 @@ textarea.form-control {
   height: 24px;
 }
 
+.account-details {
+  margin-bottom: 48px; 
+}
+
+.change-password {
+  margin-bottom: 24px; 
+}
+
+.account-details h4,
+.change-password h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  margin-top: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
 
 /* ============================================= */
 /* RESPONSIVE BREAKPOINTS */
 /* ============================================= */
+
+.field-row .account-details {
+  margin-bottom: 24px;
+}
 
 @media (max-width: 1024px) {
   .project-content {
