@@ -21,7 +21,7 @@
    <section class="proposal-guidelines" id="proposal-guidelines">
      <div class="container">
        <form>
-         <h4>Proposal Description</h4>
+         <h4>Project Details</h4>
          <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
        </form> 
      </div>
@@ -180,8 +180,8 @@
          </header>
          <div class="project-list-gapper">
            <div class="cards-container">
-             <% assigned_proposals = @course.projects.includes(:ownership, :supervisor_enrolment)
-                                            .where(status: 'pending', supervisor_enrolment: @current_user_enrolment)
+             <% assigned_proposals = @course.projects.includes(:ownership, :enrolment)
+                                            .where(status: 'pending', enrolment: @current_user_enrolment)
                                             .joins(:ownership)
                                             .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] }) %>
              <% if assigned_proposals.any? %>

@@ -140,8 +140,18 @@ body {
 .info-value {
   color: #454343;
   font-size: 15px;
+  white-space: pre-line;
 }
 
+.info-value p {
+  white-space: pre-line;
+  margin: 0;
+  margin-bottom: 1em;
+}
+
+.info-value p:last-child {
+  margin-bottom: 0;
+}
 /* ============================================= */
 /* TOPICS SECTION */
 /* ============================================= */
@@ -202,6 +212,8 @@ body {
   color: #6b7280;
   font-size: 16px;
 }
+
+
 
 /* ============================================= */
 /* FOOTER */

@@ -60,10 +60,6 @@ class CommentsController < ApplicationController
       return
     end
 
-    if !comment.deletable
-      return
-    end
-
     if Current.user == comment.user
       comment.update!(deleted: true)
     end

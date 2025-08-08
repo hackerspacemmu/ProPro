@@ -395,7 +395,7 @@ body {
   display: grid;
   grid-template-columns: 200px 1fr;
   width: 100%;
-  min-height: 60px;
+  min-height: 40px;
 }
 
 .field-label {
@@ -423,6 +423,7 @@ body {
 .field-hint p:last-child {
   margin-bottom: 0;
 }
+
 
 /* ============================================= */
 /* PROJECT FOOTER CONTAINER */
@@ -490,8 +491,8 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 32px;
-  padding: 24px;
+  margin-bottom: 12px;
+  padding: 12px;
 }
 
 .edit-form .field-label {
@@ -618,10 +619,32 @@ textarea.form-control {
   height: 24px;
 }
 
+.account-details {
+  margin-bottom: 48px; 
+}
+
+.change-password {
+  margin-bottom: 24px; 
+}
+
+.account-details h4,
+.change-password h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  margin-top: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
 
 /* ============================================= */
 /* RESPONSIVE BREAKPOINTS */
 /* ============================================= */
+
+.field-row .account-details {
+  margin-bottom: 24px;
+}
 
 @media (max-width: 1024px) {
   .project-content {
