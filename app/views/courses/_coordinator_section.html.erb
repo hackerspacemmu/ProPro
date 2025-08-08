@@ -1,18 +1,42 @@
-<section class="pending-proposals" id="pending-proposals">
+<section class="my-student-projects" id="my-student-projects">
   <div class="container">
     <header class="section-header">
-      <h4>Pending Proposals</h4>
-      <p class="section-description">Student proposals awaiting your approval</p>
+      <h4>My Student Projects</h4>
+      <p class="section-description">Approved student projects currently under supervision</p>
     </header>
     <div class="project-list-gapper">
       <div class="cards-container">
-        <% if pending_proposals.any? %>
-          <%= render partial: 'project_card', collection: pending_proposals, as: :project %>
+        <% if my_student_projects.any? %>
+          <%= render partial: 'student_project_card', collection: my_student_projects, as: :project %>
         <% else %>
-          <p class="empty-state">No student proposals are pending approval.</p>
+          <p class="empty-state">No approved student projects yet.</p>
         <% end %>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="incoming-proposals" id="incoming-proposals">
+  <div class="container">
+    <header class="section-header">
+      <h4>Incoming Proposals</h4>
+      <p class="section-description">Student proposals awaiting approval</p>
+    </header>
+    <% if incoming_proposals.empty? %>
+      <p class="empty-state">No student proposals are pending approval.</p>
+    <% else %>
+      <% %w[pending redo rejected].each do |stat| %>
+        <% group = incoming_proposals.select { |p| p.status.to_s == stat } %>
+        <% if group.any? %>
+          <div class="status-group status-<%= stat %>">
+            <h5 class="status-header"><%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
+            <div class="cards-container">
+              <%= render partial: 'project_card', collection: group, as: :project %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
   </div>
 </section>
 
