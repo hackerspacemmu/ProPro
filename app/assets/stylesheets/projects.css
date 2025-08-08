@@ -402,12 +402,26 @@ body {
   display: flex;
   align-items: flex-start;
   padding: 16px 20px;
+  white-space: pre-line;
 }
 
 .field-value {
   display: flex;
   align-items: flex-start;
   padding: 16px 20px;
+  white-space: pre-line;
+}
+
+.field-value p
+.field-hint p {
+  white-space: pre-line;
+  margin: 0;
+  margin-bottom: 1em;
+}
+
+.field-value p:last-child
+.field-hint p:last-child {
+  margin-bottom: 0;
 }
 
 /* ============================================= */
@@ -496,6 +510,7 @@ body {
   color: #6b7280;
   margin-bottom: 12px;
   line-height: 1.5;
+  white-space: pre-line;
 }
 
 .form-control {
@@ -508,6 +523,7 @@ body {
   line-height: 1.5;
   background-color: #ffffff;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  font-family: inherit;
 }
 
 .form-control:focus {
@@ -523,6 +539,8 @@ body {
 textarea.form-control {
   min-height: 120px;
   resize: vertical;
+  font-size: 16px;
+  font-family: inherit;
 }
 
 .radio-group {
