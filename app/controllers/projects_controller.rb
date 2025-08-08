@@ -218,7 +218,7 @@ def create
 
   #Create Instance
   @instance = @project.project_instances.create!(
-    version: 0,
+    version: 1,
     title: title_value,
     created_by: current_user
   )
@@ -234,7 +234,7 @@ def create
   end
 
 
-  redirect_to course_topics_path(@course), notice: "Project created!"
+  redirect_to course_projects_path(@course), notice: "Project created!"
 end
 
 def check_existing_project
@@ -312,5 +312,3 @@ def access
   return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
 end
 end
-
-

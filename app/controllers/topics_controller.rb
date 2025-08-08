@@ -122,9 +122,10 @@ def update
     @instance = @project.project_instances.last
   end
 =end
+  status = @course.require_coordinator_approval ? "pending" : "approved"
   if @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_coordinator_comment)
     version = @project.project_instances.count + 1
-    @instance = @project.project_instances.build(version: version, created_by: current_user)
+    @instance = @project.project_instances.build(version: version, created_by: current_user, status: status)
   else
     @instance = @project.project_instances.last
   end
@@ -217,8 +218,7 @@ def create
       @project = Project.create!(
         course: @course,
         enrolment: @course.coordinator,
-        ownership: @ownership,
-        status: status
+        ownership: @ownership
       )
 
       title_value = nil
@@ -232,9 +232,10 @@ def create
 
       #creates the instance
       @instance = @project.project_instances.create!(
-        version: 0,
+        version: 1,
         title: title_value,
-        created_by: current_user
+        created_by: current_user,
+        status: status
       )
 
       # saves all fields to the instance

@@ -53,7 +53,7 @@
         <div class="metadata-value">
           <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
             <div class="status-control">
-              <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
+              <%= form_with url: change_status_course_topics_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
                 <% statuses = Project.statuses.keys %>
                 <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@project.status}" %>
                 <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
