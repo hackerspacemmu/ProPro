@@ -7,7 +7,7 @@ class MoveSupervisorFromProjectToProjectInstances < ActiveRecord::Migration[8.0]
         project_instance.update_columns(enrolment_id: project_instance.project.enrolment_id)
       end
 
-      change_column_null :project_instances, :enrolment, false
+      change_column_null :project_instances, :enrolment_id, false
     end
   end
 end

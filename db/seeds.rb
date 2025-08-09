@@ -238,7 +238,7 @@ alex_instance_v1 = ProjectInstance.create!(
   submitted_at: "2025-07-15 10:30:00",
   title: "Happy Go Lucky",
   status: "rejected",
-  enrolment: willie_lecturer_enrolment
+  #enrolment: willie_lecturer_enrolment
 )
 
 suhaini_instance = ProjectInstance.create!(
@@ -248,7 +248,7 @@ suhaini_instance = ProjectInstance.create!(
   submitted_at: "2025-07-10 14:20:00",
   title: "My Nice Topic",
   status: "pending",
-  enrolment: willie_lecturer_enrolment
+  #enrolment: willie_lecturer_enrolment
 )
 
 group_instance = ProjectInstance.create!(
@@ -258,7 +258,7 @@ group_instance = ProjectInstance.create!(
   submitted_at: "2025-07-18 16:45:00",
   title: "Difficult Group Project",
   status: "pending",
-  enrolment: willie_lecturer_enrolment
+  #enrolment: willie_lecturer_enrolment
 )
 
 alex_instance_v2 = ProjectInstance.create!(
@@ -268,7 +268,7 @@ alex_instance_v2 = ProjectInstance.create!(
   submitted_at: nil,
   title: "Happy Go Lucky - Revised",
   status: "approved",
-  enrolment: willie_lecturer_enrolment
+  #enrolment: willie_lecturer_enrolment
 )
 
 # Create Project Instance Fields

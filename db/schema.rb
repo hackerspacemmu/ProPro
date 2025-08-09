@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_202624) do
-=======
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_194500) do
->>>>>>> c8b7a01ae5afb172c72ca8f8283e458af678b2a5
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_200924) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -117,7 +113,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_194500) do
     t.datetime "updated_at", null: false
     t.string "title", null: false
     t.integer "status", default: 0, null: false
-    t.integer "enrolment_id"
+    t.integer "enrolment_id", null: false
     t.index ["created_by_id"], name: "index_project_instances_on_created_by_id"
     t.index ["enrolment_id"], name: "index_project_instances_on_enrolment_id"
     t.index ["project_id", "version"], name: "index_project_instances_on_project_id_and_version", unique: true
@@ -145,12 +141,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_194500) do
   end
 
   create_table "projects", force: :cascade do |t|
+    t.integer "enrolment_id", null: false
     t.integer "course_id", null: false
     t.integer "ownership_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
-    t.integer "enrolment_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
     t.index ["ownership_id"], name: "index_projects_on_ownership_id"
@@ -199,6 +195,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_194500) do
   add_foreign_key "project_groups", "courses"
   add_foreign_key "project_instance_fields", "project_instances"
   add_foreign_key "project_instance_fields", "project_template_fields"
+  add_foreign_key "project_instances", "enrolments"
   add_foreign_key "project_instances", "projects"
   add_foreign_key "project_instances", "users", column: "created_by_id"
   add_foreign_key "project_template_fields", "project_templates"
