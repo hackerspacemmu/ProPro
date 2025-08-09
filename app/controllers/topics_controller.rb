@@ -12,6 +12,7 @@ def show
   @instances = @project.project_instances.order(version: :asc)
   @owner = @project.ownership&.owner
   @status = @project.status
+  @topic  = Project.find(params[:id]) 
 
 
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
@@ -98,8 +99,12 @@ def edit
     return
   end
 =end
-  @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
-    h[f.project_template_field_id] = f.value
+  if @instance
+    @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
+      h[f.project_template_field_id] = f.value
+    end
+  else
+    {}
   end
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end
@@ -231,8 +236,7 @@ def create
         version: 1,
         title: title_value,
         created_by: current_user,
-        status: status,
-        enrolment: @course.coordinator
+        status: status
       )
 
       # saves all fields to the instance

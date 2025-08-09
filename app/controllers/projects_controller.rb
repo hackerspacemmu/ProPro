@@ -88,10 +88,11 @@ def update
   has_supervisor_comment = Comment.where(
     project: @project,
     project_version_number: @project.project_instances.count,
-    user_id: @project.supervisor
+    user_id: @project.supervisor&.id
   ).exists?
 
   if @project.status == "approved"
+    redirect_to course_project_path(@course, @project), alert: "Approved projects cannot be edited."
     return
   elsif @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_supervisor_comment)
     version = @project.project_instances.count + 1
@@ -154,21 +155,47 @@ def new
     return
   end
 
-  has_project = @course.projects
-    .joins(:ownership)
-    .where(ownerships: { owner: current_user, ownership_type: :student })
-    .exists?
-
-  if has_project
-    redirect_to course_path(@course), alert: "You already have a project in this course."
-    return
-  end
-
   enrolment = Enrolment.find_by(user: current_user, course: @course)
   if enrolment && Project.exists?(enrolment: enrolment)
     redirect_to course_path(@course), alert: "You already have a project."
     return
   end
+
+  
+  @selected_topic = Project.find_by(id: params[:topic_id]) if params[:topic_id].present?
+  @selected_topic_title = if @selected_topic
+  @selected_topic.project_instances.order(created_at: :asc).first&.title
+  end
+
+@topic_options = []
+@selected_supervisor = nil
+@lock_supervisor = false
+
+@mode = params[:mode]
+
+case @mode
+  when "based_on_topic"
+    if @selected_topic
+      # Show selected topic + Own Proposal
+      title = @selected_topic.project_instances.order(created_at: :asc).first&.title
+      @topic_options = [[title, @selected_topic.id], ["Own Proposal", nil]]
+      @selected_supervisor = @selected_topic.owner
+      @lock_fields = true
+      @lock_supervisor = true
+    else
+      @topic_options = [["Own Proposal", nil]]
+    end
+
+  when "to_supervisor"
+    # Only show Own Proposal
+    @topic_options = [["Own Proposal", nil]]
+    @selected_supervisor = User.find_by(id: params[:supervisor_id]) # supervisor passed in params
+    @lock_supervisor = true if @selected_supervisor.present? && @mode == "to_supervisor"
+
+else
+    @topic_options = [["Own Proposal", nil]]
+  end
+
 
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
   @preselected_lecturer_id = params[:lecturer_id]
@@ -211,11 +238,11 @@ def create
   # Create project, supervised via enrolment
   @project = Project.create!(
     course: @course,
-    enrolment: supervisor_enrolment,  # this links to the lecturer
+    enrolment: supervisor_enrolment,
     ownership: @ownership
   )
 
-  # Get title
+  # Extract title from fields params
   params[:fields]&.each do |field_id, value|
     if ProjectTemplateField.find(field_id).label.strip.downcase.include?("title")
       title_value = value
@@ -226,14 +253,30 @@ def create
     version: 1,
     title: title_value,
     created_by: current_user, # TODO: point to lecturer enrolment
+    title: title_value || "Untitled",
+    created_by: current_user,
+    enrolment_id: supervisor_enrolment.id
   )
 
-  #  Save fields
+  # Save project instance fields
   params[:fields]&.each do |field_id, value|
     @instance.project_instance_fields.create!(
       project_template_field_id: field_id,
       value: value
     )
+  end
+
+  # Create TopicResponse if topic_id is given
+  if params[:topic_id].present?
+    topic_project = Project.find_by(id: params[:topic_id])
+
+    if topic_project
+      latest_topic_instance = topic_project.project_instances.order(version: :asc).first
+      TopicResponses.create!(
+        project_id: @project.id,
+        project_instance_id: latest_topic_instance.id
+      )
+    end
   end
 
   redirect_to course_projects_path(@course), notice: "Project created!"
