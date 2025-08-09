@@ -98,7 +98,7 @@ class CoursesController < ApplicationController
         return
       end
 
-      send_emails(unregistered_lecturers, true)
+      send_emails(unregistered_lecturers)
 
       redirect_to add_students_course_path(@course)
     end
@@ -154,7 +154,7 @@ class CoursesController < ApplicationController
         return
       end
 
-      send_emails(unregistered_students, false)
+      send_emails(unregistered_students)
       redirect_to settings_course_path(@course)
     end
 
@@ -305,7 +305,14 @@ class CoursesController < ApplicationController
             token: SecureRandom.uuid
           )
 
-        unregistered_students.add({:email_address => group_member[:email_address], :otp_token => new_otp_instance.token, :otp => new_otp_instance.otp})
+        unregistered_students.add(
+          {
+           :email_address => group_member[:email_address],
+           :otp_token => new_otp_instance.token,
+           :otp => new_otp_instance.otp,
+           :is_staff => false
+          }
+        )
         else
           new_user.update!(student_id: group_member[:student_id])
         end
@@ -330,18 +337,17 @@ class CoursesController < ApplicationController
     end
   end
 
-  def send_emails(unregistered_users, is_staff)
-    if is_staff
-      unregistered_users.each do |user|
-        GeneralMailer.with(email_address: user[:email_address], otp_token: user[:otp_token], otp: user[:otp]).send_lecturer_invite.deliver_now
-      end
-    else
-      unregistered_users.each do |user|
-        GeneralMailer.with(email_address: user[:email_address], otp_token: user[:otp_token], otp: user[:otp]).send_student_invite.deliver_now
-      end
+  def send_emails(unregistered_users)
+    unregistered_users.each do |user|
+      GeneralMailer.with(
+        email_address: user[:email_address],
+        otp_token: user[:otp_token],
+        otp: user[:otp],
+        is_staff: user[:is_staff]
+      ).ProPro_Invite.deliver_now
     end
   end
-  
+
   def parse_csv_solo(csv_obj, columns_to_check)
     ret = Set[]
 
@@ -380,7 +386,14 @@ class CoursesController < ApplicationController
           token: SecureRandom.uuid
         )
 
-        unregistered_students.add({:email_address => student[:email_address], :otp_token => new_otp_instance.token, :otp => new_otp_instance.otp})
+        unregistered_students.add(
+          {
+           :email_address => student[:email_address],
+           :otp_token => new_otp_instance.token,
+           :otp => new_otp_instance.otp,
+           :is_staff => false
+          }
+        )
       else
         new_user.update!(student_id: student[:student_id])
       end
@@ -416,7 +429,14 @@ class CoursesController < ApplicationController
           token: SecureRandom.uuid
         )
 
-        unregistered_lecturers.add({:email_address => email, :otp_token => new_otp_instance.token, :otp => new_otp_instance.otp})
+        unregistered_lecturers.add(
+          {
+           :email_address => email,
+           :otp_token => new_otp_instance.token,
+           :otp => new_otp_instance.otp,
+           :is_staff => true
+          }
+        )
       end
 
       new_enrolment = Enrolment.find_or_create_by!(

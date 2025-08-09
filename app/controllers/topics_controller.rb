@@ -231,7 +231,8 @@ def create
         version: 1,
         title: title_value,
         created_by: current_user,
-        status: status
+        status: status,
+        enrolment: @course.coordinator
       )
 
       # saves all fields to the instance

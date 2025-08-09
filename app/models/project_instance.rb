@@ -1,6 +1,6 @@
 class ProjectInstance < ApplicationRecord
   belongs_to :project
-  #belongs_to :enrolment
+  belongs_to :enrolment
   belongs_to :created_by, class_name: "User"
 
   attribute :status, :integer, default: :pending
@@ -14,7 +14,7 @@ class ProjectInstance < ApplicationRecord
   def update_parent_project
     if project.project_instances.order(created_at: :asc).last == self
       project.update(status: self.status)
-      #project.update(enrolment: self.enrolment)
+      project.update(enrolment: self.enrolment)
     end
   end
 
