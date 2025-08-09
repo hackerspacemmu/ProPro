@@ -169,6 +169,59 @@ ul.breadcrumb li b {
     text-align: center;
 }
 
+.proposal-guidelines a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.project-file {
+    color: #313848;
+    display: flex;
+    flex-wrap: wrap;
+    z-index: 0;
+    width: 327px;
+    height: 80px;
+    font-size: 14px;
+    border-radius: 12px;
+    border: 2px solid #ebf0f9;
+    overflow: hidden;
+    margin-top: 20px;
+    text-decoration: none;
+    flex-direction: column;
+    align-items: flex-start; 
+    justify-content: flex-start; 
+    padding: 20px; 
+}
+
+.project-file:hover {
+    background-color: #ffffff;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.file-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  width: 40px;
+  height: 40px;
+  background-color: #399be2;
+  border-radius: 10px;
+}
+
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-weight: bold;
+  width: 100%;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+
 .icon {
     width: 20px;
     height: 20px;
@@ -465,7 +518,7 @@ ul.breadcrumb li b {
 
 
 .project-card {
-    color: #FFFFFF;
+    color: #ffffff;
     display: flex;
     flex-wrap: wrap;
     z-index: 0;
