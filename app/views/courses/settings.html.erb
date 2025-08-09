@@ -61,6 +61,15 @@
           </div>
 
           <div class="field-row">
+            <%= form.label :file_link,
+                           "Project file link",
+                           class: "field-label" %><br>
+            <%= form.text_field :file_link,
+                                class: "form-control",
+                                placeholder: "Enter file link" %>
+          </div>
+
+          <div class="field-row">
             <p class="field-label">Lecturer topics require approval?</p>
             <div class="radio-group">
               <div class="radio-option">

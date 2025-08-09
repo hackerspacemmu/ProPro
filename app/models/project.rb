@@ -40,6 +40,9 @@ scope :approved_for_lecturer, ->(lecturer_enrolment) {
 }
 
 
+  belongs_to :parent_project, class_name: 'Project', optional: true
+  has_many :child_projects, class_name: 'Project', foreign_key: 'parent_project_id'
+
 
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)

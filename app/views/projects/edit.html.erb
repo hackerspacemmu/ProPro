@@ -79,8 +79,16 @@
               <% end %>
             </div>
           <% end %>
-        </div>
-        
+
+           <div class="supervisor">
+            <%= label_tag :supervisor_id, "Select Supervisor" %>
+            <%= select_tag :supervisor_id,options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
+              prompt: "Choose a supervisor",
+              class: "form-control",
+              required: true %>
+            </div>
+            
+        </div>             
         <div class="form-actions">
           <%= link_to "← Back to Proposal", course_path(@course) %>
           <%= submit_tag "Submit", class: "btn btn-primary" %>

@@ -15,7 +15,7 @@
         <p class="edit-description">Fill out your proposal details and information below.</p>
       </header>
 
-      <%= form_with url: course_topics_path(@course), method: :post, class: "edit-form" do |form| %>
+      <%= form_with url: course_projects_path(@course), method: :post, class: "edit-form" do |form| %>
         <div class="fields-container">
           <% @template_fields.each do |field| %>
             <div class="field-row">
@@ -49,7 +49,10 @@
             </div>
           <% end %>
         </div>
-
+        <%= select_tag :supervisor_id,options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
+          prompt: "Choose a supervisor",
+          class: "form-control",
+          required: true %>
         <div class="form-actions">
           <%= link_to "← Back to Proposal", course_path(@course) %>
           <%= submit_tag "Create Proposal", class: "btn btn-primary" %>
