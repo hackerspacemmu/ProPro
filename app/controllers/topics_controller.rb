@@ -84,7 +84,7 @@ def edit
     # Create a new version
     version = @project.project_instances.count + 1
     @instance = @project.project_instances.build(version: version, created_by: current_user)
-
+    
     latest_instance = @project.project_instances.order(version: :desc).first
     if latest_instance
       @existing_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
@@ -98,10 +98,10 @@ def edit
     return
   end
 =end
-  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
   @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
-      h[f.project_template_field_id] = f.value
-    end
+    h[f.project_template_field_id] = f.value
+  end
+  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end
 
 def update
@@ -110,7 +110,14 @@ def update
     project_version_number: @project.project_instances.count,
     user_id: @project.supervisor
   ).exists?
-
+=begin
+  if has_coordinator_comment
+    version = @project.project_instances.count + 1
+    @instance = @project.project_instances.build(version: version, created_by: current_user)
+  else
+    @instance = @project.project_instances.last
+  end
+=end
   status = @course.require_coordinator_approval ? "pending" : "approved"
   if @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_coordinator_comment)
     version = @project.project_instances.count + 1
@@ -125,6 +132,14 @@ def update
 
   if @instance.save
     if params[:fields].present?
+=begin
+      params[:fields].each do |field_id, value|
+        field = @instance.project_instance_fields.find_or_initialize_by(project_template_field_id: field_id)
+        field.value = value
+        field.save!
+      end
+    end
+=end
       begin
         ActiveRecord::Base.transaction do
           params[:fields].each do |field_id, value|
@@ -147,7 +162,13 @@ def update
         redirect_to course_project_path(@course, @project), alert: "Project update failed"
       end
     end
-
+=begin
+    if @course.require_coordinator_approval
+      @project.update(status: :pending) if @project.status == "approved"
+    else
+      @project.update(status: :pending) if @project.status == "pending"
+    end
+=end
     redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
@@ -210,8 +231,7 @@ def create
         version: 1,
         title: title_value,
         created_by: current_user,
-        status: status,
-        enrolment: @course.coordinator
+        status: status
       )
 
       # saves all fields to the instance
