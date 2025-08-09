@@ -7,6 +7,8 @@ class Project < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
   delegate :owner, to: :ownership
+  belongs_to :parent_project, class_name: 'Project', optional: true
+  has_many :child_projects, class_name: 'Project', foreign_key: 'parent_project_id'
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
@@ -38,10 +40,6 @@ scope :approved_for_lecturer, ->(lecturer_enrolment) {
     .joins(:ownership)
     .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
 }
-
-
-  belongs_to :parent_project, class_name: 'Project', optional: true
-  has_many :child_projects, class_name: 'Project', foreign_key: 'parent_project_id'
 
 
   def supervisor
