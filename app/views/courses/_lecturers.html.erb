@@ -4,11 +4,17 @@
     <div class="lecturer-item">
       <div class="lecturer-content">
         <div class="lecturer-name"><%= lecturer.username %></div>
-        <span class="capacity">0/4</span>
+        <% capacity_info = @lecturer_capacity_info[lecturer.id] %>
+        <span class="capacity <%= 'at-capacity' if capacity_info[:is_at_capacity] %>">
+          <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %>
+          <% if capacity_info[:pending_proposals] > 0 %>
+            <span class="pending-indicator">(<%= capacity_info[:pending_proposals] %> pending)</span>
+          <% end %>
+        </span>
       </div>
       <div class="lecturer-information">
-        <div class="last-seen">last seen yesterday</div>
-        <div class="avg-time">avg response time – 1 day</div>
+        <div class="last-seen">Statistics coming soon...</div>
+        <div class="avg-time"></div>
       </div>
     </div>
   <% end %>
