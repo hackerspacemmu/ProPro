@@ -96,7 +96,7 @@ def update
     return
   elsif @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_supervisor_comment)
     version = @project.project_instances.count + 1
-    @instance = @project.project_instances.build(version: version, created_by: current_user)
+    @instance = @project.project_instances.build(version: version, created_by: current_user, enrolment: @project.supervisor)
   else
     @instance = @project.project_instances.last
   end
@@ -162,8 +162,10 @@ def new
   end
 
   
-   @selected_topic = Project.find_by(id: params[:topic_id]) if params[:topic_id].present?
-   @selected_topic_title = @selected_topic.project_instances.order(created_at: :desc).first&.title
+  @selected_topic = Project.find_by(id: params[:topic_id]) if params[:topic_id].present?
+  @selected_topic_title = if @selected_topic
+  @selected_topic.project_instances.order(created_at: :asc).first&.title
+  end
 
 @topic_options = []
 @selected_supervisor = nil
@@ -175,7 +177,7 @@ case @mode
   when "based_on_topic"
     if @selected_topic
       # Show selected topic + Own Proposal
-      title = @selected_topic.project_instances.order(created_at: :desc).first&.title
+      title = @selected_topic.project_instances.order(created_at: :asc).first&.title
       @topic_options = [[title, @selected_topic.id], ["Own Proposal", nil]]
       @selected_supervisor = @selected_topic.owner
       @lock_fields = true
@@ -249,8 +251,11 @@ def create
 
   @instance = @project.project_instances.create!(
     version: 1,
+    title: title_value,
+    created_by: current_user, # TODO: point to lecturer enrolment
     title: title_value || "Untitled",
-    created_by: current_user
+    created_by: current_user,
+    enrolment_id: supervisor_enrolment.id
   )
 
   # Save project instance fields
@@ -266,7 +271,7 @@ def create
     topic_project = Project.find_by(id: params[:topic_id])
 
     if topic_project
-      latest_topic_instance = topic_project.project_instances.order(version: :desc).first
+      latest_topic_instance = topic_project.project_instances.order(version: :asc).first
       TopicResponses.create!(
         project_id: @project.id,
         project_instance_id: latest_topic_instance.id

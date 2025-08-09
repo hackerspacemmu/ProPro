@@ -7,7 +7,7 @@
     <div class="project-list-gapper">
       <div class="cards-container">
         <% if my_student_projects.any? %>
-          <%= render partial: 'student_project_card', collection: my_student_projects, as: :project %>
+          <%= render partial: 'project_card', collection: my_student_projects, as: :project %>
         <% else %>
           <p class="empty-state">No approved student projects yet.</p>
         <% end %>
@@ -45,7 +45,11 @@
     <header class="section-header">
       <h4>My Topics</h4>
       <div class="section-actions">
-        <p class="section-description">Draft topics here. Approved topics appear in your Lecturer View (visible to students)</p>
+        <% if course.require_coordinator_approval? %>
+          <p class="section-description">Draft topics here. Approved topics appear in your Lecturer View (visible to students)</p>
+        <% else %>
+          <p class="section-description">Your submitted topics. Only approved topics are visible to students in your Lecturer View.</p>
+        <% end %>
         <%= link_to "View All Lecturer Topics", course_topics_path(course), class: "link" %>
         <% if current_user_enrolment&.lecturer? || current_user_enrolment&.coordinator? %>
           <%= link_to "Create Topics", new_course_topic_path(course), class: "link" %>
