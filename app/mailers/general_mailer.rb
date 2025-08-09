@@ -1,17 +1,11 @@
 class GeneralMailer < ApplicationMailer
     default from: "noreply@propro.click"
 
-    def send_student_invite
+    def ProPro_Invite
       @otp = params[:otp]
       @otp_token = params[:otp_token]
       @email_address = params[:email_address]
-      mail(to: @email_address, Subject: "Invitation for ProPro")
-    end
-
-    def send_lecturer_invite
-      @otp = params[:otp]
-      @otp_token = params[:otp_token]
-      @email_address = params[:email_address]
+      @is_staff = params[:is_staff]
       mail(to: @email_address, Subject: "Invitation for ProPro")
     end
 end
