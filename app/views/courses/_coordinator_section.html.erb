@@ -7,7 +7,7 @@
     <div class="project-list-gapper">
       <div class="cards-container">
         <% if my_student_projects.any? %>
-          <%= render partial: 'student_project_card', collection: my_student_projects, as: :project %>
+          <%= render partial: 'project_card', collection: my_student_projects, as: :project %>
         <% else %>
           <p class="empty-state">No approved student projects yet.</p>
         <% end %>
