@@ -16,6 +16,8 @@
    <header class="course-header">
      <h1><%= @course.course_name.upcase %></h1>
      <h3>Your Course</h3>
+     <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+      <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
    </header>
 
    <section class="proposal-guidelines" id="proposal-guidelines">

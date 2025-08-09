@@ -49,10 +49,27 @@
             </div>
           <% end %>
         </div>
-        <%= select_tag :supervisor_id,options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
-          prompt: "Choose a supervisor",
-          class: "form-control",
-          required: true %>
+        <div class="field-row">
+          <!-- Proposal Type -->
+          <%= form.label :topic_id, "Proposal Type" %>
+          <%= form.select :topic_id,
+              options_for_select(@topic_options, @selected_topic&.id),
+              {},
+              { disabled: @lock_fields } %>
+          <% if @lock_fields %>
+            <%= form.hidden_field :topic_id, value: @selected_topic&.id %>
+          <% end %>
+
+          <!-- Supervisor -->
+          <%= form.select :supervisor_id,
+            options_from_collection_for_select(@lecturers, :id, :username, @selected_supervisor&.id),
+            {},
+            { disabled: @lock_supervisor } %>
+
+          <% if @lock_supervisor %>
+            <%= form.hidden_field :supervisor_id, value: @selected_supervisor&.id %>
+          <% end %>
+        </div>
         <div class="form-actions">
           <%= link_to "← Back to Proposal", course_path(@course) %>
           <%= submit_tag "Create Proposal", class: "btn btn-primary" %>

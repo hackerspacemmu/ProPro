@@ -45,8 +45,11 @@
                 <% end %>
               </div>
             </div>
+                      
+          <%= link_to "Propose Project to this Supervisor",
+            new_course_project_path(@course, supervisor_id: @lecturer.id, mode: "to_supervisor"),
+            class: "btn" %>
 
-             <%= link_to "Propose Project to this Supervisor",new_course_project_path(@course, lecturer_id: @lecturer.id),class: "btn btn-primary" %>
           </header>
 
         <!-- View Topics for Students & Lecturers Viewing Others --!>

@@ -40,6 +40,15 @@
                     current_version: current_version,
                     latest_version: latest_version %>
          <%= render 'topic_fields', fields: @fields %>
+        <%= link_to "Propose Project Based on Topic",
+          new_course_project_path(@course, topic_id: @topic.id, mode: "based_on_topic"),
+          class: "btn" %>
+
+        <%= link_to "Propose Project to this Supervisor",
+        new_course_project_path(@course, topic_id: @topic.id, mode: "to_supervisor", supervisor_id: @topic.owner.id),
+        class: "btn" %>
+
+
          <footer class="project-footer">
            <%= link_to "← Back to Courses", course_path(@course) %>
          </footer>

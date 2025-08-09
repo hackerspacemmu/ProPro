@@ -28,7 +28,18 @@
               No content provided
             <% end %>
           </div>
+          <div class="field-row">
+            <% topic_response = TopicResponses.find_by(project: @project) %>
+            <% if topic_response %>
+              <% topic_instance = ProjectInstance.find_by(id: topic_response.project_instance_id) %>
+              <% topic_title = topic_instance&.title || "Own Proposal" %>
+            <% else %>
+              <% topic_title = "Own Proposal" %>
+            <% end %>
+            <p>Topic: <%= topic_title %></p>
+          </div>
         </div>
       <% end %>
+
     </div>
   </section>

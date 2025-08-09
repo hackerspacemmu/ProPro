@@ -12,6 +12,7 @@ def show
   @instances = @project.project_instances.order(version: :asc)
   @owner = @project.ownership&.owner
   @status = @project.status
+  @topic  = Project.find(params[:id]) 
 
 
   @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
