@@ -7,7 +7,7 @@ class UserController < ApplicationController
   end
 
   def create
-    response = params.permit(:password, :username, :token, :otp)
+    response = params.permit(:password, :password_confirmation, :username, :token, :otp)
     if response[:token].blank?
       return
     end
@@ -20,8 +20,20 @@ class UserController < ApplicationController
     if response[:password].blank?
       redirect_back_or_to "/", alert: "Password cannot be empty"
       return
-    elsif response[:password].length > 72
-      redirect_back_or_to "/", alert: "Password too long"
+    end
+
+    if response[:password_confirmation].blank?
+      redirect_back_or_to "/", alert: "Password confirmation cannot be empty"
+      return
+    end
+
+    if response[:password] != response[:password_confirmation]
+      redirect_back_or_to "/", alert: "Passwords are not the same"
+      return
+    end
+
+    if response[:password].length > 72
+      redirect_back_or_to "/", alert: "Password must be less than 72 characters"
       return
     end
 
