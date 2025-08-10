@@ -1,32 +1,108 @@
-<ul>
-  <% if grouped %>
-    <% group_list&.each do |group| %>
-      <li>
-        <h4><%= group.group_name %></h4>
-        <% gp = Project.joins(:ownership)
-                    .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id }, course: course) %>
-        <p>proposal status: <%= gp&.status || 'no project' %></p>
-        <ul>
-          <% group.project_group_members.includes(:user).each do |m| %>
-            <li><%= m.user.username %></li>
+<section class="participants" id="participants">
+  <div class="container">
+    <header class="section-header">
+      <h4>Participants</h4>
+    </header>
+
+    <% if @course.grouped? %>
+      <!-- Grouped Course: Show Project Groups -->
+      <% if @group_list.present? %>
+        <% %w[approved pending redo rejected not_submitted].each do |status| %>
+          <% groups_for_status = groups_by_status(status, @group_list, @course) %>
+          <% if groups_for_status.any? %>
+            <div class="status-group status-<%= status %>">
+              <h5 class="status-header">
+                <%= status.humanize %> 
+                <%= image_tag "#{status}.svg", class: "status-indicator-icon" %>
+              </h5>
+              <div class="table-container">
+                <table class="participants-table">
+                  <thead>
+                    <tr>
+                      <th>Group Name</th>
+                      <th>Members</th>
+                      <th>Project Title</th>
+                      <th>Supervisor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% groups_for_status.each do |group| %>
+                      <% group_project = group_project_for(group, @course) %>
+                      <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
+                      <tr>
+                        <td></td>                   
+                        <td>
+                          <ul class="member-list">
+                            <% group.project_group_members.includes(:user).each do |member| %>
+                              <li><%= member.user.username %></li>  
+                            <% end %>
+                          </ul>
+                        </td>
+                        <td><%= latest_instance&.title || '-' %></td>
+                        <td><%= group_project&.supervisor&.username || '-' %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           <% end %>
-        </ul>
-      </li>
+        <% end %>
+      <% else %>
+        <p class="empty-state">No Groups/Students have been added yet.</p>
+      <% end %>
+
+    <% else %>
+      <!-- Individual Course: Show Students -->
+      <% if @student_list.present? %>
+        <% %w[approved pending redo rejected not_submitted].each do |status| %>
+          <% students_for_status = students_by_status(status, @student_list, @students_with_projects, @students_without_projects, @course) %>
+          <% if students_for_status.any? %>
+            <div class="status-group status-<%= status %>">
+              <h5 class="status-header">
+                <%= status.humanize %> 
+                <%= image_tag "#{status}.svg", class: "status-indicator-icon" %>
+              </h5>
+              <div class="table-container">
+                <table class="participants-table">
+                  <thead>
+                    <tr>
+                      <th>Student Name</th>
+                      <th>Student ID</th>
+                      <th>Project Title</th>
+                      <th>Supervisor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% students_for_status.each do |student| %>
+                      <% student_project = student_project_for(student, @course) %>
+                      <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
+                      <tr>
+                        <td></td>
+                        <td><%= student.student_id || '-' %></td>
+                        <td><%= latest_instance&.title || '-' %></td>
+                        <td><%= student_project&.supervisor&.username || '-' %></td>                          
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% else %>
+        <p class="empty-state">No students have been enrolled yet.</p>
+      <% end %>
     <% end %>
-  <% else %>
-    <% students_with.each do |student| %>
-      <% sp = Project.joins(:ownership)
-                .find_by(ownerships: { owner_type: 'User', owner_id: student.id }, course: course) %>
-      <li>
-        <h4><%= student.username %></h4>
-        <p>proposal status: <%= sp&.status || 'pending' %></p>
-      </li>
-    <% end %>
-    <% students_without.each do |student| %>
-      <li>
-        <h4><%= student.username %></h4>
-        <p>proposal status: no project</p>
-      </li>
-    <% end %>
-  <% end %>
-</ul>
+
+    <!-- Summary Statistics -->
+    <div class="participants-summary">
+      <% if @course.grouped? %>
+        <p><strong>Total Groups:</strong> <%= @group_list&.count || 0 %></p>
+        <p><strong>Total Students:</strong> <%= @student_list&.count || 0 %></p>
+      <% else %>
+        <p><strong>Total Students:</strong> <%= @student_list&.count || 0 %></p>
+      <% end %>
+    </div>
+  </div>
+</section>
