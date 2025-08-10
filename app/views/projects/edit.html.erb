@@ -18,14 +18,8 @@
           Update your project details and information below.
         </p>
       </header>
-      
-      <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, class: "edit-form") do |form| %>
-
-        <!-- Disabled title field -->
-        <div class="field-row">
-          <%= form.label :title, "Project Title", class: "field-label" %>
-          <%= form.text_field(:title, value: @instance&.title, disabled: true, class: "form-control disabled", title: "You cannot edit this field.") %>
-        </div>
+     
+      <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
 
         <div class="fields-container">
           <% @template_fields.each do |field| %>
@@ -34,13 +28,10 @@
                             field.label,
                             class: "field-label",
                             title: field.hint %>
-
               <% if field.hint.present? %>
                 <p class="field-hint"><%= field.hint %></p>
               <% end %>
-
               <% existing_value = @existing_values[field.id] %>
-
               <% case field.field_type %>
               <% when "shorttext" %>
                 <%= text_field_tag "fields[#{field.id}]",
@@ -62,15 +53,19 @@
                               class: "form-control",
                               required: true %>
               <% when "radio" %>
-                <% options = field.option_list %>
-                <% options.each_with_index do |option, idx| %>
-                  <%= radio_button_tag "fields[#{field.id}]",
-                                       option,
-                                       (option == existing_value),
-                                       id: "field_#{field.id}_#{idx}",
-                                       required: true %>
-                  <%= label_tag "field_#{field.id}_#{idx}", option %>
-                <% end %>
+                <div class="radio-group">
+                  <% options = field.option_list %>
+                  <% options.each_with_index do |option, idx| %>
+                    <div class="radio-option">
+                      <%= radio_button_tag "fields[#{field.id}]",
+                                           option,
+                                           (option.to_s == existing_value.to_s),
+                                           id: "field_#{field.id}_#{idx}",
+                                           required: true %>
+                      <%= label_tag "field_#{field.id}_#{idx}", option %>
+                    </div>
+                  <% end %>
+                </div>
               <% else %>
                 <%= text_field_tag "fields[#{field.id}]",
                                   existing_value,
@@ -79,18 +74,21 @@
               <% end %>
             </div>
           <% end %>
+        </div>
 
-           <div class="supervisor">
-            <%= label_tag :supervisor_id, "Select Supervisor" %>
-            <%= select_tag :supervisor_id,options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
-              prompt: "Choose a supervisor",
-              class: "form-control",
-              required: true %>
-            </div>
-            
-        </div>             
+        <div class="fields-container">
+          <div class="field-row">
+            <%= label_tag :supervisor_id, "Select Supervisor", class: "field-label" %>
+            <%= select_tag :supervisor_id,
+                          options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
+                          prompt: "Choose a supervisor",
+                          class: "form-control",
+                          required: true %>
+          </div>
+        </div>
+           
         <div class="form-actions">
-          <%= link_to "← Back to Proposal", course_path(@course) %>
+          <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>
           <%= submit_tag "Submit", class: "btn btn-primary" %>
         </div>
       <% end %>
