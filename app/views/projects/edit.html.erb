@@ -76,16 +76,37 @@
           <% end %>
         </div>
 
-        <div class="fields-container">
-          <div class="field-row">
-            <%= label_tag :supervisor_id, "Select Supervisor", class: "field-label" %>
-            <%= select_tag :supervisor_id,
-                          options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
-                          prompt: "Choose a supervisor",
-                          class: "form-control",
-                          required: true %>
+          <div class="field">
+            <label>Based on Topic</label><br />
+            <select name="based_on_topic" class="form-control" required>
+              <% @lecturer_options.each do |lecturer_enrolment| %>
+                <% lecturer = lecturer_enrolment.user %>
+                <optgroup label="<%= lecturer.username %>">
+                  <% approved_topics = Project
+                      .joins(:ownership)
+                      .where(ownerships: { owner: lecturer, ownership_type: :lecturer })
+                      .joins(:project_instances)
+                      .where(project_instances: { status: :approved })
+                      .distinct %>
+
+                  <% approved_topics.each do |topic| %>
+                    <% latest_instance = topic.project_instances
+                                          .where(status: :approved)
+                                          .order(version: :desc)
+                                          .first %>
+                    <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
+                      <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
+                    </option>
+                  <% end %>
+
+                  <option value="own_proposal_<%= lecturer.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer.id %>>
+                    <%= "#{lecturer.username} - Own Proposal" %>
+                  </option>
+                </optgroup>
+              <% end %>
+            </select>
           </div>
-        </div>
+
            
         <div class="form-actions">
           <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>

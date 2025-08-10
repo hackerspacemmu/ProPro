@@ -52,11 +52,32 @@
           <% end %>
         </div>
         
-        <%= select_tag :supervisor_id,options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
-          prompt: "Choose a supervisor",
-          class: "form-control",
-          required: true %>
-        <div class="form-actions">
+        <div class="field">
+          <label>Supervisor</label><br />
+          <%= select_tag :supervisor_id,
+                        options_for_select(@lecturer_options, @preselected_lecturer_id),
+                        class: "form-control",
+                        disabled: @lock_supervisor,
+                        required: true %>
+
+          <%# Only add hidden field if locked, so param is submitted when disabled %>
+          <% if @lock_supervisor && @preselected_lecturer_id.present? %>
+            <%= hidden_field_tag :supervisor_id, @preselected_lecturer_id %>
+          <% end %>
+        </div>
+
+        <div class="field">
+          <label>Based on Topic</label><br />
+          <select class="form-control" disabled="<%= @lock_topic %>">
+            <% if @based_on_topic_name.present? %>
+              <option selected><%= @based_on_topic_name %></option>
+            <% else %>
+              <option selected>Own Proposal</option>
+            <% end %>
+          </select>
+        </div>
+        <br>      
+        </div>
           <%= link_to "← Back to Proposal", course_path(@course) %>
           <%= submit_tag "Create Proposal", class: "btn btn-primary" %>
         </div>
