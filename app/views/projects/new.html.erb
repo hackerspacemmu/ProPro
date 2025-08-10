@@ -32,11 +32,8 @@
                 <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
 
               <% when "dropdown" %>
-                <%= select_tag "fields[#{field.id}]",
-                  options_for_select(
-                    field.options.to_s.delete("[]").split(',').map(&:strip)
-                  ),
-                  prompt: "Select an option", class: "form-control", required: true %>
+                <% options = field.option_list %>
+                <%= select_tag "fields[#{field.id}]", options_for_select(options), prompt: "Select an option", class: "form-control", required: true %>
 
               <% when "radio" %>
                 <div class="radio-group">
@@ -46,7 +43,9 @@
                     <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
                     <%= label_tag "field_#{field.id}_#{idx}", option %>
                   </div>
-              <% else %>
+              <% end %>
+              </div>
+              <% else %>          
                 <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
               <% end %>
             </div>
