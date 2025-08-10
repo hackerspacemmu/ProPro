@@ -125,7 +125,7 @@ def update
   status = @course.require_coordinator_approval ? "pending" : "approved"
   if @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_coordinator_comment)
     version = @project.project_instances.count + 1
-    @instance = @project.project_instances.build(version: version, created_by: current_user, status: status)
+    @instance = @project.project_instances.build(version: version, created_by: current_user, status: status, enrolment: @project.enrolment)
   else
     @instance = @project.project_instances.last
   end
