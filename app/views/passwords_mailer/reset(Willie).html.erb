@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Password Reset Request on ProPro</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #efefef; font-family: Inter, sans-serif;">
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #efefef;">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #f8f9fa; border-radius: 16px; max-width: 600px; width: 100%;">
+
+                    <tr>
+                        <td style="background-color: #e1e1e1; border-radius: 16px 16px 0 0; padding: 25px; text-align: center;">
+                            <h1 style="margin: 0; color: #000000; font-size: 24px; font-family: Arial, sans-serif;">
+                                <strong>Password Reset Request on ProPro!</strong>
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 24px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
+                                        <p style="margin: 0 0 16px 0;">
+                                            Someone has hit the Forgot Password function on ProPro and requested for a password reset link for your account. ProPro is a web app for <strong>Pro</strong>ject <strong>Pro</strong>posals and <strong>Pro</strong>gress monitoring. It is ideal for educators managing student projects where students propose their ideas for approval!
+                                        </p>
+                                        <p style="margin: 16px 0;">
+                                            If this was you, proceed to reset your password in the next 15 minutes using the link below.
+                                        </p>
+                                        <p style="margin: 16px 0;">
+                                            <%= link_to "this password reset page", edit_password_url(@user.password_reset_token) %>.
+                                        </p>
+                                        <p style="margin: 16px 0;">
+                                            If this was not you, please ignore this email.
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
+                                        <p style="margin: 20px 0;">
+                                            Keep your password safe and do not share it with a third party. ProPro or its staff will never request for your password.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
