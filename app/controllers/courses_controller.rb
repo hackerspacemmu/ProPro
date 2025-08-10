@@ -208,6 +208,7 @@ class CoursesController < ApplicationController
 
   def handle_settings
     @course.update(
+      course_name: params[:course][:course_name],
       course_description: params[:course][:course_description],
       supervisor_projects_limit: params[:course][:supervisor_projects_limit],
       require_coordinator_approval: params[:course][:require_coordinator_approval],
