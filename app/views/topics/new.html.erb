@@ -39,6 +39,7 @@
                               class: "form-control",
                               required: true %>
 
+
               <% when "radio" %>
                 <div class="radio-group">
                 <% options = field.option_list %>
@@ -47,6 +48,7 @@
                     <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
                     <%= label_tag "field_#{field.id}_#{idx}", option %>
                   </div>
+                <% end %>
               <% else %>
                 <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
               <% end %>

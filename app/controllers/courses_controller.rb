@@ -32,6 +32,7 @@ class CoursesController < ApplicationController
             ownership_type: :student  
           )
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
+
       end
 
       @description = @course.course_description
