@@ -103,7 +103,7 @@ def edit
       h[f.project_template_field_id] = f.value
     end
   else
-    {}
+    @existing_values = {}
   end
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end

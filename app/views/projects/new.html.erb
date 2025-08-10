@@ -39,16 +39,20 @@
                   prompt: "Select an option", class: "form-control", required: true %>
 
               <% when "radio" %>
-                  <% field.options.to_s.delete("[]").split(',').map(&:strip).each_with_index do |option, idx| %>
+                <div class="radio-group">
+                <% options = field.option_list %>
+                <% options.each_with_index do |option, idx| %>
+                  <div class="radio-option">
                     <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
                     <%= label_tag "field_#{field.id}_#{idx}", option %>
-                  <% end %>
+                  </div>
               <% else %>
                 <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
               <% end %>
             </div>
           <% end %>
         </div>
+        
         <%= select_tag :supervisor_id,options_from_collection_for_select(@lecturers, :id, :username, @preselected_lecturer_id),
           prompt: "Choose a supervisor",
           class: "form-control",
