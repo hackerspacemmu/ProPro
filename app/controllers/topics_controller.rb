@@ -98,8 +98,12 @@ def edit
     return
   end
 =end
-  @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
-    h[f.project_template_field_id] = f.value
+  if @instance
+    @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
+      h[f.project_template_field_id] = f.value
+    end
+  else
+    {}
   end
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 end
