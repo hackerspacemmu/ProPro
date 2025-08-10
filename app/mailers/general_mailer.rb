@@ -1,6 +1,4 @@
 class GeneralMailer < ApplicationMailer
-    default from: "noreply@propro.click"
-
     def ProPro_Invite
       @otp = params[:otp]
       @otp_token = params[:otp_token]
