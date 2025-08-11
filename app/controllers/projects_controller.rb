@@ -140,7 +140,8 @@ def update
             else
               @instance.project_instance_fields.create!(
                 project_template_field_id: field_id,
-                value: value
+                value: value,
+                enrolment: @project.supervisor
               )
             end
           end
@@ -274,7 +275,7 @@ def create
       redirect_to course_path(@course), alert: "You already have a project for this course." and return
     end
 
-    @enrolment ||= Enrolment.create!(user: current_user, course: @course, role: :student)
+    #@enrolment ||= Enrolment.create!(user: current_user, course: @course, role: :student)
     @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
   end
 

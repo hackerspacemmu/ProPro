@@ -44,6 +44,16 @@
 
         <div class="fields-container">
           <div class="field-row">
+            <%= form.label :course_name,
+                           "Course name",
+                           class: "field-label" %><br>
+            <%= form.text_field :course_name,
+                                class: "form-control",
+                                required: true,
+                                placeholder: "Enter course name" %>
+          </div>
+
+          <div class="field-row">
             <%= form.label :course_description, "Project details", class: "field-label" %><br>
             <%= form.text_area :course_description,
                                class: "form-control",

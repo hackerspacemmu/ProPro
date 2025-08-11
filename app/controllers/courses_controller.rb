@@ -32,6 +32,7 @@ class CoursesController < ApplicationController
             ownership_type: :student  
           )
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
+
       end
 
       @description = @course.course_description
@@ -208,6 +209,7 @@ class CoursesController < ApplicationController
 
   def handle_settings
     @course.update(
+      course_name: params[:course][:course_name],
       course_description: params[:course][:course_description],
       supervisor_projects_limit: params[:course][:supervisor_projects_limit],
       require_coordinator_approval: params[:course][:require_coordinator_approval],
