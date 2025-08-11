@@ -9,7 +9,14 @@ class CoursesController < ApplicationController
 
 
     def show
-      
+      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @description = @course.course_description
+      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @group_list = @course.grouped? ? @course.project_groups.to_a : []
+      @my_student_projects = []
+      @incoming_proposals = []
+
       if @course.grouped?
         @group = current_user.project_groups.find_by(course: @course)
         
@@ -20,10 +27,9 @@ class CoursesController < ApplicationController
             ownership_type: :student  
             )
           @project = group_ownership ? Project.find_by(ownership: group_ownership, course: @course) : nil
+        else
+          @project = nil
         end
-
-        @group_list = @course.project_groups
-
       else
           @group = nil
           user_ownership = Ownership.find_by(
@@ -34,26 +40,23 @@ class CoursesController < ApplicationController
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
 
       end
-
-      @description = @course.course_description
-      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
-      @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
-      
+    
+    # SET COORDINATOR & LECTURER VARIABLES
     if @current_user_enrolment&.coordinator?
-      # Coordinators see all approved and pending student proposals
       @my_student_projects = @course.projects.approved_student_proposals
       @incoming_proposals = @course.projects.pending_student_proposals
     elsif @current_user_enrolment&.lecturer?
-      # Lecturers see only their approved and assigned pending proposals
       @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
       @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
     end
       
+      # SET LECTURER CAPACITY INFO
       @lecturer_capacity_info = {}
       @lecturers.each do |lecturer|
         @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
       end
 
+      # SET STUDENT PROJECTS
       projects_ownerships = @course.projects.approved_student_proposals
       .joins(:ownership)
       .where(ownerships: { owner_type: "User" })
@@ -517,6 +520,5 @@ def lecturer_capacity_info(lecturer, course)
     is_at_capacity: approved_count >= max_capacity,
   }
 end
-
 end
 
