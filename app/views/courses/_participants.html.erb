@@ -7,47 +7,44 @@
     <% if @course.grouped? %>
       <!-- Grouped Course: Show Project Groups -->
       <% if @group_list.present? %>
-        <% %w[approved pending redo rejected not_submitted].each do |status| %>
-          <% groups_for_status = groups_by_status(status, @group_list, @course) %>
-          <% if groups_for_status.any? %>
-            <div class="status-group status-<%= status %>">
-              <h5 class="status-header">
-                <%= status.humanize %> 
-                <%= image_tag "#{status}.svg", class: "status-indicator-icon" %>
-              </h5>
-              <div class="table-container">
-                <table class="participants-table">
-                  <thead>
-                    <tr>
-                      <th>Group Name</th>
-                      <th>Members</th>
-                      <th>Project Title</th>
-                      <th>Supervisor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% groups_for_status.each do |group| %>
-                      <% group_project = group_project_for(group, @course) %>
-                      <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
-                      <tr>
-                        <td></td>                   
-                        <td>
-                          <ul class="member-list">
-                            <% group.project_group_members.includes(:user).each do |member| %>
-                              <li><%= member.user.username %></li>  
-                            <% end %>
-                          </ul>
-                        </td>
-                        <td><%= latest_instance&.title || '-' %></td>
-                        <td><%= group_project&.supervisor&.username || '-' %></td>
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          <% end %>
-        <% end %>
+        <div class="table-container">
+          <table class="participants-table">
+            <thead>
+              <tr>
+                <th><%= image_tag "alphabet.svg" %> Group Name</th>
+                <th><%= image_tag "person_grey.svg" %> Members</th>
+                <th><%= image_tag "project.svg" %> Project Title</th>
+                <th><%= image_tag "status_grey.svg" %> Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @group_list.each do |group| %>
+                <% group_project = group_project_for(group, @course) %>
+                <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
+                <% status = get_group_status(group, @course) %>
+                <tr>
+                  <td><%= group.name || "Group #{group.id}" %></td>
+                  <td>
+                    <ul class="member-list">
+                      <% group.project_group_members.includes(:user).each do |member| %>
+                        <li><%= member.user.username %></li>  
+                      <% end %>
+                    </ul>
+                  </td>
+                  <td><%= latest_instance&.title || '-' %></td>
+                  <td>
+                    <div class="participant-status-badge-<%= status %>">
+                      <span class="participant-status">
+                        <div class="status-indicator"></div>
+                        <%= status.humanize %>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       <% else %>
         <p class="empty-state">No Groups/Students have been added yet.</p>
       <% end %>
@@ -55,41 +52,41 @@
     <% else %>
       <!-- Individual Course: Show Students -->
       <% if @student_list.present? %>
-        <% %w[approved pending redo rejected not_submitted].each do |status| %>
-          <% students_for_status = students_by_status(status, @student_list, @students_with_projects, @students_without_projects, @course) %>
-          <% if students_for_status.any? %>
-            <div class="status-group status-<%= status %>">
-              <h5 class="status-header">
-                <%= status.humanize %> 
-                <%= image_tag "#{status}.svg", class: "status-indicator-icon" %>
-              </h5>
-              <div class="table-container">
-                <table class="participants-table">
-                  <thead>
-                    <tr>
-                      <th>Student Name</th>
-                      <th>Student ID</th>
-                      <th>Project Title</th>
-                      <th>Supervisor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% students_for_status.each do |student| %>
-                      <% student_project = student_project_for(student, @course) %>
-                      <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
-                      <tr>
-                        <td></td>
-                        <td><%= student.student_id || '-' %></td>
-                        <td><%= latest_instance&.title || '-' %></td>
-                        <td><%= student_project&.supervisor&.username || '-' %></td>                          
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          <% end %>
-        <% end %>
+        <div class="table-container">
+          <table class="participants-table">
+            <thead>
+              <tr>
+                <th><%= image_tag "alphabet.svg" %> Student Name</th>
+                <th><%= image_tag "person_grey.svg" %> Student ID</th>
+                <th><%= image_tag "project.svg" %> Project Title</th>
+                <th><%= image_tag "status_grey.svg" %> Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @student_list.each do |student| %>
+                <% student_project = student_project_for(student, @course) %>
+                <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
+                <% status = get_student_status(student, @course) %>
+                <tr>
+                  <td>
+                    <div class="profile-container">
+                      <div class="profile-avatar"><%= student.username.first.upcase %></div> 
+                      <span><%= student.username || '-' %></span>
+                    </div>
+                  </td>
+                  <td><%= student.student_id || '-' %></td>
+                  <td><%= latest_instance&.title || '-' %></td>
+                  <td>
+                    <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                      <%= status.humanize %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       <% else %>
         <p class="empty-state">No students have been enrolled yet.</p>
       <% end %>

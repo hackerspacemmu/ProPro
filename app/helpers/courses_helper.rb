@@ -54,4 +54,26 @@ module CoursesHelper
       []
     end
   end
+
+  def get_group_status(group, course)
+    project = group_project_for(group, course)
+    return 'not_submitted' unless project
+    project.status.to_s
+  end
+
+  def get_student_status(student, course)
+    project = student_project_for(student, course)
+    return 'not_submitted' unless project
+    project.status.to_s
+  end
+
+  def filtered_group_list
+    return @group_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+    groups_by_status(params[:status_filter], @group_list, @course)
+  end
+
+  def filtered_student_list
+    return @student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+    students_by_status(params[:status_filter], @student_list, @students_with_projects, @students_without_projects, @course)
+  end
 end
