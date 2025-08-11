@@ -81,10 +81,20 @@ def edit
     h[f.project_template_field_id] = f.value
   end
 
-  @preselected_lecturer_id = params[:supervisor_id] || @project.enrolment&.user_id
+  @preselected_lecturer_id = params[:lecturer_id] || params[:supervisor_id]
+  @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
+
+  # Optionally preselect topic or own proposal
+  @selected_topic_id = params[:topic_id].presence&.to_i
+  @selected_own_proposal_lecturer_id = nil
+  if params[:own_proposal_lecturer_id].present?
+    @selected_own_proposal_lecturer_id = params[:own_proposal_lecturer_id].to_i
+    @selected_topic_id = nil
+  end
 end
 
 def update
+  based_on_topic_param = params[:based_on_topic]
   has_supervisor_comment = Comment.where(
     project: @project,
     project_version_number: @project.project_instances.count,
@@ -147,6 +157,48 @@ def update
     @template_fields = @course.project_template.project_template_fields
     render :edit
   end
+
+  if based_on_topic_param.present?
+  if based_on_topic_param.start_with?("own_proposal_")
+    # Extract lecturer ID from value
+    lecturer_id = based_on_topic_param.split("_").last.to_i
+
+    # Find lecturer enrolment for course
+    supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
+
+    if supervisor_enrolment
+      @project.enrolment = supervisor_enrolment
+      @project.save!
+    else
+      flash[:alert] = "Selected supervisor not found or invalid."
+      redirect_to course_project_path(@course, @project) and return
+    end
+
+  else
+    # Treat as topic_id
+    topic_id = based_on_topic_param.to_i
+    topic = Project.find_by(id: topic_id)
+
+    if topic
+      # Set supervisor enrolment to the owner of the topic (assuming you want this)
+      topic_owner = topic.ownership&.owner
+      if topic_owner.is_a?(User)
+        supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
+        if supervisor_enrolment
+          @project.enrolment = supervisor_enrolment
+          @project.save!
+        else
+          flash[:alert] = "Supervisor from topic owner not found."
+          redirect_to course_project_path(@course, @project) and return
+        end
+      end
+    else
+      flash[:alert] = "Selected topic not found."
+      redirect_to course_project_path(@course, @project) and return
+    end
+  end
+end
+
 end
 
 def new
@@ -172,7 +224,33 @@ def new
   end
 
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+  @lecturer_options = Enrolment.where(course: @course, role: :lecturer)
+                            .includes(:user)
+                            .map { |e| [e.user.username, e.user.id] }
+
+if params[:topic_id].present?
+  topic = Project.find(params[:topic_id])
+  approved_instance = topic.project_instances.where(status: :approved).order(version: :asc).first
+  @based_on_topic_name = approved_instance&.title || "Unknown Topic"
+  @based_on_topic_supervisor_id = topic.ownership&.owner&.id
+  @preselected_lecturer_id = @based_on_topic_supervisor_id if @based_on_topic_supervisor_id.present?
+  @lock_supervisor = true
+  @lock_topic = true
+elsif params[:lecturer_id].present?
+  @based_on_topic_name = nil
+  @based_on_topic_supervisor_id = nil
   @preselected_lecturer_id = params[:lecturer_id]
+  @lock_supervisor = true   
+  @lock_topic = true
+else
+  @based_on_topic_name = nil
+  @based_on_topic_supervisor_id = nil
+  @preselected_lecturer_id = nil
+  @lock_supervisor = false    # LOCK supervisor dropdown otherwise
+  @lock_topic = true
+end
+
+  
 end
 
 def create
@@ -226,7 +304,7 @@ def create
   @instance = @project.project_instances.create!(
     version: 1,
     title: title_value,
-    created_by: current_user, # TODO: point to lecturer enrolment
+    created_by: current_user, # TODO: point to lecturer enrolment,
     enrolment: supervisor_enrolment
   )
 
