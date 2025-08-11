@@ -229,7 +229,7 @@ def new
 
 if params[:topic_id].present?
   topic = Project.find(params[:topic_id])
-  approved_instance = topic.project_instances.where(status: :approved).order(version: :desc).first
+  approved_instance = topic.project_instances.where(status: :approved).order(version: :asc).first
   @based_on_topic_name = approved_instance&.title || "Unknown Topic"
   @based_on_topic_supervisor_id = topic.ownership&.owner&.id
   @preselected_lecturer_id = @based_on_topic_supervisor_id if @based_on_topic_supervisor_id.present?
