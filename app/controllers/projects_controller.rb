@@ -140,8 +140,7 @@ def update
             else
               @instance.project_instance_fields.create!(
                 project_template_field_id: field_id,
-                value: value,
-                enrolment: @project.supervisor
+                value: value
               )
             end
           end
@@ -150,7 +149,21 @@ def update
         redirect_to course_project_path(@course, @project), alert: "Project update failed"
       end
     end
+    @current_instance = @project.project_instances.last
+    topic_response = TopicResponses.find_by(
+      project_instance_id: @current_instance
+    )
+    topic = Project.find(params[:topic_id])
 
+    if !topic
+      return
+    end
+
+    if topic_response
+      topic_response.update!(project: topic)
+    else
+      TopicResponse.create!(project: topic, project_instance: @current_instance)
+    end
     redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
   else
     flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
@@ -180,7 +193,7 @@ def update
     topic = Project.find_by(id: topic_id)
 
     if topic
-      # Set supervisor enrolment to the owner of the topic (assuming you want this)
+      # Set supervisor enrolment to the owner of the topic 
       topic_owner = topic.ownership&.owner
       if topic_owner.is_a?(User)
         supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
@@ -212,10 +225,10 @@ def new
     .where(ownerships: { owner: current_user, ownership_type: :student })
     .exists?
 
-  if has_project
-    redirect_to course_path(@course), alert: "You already have a project in this course."
-    return
-  end
+  #if has_project
+    #redirect_to course_path(@course), alert: "You already have a project in this course."
+    #return
+  #end
 
   enrolment = Enrolment.find_by(user: current_user, course: @course)
   if enrolment && Project.exists?(enrolment: enrolment)
@@ -233,6 +246,9 @@ if params[:topic_id].present?
   approved_instance = topic.project_instances.where(status: :approved).order(version: :asc).first
   @based_on_topic_name = approved_instance&.title || "Unknown Topic"
   @based_on_topic_supervisor_id = topic.ownership&.owner&.id
+  @based_on_topic_id = topic.id 
+  @based_on_topic = topic
+
   @preselected_lecturer_id = @based_on_topic_supervisor_id if @based_on_topic_supervisor_id.present?
   @lock_supervisor = true
   @lock_topic = true
@@ -306,6 +322,12 @@ def create
     title: title_value,
     created_by: current_user, # TODO: point to lecturer enrolment,
     enrolment: supervisor_enrolment
+  )
+  Rails.logger.info "nigger #{@based_on_topic.inspect}"
+
+  TopicResponses.create!(
+    project: @based_on_topic,
+    project_instance_id: @instance.id
   )
 
   #  Save fields

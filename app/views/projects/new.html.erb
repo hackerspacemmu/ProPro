@@ -74,6 +74,9 @@
             <% else %>
               <option selected>Own Proposal</option>
             <% end %>
+            <% if @lock_topic %>
+              <%= hidden_field_tag :topic_id, @based_on_topic_id %>
+            <% end %>
           </select>
         </div>
         <br>      
