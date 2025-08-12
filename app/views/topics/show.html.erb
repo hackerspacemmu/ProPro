@@ -40,6 +40,9 @@
                     current_version: current_version,
                     latest_version: latest_version %>
          <%= render 'topic_fields', fields: @fields %>
+        <% if @is_student %>
+          <%= link_to "Propose based on this Topic", new_course_project_path(@course, topic_id: @project.id), class: "btn btn-primary" %>
+        <% end %>
          <footer class="project-footer">
            <%= link_to "← Back to Courses", course_path(@course) %>
          </footer>

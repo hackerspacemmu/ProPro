@@ -17,5 +17,4 @@ class ProjectInstance < ApplicationRecord
       project.update(enrolment: self.enrolment)
     end
   end
-
 end
