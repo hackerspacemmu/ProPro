@@ -6,6 +6,7 @@
       <!-- Status Filter Dropdown -->
       <div class="filter-container">
         <label for="status-filter">Filter by Status:</label>
+        <div class="filter-select-container">
         <select id="status-filter" 
                 name="status_filter"
                 hx-get="<%= course_path(@course) %>"
@@ -20,7 +21,8 @@
           <option value="rejected" <%= 'selected' if params[:status_filter] == 'rejected' %>>Rejected</option>
           <option value="not_submitted" <%= 'selected' if params[:status_filter] == 'not_submitted' %>>Not Submitted</option>
         </select>
-        <div id="loading-spinner" class="htmx-indicator">Loading...</div>
+        <div id="loading-spinner" class="htmx-indicator">(≥o≤) loading...</div>
+        </div>
       </div>
     </header>
 
@@ -36,10 +38,10 @@
     <!-- Summary Statistics -->
     <div class="participants-summary">
       <% if @course.grouped? %>
-        <p><strong>Total Groups:</strong> <%= @filtered_group_list&.count || 0 %></p>
-        <p><strong>Total Students:</strong> <%= @filtered_student_list&.count || 0 %></p>
+        <p>Total Groups: <%= @filtered_group_list&.count || 0 %></p>
+        <p>Total Students: <%= @filtered_student_list&.count || 0 %></p>
       <% else %>
-        <p><strong>Total Students:</strong> <%= @filtered_student_list&.count || 0 %></p>
+        <p>Total Students: <%= @filtered_student_list&.count || 0 %></p>
       <% end %>
     </div>
   </div>
