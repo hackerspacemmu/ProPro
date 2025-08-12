@@ -521,6 +521,14 @@ ul.breadcrumb li b {
     margin-top: 12px;
     margin-bottom: 6px;
     height: auto;
+    white-space: nowrap;
+}
+
+.status-header .status-indicator-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-bottom: 6px;
 }
 
 
@@ -543,7 +551,7 @@ ul.breadcrumb li b {
     top: 10px;
     vertical-align: middle;
     color: #ffffff;
-    font-weight: normal;
+    font-weight: bold;
     flex: 1;
 }
 
@@ -595,88 +603,117 @@ ul.breadcrumb li b {
 }
 
 .project-card.status-pending  { background-color: #284555 } 
-.project-card.status-redo     { background-color: #4E4307} 
-.project-card.status-rejected { background-color: #342626 } 
+.project-card.status-redo     { background-color: #e37401} 
+.project-card.status-rejected { background-color: #a50e0f } 
+.project-card.status-approved { background-color: #81a48a}
 
 
 
-/* participants list (keith) */
+/* participants list (alex) */
 
-.participants {
-    list-style: none;
-    padding: 0;
-    margin: 24px 0 0 0;
-    display: block;
-    gap: 20px;
-    justify-content: center;
-    height: 500px;
-    overflow-y: scroll;
+.table-container {
+  margin-left: 20px;
+  width: calc(100% - 40px); 
 }
 
-.participants li {
-    padding: 0;
-    border-bottom: none;
+.participants-table {
+  width: 80%;
+  border-collapse: collapse;
+  border-top: 1px solid #ececea;
+  border-bottom: 1px solid #ececea;
+  overflow: hidden;
 }
 
-.participants-block {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-left: 10px;
-    margin-top: 10px;
+.participants .participants-table th {
+  font-size: 16px;
+  font-weight: normal;
+  color: #8E8E8E;
+  text-align: left; 
+  vertical-align: middle; 
+  border-bottom: 1px solid #ececea;
+  border-right: 1px solid #ececea;
+  padding-left: 8px;
+  padding: 8px;
 }
 
-.participants-block avatar {
-    width: 40px;
-    height: 40px;
+.participants .participants-table th:last-child {
+  border-right: none;
+}
+
+.participants .participants-table td {
+  font-size: 16px;
+  font-weight: normal;
+  color: #3f3c37;
+  text-align: left; 
+  vertical-align: middle; 
+  padding: 8px; 
+  border-bottom: 1px solid #ececea;
+  border-right: 1px solid #ececea;
+}
+
+.participants .participants-table td:last-child {
+  border-right: none;
+}
+
+.participants .participants-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.profile-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.profile-avatar {
+    width: 20px;
+    height: 20px;
     background-color: #D9D9D9;
     border-radius: 50%;
+    flex-shrink: 0;
     flex-shrink: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 20px;
+    font-size: 12px;
+    font-weight: bold;
 }
 
-.participants-block name {
-    min-width: 400px;
-    font-size: 20px;
-    color: #454343;
-    margin: 0;
-    align-self: center;
-    display: block;
+.participants .participants-table th img {
+  width: 22px; 
+  height: 22px;
+  vertical-align: middle; 
+  display: inline-block;
+  margin-bottom: 5px;
 }
 
-.blob {
-    height: 30px;
-    min-width: 200px;
-    border-radius: 12px;
-    margin-left: 100px;
-    background: #d9d9d9;
-    display: flex;
-    align-items: center;
-    align-self: center;
-    justify-content: center;
-    font-style: normal;
-    padding: 0 10px;
-    font-size: 14px;
-    color: #ffffff;
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: normal;
+  gap: 6px;
 }
 
-.blob-group{
-    height: 30px;
-    min-width: 100px;
-    border-radius: 12px;
-    margin-left: 100px;
-    background: #d9d9d9;
-    display: flex;
-    align-items: center;
-    align-self: center;
-    justify-content: center;
-    font-style: normal;
-    padding: 0 10px;
-    font-size: 14px;
+.status-indicator{
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
 }
+
+.status-badge.pending { background-color: #d2e3fb; }
+.status-badge.approved { background-color: #cde9d6; }
+.status-badge.rejected { background-color: #fad1cf; }
+.status-badge.redo { background-color: #fdf0c4; }
+.status-badge.not-submitted { background-color: #f1f3f4; }
+
+.status-indicator.pending { background-color: #284555 }
+.status-indicator.approved { background-color: #81a48a }
+.status-indicator.rejected { background-color: #a50e0f }
+.status-indicator.redo { background-color: #e37401; }
+.status-indicator.not-submitted { background-color: #9ba1a6; }
 
 /* typography (keith) */
 
