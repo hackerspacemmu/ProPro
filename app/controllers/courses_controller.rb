@@ -346,7 +346,7 @@ class CoursesController < ApplicationController
         otp_token: user[:otp_token],
         otp: user[:otp],
         is_staff: user[:is_staff]
-      ).ProPro_Invite.deliver_later
+      ).ProPro_Invite.deliver_now
     end
   end
 
