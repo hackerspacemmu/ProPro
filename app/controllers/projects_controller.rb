@@ -94,7 +94,6 @@ def edit
 end
 
 def update
-  based_on_topic_param = params[:based_on_topic]
   has_supervisor_comment = Comment.where(
     project: @project,
     project_version_number: @project.project_instances.count,
@@ -105,7 +104,7 @@ def update
     return
   elsif @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_supervisor_comment)
     version = @project.project_instances.count + 1
-    @instance = @project.project_instances.build(version: version, created_by: current_user, enrolment: @project.supervisor)
+    @instance = @project.project_instances.build(version: version, created_by: current_user, )
   else
     @instance = @project.project_instances.last
   end
@@ -114,101 +113,96 @@ def update
   title_field_id = params[:fields].keys.first if params[:fields].present?
   @instance.title = params[:fields][title_field_id] if title_field_id.present?
 
-  if params[:supervisor_id].present?
-    supervisor_enrolment = Enrolment.find_by(user_id: params[:supervisor_id], course_id: @course.id, role: :lecturer)
-    if supervisor_enrolment
-      @project.enrolment = supervisor_enrolment
-      @project.save!
-    else
-      flash[:alert] = "Supervisor not found or invalid."
-      redirect_to course_project_path(@course, @project) and return
-    end
+  if !@instance.save
+    return
   end
 
-  if @instance.save
-    if params[:fields].present?
-      begin
-        ActiveRecord::Base.transaction do
-          params[:fields].each do |field_id, value|
-            existing_field = ProjectInstanceField.find_by(
-              project_template_field_id: field_id,
-              project_instance: @instance
-            )
-
-            if existing_field
-              existing_field.update!(value: value)
-            else
-              @instance.project_instance_fields.create!(
-                project_template_field_id: field_id,
-                value: value
-              )
-            end
-          end
-        end
-      rescue StandardError => e
-        redirect_to course_project_path(@course, @project), alert: "Project update failed"
-      end
-    end
-    @current_instance = @project.project_instances.last
-    topic_response = TopicResponses.find_by(
-      project_instance_id: @current_instance
-    )
-    topic = Project.find(params[:topic_id])
-
-    if !topic
-      return
-    end
-
-    if topic_response
-      topic_response.update!(project: topic)
-    else
-      TopicResponse.create!(project: topic, project_instance: @current_instance)
-    end
-    redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
-  else
-    flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
-    @template_fields = @course.project_template.project_template_fields
-    render :edit
+  if !params[:fields].present?
+    return
   end
 
-  if based_on_topic_param.present?
-  if based_on_topic_param.start_with?("own_proposal_")
-    # Extract lecturer ID from value
-    lecturer_id = based_on_topic_param.split("_").last.to_i
+  begin
+    ActiveRecord::Base.transaction do
+      params[:fields].each do |field_id, value|
+        existing_field = ProjectInstanceField.find_by(
+          project_template_field_id: field_id,
+          project_instance: @instance
+        )
 
-    # Find lecturer enrolment for course
-    supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
-
-    if supervisor_enrolment
-      @project.enrolment = supervisor_enrolment
-      @project.save!
-    else
-      flash[:alert] = "Selected supervisor not found or invalid."
-      redirect_to course_project_path(@course, @project) and return
-    end
-
-  else
-    # Treat as topic_id
-    topic_id = based_on_topic_param.to_i
-    topic = Project.find_by(id: topic_id)
-
-    if topic
-      # Set supervisor enrolment to the owner of the topic 
-      topic_owner = topic.ownership&.owner
-      if topic_owner.is_a?(User)
-        supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
-        if supervisor_enrolment
-          @project.enrolment = supervisor_enrolment
-          @project.save!
+        if existing_field
+          existing_field.update!(value: value)
         else
-          flash[:alert] = "Supervisor from topic owner not found."
-          redirect_to course_project_path(@course, @project) and return
+          @instance.project_instance_fields.create!(
+            project_template_field_id: field_id,
+            value: value
+          )
         end
       end
-    else
-      flash[:alert] = "Selected topic not found."
-      redirect_to course_project_path(@course, @project) and return
+
+      if params[:based_on_topic].blank?
+        raise StandardError
+      end
+
+      # 2 types of responses
+      # 1. own_proposal_LECTURER_ID
+      # 2. PROJECT_ID
+      if params[:based_on_topic].start_with?("own_proposal_")
+        # Extract lecturer ID from value
+        lecturer_id = based_on_topic_param.split("_").last.to_i
+
+        # Find lecturer enrolment for course
+        supervisor_enrolment = Enrolment.find_by(
+          user_id: lecturer_id,
+          course_id: @course.id,
+          role: :lecturer
+        )
+
+        if !supervisor_enrolment
+          raise StandardError
+        end
+
+        @instance.enrolment.update!(enrolment: supervisor_enrolment)
+
+        existing_response = TopicResponses.find_by(project_instance: @instance)
+
+        if existing_response
+          existing_response.destroy
+        end
+      else
+        # Treat as topic_id
+        topic = Project.find(id: params[:based_on_topic])
+
+        # Set supervisor enrolment to the owner of the topic
+        topic_owner = topic&.owner
+        if !topic_owner.is_a?(User)
+          raise StandardError
+        end
+
+        supervisor_enrolment = Enrolment.find_by(
+          user_id: topic_owner.id,
+          course_id: @course.id,
+          role: :lecturer
+        )
+
+        if !supervisor_enrolment
+          raise StandardError
+        end
+        @instance.update!(enrolment: supervisor_enrolment)
+
+        topic_response = TopicResponses.find_by(
+          project_instance: @instance
+        )
+
+        if topic_response
+          topic_response.update!(project: topic)
+        else
+          TopicResponse.create!(project: topic, project_instance: @instance)
+        end
+      end
     end
+  rescue StandardError => e
+    redirect_to course_project_path(@course, @project), alert: "Project update failed"
+    return
   end
 end
 
@@ -220,16 +214,6 @@ def new
     return
   end
 
-  has_project = @course.projects
-    .joins(:ownership)
-    .where(ownerships: { owner: current_user, ownership_type: :student })
-    .exists?
-
-  #if has_project
-    #redirect_to course_path(@course), alert: "You already have a project in this course."
-    #return
-  #end
-
   enrolment = Enrolment.find_by(user: current_user, course: @course)
   if enrolment && Project.exists?(enrolment: enrolment)
     redirect_to course_path(@course), alert: "You already have a project."
@@ -237,44 +221,41 @@ def new
   end
 
   @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
-  @lecturer_options = Enrolment.where(course: @course, role: :lecturer)
-                            .includes(:user)
-                            .map { |e| [e.user.username, e.user.id] }
 
-if params[:topic_id].present?
-  topic = Project.find(params[:topic_id])
-  approved_instance = topic.project_instances.where(status: :approved).order(version: :asc).first
-  @based_on_topic_name = approved_instance&.title || "Unknown Topic"
-  @based_on_topic_supervisor_id = topic.ownership&.owner&.id
-  @based_on_topic_id = topic.id 
-  @based_on_topic = topic
+  @lecturer_options = @course.enrolments.where(role: :lecturer).map { |e| [e.user.username, e.user.id]}
 
-  @preselected_lecturer_id = @based_on_topic_supervisor_id if @based_on_topic_supervisor_id.present?
-  @lock_supervisor = true
-  @lock_topic = true
-elsif params[:lecturer_id].present?
-  @based_on_topic_name = nil
-  @based_on_topic_supervisor_id = nil
-  @preselected_lecturer_id = params[:lecturer_id]
-  @lock_supervisor = true   
-  @lock_topic = true
-else
-  @based_on_topic_name = nil
-  @based_on_topic_supervisor_id = nil
-  @preselected_lecturer_id = nil
-  @lock_supervisor = false    # LOCK supervisor dropdown otherwise
-  @lock_topic = true
-end
+  if params[:topic_id].present?
+    topic = Project.find(params[:topic_id])
+    approved_instance = topic.project_instances.order(version: :asc).last
+    @based_on_topic_name = approved_instance&.title || "Unknown Topic"
+    @based_on_topic_supervisor_id = topic.ownership&.owner&.id
+    @based_on_topic_id = topic.id
+    @based_on_topic = topic
 
-  
+    @preselected_lecturer_id = @based_on_topic_supervisor_id if @based_on_topic_supervisor_id.present?
+    @lock_supervisor = true
+    @lock_topic = true
+  elsif params[:lecturer_id].present?
+    @based_on_topic_name = nil
+    @based_on_topic_supervisor_id = nil
+    @preselected_lecturer_id = params[:lecturer_id]
+    @lock_supervisor = true
+    @lock_topic = true
+  else
+    @based_on_topic_name = nil
+    @based_on_topic_supervisor_id = nil
+    @preselected_lecturer_id = nil
+    @lock_supervisor = false    # LOCK supervisor dropdown otherwise
+    @lock_topic = true
+  end
+
 end
 
 def create
   @course = Course.find(params[:course_id])
-  grouped = @course.grouped?
   title_value = nil
 
-  if grouped
+  if @course.grouped?
     group = current_user.project_groups.find_by(course: @course)
     unless group
       redirect_to course_path(@course), alert: "You're not part of a project group." and return
@@ -286,12 +267,11 @@ def create
 
     @ownership = Ownership.create!(owner: group, ownership_type: :project_group)
   else
-    @enrolment = Enrolment.find_by(user: current_user, course: @course)
-    if Project.exists?(enrolment: @enrolment)
+    existing_ownership = Ownership.find_by(user: current_user, course: @course)
+    if existing_ownership
       redirect_to course_path(@course), alert: "You already have a project for this course." and return
     end
 
-    #@enrolment ||= Enrolment.create!(user: current_user, course: @course, role: :student)
     @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
   end
 
@@ -323,12 +303,15 @@ def create
     created_by: current_user, # TODO: point to lecturer enrolment,
     enrolment: supervisor_enrolment
   )
-  Rails.logger.info "nigger #{@based_on_topic.inspect}"
 
-  TopicResponses.create!(
-    project: @based_on_topic,
-    project_instance_id: @instance.id
-  )
+  if !params[:based_on_topic].blank?
+    topic = Project.find(params[:based_on_topic])
+
+    TopicResponses.create!(
+      project_id: topic.id,
+      project_instance_id: @instance.id
+    )
+  end
 
   #  Save fields
   params[:fields]&.each do |field_id, value|
@@ -412,5 +395,4 @@ def access
                    .distinct
 
   return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
-end
 end

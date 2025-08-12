@@ -77,7 +77,7 @@
         </div>
 
           <div class="field">
-            <label>Based on Topic</label><br />
+            <label>Based on Topic</label><br/>
             <select name="based_on_topic" class="form-control" required>
               <% @lecturer_options.each do |lecturer_enrolment| %>
                 <% lecturer = lecturer_enrolment.user %>
@@ -95,7 +95,7 @@
                                           .order(version: :desc)
                                           .first %>
                     <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
-                      <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
+                      <%= "#{lecturer.username} - #{latest_instance&.title}" %>
                     </option>
                   <% end %>
 
@@ -107,7 +107,7 @@
             </select>
           </div>
 
-           
+
         <div class="form-actions">
           <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>
           <%= submit_tag "Submit", class: "btn btn-primary" %>
