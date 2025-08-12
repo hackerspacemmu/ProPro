@@ -2,103 +2,44 @@
   <div class="container">
     <header class="section-header">
       <h4>Participants</h4>
+      
+      <!-- Status Filter Dropdown -->
+      <div class="filter-container">
+        <label for="status-filter">Filter by Status:</label>
+        <select id="status-filter" 
+                name="status_filter"
+                hx-get="<%= course_path(@course) %>"
+                hx-target="#participants-table-container"
+                hx-trigger="change"
+                hx-include="this"
+                hx-indicator="#loading-spinner">
+          <option value="all" <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>>All Statuses</option>
+          <option value="approved" <%= 'selected' if params[:status_filter] == 'approved' %>>Approved</option>
+          <option value="pending" <%= 'selected' if params[:status_filter] == 'pending' %>>Pending</option>
+          <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
+          <option value="rejected" <%= 'selected' if params[:status_filter] == 'rejected' %>>Rejected</option>
+          <option value="not_submitted" <%= 'selected' if params[:status_filter] == 'not_submitted' %>>Not Submitted</option>
+        </select>
+        <div id="loading-spinner" class="htmx-indicator">Loading...</div>
+      </div>
     </header>
 
-    <% if @course.grouped? %>
-      <!-- Grouped Course: Show Project Groups -->
-      <% if @group_list.present? %>
-        <div class="table-container">
-          <table class="participants-table">
-            <thead>
-              <tr>
-                <th><%= image_tag "alphabet.svg" %> Group Name</th>
-                <th><%= image_tag "person_grey.svg" %> Members</th>
-                <th><%= image_tag "project.svg" %> Project Title</th>
-                <th><%= image_tag "status_grey.svg" %> Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @group_list.each do |group| %>
-                <% group_project = group_project_for(group, @course) %>
-                <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
-                <% status = get_group_status(group, @course) %>
-                <tr>
-                  <td><%= group.name || "Group #{group.id}" %></td>
-                  <td>
-                    <ul class="member-list">
-                      <% group.project_group_members.includes(:user).each do |member| %>
-                        <li><%= member.user.username %></li>  
-                      <% end %>
-                    </ul>
-                  </td>
-                  <td><%= latest_instance&.title || '-' %></td>
-                  <td>
-                    <div class="participant-status-badge-<%= status %>">
-                      <span class="participant-status">
-                        <div class="status-indicator"></div>
-                        <%= status.humanize %>
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <p class="empty-state">No Groups/Students have been added yet.</p>
-      <% end %>
-
-    <% else %>
-      <!-- Individual Course: Show Students -->
-      <% if @student_list.present? %>
-        <div class="table-container">
-          <table class="participants-table">
-            <thead>
-              <tr>
-                <th><%= image_tag "alphabet.svg" %> Student Name</th>
-                <th><%= image_tag "person_grey.svg" %> Student ID</th>
-                <th><%= image_tag "project.svg" %> Project Title</th>
-                <th><%= image_tag "status_grey.svg" %> Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @student_list.each do |student| %>
-                <% student_project = student_project_for(student, @course) %>
-                <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
-                <% status = get_student_status(student, @course) %>
-                <tr>
-                  <td>
-                    <div class="profile-container">
-                      <div class="profile-avatar"><%= student.username.first.upcase %></div> 
-                      <span><%= student.username || '-' %></span>
-                    </div>
-                  </td>
-                  <td><%= student.student_id || '-' %></td>
-                  <td><%= latest_instance&.title || '-' %></td>
-                  <td>
-                    <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                      <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
-                      <%= status.humanize %>
-                    </span>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <p class="empty-state">No students have been enrolled yet.</p>
-      <% end %>
-    <% end %>
+    <div id="participants-table-container">
+      <%= render 'participants_table', 
+          course: @course, 
+          group_list: @filtered_group_list, 
+          student_list: @filtered_student_list,
+          students_with_projects: @students_with_projects,
+          students_without_projects: @students_without_projects %>
+    </div>
 
     <!-- Summary Statistics -->
     <div class="participants-summary">
       <% if @course.grouped? %>
-        <p><strong>Total Groups:</strong> <%= @group_list&.count || 0 %></p>
-        <p><strong>Total Students:</strong> <%= @student_list&.count || 0 %></p>
+        <p><strong>Total Groups:</strong> <%= @filtered_group_list&.count || 0 %></p>
+        <p><strong>Total Students:</strong> <%= @filtered_student_list&.count || 0 %></p>
       <% else %>
-        <p><strong>Total Students:</strong> <%= @student_list&.count || 0 %></p>
+        <p><strong>Total Students:</strong> <%= @filtered_student_list&.count || 0 %></p>
       <% end %>
     </div>
   </div>

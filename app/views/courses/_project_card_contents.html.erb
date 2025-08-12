@@ -2,6 +2,7 @@
   <ul>
     <b><%= project_instance.title %></b><br>
     <b>
+      <% image_tag"person_grey.svg" %> 
       <%= project.ownership.owner.respond_to?(:username) ?
             project.ownership.owner.username :
             project.ownership.owner.group_name %>

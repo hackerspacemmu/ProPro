@@ -75,8 +75,8 @@
    <%= render 'participants', course: @course %>
  </div>
 
-
-
- <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
+  <% content_for :page_scripts do %>
+     <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
+  <% end %>
 </body>
 </html>

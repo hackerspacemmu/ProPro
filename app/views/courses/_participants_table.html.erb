@@ -15,9 +15,9 @@
           <% group_list.each do |group| %>
             <% group_project = group_project_for(group, @course) %>
             <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
-            <% status = get_group_status(group, @course) %>
+            <% status = group_status(group, @course) %>
             <tr>
-              <td><%= group.name || "Group #{group.id}" %></td>
+              <td><%= group.group_name || "Group #{group.id}" %></td>
               <td>
                 <ul class="member-list">
                   <% group.project_group_members.includes(:user).each do |member| %>
@@ -41,12 +41,11 @@
     </div>
   <% else %>
     <p class="empty-state">
-      <%= params[:status_filter].present? && params[:status_filter] != 'all' ? 
-          "No groups found with #{params[:status_filter].humanize} status." : 
+      <%= params[:status_filter].present? && params[:status_filter] != 'all' ?
+          "No groups found with #{params[:status_filter].humanize} status." :
           "No Groups/Students have been added yet." %>
     </p>
   <% end %>
-
 <% else %>
   <!-- Individual Course: Show Students -->
   <% if student_list.present? %>
@@ -64,11 +63,11 @@
           <% student_list.each do |student| %>
             <% student_project = student_project_for(student, @course) %>
             <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
-            <% status = get_student_status(student, @course) %>
+            <% status = student_status(student, @course) %>
             <tr>
               <td>
                 <div class="profile-container">
-                  <div class="profile-avatar"><%= student.username.first.upcase %></div> 
+                  <div class="profile-avatar"><%= student.username.first.upcase %></div>
                   <span><%= student.username || '-' %></span>
                 </div>
               </td>
@@ -87,8 +86,8 @@
     </div>
   <% else %>
     <p class="empty-state">
-      <%= params[:status_filter].present? && params[:status_filter] != 'all' ? 
-          "No students found with #{params[:status_filter].humanize} status." : 
+      <%= params[:status_filter].present? && params[:status_filter] != 'all' ?
+          "No students found with #{params[:status_filter].humanize} status." :
           "No students have been enrolled yet." %>
     </p>
   <% end %>
