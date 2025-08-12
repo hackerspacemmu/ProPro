@@ -648,7 +648,7 @@ ul.breadcrumb li b {
 }
 
 .participants .participants-table th {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: normal;
   color: #8E8E8E;
   text-align: left; 
@@ -664,7 +664,7 @@ ul.breadcrumb li b {
 }
 
 .participants .participants-table td {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: normal;
   color: #3f3c37;
   text-align: left; 

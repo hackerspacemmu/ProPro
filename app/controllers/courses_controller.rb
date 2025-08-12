@@ -18,6 +18,12 @@ class CoursesController < ApplicationController
       @my_student_projects = []
       @incoming_proposals = []
 
+      @current_status = if @project
+        @project.project_instances.last&.status || @project.status || 'not_submitted'
+      else
+        'not_submitted'
+      end
+
       if @course.grouped?
         @group = current_user.project_groups.find_by(course: @course)
         
@@ -41,7 +47,12 @@ class CoursesController < ApplicationController
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
 
       end
-    
+
+      @current_status = if @project
+        @project.project_instances.last&.status || @project.status || 'not_submitted'
+      else
+        "not_submitted"
+      end
     # SET COORDINATOR & LECTURER VARIABLES
     if @current_user_enrolment&.coordinator?
       @my_student_projects = @course.projects.approved_student_proposals

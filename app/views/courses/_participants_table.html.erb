@@ -21,18 +21,19 @@
               <td>
                 <ul class="member-list">
                   <% group.project_group_members.includes(:user).each do |member| %>
-                    <li><%= member.user.username %></li>  
+                    <div class="profile-container">
+                      <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
+                      <span><%= member.user.username || '-' %></span>
+                    </div>
                   <% end %>
                 </ul>
               </td>
               <td><%= latest_instance&.title || '-' %></td>
               <td>
-                <div class="participant-status-badge-<%= status %>">
-                  <span class="participant-status">
-                    <div class="status-indicator"></div>
-                    <%= status.humanize %>
-                  </span>
-                </div>
+                <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                  <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                  <%= status.humanize %>
+                </span>
               </td>
             </tr>
           <% end %>
