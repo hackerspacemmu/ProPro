@@ -270,9 +270,10 @@ ul.breadcrumb li b {
     justify-content: space-between;
     position: relative;
     max-width: 100%;
-    width: 500px;
+    width: 550px;
     height: 60px;
     margin: auto;
+    margin-bottom: 20px;
 }
 
 .progress-container::before {
@@ -378,6 +379,10 @@ ul.breadcrumb li b {
 .btn:disabled {
     background-color: var(--secondary-color);
     cursor: not-allowed;
+}
+
+.student-proposal h4 {
+  font-size: 14px;
 }
 
 /* lecturer list (alex) */
@@ -491,6 +496,24 @@ ul.breadcrumb li b {
 
 
 /* project list (alex) */
+
+.filter-container {
+  width: auto;
+  display: inline-block;
+  align-items: center; 
+  gap: 8px; 
+}
+
+.htmx-indicator {
+  font-size: 20px;
+  color: gray;
+}
+
+.filter-select-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+}
 
 .project-list-gapper {
     display: flex;
@@ -714,6 +737,13 @@ ul.breadcrumb li b {
 .status-indicator.rejected { background-color: #a50e0f }
 .status-indicator.redo { background-color: #e37401; }
 .status-indicator.not-submitted { background-color: #9ba1a6; }
+
+.participants-summary p {
+  font-size: 14px;
+  color: #7e7e7e;
+  font-weight: normal;
+  margin-top: 10px;
+}
 
 /* typography (keith) */
 
