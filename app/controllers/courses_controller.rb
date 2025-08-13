@@ -38,13 +38,12 @@ class CoursesController < ApplicationController
 
       @current_status = @project&.current_status || "not_submitted"
 
-    # SET COORDINATOR & LECTURER VARIABLES
     if @current_user_enrolment&.coordinator?
       @my_student_projects = @course.projects.approved_student_proposals
-      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_student_proposals
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
-      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @current_user_enrolment)
     end
       
       # SET LECTURER CAPACITY INFO
