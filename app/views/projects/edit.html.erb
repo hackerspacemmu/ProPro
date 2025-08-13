@@ -79,6 +79,7 @@
           <div class="field">
             <label>Based on Topic</label><br />
             <select name="based_on_topic" class="form-control" required>
+            <option value="" selected disabled>-- Select a Topic --</option>
               <% @lecturer_options.each do |lecturer_enrolment| %>
                 <% lecturer = lecturer_enrolment.user %>
                 <optgroup label="<%= lecturer.username %>">
