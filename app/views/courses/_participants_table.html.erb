@@ -16,7 +16,7 @@
             <% group_project = group_project_for(group, @course) %>
             <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
             <% status = group_status(group, @course) %>
-            <tr>
+            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">            
               <td><%= group.group_name || "Group #{group.id}" %></td>
               <td>
                 <ul class="member-list">
@@ -65,7 +65,7 @@
             <% student_project = student_project_for(student, @course) %>
             <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
             <% status = student_status(student, @course) %>
-            <tr>
+            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
               <td>
                 <div class="profile-container">
                   <div class="profile-avatar"><%= student.username.first.upcase %></div>

@@ -1,3 +1,13 @@
+<% if @participant_type == 'group' %>
+  <% @project = group_project_for(@group, @course) %>
+  <% @status = group_status(@group, @course) %>
+<% else %>
+  <% @project = student_project_for(@student, @course) %>
+  <% @status = student_status(@student, @course) %>
+<% end %>
+<% @latest_instance = @project&.project_instances&.order(:version)&.last %>
+<% @supervisor = @project&.supervisor if @project %>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -48,55 +58,74 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">Members</span>
-                  <span class="info-value">
+                  <div class="info-value members-list">
                     <% @members.each_with_index do |member, index| %>
-                      <div class="member-info">
-                        <strong><%= member.user.username %></strong>
+                      <span class="member-info">
+                        <div class="profile-container">
+                          <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
+                          <strong><%= member.user.username %></strong>
+                        </div>
                         <% if member.user.student_id.present? %>
-                          (ID: <%= member.user.student_id %>)
+                          STUDENT ID: <%= member.user.student_id %>
                         <% end %>
-                      </div>
+                        <em><%= member.user.email_address %></em>
+                      </span>
                     <% end %>
                   </span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">Project Status</span>
                   <span class="info-value">
-                    <span class="status-badge <%= @status.downcase.gsub('_', '-') %>">
-                      <div class="status-indicator <%= @status.downcase.gsub('_', '-') %>"></div>
-                      <%= @status.humanize %>
+                    <% status_display = @status || 'not_submitted' %>
+                    <span class="status-badge <%= status_display.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status_display.downcase.gsub('_', '-') %>"></div>
+                      <span><%= status_display.humanize %></span>
                     </span>
                   </span>
                 </div>
                 <% if @supervisor.present? %>
                   <div class="info-item">
                     <span class="info-label">Supervisor</span>
-                    <span class="info-value"><%= @supervisor.username %></span>
+                    <div class="profile-container-lecturer">
+                      <div class="profile-avatar"><%= @supervisor.username.first.upcase %></div>
+                      <span class="info-value"><%= @supervisor.username %></span>
+                    </div>
                   </div>
                 <% end %>
               <% else %>
                 <!-- Student Information -->
                 <div class="info-item">
                   <span class="info-label">Name</span>
-                  <span class="info-value"><%= @student.username %></span>
+                  <div class="profile-container">
+                    <div class="profile-avatar"><%= @student.username.first.upcase %></div>
+                    <span class="info-value"><%= @student.username %></span>
+                  </div>
                 </div>
                 <div class="info-item">
                   <span class="info-label">Student ID</span>
                   <span class="info-value"><%= @student.student_id || '-' %></span>
                 </div>
                 <div class="info-item">
+                  <span class="info-label">Email</span>
+                  <span class="info-value"><%= @student.email_address %></span>
+                </div>
+                <div class="info-item">
                   <span class="info-label">Project Status</span>
                   <span class="info-value">
-                    <span class="status-badge <%= @status.downcase.gsub('_', '-') %>">
-                      <div class="status-indicator <%= @status.downcase.gsub('_', '-') %>"></div>
-                      <%= @status.humanize %>
+                    <% status_display = @status || 'not_submitted' %>
+                    <span class="status-badge <%= status_display.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status_display.downcase.gsub('_', '-') %>"></div>
+                      <span><%= status_display.humanize %></span>
                     </span>
                   </span>
                 </div>
                 <% if @supervisor.present? %>
                   <div class="info-item">
                     <span class="info-label">Supervisor</span>
-                    <span class="info-value"><%= @supervisor.username %></span>
+                    <div class="profile-container-lecturer">
+                      <div class="profile-avatar"><%= @supervisor.username.first.upcase %></div>
+                      <span class="info-value"><%= @supervisor.username %></span>
+                    </div>
                   </div>
                 <% end %>
               <% end %>

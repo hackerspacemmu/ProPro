@@ -264,18 +264,13 @@ class CoursesController < ApplicationController
   def profile
     @participant_type = params[:participant_type]
     @participant_id = params[:participant_id]
+    @course = Course.find(params[:id])
 
     if @participant_type == 'group'
       @group = @course.project_groups.find(@participant_id)
-      @project = group_project_for(@group, @course)
-      @status = group_status(@group, @course)
       @members = @group.project_group_members.includes(:user)
-      @supervisor = @project&.ownership&.owner_type == 'User' ? User.find(@project.ownership.owner_id) : nil
     else
       @student = User.find(@participant_id)
-      @project = student_project_for(@student, @course)
-      @status = student_status(@student, @course)
-      @supervisor = @project&.ownership&.owner_type == 'User' ? User.find(@project.ownership.owner_id) : nil
     end
 
     @latest_instance = @project&.project_instances&.order(:version)&.last
