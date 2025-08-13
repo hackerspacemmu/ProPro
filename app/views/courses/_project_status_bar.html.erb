@@ -3,8 +3,8 @@
   </div>
   <div class="progress-container">
     <div class="progress" id="progress"></div>
-    <% %w[rejected pending redo approved].each do |status| %>
-      <div class="step <%= project&.status == status ? 'active' : '' %>">
+    <% %w[not_submitted rejected pending redo approved].each do |status| %>
+      <div class="step <%= @current_status == status ? 'active' : '' %>">
         <div class="circle"><%= image_tag "#{status}.svg" %></div>
         <div class="label"><%= status.humanize %></div>
       </div>

@@ -13,7 +13,7 @@ class Project < ApplicationRecord
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
   attribute :status, :integer, default: :pending
-  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3 }
+  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
   scope :pending_for_lecturer, ->(lecturer_enrolment) {
   includes(:ownership, :enrolment)
