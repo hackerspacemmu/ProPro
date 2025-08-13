@@ -1,0 +1,173 @@
+<% if @participant_type == 'group' %>
+  <% @project = group_project_for(@group, @course) %>
+  <% @status = group_status(@group, @course) %>
+<% else %>
+  <% @project = student_project_for(@student, @course) %>
+  <% @status = student_status(@student, @course) %>
+<% end %>
+<% @latest_instance = @project&.project_instances&.order(:version)&.last %>
+<% @supervisor = @project&.supervisor if @project %>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= stylesheet_link_tag "lecturers" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      <% if @participant_type == 'group' %>
+        <%= @group.group_name %> - Group Profile
+      <% else %>
+        <%= @student.username %> - Student Profile
+      <% end %>
+    </title>
+  </head>
+  <body>
+    <main id="lecturer">
+      <div class="lecturer-layout">
+        <section class="lecturer-content">
+          <header class="lecturer-header">
+            <div class="lecturer-title">
+              <span class="lecturer-title-text">
+                <% if @participant_type == 'group' %>
+                  View Group
+                <% else %>
+                  View Student
+                <% end %>
+              </span>
+              <div class="title-line"></div>
+            </div>
+            <div class="lecturer-name-row">
+              <% if @participant_type == 'student' %>
+                <div class="lecturer-badge"><%= @student.username[0].upcase %></div>
+                <h1 class="lecturer-name"><%= @student.username %></h1>
+              <% else %>
+                <h1 class="lecturer-name"><%= @group.group_name %></h1>
+              <% end %>
+            </div>
+            
+            <div class="lecturer-info">
+              <h2 class="lecturer-subtitle">Profile Information</h2>
+              <div class="lecturer-line"></div>
+              
+              <% if @participant_type == 'group' %>
+                <!-- Group Information -->
+                <div class="info-item">
+                  <span class="info-label">Group Name</span>
+                  <span class="info-value"><%= @group.group_name %></span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Members</span>
+                  <div class="info-value members-list">
+                    <% @members.each_with_index do |member, index| %>
+                      <span class="member-info">
+                        <div class="profile-container">
+                          <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
+                          <strong><%= member.user.username %></strong>
+                        </div>
+                        <% if member.user.student_id.present? %>
+                          STUDENT ID: <%= member.user.student_id %>
+                        <% end %>
+                        <em><%= member.user.email_address %></em>
+                      </span>
+                    <% end %>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Project Status</span>
+                  <span class="info-value">
+                    <% status_display = @status || 'not_submitted' %>
+                    <span class="status-badge <%= status_display.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status_display.downcase.gsub('_', '-') %>"></div>
+                      <span><%= status_display.humanize %></span>
+                    </span>
+                  </span>
+                </div>
+                <% if @supervisor.present? %>
+                  <div class="info-item">
+                    <span class="info-label">Supervisor</span>
+                    <div class="profile-container-lecturer">
+                      <div class="profile-avatar"><%= @supervisor.username.first.upcase %></div>
+                      <span class="info-value"><%= @supervisor.username %></span>
+                    </div>
+                  </div>
+                <% end %>
+              <% else %>
+                <!-- Student Information -->
+                <div class="info-item">
+                  <span class="info-label">Name</span>
+                  <div class="profile-container">
+                    <div class="profile-avatar"><%= @student.username.first.upcase %></div>
+                    <span class="info-value"><%= @student.username %></span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Student ID</span>
+                  <span class="info-value"><%= @student.student_id || '-' %></span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Email</span>
+                  <span class="info-value"><%= @student.email_address %></span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Project Status</span>
+                  <span class="info-value">
+                    <% status_display = @status || 'not_submitted' %>
+                    <span class="status-badge <%= status_display.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status_display.downcase.gsub('_', '-') %>"></div>
+                      <span><%= status_display.humanize %></span>
+                    </span>
+                  </span>
+                </div>
+                <% if @supervisor.present? %>
+                  <div class="info-item">
+                    <span class="info-label">Supervisor</span>
+                    <div class="profile-container-lecturer">
+                      <div class="profile-avatar"><%= @supervisor.username.first.upcase %></div>
+                      <span class="info-value"><%= @supervisor.username %></span>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+            <br>
+          </header>
+
+          <!-- Current Project Section -->
+          <% if @project.present? %>
+            <section class="lecturer-topics">
+              <header class="section-header">
+                <h2 class="section-title">Current Project</h2>
+              </header>
+              <div class="lecturer-line"></div>
+              <div class="topics-container">
+                <div class="cards-container">
+                  <%= render partial: 'courses/project_card',
+                            object: @project,
+                            as: :project,
+                            locals: { course: @course } %>
+                </div>
+              </div>
+            </section>
+          <% else %>
+            <section class="lecturer-topics">
+              <header class="section-header">
+                <h2 class="section-title">Current Project</h2>
+              </header>
+              <div class="lecturer-line"></div>
+              <div class="topics-container">
+                <div class="no-topics">
+                  <p>No Project Submitted</p>
+                </div>
+              </div>
+            </section>
+          <% end %>
+
+          <footer class="lecturer-footer">
+            <%= link_to "← Back to Course", course_path(@course) %>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

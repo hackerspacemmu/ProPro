@@ -16,23 +16,24 @@
             <% group_project = group_project_for(group, @course) %>
             <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
             <% status = group_status(group, @course) %>
-            <tr>
+            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">            
               <td><%= group.group_name || "Group #{group.id}" %></td>
               <td>
                 <ul class="member-list">
                   <% group.project_group_members.includes(:user).each do |member| %>
-                    <li><%= member.user.username %></li>  
+                    <div class="profile-container">
+                      <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
+                      <span><%= member.user.username || '-' %></span>
+                    </div>
                   <% end %>
                 </ul>
               </td>
               <td><%= latest_instance&.title || '-' %></td>
               <td>
-                <div class="participant-status-badge-<%= status %>">
-                  <span class="participant-status">
-                    <div class="status-indicator"></div>
-                    <%= status.humanize %>
-                  </span>
-                </div>
+                <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                  <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                  <%= status.humanize %>
+                </span>
               </td>
             </tr>
           <% end %>
@@ -64,7 +65,7 @@
             <% student_project = student_project_for(student, @course) %>
             <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
             <% status = student_status(student, @course) %>
-            <tr>
+            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
               <td>
                 <div class="profile-container">
                   <div class="profile-avatar"><%= student.username.first.upcase %></div>

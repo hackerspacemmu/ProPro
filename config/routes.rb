@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       post 'handle_add_lecturers'
       get 'settings'
       post 'handle_settings'
+      get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
     end
 
     resources :projects, only: [:show, :edit, :update, :create, :new] do

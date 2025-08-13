@@ -634,6 +634,16 @@ ul.breadcrumb li b {
 
 /* participants list (alex) */
 
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: #f8f9fa;
+}
+
+
 .table-container {
   margin-left: 20px;
   width: calc(100% - 40px); 
@@ -648,7 +658,7 @@ ul.breadcrumb li b {
 }
 
 .participants .participants-table th {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: normal;
   color: #8E8E8E;
   text-align: left; 
@@ -664,7 +674,7 @@ ul.breadcrumb li b {
 }
 
 .participants .participants-table td {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: normal;
   color: #3f3c37;
   text-align: left; 

@@ -18,6 +18,12 @@ class CoursesController < ApplicationController
       @my_student_projects = []
       @incoming_proposals = []
 
+      @current_status = if @project
+        @project.project_instances.last&.status || @project.status || 'not_submitted'
+      else
+        'not_submitted'
+      end
+
       if @course.grouped?
         @group = current_user.project_groups.find_by(course: @course)
         
@@ -41,11 +47,16 @@ class CoursesController < ApplicationController
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
 
       end
-    
+
+      @current_status = if @project
+        @project.project_instances.last&.status || @project.status || 'not_submitted'
+      else
+        "not_submitted"
+      end
     # SET COORDINATOR & LECTURER VARIABLES
     if @current_user_enrolment&.coordinator?
       @my_student_projects = @course.projects.approved_student_proposals
-      @incoming_proposals = @course.projects.pending_student_proposals
+      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
       @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
@@ -249,6 +260,22 @@ class CoursesController < ApplicationController
     @course.destroy
     redirect_to "/"
   end
+
+  def profile
+    @participant_type = params[:participant_type]
+    @participant_id = params[:participant_id]
+    @course = Course.find(params[:id])
+
+    if @participant_type == 'group'
+      @group = @course.project_groups.find(@participant_id)
+      @members = @group.project_group_members.includes(:user)
+    else
+      @student = User.find(@participant_id)
+    end
+
+    @latest_instance = @project&.project_instances&.order(:version)&.last
+  end
+    
 
   private
   def students_with_projects
