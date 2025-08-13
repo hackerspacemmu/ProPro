@@ -130,6 +130,10 @@ class ProjectsController < ApplicationController
           end
         end
 
+        if params[:based_on_topic].blank?
+          raise StandardError, "Please choose a lecturer and topic"
+        end
+
         # 2 possible formats
         # PROJECT_ID or own_proposal_LECTURER_ID
         if params[:based_on_topic].start_with?("own_proposal_")
@@ -271,6 +275,10 @@ class ProjectsController < ApplicationController
           end
 
           @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
+        end
+
+        if params[:based_on_topic].blank?
+          raise StandardError, "Please choose a lecturer and topic"
         end
 
         if params[:based_on_topic].start_with?("own_proposal_")
