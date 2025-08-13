@@ -108,11 +108,6 @@ GEM
     ed25519 (1.4.0)
     erb (5.0.1)
     erubi (1.13.1)
-    et-orbi (1.2.11)
-      tzinfo
-    fugit (1.11.1)
-      et-orbi (~> 1, >= 1.2.11)
-      raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
     i18n (1.14.7)
@@ -204,7 +199,6 @@ GEM
     public_suffix (6.0.2)
     puma (6.6.0)
       nio4r (~> 2.0)
-    raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.16)
     rack-session (2.1.1)
@@ -289,22 +283,6 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    solid_cable (3.0.11)
-      actioncable (>= 7.2)
-      activejob (>= 7.2)
-      activerecord (>= 7.2)
-      railties (>= 7.2)
-    solid_cache (1.0.7)
-      activejob (>= 7.2)
-      activerecord (>= 7.2)
-      railties (>= 7.2)
-    solid_queue (1.2.0)
-      activejob (>= 7.1)
-      activerecord (>= 7.1)
-      concurrent-ruby (>= 1.3.1)
-      fugit (~> 1.11.0)
-      railties (>= 7.1)
-      thor (~> 1.3.1)
     sqlite3 (2.7.2-aarch64-linux-gnu)
     sqlite3 (2.7.2-aarch64-linux-musl)
     sqlite3 (2.7.2-arm-linux-gnu)
@@ -375,15 +353,15 @@ DEPENDENCIES
   rails (~> 8.0.2)
   rubocop-rails-omakase
   selenium-webdriver
-  solid_cable
-  solid_cache
-  solid_queue
   sqlite3 (>= 2.1)
   stimulus-rails
   thruster
   turbo-rails
   tzinfo-data
   web-console
+
+RUBY VERSION
+   ruby 3.4.4p34
 
 BUNDLED WITH
    2.6.7

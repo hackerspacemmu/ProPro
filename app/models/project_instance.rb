@@ -7,6 +7,7 @@ class ProjectInstance < ApplicationRecord
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4}
 
   has_many :project_instance_fields, dependent: :destroy
+  has_one :topic_response, dependent: :destroy
 
   after_save :update_parent_project
 
