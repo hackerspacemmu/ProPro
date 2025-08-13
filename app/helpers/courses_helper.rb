@@ -16,12 +16,12 @@ module CoursesHelper
   def group_status(group, course)
     project = group_project_for(group, course)
     return 'not_submitted' unless project
-    project.status.to_s
+    project.current_status
   end
   
   def student_status(student, course)
     project = student_project_for(student, course)
     return 'not_submitted' unless project
-    project.status.to_s
+    project.current_status
   end
 end
