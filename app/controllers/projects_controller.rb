@@ -234,11 +234,7 @@ class ProjectsController < ApplicationController
           if group.ownership
             raise StandardError, "Your group already has a project"
           end
-=begin
-          if Project.joins(:ownership).where(ownerships: { owner: group, ownership_type: :project_group }).exists?
-            raise StandardError, "Your group already has a project."
-          end
-=end
+
           @ownership = Ownership.create!(owner: group, ownership_type: :project_group)
         else
           has_project = @course.projects
@@ -322,7 +318,7 @@ class ProjectsController < ApplicationController
       return
     end
 
-    redirect_to course_projects_path(@course), notice: "Project created!"
+    redirect_to course_project_path(@course, @project), notice: "Project created!"
   end
 
 
