@@ -17,4 +17,14 @@ class GeneralMailer < ApplicationMailer
 
       mail(to: @email_address, Subject: "Status Updated")
     end
+
+    def New_Student_Submission
+      @email_address = params[:email_address]
+      @supervisor_username = params[:supervisor_username]
+      @owner_name = params[:owner_name]
+      @course = params[:course]
+      @project = params[:project]
+
+      mail(to: @email_address, Subject: "New Student Submission")
+    end
 end
