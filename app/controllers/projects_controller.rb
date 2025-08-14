@@ -173,7 +173,6 @@ class ProjectsController < ApplicationController
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
     rescue StandardError => e
-      Rails.logger.info e.message
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
       return
     end
