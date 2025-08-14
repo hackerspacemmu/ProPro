@@ -1,7 +1,7 @@
 # Create Users
 willie = User.create!(
   email_address: "willie@mmu.edu.my",
-  username: "willie",
+  username: "Willie Poh",
   has_registered: true,
   student_id: nil,
   web_link: "willie",
@@ -11,7 +11,7 @@ willie = User.create!(
 
 suhaini = User.create!(
   email_address: "suhaini@mmu.edu.my", 
-  username: "suhaini",
+  username: "Suhaini Nordin",
   has_registered: true,
   student_id: nil,
   web_link: "suhaini",
@@ -21,7 +21,7 @@ suhaini = User.create!(
 
 alex = User.create!(
   email_address: "alex@student.mmu.edu.my",
-  username: "alex",
+  username: "Alex Chiam",
   has_registered: true,
   student_id: "1191202123",
   web_link: "alex_student",
@@ -31,7 +31,7 @@ alex = User.create!(
 
 soo = User.create!(
   email_address: "soo@student.mmu.edu.my",
-  username: "soo", 
+  username: "Soo Shi Jian", 
   has_registered: true,
   student_id: "1191202124",
   web_link: "soo_student",
@@ -41,7 +41,7 @@ soo = User.create!(
 
 niilesh = User.create!(
   email_address: "niilesh@student.mmu.edu.my",
-  username: "niilesh",
+  username: "Niilesh",
   has_registered: true, 
   student_id: "1191202125",
   web_link: "niilesh_student",
@@ -51,11 +51,11 @@ niilesh = User.create!(
 
 # Create Courses
 course_no_groups = Course.create!(
-  course_name: "CSP1123NoGroups",
-  number_of_updates: 3,
-  starting_week: 1,
-  student_access: "no_restriction",
-  lecturer_access: true,
+  course_name: "Subject Solo FreeTopic",
+  number_of_updates: 8,
+  starting_week: 2,
+  student_access: "own_lecturer_only",
+  lecturer_access: false,
   grouped: false,
   supervisor_projects_limit: 10,
   require_coordinator_approval: false,
@@ -63,14 +63,14 @@ course_no_groups = Course.create!(
 )
 
 course_with_groups = Course.create!(
-  course_name: "SubjectUsingGroups", 
-  number_of_updates: 2,
+  course_name: "Subject Groups TopicApprovals", 
+  number_of_updates: 5,
   starting_week: 2,
-  student_access: "own_lecturer_only",
-  lecturer_access: false,
+  student_access: "no_restriction",
+  lecturer_access: true,
   grouped: true,
   supervisor_projects_limit: 6,
-  require_coordinator_approval: false,
+  require_coordinator_approval: true,
   use_progress_updates: true
 )
 
@@ -154,14 +154,6 @@ group_template = ProjectTemplate.create!(
 )
 
 # Create Project Template Fields 
-project_title_field = ProjectTemplateField.create!(
-  project_template: individual_template,
-  field_type: 0, 
-  applicable_to: 0, 
-  label: "Project Title",
-  hint: "Enter a descriptive title for your project",
-)
-
 project_description_field = ProjectTemplateField.create!(
   project_template: individual_template,
   field_type: 1, 
@@ -179,14 +171,6 @@ lecturer_feedback_field = ProjectTemplateField.create!(
 )
 
 # Create Project Template Fields for Group Template
-group_title_field = ProjectTemplateField.create!(
-  project_template: group_template,
-  field_type: 0, # text
-  applicable_to: 0, # student
-  label: "Group Project Title",
-  hint: "Enter the group project title",
-)
-
 group_description_field = ProjectTemplateField.create!(
   project_template: group_template,
   field_type: 1, # textarea
@@ -274,32 +258,14 @@ alex_instance_v2 = ProjectInstance.create!(
 # Create Project Instance Fields
 ProjectInstanceField.create!(
   project_instance: alex_instance_v1,
-  project_template_field: project_title_field,
-  value: "Happy Go Lucky"
-)
-
-ProjectInstanceField.create!(
-  project_instance: alex_instance_v1,
   project_template_field: project_description_field,
   value: "A mobile app that helps students manage their daily tasks with gamification elements to boost productivity and happiness."
 )
 
 ProjectInstanceField.create!(
   project_instance: suhaini_instance,
-  project_template_field: project_title_field,
-  value: "My Nice Topic"
-)
-
-ProjectInstanceField.create!(
-  project_instance: suhaini_instance,
   project_template_field: project_description_field,
   value: "Research on machine learning applications in student assessment systems."
-)
-
-ProjectInstanceField.create!(
-  project_instance: group_instance,
-  project_template_field: group_title_field,
-  value: "Difficult Group Project"
 )
 
 ProjectInstanceField.create!(
