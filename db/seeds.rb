@@ -132,11 +132,13 @@ blabla_group = ProjectGroup.create!(
 # Create Project Group Members
 ProjectGroupMember.create!(
   user: soo,
+  #course: course_with_groups,
   project_group: blabla_group
 )
 
 ProjectGroupMember.create!(
   user: niilesh,
+  #course: course_with_groups,
   project_group: blabla_group
 )
 
@@ -193,6 +195,117 @@ group_ownership = Ownership.create!(
   ownership_type: :project_group
 )
 
+# Create Projects
+alex_project = Project.create!(
+  ownership: alex_ownership,
+  course_id: alex_student_enrolment.course_id,
+  enrolment: willie_lecturer_enrolment
+)
+
+suhaini_project = Project.create!(
+  ownership: suhaini_ownership,
+  course_id: suhaini_lecturer_enrolment.course_id,
+  enrolment: willie_lecturer_enrolment
+)
+
+group_project = Project.create!(
+  ownership: group_ownership,
+  course_id: soo_student_enrolment.course_id,
+  enrolment: willie_lecturer_enrolment
+)
+
+# Create Project Instances
+alex_instance_v1 = ProjectInstance.create!(
+  project: alex_project,
+  version: 1,
+  created_by: alex,
+  submitted_at: "2025-07-15 10:30:00",
+  title: "Happy Go Lucky",
+  status: "rejected",
+  enrolment: willie_lecturer_enrolment
+)
+
+suhaini_instance = ProjectInstance.create!(
+  project: suhaini_project,
+  version: 1,
+  created_by: suhaini,
+  submitted_at: "2025-07-10 14:20:00",
+  title: "My Nice Topic",
+  status: "pending",
+  enrolment: willie_lecturer_enrolment
+)
+
+group_instance = ProjectInstance.create!(
+  project: group_project,
+  version: 1, 
+  created_by: soo,
+  submitted_at: "2025-07-18 16:45:00",
+  title: "Difficult Group Project",
+  status: "pending",
+  enrolment: willie_lecturer_enrolment
+)
+
+alex_instance_v2 = ProjectInstance.create!(
+  project: alex_project,
+  version: 2,
+  created_by: alex,
+  submitted_at: nil,
+  title: "Happy Go Lucky - Revised",
+  status: "approved",
+  enrolment: willie_lecturer_enrolment
+)
+
+# Create Project Instance Fields
+ProjectInstanceField.create!(
+  project_instance: alex_instance_v1,
+  project_template_field: project_description_field,
+  value: "A mobile app that helps students manage their daily tasks with gamification elements to boost productivity and happiness."
+)
+
+ProjectInstanceField.create!(
+  project_instance: suhaini_instance,
+  project_template_field: project_description_field,
+  value: "Research on machine learning applications in student assessment systems."
+)
+
+ProjectInstanceField.create!(
+  project_instance: group_instance,
+  project_template_field: group_description_field,
+  value: "Development of a comprehensive student management system with role-based access control. Soo will handle backend development, Niilesh will focus on frontend and UI design."
+)
+
+# Create Comments
+Comment.create!(
+  user: willie,
+  project: alex_project,
+  text: "Great concept! Please elaborate more on the gamification mechanics and provide a timeline."
+)
+
+Comment.create!(
+  user: alex,
+  project: alex_project,
+  text: "Thank you for the feedback. I will include a detailed timeline and gamification strategy in the next version."
+)
+
+Comment.create!(
+  user: willie,
+  project: group_project,
+  text: "The scope seems quite ambitious. Consider breaking it down into phases and focus on core features first."
+)
+
+# Create Progress Updates
+ProgressUpdate.create!(
+  project: alex_project,
+  rating: 3,
+  feedback: "Good progress on initial research and mockups. Need to focus more on technical implementation details."
+)
+
+ProgressUpdate.create!(
+  project: group_project,
+  rating: 0,
+  feedback: "No progress update lol."
+)
+
 # Create OTPs
 Otp.create!(
   user: soo,
@@ -218,5 +331,3 @@ Session.create!(
   ip_address: "192.168.1.101", 
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 )
-
-puts "Seeded successfully!"

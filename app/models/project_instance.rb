@@ -12,6 +12,11 @@ class ProjectInstance < ApplicationRecord
 
   after_save :update_parent_project
 
+  def supervisor
+    User.find(Enrolment.find(self.enrolment_id).user_id)
+  end
+
+
   private
   def update_parent_project
     if project.project_instances.order(created_at: :asc).last == self
