@@ -199,6 +199,20 @@ class ProjectsController < ApplicationController
       return
     end
 
+    if @course.grouped?
+      owner = @project.owner.group_name
+    else
+      owner = @project.owner.username
+    end
+
+    GeneralMailer.with(
+      email_address: @project.supervisor.email_address,
+      supervisor_username: @project.supervisor.username,
+      owner_name: owner,
+      course: @course,
+      project: @project
+    ).New_Student_Submission.deliver_now
+
     redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
   end
 

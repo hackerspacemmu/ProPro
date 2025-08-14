@@ -3,5 +3,5 @@ class ProjectGroup < ApplicationRecord
     belongs_to :course
 
     has_many :users, through: :project_group_members
-    has_one :ownership, dependent: :destroy, foreign_key: "owner"
+    has_one :ownership, dependent: :destroy
 end
