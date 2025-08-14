@@ -143,15 +143,12 @@ class ProjectsController < ApplicationController
           # Find lecturer enrolment for course
           supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
 
+
           if !supervisor_enrolment
             raise StandardError
           end
 
-          existing_response = TopicResponse.find_by(project_instance_id: @instance.id)
-
-          if existing_response
-            existing_response.destroy
-          end
+          @instance.update!(source_topic_id: nil)
         else
           # Treat as topic_id
           topic = Project.find_by(id: params[:based_on_topic])
@@ -171,17 +168,13 @@ class ProjectsController < ApplicationController
             raise StandardError
           end
 
-          existing_response = TopicResponse.find_by(project_instance_id: @instance.id)
+          @instance.update!(source_topic: topic)
 
-          if existing_response
-            existing_response.update!(project_id: topic.id)
-          else
-            TopicResponse.create!(project_instance_id: @instance.id, project_id: topic.id)
-          end
         end
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
     rescue StandardError => e
+      Rails.logger.info e.message
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
       return
     end
@@ -212,11 +205,7 @@ class ProjectsController < ApplicationController
     end
 
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
-=begin
-    @lecturer_options = Enrolment.where(course: @course, role: :lecturer)
-                              .includes(:user)
-                              .map { |e| [e.user.username, e.user.id] }
-=end
+
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
     # Optionally preselect topic or own proposal
@@ -227,30 +216,6 @@ class ProjectsController < ApplicationController
       @selected_own_proposal_lecturer_id = params[:own_proposal_lecturer_id].to_i
       @selected_topic_id = nil
     end
-=begin
-    if params[:topic_id].present?
-      topic = Project.find(params[:topic_id])
-      approved_instance = topic.project_instances.last
-      @based_on_topic_name = approved_instance&.title || "Unknown Topic"
-      @based_on_topic_supervisor_id = topic.owner&.id
-      @topic = topic
-      @preselected_lecturer_id = @based_on_topic_supervisor_id if @based_on_topic_supervisor_id.present?
-      @lock_supervisor = true
-      @lock_topic = true
-    elsif params[:lecturer_id].present?
-      @based_on_topic_name = nil
-      @based_on_topic_supervisor_id = nil
-      @preselected_lecturer_id = params[:lecturer_id]
-      @lock_supervisor = true
-      @lock_topic = true
-    else
-      @based_on_topic_name = nil
-      @based_on_topic_supervisor_id = nil
-      @preselected_lecturer_id = nil
-      @lock_supervisor = false    # LOCK supervisor dropdown otherwise
-      @lock_topic = true
-    end
-=end
   end
 
   def create
@@ -329,12 +294,9 @@ class ProjectsController < ApplicationController
           version: 1,
           title: title_value,
           created_by: current_user,
-          enrolment: supervisor_enrolment
+          enrolment: supervisor_enrolment,
+          source_topic: topic || nil
         )
-
-        if !params[:based_on_topic].start_with?("own_proposal_")
-          TopicResponse.create!(project_instance_id: @instance.id, project_id: topic.id)
-        end
 
         #  Save fields
         params[:fields]&.each do |field_id, value|
