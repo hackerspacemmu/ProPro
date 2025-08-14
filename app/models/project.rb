@@ -47,7 +47,14 @@ class Project < ApplicationRecord
     .where(status: [:pending, :redo, :rejected], enrolment: lecturer_enrolment)
     .joins(:ownership)
     .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
-}
+  }
+
+  scope :pending_and_redo_for_lecturer, ->(lecturer_enrolment) {
+    includes(:ownership, :enrolment)
+      .where(status: [:pending, :redo], enrolment: lecturer_enrolment)
+      .joins(:ownership)
+      .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+  }
 
 
   def supervisor

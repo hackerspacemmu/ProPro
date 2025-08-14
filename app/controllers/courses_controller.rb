@@ -78,13 +78,6 @@ class CoursesController < ApplicationController
              }
      return
     end
-
-    Rails.logger.debug "Total projects in course: #{@course.projects.count}"
-    Rails.logger.debug "All project IDs: #{@course.projects.pluck(:id)}"
-    Rails.logger.debug "Current user enrolment ID: #{@current_user_enrolment&.id}"
-    Rails.logger.debug "Current user enrolment role: #{@current_user_enrolment&.role}"
-    Rails.logger.debug "Project enrolment IDs: #{@course.projects.pluck(:enrolment_id)}"
-    Rails.logger.debug "Project statuses: #{@course.projects.pluck(:id, :status)}"
   end
 
     def add_students
@@ -535,7 +528,7 @@ def lecturer_pending_proposals_count(lecturer, course)
   lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
   return 0 unless lecturer_enrolment
   
-  course.projects.pending_for_lecturer(lecturer_enrolment).count
+  course.projects.pending_and_redo_for_lecturer(lecturer_enrolment).count
 end
 
 def lecturer_capacity_info(lecturer, course)
