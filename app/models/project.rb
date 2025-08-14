@@ -42,6 +42,13 @@ class Project < ApplicationRecord
       .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
   }
 
+  scope :incoming_proposals, ->(lecturer_enrolment) {
+  includes(:ownership, :enrolment)
+    .where(status: [:pending, :redo, :rejected], enrolment: lecturer_enrolment)
+    .joins(:ownership)
+    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+}
+
 
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
