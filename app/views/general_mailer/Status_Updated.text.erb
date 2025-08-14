@@ -1,0 +1,24 @@
+ProPro - Your proposal has received a response.
+===============================================
+
+Hi, <%= @username %>
+
+<%= @course.course_name %>
+<%= @project.project_instances.last.title %>
+
+<% if @group_name %>
+    <%= @group_name %>
+<% else %>
+    <%= @username %>
+<% end %>
+
+Your proposal has received a response from <%= @supervisor_username %>.
+To view it, visit this link:
+
+    <%= course_project_url(@course, @project) %>
+
+Sign in to view any feedback on the proposal and take further action like making changes for resubmission or submitting a different proposal.
+
+ProPro is a web app for Project Proposals and Progress monitoring. It is ideal for educators managing student projects where students propose their ideas for approval!
+
+

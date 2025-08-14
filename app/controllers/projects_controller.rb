@@ -58,8 +58,31 @@ class ProjectsController < ApplicationController
     if Project.statuses.key?(new_status)
       @project.project_instances.last.update(status: new_status)
 
-      redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
+      if @course.grouped?
+        group_members = @project.owner.project_group_members.joins(:user).pluck("user.username", "user.email_address")
+
+        group_members.each do |user|
+          GeneralMailer.with(
+            username: user[0],
+            email_address: user[1],
+            group_name: @project.owner.group_name,
+            course: @course,
+            project: @project,
+            supervisor_username: Current.user.username
+          ).Status_Updated.deliver_now
+        end
+      else
+        GeneralMailer.with(
+          username: @project.owner.username,
+          email_address: @project.owner.email_address,
+          course: @course,
+          project: @project,
+          supervisor_username: Current.user.username
+        ).Status_Updated.deliver_now
+      end
     end
+
+    redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
   end
 
   def edit
