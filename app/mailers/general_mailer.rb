@@ -6,4 +6,15 @@ class GeneralMailer < ApplicationMailer
       @is_staff = params[:is_staff]
       mail(to: @email_address, Subject: "Invitation for ProPro")
     end
+
+    def Status_Updated
+      @username = params[:username]
+      @email_address = params[:email_address]
+      @group_name = params[:group_name]
+      @course = params[:course]
+      @project = params[:project]
+      @supervisor_username = params[:supervisor_username]
+
+      mail(to: @email_address, Subject: "Status Updated")
+    end
 end
