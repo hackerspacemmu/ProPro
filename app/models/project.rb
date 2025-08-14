@@ -55,4 +55,20 @@ class Project < ApplicationRecord
     end
   end
 
+  def current_instance
+    if project_instances.column_names.include?("version")
+      project_instances.order(version: :desc, created_at: :desc).first
+    else
+      project_instances.order(created_at: :desc).first
+    end
+  end
+
+  def current_status
+    (current_instance&.status || self.status || :not_submitted).to_s
+  end
+
+  def current_title
+    current_instance&.title || self.title
+  end
+
 end

@@ -18,22 +18,11 @@ class CoursesController < ApplicationController
       @my_student_projects = []
       @incoming_proposals = []
 
-      @current_status = if @project
-        @project.project_instances.last&.status || @project.status || 'not_submitted'
-      else
-        'not_submitted'
-      end
-
       if @course.grouped?
         @group = current_user.project_groups.find_by(course: @course)
         
         if @group
-          group_ownership = Ownership.find_by(
-            owner_type: @group.class.name,
-            owner_id: @group.id,
-            ownership_type: :student  
-            )
-          @project = group_ownership ? Project.find_by(ownership: group_ownership, course: @course) : nil
+          @project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: @group.class.name, owner_id: @group.id })
         else
           @project = nil
         end
@@ -45,21 +34,16 @@ class CoursesController < ApplicationController
             ownership_type: :student  
           )
           @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
-
       end
 
-      @current_status = if @project
-        @project.project_instances.last&.status || @project.status || 'not_submitted'
-      else
-        "not_submitted"
-      end
-    # SET COORDINATOR & LECTURER VARIABLES
+      @current_status = @project&.current_status || "not_submitted"
+
     if @current_user_enrolment&.coordinator?
       @my_student_projects = @course.projects.approved_student_proposals
-      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_student_proposals
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
-      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @current_user_enrolment)
     end
       
       # SET LECTURER CAPACITY INFO
@@ -572,7 +556,7 @@ def students_by_status(status, student_list, students_with_projects, students_wi
       project = course.projects
         .joins(:ownership)
         .find_by(ownerships: { owner_type: 'User', owner_id: student.id })
-      project&.status&.to_s == status
+      project&.current_status == status
     end
   when 'not_submitted'
     students_without_projects || []
@@ -590,14 +574,14 @@ def groups_by_status(status, group_list, course)
       project = course.projects
         .joins(:ownership)
         .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project&.status&.to_s == 'approved'
+      project&.current_status == 'approved'
     end
   when 'pending', 'redo', 'rejected'
     group_list.select do |group|
       project = course.projects
         .joins(:ownership)
         .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project&.status&.to_s == status
+      project&.current_status == status
     end
   when 'not_submitted'
     group_list.select do |group|
