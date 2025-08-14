@@ -150,7 +150,7 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic_id: nil)
         else
           # Treat as topic_id
-          topic = Project.find_by(id: params[:based_on_topic])
+          topic = Project.find_by(id: params[:based_on_topic], course: @course)
 
           if !topic
             raise StandardError
@@ -173,7 +173,6 @@ class ProjectsController < ApplicationController
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
     rescue StandardError => e
-      Rails.logger.info e.message
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
       return
     end
@@ -270,7 +269,7 @@ class ProjectsController < ApplicationController
           end
         else
           # Treat as topic_id
-          topic = Project.find_by(id: params[:based_on_topic])
+          topic = Project.find_by(id: params[:based_on_topic], course: @course)
 
           if !topic
             raise StandardError

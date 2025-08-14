@@ -18,7 +18,7 @@ class CommentsController < ApplicationController
 
     whitelist = [parent_course.coordinator.user, parent_project.supervisor]
 
-    if type == "student"
+    if type == "student" || type == "project_group"
       if !parent_course.grouped
         whitelist.push(parent_project.owner)
       else
