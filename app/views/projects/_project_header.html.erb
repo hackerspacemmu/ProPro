@@ -63,7 +63,7 @@
           <% if current_user == @project.supervisor && current_version== latest_version %>
             <div class="status-control">
               <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
-                <% statuses = Project.statuses.keys.without("pending" , "not_submitted") %>
+                <% statuses = Project.statuses.keys %>
                 <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@project.status}" %>
                 <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
                   <%= image_tag("check.svg", width: 16, height: 16, alt: "Save") %>
