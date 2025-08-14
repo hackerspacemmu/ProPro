@@ -32,11 +32,11 @@
                                         <!-- replace "#name" with the lecturer's name, "#coursename" with the course name -->
 
                                         <p style="margin: 0 0 16px 0;">
-                                            Hi, #name
+                                            Hi, <%= @supervisor_username %>
                                         </p>
 
                                         <p style="margin: 16px 0; font-size: 20px; color: #888;">
-                                            #coursename
+                                            <%= @course.course_name %>
                                         </p>
 
                                         <!-- replace "#projecttitle" with the project title, "#student/#group" with the student's name or group number -->
@@ -46,11 +46,11 @@
                                         </p>
 
                                         <p style="margin: 0px 0; font-size: 20px; font-weight: bold;">
-                                            <br><strong>#projecttitle</strong>
+                                            <br><strong><%= @project.project_instances.last.title %></strong>
                                         </p>
 
                                         <p style="margin: 0px 0px;">
-                                            <strong>by #student/#group</strong><br><br>
+                                            <strong>by <%= @owner_name %></strong><br><br>
                                         </p>
 
                                         <p style="margin: 16px 0;">
@@ -60,8 +60,8 @@
                                         <!-- replace the two "#proposallink"s below with the proposal link -->
 
                                         <p style="margin: 16px 0;">
-                                            <a href="#proposallink" style="color: #0066cc; text-decoration: underline;">
-                                                #proposallink
+                                            <a href="<%= course_project_url(@course, @project) %>" style="color: #0066cc; text-decoration: underline;">
+                                                <%= course_project_url(@course, @project) %>
                                             </a>
                                         </p>
                                         <p style="margin: 16px 0;">
