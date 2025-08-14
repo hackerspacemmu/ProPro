@@ -421,6 +421,7 @@ class ProjectsController < ApplicationController
         @course.students.exists?(user: current_user) ||
         @project.supervisor == current_user ||
         @latest_instance.supervisor == current_user 
+
       )
     end
 

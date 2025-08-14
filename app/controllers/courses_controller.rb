@@ -13,6 +13,7 @@ class CoursesController < ApplicationController
       @description = @course.course_description
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
+      @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
       @filtered_group_list   = filtered_group_list
       @filtered_student_list = filtered_student_list
       @my_student_projects = []
@@ -33,11 +34,19 @@ class CoursesController < ApplicationController
 
       @current_status = @project&.current_status || "not_submitted"
 
-    if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer?
+    if @current_user_enrolment&.coordinator?
+      if @lecturer_enrolment
+        @my_student_projects = @course.projects.approved_for_lecturer(@lecturer_enrolment)
+        @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @lecturer_enrolment)
+      else
+        @my_student_projects = @course.projects.approved_student_proposals
+        @incoming_proposals = @course.projects.pending_student_proposals
+      end
+    elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
-      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @current_user_enrolment)
     end
-
+    
       # SET LECTURER CAPACITY INFO
       @lecturer_capacity_info = {}
       @lecturers.each do |lecturer|
@@ -519,7 +528,7 @@ def lecturer_pending_proposals_count(lecturer, course)
   lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
   return 0 unless lecturer_enrolment
   
-  course.projects.pending_for_lecturer(lecturer_enrolment).count
+  course.projects.pending_and_redo_for_lecturer(lecturer_enrolment).count
 end
 
 def lecturer_capacity_info(lecturer, course)
