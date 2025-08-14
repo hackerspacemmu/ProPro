@@ -124,8 +124,7 @@ class ProjectsController < ApplicationController
           else
             @instance.project_instance_fields.create!(
               project_template_field_id: field_id,
-              value: value,
-              enrolment: @project.supervisor
+              value: value
             )
           end
         end
@@ -174,6 +173,7 @@ class ProjectsController < ApplicationController
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
     rescue StandardError => e
+      Rails.logger.info e.message
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
       return
     end
@@ -188,9 +188,9 @@ class ProjectsController < ApplicationController
     end
 
     if @course.grouped?
-      has_project = Current.user.project_groups.find_by(course: @course, ownership_type: :project_group).ownership.nil?
+      has_project = !Current.user.project_groups.find_by(course: @course).ownership.nil?
     else
-      has_project = @course.projects
+      has_project = !@course.projects
         .joins(:ownership)
         .where(ownerships: { owner: current_user, ownership_type: :student })
         .exists?
