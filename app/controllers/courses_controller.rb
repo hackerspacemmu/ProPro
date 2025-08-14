@@ -28,24 +28,16 @@ class CoursesController < ApplicationController
         end
       else
           @group = nil
-          user_ownership = Ownership.find_by(
-            owner_type: "User",
-            owner_id: current_user.id,
-            ownership_type: :student  
-          )
-          @project = user_ownership ? Project.find_by(ownership: user_ownership, course: @course) : nil
+          @project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: "User", owner_id: current_user.id })
       end
 
       @current_status = @project&.current_status || "not_submitted"
 
-    if @current_user_enrolment&.coordinator?
-      @my_student_projects = @course.projects.approved_student_proposals
-      @incoming_proposals = @course.projects.pending_student_proposals
-    elsif @current_user_enrolment&.lecturer?
+    if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
-      @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @current_user_enrolment)
+      @incoming_proposals = @course.projects.pending_for_lecturer(@current_user_enrolment)
     end
-      
+
       # SET LECTURER CAPACITY INFO
       @lecturer_capacity_info = {}
       @lecturers.each do |lecturer|
