@@ -379,6 +379,9 @@ class ProjectsController < ApplicationController
 
     if params[:id]
       @project = @projects.find { |p| p.id == params[:id].to_i }
+      @instances = @project.project_instances.order(version: :asc)
+      @index = @instances.size
+      @latest_instance = @instances[@index - 1]
       return redirect_to(course_path(@course), alert: "You are not authorized") if @project.nil?
     end
 
@@ -396,12 +399,14 @@ class ProjectsController < ApplicationController
     elsif @course.own_lecturer_only?
       authorized = @project.nil? || (
         @project.ownership&.owner == current_user ||
-        @project.supervisor.username == current_user
+        @project.supervisor == current_user ||
+        @latest_instance.supervisor == current_user
       )
     elsif @course.no_restriction?
       authorized = @project.nil? || (
         @course.students.exists?(user: current_user) ||
-        @project.supervisor&.user == current_user
+        @project.supervisor == current_user ||
+        @latest_instance.supervisor == current_user 
       )
     end
 
