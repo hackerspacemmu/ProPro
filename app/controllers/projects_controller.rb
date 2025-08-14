@@ -174,7 +174,6 @@ class ProjectsController < ApplicationController
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
     rescue StandardError => e
-      Rails.logger.info e.message
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
       return
     end
@@ -188,10 +187,14 @@ class ProjectsController < ApplicationController
       return
     end
 
-    has_project = @course.projects
-      .joins(:ownership)
-      .where(ownerships: { owner: current_user, ownership_type: :student })
-      .exists?
+    if @course.grouped?
+      has_project = Current.user.project_groups.find_by(course: @course, ownership_type: :project_group).ownership.nil?
+    else
+      has_project = @course.projects
+        .joins(:ownership)
+        .where(ownerships: { owner: current_user, ownership_type: :student })
+        .exists?
+    end
 
     if has_project
       redirect_to course_path(@course), alert: "You already have a project in this course."
@@ -224,19 +227,28 @@ class ProjectsController < ApplicationController
       ActiveRecord::Base.transaction do
         if @course.grouped?
           group = current_user.project_groups.find_by(course: @course)
+
           unless group
             raise StandardError, "You're not part of a project group."
           end
 
+          if group.ownership
+            raise StandardError, "Your group already has a project"
+          end
+=begin
           if Project.joins(:ownership).where(ownerships: { owner: group, ownership_type: :project_group }).exists?
             raise StandardError, "Your group already has a project."
           end
-
+=end
           @ownership = Ownership.create!(owner: group, ownership_type: :project_group)
         else
-          @enrolment = Enrolment.find_by(user: current_user, course: @course)
-          if Project.exists?(enrolment: @enrolment)
-             raise StandardError, "You already have a project for this course."
+          has_project = @course.projects
+          .joins(:ownership)
+          .where(ownerships: { owner: current_user, ownership_type: :student })
+          .exists?
+
+          if has_project
+            raise StandardError, "You already have a project"
           end
 
           @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
