@@ -150,7 +150,7 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic_id: nil)
         else
           # Treat as topic_id
-          topic = Project.find_by(id: params[:based_on_topic])
+          topic = Project.find_by(id: params[:based_on_topic], course: @course)
 
           if !topic
             raise StandardError
@@ -269,7 +269,7 @@ class ProjectsController < ApplicationController
           end
         else
           # Treat as topic_id
-          topic = Project.find_by(id: params[:based_on_topic])
+          topic = Project.find_by(id: params[:based_on_topic], course: @course)
 
           if !topic
             raise StandardError

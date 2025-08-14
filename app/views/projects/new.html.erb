@@ -63,7 +63,7 @@
                     .joins(:ownership)
                     .where(ownerships: { owner: lecturer, ownership_type: :lecturer }, )
                     .joins(:project_instances)
-                    .where(project_instances: { status: :approved })
+                    .where(project_instances: { status: :approved }, course: @course)
                     .distinct %>
 
                 <% approved_topics.each do |topic| %>

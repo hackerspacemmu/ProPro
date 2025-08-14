@@ -85,7 +85,7 @@
                 <optgroup label="<%= lecturer.username %>">
                   <% approved_topics = Project
                       .joins(:ownership)
-                      .where(ownerships: { owner: lecturer, ownership_type: :lecturer })
+                      .where(ownerships: { owner: lecturer, ownership_type: :lecturer }, course: @course)
                       .joins(:project_instances)
                       .where(project_instances: { status: :approved })
                       .distinct %>
