@@ -203,12 +203,13 @@ ul.breadcrumb li b {
 .proposal-guidelines a {
   text-decoration: none;
   color: inherit;
+  width: max-content;
 }
 
 
 .project-file {
     color: #313848;
-    display: flex;
+    display: inline-block;
     flex-wrap: wrap;
     z-index: 0;
     width: 327px;
