@@ -55,7 +55,9 @@
         <div class="field">
           <label>Based on Topic</label><br />
           <select name="based_on_topic" class="form-control" required>
-          <option value="" selected disabled>-- Select a Topic --</option>
+            <% if @selected_topic_id.nil? %>
+              <option value="" selected disabled>-- Select a Topic --</option>
+            <% end %>
             <% @lecturer_options.each do |lecturer_enrolment| %>
               <% lecturer = lecturer_enrolment.user %>
               <optgroup label="<%= lecturer.username %>">
@@ -76,7 +78,7 @@
                   </option>
                 <% end %>
 
-                <option value="own_proposal_<%= lecturer.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer.id %>>
+                <option value="own_proposal_<%= lecturer.id %>">
                   <%= "#{lecturer.username} - Own Proposal" %>
                 </option>
               </optgroup>
