@@ -75,11 +75,10 @@ class ProjectsController < ApplicationController
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
     # Optionally preselect topic or own proposal
-    @selected_topic_id = params[:topic_id].presence&.to_i
-    @selected_own_proposal_lecturer_id = nil
-    if params[:own_proposal_lecturer_id].present?
-      @selected_own_proposal_lecturer_id = params[:own_proposal_lecturer_id].to_i
-      @selected_topic_id = nil
+    if @instance.source_topic_id.nil?
+      @selected_own_proposal_lecturer_id = @instance.enrolment_id
+    else
+      @selected_topic_id = @instance.source_topic_id
     end
   end
 
@@ -211,12 +210,8 @@ class ProjectsController < ApplicationController
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
     # Optionally preselect topic or own proposal
-    @selected_topic_id = params[:topic_id].presence&.to_i
-    @selected_own_proposal_lecturer_id = nil
-
-    if params[:own_proposal_lecturer_id].present?
-      @selected_own_proposal_lecturer_id = params[:own_proposal_lecturer_id].to_i
-      @selected_topic_id = nil
+    if params[:topic_id].present? && Project.exists?(id: params[:topic_id], course: @course)
+      @selected_topic_id = params[:topic_id]
     end
   end
 
