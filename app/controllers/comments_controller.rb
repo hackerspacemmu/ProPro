@@ -43,7 +43,7 @@ class CommentsController < ApplicationController
       project_version_number: version_number
       )
 
-    if type == "student"
+    if type == "student" || type == "project_group"
       redirect_to course_project_path(parent_course, parent_project, version: version_number)
     else
       redirect_to course_topic_path(parent_course, parent_project, version: version_number)
@@ -64,7 +64,7 @@ class CommentsController < ApplicationController
       comment.update!(deleted: true)
     end
 
-    if type == "student"
+    if type == "student" || type == "project_group"
       redirect_to course_project_path(parent_course, parent_project, version: comment.project_version_number)
     else
       redirect_to course_topic_path(parent_course, parent_project, version: comment.project_version_number)

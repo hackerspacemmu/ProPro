@@ -409,7 +409,7 @@ class ProjectsController < ApplicationController
     elsif @course.own_lecturer_only?
       authorized = @project.nil? || (
         @project.ownership&.owner == current_user ||
-        @project.supervisor&.user == current_user
+        @project.supervisor.username == current_user
       )
     elsif @course.no_restriction?
       authorized = @project.nil? || (
