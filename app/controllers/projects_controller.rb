@@ -162,7 +162,7 @@ class ProjectsController < ApplicationController
           lecturer_id = params[:based_on_topic].split("_").last.to_i
 
           # Find lecturer enrolment for course
-          supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
+          supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
 
 
           if !supervisor_enrolment
@@ -198,6 +198,20 @@ class ProjectsController < ApplicationController
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
       return
     end
+
+    if @course.grouped?
+      owner = @project.owner.group_name
+    else
+      owner = @project.owner.username
+    end
+
+    GeneralMailer.with(
+      email_address: @project.supervisor.email_address,
+      supervisor_username: @project.supervisor.username,
+      owner_name: owner,
+      course: @course,
+      project: @project
+    ).New_Student_Submission.deliver_now
 
     redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
   end
@@ -335,6 +349,20 @@ class ProjectsController < ApplicationController
       redirect_to course_path(@course), alert: e.message
       return
     end
+
+    if @course.grouped?
+      owner = @project.owner.group_name
+    else
+      owner = @project.owner.username
+    end
+
+    GeneralMailer.with(
+      email_address: @project.supervisor.email_address,
+      supervisor_username: @project.supervisor.username,
+      owner_name: owner,
+      course: @course,
+      project: @project
+    ).New_Student_Submission.deliver_now
 
     redirect_to course_project_path(@course, @project), notice: "Project created!"
   end

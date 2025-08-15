@@ -102,7 +102,7 @@
                     </option>
                   <% end %>
 
-                  <option value="own_proposal_<%= lecturer.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer.id %>>
+                  <option value="own_proposal_<%= lecturer_enrolment.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>>
                     <%= "#{lecturer.username} - Own Proposal" %>
                   </option>
                 </optgroup>
