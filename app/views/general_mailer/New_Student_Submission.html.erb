@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ProPro - Your proposal has received a response.</title>
+    <title>ProPro - You have received a proposal.</title>
 </head>
 
 <body style="margin: 0; padding: 0; background-color: #efefef; font-family: Inter, sans-serif;">
@@ -18,7 +18,7 @@
                     <tr>
                         <td style="background-color: #e1e1e1; border-radius: 16px 16px 0 0; padding: 25px; text-align: center;">
                             <h1 style="margin: 0; color: #000000; font-size: 24px; font-family: Arial, sans-serif;">
-                                <strong>ProPro - Your proposal has received a response.</strong>
+                                <strong>ProPro - You have received a proposal.</strong>
                             </h1>
                         </td>
                     </tr>
@@ -29,40 +29,43 @@
                                 <tr>
                                     <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
 
-                                        <!-- replace "#name" with the student's name, "#coursename" with the course name -->
+                                        <!-- replace "#name" with the lecturer's name, "#coursename" with the course name -->
 
                                         <p style="margin: 0 0 16px 0;">
-                                            Hi, #name
+                                            Hi, <%= @supervisor_username %>
                                         </p>
 
                                         <p style="margin: 16px 0; font-size: 20px; color: #888;">
-                                            #coursename
+                                            <%= @course.course_name %>
                                         </p>
 
-                                        <!-- replace "#projecttitle" with the project title, "#student/#group" with the student's name or group number, and "#lecturer" with the lecturer's name -->
+                                        <!-- replace "#projecttitle" with the project title, "#student/#group" with the student's name or group number -->
+
+                                        <p style="margin: 16px 0;">
+                                            A proposal has been submitted to you.
+                                        </p>
 
                                         <p style="margin: 0px 0; font-size: 20px; font-weight: bold;">
-                                            <br><strong>#projecttitle</strong>
+                                            <br><strong><%= @project.project_instances.last.title %></strong>
                                         </p>
 
                                         <p style="margin: 0px 0px;">
-                                            <strong>#student/#group</strong><br><br>
+                                            <strong>by <%= @owner_name %></strong><br><br>
                                         </p>
 
                                         <p style="margin: 16px 0;">
-                                            Your proposal has received a response from <strong>#lecturer</strong>.<br>
                                             To view it, visit this link:
                                         </p>
 
                                         <!-- replace the two "#proposallink"s below with the proposal link -->
 
                                         <p style="margin: 16px 0;">
-                                            <a href="#proposallink" style="color: #0066cc; text-decoration: underline;">
-                                                #proposallink
+                                            <a href="<%= course_project_url(@course, @project) %>" style="color: #0066cc; text-decoration: underline;">
+                                                <%= course_project_url(@course, @project) %>
                                             </a>
                                         </p>
                                         <p style="margin: 16px 0;">
-                                            Sign in to view any feedback on the proposal and take further action like making changes for resubmission or submitting a different proposal.
+                                            Sign in to view the proposal, provide feedback and approve or reject the proposal.
                                         </p>
                                     </td>
                                 </tr>

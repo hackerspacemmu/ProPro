@@ -203,12 +203,13 @@ ul.breadcrumb li b {
 .proposal-guidelines a {
   text-decoration: none;
   color: inherit;
+  width: max-content;
 }
 
 
 .project-file {
     color: #313848;
-    display: flex;
+    display: inline-block;
     flex-wrap: wrap;
     z-index: 0;
     width: 327px;
@@ -385,6 +386,12 @@ ul.breadcrumb li b {
   font-size: 14px;
 }
 
+.no-proposal {
+  margin-top: 8px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
 /* lecturer list (alex) */
 
 .supervisors {
@@ -463,6 +470,7 @@ ul.breadcrumb li b {
     margin: 2px 0;
     line-height: 0.7;
 }
+
 
 /* topic list (alex) */
 .btn-normal {
