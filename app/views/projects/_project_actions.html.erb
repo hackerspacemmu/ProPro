@@ -3,7 +3,17 @@
     <!-- Student Edit Actions -->
     <% if members.include?(current_user) %>
       <% if project.status != "approved" && current_version == latest_version %>
-        <div class="action-note"> Latest Version </div> <%= link_to "Edit Proposal", edit_course_project_path(course, project) %> <%= image_tag("edit.svg") %>
+        <div class="action-note"> 
+          Latest Version 
+          <%= link_to edit_course_project_path(course, project), class: "action-button" do %> 
+            <%= image_tag("edit_white.svg") %> 
+            Edit Proposal
+          <% end %>
+          <div class="action-button">
+            <%= image_tag("progress_update.svg") %> 
+            View Progress Update
+          </div>
+        </div>
       <% else %>
         <span class="action-note"><%= image_tag("lock.svg") %> Unable to Edit Project</span>
       <% end %>
@@ -11,7 +21,12 @@
     
     <!-- Version Jump -->
     <% if current_version != latest_version %>
-      <%= link_to "Jump to Current Version", course_project_path(course, project) %>
+      <%= link_to course_project_path(course, project), class: "action-button" do %>
+        <div class="action-circle">
+          <%= image_tag("jump_version.svg") %> 
+        </div>
+        Jump To Latest Version
+      <% end %>
     <% end %>
   </div>
 </section>
