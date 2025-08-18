@@ -46,6 +46,12 @@ class ProjectsController < ApplicationController
 
     @comments = @project.comments.where(project_version_number: @index)
     @new_comment = Comment.new
+
+    if @course.use_progress_updates
+      @progress = ProgressUpdate.where(id: @project)
+
+      @weeks = @course.number_of_updates
+    end
   end
 
   def change_status

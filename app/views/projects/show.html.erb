@@ -31,13 +31,23 @@
                     current_version: current_version,
                     latest_version: latest_version,
                     course: @course %>
-         <%= render 'project_comments',
-                    comments: @comments,
-                    new_comment: @new_comment,
-                    course: @course,
-                    project: @project,
-                    current_version: current_version,
-                    latest_version: latest_version %>
+
+        <% if @project.ownership&.owner == current_user || @current_instance.supervisor == current_user %>           
+          <%= render 'project_comments',
+                      comments: @comments,
+                      new_comment: @new_comment,
+                      course: @course,
+                      project: @project,
+                      current_version: current_version,
+                      latest_version: latest_version %>
+        <% end %>
+
+        <% if @course.use_progress_updates && @current_instance.status == "approved" %>
+          <% if @current_instance.supervisor == current_user %>
+            <%= link_to "Add Progress Update", new_course_project_progress_update_path(@course, @project) %>
+          <% end %>
+            
+        <% end %>
          <%= render 'project_fields', fields: @fields, based_on_topic_name: @current_instance&.source_topic&.project_instances&.last&.title || nil %>
          <footer class="project-footer">
            <%= link_to "← Back to Projects", course_path(@course) %>
