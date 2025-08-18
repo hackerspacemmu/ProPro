@@ -6,20 +6,21 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
  </head>
  <body>
-    <main class="project-edit"
-        <h1><b> Progress Update </b> </h1>
+   <main class="project-edit">
+      <h1><b> Progress Update </b></h1>
 
         <%= form_with(model: [@course, @project, @progress_update]) do |f| %>
-          <p> Progress Update Details </p>
-          <%= f.text_area :details, class: "form-control", required: true %>
-
           <%= f.label :rating %>
           <%= f.select :rating,
                 options_for_select(ProgressUpdate.ratings.keys.map { |s| [s.humanize, s] }, @progress_update.rating) %>
           <br>
 
-          <%= f.label :Date %>
-          <%= f.date_field :Date, value: Date.today %>
+          <%= f.label :feedback %>
+          <%= f.text_area :feedback, class: "form-control", required: true %>
+
+
+          <%= f.label :date %>
+          <%= f.date_field :date, value: Date.today %>
 
           <br>
           <%= f.submit %>
