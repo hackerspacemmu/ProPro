@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
   resources :passwords, param: :token
 
-  resources :courses, only: [:show, :new, :create, :destroy] do
+  resources :courses, only: [:index ,:show, :new, :create, :destroy] do
     member do
       get 'add_students'
       post 'handle_add_students'
@@ -33,6 +33,8 @@ Rails.application.routes.draw do
           patch 'soft_delete'
         end
       end
+
+      resources :progress_updates, only: [:show, :edit, :update, :create, :new]
     end
 
     resources :topics, only: [:index, :show, :edit, :update, :create, :new, :destroy] do
