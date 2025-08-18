@@ -23,8 +23,15 @@ def create
   #redirect_to course_project_progress_update_path(@course, @project, @progress_update)
 end
 
+def edit
+end
+
+def update
+end
+
 def delete
 end
+
 private
 
 def access 
