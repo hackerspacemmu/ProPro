@@ -17,7 +17,9 @@
     <%= link_to "← Edit Progress Update", edit_course_project_progress_update_path(@course, @project) %>
     <br>
     <br>
-    <%= link_to "Delete",course_project_progress_update_path(@course, @project, @progress_update), method: :delete,
+    <%= button_to "Delete",
+    course_project_progress_update_path(@course, @project, @progress_update),
+    method: :delete,
     class: "delete-btn" %>
     <footer class="project-footer">
         <%= link_to "← Back to Project", course_project_path(@course, @project) %>
