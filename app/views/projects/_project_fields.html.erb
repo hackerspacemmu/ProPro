@@ -1,25 +1,23 @@
   <section class="project-fields">
     <header class="section-header">
-      <% if course.use_progress_updates && current_instance.status == "approved" %>
+      <% if show_progress_tab? %>
         <nav class="project-tabs">
           <h2><%= link_to "Project Details", 
-                  course_project_path(course, project), 
-                  class: "section-title #{'active' if current_page?(course_project_path(course, project))}" %></h2>
+                  course_project_path(course, project, tab: 'details'),
+                  class: "section-title #{'active' if current_tab == 'details'}" %></h2>
           <h2><%= link_to "Progress Updates", 
-                  course_project_progress_update_path(course, project), 
-                  class: "section-title #{'active' if controller_name == 'progress_updates'}" %></h2>
+                  course_project_path(course, project, tab: 'progress'),
+                  class: "section-title #{'active' if current_tab == 'progress'}" %></h2>
         </nav>
       <% else %>
-          <h2><%= link_to "Project Details",
-                  course_project_path(course, project),
-                  class: "section-title #{'active' if current_page?(course_project_path(course, project))}" %></h2>
+          <h2 class="section-title">Project Details</h2>
       <% end %>
     </header>
   
     <div class="tab-content">
-      <% if @current_tab == 'details' %>
+      <% if current_tab == 'details' %>
         <%= render 'project_details', fields: fields, based_on_topic_name: based_on_topic_name %>
-      <% elsif @current_tab == 'progress' %>
+      <% elsif current_tab == 'progress' %>
         <%= render 'progress_updates', progress_updates: @progress_updates %>
       <% end %>
     </div>

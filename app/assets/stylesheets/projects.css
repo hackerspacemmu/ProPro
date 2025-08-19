@@ -422,21 +422,25 @@ body {
 .section-title {
   margin-top: 48px;
   text-decoration: none;
+  padding: 6px 12px;
+  color: black;
 }
 
 .section-title.active {
   display: inline-flex;
   align-items: center;
-  padding: 1%;
-  border-radius: 30px;
+  padding: 6px 12px;
+  border-radius: 16px;
   background-color: #3d3d3d;
   color: white;
   text-decoration: none; 
   margin-left: 6px;
+  margin-bottom: 32px;
 }
 
 .project-tabs {
-  display: flexbox;
+  display: flex;
+  align-items: center;
 }
 
 .fields-container {
