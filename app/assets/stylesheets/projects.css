@@ -271,7 +271,6 @@ body {
   font-weight: 550;
   margin-bottom: 10px;
   margin-left: 39px;
-
 }
 
 .comments-container {
@@ -415,8 +414,29 @@ body {
   margin-bottom: 48px;
 }
 
-.project-fields .section-header .section-title {
+.project-fields .section-header {
   margin-top: 48px;
+  text-decoration: none;
+}
+
+.section-title {
+  margin-top: 48px;
+  text-decoration: none;
+}
+
+.section-title.active {
+  display: inline-flex;
+  align-items: center;
+  padding: 1%;
+  border-radius: 30px;
+  background-color: #3d3d3d;
+  color: white;
+  text-decoration: none; 
+  margin-left: 6px;
+}
+
+.project-tabs {
+  display: flexbox;
 }
 
 .fields-container {

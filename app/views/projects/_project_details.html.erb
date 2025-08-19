@@ -1,0 +1,29 @@
+    <div class="fields-container">
+      <% fields.each do |field| %>
+        <div class="field-row"> 
+          <div class="field-label">
+            <%= field.project_template_field.label %>
+          </div>
+          <div class="field-value">
+            <% if field.value.present? %>
+              <% 
+                if field.project_template_field.dropdown? || field.project_template_field.radio?
+                  begin
+                    parsed_value = JSON.parse(field.value)
+                    display_value = parsed_value.is_a?(Array) ? parsed_value.join(", ") : parsed_value
+                  rescue JSON::ParserError
+                    display_value = field.value
+                  end
+                else
+                  display_value = field.value
+                end
+              %>
+              <%= display_value %>
+            <% else %>
+              No content provided
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <p>Based on Topic: <%= based_on_topic_name || "Own Proposal" %></p>
+    </div>
