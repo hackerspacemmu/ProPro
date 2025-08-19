@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <%= stylesheet_link_tag "projects" %>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ </head>
+ <body>
+   <main class="project-edit">
+      <h1><b> Progress Update </b></h1>
+
+        <%= form_with(model: [@course, @project, @progress_update]) do |f| %>
+          <%= f.label :rating %>
+          <%= f.select :rating,
+                options_for_select(ProgressUpdate.ratings.keys.map { |s| [s.humanize, s] }, @progress_update.rating) %>
+          <br>
+
+          <%= f.label :feedback %>
+          <%= f.text_area :feedback, class: "form-control", required: true %>
+
+
+          <%= f.label :date %>
+          <%= f.date_field :date, value: Date.today %>
+
+          <br>
+          <%= f.submit "Update Progress" %>
+        <% end %>
+
+        <%= link_to "← Back to Progress", course_project_progress_update_path(@course, @project) %>
+    </main>
+ </body>
+</html>
