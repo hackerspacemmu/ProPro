@@ -48,7 +48,7 @@ class ProjectsController < ApplicationController
     @new_comment = Comment.new
 
     if @course.use_progress_updates
-      @progress = @project.progress_updates.order(created_at: :desc)
+      @progress = @project.progress_updates.order(date: :desc)
       @weeks = @course.number_of_updates
     end
   end
