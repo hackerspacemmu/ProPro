@@ -14,13 +14,15 @@
     <br>
     <%= @progress_update.date %>
     <br>
-    <%= link_to "← Edit Progress Update", edit_course_project_progress_update_path(@course, @project) %>
-    <br>
-    <br>
-    <%= button_to "Delete",
-    course_project_progress_update_path(@course, @project, @progress_update),
-    method: :delete,
-    class: "delete-btn" %>
+    <% if @current_instance.supervisor == current_user %>
+      <%= link_to "← Edit Progress Update", edit_course_project_progress_update_path(@course, @project) %>
+      <br>
+      <br>
+      <%= button_to "Delete",
+      course_project_progress_update_path(@course, @project, @progress_update),
+      method: :delete,
+      class: "delete-btn" %>
+    <% end %>
     <footer class="project-footer">
         <%= link_to "← Back to Project", course_project_path(@course, @project) %>
     </footer>

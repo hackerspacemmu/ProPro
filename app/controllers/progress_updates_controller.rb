@@ -1,5 +1,6 @@
 class ProgressUpdatesController < ApplicationController
 before_action :access
+before_action :supervisor_access, except: [:show]
 
 def show
   @progress_update = ProgressUpdate.find(params[:id])
@@ -56,7 +57,9 @@ def access
   @instances = @project.project_instances.order(version: :asc)
   @index = @instances.size
   @current_instance = @instances[@index - 1]
+end
 
+def supervisor_access
   if @current_instance.supervisor != current_user
     redirect_to(course_project_path(@course, @project), alert: "You are not authorized")
   end
