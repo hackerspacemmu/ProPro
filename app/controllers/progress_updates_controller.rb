@@ -1,10 +1,6 @@
 class ProgressUpdatesController < ApplicationController
 before_action :access
-before_action :supervisor_access, except: [:show]
-
-def show
-  @progress_update = ProgressUpdate.find(params[:id])
-end
+before_action :supervisor_access
   
 def new
   @progress_update = ProgressUpdate.new
@@ -35,10 +31,10 @@ end
 
 def update
   @progress_update = ProgressUpdate.find(params[:id])
-  if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))      # 2
-    redirect_to course_project_progress_update_path(@course, @project, @progress_update)   # 3a
+  if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))   
+    redirect_to course_project_path(@course, @project)  
   else
-    render :edit, status: :unprocessable_entity                     # 3b
+    render :edit, status: :unprocessable_entity              
   end
 end
 

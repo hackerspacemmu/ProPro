@@ -3,10 +3,20 @@
   <% @progress.each_with_index do |progress_update, i| %>
     <div class="progress-update">
       <%= link_to "Update #{total - i}", course_project_progress_update_path(@course, @project, progress_update) %>
-      <p><strong>Feedback:</strong> <%= progress_update.feedback.truncate_words(25) %></p>
+      <p><strong>Feedback:</strong> <%= progress_update.feedback %></p>
       <p><strong>Date:</strong> <%= progress_update.date %></p>
       <p><strong>Updated At:</strong> <%= progress_update.updated_at.strftime("%d-%m-%Y") %></p>
       <p><strong>Rating:</strong> <%= progress_update.rating %></p>
+
+      <% if @current_instance.supervisor == current_user %>
+        <%= link_to "← Edit Progress Update", edit_course_project_progress_update_path(@course, @project, progress_update) %>
+        <br>
+        <br>
+        <%= button_to "Delete",
+        course_project_progress_update_path(@course, @project, progress_update),
+        method: :delete,
+        class: "delete-btn" %>
+      <% end %>
       <br>
     </div>
   <% end %>
