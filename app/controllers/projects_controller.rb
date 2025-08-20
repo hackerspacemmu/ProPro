@@ -42,7 +42,7 @@ class ProjectsController < ApplicationController
 
     @current_instance = @instances[@index - 1]
 
-    @fields = @current_instance.project_instance_fields.includes(:project_template_field)
+    @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
 
     @comments = @project.comments.where(project_version_number: @index)
     @new_comment = Comment.new

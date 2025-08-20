@@ -20,7 +20,7 @@
         <% first_max_chars = 170 %>
         <% if first_field && first_field.project_template_field.textarea? %>
           <% content = first_field.value.to_s.strip %>
-          <% display_parts << (content.length > first_max_chars ? content[0, first_max_chars] + "..." : content) %>
+          <% display_parts << content.truncate_words(90) %>
         <% else %>
           <% if first_field && (first_field.project_template_field.shorttext? || first_field.project_template_field.dropdown? || first_field.project_template_field.radio?) %>
             <% display_parts << first_field.value.to_s.strip %>
@@ -32,7 +32,7 @@
 
         <% if (second_field && second_field.project_template_field.textarea?) && !first_field.project_template_field.textarea? %>
           <% content = second_field.value.to_s.strip %>
-          <% display_parts << (content.length > second_max_chars ? content[0, second_max_chars] + "..." : content) %>
+          <% display_parts << content.truncate_words(90) %>
         <% else %>
           <% if second_field && (second_field.project_template_field.shorttext? || second_field.project_template_field.dropdown? || second_field.project_template_field.radio?) %>
             <% content = second_field.value.to_s.strip %>
@@ -45,7 +45,7 @@
         <% third_max_chars = 90 %>
         <% if (third_field && third_field.project_template_field.textarea?) && !second_field.project_template_field.textarea? %>
           <% content = third_field.value.to_s.strip %>
-          <% display_parts << (content.length > third_max_chars ? content[0, third_max_chars] + "..." : content) %>
+          <% display_parts << content.truncate_words(90) %>
         <% else %>
           <% if third_field && (third_field.project_template_field.shorttext? || third_field.project_template_field.dropdown? || third_field.project_template_field.radio?) %>
             <% display_parts << third_field.value.to_s.strip %>
