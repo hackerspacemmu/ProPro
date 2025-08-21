@@ -42,13 +42,13 @@ class ProjectsController < ApplicationController
 
     @current_instance = @instances[@index - 1]
 
-    @fields = @current_instance.project_instance_fields.includes(:project_template_field)
+    @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
 
     @comments = @project.comments.where(project_version_number: @index)
     @new_comment = Comment.new
 
     if @course.use_progress_updates
-      @progress = @project.progress_updates.order(created_at: :desc)
+      @progress = @project.progress_updates.order(date: :desc)
       @weeks = @course.number_of_updates
     end
   end

@@ -420,22 +420,27 @@ body {
 }
 
 .section-title {
-  margin-top: 48px;
+  margin-top: 24px;
   text-decoration: none;
-  padding: 6px 12px;
   color: black;
 }
 
-.section-title.active {
+.project-fields .section-title {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  text-decoration: none;
   border-radius: 16px;
+  text-decoration: none; 
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  color: black;
+  opacity: 0.4;
+}
+
+.section-title.active {
   background-color: #3d3d3d;
   color: white;
-  text-decoration: none; 
-  margin-left: 6px;
-  margin-bottom: 32px;
+  opacity: 1;
 }
 
 .project-tabs {
