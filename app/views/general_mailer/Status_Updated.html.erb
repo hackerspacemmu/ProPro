@@ -31,25 +31,15 @@
 
 
                                         <p style="margin: 0 0 16px 0;">
-                                            Hi, <%= @username %>
+                                            Hi, <%= @recipient %>
                                         </p>
 
                                         <p style="margin: 16px 0; font-size: 20px; color: #888;">
                                             <%= @course.course_name %>
                                         </p>
 
-                                        <!-- replace "#projecttitle" with the project title, "#student/#group" with the student's name or group number, and "#lecturer" with the lecturer's name -->
-
                                         <p style="margin: 0px 0; font-size: 20px; font-weight: bold;">
                                             <br><strong><%= @project.project_instances.last.title %></strong>
-                                        </p>
-
-                                        <p style="margin: 0px 0px;">
-                                            <% if @group_name %>
-                                                <strong><%= @group_name %></strong><br><br>
-                                            <% else %>
-                                                <strong><%= @username %></strong><br><br>
-                                            <% end %>
                                         </p>
 
                                         <p style="margin: 16px 0;">

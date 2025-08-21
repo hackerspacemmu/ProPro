@@ -29,7 +29,6 @@
                                 <tr>
                                     <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
 
-                                        <!-- replace "#name" with the lecturer's name, "#coursename" with the course name -->
 
                                         <p style="margin: 0 0 16px 0;">
                                             Hi, <%= @supervisor_username %>
@@ -38,8 +37,6 @@
                                         <p style="margin: 16px 0; font-size: 20px; color: #888;">
                                             <%= @course.course_name %>
                                         </p>
-
-                                        <!-- replace "#projecttitle" with the project title, "#student/#group" with the student's name or group number -->
 
                                         <p style="margin: 16px 0;">
                                             A proposal has been submitted to you.
@@ -57,7 +54,6 @@
                                             To view it, visit this link:
                                         </p>
 
-                                        <!-- replace the two "#proposallink"s below with the proposal link -->
 
                                         <p style="margin: 16px 0;">
                                             <a href="<%= course_project_url(@course, @project) %>" style="color: #0066cc; text-decoration: underline;">
