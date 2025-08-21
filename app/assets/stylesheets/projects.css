@@ -73,7 +73,7 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  padding: 8px; 
+  padding: 8px;
 }
 
 .metadata-label {
@@ -84,23 +84,23 @@ body {
 }
 
 .metadata-label img {
-  width: 17px;                 
+  width: 17px;
   height: 17px;
-  object-fit: contain;       
+  object-fit: contain;
 }
 
 .metadata-value {
   width: auto;
   display: flex;
   align-items: center;
-  gap: 8px;       
-  text-align: left; 
+  gap: 8px;
+  text-align: left;
 }
 
 .owner-metadata .metadata-value {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;        
+  gap: 0.5rem;
   align-items: flex-start;
 }
 
@@ -163,7 +163,7 @@ body {
 }
 
 .version-navigation .version-btn {
-  margin: 0px;   
+  margin: 0px;
 }
 
 .version-navigation .version-text {
@@ -184,7 +184,7 @@ body {
   gap: 6px;
   background-color: #3d3d3d;
   color: white;
-  text-decoration: none; 
+  text-decoration: none;
   margin-left: 6px;
 }
 
@@ -218,15 +218,15 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;                 
+  width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #8E8E8E;   
+  background-color: #8E8E8E;
   color: #fff;
   font-size: 0.875rem;
   font-weight: 600;
-  margin-right: 8px;           
-  text-transform: uppercase;   
+  margin-right: 8px;
+  text-transform: uppercase;
 }
 
 /* ============================================= */
@@ -279,7 +279,7 @@ body {
 
 .comments-list {
   position: relative;
-  padding-left: 40px; 
+  padding-left: 40px;
   margin: 0;
 }
 
@@ -305,9 +305,9 @@ body {
 .comment:not(:last-child)::before {
   content: "";
   position: absolute;
-  left: 12px; 
-  top: 24px; 
-  bottom: -24px; 
+  left: 12px;
+  top: 24px;
+  bottom: -24px;
   width: 2px;
   background: #ccc;
   z-index: 0;
@@ -331,7 +331,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   position: relative;
-  top: 0; 
+  top: 0;
 }
 
 .comment-body-wrapper {
@@ -366,21 +366,21 @@ body {
 
 .comment-textarea {
   all: unset;
-  flex: 1;                       
+  flex: 1;
   max-width: 800px;
-  height: 20px;                     
-  width: 100%;                    
-  border-bottom: 2px solid #e5e7eb; 
-  padding: 8px 0;                 
-  font-size: 16px;                
-  color: #374151;                 
-  background-color: transparent;  
+  height: 20px;
+  width: 100%;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 8px 0;
+  font-size: 16px;
+  color: #374151;
+  background-color: transparent;
   transition: border-color 0.15s;
-  resize: vertical;         
+  resize: vertical;
 }
 
 .comment-textarea:focus {
-  border-bottom-color: #3b82f6;   
+  border-bottom-color: #3b82f6;
   outline: none;
 }
 
@@ -393,7 +393,8 @@ body {
 .comment-input-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;               
+  gap: 8px;
+
 
 }
 
@@ -425,27 +426,42 @@ body {
   color: black;
 }
 
-.project-fields .section-title {
+.project-tabs {
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.project-tabs h2 {
+  margin-bottom: 0;
+}
+
+.project-tabs h2 .section-title {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
-  border-radius: 16px;
-  text-decoration: none; 
-  margin-bottom: 16px;
-  padding: 6px 12px;
+  border-radius: 0;
+  padding: 12px 20px;
   color: black;
-  opacity: 0.4;
+  opacity: 0.6;
+  font-size: 20px;
+  font-weight: 800;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.project-tabs h2 .section-title.active {
+  background-color: transparent;
+  color: #3d3d3d;
+  opacity: 1;
+  border-bottom: 3px solid #007bff;
+  position: relative;
+  top: 2px;
 }
 
 .section-title.active {
-  background-color: #3d3d3d;
-  color: white;
+  background-color: transparent;
+  color: #3d3d3d;
   opacity: 1;
-}
-
-.project-tabs {
-  display: flex;
-  align-items: center;
 }
 
 .fields-container {
@@ -616,7 +632,7 @@ textarea.form-control {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px; 
+  margin-bottom: 12px;
 }
 
 .radio-option input[type="radio"] {
@@ -675,17 +691,18 @@ textarea.form-control {
   padding: 0 8px;
   cursor: pointer;
 }
+
 .send-btn img {
   width: 24px;
   height: 24px;
 }
 
 .account-details {
-  margin-bottom: 48px; 
+  margin-bottom: 48px;
 }
 
 .change-password {
-  margin-bottom: 24px; 
+  margin-bottom: 24px;
 }
 
 .account-details h4,
@@ -712,7 +729,7 @@ textarea.form-control {
     padding: 40px 32px;
     max-width: 800px;
   }
-  
+
   .metadata-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
@@ -727,30 +744,30 @@ textarea.form-control {
   .project-layout {
     flex-direction: column;
   }
-  
+
   .version-navigation {
     width: 100%;
     height: 60px;
     min-height: auto;
     position: static;
   }
-  
+
   .version-controls {
     flex-direction: row;
     height: 60px;
     justify-content: center;
   }
-  
+
   .project-content {
     padding: 32px 20px;
     max-width: 100%;
   }
-  
+
   .field-row {
     grid-template-columns: 1fr;
     min-height: auto;
   }
-  
+
   .metadata-grid {
     grid-template-columns: 1fr;
   }
@@ -775,11 +792,11 @@ textarea.form-control {
   .project-content {
     padding: 24px 16px;
   }
-  
+
   .project-header {
     margin-bottom: 32px;
   }
-  
+
   .project-actions,
   .project-comments,
   .project-fields {

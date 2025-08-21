@@ -2,15 +2,15 @@
     <header class="section-header">
       <% if show_progress_tab? %>
         <nav class="project-tabs">
-          <h2><%= link_to "Project Details", 
-                  course_project_path(course, project, tab: 'details'),
+          <h2 id="project-details"><%= link_to "Project Details", 
+                  course_project_path(course, project, tab: 'details', anchor: 'project-details'),
                   class: "section-title #{'active' if current_tab == 'details'}" %></h2>
-          <h2><%= link_to "Progress Updates", 
-                  course_project_path(course, project, tab: 'progress'),
+          <h2 id="project-progress"><%= link_to "Progress Updates", 
+                  course_project_path(course, project, tab: 'progress', anchor: 'project-progress'),
                   class: "section-title #{'active' if current_tab == 'progress'}" %></h2>
         </nav>
       <% else %>
-          <h2 class="section-title">Project Details</h2>
+          <h2 class="section-title active">Project Details</h2>
       <% end %>
     </header>
   
