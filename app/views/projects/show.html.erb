@@ -32,15 +32,13 @@
                     latest_version: latest_version,
                     course: @course %>
 
-        <% if @project.ownership&.owner == current_user || @current_instance.supervisor == current_user %>           
-          <%= render 'project_comments',
-                      comments: @comments,
-                      new_comment: @new_comment,
-                      course: @course,
-                      project: @project,
-                      current_version: current_version,
-                      latest_version: latest_version %>
-        <% end %>
+        <%= render 'project_comments',
+                    comments: @comments,
+                    new_comment: @new_comment,
+                    course: @course,
+                    project: @project,
+                    current_version: current_version,
+                    latest_version: latest_version %>
 
         <% if @course.use_progress_updates && @current_instance.status == "approved" %>
           <% if @current_instance.supervisor == current_user %>
