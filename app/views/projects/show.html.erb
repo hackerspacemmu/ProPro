@@ -42,18 +42,19 @@
 
         <% if @course.use_progress_updates && @current_instance.status == "approved" %>
           <% if @current_instance.supervisor == current_user %>
-            <%= link_to "Add Progress Update", new_course_project_progress_update_path(@course, @project) %>
+            <br>
+            <%= link_to "Record New Progress Update", new_course_project_progress_update_path(@course, @project) %>
           <% end %>
         <% end %>
-         <%= render 'project_fields', 
-                     project: @project,
-                     fields: @fields, 
-                     based_on_topic_name: @current_instance&.source_topic&.project_instances&.last&.title || nil,
-                     course: @course %>
-        
-         <footer class="project-footer">
-           <%= link_to "← Back to Projects", course_path(@course) %>
-         </footer>
+        <%= render 'project_fields', 
+                    project: @project,
+                    fields: @fields, 
+                    based_on_topic_name: @current_instance&.source_topic&.project_instances&.last&.title || nil,
+                    course: @course %>
+      
+        <footer class="project-footer">
+          <%= link_to "← Back to Course", course_path(@course) %>
+        </footer>
        </section>
      </div>
    </main>

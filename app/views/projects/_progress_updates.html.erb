@@ -1,27 +1,40 @@
 <div class = "progress_update">
+  <br>
   <% total = @progress.size %>
   <% @progress.each_with_index do |progress_update, i| %>
     <div class="progress-update">
       <% if (total - i) > @weeks %>
-        <header><strong> Extra <%= (total - @weeks - i)%> </strong></header>
+        <h3><strong> Extra <%= (total - @weeks - i)%> </strong></h3>
       <% else %>
-       <header><strong> Update <%= (total - i)%> </strong></header>
+        <h3><strong> Update <%= (total - i)%> </strong></h3>
       <% end %>
 
       <p><strong>Date:</strong> <%= progress_update.date %></p>
-      <p><strong>Rating:</strong> <%= progress_update.rating %></p>
-      <p><strong>Feedback:</strong> <%= progress_update.feedback %></p>
-      <p><strong>Created At:</strong> <%= progress_update.created_at.strftime("%d-%m-%Y") %></p>
+      <p><strong>Rating:</strong> <%= progress_update.rating.gsub("_", " ").titleize %></p>
+      <p>
+        <strong>Feedback:</strong>
+        <p>
+          <%= h(progress_update.feedback).gsub("\n", "<br/>").html_safe %>
+        </p>
+      </p>
+      <p style="color: #888; font-size: 0.85em;"><br>Updated At: <%= progress_update.updated_at.strftime("%d-%m-%Y") %></p>
 
 
       <% if @current_instance.supervisor == current_user %>
-        <%= link_to "← Edit Progress Update", edit_course_project_progress_update_path(@course, @project, progress_update) %>
-        <br>
-        <br>
-        <%= button_to "Delete",
-        course_project_progress_update_path(@course, @project, progress_update),
-        method: :delete,
-        class: "delete-btn" %>
+      <div style="display: flex; gap: 10px;">
+        <%=
+          button_to "Edit Progress Update",
+          edit_course_project_progress_update_path(@course, @project, progress_update),
+          method: :get,
+          class: "delete-btn"
+        %>
+        <%=
+          button_to "Delete Progress Update",
+          course_project_progress_update_path(@course, @project, progress_update),
+          method: :delete,
+          class: "delete-btn"
+        %>
+      </div>
       <% end %>
       <br>
     </div>
