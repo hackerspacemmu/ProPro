@@ -18,7 +18,7 @@
       <% if current_tab == 'details' %>
         <%= render 'project_details', fields: fields, based_on_topic_name: based_on_topic_name %>
       <% elsif current_tab == 'progress' %>
-        <%= render 'progress_updates', progress_updates: @progress_updates %>
+      <%= render 'progress_updates', progress_updates: @progress_updates %>
       <% end %>
     </div>
   </section>
