@@ -47,15 +47,15 @@
         <p>There are no comments yet.</p>
       </div>
     <% end %>
-    <% if current_version == latest_version %>
       <div class="comment-form-container">
         <%= form_with model: [course, project, new_comment], local: true, class: "comment-form" do |form| %>
           <div class="form-group">
+          <% if current_version == latest_version %>
             <div class="comment-input-wrapper">
               <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "add a comment..." %>
               <%= form.button class: "send-btn", type: "submit", title: "Send comment" do %>
                 <%= image_tag "send.svg" %>
-              <% end %>
+            <% end %>
             </div>
           </div>
         <% end %>
