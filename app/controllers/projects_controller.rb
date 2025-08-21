@@ -60,32 +60,13 @@ class ProjectsController < ApplicationController
     end
 
     new_status = params[:status]
-    if Project.statuses.key?(new_status)
-      @project.project_instances.last.update(status: new_status)
+    @project.project_instances.last.update!(status: new_status)
 
-      if @course.grouped?
-        group_members = @project.owner.project_group_members.joins(:user).pluck("user.username", "user.email_address")
-
-        group_members.each do |user|
-          GeneralMailer.with(
-            username: user[0],
-            email_address: user[1],
-            group_name: @project.owner.group_name,
-            course: @course,
-            project: @project,
-            supervisor_username: Current.user.username
-          ).Status_Updated.deliver_now
-        end
-      else
-        GeneralMailer.with(
-          username: @project.owner.username,
-          email_address: @project.owner.email_address,
-          course: @course,
-          project: @project,
-          supervisor_username: Current.user.username
-        ).Status_Updated.deliver_now
-      end
-    end
+    GeneralMailer.with(
+      course: @course,
+      project: @project,
+      supervisor_username: Current.user.username
+    ).Status_Updated.deliver_now
 
     redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
   end
@@ -99,7 +80,6 @@ class ProjectsController < ApplicationController
       h[f.project_template_field_id] = f.value
     end
 
-    #@preselected_lecturer_id = params[:lecturer_id] || params[:supervisor_id]
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
     # Optionally preselect topic or own proposal
@@ -117,13 +97,21 @@ class ProjectsController < ApplicationController
       user_id: @project.supervisor
     ).exists?
 
+    previous_supervisor_id = @project.supervisor.id
+    new_instance_created = false
+
     begin
       ActiveRecord::Base.transaction do
         if @project.status == "approved"
           return
         elsif @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_supervisor_comment)
           version = @project.project_instances.count + 1
-          @instance = @project.project_instances.build(version: version, created_by: current_user, enrolment: @project.enrolment)
+          @instance = @project.project_instances.build(
+            version: version,
+            created_by: current_user,
+            enrolment: @project.enrolment
+          )
+          new_instance_created = true
         else
           @instance = @project.project_instances.last
         end
@@ -160,15 +148,13 @@ class ProjectsController < ApplicationController
           raise StandardError, "Please choose a lecturer and topic"
         end
 
-        # 2 possible formats
-        # PROJECT_ID or own_proposal_LECTURER_ID
+        # 2 formats, PROJECT_ID or own_proposal_LECTURER_ID
         if params[:based_on_topic].start_with?("own_proposal_")
           # Extract lecturer ID from value
           lecturer_id = params[:based_on_topic].split("_").last.to_i
 
           # Find lecturer enrolment for course
           supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
-
 
           if !supervisor_enrolment
             raise StandardError
@@ -182,7 +168,7 @@ class ProjectsController < ApplicationController
           if !topic
             raise StandardError
           end
-          # Set supervisor enrolment to the owner of the topic (assuming you want this)
+
           topic_owner = topic&.owner
           if !topic_owner.is_a?(User)
             raise StandardError
@@ -195,7 +181,6 @@ class ProjectsController < ApplicationController
           end
 
           @instance.update!(source_topic: topic)
-
         end
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
@@ -210,13 +195,14 @@ class ProjectsController < ApplicationController
       owner = @project.owner.username
     end
 
-    GeneralMailer.with(
-      email_address: @project.supervisor.email_address,
-      supervisor_username: @project.supervisor.username,
-      owner_name: owner,
-      course: @course,
-      project: @project
-    ).New_Student_Submission.deliver_now
+    if previous_supervisor_id != @project.supervisor.id || new_instance_created
+      GeneralMailer.with(
+        supervisor_username: @project.supervisor.username,
+        owner_name: owner,
+        course: @course,
+        project: @project
+      ).New_Student_Submission.deliver_now
+    end
 
     redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
   end

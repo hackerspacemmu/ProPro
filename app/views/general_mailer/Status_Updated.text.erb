@@ -1,16 +1,10 @@
 ProPro - Your proposal has received a response.
 ===============================================
 
-Hi, <%= @username %>
+Hi, <%= @recipient %>
 
 <%= @course.course_name %>
 <%= @project.project_instances.last.title %>
-
-<% if @group_name %>
-    <%= @group_name %>
-<% else %>
-    <%= @username %>
-<% end %>
 
 Your proposal has received a response from <%= @supervisor_username %>.
 To view it, visit this link:
