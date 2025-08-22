@@ -22,7 +22,7 @@ def create
     return
   end
 
-  redirect_to course_project_path(@course, @project)
+  redirect_to course_project_path(@course, @project, tab: 'progress')
 end
 
 def edit
@@ -32,7 +32,7 @@ end
 def update
   @progress_update = ProgressUpdate.find(params[:id])
   if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))   
-    redirect_to course_project_path(@course, @project)  
+    redirect_to course_project_path(@course, @project, tab: 'progress')
   else
     render :edit, status: :unprocessable_entity              
   end
@@ -42,7 +42,7 @@ end
 def destroy
   @progress_update = ProgressUpdate.find(params[:id])
   @progress_update.destroy
-  redirect_to course_project_path(@course, @project), notice: "Progress update deleted successfully."
+  redirect_to course_project_path(@course, @project, tab: 'progress'), notice: "Progress update deleted successfully."
 end
 
 private
