@@ -4,10 +4,10 @@
         <nav class="project-tabs">
           <h2><%= link_to "Project Details", 
                   course_project_path(course, project, tab: 'details'),
-                  class: "section-title #{'active' if current_tab == 'details'}" %></h2>
+                  class: "tab-title #{'active' if current_tab == 'details'}" %></h2>
           <h2><%= link_to "Progress Updates", 
                   course_project_path(course, project, tab: 'progress'),
-                  class: "section-title #{'active' if current_tab == 'progress'}" %></h2>
+                  class: "tab-title #{'active' if current_tab == 'progress'}" %></h2>
         </nav>
       <% else %>
           <h2 class="section-title">Project Details</h2>
