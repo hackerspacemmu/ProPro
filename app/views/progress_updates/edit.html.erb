@@ -26,7 +26,7 @@
           <%= f.submit "Update Progress" %>
         <% end %>
 
-        <%= link_to "← Back to Progress", course_project_progress_update_path(@course, @project) %>
+        <%= link_to "← Back to Progress", course_project_path(@course, @project, tab: 'progress', anchor: 'project-progress') %>
     </main>
  </body>
 </html>
