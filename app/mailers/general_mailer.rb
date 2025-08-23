@@ -15,7 +15,7 @@ class GeneralMailer < ApplicationMailer
       if @course.grouped?
         emails = @project.owner.project_group_members.joins(:user).pluck("user.email_address")
         @recipient = @project.owner.group_name
-        mail(to: emails.pop, cc: emails, Subject: "Status Updated")
+        mail(to: emails, Subject: "Status Updated")
       else
         @recipient = @project.owner.username
         mail(to: @project.owner.email_address, Subject: "Status Updated")
