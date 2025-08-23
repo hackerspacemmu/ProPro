@@ -305,6 +305,11 @@ body {
     overflow: hidden;
 }
 
+.project-card.status-pending  { background-color: #284555 } 
+.project-card.status-redo     { background-color: #e37401} 
+.project-card.status-rejected { background-color: #a50e0f } 
+.project-card.status-approved { background-color: #81a48a}
+
 .project-card.inner .text {
     color: #5D5D5D;
     white-space: pre-line;
