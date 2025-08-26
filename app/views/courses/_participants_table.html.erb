@@ -9,6 +9,7 @@
             <th><%= image_tag "person_grey.svg" %> Members</th>
             <th><%= image_tag "project.svg" %> Project Title</th>
             <th><%= image_tag "status_grey.svg" %> Status</th>
+            <th><%= image_tag "person_grey.svg" %> Supervisor</th>
           </tr>
         </thead>
         <tbody>
@@ -16,9 +17,11 @@
             <% group_project = group_project_for(group, @course) %>
             <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
             <% status = group_status(group, @course) %>
-            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">            
-              <td><%= group.group_name || "Group #{group.id}" %></td>
-              <td>
+            <tr class="participant-row">            
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">
+                <%= group.group_name || "Group #{group.id}" %>
+              </td>
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">
                 <ul class="member-list">
                   <% group.project_group_members.includes(:user).each do |member| %>
                     <div class="profile-container">
@@ -28,12 +31,20 @@
                   <% end %>
                 </ul>
               </td>
-              <td><%= latest_instance&.title || '-' %></td>
-              <td>
+              <td onclick="window.location.href='<%= course_project_path(@course, group_project) %>'">
+                <%= latest_instance&.title || '-' %>
+              </td>
+              <td onclick="window.location.href='<%= course_project_path(@course, group_project) %>'">
                 <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
                   <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
                   <%= status.humanize %>
                 </span>
+              </td>
+              <td onclick="window.location.href='<%= course_project_path(@course, project) %>'">
+                <div class="profile-container">
+                  <div class="profile-avatar"><%= latest_instance&.supervisor&.username.first.upcase %></div>
+                  <%= latest_instance&.supervisor&.username || '-' %>
+                </div>
               </td>
             </tr>
           <% end %>
@@ -58,6 +69,7 @@
             <th><%= image_tag "person_grey.svg" %> Student ID</th>
             <th><%= image_tag "project.svg" %> Project Title</th>
             <th><%= image_tag "status_grey.svg" %> Status</th>
+            <th><%= image_tag "person_grey.svg" %> Supervisor</th>
           </tr>
         </thead>
         <tbody>
@@ -79,6 +91,12 @@
                   <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
                   <%= status.humanize %>
                 </span>
+              </td>
+              <td>
+                <div class="profile-container">
+                  <div class="profile-avatar"><%= latest_instance&.supervisor&.username.first.upcase %></div>
+                  <%= latest_instance&.supervisor&.username || '-' %>
+                </div>
               </td>
             </tr>
           <% end %>
