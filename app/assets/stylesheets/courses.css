@@ -155,9 +155,12 @@ ul.breadcrumb li b {
 }
 
 .main {
-    margin-top: 120px;
-    margin-left: 300px;
-    margin-right: 60px;
+    margin: 120px auto 0;
+    width: 30%;
+    min-width: 400px;
+    align-self: center;
+    align-items: center;
+    justify-self: center;
     font-size: 28px;
     padding: 10px 0px;
     flex: auto;
@@ -166,9 +169,18 @@ ul.breadcrumb li b {
 .signin_main {
     align-self: center;
     align-items: center;
-    width: 60%;
-    margin: 300px;
+    justify-self: center;
+    justify-content: center;
+    width: 30%;
+    min-width: 400px;
+    margin: auto;
     margin-top: 150px;
+}
+
+.signin_main h1 {
+    display: flex; 
+    justify-content: center;
+    margin: 15px auto;
 }
 
 .remindergap {
@@ -184,11 +196,37 @@ ul.breadcrumb li b {
 }
 
 .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     border-radius: 10px;
     width: 100%;
-    padding: 15px;
+    height: 60%;
+    padding: 15px 0px;
     background-color: #f8f9fa;
     margin-bottom: 20px;
+    box-shadow: 5px 5px 20px;
+}
+
+.container h1 {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+.container .submit {
+    display: flex;
+    margin:  5px 5% 0;
+    justify-content: space-between;
+    align-items: center;
+    align-self: center;
+    margin-top: 5px;
+}
+
+.container label {
+    font-size: large;
+    font-weight: bold;
+    margin: 0 5%;
 }
 
 .section-description {
@@ -872,13 +910,14 @@ label {
 }
 
 input[type="submit"] {
-    background-color: #dfdfdf;
-    color: rgb(0, 0, 0);
-    padding: 10px 15px;
-    border: none;
+    background-color: #7ede77;
+    border-color: #188810;
+    color: rgb(20, 47, 19);
+    padding: 10px 30px;
+    border: 1px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: medium;
 }
 
 /* others */
@@ -907,4 +946,23 @@ input[type="submit"] {
     position: fixed;
     bottom: 50px;
     right: 50px;
+}
+
+.form {
+    display: flex;
+    justify-self: center;
+    width: 90%;
+    height: 30px;
+    margin: auto;
+}
+
+.forget_password {
+    text-decoration-line: underline;
+    text-decoration-color: #3896fa;
+    color: #3896fa;
+}
+
+.forget_password:hover{
+    text-decoration-color: #0160c6;
+    color: #0160c6;
 }

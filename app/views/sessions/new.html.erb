@@ -7,22 +7,27 @@
 
 <body>
     <div class="signin_main">
-        <h1>Sign In</h1>
-        <br>
+
+        <h1>Welcome to Propro</h1>
 
         <div class="container">
+            <h1>Sign In</h1><br>
             <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
             <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
             <br>
 
             <%= form_with url: session_path do |form| %>
-            <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br><br>
-            <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br><br>
-            <%= form.submit "Sign in" %>
-            <% end %>
-            <br><br>
+            <label for= "email">Email</label><br>
+            <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class:"form", name: "email" %><br><br>
+            <label for= "password">Password</label><br>
+            <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "form", name:"password" %><br><br>
 
-            <%= link_to "Forgot password?", new_password_path, class: "btn" %>
+            <div class="submit">
+                <%= form.submit "Sign in" %>
+                <% end %>
+
+                <%= link_to "Forgot password?", new_password_path, class: "forget_password" %>
+            </div>
         </div>
     </div>
 </body>
