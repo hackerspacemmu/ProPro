@@ -38,7 +38,6 @@
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("person.svg") %> Supervisor</span>
         <span class="metadata-value">
-        <span class="metadata-value">
           <%= @current_instance.supervisor.username %>
         </span>
       </div>
@@ -46,7 +45,6 @@
       <!-- Type -->
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
-        <span class="metadata-value">
         <span class="metadata-value">
           <% if type == "topic" %>
             <p>Topic</p>
