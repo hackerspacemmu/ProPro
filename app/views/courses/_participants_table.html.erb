@@ -80,13 +80,13 @@
             <% status = student_status(student, @course) %>
             <% supervisor = latest_instance&.supervisor %>
             <tr class="participant-row">
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'group') %>'">
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
                 <div class="profile-container">
                   <div class="profile-avatar"><%= student.username.first.upcase %></div>
                   <span><%= student.username || '-' %></span>
                 </div>
               </td>
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'group') %>'">
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
                 <%= student.student_id || '-' %>
               </td>
               <td onclick="window.location.href='<%= course_project_path(@course, student_project) %>'">

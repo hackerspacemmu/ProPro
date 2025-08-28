@@ -36,15 +36,15 @@ class CoursesController < ApplicationController
 
     if @current_user_enrolment&.coordinator?
       if @lecturer_enrolment
-        @my_student_projects = @course.projects.approved_for_lecturer(@lecturer_enrolment)
-        @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @lecturer_enrolment)
+        @my_student_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment).approved
+        @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
       else
-        @my_student_projects = @course.projects.approved_student_proposals
-        @incoming_proposals = @course.projects.pending_student_proposals
+        @my_student_projects = @course.projects.not_lecturer_owned.approved
+        @incoming_proposals = @course.projects.not_lecturer_owned.proposals
       end
     elsif @current_user_enrolment&.lecturer?
-      @my_student_projects = @course.projects.approved_for_lecturer(@current_user_enrolment)
-      @incoming_proposals = @course.projects.pending_student_proposals.where(enrolment: @current_user_enrolment)
+      @my_student_projects = @course.projects.student_projects_for_lecturer(@current_user_enrolment).approved
+      @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
     end
     
       # SET LECTURER CAPACITY INFO
@@ -54,7 +54,7 @@ class CoursesController < ApplicationController
       end
 
       # SET STUDENT PROJECTS
-      projects_ownerships = @course.projects.approved_student_proposals
+      projects_ownerships = @course.projects.not_lecturer_owned.approved
       .joins(:ownership)
       .where(ownerships: { owner_type: "User" })
       .pluck("ownerships.owner_id")
@@ -259,12 +259,13 @@ class CoursesController < ApplicationController
     end
 
     @latest_instance = @project&.project_instances&.order(:version)&.last
+    Rails.logger.info "PROFILE PARAMS: #{params.slice(:id, :participant_id, :participant_type).inspect}"
   end
     
 
   private
   def students_with_projects
-    @course.projects.approved_student_proposals.joins(:ownership).where(ownerships: { owner_type: "User" }).pluck("ownerships.owner_id")
+    @course.projects.not_lecturer_owned.approved.joins(:ownership).where(ownerships: { owner_type: "User" }).pluck("ownerships.owner_id")
   end
 
   def disallow_noncoordinator_requests
@@ -521,14 +522,14 @@ def lecturer_approved_proposals_count(lecturer, course)
   lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
   return 0 unless lecturer_enrolment
   
-  course.projects.approved_for_lecturer(lecturer_enrolment).count
+  course.projects.student_projects_for_lecturer(@lecturer_enrolment).approved.count
 end
 
 def lecturer_pending_proposals_count(lecturer, course)
   lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
   return 0 unless lecturer_enrolment
   
-  course.projects.pending_and_redo_for_lecturer(lecturer_enrolment).count
+  course.projects.student_projects_for_lecturer(@lecturer_enrolment).pending_redo.count
 end
 
 def lecturer_capacity_info(lecturer, course)
