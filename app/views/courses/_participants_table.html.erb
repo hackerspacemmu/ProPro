@@ -9,6 +9,7 @@
             <th><%= image_tag "person_grey.svg" %> Members</th>
             <th><%= image_tag "project.svg" %> Project Title</th>
             <th><%= image_tag "status_grey.svg" %> Status</th>
+            <th><%= image_tag "person_grey.svg" %> Supervisor</th>
           </tr>
         </thead>
         <tbody>
@@ -16,9 +17,12 @@
             <% group_project = group_project_for(group, @course) %>
             <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
             <% status = group_status(group, @course) %>
-            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">            
-              <td><%= group.group_name || "Group #{group.id}" %></td>
-              <td>
+            <% supervisor = latest_instance&.supervisor %>
+            <tr class="participant-row">            
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">
+                <%= group.group_name || "Group #{group.id}" %>
+              </td>
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">
                 <ul class="member-list">
                   <% group.project_group_members.includes(:user).each do |member| %>
                     <div class="profile-container">
@@ -28,12 +32,20 @@
                   <% end %>
                 </ul>
               </td>
-              <td><%= latest_instance&.title || '-' %></td>
-              <td>
+              <td onclick="window.location.href='<%= course_project_path(@course, group_project) %>'">
+                <%= latest_instance&.title || '-' %>
+              </td>
+              <td onclick="window.location.href='<%= course_project_path(@course, group_project) %>'">
                 <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
                   <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
                   <%= status.humanize %>
                 </span>
+              </td>
+              <td onclick="window.location.href='<%= course_lecturer_path(@course, supervisor) %>'">
+                <div class="profile-container">
+                  <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
+                  <%= supervisor&.username || '-' %>
+                </div>
               </td>
             </tr>
           <% end %>
@@ -58,6 +70,7 @@
             <th><%= image_tag "person_grey.svg" %> Student ID</th>
             <th><%= image_tag "project.svg" %> Project Title</th>
             <th><%= image_tag "status_grey.svg" %> Status</th>
+            <th><%= image_tag "person_grey.svg" %> Supervisor</th>
           </tr>
         </thead>
         <tbody>
@@ -65,20 +78,31 @@
             <% student_project = student_project_for(student, @course) %>
             <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
             <% status = student_status(student, @course) %>
-            <tr class="participant-row clickable-row" onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
-              <td>
+            <% supervisor = latest_instance&.supervisor %>
+            <tr class="participant-row">
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'group') %>'">
                 <div class="profile-container">
                   <div class="profile-avatar"><%= student.username.first.upcase %></div>
                   <span><%= student.username || '-' %></span>
                 </div>
               </td>
-              <td><%= student.student_id || '-' %></td>
-              <td><%= latest_instance&.title || '-' %></td>
-              <td>
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'group') %>'">
+                <%= student.student_id || '-' %>
+              </td>
+              <td onclick="window.location.href='<%= course_project_path(@course, student_project) %>'">
+                <%= latest_instance&.title || '-' %>
+              </td>
+              <td onclick="window.location.href='<%= course_project_path(@course, student_project) %>'">
                 <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
                   <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
                   <%= status.humanize %>
                 </span>
+              </td>
+              <td onclick="window.location.href='<%= course_lecturer_path(@course, supervisor) %>'">
+                <div class="profile-container">
+                  <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
+                  <%= supervisor&.username || '-' %>
+                </div>
               </td>
             </tr>
           <% end %>
