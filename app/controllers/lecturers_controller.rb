@@ -8,7 +8,7 @@ class LecturersController < ApplicationController
   def show
     @enrolment = @course.enrolments.find_by(user_id: params[:id], role: [:lecturer, :coordinator])
     @lecturer  = @enrolment&.user
-    @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
+    @lecturer_enrolment = @course.enrolments.find_by(user: @lecturer, role: :lecturer)
 
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
     @is_coordinator = @current_user_enrolment&.coordinator?
