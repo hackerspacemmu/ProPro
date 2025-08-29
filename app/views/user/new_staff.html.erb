@@ -17,7 +17,6 @@
 
             <%= form_with url: user_create_path do |form| %>
               <%= form.hidden_field :token, value: params[:token] %>
-              <%= form.label :email, "Email:"%>
               <%= form.search_field :email, value: @email, disabled: true %><br>
               <%= form.password_field :otp, required: true, placeholder: "OTP"%><br>
               <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
