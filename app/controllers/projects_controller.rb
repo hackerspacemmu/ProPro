@@ -389,8 +389,8 @@ class ProjectsController < ApplicationController
                     owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
 
         # 3) Lecturer-proposed topics, but only once approved
-        next true if project.ownership.ownership_type == "lecturer" &&
-                    project.status.to_s == "approved"
+        next true if project.ownership.lecturer? &&
+                    project.status.to_s == "approved"                
 
         false
       end
@@ -421,11 +421,7 @@ class ProjectsController < ApplicationController
         @latest_instance.supervisor == current_user
       )
     elsif @course.no_restriction?
-      authorized = @project.nil? || (
-        @course.students.exists?(user: current_user) ||
-        @latest_instance.supervisor == current_user 
-
-      )
+      authorized = true
     end
 
     @lecturers = User.joins(:enrolments)

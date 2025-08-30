@@ -1,6 +1,10 @@
 class ProgressUpdatesController < ApplicationController
 before_action :access
-before_action :supervisor_access
+before_action :supervisor_access, except: [:show]
+
+def show
+  @progress_update = ProgressUpdate.find(params[:id])
+end
   
 def new
   @progress_update = ProgressUpdate.new

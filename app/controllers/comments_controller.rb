@@ -40,7 +40,8 @@ class CommentsController < ApplicationController
       user: Current.user,
       project: parent_project,
       text: params[:comment][:user_comment],
-      project_version_number: version_number
+      project_version_number: 
+      _number
       )
 
     if type == "student" || type == "project_group"
