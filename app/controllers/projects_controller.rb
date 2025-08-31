@@ -369,7 +369,8 @@ class ProjectsController < ApplicationController
   def access
     @course = Course.find(params[:course_id])
 
-    @is_student = @course.enrolments.exists?(user: current_user, role: :student)
+    @is_coordinator = @current_user_enrolment&.student?
+    @is_coordinator = @current_user_enrolment&.coordinator?
 
     # Build the list of projects/topics visible to the current user:
     if @course.enrolments.exists?(user: current_user, role: :coordinator)
@@ -389,8 +390,8 @@ class ProjectsController < ApplicationController
                     owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
 
         # 3) Lecturer-proposed topics, but only once approved
-        next true if project.ownership.ownership_type == "lecturer" &&
-                    project.status.to_s == "approved"
+        next true if project.ownership.lecturer? &&
+                    project.status.to_s == "approved"                
 
         false
       end
@@ -421,11 +422,7 @@ class ProjectsController < ApplicationController
         @latest_instance.supervisor == current_user
       )
     elsif @course.no_restriction?
-      authorized = @project.nil? || (
-        @course.students.exists?(user: current_user) ||
-        @latest_instance.supervisor == current_user 
-
-      )
+      authorized = true
     end
 
     @lecturers = User.joins(:enrolments)
