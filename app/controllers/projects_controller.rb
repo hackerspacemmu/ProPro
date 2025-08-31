@@ -369,7 +369,8 @@ class ProjectsController < ApplicationController
   def access
     @course = Course.find(params[:course_id])
 
-    @is_student = @course.enrolments.exists?(user: current_user, role: :student)
+    @is_coordinator = @current_user_enrolment&.student?
+    @is_coordinator = @current_user_enrolment&.coordinator?
 
     # Build the list of projects/topics visible to the current user:
     if @course.enrolments.exists?(user: current_user, role: :coordinator)
