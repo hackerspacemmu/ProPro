@@ -32,20 +32,39 @@
                   <% end %>
                 </ul>
               </td>
-              <td onclick="window.location.href='<%= course_project_path(@course, group_project) %>'">
-                <%= latest_instance&.title || '-' %>
+              <td>
+                <% if group_project.present? %>
+                  <%= link_to (latest_instance&.title || '-'), course_project_path(@course, group_project), class:"cell-link" %>
+                <% else %>
+                  <span><%= latest_instance&.title || '-' %></span>
+                <% end %>
               </td>
-              <td onclick="window.location.href='<%= course_project_path(@course, group_project) %>'">
-                <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                  <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
-                  <%= status.humanize %>
-                </span>
+              <td>
+                <% if group_project.present? %>
+                  <%= link_to course_project_path(@course, group_project), class:"cell-link" do %>
+                    <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                      <%= status.humanize %>
+                    </span>
+                  <% end %>
+                <% else %>
+                  <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                    <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                    <%= status.humanize %>
+                  </span>
+                <% end %>
               </td>
-              <td onclick="window.location.href='<%= course_lecturer_path(@course, supervisor) %>'">
-                <div class="profile-container">
-                  <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
-                  <%= supervisor&.username || '-' %>
-                </div>
+              <td>
+                <% if supervisor.present? %>
+                  <%= link_to course_lecturer_path(@course, supervisor), class:"cell-link" do %>
+                    <div class="profile-container">
+                      <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
+                      <%= supervisor&.username || '-' %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <span> - </span>
+                <% end %>
               </td>
             </tr>
           <% end %>
@@ -80,29 +99,48 @@
             <% status = student_status(student, @course) %>
             <% supervisor = latest_instance&.supervisor %>
             <tr class="participant-row">
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'group') %>'">
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
                 <div class="profile-container">
                   <div class="profile-avatar"><%= student.username.first.upcase %></div>
                   <span><%= student.username || '-' %></span>
                 </div>
               </td>
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'group') %>'">
+              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
                 <%= student.student_id || '-' %>
               </td>
-              <td onclick="window.location.href='<%= course_project_path(@course, student_project) %>'">
-                <%= latest_instance&.title || '-' %>
+              <td>
+                <% if student_project.present? %>
+                  <%= latest_instance&.title || '-' %>
+                <% else %>
+                  <span><%= latest_instance&.title || '-' %></span>
+                <% end %>
               </td>
-              <td onclick="window.location.href='<%= course_project_path(@course, student_project) %>'">
-                <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                  <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
-                  <%= status.humanize %>
-                </span>
+              <td>
+                <% if student_project.present? %>
+                  <%= link_to course_project_path(@course, student_project), class:"cell-link" do %>
+                    <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                      <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                      <%= status.humanize %>
+                    </span>
+                  <% end %>
+                <% else %>
+                  <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
+                    <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                    <%= status.humanize %>
+                  </span>
+                <% end %>
               </td>
-              <td onclick="window.location.href='<%= course_lecturer_path(@course, supervisor) %>'">
-                <div class="profile-container">
-                  <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
-                  <%= supervisor&.username || '-' %>
-                </div>
+              <td>
+                <% if supervisor.present? %>
+                  <%= link_to course_lecturer_path(@course, supervisor), class:"cell-link" do %>
+                    <div class="profile-container">
+                      <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
+                      <%= supervisor&.username || '-' %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <span> - </span>
+                <% end %>
               </td>
             </tr>
           <% end %>
