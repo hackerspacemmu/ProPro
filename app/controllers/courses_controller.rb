@@ -522,14 +522,14 @@ def lecturer_approved_proposals_count(lecturer, course)
   lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
   return 0 unless lecturer_enrolment
   
-  course.projects.student_projects_for_lecturer(@lecturer_enrolment).approved.count
+  course.projects.student_projects_for_lecturer(lecturer_enrolment).approved.count
 end
 
 def lecturer_pending_proposals_count(lecturer, course)
   lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
   return 0 unless lecturer_enrolment
   
-  course.projects.student_projects_for_lecturer(@lecturer_enrolment).pending_redo.count
+  course.projects.student_projects_for_lecturer(lecturer_enrolment).pending_redo.count
 end
 
 def lecturer_capacity_info(lecturer, course)
