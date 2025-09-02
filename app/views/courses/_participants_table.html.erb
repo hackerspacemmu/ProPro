@@ -110,7 +110,9 @@
               </td>
               <td>
                 <% if student_project.present? %>
-                  <%= latest_instance&.title || '-' %>
+                  <%= link_to course_project_path(@course, student_project), class:"cell-link" do %>
+                    <%= latest_instance&.title || '-' %>
+                  <% end %>
                 <% else %>
                   <span><%= latest_instance&.title || '-' %></span>
                 <% end %>
