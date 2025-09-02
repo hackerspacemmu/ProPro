@@ -36,7 +36,7 @@ class CoursesController < ApplicationController
 
     if @current_user_enrolment&.coordinator?
       if @lecturer_enrolment
-        @my_student_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment).approved
+        @my_student_projects = @course.projects.student_projects_for_lecturer(@current_user_enrolment).approved
         @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
       else
         @my_student_projects = @course.projects.not_lecturer_owned.approved
