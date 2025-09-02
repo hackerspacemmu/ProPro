@@ -57,7 +57,7 @@ class LecturersController < ApplicationController
   
   def set_lecturer_topics
     if @lecturer_enrolment
-      lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id:  @lecturer_id})
+      lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id:  @lecturer.id})
       
       @approved_projects = if @is_coordinator
         lecturer_owned_topics
