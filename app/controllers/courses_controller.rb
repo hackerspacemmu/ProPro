@@ -253,7 +253,7 @@ class CoursesController < ApplicationController
 
     @grouped = @course.grouped
 
-    if @participant_type
+    if @participant_type == 'group'
       @group = @course.project_groups.find(@participant_id)
       @members = @group.project_group_members.includes(:user)
     else

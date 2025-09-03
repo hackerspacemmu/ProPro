@@ -18,19 +18,23 @@
             <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
             <% status = group_status(group, @course) %>
             <% supervisor = latest_instance&.supervisor %>
-            <tr class="participant-row">            
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">
-                <%= group.group_name || "Group #{group.id}" %>
+            <tr class="participant-row">
+              <td>
+                <%= link_to participant_profile_course_path(@course, group.id, 'group'), class:"cell-link" do %>            
+                  <%= group.group_name || "Group #{group.id}" %>
+                <% end %>
               </td>
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, group.id, 'group') %>'">
-                <ul class="member-list">
-                  <% group.project_group_members.includes(:user).each do |member| %>
-                    <div class="profile-container">
-                      <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
-                      <span><%= member.user.username || '-' %></span>
-                    </div>
-                  <% end %>
-                </ul>
+              <td>
+                <%= link_to participant_profile_course_path(@course, group.id, 'group'), class:"cell-link" do %>
+                  <ul class="member-list">
+                    <% group.project_group_members.includes(:user).each do |member| %>
+                      <div class="profile-container">
+                        <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
+                        <span><%= member.user.username || '-' %></span>
+                      </div>
+                    <% end %>
+                  </ul>
+                <% end %>
               </td>
               <td>
                 <% if group_project.present? %>
@@ -99,18 +103,24 @@
             <% status = student_status(student, @course) %>
             <% supervisor = latest_instance&.supervisor %>
             <tr class="participant-row">
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
-                <div class="profile-container">
-                  <div class="profile-avatar"><%= student.username.first.upcase %></div>
-                  <span><%= student.username || '-' %></span>
-                </div>
+              <td>
+                <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
+                  <div class="profile-container">
+                    <div class="profile-avatar"><%= student.username.first.upcase %></div>
+                    <span><%= student.username || '-' %></span>
+                  </div>
+                <% end %>
               </td>
-              <td onclick="window.location.href='<%= participant_profile_course_path(@course, student.id, 'student') %>'">
-                <%= student.student_id || '-' %>
+              <td> 
+                <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
+                  <%= student.student_id || '-' %>
+                <% end %>
               </td>
               <td>
                 <% if student_project.present? %>
-                  <%= latest_instance&.title || '-' %>
+                  <%= link_to course_project_path(@course, student_project), class:"cell-link" do %>
+                    <%= latest_instance&.title || '-' %>
+                  <% end %>
                 <% else %>
                   <span><%= latest_instance&.title || '-' %></span>
                 <% end %>
