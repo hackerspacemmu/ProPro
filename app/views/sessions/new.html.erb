@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <%= stylesheet_link_tag "tailwind"%>  
 </head>
 
 <body class="bg-[#efefef] font-['Inter', sans-serif]">
@@ -10,7 +10,7 @@
 
         <h1 class="flex justify-center text-3xl font-bold my-[15px]">Welcome to Propro</h1>
 
-        <div class="flex w-[100%] h-[60%] justify-center justify-items-center flex-col  rounded-[10px] py-[15px] px-[0px] mb-[20px] shadow-[0 0 3px 10px] bg-[#f8f9fa] ">
+        <div class="flex w-[100%] h-[60%] justify-center justify-items-center flex-col  rounded-[10px] py-[15px] px-[0px] mb-[20px] shadow-[0_0_50px_1px_#b8b8b8] bg-[#f8f9fa] ">
             <h1 class="flex justify-center my-[5px] mx-[0px] text-2xl font-bold">Sign In</h1><br>
             <h5 class="flex justify-center"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
             <h5 class="flex justify-center"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
