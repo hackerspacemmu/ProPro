@@ -6,39 +6,44 @@
 </head>
 
 <body class="bg-[#efefef] font-['Inter', sans-serif]">
-    <div class="w-[60%] min-w-[400px] m-auto mt-[150px] justify-center justify-self-center self-center items-center">
-        <h1 class="flex justify-center text-3xl font-bold my-[5px]"><%= @course.course_name %></h1>
-        <h3 class="flex justify-center text-[#858585] text-xl font-bold my-[5px]">This course is: <%= @course.grouped? ? "Grouped" : "Not Grouped" %></h3>
-        <h3 class="flex justify-center text-[#858585] text-xl font-bold my-[5px]">Add Students</h3>
+    <div class="w-[70%] min-w-[400px] m-auto mt-[3%] justify-center justify-self-center self-center items-center">
+        <h1 class="flex justify-center text-3xl font-bold my-[2px]"><%= @course.course_name %></h1>
+        <h3 class="flex justify-center text-[#858585] text-xl font-bold ]">This course is: <%= @course.grouped? ? "Grouped" : "Not Grouped" %></h3>
+        <h3 class="flex justify-center text-[#858585] text-xl font-bold ">Add Students</h3>
         <br>
-        <div class="flex w-[100%] justify-center justify-items-center flex-col rounded-[10px] py-[15px] px-[5px] mb-[20px] shadow-[0_0_50px_1px_#b8b8b8] bg-[#f8f9fa] ">
+        <div class="flex w-[100%] justify-center justify-items-center flex-row rounded-[10px] py-[15px] px-[5px] mb-[20px] shadow-[0_0_50px_1px_#b8b8b8] bg-[#f8f9fa] ">
             <div class="flex w-[50%] justify-center justify-items-center flex-col py-[15px] px-[5px] mb-[20px]">
                 <h5 class="flex justify-center"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
                 <h5 class="flex justify-center"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
                 <br>
 
                 <%= form_with url: handle_add_students_course_path, method: :post do |form| %>
-                <p class="flex justify-center">Upload CSV export from EBwise: </p><br>
+                    <p class="flex justify-center">Upload CSV export from EBwise: </p><br>
 
-                <div class="mx-[10px] p-[5px] bg-[#ebebeb] rounded-md outline outline-[#c4c4c4]">
-                    <p>
-                        To import students with their Groups, please provide a CSV file in this format. <br><br>
-                        In Moodle-based systems, this CSV file can be automatically exported from your system. Once you are at your course page, navigate to:
-                    </p><br>
-                    <ol class="list-decimal list-inside">
-                        <li>"Participants"</li>
-                        <li>Submenu - "Groups → Overview"</li>
-                        <li>Select appropriate Grouping containing your groups in "Filter by Grouping", then scroll to bottom of page</li>
-                        <li>Download groups and groupings as Comma separated values</li>
-                    </ol>
-                </div><br>
+                    <div class="mx-[10px] p-[5px] bg-[#ebebeb] rounded-md outline outline-[#c4c4c4]">
+                        <p>
+                            To import students with their Groups, please provide a CSV file in this format. <br><br>
+                            In Moodle-based systems, this CSV file can be automatically exported from your system. Once you are at your course page, navigate to:
+                        </p><br>
+                        <div class="ml-[4%]">
+                            <ol class="list-decimal list-outside">
+                                <li>"Participants"</li>
+                                <li>Submenu - "Groups → Overview"</li>
+                                <li>Select appropriate Grouping containing your groups in "Filter by Grouping", then scroll to bottom of page</li>
+                                <li>Download groups and groupings as Comma separated values</li>
+                            </ol>
+                        </div>
+                    </div><br><br>
 
-                <%= form.file_field :csv_file, class:"flex justify-center mx-[5px]" %>
-                <%= form.submit "Add Students", class:"flex justify-center rounded-md bg-green-500 hover:bg-green-700 py-[4px] px-[10px] hover:cursor-pointer mx-[5px] my-[5px]" %>
-            
+                    <%= form.file_field :csv_file, class:"flex justify-center mx-[5px]" %>
+                    <%= form.submit "Add Students", class:"flex justify-center rounded-md bg-green-500 hover:bg-green-700 py-[4px] px-[10px] hover:cursor-pointer mx-[5px] my-[5px]" %>
 
                 <% end %>
             </div>
-        <div>
+            <div class="flex w-[50%] justify-center justify-items-center self-start flex-col py-[15px] px-[5px] my-[20px]">
+                <%= image_tag "#{"Source of Grouped Students"}.png" %><br><br>
+                <%= link_to "Download sample here", new_password_path, class: "text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
+            </div>
+        </div>
     </div>
 </body>
