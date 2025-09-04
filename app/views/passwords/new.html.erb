@@ -17,17 +17,11 @@
 
             <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
             <br>
-            <br>
 
             <%= form_with url: passwords_path do |form| %>
-            <br>
-            <label for="email">Email</label>
-            <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "form", name:"email" %>
-            <br>
-            <div class="submit" style="justify-content: center;">
-            <%= form.submit "Email reset instructions", class:"push"%>
+            <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
+            <%= form.submit "Email reset instructions" %>
             <% end %>
-            </div>
         </div>
     </div>
 </body>
