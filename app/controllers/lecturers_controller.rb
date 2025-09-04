@@ -21,6 +21,17 @@ class LecturersController < ApplicationController
     set_supervised_projects
     
     set_lecturer_topics
+
+    Rails.logger.info "=== DEBUG ACCESS INFO ==="
+    Rails.logger.info "Current user: #{current_user.id}"
+    Rails.logger.info "Lecturer being viewed: #{@lecturer&.id}"
+    Rails.logger.info "Is coordinator: #{@is_coordinator}"
+    Rails.logger.info "Is lecturer: #{@is_lecturer}"
+    Rails.logger.info "Is student: #{@is_student}"
+    Rails.logger.info "Course lecturer_access setting: #{@course.lecturer_access}"
+    Rails.logger.info "access? returns: #{access?}"
+    Rails.logger.info "current_user == @lecturer: #{current_user == @lecturer}"
+    Rails.logger.info "=========================="
   end
   
   private
@@ -59,7 +70,7 @@ class LecturersController < ApplicationController
     if @lecturer_enrolment
       lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id:  @lecturer.id})
       
-      @approved_projects = if @is_coordinator
+      @approved_projects = if access?
         lecturer_owned_topics
       else
         lecturer_owned_topics.where(status: :approved)
