@@ -1,6 +1,6 @@
 class LecturersController < ApplicationController
   before_action :set_course
-  helper_method :access?, :own_supervisor? 
+  helper_method :access?, :own_supervisor? , :full_access?
   
   def index
   end
@@ -33,76 +33,84 @@ class LecturersController < ApplicationController
   end
   
   def set_supervised_projects
-    if @lecturer_enrolment
-      base_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
-      
-      if access?
-        @my_student_projects = base_projects.approved
-        @incoming_proposals = base_projects.proposals
-      else
-        if @is_student && @course.student_access.to_s == "owner_only"
-          @my_student_projects = base_projects.approved.joins(:ownership)
-            .where(ownerships: { owner_type: "User", owner_id: current_user.id })
-          @incoming_proposals = base_projects.proposals.joins(:ownership)
-            .where(ownerships: { owner_type: "User", owner_id: current_user.id })
-        else
-          @my_student_projects = []
-          @incoming_proposals = []
-        end
-      end
+    return set_empty_projects unless @lecturer_enrolment
+    
+    base_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
+  
+    if full_access?
+      @my_student_projects = base_projects.approved
+      @incoming_proposals = base_projects.proposals
     else
-      @my_student_projects = []
-      @incoming_proposals = []
+      @my_student_projects = filtered_projects(base_projects.approved)
+      @incoming_proposals = filtered_projects(base_projects.proposals)
     end
   end
-  
+
   def set_lecturer_topics
-    if @lecturer_enrolment
-      lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id:  @lecturer.id})
-      
-      @approved_projects = if access?
-        lecturer_owned_topics
-      else
-        lecturer_owned_topics.where(status: :approved)
-      end
-      
+    return set_empty_topics unless @lecturer_enrolment
+
+    lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id: @lecturer.id})
+  
+    if full_access?
+      @approved_projects = lecturer_owned_topics
       @own_approved_projects = lecturer_owned_topics.where(status: :approved)
       @not_own_approved_projects = lecturer_owned_topics.where(status: [:redo, :rejected, :pending])
     else
-      @approved_projects = @course.projects.none
-      @own_approved_projects = @course.projects.none
+      @approved_projects = lecturer_owned_topics.where(status: :approved)
+      @own_approved_projects = lecturer_owned_topics.where(status: :approved)
       @not_own_approved_projects = @course.projects.none
+    end 
+  end
+
+  def filtered_projects(projects)
+    return projects if unrestricted_access?
+    return [] unless own_supervisor?
+    
+    case @course.student_access.to_s
+    when "own_lecturer_only"
+      projects
+    when "owner_only"
+      projects.owned_by_user_or_groups(current_user, current_user.project_groups.where(course: @course))
+    else
+      []
     end
+  end
+
+  def full_access?
+    @is_coordinator || current_user == @lecturer || (@is_lecturer && @course.lecturer_access)
+  end
+
+  def unrestricted_access?
+    @is_student && @course.student_access.to_s == "no_restriction"
+  end
+
+  def set_empty_projects
+    @my_student_projects = []
+    @incoming_proposals = []
+  end
+
+  def set_empty_topics
+    @approved_projects = @course.projects.none
+    @own_approved_projects = @course.projects.none
+    @not_own_approved_projects = @course.projects.none
   end
   
   def access?
-    return true if @is_coordinator
-    return true if current_user == @lecturer
-    
-    if @is_lecturer
-      return @course.lecturer_access
-    end
-    
-    if @is_student
-      case @course.student_access.to_s
-      when "no_restriction"
-        return true
-      when "own_lecturer_only"
-        return own_supervisor?
-      when "owner_only"
-        return true 
-      end
-    end
-    
+    return true if @is_coordinator || current_user == @lecturer
+    return @course.lecturer_access if @is_lecturer
+    return true if @is_student
     false
   end
   
   def own_supervisor?
     return false unless @is_student
+    return false unless @lecturer_enrolment
     
-    @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
-      .joins(:ownership)
-      .where(ownerships: { owner_type: "User", owner_id: current_user.id })
-      .exists?
+    user_group_ids = current_user.project_groups.where(course: @course).pluck(:id)
+    
+    @course.projects.student_projects_for_lecturer(@lecturer_enrolment).joins(:ownership).where(
+      "(ownerships.owner_type = 'User' AND ownerships.owner_id = ?) OR 
+       (ownerships.owner_type = 'ProjectGroup' AND ownerships.owner_id IN (?))",
+       current_user.id, user_group_ids).exists?
   end
 end

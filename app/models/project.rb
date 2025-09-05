@@ -31,9 +31,12 @@ class Project < ApplicationRecord
 
   # Enrolment (supervisor) filters
   scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
-
   scope :student_projects_for_lecturer, ->(lecturer_enrolment) { 
     not_lecturer_owned.supervised_by(lecturer_enrolment) 
+  }
+  scope :owned_by_user_or_groups, ->(user, groups) {
+    with_ownership.where(ownerships: { owner_type: 'User', owner_id: user.id })
+      .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
   }
 
   def supervisor
