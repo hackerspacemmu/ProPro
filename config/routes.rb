@@ -34,7 +34,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :progress_updates, only: [:edit, :update, :create, :new, :destroy]
+      resources :progress_updates, only: [:show, :edit, :update, :create, :new, :destroy]
     end
 
     resources :topics, only: [:index, :show, :edit, :update, :create, :new, :destroy] do

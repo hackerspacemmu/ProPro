@@ -48,7 +48,7 @@
           </header>
 
         <!-- PROJECTS  --!>
-          <% if current_user.username == @lecturer.username || @is_coordinator %>
+          <% if access? %>
             <section class="lecturer-topics">
               <header class="section-header">
                 <h2 class="section-title">Projects</h2>
@@ -94,7 +94,7 @@
           <% end %>
 
         <!-- TOPICS --!>
-        <% if @is_student || ((current_user.username != @lecturer.username) && !@is_coordinator) %>
+        <% if @is_student || !access? %>
           <section class="lecturer-topics">
             <header class="section-header">
               <h2 class="section-title">Released Topics</h2>
@@ -116,7 +116,7 @@
         <% end %>
 
 
-          <% if current_user.username == @lecturer.username || @is_coordinator %>
+          <% if access? %>
             <section class="lecturer-topics">
               <header class="section-header">
                 <h2 class="section-title">Released Topics</h2>
