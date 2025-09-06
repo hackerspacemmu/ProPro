@@ -2,26 +2,29 @@
 <html lang="en">
 
 <head>
+    <%= stylesheet_link_tag "tailwind","new_tailwind"%> 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
 <body class="bg-[#efefef] font-['Inter', sans-serif]">
-    <div class="w-[70%] min-w-[350px] m-auto mt-[3%] justify-center justify-self-center self-center items-center">
+    <div class="w-[50%] min-w-[350px] m-auto mt-[3%] justify-center justify-self-center self-center items-center">
         <h1 class="flex justify-center text-3xl font-bold my-[2px]"><%= @course.course_name %></h1>
         <h3 class="flex justify-center text-[#858585] text-xl font-bold ]">This course is: <%= @course.grouped? ? "Grouped" : "Not Grouped" %></h3>
         <h3 class="flex justify-center text-[#858585] text-xl font-bold ">Add Students</h3>
         <br>
-        <div class="flex w-auto justify-center justify-items-center flex-row grid grid-col-1 md:grid-col-2 rounded-[10px] py-[15px] px-[5px] mb-[20px] shadow-[0_0_50px_1px_#b8b8b8] bg-[#f8f9fa] ">
+        <div class="flex w-auto justify-center justify-items-center flex-row grid grid-col-1 rounded-[10px] py-[15px] px-[5px] mb-[20px] shadow-[0_0_20px_1px_#b8b8b8] bg-[#f8f9fa] ">
             <h5 class="flex justify-center"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
             <h5 class="flex justify-center"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
             <br>
 
-            <div>
-                <%= form_with url: handle_add_students_course_path, method: :post do |form| %>
+            <div class="flex w-full justify-self-start px-5">
+                <%= form_with url: handle_add_students_course_path, class:"w-full", method: :post do |form| %>
                     <p class="flex justify-start">Upload CSV export from EBwise: </p><br>
 
-                    <%= form.file_field :csv_file, class:"flex justify-start mx-[5px]" %>
-                    <%= form.submit "Add Students", class:"flex justify-start rounded-md bg-green-500 hover:bg-green-700 py-[4px] px-[10px] hover:cursor-pointer mx-[5px] my-[5px]" %>
+                    <div class="flex justify-between content-center">
+                        <%= form.file_field :csv_file %>
+                        <%= form.submit "Add Students", class:"flex rounded-md bg-green-400 hover:bg-green-600 py-[4px] px-[10px] hover:cursor-pointer mx-[5px] my-[5px]" %>
+                    </div>
 
                 <% end %>
             </div>
