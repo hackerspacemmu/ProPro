@@ -80,25 +80,79 @@ class CoursesController < ApplicationController
     end
   end
 
-    def add_students
+  def add_students
+  end
+
+  def add_lecturers
+  end
+
+  def handle_add_lecturers
+    unregistered_lecturers = Set[]
+
+    if params[:invited_lecturers].blank?
+      redirect_back_or_to "/", alert: "Invited lecturers cannot be empty"
+      return
     end
 
-    def add_lecturers
-    end
+    lecturer_emails = params[:invited_lecturers].split(";").map {|email| email.strip}
 
-    def handle_add_lecturers
-      unregistered_lecturers = Set[]
-
-      if params[:invited_lecturers].blank?
-        redirect_back_or_to "/", alert: "Invited lecturers cannot be empty"
-        return
+    begin
+      ActiveRecord::Base.transaction do
+        create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
       end
 
-      lecturer_emails = params[:invited_lecturers].split(";").map {|email| email.strip}
+      if @course.grouped
+        @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
+      else
+        @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
+      end
+    rescue StandardError => e
+      redirect_back_or_to "/", alert: e.message
+      return
+    end
 
-      begin
-        ActiveRecord::Base.transaction do
-          create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
+    send_emails(unregistered_lecturers)
+
+    redirect_to course_path(@course)
+  end
+
+  def handle_add_students
+    unregistered_students = Set[]
+
+    if params[:csv_file].blank? || params[:csv_file].content_type != "text/csv"
+      redirect_back_or_to "/", alert: "Please provide a CSV file from ebwise"
+      return
+    end
+
+    begin
+      csv_obj = CSV.parse(params[:csv_file].read, headers: true, liberal_parsing: true)
+    rescue StandardError => e
+      redirect_back_or_to "/", alert: "CSV parsing failed"
+      return
+    end
+
+    columns_to_check = ["Last name", "ID number", "Email address"]
+
+    columns_to_check.each do |column|
+      if !csv_obj.headers.include? column
+        redirect_back_or_to "/", alert: "CSV file missing required headers"
+        return
+      end
+    end
+
+    if @course.grouped && !csv_obj.headers.include?("Group")
+      redirect_back_or_to "/", alert: "Not grouped CSV file"
+      return
+    end
+
+    begin
+      ActiveRecord::Base.transaction do
+        if @course.grouped
+          student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
+          create_db_entries_grouped(student_hashmap, @course, unregistered_students)
+        else
+          student_set = parse_csv_solo(csv_obj, columns_to_check)
+          create_db_entries_solo(student_set, @course, unregistered_students)
         end
 
         if @course.grouped
@@ -106,114 +160,60 @@ class CoursesController < ApplicationController
         else
           @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
         end
-      rescue StandardError => e
-        redirect_back_or_to "/", alert: e.message
-        return
+
       end
-
-      send_emails(unregistered_lecturers)
-
-      redirect_to add_students_course_path(@course)
+    rescue StandardError => e
+      redirect_back_or_to "/", alert: e.message
+      return
     end
 
-    def handle_add_students
-      unregistered_students = Set[]
+    send_emails(unregistered_students)
+    redirect_to course_path(@course)
+  end
 
-      if params[:csv_file].blank? || params[:csv_file].content_type != "text/csv"
-        redirect_back_or_to "/", alert: "Please provide a CSV file from ebwise"
-        return
-      end
+  def new
+    @new_course = Course.new
+  end
 
-      begin
-        csv_obj = CSV.parse(params[:csv_file].read, headers: true, liberal_parsing: true)
-      rescue StandardError => e
-        redirect_back_or_to "/", alert: "CSV parsing failed"
-        return
-      end
+  def create
+    response = params.require(:course).permit(:course_name, :grouped)
 
-      columns_to_check = ["Last name", "ID number", "Email address"]
+    @new_course = Course.new(
+      course_name: response[:course_name],
+      grouped: response[:grouped]
+    )
 
-      columns_to_check.each do |column|
-        if !csv_obj.headers.include? column
-          redirect_back_or_to "/", alert: "CSV file missing required headers"
-          return
+    begin
+      ActiveRecord::Base.transaction do
+        if !@new_course.save
+          raise StandardError, "Course failed verification"
+        end
+
+        new_coordinator_enrolment = Enrolment.create!(
+          user: Current.user,
+          course: @new_course,
+          role: :coordinator
+        )
+
+        new_lecturer_enrolment = Enrolment.create!(
+          user: Current.user,
+          course: @new_course,
+          role: :lecturer
+        )
+
+        default_template = @new_course.build_project_template
+
+        if !default_template.save
+          raise StandardError, "Template creation failed"
         end
       end
-
-      if @course.grouped && !csv_obj.headers.include?("Group")
-        redirect_back_or_to "/", alert: "Not grouped CSV file"
-        return
-      end
-
-      begin
-        ActiveRecord::Base.transaction do
-          if @course.grouped
-            student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
-            create_db_entries_grouped(student_hashmap, @course, unregistered_students)
-          else
-            student_set = parse_csv_solo(csv_obj, columns_to_check)
-            create_db_entries_solo(student_set, @course, unregistered_students)
-          end
-
-          if @course.grouped
-            @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
-          else
-            @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
-          end
-
-        end
-      rescue StandardError => e
-        redirect_back_or_to "/", alert: e.message
-        return
-      end
-
-      send_emails(unregistered_students)
-      redirect_to settings_course_path(@course)
+    rescue StandardError => e
+      @new_course.destroy
+      render :new, status: :unprocessable_entity
+      return
     end
 
-    def new
-      @new_course = Course.new
-    end
-
-    def create
-      response = params.require(:course).permit(:course_name, :grouped)
-
-      @new_course = Course.new(
-        course_name: response[:course_name],
-        grouped: response[:grouped]
-      )
-
-      begin
-        ActiveRecord::Base.transaction do
-          if !@new_course.save
-            raise StandardError, "Course failed verification"
-          end
-
-          new_coordinator_enrolment = Enrolment.create!(
-            user: Current.user,
-            course: @new_course,
-            role: :coordinator
-          )
-
-          new_lecturer_enrolment = Enrolment.create!(
-            user: Current.user,
-            course: @new_course,
-            role: :lecturer
-          )
-
-          default_template = @new_course.build_project_template
-
-          if !default_template.save
-            raise StandardError, "Template creation failed"
-          end
-        end
-      rescue StandardError => e
-        @new_course.destroy
-        render :new, status: :unprocessable_entity
-        return
-      end
-
-    redirect_to add_lecturers_course_path(@new_course), notice: "Course successfully created"
+    redirect_to course_path(@new_course), notice: "Course successfully created"
   end
 
   def settings
