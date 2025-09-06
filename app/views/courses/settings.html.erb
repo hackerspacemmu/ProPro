@@ -143,8 +143,8 @@
             <div class="radio-group">
               <% Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] }.each_with_index do |(value, label_text), idx| %>
                 <div class="radio-option">
-                  <%= form.radio_button :student_access, value, class: "form-control", id: "student_access_#{idx}" %>
-                  <%= form.label :student_access, label_text, value: value, class: "field-label", for: "student_access_#{idx}" %>
+                  <%= form.radio_button :student_access, value, id: "student_access_#{idx}" %>
+                  <%= form.label :student_access, label_text, value: value, for: "student_access_#{idx}" %>
                 </div>
               <% end %>
             </div>

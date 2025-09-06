@@ -16,46 +16,28 @@ class Project < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
-  scope :pending_for_lecturer, ->(lecturer_enrolment) {
-  includes(:ownership, :enrolment)
-    .where(status: :pending, enrolment: lecturer_enrolment)
-    .joins(:ownership)
-    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
- }
+  scope :with_ownership, -> { joins(:ownership).includes(:ownership) }
+  scope :student_owned, -> { with_ownership.where(ownerships: { ownership_type: :student }) }
+  scope :group_owned, -> { with_ownership.where(ownerships: { ownership_type: :group }) }
+  scope :not_lecturer_owned, -> { with_ownership.where.not(ownerships: { ownership_type: :lecturer }) }
+  scope :lecturer_owned, -> { with_ownership.where(ownerships: { ownership_type: :lecturer }) }
 
-  scope :pending_student_proposals, -> {
-    includes(:ownership).where(status: ['pending', 'redo', 'rejected']).joins(:ownership)
-    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+  # Status filters
+  scope :pending, -> { where(status: :pending) }
+  scope :approved, -> { where(status: :approved) }
+  scope :rejected, -> { where(status: :rejected) }
+  scope :pending_redo, -> { where(status: [:pending, :redo]) }
+  scope :proposals, -> { where(status: [:pending, :redo, :rejected]) }
+
+  # Enrolment (supervisor) filters
+  scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
+  scope :student_projects_for_lecturer, ->(lecturer_enrolment) { 
+    not_lecturer_owned.supervised_by(lecturer_enrolment) 
   }
-
-  scope :approved_student_proposals, -> {
-  includes(:ownership, :enrolment)
-    .where(status: :approved)
-    .joins(:ownership)
-    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
+  scope :owned_by_user_or_groups, ->(user, groups) {
+    with_ownership.where(ownerships: { owner_type: 'User', owner_id: user.id })
+      .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
   }
-
-  scope :approved_for_lecturer, ->(lecturer_enrolment) {
-    includes(:ownership, :enrolment)
-      .where(status: :approved, enrolment: lecturer_enrolment)
-      .joins(:ownership)
-      .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
-  }
-
-  scope :incoming_proposals, ->(lecturer_enrolment) {
-  includes(:ownership, :enrolment)
-    .where(status: [:pending, :redo, :rejected], enrolment: lecturer_enrolment)
-    .joins(:ownership)
-    .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
-  }
-
-  scope :pending_and_redo_for_lecturer, ->(lecturer_enrolment) {
-    includes(:ownership, :enrolment)
-      .where(status: [:pending, :redo], enrolment: lecturer_enrolment)
-      .joins(:ownership)
-      .where.not(ownerships: { ownership_type: Ownership.ownership_types[:lecturer] })
-  }
-
 
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
@@ -84,5 +66,4 @@ class Project < ApplicationRecord
   def current_title
     current_instance&.title || self.title
   end
-
 end

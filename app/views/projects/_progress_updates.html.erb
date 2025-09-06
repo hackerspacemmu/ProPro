@@ -4,9 +4,13 @@
   <% @progress.each_with_index do |progress_update, i| %>
     <div class="progress-update">
       <% if (total - i) > @weeks %>
-        <h3><strong> Extra <%= (total - @weeks - i)%> </strong></h3>
+        <%= link_to course_project_progress_update_path(@course, @project, progress_update) do %>
+          <h3><strong>Extra <%= (total - @weeks - i) %></strong></h3>
+        <% end %>
       <% else %>
-        <h3><strong> Update <%= (total - i)%> </strong></h3>
+        <%= link_to course_project_progress_update_path(@course, @project, progress_update) do %>
+          <h3><strong>Progress <%= (total - i) %></strong></h3>
+        <% end %>
       <% end %>
 
       <p><strong>Date:</strong> <%= progress_update.date %></p>
