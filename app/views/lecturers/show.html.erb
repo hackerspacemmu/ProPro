@@ -163,7 +163,27 @@
             
           <footer class="lecturer-footer">
             <%= link_to "← Back to Lecturers", course_path(@course)  %>
-          </footer>
+            </footer>
+
+          <% coordinators = @course.coordinators.map {|enrolments| User.find(enrolments.user_id) }%>
+          <% if coordinators.include? Current.user %>
+            <% if coordinators.include? @lecturer %>
+              <footer class="lecturer-footer">
+              <%= link_to "Demote to lecturer",
+                demote_to_lecturer_course_lecturer_path(@course, @lecturer),
+                data: {turbo_method: :patch}
+              %>
+                </footer>
+            <% else %>
+              <footer class="lecturer-footer">
+              <%= link_to "Promote to coordinator",
+                promote_to_coordinator_course_lecturer_path(@course, @lecturer),
+                data: {turbo_method: :patch}
+              %>
+                </footer>
+            <% end %>
+          <% end %>
+
         </section>
       </div>
     </main>

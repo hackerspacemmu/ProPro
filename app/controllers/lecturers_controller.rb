@@ -24,6 +24,45 @@ class LecturersController < ApplicationController
     set_lecturer_topics
   end
   
+  def promote_to_coordinator
+    coordinators = @course.coordinators.map {|enrolment| User.find(enrolment.user_id)}
+
+    unless coordinators.include? Current.user
+      return
+    end
+ 
+    new_coordinator = User.find(params[:id])
+
+    Enrolment.find_or_create_by!(
+      user: new_coordinator,
+      course: @course,
+      role: :coordinator
+    )
+    
+    redirect_to course_lecturer_path(@course, new_coordinator)
+  end
+
+  def demote_to_lecturer
+    coordinators = @course.coordinators.map {|enrolment| User.find(enrolment.user_id)}
+    unless coordinators.include? Current.user
+      return
+    end
+
+    new_coordinator = User.find(params[:id])
+
+    coordinator_enrolment = Enrolment.find_by(
+      user: new_coordinator,
+      course: @course,
+      role: :coordinator
+    )
+
+    if coordinator_enrolment
+      coordinator_enrolment.destroy
+    end
+
+    redirect_to course_lecturer_path(@course, new_coordinator)
+  end
+  
   private
   
   def set_course

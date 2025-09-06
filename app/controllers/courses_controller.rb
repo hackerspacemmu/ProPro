@@ -192,7 +192,7 @@ class CoursesController < ApplicationController
         new_coordinator_enrolment = Enrolment.create!(
           user: Current.user,
           course: @new_course,
-          role: :coordinator
+          role: :cordinator
         )
 
         new_lecturer_enrolment = Enrolment.create!(
@@ -273,7 +273,11 @@ class CoursesController < ApplicationController
   def disallow_noncoordinator_requests
     @course = Course.find(params[:id])
 
-    unless Current.user == @course.coordinator.user
+    coordinators = @course.coordinators.map { |enrolment| User.find(enrolment.user_id) }
+
+    Rails.logger.info "KJFLKJFLKJDFKLJFKJAKFJKASFJAKJFKLASJFKLA #{coordinators.inspect}"
+
+    unless coordinators.include? Current.user
       redirect_back_or_to "/", alert: "Access denied"
       return
     end
@@ -481,123 +485,123 @@ class CoursesController < ApplicationController
   end
 
 
-def access_topics
-  @course                 = Course.find(params[:id])
-  @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+  def access_topics
+    @course                 = Course.find(params[:id])
+    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
-  lt = Ownership.ownership_types[:lecturer]
+    lt = Ownership.ownership_types[:lecturer]
 
-  # 1) Coordinator: sees all topics (any status)
-  if @current_user_enrolment&.coordinator?
-    @topic_list = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt })
+    # 1) Coordinator: sees all topics (any status)
+    if @current_user_enrolment&.coordinator?
+      @topic_list = @course.projects
+                           .joins(:ownership)
+                           .where(ownerships: { ownership_type: lt })
 
-  # Lecturer: sees their own topics (any status)
-  # plus other lecturers’ only if approved
-  elsif @current_user_enrolment&.lecturer?
-    own = @course.projects
-                 .joins(:ownership)
-                 .where(ownerships: {
-                   owner_type:     "User",
-                   owner_id:       current_user.id,
-                   ownership_type: lt
-                 })
+    # Lecturer: sees their own topics (any status)
+    # plus other lecturers’ only if approved
+    elsif @current_user_enrolment&.lecturer?
+      own = @course.projects
+                   .joins(:ownership)
+                   .where(ownerships: {
+                     owner_type:     "User",
+                     owner_id:       current_user.id,
+                     ownership_type: lt
+                   })
 
-    approved = @course.projects
-                      .joins(:ownership)
-                      .where(ownerships: { ownership_type: lt },
-                             status:     :approved)
+      approved = @course.projects
+                        .joins(:ownership)
+                        .where(ownerships: { ownership_type: lt },
+                               status:     :approved)
 
-    @topic_list = own.or(approved)
+      @topic_list = own.or(approved)
 
-  #Students: see only approved topics
-  else
-    @topic_list = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt },
-                                status:     :approved)
+    #Students: see only approved topics
+    else
+      @topic_list = @course.projects
+                           .joins(:ownership)
+                           .where(ownerships: { ownership_type: lt },
+                                  status:     :approved)
+    end
   end
-end
 
-def lecturer_approved_proposals_count(lecturer, course)
-  lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-  return 0 unless lecturer_enrolment
-  
-  course.projects.student_projects_for_lecturer(lecturer_enrolment).approved.count
-end
-
-def lecturer_pending_proposals_count(lecturer, course)
-  lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-  return 0 unless lecturer_enrolment
-  
-  course.projects.student_projects_for_lecturer(lecturer_enrolment).pending_redo.count
-end
-
-def lecturer_capacity_info(lecturer, course)
-  approved_count = lecturer_approved_proposals_count(lecturer, course)
-  pending_count = lecturer_pending_proposals_count(lecturer, course)
-  max_capacity = course.supervisor_projects_limit
-  
-  {
-    approved_proposals: approved_count,         
-    pending_proposals: pending_count,             
-    total_proposals: approved_count + pending_count, 
-    max_capacity: max_capacity,
-    remaining_capacity: [max_capacity - approved_count, 0].max,
-    is_at_capacity: approved_count >= max_capacity,
-  }
-end
-
-def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
-  return [] unless student_list.present?
- 
-  case status
-  when 'approved'
-    students_with_projects || []
-  when 'pending', 'redo', 'rejected'
-    student_list.select do |student|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'User', owner_id: student.id })
-      project&.current_status == status
-    end
-  when 'not_submitted'
-    students_without_projects || []
-  else
-    []
+  def lecturer_approved_proposals_count(lecturer, course)
+    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
+    return 0 unless lecturer_enrolment
+    
+    course.projects.student_projects_for_lecturer(lecturer_enrolment).approved.count
   end
-end
 
-def groups_by_status(status, group_list, course)
-  return [] unless group_list.present?
- 
-  case status
-  when 'approved'
-    group_list.select do |group|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project&.current_status == 'approved'
-    end
-  when 'pending', 'redo', 'rejected'
-    group_list.select do |group|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project&.current_status == status
-    end
-  when 'not_submitted'
-    group_list.select do |group|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project.nil?
-    end
-  else
-    []
+  def lecturer_pending_proposals_count(lecturer, course)
+    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
+    return 0 unless lecturer_enrolment
+    
+    course.projects.student_projects_for_lecturer(lecturer_enrolment).pending_redo.count
   end
-end
+
+  def lecturer_capacity_info(lecturer, course)
+    approved_count = lecturer_approved_proposals_count(lecturer, course)
+    pending_count = lecturer_pending_proposals_count(lecturer, course)
+    max_capacity = course.supervisor_projects_limit
+    
+    {
+      approved_proposals: approved_count,         
+      pending_proposals: pending_count,             
+      total_proposals: approved_count + pending_count, 
+      max_capacity: max_capacity,
+      remaining_capacity: [max_capacity - approved_count, 0].max,
+      is_at_capacity: approved_count >= max_capacity,
+    }
+  end
+
+  def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
+    return [] unless student_list.present?
+   
+    case status
+    when 'approved'
+      students_with_projects || []
+    when 'pending', 'redo', 'rejected'
+      student_list.select do |student|
+        project = course.projects
+          .joins(:ownership)
+          .find_by(ownerships: { owner_type: 'User', owner_id: student.id })
+        project&.current_status == status
+      end
+    when 'not_submitted'
+      students_without_projects || []
+    else
+      []
+    end
+  end
+
+  def groups_by_status(status, group_list, course)
+    return [] unless group_list.present?
+   
+    case status
+    when 'approved'
+      group_list.select do |group|
+        project = course.projects
+          .joins(:ownership)
+          .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+        project&.current_status == 'approved'
+      end
+    when 'pending', 'redo', 'rejected'
+      group_list.select do |group|
+        project = course.projects
+          .joins(:ownership)
+          .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+        project&.current_status == status
+      end
+    when 'not_submitted'
+      group_list.select do |group|
+        project = course.projects
+          .joins(:ownership)
+          .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+        project.nil?
+      end
+    else
+      []
+    end
+  end
 
   def filtered_group_list
     return @group_list unless params[:status_filter].present? && params[:status_filter] != 'all'

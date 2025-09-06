@@ -15,8 +15,8 @@ class CommentsController < ApplicationController
     if version_number > parent_project.project_instances.count || version_number <= 0
       return
     end
-
-    whitelist = [parent_course.coordinator.user, parent_project.supervisor]
+    
+    whitelist = [parent_project.supervisor] + parent_course.coordinator.map { |enrolment| User.find(enrolment.user_id) }
 
     if type == "student" || type == "project_group"
       if !parent_course.grouped
