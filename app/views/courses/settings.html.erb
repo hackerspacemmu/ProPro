@@ -151,10 +151,23 @@
           </div>
         </div>
 
+        <div class="field-row">
+          <%= link_to "Add students",
+                      add_students_course_path(@course),
+                      class: "btn"
+                    %>
+
+          <%= link_to "Add lecturers",
+                      add_lecturers_course_path(@course),
+                      class: "btn"
+                    %>
+        </div>
+
         <div class="form-actions">
           <%= link_to "← Back to Course",
                       course_path(@course),
                       class: "btn btn-secondary" %>
+
           <%= link_to "DELETE COURSE",
                       course_path(@course),
                       class: "btn btn-primary",
