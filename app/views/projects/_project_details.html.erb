@@ -42,7 +42,7 @@
         <%= Diffy::Diff.new(old_val, new_val).to_s(:html).html_safe %>
       </div>
     <% else %>
-      <p> No Changes </p>
+      <p> No Changes  in <%= field_name %> </p>
     <% end %>
   <% end %>
 <% end %>
