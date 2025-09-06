@@ -1,5 +1,11 @@
 class Course < ApplicationRecord
     has_many :enrolments, dependent: :destroy
+    has_many :users, through: :enrolments
+
+    has_many :students, -> { where(enrolments: { role: :student }) }, through: :enrolments, source: :user
+    has_many :coordinators, -> { where(enrolments: { role: :coordinator }) }, through: :enrolments, source: :user
+    has_many :supervisors, -> { where(enrolments: { role: :supervisor }) }, through: :enrolments, source: :user
+    
     has_many :projects, dependent: :destroy
     has_many :project_groups, dependent: :destroy
     has_one :project_template, dependent: :destroy
@@ -30,7 +36,7 @@ class Course < ApplicationRecord
     validates :supervisor_projects_limit, presence: { message: "cannot be empty" }, numericality: { only_integer: true, greater_than: 0, message: "must be a positive whole number" }
 
     before_validation :null_number_of_updates_if_not_used
-
+=begin
     def coordinators
         self.enrolments.where(role: :coordinator)
     end
@@ -42,7 +48,7 @@ class Course < ApplicationRecord
     def lecturers
         self.enrolments.where(role: :lecturer)
     end
-
+=end
     private
     def null_number_of_updates_if_not_used
         unless use_progress_updates
