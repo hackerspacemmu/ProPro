@@ -12,8 +12,9 @@
  <%= render 'breadcrumb', course: @course %>
  <%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
+
  <div class="main">
- 
+   <%= render 'footer' %>
    <header class="course-header">
      <h1><%= @course.course_name.upcase %></h1>
      <h3>Your Course</h3>
@@ -81,5 +82,6 @@
   <% content_for :page_scripts do %>
      <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
   <% end %>
+
 </body>
 </html>
