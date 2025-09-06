@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  #Routes for static pages
+  get 'privacy-policy', to: 'static_pages#privacy_policy', as: 'privacy_policy'
+  get 'terms-of-service', to: 'static_pages#terms_of_service', as: 'terms_of_service'
+  get 'about', to: 'static_pages#about'
+  
   post "user/create"
   get "user/new_staff", to: "user#new_staff", as: :new_staff
   get "user/new_student", to: "user#new_student", as: :new_student
