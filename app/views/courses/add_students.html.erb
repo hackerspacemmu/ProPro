@@ -12,7 +12,7 @@
         <h3 class="flex justify-center text-[#858585] text-xl font-bold ">This course is: <%= @course.grouped? ? "Grouped" : "Not Grouped" %></h3>
         <h3 class="flex justify-center text-[#858585] text-xl font-bold ">Add Students</h3>
         <br>
-        <div class="flex w-auto justify-center justify-items-center flex-row grid grid-col-1 rounded-[10px] py-[15px] px-[5px] mb-[20px] shadow-[0_0_20px_1px_#b8b8b8] bg-[#f8f9fa] ">
+        <div class=" flex w-auto justify-center justify-items-center flex-col rounded-[10px] py-[15px] px-[5px] mb-[20px] shadow-[0_0_20px_1px_#b8b8b8] bg-[#f8f9fa] ">
             <h5 class="flex justify-center"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
             <h5 class="flex justify-center"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
             <br>
