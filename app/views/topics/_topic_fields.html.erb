@@ -32,3 +32,23 @@
       <% end %>
     </div>
   </section>
+
+<% if @index < @instances.size %>
+  <h4> Comparision with next instance </h4>
+  <br>
+  <% fields.zip(next_fields).each do |current_field, next_field| %>
+    <% field_name = (current_field || next_field).project_template_field.label %>
+    <% old_val    = current_field&.value.to_s %>
+    <% new_val    = next_field&.value.to_s %>
+
+    <% if old_val != new_val %>
+      <h4>Changes in <%= field_name %>:</h4>
+      <div class="diff">
+        <%= Diffy::Diff.new(old_val, new_val).to_s(:html).html_safe %>
+      </div>
+    <% else %>
+      <p> No Changes in <%= field_name %> </p>
+    <% end %>
+    <br>
+  <% end %>
+<% end %>

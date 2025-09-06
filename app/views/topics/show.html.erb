@@ -39,7 +39,7 @@
                     project: @project,
                     current_version: current_version,
                     latest_version: latest_version %>
-         <%= render 'topic_fields', fields: @fields %>
+         <%= render 'topic_fields', fields: @current_fields, next_fields: @next_fields %>
          <footer class="project-footer">
            <%= link_to "← Back to Course", course_path(@course) %>
          </footer>

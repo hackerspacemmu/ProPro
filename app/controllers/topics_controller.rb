@@ -42,6 +42,18 @@ def show
     return
   end
 
+
+  @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+
+  @latest_version = @instances.size
+
+  @next_fields = nil
+
+  if @index < @instances.size
+    @next_instance = @instances[@index]
+    @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+  end
+
   @comments = @project.comments.where(project_version_number: @index)
   @new_comment = Comment.new
 
