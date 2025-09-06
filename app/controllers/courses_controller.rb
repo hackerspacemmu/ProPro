@@ -35,13 +35,9 @@ class CoursesController < ApplicationController
       @current_status = @project&.current_status || "not_submitted"
 
     if @current_user_enrolment&.coordinator?
-      if @lecturer_enrolment
-        @my_student_projects = @course.projects.student_projects_for_lecturer(@current_user_enrolment).approved
-        @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
-      else
-        @my_student_projects = @course.projects.not_lecturer_owned.approved
-        @incoming_proposals = @course.projects.not_lecturer_owned.proposals
-      end
+      supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
+      @my_student_projects = @course.projects.student_projects_for_lecturer(supervisor_enrolment).approved
+      @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: supervisor_enrolment).proposals
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.student_projects_for_lecturer(@current_user_enrolment).approved
       @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
@@ -66,6 +62,11 @@ class CoursesController < ApplicationController
       @students_without_projects = @student_list.reject do |student|
         projects_ownerships.include?(student.id)
       end
+
+      Rails.logger.info "Coordinator enrolment ID: #{@current_user_enrolment.id}"
+      Rails.logger.info "Coordinator enrolment ID: #{@current_user_enrolment.id}"
+      Rails.logger.info "My student projects count: #{@my_student_projects.count}"
+      Rails.logger.info "lecturer_enrolment ID: #{@lecturer_enrolment.id}"
 
     if request.headers['HX-Request'] && params[:status_filter].present?
       render partial: 'participants_table', 
