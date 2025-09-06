@@ -14,6 +14,21 @@ class CoursesController < ApplicationController
       @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
+
+      # SET STUDENT PROJECTS
+      projects_ownerships = @course.projects.not_lecturer_owned.approved
+      .joins(:ownership)
+      .where(ownerships: { owner_type: "User" })
+      .pluck("ownerships.owner_id")
+  
+      @students_with_projects = @student_list.select do |student|
+        projects_ownerships.include?(student.id)
+      end 
+
+      @students_without_projects = @student_list.reject do |student|
+        projects_ownerships.include?(student.id)
+      end
+
       @filtered_group_list   = filtered_group_list
       @filtered_student_list = filtered_student_list
       @my_student_projects = []
@@ -48,25 +63,6 @@ class CoursesController < ApplicationController
       @lecturers.each do |lecturer|
         @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
       end
-
-      # SET STUDENT PROJECTS
-      projects_ownerships = @course.projects.not_lecturer_owned.approved
-      .joins(:ownership)
-      .where(ownerships: { owner_type: "User" })
-      .pluck("ownerships.owner_id")
-  
-      @students_with_projects = @student_list.select do |student|
-        projects_ownerships.include?(student.id)
-      end 
-
-      @students_without_projects = @student_list.reject do |student|
-        projects_ownerships.include?(student.id)
-      end
-
-      Rails.logger.info "Coordinator enrolment ID: #{@current_user_enrolment.id}"
-      Rails.logger.info "Coordinator enrolment ID: #{@current_user_enrolment.id}"
-      Rails.logger.info "My student projects count: #{@my_student_projects.count}"
-      Rails.logger.info "lecturer_enrolment ID: #{@lecturer_enrolment.id}"
 
     if request.headers['HX-Request'] && params[:status_filter].present?
       render partial: 'participants_table', 
