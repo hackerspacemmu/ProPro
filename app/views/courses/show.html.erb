@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
  <%= stylesheet_link_tag "courses.css" %>
- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title><%= current_user.username %>'s <%= @course.course_name %> Course View</title>
@@ -84,7 +83,6 @@
      <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
   <% end %>
 
-  <%= render 'footer' %>
 
 </body>
 </html>

@@ -23,4 +23,23 @@
     <a href="#participants">Participants</a>
   <% end %>
 
+  <% if current_user_enrolment&.lecturer? or current_user_enrolment&.coordinator?%>
+    <%= link_to "add students", add_students_course_path %>
+    <%= link_to "add lecturers", add_lecturers_course_path%>
+
+    <% if @current_user_enrolment&.coordinator? %>
+      <div class="topbar-actions">
+        <a href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
+          <%= image_tag "settings.svg" %>
+          <span class="topbar-info">Edit Course Settings</span>
+        </a>
+
+        <a href="<%= edit_course_project_template_path(@course) %>" class="topbar-icon" title="Edit Project Templates">
+          <%= image_tag "project_templates.svg" %>
+          <span class="topbar-info">Edit Templates</span>
+        </a>
+      </div>
+    <% end %>
+  <% end %>
+ 
 </div>
