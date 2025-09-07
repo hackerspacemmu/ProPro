@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_07_072052) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_id", null: false
@@ -114,7 +114,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
     t.datetime "updated_at", null: false
     t.string "title", null: false
     t.integer "status", default: 0, null: false
-    t.integer "enrolment_id", null: false
+    t.integer "enrolment_id"
     t.integer "source_topic_id"
     t.index ["created_by_id"], name: "index_project_instances_on_created_by_id"
     t.index ["enrolment_id"], name: "index_project_instances_on_enrolment_id"
@@ -144,14 +144,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
   end
 
   create_table "projects", force: :cascade do |t|
-    t.integer "enrolment_id", null: false
+    t.integer "enrolment_id"
     t.integer "course_id", null: false
     t.integer "ownership_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
+    t.string "owner_type"
+    t.integer "owner_id"
+    t.integer "ownership_type"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
+    t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
     t.index ["ownership_id"], name: "index_projects_on_ownership_id"
   end
 
