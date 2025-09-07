@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <%= stylesheet_link_tag "project_templates" %>
-    <%= javascript_include_tag "project_templates" %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Template Creation</title>
@@ -43,7 +42,6 @@
             <%= form.submit "Save Template" %>
             <%= link_to "Cancel", course_path(@course) %>
           </div>
-
         <% end %>
       </section>
     </main>

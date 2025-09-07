@@ -1,4 +1,4 @@
-<section class="participants" id="participants">
+<section class="participants" id="participants" data-turbo="false">
   <div class="container">
     <header class="section-header">
       <h4>Participants</h4>
@@ -8,8 +8,8 @@
         <label for="status-filter">Filter by Status:</label>
         <div class="filter-select-container">
         <select id="status-filter" 
-                name="status_filter"
-                hx-get="<%= course_path(@course) %>"
+                name="status_filter" 
+                hx-get="<%= course_url(@course) %>"
                 hx-target="#participants-table-container"
                 hx-trigger="change"
                 hx-include="this"
