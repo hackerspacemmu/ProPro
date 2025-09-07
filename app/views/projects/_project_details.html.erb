@@ -1,3 +1,4 @@
+    <%= stylesheet_link_tag "projects" %>
     <div class="fields-container">
       <% fields.each do |field| %>
         <div class="field-row"> 
@@ -27,22 +28,62 @@
       <% end %>
       <p>Based on Topic: <%= based_on_topic_name || "Own Proposal" %></p>
     </div>
+    <br>
+
+<style>
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+  }
+
+  .diff ul {
+    list-style: none;
+  }
+
+  .diff del{
+    text-decoration: none;
+  }
+
+  .diff ins{
+    text-decoration: none;
+  }
+</style>
 
 <% if @index < @instances.size %>
-    <h4> Comparision with next instance </h4>
+  <h4>Comparison with next instance</h4>
+  <br>
+
+  <table>
+    <tr>
+      <th>Field</th>
+      <th>Deletions</th>
+      <th>Additions</th>
+    </tr>
 
     <% fields.zip(next_fields).each do |current_field, next_field| %>
-    <% field_name = (current_field || next_field).project_template_field.label %>
-    <% old_val    = current_field&.value.to_s %>
-    <% new_val    = next_field&.value.to_s %>
+      <% field_name = (current_field || next_field).project_template_field.label %>
+      <% old_val    = current_field&.value.to_s %>
+      <% new_val    = next_field&.value.to_s %>
 
-    <% if old_val != new_val %>
-      <h4>Changes in <%= field_name %>:</h4>
-      <div class="diff">
-        <%= Diffy::Diff.new(old_val, new_val).to_s(:html).html_safe %>
-      </div>
-    <% else %>
-      <p> No Changes  in <%= field_name %> </p>
+      <tr>
+        <td><%= field_name %></td>
+
+        <% if old_val != new_val %>
+
+          <% diff_class = Diffy::SplitDiff %>
+          <% diff = diff_class.new(old_val, new_val, :format => :html) %>
+            <td style="background:#ffecec;">
+              <%= diff.left.html_safe %>
+            </td>
+            <td style="background:#eaffea;">
+              <%= diff.right.html_safe %>
+            </td>
+        <% else %>
+          <td colspan="2">No changes</td>
+        <% end %>
+      </tr>
     <% end %>
-  <% end %>
+  </table>
 <% end %>
+
