@@ -13,6 +13,10 @@ class MoveOwnershipToProjects < ActiveRecord::Migration[8.0]
         tmp = project.ownership
         project.update_columns(owner_id: tmp.owner_id, ownership_type: tmp.ownership_type, owner_type: tmp.owner_type)
       end
+
+      change_column_null :projects, :owner_id, false
+      change_column_null :projects, :ownership_type, false
+      change_column_null :projects, :owner_type, false
     end
   end
 end
