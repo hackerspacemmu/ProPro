@@ -7,7 +7,7 @@ class TopicsController < ApplicationController
   def show
 
     @instances = @project.project_instances.order(version: :asc)
-    @owner = @project.ownership&.owner
+    @owner = @project.owner
     @status = @project.status
 
 
@@ -44,7 +44,7 @@ class TopicsController < ApplicationController
 
     @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
-    user_type = @project.ownership&.ownership_type
+    user_type = @project.ownership_type
 
     if user_type == "lecturer"
       @type = "topic"
@@ -162,18 +162,14 @@ class TopicsController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         # Create ownership with current_user as the owner
-        @ownership = Ownership.find_or_create_by!(
-          owner: current_user,
-          ownership_type: :lecturer
-        )
-
         status = @course.require_coordinator_approval? ? :pending : :approved
 
         # Create project with valid enrolment and ownership
         @project = Project.create!(
           course: @course,
-          enrolment: @course.coordinator,
-          ownership: @ownership
+          enrolment: @course.coordinator, #TODO: multiple coordinators
+          owner: current_user,
+          ownership_type: :lecturer
         )
 
         title_value = nil
@@ -212,13 +208,7 @@ class TopicsController < ApplicationController
   end
 
   def destroy
-    allowed = if @project.ownership.is_a?(ProjectGroup)
-                @project.ownership.users
-              else
-                [ @project.ownership.owner ]
-              end
-
-    if allowed.include?(current_user)
+    if Current.user == @project.owner
       @project.destroy
       redirect_to course_path(@course), notice: "Topic deleted"
     else
@@ -235,14 +225,10 @@ class TopicsController < ApplicationController
     @is_lecturer            = @current_user_enrolment&.lecturer?
     @is_student             = @current_user_enrolment&.student?
 
-    lt = Ownership.ownership_types[:lecturer]
-
-
     if action_name == 'index'
       # FOR TOPICS/INDEX
       @projects = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt }, status: :approved)
+                         .where(ownership_type: :lecturer, status: :approved)
       return
     end
 
@@ -251,22 +237,19 @@ class TopicsController < ApplicationController
     if @is_coordinator
       # Coordinators see every lecturer topic (any status)
       @projects = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt })
+                         .where(ownership_type: :lecturer)
 
     elsif @is_lecturer
       # Lecturers see their own (any status) OR others' approved
       own = @course.projects
-                   .joins(:ownership)
-                   .where(ownerships: {
+                   .where(
                      owner_type:     "User",
                      owner_id:       current_user.id,
-                     ownership_type: lt
-                   })
+                     ownership_type: :lecturer
+                   )
 
       approved = @course.projects
-                        .joins(:ownership)
-                        .where(ownerships: { ownership_type: lt },
+                        .where(ownership_type: :lecturer,
                                status:     :approved)
 
       @projects = own.or(approved)
@@ -274,8 +257,7 @@ class TopicsController < ApplicationController
     else
       # Students see only approved
       @projects = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt }, status: :approved)
+                         .where(ownership_type: :lecturer, status: :approved)
 
     end
 

@@ -7,12 +7,12 @@ class ProjectsController < ApplicationController
     end
 
     @instances = @project.project_instances.order(version: :asc)
-    @owner = @project.ownership&.owner
+    @owner = @project&.owner
     @status = @project.status
     @comments = @project.comments
     @new_comment = Comment.new
 
-    user_type = @project.ownership&.ownership_type
+    user_type = @project&.ownership_type
 
     if user_type == "lecturer"
       @type = "topic"
@@ -214,25 +214,22 @@ class ProjectsController < ApplicationController
     end
 
     if @course.grouped?
-      has_project = !Current.user.project_groups.find_by(course: @course).ownership.nil?
+      has_project = Current.user.group_projects.find_by(course: @course).present?
     else
-      has_project = !@course.projects
-        .joins(:ownership)
-        .where(ownerships: { owner: current_user, ownership_type: :student })
-        .exists?
+      has_project = Current.user.solo_projects.find_by(course: @course).present?
     end
 
     if has_project
       redirect_to course_path(@course), alert: "You already have a project in this course."
       return
     end
-
+=begin
     enrolment = Enrolment.find_by(user: current_user, course: @course)
     if enrolment && Project.exists?(enrolment: enrolment)
       redirect_to course_path(@course), alert: "You already have a project."
       return
     end
-
+=end
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
@@ -254,22 +251,15 @@ class ProjectsController < ApplicationController
             raise StandardError, "You're not part of a project group."
           end
 
-          if group.ownership
+          if group.project
             raise StandardError, "Your group already has a project"
           end
-
-          @ownership = Ownership.create!(owner: group, ownership_type: :project_group)
         else
-          has_project = @course.projects
-          .joins(:ownership)
-          .where(ownerships: { owner: current_user, ownership_type: :student })
-          .exists?
+          has_project = Current.user.solo_projects.find_by(course: @course)
 
           if has_project
             raise StandardError, "You already have a project"
           end
-
-          @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
         end
 
         if params[:based_on_topic].blank?
@@ -308,7 +298,9 @@ class ProjectsController < ApplicationController
 
         @project = Project.create!(
           course: @course,
-          ownership: @ownership,
+          enrolment: @course.coordinator,
+          owner: @course.grouped? ? group : current_user,
+          ownership_type: @course.grouped? ? :project_group : :student,
           enrolment: supervisor_enrolment
         )
 
@@ -379,7 +371,7 @@ class ProjectsController < ApplicationController
     else
       # Non-coordinators:
       @projects = @course.projects.select do |project|
-        owner = project.ownership&.owner
+        owner = project&.owner
 
         # 1) Student-owned proposals (all statuses except rejected are OK)
         next true if owner.is_a?(User) &&
@@ -390,7 +382,7 @@ class ProjectsController < ApplicationController
                     owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
 
         # 3) Lecturer-proposed topics, but only once approved
-        next true if project.ownership.lecturer? &&
+        next true if project.lecturer? &&
                     project.status.to_s == "approved"                
 
         false
@@ -414,11 +406,11 @@ class ProjectsController < ApplicationController
       authorized = true
 
     elsif @course.owner_only?
-      authorized = @project.nil? || @project.ownership&.owner == current_user
+      authorized = @project.nil? || @project&.owner == current_user
 
     elsif @course.own_lecturer_only?
       authorized = @project.nil? || (
-        @project.ownership&.owner == current_user ||
+        @project&.owner == current_user ||
         @latest_instance.supervisor == current_user
       )
     elsif @course.no_restriction?

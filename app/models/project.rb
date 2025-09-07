@@ -1,12 +1,16 @@
 class Project < ApplicationRecord
+  enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
+  default_scope { where(ownership_type: [:student, :project_group]) }
+
   belongs_to :enrolment
-  belongs_to :ownership
+  #belongs_to :ownership
   belongs_to :course
+  belongs_to :owner, polymorphic: true
 
   has_many :project_instances, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
-  delegate :owner, to: :ownership
+  #delegate :owner, to: :ownership
   #has_many :topic_responses, dependent: :destroy
   has_many :proposed_topic_instances, class_name: "ProjectInstance", foreign_key: "source_topic_id"
 
@@ -16,11 +20,11 @@ class Project < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
-  scope :with_ownership, -> { joins(:ownership).includes(:ownership) }
-  scope :student_owned, -> { with_ownership.where(ownerships: { ownership_type: :student }) }
-  scope :group_owned, -> { with_ownership.where(ownerships: { ownership_type: :group }) }
-  scope :not_lecturer_owned, -> { with_ownership.where.not(ownerships: { ownership_type: :lecturer }) }
-  scope :lecturer_owned, -> { with_ownership.where(ownerships: { ownership_type: :lecturer }) }
+  #scope :with_ownership, -> { joins(:ownership).includes(:ownership) }
+  scope :student_owned, -> { where(ownership_type: :student) }
+  scope :group_owned, -> { where(ownership_type: :group) }
+  scope :not_lecturer_owned, -> { where.not(ownership_type: :lecturer) }
+  scope :lecturer_owned, -> { where(ownership_type: :lecturer ) }
 
   # Status filters
   scope :pending, -> { where(status: :pending) }

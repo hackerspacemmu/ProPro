@@ -4,7 +4,7 @@ class Course < ApplicationRecord
 
     has_many :students, -> { where(enrolments: { role: :student }) }, through: :enrolments, source: :user
     has_many :coordinators, -> { where(enrolments: { role: :coordinator }) }, through: :enrolments, source: :user
-    has_many :supervisors, -> { where(enrolments: { role: :supervisor }) }, through: :enrolments, source: :user
+    has_many :lecturers, -> { where(enrolments: { role: :lecturer }) }, through: :enrolments, source: :user
     
     has_many :projects, dependent: :destroy
     has_many :project_groups, dependent: :destroy

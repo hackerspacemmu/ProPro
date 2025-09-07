@@ -9,17 +9,16 @@ class CoursesController < ApplicationController
 
 
     def show
-      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @student_list = @course.students #@course.enrolments.where(role: :student).includes(:user).map(&:user)
       @description = @course.course_description
-      @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @lecturers = @course.lecturers #@course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
 
       # SET STUDENT PROJECTS
       projects_ownerships = @course.projects.not_lecturer_owned.approved
-      .joins(:ownership)
-      .where(ownerships: { owner_type: "User" })
-      .pluck("ownerships.owner_id")
+      .where(owner_type: "User")
+      .pluck("owner_id")
   
       @students_with_projects = @student_list.select do |student|
         projects_ownerships.include?(student.id)
@@ -38,13 +37,13 @@ class CoursesController < ApplicationController
         @group = current_user.project_groups.find_by(course: @course)
         
         if @group
-          @project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: @group.class.name, owner_id: @group.id })
+          @project = @course.projects.find_by(owner_type: "ProjectGroup", owner_id: @group.id)
         else
           @project = nil
         end
       else
           @group = nil
-          @project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: "User", owner_id: current_user.id })
+          @project = @course.projects.find_by(owner_type: "User", owner_id: current_user.id)
       end
 
       @current_status = @project&.current_status || "not_submitted"
@@ -264,7 +263,7 @@ class CoursesController < ApplicationController
 
   private
   def students_with_projects
-    @course.projects.not_lecturer_owned.approved.joins(:ownership).where(ownerships: { owner_type: "User" }).pluck("ownerships.owner_id")
+    @course.projects.not_lecturer_owned.approved.where(owner_type: "User").pluck("owner_id")
   end
 
   def disallow_noncoordinator_requests
@@ -486,28 +485,23 @@ class CoursesController < ApplicationController
     @course                 = Course.find(params[:id])
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
-    lt = Ownership.ownership_types[:lecturer]
-
     # 1) Coordinator: sees all topics (any status)
     if @current_user_enrolment&.coordinator?
       @topic_list = @course.projects
-                           .joins(:ownership)
-                           .where(ownerships: { ownership_type: lt })
+                           .where(ownership_type: :lecturer)
 
     # Lecturer: sees their own topics (any status)
     # plus other lecturers’ only if approved
     elsif @current_user_enrolment&.lecturer?
       own = @course.projects
-                   .joins(:ownership)
-                   .where(ownerships: {
+                   .where(
                      owner_type:     "User",
                      owner_id:       current_user.id,
-                     ownership_type: lt
-                   })
+                     ownership_type: :lecturer
+                   )
 
       approved = @course.projects
-                        .joins(:ownership)
-                        .where(ownerships: { ownership_type: lt },
+                        .where(ownership_type: :lecturer,
                                status:     :approved)
 
       @topic_list = own.or(approved)
@@ -515,8 +509,7 @@ class CoursesController < ApplicationController
     #Students: see only approved topics
     else
       @topic_list = @course.projects
-                           .joins(:ownership)
-                           .where(ownerships: { ownership_type: lt },
+                           .where(ownership_type: :lecturer,
                                   status:     :approved)
     end
   end
@@ -559,8 +552,7 @@ class CoursesController < ApplicationController
     when 'pending', 'redo', 'rejected'
       student_list.select do |student|
         project = course.projects
-          .joins(:ownership)
-          .find_by(ownerships: { owner_type: 'User', owner_id: student.id })
+          .find_by(owner_type: 'User', owner_id: student.id)
         project&.current_status == status
       end
     when 'not_submitted'
@@ -577,22 +569,19 @@ class CoursesController < ApplicationController
     when 'approved'
       group_list.select do |group|
         project = course.projects
-          .joins(:ownership)
-          .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+          .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
         project&.current_status == 'approved'
       end
     when 'pending', 'redo', 'rejected'
       group_list.select do |group|
         project = course.projects
-          .joins(:ownership)
-          .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+          .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
         project&.current_status == status
       end
     when 'not_submitted'
       group_list.select do |group|
         project = course.projects
-          .joins(:ownership)
-          .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+          .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
         project.nil?
       end
     else
