@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
+<% content_for :stylesheets do %>
     <%= stylesheet_link_tag "courses" %>
-</head>
+<% end %>
+<% content_for :title, "Add Lecturers - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <body>
     <div class="main">
