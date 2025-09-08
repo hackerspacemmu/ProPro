@@ -1,73 +1,72 @@
- <% content_for :stylesheets do %>
-   <%= stylesheet_link_tag "courses", "data-turbo-track": "reload" %>
- <% end %>
- <%= render 'topbar', user: current_user, course: @course %>
- <%= render 'breadcrumb', course: @course %>
- <%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "courses", "data-turbo-track": "reload" %>
+<% end %>
+<% content_for :title, "#{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+<%= render 'topbar', user: current_user, course: @course %>
+<%= render 'breadcrumb', course: @course %>
+<%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
- <div class="main">
- 
-   <header class="course-header">
-     <h1><%= @course.course_name.upcase %></h1>
-     <h3>Your Course</h3>
-     <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-      <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-   </header>
+<div class="main">
+  <header class="course-header">
+    <h1><%= @course.course_name.upcase %></h1>
+    <h3>Your Course</h3>
+    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+  </header>
 
-   <section class="proposal-guidelines" id="proposal-guidelines">
-     <div class="container">
-       <form>
-         <h4>Project Details</h4>
-         <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
-       </form> 
+  <section class="proposal-guidelines" id="proposal-guidelines">
+    <div class="container">
+      <form>
+        <h4>Project Details</h4>
+        <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
+      </form> 
 
-       <% if @course.file_link.present? %>
-         <a href="<%= @course.file_link %>" target="_blank" rel="noopener noreferrer">
-           <div class="project-file">
-             <div class="file-icon">
-               <%= image_tag "folder.svg" %>
-             </div>
-             <div class="file-info">
-               <span>Attachment Link</span>
-             </div>
-           </div>
-         </a>
-       <% end %>
-     </div>
-   </section>
+      <% if @course.file_link.present? %>
+        <a href="<%= @course.file_link %>" target="_blank" rel="noopener noreferrer">
+          <div class="project-file">
+            <div class="file-icon">
+              <%= image_tag "folder.svg" %>
+            </div>
+            <div class="file-info">
+              <span>Attachment Link</span>
+            </div>
+          </div>
+        </a>
+      <% end %>
+    </div>
+  </section>
 
-   <% if @current_user_enrolment&.coordinator? %>
-     <!-- Coordinator View: My Topics, Pending Topics, Pending Proposals -->
-     <%= render 'coordinator_section', 
-         course: @course, 
-         current_user_enrolment: @current_user_enrolment, 
-         topic_list: @topic_list,
-         current_user: @current_user, 
-         my_student_projects: @my_student_projects,
-         incoming_proposals: @incoming_proposals,
-         lecturers: @lecturers %>
+  <% if @current_user_enrolment&.coordinator? %>
+    <!-- Coordinator View: My Topics, Pending Topics, Pending Proposals -->
+    <%= render 'coordinator_section', 
+        course: @course, 
+        current_user_enrolment: @current_user_enrolment, 
+        topic_list: @topic_list,
+        current_user: @current_user, 
+        my_student_projects: @my_student_projects,
+        incoming_proposals: @incoming_proposals,
+        lecturers: @lecturers %>
 
-   <% elsif @current_user_enrolment&.lecturer? %>
-     <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals -->
-     <%= render 'lecturer_section',
-         course: @course,
-         current_user_enrolment: @current_user_enrolment,
-         topic_list: @topic_list,
-         current_user: @current_user,
-         my_student_projects: @my_student_projects,
-         incoming_proposals: @incoming_proposals,
-         lecturers: @lecturers %>
+  <% elsif @current_user_enrolment&.lecturer? %>
+    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals -->
+    <%= render 'lecturer_section',
+        course: @course,
+        current_user_enrolment: @current_user_enrolment,
+        topic_list: @topic_list,
+        current_user: @current_user,
+        my_student_projects: @my_student_projects,
+        incoming_proposals: @incoming_proposals,
+        lecturers: @lecturers %>
 
-   <% else %>
-     <!-- Student View: Supervisors Available, Proposal Status, Available Topics -->
-     <%= render 'student_section',
-         course: @course,
-         current_user_enrolment: @current_user_enrolment,
-         topic_list: @topic_list,
-         project: @project,
-         lecturers: @lecturers %>
-   <% end %>
+  <% else %>
+    <!-- Student View: Supervisors Available, Proposal Status, Available Topics -->
+    <%= render 'student_section',
+        course: @course,
+        current_user_enrolment: @current_user_enrolment,
+        topic_list: @topic_list,
+        project: @project,
+        lecturers: @lecturers %>
+  <% end %>
 
-   <%= render 'participants', course: @course %>
- </div>
-
+  <%= render 'participants', course: @course %>
+</div>

@@ -1,53 +1,48 @@
-<!DOCTYPE html>
-<html>
-<%= stylesheet_link_tag "courses" %>
-<head>
-    <div class="topbar">
-    <% if Current.user.is_staff %>
-        <%= link_to "#{Current.user.username}'s Dashboard" %>
-    <% else %>
-        <%= link_to "#{Current.user.username}'s Dashboard" %>
-    <% end %>
-    </div>
-    <ul class="breadcrumb">
-        <li><%= link_to "Home", root_url %></li>
-        <li><%= link_to "Edit Profile", user_profile_path if Current.user.is_staff %></li>
-        <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
-    </ul>
-</head>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "courses" %>
+<% end %>
+<% content_for :title, "Home | ProPro" %>
 
-<body>
-    <div class="sidebar">
-        <a href="#home">Courses</a>
-    </div>
-    <div class="main">
-        <h1>Dashboard</h1>
-        <h3>Your Courses</h3>
-        <br>
-        <div class="cards-container">
-            <% if @courses.present? %>
-                <% @courses.each do |course| %>
-                    <a href="<%= course_path(course) %>" class="card-link">
-                    <div class="project-card">
-                        <ul>
-                        <b style="font-weight: bold;"><%= course.course_name %></b>
-                        <br>
-                        <b> Coordinator: <%= course.coordinator.user.username %></b>
-                        <ul>
-                            <li class="project-card inner">
-                            <p class="text"><%= course.course_description || "No description available" %></p>
-                            </li>
-                        </ul>
-                        </ul>
-                    </div>
-                    </a>
-                <% end %>
-            <% else %>
-                <h5><img src="info.png" class="icon" size="20S">You have no courses at the moment. Please create one.</h5>
-            <% end %>
+<div class="topbar">
+<% if Current.user.is_staff %>
+  <%= link_to "#{Current.user.username}'s Dashboard" %>
+<% else %>
+  <%= link_to "#{Current.user.username}'s Dashboard" %>
+<% end %>
+</div>
+<ul class="breadcrumb">
+  <li><%= link_to "Home", root_url %></li>
+  <li><%= link_to "Edit Profile", user_profile_path if Current.user.is_staff %></li>
+  <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
+</ul>
+<div class="sidebar">
+  <a href="#home">Courses</a>
+</div>
+<div class="main">
+  <h1>Dashboard</h1>
+  <h3>Your Courses</h3>
+  <br>
+  <div class="cards-container">
+    <% if @courses.present? %>
+      <% @courses.each do |course| %>
+        <a href="<%= course_path(course) %>" class="card-link">
+        <div class="project-card">
+          <ul>
+          <b style="font-weight: bold;"><%= course.course_name %></b>
+          <br>
+          <b> Coordinator: <%= course.coordinator.user.username %></b>
+          <ul>
+            <li class="project-card inner">
+            <p class="text"><%= course.course_description || "No description available" %></p>
+            </li>
+          </ul>
+          </ul>
         </div>
-        <%= link_to "+", new_course_path, class: "rounded-add-button" if Current.user.is_staff %>
-    </div>
-</body>
-</html>
-
+        </a>
+      <% end %>
+    <% else %>
+      <h5><img src="info.png" class="icon" size="20S">You have no courses at the moment. Please create one.</h5>
+    <% end %>
+  </div>
+  <%= link_to "+", new_course_path, class: "rounded-add-button" if Current.user.is_staff %>
+</div>

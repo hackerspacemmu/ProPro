@@ -1,51 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "courses" %>
+<% end %>
+<% content_for :title, "Topics List - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-<head>
-  <%= stylesheet_link_tag "courses.css" %>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= current_user.username %>'s <%= @course.course_name %> Course View</title>
-</head>
+<%= render 'topbar', user: current_user %>
+<%= render 'breadcrumb', course: @course %>
+<%= render 'courses/sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
-<body>
-  <%= render 'topbar', user: current_user %>
-  <%= render 'breadcrumb', course: @course %>
-  <%= render 'courses/sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
+<main class="main">
+  <header class="section-header">
+    <h1>Topics for <%= @course.course_name %></h1>
+  </header>
 
-  <main class="main">
-    <header class="section-header">
-      <h1>Topics for <%= @course.course_name %></h1>
-    </header>
+  <section class="search-bar-container">
+    <%= form_with url: course_topics_path(@course), method: :get, local: true, class: "search-form" do %>
+      <%= label_tag :query, "Search topics:", class: "search-label" %>
+      <%= text_field_tag :query, params[:query], class: "search-input", placeholder: "Enter keyword..." %>
+      <%= submit_tag "Search", class: "btn btn-secondary" %>
+    <% end %>
+  </section>
 
-    <section class="search-bar-container">
-      <%= form_with url: course_topics_path(@course), method: :get, local: true, class: "search-form" do %>
-        <%= label_tag :query, "Search topics:", class: "search-label" %>
-        <%= text_field_tag :query, params[:query], class: "search-input", placeholder: "Enter keyword..." %>
-        <%= submit_tag "Search", class: "btn btn-secondary" %>
+      
+  <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+  <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+
+
+  <section class="topics-list" id="topics-list">
+    <div class="cards-container">
+      <% if @projects.any? %>
+        <%= render partial: 'courses/project_card', collection: @projects, as: :project %>
+      <% else %>
+        <p class="empty-state">No topics found.</p>
       <% end %>
-    </section>
-
-        
-    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-
-
-    <section class="topics-list" id="topics-list">
-      <div class="cards-container">
-        <% if @projects.any? %>
-          <%= render partial: 'courses/project_card', collection: @projects, as: :project %>
-        <% else %>
-          <p class="empty-state">No topics found.</p>
-        <% end %>
-      </div>
-    </section>
-
-    <div class="form-actions">
-      <%= link_to "Back to Course", course_path(@course), class: "btn-normal" %>
     </div>
-  </main>
+  </section>
 
-  <%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
-</body>
-</html>
+  <div class="form-actions">
+    <%= link_to "Back to Course", course_path(@course), class: "btn-normal" %>
+  </div>
+</main>
+
+<%= javascript_include_tag "courses", "data-turbo-track": "reload", defer: true %>
