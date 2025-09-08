@@ -1,62 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <%= stylesheet_link_tag "project_templates" %>
-    <%= javascript_include_tag "project_templates" %>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Template Creation</title>
-  </head>
-  <body>
-    <main id="course">
-      <section class="form-section">
-        <header class="form-header">
-          <h2>Edit Project Template</h2>
-        </header>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "project_templates" %>
+<% end %>
+<% content_for :title, "Edit Project Template - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-        <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "form" do |form| %>
+<main id="course">
+  <section class="form-section">
+    <header class="form-header">
+      <h2>Edit Project Template</h2>
+    </header>
 
-          <% if @project_template.errors.any? %>
-            <div class="form-errors">
-              <h3><%= pluralize(@project_template.errors.count, "error") %> prevented this template from being saved:</h3>
-              <ul>
-                <% @project_template.errors.full_messages.each do |msg| %>
-                <li><%= msg %></li>
-                <% end %>
-              </ul>
-           </div>
-          <% end %>
-          
-          <div class="row header-row">
-            <div class="column"><strong>Field Label</strong></div>
-            <div class="column"><strong>Hint Text (Optional)</strong></div>
-            <div class="column"><strong>Field Type</strong></div>
-            <div class="column"><strong>Applicable To</strong></div>
-            <div class="column"><strong>Options</strong></div>
-          </div>
+    <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "form" do |form| %>
 
-          <div id="template-fields">
-            <%= form.fields_for :project_template_fields do |field_form| %>
-               <%= render 'field_row', field_form: field_form %>  
+      <% if @project_template.errors.any? %>
+        <div class="form-errors">
+          <h3><%= pluralize(@project_template.errors.count, "error") %> prevented this template from being saved:</h3>
+          <ul>
+            <% @project_template.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
             <% end %>
-          </div>
+          </ul>
+        </div>
+      <% end %>
+      
+      <div class="row header-row">
+        <div class="column"><strong>Field Label</strong></div>
+        <div class="column"><strong>Hint Text (Optional)</strong></div>
+        <div class="column"><strong>Field Type</strong></div>
+        <div class="column"><strong>Applicable To</strong></div>
+        <div class="column"><strong>Options</strong></div>
+      </div>
 
-          <div class="add-field-section">
-            <button type="button"
-              id="add-field-btn" 
-              data-course-id="<%= @course.id %>" 
-              data-field-index="<%= @project_template.project_template_fields.size %>"> 
-              + New Field 
-            </button>
-          </div>
-
-          <div class="form-actions">
-            <%= form.submit "Save Template" %>
-            <%= link_to "Cancel", course_path(@course) %>
-          </div>
-
+      <div id="template-fields">
+        <%= form.fields_for :project_template_fields do |field_form| %>
+            <%= render 'field_row', field_form: field_form %>  
         <% end %>
-      </section>
-    </main>
-  </body>
-</html>
+      </div>
+
+      <div class="add-field-section">
+        <button type="button"
+          id="add-field-btn" 
+          data-course-id="<%= @course.id %>" 
+          data-field-index="<%= @project_template.project_template_fields.size %>"> 
+          + New Field 
+        </button>
+      </div>
+
+      <div class="form-actions">
+        <%= form.submit "Save Template" %>
+        <%= link_to "Cancel", course_path(@course) %>
+      </div>
+
+    <% end %>
+  </section>
+</main>
