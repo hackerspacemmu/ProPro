@@ -56,7 +56,7 @@
         <% end %>
       </div>
     </header>
-    <% my_topics = topic_list.select { |project| project.ownership.lecturer? && project.ownership.owner == current_user } %>
+    <% my_topics = topic_list.select { |project| project.lecturer? && project.owner == current_user } %>
     <% if my_topics.empty? %>
       <p class="empty-state">You haven't created any topics yet.</p>
     <% else %>

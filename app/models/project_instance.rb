@@ -1,4 +1,8 @@
 class ProjectInstance < ApplicationRecord
+  enum :project_type, { topic: 0, project: 1 }
+  
+  default_scope { where(project_type: :project) }
+  
   belongs_to :project
   belongs_to :enrolment
   belongs_to :created_by, class_name: "User"

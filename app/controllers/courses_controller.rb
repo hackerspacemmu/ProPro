@@ -9,9 +9,9 @@ class CoursesController < ApplicationController
 
 
     def show
-      @student_list = @course.students #@course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @student_list = @course.students 
       @description = @course.course_description
-      @lecturers = @course.lecturers #@course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @lecturers = @course.lecturers 
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
 
@@ -46,7 +46,7 @@ class CoursesController < ApplicationController
           @project = @course.projects.find_by(owner_type: "User", owner_id: current_user.id)
       end
 
-      @current_status = @project&.current_status || "not_submitted"
+    @current_status = @project&.current_status || "not_submitted"
 
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
@@ -57,11 +57,11 @@ class CoursesController < ApplicationController
       @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
     end
     
-      # SET LECTURER CAPACITY INFO
-      @lecturer_capacity_info = {}
-      @lecturers.each do |lecturer|
-        @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
-      end
+    # SET LECTURER CAPACITY INFO
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
+    end
 
     if request.headers['HX-Request'] && params[:status_filter].present?
       render partial: 'participants_table', 
@@ -487,8 +487,7 @@ class CoursesController < ApplicationController
 
     # 1) Coordinator: sees all topics (any status)
     if @current_user_enrolment&.coordinator?
-      @topic_list = @course.projects
-                           .where(ownership_type: :lecturer)
+      @topic_list = @course.topics
 
     # Lecturer: sees their own topics (any status)
     # plus other lecturers’ only if approved
