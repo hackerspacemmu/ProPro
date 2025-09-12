@@ -269,11 +269,7 @@ class CoursesController < ApplicationController
   def disallow_noncoordinator_requests
     @course = Course.find(params[:id])
 
-    coordinators = @course.coordinators.map { |enrolment| User.find(enrolment.user_id) }
-
-    Rails.logger.info "KJFLKJFLKJDFKLJFKJAKFJKASFJAKJFKLASJFKLA #{coordinators.inspect}"
-
-    unless coordinators.include? Current.user
+    unless @course.coordinators.include? Current.user
       redirect_back_or_to "/", alert: "Access denied"
       return
     end

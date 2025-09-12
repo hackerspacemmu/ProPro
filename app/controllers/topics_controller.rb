@@ -5,11 +5,9 @@ class TopicsController < ApplicationController
   end
 
   def show
-
-    @instances = @project.project_instances.order(version: :asc)
-    @owner = @project.owner
-    @status = @project.status
-
+    @instances = @topic.topic_instances.order(version: :asc)
+    @owner = @topic.owner
+    @status = @topic.status
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
@@ -20,7 +18,6 @@ class TopicsController < ApplicationController
     else
       @members = [@owner] #individual
     end
-
 
     if !params[:version].blank?
       @index = params[:version].to_i
@@ -39,12 +36,12 @@ class TopicsController < ApplicationController
       return
     end
 
-    @comments = @project.comments.where(project_version_number: @index)
+    @comments = @topic.comments.where(project_version_number: @index)
     @new_comment = Comment.new
 
     @fields = @current_instance.project_instance_fields.includes(:project_template_field)
 
-    user_type = @project.ownership_type
+    user_type = @topic.ownership_type
 
     if user_type == "lecturer"
       @type = "topic"
@@ -227,8 +224,7 @@ class TopicsController < ApplicationController
 
     if action_name == 'index'
       # FOR TOPICS/INDEX
-      @projects = @course.projects
-                         .where(ownership_type: :lecturer, status: :approved)
+      @topics = @course.topics.where(status: :approved)
       return
     end
 
@@ -236,42 +232,34 @@ class TopicsController < ApplicationController
 
     if @is_coordinator
       # Coordinators see every lecturer topic (any status)
-      @projects = @course.projects
-                         .where(ownership_type: :lecturer)
+      @topics = @course.topics
 
     elsif @is_lecturer
       # Lecturers see their own (any status) OR others' approved
-      own = @course.projects
-                   .where(
+      own = @course.topics.where(
                      owner_type:     "User",
                      owner_id:       current_user.id,
-                     ownership_type: :lecturer
                    )
+      approved = @course.topics.where(status: :approved)
 
-      approved = @course.projects
-                        .where(ownership_type: :lecturer,
-                               status:     :approved)
-
-      @projects = own.or(approved)
-
+      @topics = own.or(approved)
     else
       # Students see only approved
-      @projects = @course.projects
-                         .where(ownership_type: :lecturer, status: :approved)
+      @topics = @course.topics.where(status: :approved)
 
     end
 
-    @project = @projects.find_by(id: params[:id])
-    unless @project
+    @topic = @topics.find_by(id: params[:id])
+    unless @topic
       redirect_to course_path(@course), alert: "You are not authorized to view this topic."
       return
-     end
+    end
 
     #Search
     query = params[:query].to_s.downcase
     if query.present?
-      @projects = @projects.select do |project|
-        latest = project.project_instances.order(version: :desc).first
+      @topics = @topics.select do |topic|
+        latest = topic.topic_instances.order(version: :desc).first
         title = latest&.title&.downcase
         description = latest&.project_instance_fields
           &.includes(:project_template_field)
@@ -283,8 +271,8 @@ class TopicsController < ApplicationController
     end
   end
 
-   def set_course_and_enrolment
-     @course  = Course.find(params[:course_id])
-     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
-   end
+  def set_course_and_enrolment
+    @course  = Course.find(params[:course_id])
+    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+  end
 end
