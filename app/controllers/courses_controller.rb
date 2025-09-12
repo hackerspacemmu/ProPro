@@ -267,7 +267,7 @@ class CoursesController < ApplicationController
   
     csv_content = generate_csv_export
   
-    filename = "#{@course.course_name.parameterize}-export-#{Date.current.strftime('%Y%m%d')}.csv"
+    filename = "#{@course.course_name.parameterize}.csv"
     response.headers['Content-Type'] = 'text/csv'
     response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
   
@@ -490,7 +490,7 @@ class CoursesController < ApplicationController
   end
 
   def generate_csv_export
-    template_fields = @course.project_template.project_template_fields.order(:id)
+    template_fields = @course.project_template&.project_template_fields&.order(:id) || []
     headers = build_csv_headers(template_fields)
     rows = []
 
@@ -514,7 +514,7 @@ class CoursesController < ApplicationController
   def build_csv_headers(template_fields)
     headers = ['Student_Name', 'Student_ID', 'Email_Address']
     headers << 'Student Group' if @course.grouped?
-    headers += [ 'Supervisor_Name', 'Supervisor_ID','Supervisor_Email_Address', 'Project_Title', 'Project_Status']
+    headers += [ 'Supervisor_Name','Supervisor_Email_Address', 'Project_Title', 'Project_Status']
 
     template_fields.each do |field|
       headers << field.label
@@ -538,7 +538,6 @@ class CoursesController < ApplicationController
         user.email_address || '',
         group.group_name || '',
         supervisor&.username || '',
-        supervisor&.student_id || '',
         supervisor&.email_address || '',
         current_instance&.title || '',
         project_status.humanize
@@ -551,10 +550,10 @@ class CoursesController < ApplicationController
 
   def build_student_rows(student, template_fields)
     project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: 'User', owner_id: student.id })
-    latest_instance = project&.current_instance
+    current_instance = project&.current_instance
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
-    field_values = get_project_details_values(latest_instance, template_fields)
+    field_values = get_project_details_values(current_instance, template_fields)
 
 
     row = [
@@ -565,14 +564,13 @@ class CoursesController < ApplicationController
     row << '' unless @course.grouped?
     row += [
       supervisor&.username || '',
-      supervisor&.student_id || '',
       supervisor&.email_address || '',
       current_instance&.title || '',
       project_status.humanize
     ]
 
     row.concat(field_values)
-    return row
+    return [row]
   end
 
   def get_project_details_values(current_instance, template_fields)
