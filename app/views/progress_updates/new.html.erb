@@ -1,32 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
- <head>
-   <%= stylesheet_link_tag "projects" %>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
- </head>
- <body>
-   <main class="project-edit">
-      <h1><b> Progress Update </b></h1>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "projects" %>
+<% end %>
+<% content_for :title, "New Progress Update - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-        <%= form_with(model: [@course, @project, @progress_update]) do |f| %>
-          <%= f.label :rating %>
-          <%= f.select :rating,
-                options_for_select(ProgressUpdate.ratings.keys.map { |s| [s.humanize, s] }, @progress_update.rating) %>
-          <br>
+<main class="project-edit">
+  <h1><b> Progress Update </b></h1>
 
-          <%= f.label :feedback %>
-          <%= f.text_area :feedback, class: "form-control", required: true %>
+    <%= form_with(model: [@course, @project, @progress_update]) do |f| %>
+      <%= f.label :rating %>
+      <%= f.select :rating,
+            options_for_select(ProgressUpdate.ratings.keys.map { |s| [s.humanize, s] }, @progress_update.rating) %>
+      <br>
+
+      <%= f.label :feedback %>
+      <%= f.text_area :feedback, class: "form-control", required: true %>
 
 
-          <%= f.label :date %>
-          <%= f.date_field :date, value: Date.today %>
+      <%= f.label :date %>
+      <%= f.date_field :date, value: Date.today %>
 
-          <br>
-          <%= f.submit %>
-        <% end %>
+      <br>
+      <%= f.submit %>
+    <% end %>
 
-        <%= link_to "← Back to Project", course_project_path(@course, @project) %>
-    </main>
- </body>
-</html>
+    <%= link_to "← Back to Project", course_project_path(@course, @project) %>
+</main>

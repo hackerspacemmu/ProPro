@@ -1,66 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <%= stylesheet_link_tag "projects" %>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Topic</title>
-  </head>
-  <body>
-    <main class="project-edit">
-      <header class="edit-header">
-        <div class="edit-header-row">
-          <h1 class="edit-title">Create Topic for <%= @course.course_name %> <%= image_tag("edit.svg") %></h1>
-        </div>
-        <p class="edit-description">Fill out your topic details and information below.</p>
-      </header>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "projects" %>
+<% end %>
+<% content_for :title, "Create Topic - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-      <%= form_with url: course_topics_path(@course), method: :post, class: "edit-form" do |form| %>
-        <div class="fields-container">
-          <% @template_fields.each do |field| %>
-            <div class="field-row">
-              <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
-              <% if field.hint.present? %>
-                <p class="field-hint"><%= field.hint %></p>
-              <% end %>
+<main class="project-edit">
+  <header class="edit-header">
+    <div class="edit-header-row">
+      <h1 class="edit-title">Create Topic for <%= @course.course_name %> <%= image_tag("edit.svg") %></h1>
+    </div>
+    <p class="edit-description">Fill out your topic details and information below.</p>
+  </header>
 
-              <% case field.field_type %>
-              <% when "shorttext" %>
-                <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+  <%= form_with url: course_topics_path(@course), method: :post, class: "edit-form" do |form| %>
+    <div class="fields-container">
+      <% @template_fields.each do |field| %>
+        <div class="field-row">
+          <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
+          <% if field.hint.present? %>
+            <p class="field-hint"><%= field.hint %></p>
+          <% end %>
 
-              <% when "textarea" %>
-                <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+          <% case field.field_type %>
+          <% when "shorttext" %>
+            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
 
-              <% when "dropdown" %>
-                <% options = field.option_list %>
-                <%= select_tag "fields[#{field.id}]",
-                              options_for_select(options),
-                              prompt: "Select an option",
-                              class: "form-control",
-                              required: true %>
+          <% when "textarea" %>
+            <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+
+          <% when "dropdown" %>
+            <% options = field.option_list %>
+            <%= select_tag "fields[#{field.id}]",
+                          options_for_select(options),
+                          prompt: "Select an option",
+                          class: "form-control",
+                          required: true %>
 
 
-              <% when "radio" %>
-                <div class="radio-group">
-                <% options = field.option_list %>
-                <% options.each_with_index do |option, idx| %>
-                  <div class="radio-option">
-                    <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
-                    <%= label_tag "field_#{field.id}_#{idx}", option %>
-                  </div>
-                <% end %>
-              <% else %>
-                <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
-              <% end %>
-            </div>
+          <% when "radio" %>
+            <div class="radio-group">
+            <% options = field.option_list %>
+            <% options.each_with_index do |option, idx| %>
+              <div class="radio-option">
+                <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
+                <%= label_tag "field_#{field.id}_#{idx}", option %>
+              </div>
+            <% end %>
+          <% else %>
+            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
           <% end %>
         </div>
-
-        <div class="form-actions">
-          <%= link_to "← Back to Topics", course_topics_path(@course)%>
-          <%= submit_tag "Create Topic", class: "btn btn-primary" %>
-        </div>
       <% end %>
-    </main>
-  </body>
-</html>
+    </div>
+
+    <div class="form-actions">
+      <%= link_to "← Back to Topics", course_topics_path(@course)%>
+      <%= submit_tag "Create Topic", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</main>

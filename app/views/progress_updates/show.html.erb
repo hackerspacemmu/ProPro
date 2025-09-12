@@ -1,33 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
- <head>
-   <%= stylesheet_link_tag "projects" %>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title><%= @current_instance.title %> - Project Details</title>
- </head>
- <body>
-   <%= @current_instance.title %>
-   <p><strong>Date:</strong> <%= @progress_update.date %></p>
-    <p><strong>Rating:</strong> <%= @progress_update.rating.gsub("_", " ").titleize %></p>
-    <p>
-    <strong>Feedback:</strong>
-    <p><%= h(@progress_update.feedback).gsub("\n", "<br/>").html_safe %></p>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "projects" %>
+<% end %>
+<% content_for :title, "Progress Update - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-    <% if @current_instance.supervisor == current_user %>
-      <div style="display: flex; gap: 10px;">
-        <%=
-          button_to "Edit Progress Update",
-          edit_course_project_progress_update_path(@course, @project, @progress_update),
-          method: :get,
-          class: "delete-btn"
-        %>
-        <%=
-          button_to "Delete Progress Update",
-          course_project_progress_update_path(@course, @project, @progress_update),
-          method: :delete,
-          class: "delete-btn"
-        %>
-      <% end %>
- </body>
-</html>
+<%= @current_instance.title %>
+<p><strong>Date:</strong> <%= @progress_update.date %></p>
+<p><strong>Rating:</strong> <%= @progress_update.rating.gsub("_", " ").titleize %></p>
+<p>
+<strong>Feedback:</strong>
+<p><%= h(@progress_update.feedback).gsub("\n", "<br/>").html_safe %></p>
+
+<% if @current_instance.supervisor == current_user %>
+  <div style="display: flex; gap: 10px;">
+    <%=
+      button_to "Edit Progress Update",
+      edit_course_project_progress_update_path(@course, @project, @progress_update),
+      method: :get,
+      class: "delete-btn"
+    %>
+    <%=
+      button_to "Delete Progress Update",
+      course_project_progress_update_path(@course, @project, @progress_update),
+      method: :delete,
+      class: "delete-btn"
+    %>
+  <% end %>
