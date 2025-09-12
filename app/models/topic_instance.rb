@@ -13,7 +13,7 @@ class TopicInstance < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
-  has_many :project_instance_fields, dependent: :destroy
+  has_many :project_instance_fields, dependent: :destroy, foreign_key: "project_instance_id"
 
   after_save :update_parent_topic
 =begin

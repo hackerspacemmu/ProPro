@@ -1,20 +1,15 @@
-<div class="project-card  status-<%= project.status %>">
-<% project_instance = project.project_instances.order(:version).last %>
-<% if project_instance %>
-  <% is_my_topic = project.lecturer? && project.owner == current_user %>
-  <% if is_my_topic || project_viewable_by_current_user?(@course, project) %>
-    <% path =
-      if project.lecturer?
-        course_topic_path(@course, project)
-      else
-        course_project_path(@course, project)
-      end %>
+<div class="project-card  status-<%= topic.status %>">
+<% topic_instance = topic.topic_instances.order(:version).last %>
+<% if topic_instance %>
+  <% is_my_topic = topic.owner == current_user %>
+  <% if is_my_topic || topic_viewable_by_current_user?(@course, topic) %>
+    <% path = course_topic_path(@course, topic) %>
 
     <%= link_to path, class: "card-link" do %>
-      <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
+      <%= render 'courses/topic_card_contents', topic: topic, topic_instance: topic_instance %>
     <% end %>
   <% else %>
-    <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
+    <%= render 'courses/topic_card_contents', topic: topic, topic_instance: topic_instance %>
   <% end %>
 <% end %>
 </div>
