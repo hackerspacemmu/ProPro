@@ -18,8 +18,7 @@
          <%= render 'topic_header',
                     current_instance: @current_instance,
                     owner: @owner,
-                    type: @type,
-                    project: @project,
+                    topic: @topic,
                     members: @members,
                     current_version: current_version,
                     latest_version: latest_version,
@@ -28,7 +27,7 @@
          <%= render 'topic_actions',
                     members: @members,
                     current_user: current_user,
-                    project: @project,
+                    topic: @topic,
                     current_version: current_version,
                     latest_version: latest_version,
                     course: @course %>
@@ -36,7 +35,7 @@
                     comments: @comments,
                     new_comment: @new_comment,
                     course: @course,
-                    project: @project,
+                    topic: @topic,
                     current_version: current_version,
                     latest_version: latest_version %>
          <%= render 'topic_fields', fields: @fields %>

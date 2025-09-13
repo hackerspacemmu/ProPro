@@ -36,43 +36,34 @@ class TopicsController < ApplicationController
       return
     end
 
-    @comments = @topic.comments.where(project_version_number: @index)
+    @comments = @topic.comments.where(location: @current_instance)
     @new_comment = Comment.new
 
     @fields = @current_instance.project_instance_fields.includes(:project_template_field)
-
-    user_type = @topic.ownership_type
-
-    if user_type == "lecturer"
-      @type = "topic"
-    else
-      @type = "proposal"
-    end
   end
 
   def change_status
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
-    if @is_coordinator && Project.statuses.key?(params[:status])
-      @project.project_instances.last.update(status: params[:status])
-
+    if @is_coordinator
+      @topic.topic_instances.last.update!(status: params[:status])
 
       GeneralMailer.with(
-        username: @project.owner.username,
-        email_address: @project.owner.email_address,
+        username: @topic.owner.username,
+        email_address: @topic.owner.email_address,
         course: @course,
-        project: @project,
+        topic: @topic,
         supervisor_username: Current.user.username
-      ).Status_Updated.deliver_now
+      ).Topic_Status_Updated.deliver_now
 
-      redirect_to course_topic_path(@course, @project), notice: "Status updated."
+      redirect_to course_topic_path(@course, @topic), notice: "Status updated."
     else
-      redirect_to course_topic_path(@course, @project), alert: "You are not authorized to perform this action."
+      redirect_to course_topic_path(@course, @topic), alert: "You are not authorized to perform this action."
     end
   end
 
   def edit
-    @instance = @project.project_instances.last || @project.project_instances.build
+    @instance = @topic.topic_instances.last || @topic.topic_instances.build
 
     if @instance
       @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
@@ -86,17 +77,17 @@ class TopicsController < ApplicationController
 
   def update
     has_coordinator_comment = Comment.where(
-      project: @project,
-      project_version_number: @project.project_instances.count,
-      user_id: @project.supervisor
+      project: @topic,
+      project_version_number: @topic.topic_instances.count,
+      user_id: @topic.supervisor
     ).exists?
 
     status = @course.require_coordinator_approval ? "pending" : "approved"
-    if @project.status == "rejected" || @project.status == "redo" || (@project.status == "pending" && has_coordinator_comment)
-      version = @project.project_instances.count + 1
-      @instance = @project.project_instances.build(version: version, created_by: current_user, status: status, enrolment: @project.enrolment)
+    if @topic.status == "rejected" || @topic.status == "redo" || (@topic.status == "pending" && has_coordinator_comment)
+      version = @topic.topic_instances.count + 1
+      @instance = @topic.topic_instances.build(version: version, created_by: current_user, status: status)
     else
-      @instance = @project.project_instances.last
+      @instance = @topic.topic_instances.last
     end
 
     # Set title
@@ -158,13 +149,10 @@ class TopicsController < ApplicationController
     enrolment = Enrolment.find_by(user: current_user, course: @course)
     begin
       ActiveRecord::Base.transaction do
-        # Create ownership with current_user as the owner
         status = @course.require_coordinator_approval? ? :pending : :approved
 
-        # Create project with valid enrolment and ownership
-        @project = Project.create!(
+        @topic = Topic.create!(
           course: @course,
-          enrolment: @course.coordinator, #TODO: multiple coordinators
           owner: current_user,
           ownership_type: :lecturer
         )
@@ -179,12 +167,12 @@ class TopicsController < ApplicationController
         end
 
         #creates the instance
-        @instance = @project.project_instances.create!(
+        @instance = @topic.topic_instances.create!(
           version: 1,
           title: title_value,
           created_by: current_user,
           status: status,
-          enrolment: @course.coordinator
+          project_instance_type: :topic
         )
 
         # saves all fields to the instance
@@ -198,18 +186,18 @@ class TopicsController < ApplicationController
         end
       end
     rescue StandardError => e
-      redirect_to course_topic_path(@course, @project), alert: "Topic creation failed"
+      redirect_to course_topic_path(@course, @topic), alert: "Topic creation failed"
     end
 
-    redirect_to course_topic_path(@course, @project), notice: "Topic created!"
+    redirect_to course_topic_path(@course, @topic), notice: "Topic created!"
   end
 
   def destroy
-    if Current.user == @project.owner
-      @project.destroy
+    if Current.user == @topic.owner
+      @topic.destroy
       redirect_to course_path(@course), notice: "Topic deleted"
     else
-      redirect_to course_topic_path(@course, @project), alert: "You are not authorized to delete this topic."
+      redirect_to course_topic_path(@course, @topic), alert: "You are not authorized to delete this topic."
     end
   end
 

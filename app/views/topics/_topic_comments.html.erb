@@ -23,7 +23,7 @@
                 </time>
                 <% if Current.user == comment.user && !comment.deleted %>
                     <div class="comment-actions">
-                      <%= link_to soft_delete_course_topic_comment_path(course, project, comment, project_id: project.id),
+                      <%= link_to soft_delete_course_topic_comment_path(course, topic, comment, project_id: project.id),
                         data: { turbo_method: :patch, confirm: "Are you sure you want to delete this comment?" },
                         class: "delete-comment-btn",
                         title: "Delete comment" do %>
@@ -50,9 +50,9 @@
     <% end %>
     <% if current_version == latest_version %>
       <div class="comment-form-container">
-        <%= form_with model: [course, project, new_comment], local: true, class: "comment-form" do |form| %>
+        <%= form_with model: [course, topic, new_comment], local: true, class: "comment-form" do |form| %>
           <div class="form-group">
-            <% if (current_version == latest_version) && (@current_user.id == @project.ownership.owner_id|| @current_user == @project.supervisor || @is_coordinator) %>
+            <% if (current_version == latest_version) && (@current_user.id == @topic.owner_id || @is_coordinator) %>
               <div class="comment-input-wrapper">
                 <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "add a comment..." %>
                 <%= form.button class: "send-btn", type: "submit", title: "Send comment" do %>

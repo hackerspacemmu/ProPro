@@ -1,10 +1,13 @@
 class ProjectInstance < ApplicationRecord
-  enum :project_type, { topic: 0, project: 1 }
+  enum :project_instance_type, { topic: 0, project: 1 }
   
-  default_scope { where(project_type: :project) }
+  default_scope { where(project_instance_type: :project) }
   
   belongs_to :project
   belongs_to :enrolment
+
+  has_many :comments, as: :location
+  
   belongs_to :created_by, class_name: "User"
   belongs_to :source_topic, class_name: "Project", foreign_key: "source_topic_id", optional: true
 
@@ -14,6 +17,7 @@ class ProjectInstance < ApplicationRecord
   has_many :project_instance_fields, dependent: :destroy
 
 
+  before_validation :set_project_type
   after_save :update_parent_project
 
   def supervisor
@@ -29,5 +33,9 @@ class ProjectInstance < ApplicationRecord
         enrolment: self.enrolment
       )
     end
+  end
+
+  def set_project_type
+    self.project_instance_type = :project
   end
 end

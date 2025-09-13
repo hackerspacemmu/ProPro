@@ -7,7 +7,7 @@ class Topic < ApplicationRecord
   belongs_to :owner, polymorphic: true
 
   has_many :topic_instances, dependent: :destroy, foreign_key: "project_id"
-  has_many :comments, dependent: :destroy
+  has_many :comments, dependent: :destroy, foreign_key: "project_id"
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
@@ -37,6 +37,8 @@ class Topic < ApplicationRecord
       .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
   }
 
+  before_validation :set_ownership_type
+
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
   end
@@ -63,5 +65,10 @@ class Topic < ApplicationRecord
 
   def current_title
     current_instance&.title || self.title
+  end
+
+  private
+  def set_ownership_type
+    self.ownership_type = :lecturer
   end
 end
