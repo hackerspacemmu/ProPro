@@ -516,11 +516,17 @@ class CoursesController < ApplicationController
     headers << 'Student Group' if @course.grouped?
     headers += [ 'Supervisor_Name','Supervisor_Email_Address', 'Project_Title', 'Project_Status']
 
-    template_fields.each do |field|
+    # Project Title is handled by validation in Project.rb
+    template_fields = template_fields.reject { |field| field.label == "Project Title" }
+    project_fields = template_fields.select do |field|
+      field.applicable_to == 'proposals' || field.applicable_to == 'both'
+    end.reject { |field| field.label == "Project Title" }
+
+    project_fields.each do |field|
       headers << field.label
     end
     return headers
-  end
+  end 
 
   def build_group_rows(group, template_fields)
     project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
@@ -539,7 +545,7 @@ class CoursesController < ApplicationController
         group.group_name || '',
         supervisor&.username || '',
         supervisor&.email_address || '',
-        current_instance&.title || '',
+        project&.current_title || '',
         project_status.humanize
       ]
       row.concat(field_values)
@@ -560,12 +566,9 @@ class CoursesController < ApplicationController
       student.username || '',
       student.student_id || '',
       student.email_address || '',
-    ]
-    row << '' unless @course.grouped?
-    row += [
       supervisor&.username || '',
       supervisor&.email_address || '',
-      current_instance&.title || '',
+      project&.current_title || '',
       project_status.humanize
     ]
 
@@ -574,11 +577,17 @@ class CoursesController < ApplicationController
   end
 
   def get_project_details_values(current_instance, template_fields)
-    return Array.new(template_fields.count, '') unless current_instance
+    return [] unless current_instance
+
+    project_fields = template_fields.select do |field|
+      field.applicable_to == 'proposals' || field.applicable_to == 'both'
+    end.reject { |field| field.label == "Project Title" }
+
+    return Array.new(proposal_fields.count, '') if project_fields.empty?
 
     instance_fields = current_instance.project_instance_fields.includes(:project_template_field).index_by(&:project_template_field_id)
 
-    template_fields.map do |template_field|
+    project_fields.map do |template_field|
       field = instance_fields[template_field.id]
       if field&.value.present?
         if template_field.dropdown? || template_field.radio?
