@@ -520,7 +520,7 @@ class CoursesController < ApplicationController
     template_fields = template_fields.reject { |field| field.label == "Project Title" }
     project_fields = template_fields.select do |field|
       field.applicable_to == 'proposals' || field.applicable_to == 'both'
-    end.reject { |field| field.label == "Project Title" }
+    end
 
     project_fields.each do |field|
       headers << field.label
@@ -583,7 +583,7 @@ class CoursesController < ApplicationController
       field.applicable_to == 'proposals' || field.applicable_to == 'both'
     end.reject { |field| field.label == "Project Title" }
 
-    return Array.new(proposal_fields.count, '') if project_fields.empty?
+    return Array.new(project_fields.count, '') if project_fields.empty?
 
     instance_fields = current_instance.project_instance_fields.includes(:project_template_field).index_by(&:project_template_field_id)
 
