@@ -188,7 +188,7 @@ class CoursesController < ApplicationController
         new_coordinator_enrolment = Enrolment.create!(
           user: Current.user,
           course: @new_course,
-          role: :cordinator
+          role: :coordinator
         )
 
         new_lecturer_enrolment = Enrolment.create!(
