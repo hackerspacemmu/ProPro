@@ -61,16 +61,10 @@
             <% @lecturer_options.each do |lecturer_enrolment| %>
               <% lecturer = lecturer_enrolment.user %>
               <optgroup label="<%= lecturer.username %>">
-                <% approved_topics = Project
-                    .joins(:ownership)
-                    .where(ownerships: { owner: lecturer, ownership_type: :lecturer }, )
-                    .joins(:project_instances)
-                    .where(project_instances: { status: :approved }, course: @course)
-                    .distinct %>
+                <% approved_topics = Topic.where(status: :approved, course: @course) %>
 
                 <% approved_topics.each do |topic| %>
-                  <% latest_instance = topic.project_instances
-                                        .where(status: :approved)
+                  <% latest_instance = topic.topic_instances
                                         .order(version: :desc)
                                         .first %>
                   <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>

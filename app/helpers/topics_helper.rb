@@ -14,7 +14,7 @@ module TopicsHelper
                    owner.users.all? { |u| course.enrolments.exists?(user: u, role: :student) }
 
     # 3) Lecturer-proposed topics, but only once approved
-    return true if project.ownership.lecturer? && project.status.to_s == "approved"
+    return true if topic.lecturer? && topic.status.to_s == "approved"
 
     false
   end

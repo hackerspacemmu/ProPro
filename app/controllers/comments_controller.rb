@@ -17,11 +17,10 @@ class CommentsController < ApplicationController
     when "TopicInstance"
       whitelist = location.topic.course.coordinators.pluck(:id) << location.topic.owner.id
     when "ProjectInstance"
-
       whitelist = location.project.course.coordinators.pluck(:id) << location.project.supervisor.id
 
       if location.project.course.grouped?
-        whitelist << location.project.owner.project_group_members.pluck(:user_id)
+        whitelist += location.project.owner.project_group_members.pluck(:user_id)
       else
         whitelist << location.project.owner.id
       end
