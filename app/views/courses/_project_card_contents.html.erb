@@ -16,7 +16,7 @@
 
         <% display_parts = [] %>
 
-        <% first_field = fields[1] %>
+        <% first_field = fields[0] %>
         <% first_max_chars = 170 %>
         <% if first_field && first_field.project_template_field.textarea? %>
           <% content = first_field.value.to_s.strip %>
@@ -27,7 +27,7 @@
           <% end %>
         <% end %>
 
-        <% second_field = fields[2] %>
+        <% second_field = fields[1] %>
         <% second_max_chars = 135 %>
 
         <% if (second_field && second_field.project_template_field.textarea?) && !first_field.project_template_field.textarea? %>
@@ -41,7 +41,7 @@
         <% end %>
 
 
-        <% third_field = fields[3] %>
+        <% third_field = fields[2] %>
         <% third_max_chars = 90 %>
         <% if (third_field && third_field.project_template_field.textarea?) && !second_field.project_template_field.textarea? %>
           <% content = third_field.value.to_s.strip %>
