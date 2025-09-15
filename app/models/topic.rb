@@ -9,6 +9,8 @@ class Topic < ApplicationRecord
 
   has_many :topic_instances, dependent: :destroy, foreign_key: "project_id"
 
+  has_many :proposed_project_instances, class_name: "ProjectInstance", foreign_key: "source_topic_id"
+
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
   attribute :status, :integer, default: :pending

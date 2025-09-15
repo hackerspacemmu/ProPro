@@ -8,7 +8,6 @@ class Project < ApplicationRecord
 
   has_many :project_instances, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
-  has_many :proposed_topic_instances, class_name: "ProjectInstance", foreign_key: "source_topic_id"
 
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE

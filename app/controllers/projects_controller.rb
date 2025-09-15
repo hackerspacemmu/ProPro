@@ -123,7 +123,7 @@ class ProjectsController < ApplicationController
         params[:fields].each do |field_id, value|
           existing_field = ProjectInstanceField.find_by(
             project_template_field_id: field_id,
-            project_instance: @instance
+            instance: @instance
           )
 
           if existing_field
@@ -165,7 +165,7 @@ class ProjectsController < ApplicationController
             raise StandardError
           end
 
-          supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
+          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
 
           if !supervisor_enrolment
             raise StandardError

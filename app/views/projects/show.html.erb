@@ -49,7 +49,7 @@
         <%= render 'project_fields', 
                     project: @project,
                     fields: @fields, 
-                    based_on_topic_name: @current_instance&.source_topic&.project_instances&.last&.title || nil,
+                    based_on_topic_name: @current_instance&.source_topic&.topic_instances&.last&.title || nil,
                     course: @course %>
       
         <footer class="project-footer">

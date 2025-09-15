@@ -85,12 +85,11 @@
               <% @lecturer_options.each do |lecturer_enrolment| %>
                 <% lecturer = lecturer_enrolment.user %>
                 <optgroup label="<%= lecturer.username %>">
-                  <% approved_topics = Topic.where(status: :approved, course: @course) %>
+                  <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
 
                   <% approved_topics.each do |topic| %>
-                    <% latest_instance = topic.topic_instances
-                                          .order(version: :desc)
-                                          .first %>
+                    <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+
                     <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
                       <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
                     </option>
