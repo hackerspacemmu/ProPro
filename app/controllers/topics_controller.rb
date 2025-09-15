@@ -198,7 +198,6 @@ class TopicsController < ApplicationController
     end
   end
 
-
   private
   def access_one
     @course                 = Course.find(params[:course_id])

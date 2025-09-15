@@ -17,6 +17,12 @@ Rails.application.routes.draw do
 
   resources :passwords, param: :token
 
+  resources :comments, only: [:create] do
+    member do
+      patch 'soft_delete'
+    end
+  end
+
   resources :courses, only: [:index ,:show, :new, :create, :destroy] do
     member do
       get 'add_students'
@@ -33,12 +39,6 @@ Rails.application.routes.draw do
         patch :change_status
       end
 
-      resources :comments do
-        member do
-          patch 'soft_delete'
-        end
-      end
-
       resources :progress_updates, only: [:show, :edit, :update, :create, :new, :destroy]
     end
 
@@ -47,12 +47,6 @@ Rails.application.routes.draw do
         patch :change_status
       end
 
-      resources :comments do
-        member do
-          patch 'soft_delete'
-        end
-      end
-      
     end
   
     resources :lecturers, only: [:index, :show] do
@@ -65,13 +59,8 @@ Rails.application.routes.draw do
         member do
           patch :change_status
         end
-
-        resources :comments do
-          member do
-            patch 'soft_delete'
-          end
-        end
       end
+
     end
 
     resource :project_template, only: [:edit, :update, :show]
