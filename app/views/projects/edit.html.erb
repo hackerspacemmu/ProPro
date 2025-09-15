@@ -1,114 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <%= stylesheet_link_tag "projects" %>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Project</title>
-  </head>
-  <body>
-    <main class="project-edit">
-      <header class="edit-header">
-        <div class="edit-header-row">
-          <h1 class="edit-title">
-            Edit Proposal <%= image_tag("edit.svg") %>
-          </h1>
-        </div>
-        <p class="edit-description">
-          Update your project details and information below.
-        </p>
-      </header>
-     
-      <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "projects" %>
+<% end %>
+<% content_for :title, "Edit Proposal - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-        <div class="fields-container">
-          <% @template_fields.each do |field| %>
-            <div class="field-row">
-              <%= label_tag "fields_#{field.id}",
-                            field.label,
-                            class: "field-label",
-                            title: field.hint %>
-              <% if field.hint.present? %>
-                <p class="field-hint"><%= field.hint %></p>
-              <% end %>
-              <% existing_value = @existing_values[field.id] %>
-              <% case field.field_type %>
-              <% when "shorttext" %>
-                <%= text_field_tag "fields[#{field.id}]",
-                                  existing_value,
-                                  class: "form-control",
-                                  placeholder: field.hint,
-                                  required: true %>
-              <% when "textarea" %>
-                <%= text_area_tag "fields[#{field.id}]",
-                                  existing_value,
-                                  class: "form-control",
-                                  placeholder: field.hint,
-                                  required: true %>
-              <% when "dropdown" %>
-                <% options = field.option_list %>
-                <%= select_tag "fields[#{field.id}]",
-                              options_for_select(options, existing_value),
-                              prompt: "Select an option",
+<main class="project-edit">
+  <header class="edit-header">
+    <div class="edit-header-row">
+      <h1 class="edit-title">
+        Edit Proposal <%= image_tag("edit.svg") %>
+      </h1>
+    </div>
+    <p class="edit-description">
+      Update your project details and information below.
+    </p>
+  </header>
+  
+  <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
+
+    <div class="fields-container">
+      <% @template_fields.each do |field| %>
+        <div class="field-row">
+          <%= label_tag "fields_#{field.id}",
+                        field.label,
+                        class: "field-label",
+                        title: field.hint %>
+          <% if field.hint.present? %>
+            <p class="field-hint"><%= field.hint %></p>
+          <% end %>
+          <% existing_value = @existing_values[field.id] %>
+          <% case field.field_type %>
+          <% when "shorttext" %>
+            <%= text_field_tag "fields[#{field.id}]",
+                              existing_value,
                               class: "form-control",
+                              placeholder: field.hint,
                               required: true %>
-              <% when "radio" %>
-                <div class="radio-group">
-                  <% options = field.option_list %>
-                  <% options.each_with_index do |option, idx| %>
-                    <div class="radio-option">
-                      <%= radio_button_tag "fields[#{field.id}]",
-                                           option,
-                                           (option.to_s == existing_value.to_s),
-                                           id: "field_#{field.id}_#{idx}",
-                                           required: true %>
-                      <%= label_tag "field_#{field.id}_#{idx}", option %>
-                    </div>
-                  <% end %>
+          <% when "textarea" %>
+            <%= text_area_tag "fields[#{field.id}]",
+                              existing_value,
+                              class: "form-control",
+                              placeholder: field.hint,
+                              required: true %>
+          <% when "dropdown" %>
+            <% options = field.option_list %>
+            <%= select_tag "fields[#{field.id}]",
+                          options_for_select(options, existing_value),
+                          prompt: "Select an option",
+                          class: "form-control",
+                          required: true %>
+          <% when "radio" %>
+            <div class="radio-group">
+              <% options = field.option_list %>
+              <% options.each_with_index do |option, idx| %>
+                <div class="radio-option">
+                  <%= radio_button_tag "fields[#{field.id}]",
+                                        option,
+                                        (option.to_s == existing_value.to_s),
+                                        id: "field_#{field.id}_#{idx}",
+                                        required: true %>
+                  <%= label_tag "field_#{field.id}_#{idx}", option %>
                 </div>
-              <% else %>
-                <%= text_field_tag "fields[#{field.id}]",
-                                  existing_value,
-                                  class: "form-control",
-                                  required: true %>
               <% end %>
             </div>
+          <% else %>
+            <%= text_field_tag "fields[#{field.id}]",
+                              existing_value,
+                              class: "form-control",
+                              required: true %>
           <% end %>
         </div>
-
-          <div class="field">
-            <label>Based on Topic</label><br />
-            <select name="based_on_topic" class="form-control" required>
-              <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
-                <option value="" selected disabled>-- Select a Topic --</option>
-              <% end %>
-              <% @lecturer_options.each do |lecturer_enrolment| %>
-                <% lecturer = lecturer_enrolment.user %>
-                <optgroup label="<%= lecturer.username %>">
-                  <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
-
-                  <% approved_topics.each do |topic| %>
-                    <% latest_instance = topic.topic_instances.order(version: :desc).first %>
-
-                    <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
-                      <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
-                    </option>
-                  <% end %>
-
-                  <option value="own_proposal_<%= lecturer_enrolment.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>>
-                    <%= "#{lecturer.username} - Own Proposal" %>
-                  </option>
-                </optgroup>
-              <% end %>
-            </select>
-          </div>
-
-           
-        <div class="form-actions">
-          <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>
-          <%= submit_tag "Submit", class: "btn btn-primary" %>
-        </div>
       <% end %>
-    </main>
-  </body>
-</html>
+      <div class="field">
+        <label>Based on Topic</label><br />
+        <select name="based_on_topic" class="form-control" required>
+          <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
+            <option value="" selected disabled>-- Select a Topic --</option>
+          <% end %>
+          <% @lecturer_options.each do |lecturer_enrolment| %>
+            <% lecturer = lecturer_enrolment.user %>
+            <optgroup label="<%= lecturer.username %>">
+              <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
+
+              <% approved_topics.each do |topic| %>
+                <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+
+                <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
+                  <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
+                </option>
+              <% end %>
+
+              <option value="own_proposal_<%= lecturer_enrolment.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>>
+                <%= "#{lecturer.username} - Own Proposal" %>
+              </option>
+            </optgroup>
+          <% end %>
+        </select>
+      </div>
+
+         
+      <div class="form-actions">
+        <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>
+        <%= submit_tag "Submit", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</main>

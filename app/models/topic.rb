@@ -30,6 +30,7 @@ class Topic < ApplicationRecord
   scope :proposals, -> { where(status: [:pending, :redo, :rejected]) }
 
   # Enrolment (supervisor) filters
+=begin
   scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
   scope :student_projects_for_lecturer, ->(lecturer_enrolment) { 
     not_lecturer_owned.supervised_by(lecturer_enrolment) 
@@ -38,7 +39,7 @@ class Topic < ApplicationRecord
     with_ownership.where(ownerships: { owner_type: 'User', owner_id: user.id })
       .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
   }
-
+=end
   before_validation :set_ownership_type
 
   def supervisor
@@ -54,10 +55,10 @@ class Topic < ApplicationRecord
   end
 
   def current_instance
-    if project_instances.column_names.include?("version")
-      project_instances.order(version: :desc, created_at: :desc).first
+    if topic_instances.column_names.include?("version")
+      topic_instances.order(version: :desc, created_at: :desc).first
     else
-      project_instances.order(created_at: :desc).first
+      topic_instances.order(created_at: :desc).first
     end
   end
 

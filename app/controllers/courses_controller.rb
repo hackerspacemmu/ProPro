@@ -16,7 +16,7 @@ class CoursesController < ApplicationController
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
 
       # SET STUDENT PROJECTS
-      projects_ownerships = @course.projects.not_lecturer_owned.approved
+      projects_ownerships = @course.projects.approved
       .where(owner_type: "User")
       .pluck("owner_id")
   
@@ -50,11 +50,11 @@ class CoursesController < ApplicationController
 
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
-      @my_student_projects = @course.projects.student_projects_for_lecturer(supervisor_enrolment).approved
-      @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: supervisor_enrolment).proposals
+      @my_student_projects = @course.projects.supervised_by(supervisor_enrolment).approved
+      @incoming_proposals = @course.projects.where(enrolment: supervisor_enrolment).proposals
     elsif @current_user_enrolment&.lecturer?
-      @my_student_projects = @course.projects.student_projects_for_lecturer(@current_user_enrolment).approved
-      @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
+      @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
+      @incoming_proposals = @course.projects.where(enrolment: @current_user_enrolment).proposals
     end
     
     # SET LECTURER CAPACITY INFO
@@ -504,14 +504,14 @@ class CoursesController < ApplicationController
     lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
     return 0 unless lecturer_enrolment
     
-    course.projects.student_projects_for_lecturer(lecturer_enrolment).approved.count
+    course.projects.supervised_by(lecturer_enrolment).approved.count
   end
 
   def lecturer_pending_proposals_count(lecturer, course)
     lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
     return 0 unless lecturer_enrolment
     
-    course.projects.student_projects_for_lecturer(lecturer_enrolment).pending_redo.count
+    course.projects.supervised_by(lecturer_enrolment).pending_redo.count
   end
 
   def lecturer_capacity_info(lecturer, course)

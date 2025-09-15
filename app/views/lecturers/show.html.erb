@@ -1,191 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <%= stylesheet_link_tag "lecturers" %>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= @lecturer.username %> - Lecturer Details</title>
-  </head>
-  <body>
-    <main id="lecturer">
-      <div class="lecturer-layout">
-        <section class="lecturer-content">
-          <header class="lecturer-header">
-            <div class="lecturer-title">
-              <span class="lecturer-title-text">View Supervisor</span>
-              <div class="title-line"></div>
-            </div>
-            <div class="lecturer-name-row">
-              <div class="lecturer-badge"><%= @lecturer.username[0].upcase %></div>
-              <h1 class="lecturer-name"><%= @lecturer.username %></h1>
-            </div>
-            
-            <div class="lecturer-info">
-              <h2 class="lecturer-subtitle">Profile Information</h2>
-              <div class="lecturer-line"></div>
-              
-              <div class="info-item">
-                <span class="info-label">Role</span>
-                <span class="info-value"><%= @enrolment.role %></span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Email</span>
-                <span class="info-value"><%= @lecturer.email_address %></span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Description</span>
-                <span class="info-value"><%= @lecturer.description.presence || "No description provided." %></span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Portfolio/MMU Directory</span>
-                <% if @lecturer.web_link.present? %>
-                  <span class="info-value"><a href="<%= @lecturer.web_link %>"><%= @lecturer.web_link %></a></span>
-                <% else %>
-                  <span class="info-value"><%= "No web link provided." %></span>
-                <% end %>
-              </div>
-            </div>
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "lecturers" %>
+<% end %>
+<% content_for :title, "#{@lecturer.username.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
+
+<main id="lecturer">
+  <div class="lecturer-layout">
+    <section class="lecturer-content">
+      <header class="lecturer-header">
+        <div class="lecturer-title">
+          <span class="lecturer-title-text">View Supervisor</span>
+          <div class="title-line"></div>
+        </div>
+        <div class="lecturer-name-row">
+          <div class="lecturer-badge"><%= @lecturer.username[0].upcase %></div>
+          <h1 class="lecturer-name"><%= @lecturer.username %></h1>
+        </div>
+        
+        <div class="lecturer-info">
+          <h2 class="lecturer-subtitle">Profile Information</h2>
+          <div class="lecturer-line"></div>
+          
+          <div class="info-item">
+            <span class="info-label">Role</span>
+            <span class="info-value"><%= @enrolment.role %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value"><%= @lecturer.email_address %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Description</span>
+            <span class="info-value"><%= @lecturer.description.presence || "No description provided." %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Portfolio/MMU Directory</span>
+            <% if @lecturer.web_link.present? %>
+              <span class="info-value"><a href="<%= @lecturer.web_link %>"><%= @lecturer.web_link %></a></span>
+            <% else %>
+              <span class="info-value"><%= "No web link provided." %></span>
+            <% end %>
+          </div>
+        </div>
+      </header>
+
+    <!-- PROJECTS  --!>
+      <% if access? %>
+        <section class="lecturer-topics">
+          <header class="section-header">
+            <h2 class="section-title">Projects</h2>
           </header>
-
-        <!-- PROJECTS  --!>
-          <% if access? %>
-            <section class="lecturer-topics">
-              <header class="section-header">
-                <h2 class="section-title">Projects</h2>
-              </header>
-              <div class="lecturer-line"></div>
-              <div class="topics-container">
-                <% if @my_student_projects.empty? %>
-                  <div class="no-topics">
-                    <p>No Projects Available </p>
-                  </div>
-                <% else %>
-                  <div class="cards-container">
-                    <%= render partial: 'courses/project_card',
-                              collection: @my_student_projects,
-                              as: :project,
-                              locals: { course: @course } %>
-                  </div>
-                <% end %>
+          <div class="lecturer-line"></div>
+          <div class="topics-container">
+            <% if @my_student_projects.empty? %>
+              <div class="no-topics">
+                <p>No Projects Available </p>
               </div>
-            </section>
-
-          <!-- PROPOSALS  --!>
-            <section class="lecturer-topics">
-              <header class="section-header">
-                <h2 class="section-title">Proposals</h2>
-              </header>
-              <div class="lecturer-line"></div>
-              <div class="topics-container">
-                <% if @incoming_proposals.empty? %>
-                  <div class="no-topics">
-                    <p>No Incoming Proposals</p>
-                  </div>
-                <% else %>
-                  <div class="cards-container">
-                    <%= render partial: 'courses/project_card',
-                              collection: @incoming_proposals,
-                              as: :project,
-                              locals: { course: @course } %>
-                  </div>
-                <% end %>
+            <% else %>
+              <div class="cards-container">
+                <%= render partial: 'courses/project_card',
+                          collection: @my_student_projects,
+                          as: :project,
+                          locals: { course: @course } %>
               </div>
-            </section>
+            <% end %>
+          </div>
+        </section>
+
+      <!-- PROPOSALS  --!>
+        <section class="lecturer-topics">
+          <header class="section-header">
+            <h2 class="section-title">Proposals</h2>
+          </header>
+          <div class="lecturer-line"></div>
+          <div class="topics-container">
+            <% if @incoming_proposals.empty? %>
+              <div class="no-topics">
+                <p>No Incoming Proposals</p>
+              </div>
+            <% else %>
+              <div class="cards-container">
+                <%= render partial: 'courses/project_card',
+                          collection: @incoming_proposals,
+                          as: :project,
+                          locals: { course: @course } %>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+    <!-- TOPICS --!>
+    <% if @is_student || !access? %>
+      <section class="lecturer-topics">
+        <header class="section-header">
+          <h2 class="section-title">Released Topics</h2>
+        </header>
+        <div class="lecturer-line"></div>
+        <div class="topics-container">
+          <% if @approved_projects.empty? %>
+            <div class="no-topics">
+              <p>No Topics Released</p>
+            </div>
+          <% else %>
+            <div class="cards-container">
+              <%= render partial: 'courses/topic_card',
+                        collection: @own_approved_projects,
+                        as: :topic,
+                        locals: { course: @course } %>
+            </div>
           <% end %>
+    <% end %>
 
-        <!-- TOPICS --!>
-        <% if @is_student || !access? %>
+
+      <% if full_access? %>
+        <section class="lecturer-topics">
+          <header class="section-header">
+            <h2 class="section-title">Released Topics</h2>
+          </header>
+          <div class="lecturer-line"></div>
+          <div class="topics-container">
+            <% if @own_approved_projects.empty? %>
+              <div class="no-topics">
+                <p>No Topics Released</p>
+              </div>
+            <% else %>
+              <div class="cards-container">
+                <%= render partial: 'courses/project_card',
+                          collection: @own_approved_projects,
+                          as: :project,
+                          locals: { course: @course } %>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
+        <!-- Pending Topics --!>
           <section class="lecturer-topics">
             <header class="section-header">
-              <h2 class="section-title">Released Topics</h2>
+              <h2 class="section-title">Pending Topics</h2>
             </header>
             <div class="lecturer-line"></div>
             <div class="topics-container">
-              <% if @approved_projects.empty? %>
+              <% if @not_own_approved_projects.empty? %>
                 <div class="no-topics">
-                  <p>No Topics Released</p>
+                  <p>No Topics Available</p>
                 </div>
               <% else %>
                 <div class="cards-container">
                   <%= render partial: 'courses/project_card',
-                            collection: @own_approved_projects,
+                            collection: @not_own_approved_projects,
                             as: :project,
                             locals: { course: @course } %>
                 </div>
               <% end %>
-        <% end %>
-
-
-          <% if full_access? %>
-            <section class="lecturer-topics">
-              <header class="section-header">
-                <h2 class="section-title">Released Topics</h2>
-              </header>
-              <div class="lecturer-line"></div>
-              <div class="topics-container">
-                <% if @own_approved_projects.empty? %>
-                  <div class="no-topics">
-                    <p>No Topics Released</p>
-                  </div>
-                <% else %>
-                  <div class="cards-container">
-                    <%= render partial: 'courses/project_card',
-                              collection: @own_approved_projects,
-                              as: :project,
-                              locals: { course: @course } %>
-                  </div>
-                <% end %>
-              </div>
-            </section>
-
-            <!-- Pending Topics --!>
-              <section class="lecturer-topics">
-                <header class="section-header">
-                  <h2 class="section-title">Pending Topics</h2>
-                </header>
-                <div class="lecturer-line"></div>
-                <div class="topics-container">
-                  <% if @not_own_approved_projects.empty? %>
-                    <div class="no-topics">
-                      <p>No Topics Available</p>
-                    </div>
-                  <% else %>
-                    <div class="cards-container">
-                      <%= render partial: 'courses/project_card',
-                                collection: @not_own_approved_projects,
-                                as: :project,
-                                locals: { course: @course } %>
-                    </div>
-                  <% end %>
-                </div>
-            </section>
-          <% end %>
-            
-          <footer class="lecturer-footer">
-            <%= link_to "← Back to Lecturers", course_path(@course)  %>
-            </footer>
-
-          <% coordinators = @course.coordinators.map {|enrolments| User.find(enrolments.user_id) }%>
-          <% if coordinators.include? Current.user %>
-            <% if coordinators.include? @lecturer %>
-              <footer class="lecturer-footer">
-              <%= link_to "Demote to lecturer",
-                demote_to_lecturer_course_lecturer_path(@course, @lecturer),
-                data: {turbo_method: :patch}
-              %>
-                </footer>
-            <% else %>
-              <footer class="lecturer-footer">
-              <%= link_to "Promote to coordinator",
-                promote_to_coordinator_course_lecturer_path(@course, @lecturer),
-                data: {turbo_method: :patch}
-              %>
-                </footer>
-            <% end %>
-          <% end %>
-
         </section>
-      </div>
-    </main>
-  </body>
-</html>
+      <% end %>
+        
+      <footer class="lecturer-footer">
+        <%= link_to "← Back to Lecturers", course_path(@course)  %>
+      </footer>
+    </section>
+  </div>
+</main>

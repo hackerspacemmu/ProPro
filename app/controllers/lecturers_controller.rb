@@ -68,13 +68,14 @@ class LecturersController < ApplicationController
   def set_course
     @courses = Current.user.courses
     @course = Course.find(params[:course_id])
-    @lecturers = @course.lecturers.includes(:user).map(&:user)
+    @lecturers = @course.lecturers
   end
   
   def set_supervised_projects
     return set_empty_projects unless @lecturer_enrolment
     
-    base_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
+    #base_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
+    base_projects = @course.projects.where(enrolment: @lecturer_enrolment)
   
     if full_access?
       @my_student_projects = base_projects.approved
@@ -88,7 +89,7 @@ class LecturersController < ApplicationController
   def set_lecturer_topics
     return set_empty_topics unless @lecturer_enrolment
 
-    lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id: @lecturer.id})
+    lecturer_owned_topics = @course.topics.where(owner_type: "User", owner_id: @lecturer.id)
   
     if full_access?
       @approved_projects = lecturer_owned_topics
