@@ -488,24 +488,15 @@ class CoursesController < ApplicationController
     # Lecturer: sees their own topics (any status)
     # plus other lecturers’ only if approved
     elsif @current_user_enrolment&.lecturer?
-      own = @course.projects
-                   .where(
-                     owner_type:     "User",
-                     owner_id:       current_user.id,
-                     ownership_type: :lecturer
-                   )
+      own = @course.topics.where(owner_id: current_user.id)
 
-      approved = @course.projects
-                        .where(ownership_type: :lecturer,
-                               status:     :approved)
+      approved = @course.topics.where(status: :approved)
 
       @topic_list = own.or(approved)
 
     #Students: see only approved topics
     else
-      @topic_list = @course.projects
-                           .where(ownership_type: :lecturer,
-                                  status:     :approved)
+      @topic_list = @course.topics.where(status: :approved)
     end
   end
 

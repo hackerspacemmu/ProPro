@@ -1,5 +1,6 @@
 class Topic < ApplicationRecord
   self.table_name = "projects"
+  
   enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
   default_scope { where(ownership_type: :lecturer) }
 
@@ -7,7 +8,6 @@ class Topic < ApplicationRecord
   belongs_to :owner, polymorphic: true
 
   has_many :topic_instances, dependent: :destroy, foreign_key: "project_id"
-  has_many :comments, dependent: :destroy, foreign_key: "project_id"
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead

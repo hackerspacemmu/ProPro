@@ -14,7 +14,7 @@ class ProjectInstance < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
-  has_many :project_instance_fields, dependent: :destroy
+  has_many :project_instance_fields, dependent: :destroy, as: :instance
 
 
   before_validation :set_project_type

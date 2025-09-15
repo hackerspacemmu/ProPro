@@ -7,7 +7,6 @@ class Project < ApplicationRecord
   belongs_to :owner, polymorphic: true
 
   has_many :project_instances, dependent: :destroy
-  has_many :comments, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
   has_many :proposed_topic_instances, class_name: "ProjectInstance", foreign_key: "source_topic_id"
 
@@ -39,6 +38,8 @@ class Project < ApplicationRecord
       .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
   }
 
+  before_validation :set_ownership_type
+
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
   end
@@ -65,5 +66,10 @@ class Project < ApplicationRecord
 
   def current_title
     current_instance&.title || self.title
+  end
+
+  private
+  def set_ownership_type
+    self.ownership_type = :student
   end
 end

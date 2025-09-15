@@ -1,6 +1,6 @@
 class TopicsController < ApplicationController
   before_action :access_one,  only: [:index, :show, :edit, :update, :destroy, :change_status]
-  before_action :set_course_and_enrolment, only: [:new, :create]
+  before_action :set_course, only: [:new, :create]
   def index
   end
 
@@ -36,7 +36,7 @@ class TopicsController < ApplicationController
       return
     end
 
-    @comments = @topic.comments.where(location: @current_instance)
+    @comments = @current_instance.comments
     @new_comment = Comment.new
 
     @fields = @current_instance.project_instance_fields.includes(:project_template_field)
@@ -65,78 +65,79 @@ class TopicsController < ApplicationController
   def edit
     @instance = @topic.topic_instances.last || @topic.topic_instances.build
 
-    if @instance
-      @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
-        h[f.project_template_field_id] = f.value
-      end
-    else
-      {}
+    @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
+      h[f.project_template_field_id] = f.value
     end
+
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
   end
 
   def update
-    has_coordinator_comment = Comment.where(
-      project: @topic,
-      project_version_number: @topic.topic_instances.count,
-      user_id: @topic.supervisor
-    ).exists?
+    has_coordinator_comment = false
 
-    status = @course.require_coordinator_approval ? "pending" : "approved"
-    if @topic.status == "rejected" || @topic.status == "redo" || (@topic.status == "pending" && has_coordinator_comment)
-      version = @topic.topic_instances.count + 1
-      @instance = @topic.topic_instances.build(version: version, created_by: current_user, status: status)
-    else
-      @instance = @topic.topic_instances.last
+    coordinator_ids = @course.coordinators.pluck(:id)
+
+    @topic.topic_instances.last.comments.each do |comment|
+      if coordinator_ids.include? comment.user_id
+        has_coordinator_comment = true
+        break
+      end
     end
 
-    # Set title
-    title_field_id = params[:fields].keys.first if params[:fields].present?
-    @instance.title = params[:fields][title_field_id] if title_field_id.present?
+    begin
+      ActiveRecord::Base.transaction do
+        status = @course.require_coordinator_approval ? "pending" : "approved"
 
-    if @instance.save
-      if params[:fields].present?
-        begin
-          ActiveRecord::Base.transaction do
-            params[:fields].each do |field_id, value|
-              existing_field = ProjectInstanceField.find_by(
-                project_template_field_id: field_id,
-                project_instance: @instance
-              )
+        if @topic.status == "rejected" || @topic.status == "redo" || (@topic.status == "pending" && has_coordinator_comment)
+          version = @topic.topic_instances.count + 1
+          @instance = @topic.topic_instances.build(version: version, created_by: current_user, status: status)
+        else
+          @instance = @topic.topic_instances.last
+        end
+        
+        if !params[:fields].present?
+          raise StandardError
+        end
 
-              if existing_field
-                existing_field.update!(value: value)
-              else
-                @instance.project_instance_fields.create!(
-                  project_template_field_id: field_id,
-                  value: value
-                )
-              end
-            end
+        # Set title
+        title_field_id = params[:fields].keys.first if params[:fields].present?
+        @instance.title = params[:fields][title_field_id] if title_field_id.present?
+        
+        if !@instance.save
+          raise StandardError
+        end
+
+        params[:fields].each do |field_id, value|
+          existing_field = ProjectInstanceField.find_by(
+            project_template_field_id: field_id,
+            instance: @instance
+          )
+
+          if existing_field
+            existing_field.update!(value: value)
+          else
+            @instance.project_instance_fields.create!(
+              project_template_field_id: field_id,
+              value: value
+            )
           end
-        rescue StandardError => e
-          redirect_to course_project_path(@course, @project), alert: "Project update failed"
         end
       end
-
-      redirect_to course_topic_path(@course, @project), notice: "Project updated successfully."
-    else
-      flash.now[:alert] = "Error saving project: #{@instance.errors.full_messages.join(', ')}"
-      @template_fields = @course.project_template.project_template_fields
-      render :edit
+    rescue StandardError => e
+      redirect_to course_topic_path(@course, @topic), alert: "Project update failed"
+      return
     end
+
+    redirect_to course_topic_path(@course, @topic), notice: "Project updated successfully."
   end
 
 
   def new
-    enrolment = Enrolment.find_by(user: current_user, course: Course.find(params[:course_id]))
-
     unless Current.user.is_staff
       redirect_to course_path(@course), alert: "You are not authorized"
     end
 
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
-
 
     if @template_fields.blank?
       redirect_to course_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
@@ -144,17 +145,14 @@ class TopicsController < ApplicationController
     end
   end
 
-
   def create
-    enrolment = Enrolment.find_by(user: current_user, course: @course)
     begin
       ActiveRecord::Base.transaction do
         status = @course.require_coordinator_approval? ? :pending : :approved
 
         @topic = Topic.create!(
           course: @course,
-          owner: current_user,
-          ownership_type: :lecturer
+          owner: current_user
         )
 
         title_value = nil
@@ -166,13 +164,11 @@ class TopicsController < ApplicationController
           end
         end
 
-        #creates the instance
         @instance = @topic.topic_instances.create!(
           version: 1,
           title: title_value,
           created_by: current_user,
-          status: status,
-          project_instance_type: :topic
+          status: status
         )
 
         # saves all fields to the instance
@@ -187,6 +183,7 @@ class TopicsController < ApplicationController
       end
     rescue StandardError => e
       redirect_to course_topic_path(@course, @topic), alert: "Topic creation failed"
+      return
     end
 
     redirect_to course_topic_path(@course, @topic), notice: "Topic created!"
@@ -217,24 +214,16 @@ class TopicsController < ApplicationController
     end
 
     # FOR COURSES/SHOW
-
     if @is_coordinator
-      # Coordinators see every lecturer topic (any status)
-      @topics = @course.topics
+      @topics = @course.topics # Coordinators see every lecturer topic (any status)
 
     elsif @is_lecturer
-      # Lecturers see their own (any status) OR others' approved
-      own = @course.topics.where(
-                     owner_type:     "User",
-                     owner_id:       current_user.id,
-                   )
+      own = @course.topics.where(owner: Current.user)
       approved = @course.topics.where(status: :approved)
 
-      @topics = own.or(approved)
+      @topics = own.or(approved) # Lecturers see their own (any status) OR others' approved
     else
-      # Students see only approved
-      @topics = @course.topics.where(status: :approved)
-
+      @topics = @course.topics.where(status: :approved) # Students see only approved
     end
 
     @topic = @topics.find_by(id: params[:id])
@@ -259,8 +248,7 @@ class TopicsController < ApplicationController
     end
   end
 
-  def set_course_and_enrolment
+  def set_course
     @course  = Course.find(params[:course_id])
-    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
   end
 end

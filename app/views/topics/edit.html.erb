@@ -15,7 +15,7 @@
         <p class="edit-description">Update your project details and information below.</p>
       </header>
       
-      <%= form_with(model: [@course, @project], url: course_topic_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
+      <%= form_with(model: [@course, @topic], url: course_topic_path(@course, @topic), method: :patch, local: true, class: "edit-form") do |form| %>
 
         <div class="fields-container">
           <% @template_fields.each do |field| %>

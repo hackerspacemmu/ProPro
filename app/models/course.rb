@@ -10,7 +10,7 @@ class Course < ApplicationRecord
     has_many :project_groups, dependent: :destroy
     has_one :project_template, dependent: :destroy
 
-    has_many :topics
+    has_many :topics, dependent: :destroy
 
 
     attribute :student_access, :integer, default: :no_restriction
