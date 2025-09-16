@@ -25,7 +25,7 @@ class LecturersController < ApplicationController
   end
   
   def promote_to_coordinator
-    coordinators = @course.coordinators.map {|enrolment| User.find(enrolment.user_id)}
+    coordinators = @course.coordinators
 
     unless coordinators.include? Current.user
       return
@@ -43,7 +43,12 @@ class LecturersController < ApplicationController
   end
 
   def demote_to_lecturer
-    coordinators = @course.coordinators.map {|enrolment| User.find(enrolment.user_id)}
+    coordinators = @course.coordinators
+
+    if coordinators.count == 1
+      return
+    end
+
     unless coordinators.include? Current.user
       return
     end
