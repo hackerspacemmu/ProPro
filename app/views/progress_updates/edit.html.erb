@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
- <head>
-   <%= stylesheet_link_tag "projects" %>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
- </head>
- <body>
-   <main class="project-edit">
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "projects" %>
+<% end %>
+<% content_for :title, "Edit Progress Update - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+
+<main class="project-edit">
       <h1><b> Progress Update </b></h1>
 
         <%= form_with(model: [@course, @project, @progress_update]) do |f| %>

@@ -55,7 +55,7 @@
             <div class="status-control">
               <%= form_with url: change_status_course_topic_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
                 <% if @current_instance.status == :pending %>
-                  <% statuses = Project.statuses.keys.without("not_submitted") %>
+                  <% statuses = Project.statuses.keys.without("not_submitted", "pending") %>
                 <% else %>
                   <% statuses = Project.statuses.keys.without("not_submitted", "pending") %>
                 <% end %>

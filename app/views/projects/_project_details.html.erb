@@ -48,6 +48,14 @@
   .diff ins{
     text-decoration: none;
   }
+
+  .ins-change{
+    background-color: #d4f4dd;
+  }
+
+  .del-change{
+    background-color: #f4d4d4; 
+  }
 </style>
 
 <% if @index < @instances.size %>
@@ -73,11 +81,17 @@
 
           <% diff_class = Diffy::SplitDiff %>
           <% diff = diff_class.new(old_val, new_val, :format => :html) %>
-            <td style="background:#ffecec;">
-              <%= diff.left.html_safe %>
+            <td>
+              <%= diff.left
+              .gsub('<strong>', '<mark class="del-change">')
+              .gsub('</strong>', '</mark>')
+              .html_safe %>
             </td>
-            <td style="background:#eaffea;">
-              <%= diff.right.html_safe %>
+            <td>
+               <%= diff.right
+              .gsub('<strong>', '<mark class="ins-change">')
+              .gsub('</strong>', '</mark>')
+              .html_safe %>
             </td>
         <% else %>
           <td colspan="2">No changes</td>
@@ -86,4 +100,3 @@
     <% end %>
   </table>
 <% end %>
-

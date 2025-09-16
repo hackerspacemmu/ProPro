@@ -58,7 +58,10 @@
 
   .del-change{
     background-color: #f4d4d4; 
+  text-decoration: line-through;
   }
+
+
 </style>
 
 <% if @index < @instances.size %>
@@ -86,16 +89,19 @@
           <% diff = diff_class.new(old_val, new_val, :format => :html) %>
             <td>
               <%= diff.left
-              .gsub('<strong>', '<mark class="del-change">')
-              .gsub('</strong>', '</mark>')
-              .html_safe %>
+                .gsub('<strong>', '<span class="del-change">')
+                .gsub('</strong>', '</span>')
+                .html_safe %>
             </td>
-            <td>
-               <%= diff.right
-              .gsub('<strong>', '<mark class="ins-change">')
-              .gsub('</strong>', '</mark>')
-              .html_safe %>
-            </td>
+
+           <td>
+            <%= diff.right
+              .gsub('<strong>', '<span class="ins-change">')
+                .gsub('</strong>', '</span>')
+                .html_safe %>
+          </td>
+
+
         <% else %>
           <td colspan="2">No changes</td>
         <% end %>
