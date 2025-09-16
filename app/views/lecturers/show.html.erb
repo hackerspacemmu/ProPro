@@ -125,9 +125,9 @@
               </div>
             <% else %>
               <div class="cards-container">
-                <%= render partial: 'courses/project_card',
+                <%= render partial: 'courses/topic_card',
                           collection: @own_approved_projects,
-                          as: :project,
+                          as: :topic,
                           locals: { course: @course } %>
               </div>
             <% end %>
@@ -147,9 +147,9 @@
                 </div>
               <% else %>
                 <div class="cards-container">
-                  <%= render partial: 'courses/project_card',
+                  <%= render partial: 'courses/topic_card',
                             collection: @not_own_approved_projects,
-                            as: :project,
+                            as: :topic,
                             locals: { course: @course } %>
                 </div>
               <% end %>
