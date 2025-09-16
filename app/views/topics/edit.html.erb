@@ -1,7 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
 <% end %>
-<% content_for :title, "Edit Topic - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+<% content_for :title, "Edit Topic - #{@topic.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <main class="project-edit">
   <header class="edit-header">
