@@ -13,6 +13,10 @@
     <a id="link-pending-topics"    href="#pending-topics">Pending Topics</a>
     <a id="link-pending-proposals" href="#pending-proposals">Pending Proposals</a>
     <a href="#participants">Participants</a>
+
+    <hr class="sidebar-divider"></hr>
+    <%= link_to "add students", add_students_course_path(@course) %>
+    <%= link_to "add lecturers", add_lecturers_course_path(@course) %>
   <% end %>
 
   <% if current_user_enrolment&.lecturer? %>
