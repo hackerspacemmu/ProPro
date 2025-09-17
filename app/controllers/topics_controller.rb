@@ -201,7 +201,19 @@ class TopicsController < ApplicationController
   private
   def access_one
     @course                 = Course.find(params[:course_id])
-    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+    
+    coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
+    lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
+    student_enrolment = @course.enrolments.find_by(user: Current.user, role: :student)
+    
+    if coordinator_enrolment
+      @current_user_enrolment = coordinator_enrolment
+    elsif lecturer_enrolment
+      @current_user_enrolment = lecturer_enrolment
+    else
+      @current_user_enrolment = student_enrolment
+    end
+
     @is_coordinator         = @current_user_enrolment&.coordinator?
     @is_lecturer            = @current_user_enrolment&.lecturer?
     @is_student             = @current_user_enrolment&.student?

@@ -6,9 +6,15 @@ class LecturersController < ApplicationController
   end
   
   def show
-    @enrolment = @course.enrolments.find_by(user_id: params[:id], role: [:lecturer, :coordinator])
-    @lecturer = @enrolment&.user
-    @lecturer_enrolment = @course.enrolments.find_by(user: @lecturer, role: :lecturer)
+    #@enrolment = @course.enrolments.where(user_id: params[:id], role: [:coordinator, :lecturer])
+    coordinator_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :coordinator)
+    @lecturer_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :lecturer)
+
+    coordinator_enrolment ? @enrolment = coordinator_enrolment : @enrolment = @lecturer_enrolment
+
+    @lecturer = @enrolment.user
+    #@lecturer_enrolment = @course.enrolments.find_by(user: @lecturer, role: :lecturer)
+    
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
     @is_coordinator = @current_user_enrolment&.coordinator?
     @is_student = @current_user_enrolment&.student?

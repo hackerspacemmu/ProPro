@@ -479,7 +479,17 @@ class CoursesController < ApplicationController
 
   def access_topics
     @course                 = Course.find(params[:id])
-    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+    coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
+    lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
+    student_enrolment = @course.enrolments.find_by(user: Current.user, role: :student)
+    
+    if coordinator_enrolment
+      @current_user_enrolment = coordinator_enrolment
+    elsif lecturer_enrolment
+      @current_user_enrolment = lecturer_enrolment
+    else
+      @current_user_enrolment = student_enrolment
+    end
 
     # 1) Coordinator: sees all topics (any status)
     if @current_user_enrolment&.coordinator?

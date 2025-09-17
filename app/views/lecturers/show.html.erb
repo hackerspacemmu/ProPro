@@ -44,7 +44,7 @@
         <% if @course.coordinators.include? Current.user %>
           <% if @course.coordinators.include?(@lecturer) && @lecturer != Current.user %>
             <%= link_to "Demote to Lecturer", demote_to_lecturer_course_lecturer_path(@course, @lecturer), data: { turbo_method: :patch } %>
-        <% elsif @lecturer != Current.user %>
+          <% elsif @lecturer != Current.user %>
             <%= link_to "Promote To Coordinator", promote_to_coordinator_course_lecturer_path(@course, @lecturer), data: { turbo_method: :patch } %>
           <% end %>
         <% end %>

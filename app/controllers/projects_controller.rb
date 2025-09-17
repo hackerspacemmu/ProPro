@@ -336,7 +336,7 @@ class ProjectsController < ApplicationController
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
     # Build the list of projects/topics visible to the current user:
-    if @course.enrolments.exists?(user: current_user, role: :coordinator)
+    if @is_coordinator
       # Coordinators see everything
       @projects = @course.projects
     else
