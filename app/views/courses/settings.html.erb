@@ -25,16 +25,16 @@
                   method: :post,
                   class: "edit-form" do |form| %>
 
-      <% if @course.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(@course.errors.count, "error") %> prohibited this course from being saved:</h2>
-          <ul>
-            <% @course.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+        <% if @course.errors.any? %>
+          <div id="error_explanation">
+            <h2><%= pluralize(@course.errors.count, "error") %> prohibited this course from being saved:</h2>
+            <ul>
+              <% @course.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
 
       <div class="fields-container">
         <div class="field-row">
@@ -143,6 +143,18 @@
             <% end %>
           </div>
         </div>
+      </div>
+      
+      <div class="field-row">
+        <%= link_to "Add students",
+                    add_students_course_path(@course),
+                    class: "btn"
+                  %>
+
+        <%= link_to "Add lecturers",
+                    add_lecturers_course_path(@course),
+                    class: "btn"
+                  %>
       </div>
 
       <div class="form-actions">

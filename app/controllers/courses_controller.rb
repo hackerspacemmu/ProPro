@@ -9,17 +9,16 @@ class CoursesController < ApplicationController
 
 
     def show
-      @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+      @student_list = @course.students 
       @description = @course.course_description
-      @lecturers = @course.enrolments.where(role: :lecturer).includes(:user).map(&:user)
+      @lecturers = @course.lecturers 
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
 
       # SET STUDENT PROJECTS
-      projects_ownerships = @course.projects.not_lecturer_owned.approved
-      .joins(:ownership)
-      .where(ownerships: { owner_type: "User" })
-      .pluck("ownerships.owner_id")
+      projects_ownerships = @course.projects.approved
+      .where(owner_type: "User")
+      .pluck("owner_id")
   
       @students_with_projects = @student_list.select do |student|
         projects_ownerships.include?(student.id)
@@ -38,31 +37,31 @@ class CoursesController < ApplicationController
         @group = current_user.project_groups.find_by(course: @course)
         
         if @group
-          @project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: @group.class.name, owner_id: @group.id })
+          @project = @course.projects.find_by(owner_type: "ProjectGroup", owner_id: @group.id)
         else
           @project = nil
         end
       else
           @group = nil
-          @project = @course.projects.joins(:ownership).find_by(ownerships: { owner_type: "User", owner_id: current_user.id })
+          @project = @course.projects.find_by(owner_type: "User", owner_id: current_user.id)
       end
 
-      @current_status = @project&.current_status || "not_submitted"
+    @current_status = @project&.current_status || "not_submitted"
 
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
-      @my_student_projects = @course.projects.student_projects_for_lecturer(supervisor_enrolment).approved
-      @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: supervisor_enrolment).proposals
+      @my_student_projects = @course.projects.supervised_by(supervisor_enrolment).approved
+      @incoming_proposals = @course.projects.where(enrolment: supervisor_enrolment).proposals
     elsif @current_user_enrolment&.lecturer?
-      @my_student_projects = @course.projects.student_projects_for_lecturer(@current_user_enrolment).approved
-      @incoming_proposals = @course.projects.not_lecturer_owned.where(enrolment: @current_user_enrolment).proposals
+      @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
+      @incoming_proposals = @course.projects.where(enrolment: @current_user_enrolment).proposals
     end
     
-      # SET LECTURER CAPACITY INFO
-      @lecturer_capacity_info = {}
-      @lecturers.each do |lecturer|
-        @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
-      end
+    # SET LECTURER CAPACITY INFO
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
+    end
 
     if request.headers['HX-Request'] && params[:status_filter].present?
       render partial: 'participants_table', 
@@ -77,25 +76,79 @@ class CoursesController < ApplicationController
     end
   end
 
-    def add_students
+  def add_students
+  end
+
+  def add_lecturers
+  end
+
+  def handle_add_lecturers
+    unregistered_lecturers = Set[]
+
+    if params[:invited_lecturers].blank?
+      redirect_back_or_to "/", alert: "Invited lecturers cannot be empty"
+      return
     end
 
-    def add_lecturers
-    end
+    lecturer_emails = params[:invited_lecturers].split(";").map {|email| email.strip}
 
-    def handle_add_lecturers
-      unregistered_lecturers = Set[]
-
-      if params[:invited_lecturers].blank?
-        redirect_back_or_to "/", alert: "Invited lecturers cannot be empty"
-        return
+    begin
+      ActiveRecord::Base.transaction do
+        create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
       end
 
-      lecturer_emails = params[:invited_lecturers].split(";").map {|email| email.strip}
+      if @course.grouped
+        @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
+      else
+        @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
+      end
+    rescue StandardError => e
+      redirect_back_or_to "/", alert: e.message
+      return
+    end
 
-      begin
-        ActiveRecord::Base.transaction do
-          create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
+    send_emails(unregistered_lecturers)
+
+    redirect_to course_path(@course)
+  end
+
+  def handle_add_students
+    unregistered_students = Set[]
+
+    if params[:csv_file].blank? || params[:csv_file].content_type != "text/csv"
+      redirect_back_or_to "/", alert: "Please provide a CSV file from ebwise"
+      return
+    end
+
+    begin
+      csv_obj = CSV.parse(params[:csv_file].read, headers: true, liberal_parsing: true)
+    rescue StandardError => e
+      redirect_back_or_to "/", alert: "CSV parsing failed"
+      return
+    end
+
+    columns_to_check = ["Last name", "ID number", "Email address"]
+
+    columns_to_check.each do |column|
+      if !csv_obj.headers.include? column
+        redirect_back_or_to "/", alert: "CSV file missing required headers"
+        return
+      end
+    end
+
+    if @course.grouped && !csv_obj.headers.include?("Group")
+      redirect_back_or_to "/", alert: "Not grouped CSV file"
+      return
+    end
+
+    begin
+      ActiveRecord::Base.transaction do
+        if @course.grouped
+          student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
+          create_db_entries_grouped(student_hashmap, @course, unregistered_students)
+        else
+          student_set = parse_csv_solo(csv_obj, columns_to_check)
+          create_db_entries_solo(student_set, @course, unregistered_students)
         end
 
         if @course.grouped
@@ -103,114 +156,60 @@ class CoursesController < ApplicationController
         else
           @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
         end
-      rescue StandardError => e
-        redirect_back_or_to "/", alert: e.message
-        return
+
       end
-
-      send_emails(unregistered_lecturers)
-
-      redirect_to add_students_course_path(@course)
+    rescue StandardError => e
+      redirect_back_or_to "/", alert: e.message
+      return
     end
 
-    def handle_add_students
-      unregistered_students = Set[]
+    send_emails(unregistered_students)
+    redirect_to course_path(@course)
+  end
 
-      if params[:csv_file].blank? || params[:csv_file].content_type != "text/csv"
-        redirect_back_or_to "/", alert: "Please provide a CSV file from ebwise"
-        return
-      end
+  def new
+    @new_course = Course.new
+  end
 
-      begin
-        csv_obj = CSV.parse(params[:csv_file].read, headers: true, liberal_parsing: true)
-      rescue StandardError => e
-        redirect_back_or_to "/", alert: "CSV parsing failed"
-        return
-      end
+  def create
+    response = params.require(:course).permit(:course_name, :grouped)
 
-      columns_to_check = ["Last name", "ID number", "Email address"]
+    @new_course = Course.new(
+      course_name: response[:course_name],
+      grouped: response[:grouped]
+    )
 
-      columns_to_check.each do |column|
-        if !csv_obj.headers.include? column
-          redirect_back_or_to "/", alert: "CSV file missing required headers"
-          return
+    begin
+      ActiveRecord::Base.transaction do
+        if !@new_course.save
+          raise StandardError, "Course failed verification"
+        end
+
+        new_coordinator_enrolment = Enrolment.create!(
+          user: Current.user,
+          course: @new_course,
+          role: :coordinator
+        )
+
+        new_lecturer_enrolment = Enrolment.create!(
+          user: Current.user,
+          course: @new_course,
+          role: :lecturer
+        )
+
+        default_template = @new_course.build_project_template
+
+        if !default_template.save
+          raise StandardError, "Template creation failed"
         end
       end
-
-      if @course.grouped && !csv_obj.headers.include?("Group")
-        redirect_back_or_to "/", alert: "Not grouped CSV file"
-        return
-      end
-
-      begin
-        ActiveRecord::Base.transaction do
-          if @course.grouped
-            student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
-            create_db_entries_grouped(student_hashmap, @course, unregistered_students)
-          else
-            student_set = parse_csv_solo(csv_obj, columns_to_check)
-            create_db_entries_solo(student_set, @course, unregistered_students)
-          end
-
-          if @course.grouped
-            @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
-          else
-            @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
-          end
-
-        end
-      rescue StandardError => e
-        redirect_back_or_to "/", alert: e.message
-        return
-      end
-
-      send_emails(unregistered_students)
-      redirect_to settings_course_path(@course)
+    rescue StandardError => e
+      @new_course.destroy
+      render :new, status: :unprocessable_entity
+      return
     end
 
-    def new
-      @new_course = Course.new
-    end
-
-    def create
-      response = params.require(:course).permit(:course_name, :grouped)
-
-      @new_course = Course.new(
-        course_name: response[:course_name],
-        grouped: response[:grouped]
-      )
-
-      begin
-        ActiveRecord::Base.transaction do
-          if !@new_course.save
-            raise StandardError, "Course failed verification"
-          end
-
-          new_coordinator_enrolment = Enrolment.create!(
-            user: Current.user,
-            course: @new_course,
-            role: :coordinator
-          )
-
-          new_lecturer_enrolment = Enrolment.create!(
-            user: Current.user,
-            course: @new_course,
-            role: :lecturer
-          )
-
-          default_template = @new_course.build_project_template
-
-          if !default_template.save
-            raise StandardError, "Template creation failed"
-          end
-        end
-      rescue StandardError => e
-        @new_course.destroy
-        render :new, status: :unprocessable_entity
-        return
-      end
-
-    redirect_to add_lecturers_course_path(@new_course), notice: "Course successfully created"
+    redirect_to course_path(@new_course), notice: "Course successfully created"
   end
 
   def settings
@@ -264,13 +263,13 @@ class CoursesController < ApplicationController
 
   private
   def students_with_projects
-    @course.projects.not_lecturer_owned.approved.joins(:ownership).where(ownerships: { owner_type: "User" }).pluck("ownerships.owner_id")
+    @course.projects.not_lecturer_owned.approved.where(owner_type: "User").pluck("owner_id")
   end
 
   def disallow_noncoordinator_requests
     @course = Course.find(params[:id])
 
-    unless Current.user == @course.coordinator.user
+    unless @course.coordinators.include? Current.user
       redirect_back_or_to "/", alert: "Access denied"
       return
     end
@@ -478,123 +477,113 @@ class CoursesController < ApplicationController
   end
 
 
-def access_topics
-  @course                 = Course.find(params[:id])
-  @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+  def access_topics
+    @course                 = Course.find(params[:id])
+    coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
+    lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
+    student_enrolment = @course.enrolments.find_by(user: Current.user, role: :student)
+    
+    if coordinator_enrolment
+      @current_user_enrolment = coordinator_enrolment
+    elsif lecturer_enrolment
+      @current_user_enrolment = lecturer_enrolment
+    else
+      @current_user_enrolment = student_enrolment
+    end
 
-  lt = Ownership.ownership_types[:lecturer]
+    # 1) Coordinator: sees all topics (any status)
+    if @current_user_enrolment&.coordinator?
+      @topic_list = @course.topics
 
-  # 1) Coordinator: sees all topics (any status)
-  if @current_user_enrolment&.coordinator?
-    @topic_list = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt })
+    # Lecturer: sees their own topics (any status)
+    # plus other lecturers’ only if approved
+    elsif @current_user_enrolment&.lecturer?
+      own = @course.topics.where(owner_id: current_user.id)
 
-  # Lecturer: sees their own topics (any status)
-  # plus other lecturers’ only if approved
-  elsif @current_user_enrolment&.lecturer?
-    own = @course.projects
-                 .joins(:ownership)
-                 .where(ownerships: {
-                   owner_type:     "User",
-                   owner_id:       current_user.id,
-                   ownership_type: lt
-                 })
+      approved = @course.topics.where(status: :approved)
 
-    approved = @course.projects
-                      .joins(:ownership)
-                      .where(ownerships: { ownership_type: lt },
-                             status:     :approved)
+      @topic_list = own.or(approved)
 
-    @topic_list = own.or(approved)
-
-  #Students: see only approved topics
-  else
-    @topic_list = @course.projects
-                         .joins(:ownership)
-                         .where(ownerships: { ownership_type: lt },
-                                status:     :approved)
+    #Students: see only approved topics
+    else
+      @topic_list = @course.topics.where(status: :approved)
+    end
   end
-end
 
-def lecturer_approved_proposals_count(lecturer, course)
-  lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-  return 0 unless lecturer_enrolment
-  
-  course.projects.student_projects_for_lecturer(lecturer_enrolment).approved.count
-end
-
-def lecturer_pending_proposals_count(lecturer, course)
-  lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-  return 0 unless lecturer_enrolment
-  
-  course.projects.student_projects_for_lecturer(lecturer_enrolment).pending_redo.count
-end
-
-def lecturer_capacity_info(lecturer, course)
-  approved_count = lecturer_approved_proposals_count(lecturer, course)
-  pending_count = lecturer_pending_proposals_count(lecturer, course)
-  max_capacity = course.supervisor_projects_limit
-  
-  {
-    approved_proposals: approved_count,         
-    pending_proposals: pending_count,             
-    total_proposals: approved_count + pending_count, 
-    max_capacity: max_capacity,
-    remaining_capacity: [max_capacity - approved_count, 0].max,
-    is_at_capacity: approved_count >= max_capacity,
-  }
-end
-
-def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
-  return [] unless student_list.present?
- 
-  case status
-  when 'approved'
-    students_with_projects || []
-  when 'pending', 'redo', 'rejected'
-    student_list.select do |student|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'User', owner_id: student.id })
-      project&.current_status == status
-    end
-  when 'not_submitted'
-    students_without_projects || []
-  else
-    []
+  def lecturer_approved_proposals_count(lecturer, course)
+    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
+    return 0 unless lecturer_enrolment
+    
+    course.projects.supervised_by(lecturer_enrolment).approved.count
   end
-end
 
-def groups_by_status(status, group_list, course)
-  return [] unless group_list.present?
- 
-  case status
-  when 'approved'
-    group_list.select do |group|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project&.current_status == 'approved'
-    end
-  when 'pending', 'redo', 'rejected'
-    group_list.select do |group|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project&.current_status == status
-    end
-  when 'not_submitted'
-    group_list.select do |group|
-      project = course.projects
-        .joins(:ownership)
-        .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
-      project.nil?
-    end
-  else
-    []
+  def lecturer_pending_proposals_count(lecturer, course)
+    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
+    return 0 unless lecturer_enrolment
+    
+    course.projects.supervised_by(lecturer_enrolment).pending_redo.count
   end
-end
+
+  def lecturer_capacity_info(lecturer, course)
+    approved_count = lecturer_approved_proposals_count(lecturer, course)
+    pending_count = lecturer_pending_proposals_count(lecturer, course)
+    max_capacity = course.supervisor_projects_limit
+    
+    {
+      approved_proposals: approved_count,         
+      pending_proposals: pending_count,             
+      total_proposals: approved_count + pending_count, 
+      max_capacity: max_capacity,
+      remaining_capacity: [max_capacity - approved_count, 0].max,
+      is_at_capacity: approved_count >= max_capacity,
+    }
+  end
+
+  def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
+    return [] unless student_list.present?
+   
+    case status
+    when 'approved'
+      students_with_projects || []
+    when 'pending', 'redo', 'rejected'
+      student_list.select do |student|
+        project = course.projects
+          .find_by(owner_type: 'User', owner_id: student.id)
+        project&.current_status == status
+      end
+    when 'not_submitted'
+      students_without_projects || []
+    else
+      []
+    end
+  end
+
+  def groups_by_status(status, group_list, course)
+    return [] unless group_list.present?
+   
+    case status
+    when 'approved'
+      group_list.select do |group|
+        project = course.projects
+          .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
+        project&.current_status == 'approved'
+      end
+    when 'pending', 'redo', 'rejected'
+      group_list.select do |group|
+        project = course.projects
+          .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
+        project&.current_status == status
+      end
+    when 'not_submitted'
+      group_list.select do |group|
+        project = course.projects
+          .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
+        project.nil?
+      end
+    else
+      []
+    end
+  end
 
   def filtered_group_list
     return @group_list unless params[:status_filter].present? && params[:status_filter] != 'all'

@@ -1,4 +1,4 @@
-class User < ApplicationRecord
+ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
 
@@ -13,7 +13,9 @@ class User < ApplicationRecord
 
   has_many :comments, dependent: :destroy
   has_one :otp, dependent: :destroy
-  has_many :ownerships, dependent: :destroy, as: :owner
+
+  has_many :solo_projects, as: :owner, class_name: 'Project'
+  has_many :group_projects, through: :project_groups, source: :project
 
   validates :email_address, presence: { message: "cannot be empty" }, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i, on: :create }
   validates :password, length: { maximum: 72, message: "must be less than 72 characters" }
@@ -21,5 +23,7 @@ class User < ApplicationRecord
   def self.projects
     Ownership.where(owner_id: self.project_groups.ids, owner_type: :ProjectGroup).or(Ownership.where(owner_id: self.id, owner_type: :User))
   end
+
+  has_many :ownerships, dependent: :destroy, as: :owner
 =end
 end
