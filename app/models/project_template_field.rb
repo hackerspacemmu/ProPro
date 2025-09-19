@@ -1,6 +1,6 @@
 class ProjectTemplateField < ApplicationRecord
   belongs_to :project_template
-  has_many   :project_instance_fields, dependent: :restrict_with_error
+  has_many   :project_instance_fields, dependent: :destroy
   
   enum :field_type, {shorttext: 0, textarea: 1, dropdown: 2, radio: 3}
   enum :applicable_to, {topics: 0, proposals: 1, both: 2}

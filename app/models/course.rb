@@ -8,6 +8,7 @@ class Course < ApplicationRecord
     
     has_many :projects, dependent: :destroy
     has_many :project_groups, dependent: :destroy
+
     has_one :project_template, dependent: :destroy
 
     has_many :topics, dependent: :destroy
