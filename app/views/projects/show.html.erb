@@ -6,60 +6,60 @@
    View <%= @project.current_instance.approved? ? 'Project' : 'Proposal' %> | ProPro
 <% end %>
 
-<% current_version = @index %>
-<% oldest_version = 1 %>
-<% latest_version = @instances.size %>
 <main id="project">
   <div class="project-layout">
-
     <section class="project-content">
+      <% current_version = @index %>
+      <% oldest_version = 1 %>
+      <% latest_version = @instances.size %>
+
       <%= render 'project_header',
-                current_instance: @current_instance,
-                owner: @owner,
-                type: @type,
-                project: @project,
-                members: @members,
-                current_version: current_version,
-                latest_version: latest_version,
-                oldest_version: oldest_version,
-                instances: @instances %>
+                 current_instance: @current_instance,
+                 owner: @owner,
+                 project: @project,
+                 members: @members,
+                 current_version: current_version,
+                 latest_version: latest_version,
+                 oldest_version: oldest_version,
+                 instances: @instances %>
       <%= render 'project_actions',
-                members: @members,
-                current_user: current_user,
-                project: @project,
-                current_version: current_version,
-                latest_version: latest_version,
-                course: @course %>
-
-        <%= render 'project_comments',
-                    comments: @comments,
-                    new_comment: @new_comment,
-                    course: @course,
-                    project: @project,
-                    current_version: current_version,
-                    latest_version: latest_version %>
-
-        <%= @current_instance.updated_at.strftime("%d %b %Y, %I:%M %p") %>
+                 members: @members,
+                 current_user: current_user,
+                 project: @project,
+                 current_version: current_version,
+                 latest_version: latest_version,
+                 course: @course %>
+          <%= render 'project_comments',
+                     comments: @comments,
+                     new_comment: @new_comment,
+                     course: @course,
+                     project: @project,
+                 current_instance_id: @current_instance.id,
+                     current_version: current_version,
+                     latest_version: latest_version %>
+          <%= @current_instance.updated_at.strftime("%d %b %Y, %I:%M %p") %>
                     
         <% if @course.use_progress_updates && @current_instance.status == "approved" %>
-          <% if @current_instance.supervisor == current_user %>
-            <br>
-            <%= link_to "Record New Progress Update", new_course_project_progress_update_path(@course, @project) %>
+             <% if @current_instance.supervisor == current_user %>
+              <br>
+              <%= link_to "Record New Progress Update", new_course_project_progress_update_path(@course, @project) %>
+            <% end %>
           <% end %>
-        <% end %>
-        <%= render 'project_fields', 
-                    project: @project,
-                    fields: @current_fields,
+          <%= render 'project_fields', 
+                      project: @project,
+                      fields: @current_fields,
                     next_fields: @next_fields, 
-                    based_on_topic_name: @current_instance&.source_topic&.project_instances&.last&.title || nil,
-                    course: @course %>
-      
+                      based_on_topic_name: @current_instance&.source_topic&.topic_instances&.last&.title || nil,
+                      course: @course %>
         
-        <footer class="project-footer">
-          <%= link_to "← Back to Course", course_path(@course) %>
-        </footer>
+        
+          <footer class="project-footer">
+            <%= link_to "← Back to Course", course_path(@course) %>
+          </footer>
+ 
        </section>
      </div>
    </main>
+
  </body>
 </html>

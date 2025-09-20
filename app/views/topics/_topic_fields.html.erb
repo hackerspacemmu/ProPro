@@ -38,6 +38,7 @@
     border: 1px solid black;
     border-collapse: collapse;
     padding: 5px;
+    vertical-align: top;
   }
 
   .diff ul {
@@ -61,6 +62,12 @@
   text-decoration: line-through;
   }
 
+  li.empty {
+  min-height: 1em;
+  list-style: none;
+}
+
+
 
 </style>
 
@@ -68,44 +75,57 @@
   <h4>Comparison with next instance</h4>
   <br>
 
-  <table>
+ <table>
+  <tr>
+    <th>Field</th>
+    <th>Deletions</th>
+    <th>Additions</th>
+  </tr>
+
+  <% fields.zip(next_fields).each do |current_field, next_field| %>
+    <% field_name = (current_field || next_field).project_template_field.label %>
+    <% old_val    = current_field&.value.to_s %>
+    <% new_val    = next_field&.value.to_s %>
+
     <tr>
-      <th>Field</th>
-      <th>Deletions</th>
-      <th>Additions</th>
+      <td><%= field_name %></td>
+
+      <% if old_val != new_val %>
+        <% diff = Diffy::SplitDiff.new(old_val, new_val, format: :html) %>
+
+        <% left_lines  = diff.left
+                            .gsub('<strong>', '<span class="del-change">')
+                            .gsub('</strong>', '</span>')
+                            .split("\n") %>
+
+        <% right_lines = diff.right
+                            .gsub('<strong>', '<span class="ins-change">')
+                            .gsub('</strong>', '</span>')
+                            .split("\n") %>
+
+        <% max_lines = [left_lines.size, right_lines.size].max %>
+
+        <td>
+          <ul>
+            <% max_lines.times do |i| %>
+              <%= (left_lines[i] || '<li class="empty"></li>').html_safe %>
+            <% end %>
+          </ul>
+        </td>
+
+        <td>
+          <ul>
+            <% max_lines.times do |i| %>
+              <%= (right_lines[i] || '<li class="empty"></li>').html_safe %>
+            <% end %>
+          </ul>
+        </td>
+
+      <% else %>
+        <td colspan="2">No changes</td>
+      <% end %>
     </tr>
+  <% end %>
+</table>
 
-    <% fields.zip(next_fields).each do |current_field, next_field| %>
-      <% field_name = (current_field || next_field).project_template_field.label %>
-      <% old_val    = current_field&.value.to_s %>
-      <% new_val    = next_field&.value.to_s %>
-
-      <tr>
-        <td><%= field_name %></td>
-
-        <% if old_val != new_val %>
-
-          <% diff_class = Diffy::SplitDiff %>
-          <% diff = diff_class.new(old_val, new_val, :format => :html) %>
-            <td>
-              <%= diff.left
-                .gsub('<strong>', '<span class="del-change">')
-                .gsub('</strong>', '</span>')
-                .html_safe %>
-            </td>
-
-           <td>
-            <%= diff.right
-              .gsub('<strong>', '<span class="ins-change">')
-                .gsub('</strong>', '</span>')
-                .html_safe %>
-          </td>
-
-
-        <% else %>
-          <td colspan="2">No changes</td>
-        <% end %>
-      </tr>
-    <% end %>
-  </table>
 <% end %>

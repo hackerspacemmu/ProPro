@@ -14,7 +14,7 @@
               <%= owner.username %>
             </p>
           <% else %>
-            <% project.owner.users.each do |user| %>
+            <% topic.owner.users.each do |user| %>
               <p class="owner-row">
                 <span class="user-badge"><%= user.username[0].upcase %></span>
                 <%= user.username %>
@@ -25,11 +25,11 @@
       </div>
 
       <!-- Group Name (only if group project) -->
-      <% if project.owner.is_a?(ProjectGroup) %>
+      <% if topic.owner.is_a?(ProjectGroup) %>
         <div class="metadata-item">
           <span class="metadata-label"><%= image_tag("group.svg") %> Group Name</span>
           <span class="metadata-value">
-            <%= project.owner.group_name %>
+            <%= topic.owner.group_name %>
           </span>
         </div>
       <% end %>
@@ -38,11 +38,7 @@
       <div class="metadata-item">
         <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
         <span class="metadata-value">
-          <% if type == "topic" %>
-            <p>Topic</p>
-          <% elsif type == "proposal" %>
-              <p>Project</p>
-          <% end %>
+          <p>Topic</p>
         </span>
       </div>
 
@@ -53,13 +49,13 @@
         <div class="metadata-value">
           <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
             <div class="status-control">
-              <%= form_with url: change_status_course_topic_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
+              <%= form_with url: change_status_course_topic_path(@course, @topic), method: :patch, local: true, class: "status-change-form" do |f| %>
                 <% if @current_instance.status == :pending %>
                   <% statuses = Project.statuses.keys.without("not_submitted", "pending") %>
                 <% else %>
                   <% statuses = Project.statuses.keys.without("not_submitted", "pending") %>
                 <% end %>
-                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@project.status}" %>
+                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@topic.status}" %>
                 <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
                   <%= image_tag("check.svg", width: 16, height: 16, alt: "Save") %>
                 <% end %>
@@ -84,7 +80,7 @@
         <div class="metadata-value version-navigation">
           <% # Back arrow: older version (lower index) %>
           <% if current_version > 1 %>
-            <%= link_to course_topic_path(@course, project, version: current_version - 1), class: "version-btn back-arrow" do %>
+            <%= link_to course_topic_path(@course, topic, version: current_version - 1), class: "version-btn back-arrow" do %>
               <%= image_tag("arrow_back.svg", class:"back-arrow") %>
             <% end %>
           <% else %>
@@ -97,7 +93,7 @@
 
           <% # Next arrow: newer version (higher index) %>
           <% if current_version < instances.size %>
-            <%= link_to course_topic_path(@course, project, version: current_version + 1), class: "version-btn next-arrow" do %>
+            <%= link_to course_topic_path(@course, topic, version: current_version + 1), class: "version-btn next-arrow" do %>
               <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
             <% end %>
           <% else %>

@@ -65,7 +65,8 @@
         <% end %>
       </div>
     </header>
-    <% my_topics = topic_list.select { |project| project.ownership.lecturer? && project.ownership.owner == current_user } %>
+    <% Rails.logger.info "fsadjfkldjsaf;kjdaf #{topic_list.inspect}"%>
+    <% my_topics = topic_list.select { |topic| topic.owner == current_user } %>
     <% if my_topics.empty? %>
       <p class="empty-state">You haven't created any topics yet.</p>
     <% else %>
@@ -75,7 +76,7 @@
           <div class="status-group status-<%= stat %>">
             <h5 class="status-header"><%= stat.titleize %> <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
             <div class="cards-container">
-              <%= render partial: 'project_card', collection: group, as: :project %>
+              <%= render partial: 'topic_card', collection: group, as: :topic %>
             </div>
           </div>
         <% end %>

@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_14_192327) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "project_id", null: false
     t.string "text", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "deleted", default: false, null: false
-    t.integer "project_version_number", default: 1, null: false
-    t.index ["project_id"], name: "index_comments_on_project_id"
+    t.string "location_type", null: false
+    t.integer "location_id", null: false
+    t.index ["location_type", "location_id"], name: "index_comments_on_location"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
@@ -58,15 +58,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
     t.index ["user_id"], name: "index_otps_on_user_id"
   end
 
-  create_table "ownerships", force: :cascade do |t|
-    t.string "owner_type", null: false
-    t.integer "owner_id", null: false
-    t.integer "ownership_type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["owner_type", "owner_id"], name: "index_ownerships_on_owner"
-  end
-
   create_table "progress_updates", force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "rating", null: false
@@ -95,11 +86,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
   end
 
   create_table "project_instance_fields", force: :cascade do |t|
-    t.integer "project_instance_id", null: false
+    t.integer "project_instance_id"
     t.integer "project_template_field_id", null: false
     t.text "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "instance_type"
+    t.integer "instance_id"
+    t.index ["instance_type", "instance_id"], name: "index_project_instance_fields_on_instance"
     t.index ["project_instance_id", "project_template_field_id"], name: "index_project_instance_fields_on_instance_and_template_field", unique: true
     t.index ["project_instance_id"], name: "index_project_instance_fields_on_project_instance_id"
     t.index ["project_template_field_id"], name: "index_project_instance_fields_on_project_template_field_id"
@@ -114,8 +108,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
     t.datetime "updated_at", null: false
     t.string "title", null: false
     t.integer "status", default: 0, null: false
-    t.integer "enrolment_id", null: false
+    t.integer "enrolment_id"
     t.integer "source_topic_id"
+    t.integer "project_instance_type", null: false
     t.index ["created_by_id"], name: "index_project_instances_on_created_by_id"
     t.index ["enrolment_id"], name: "index_project_instances_on_enrolment_id"
     t.index ["project_id", "version"], name: "index_project_instances_on_project_id_and_version", unique: true
@@ -144,15 +139,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
   end
 
   create_table "projects", force: :cascade do |t|
-    t.integer "enrolment_id", null: false
+    t.integer "enrolment_id"
     t.integer "course_id", null: false
-    t.integer "ownership_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
+    t.string "owner_type"
+    t.integer "owner_id"
+    t.integer "ownership_type"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
-    t.index ["ownership_id"], name: "index_projects_on_ownership_id"
+    t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -178,7 +175,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
-  add_foreign_key "comments", "projects"
   add_foreign_key "comments", "users"
   add_foreign_key "enrolments", "courses"
   add_foreign_key "enrolments", "users"
@@ -196,6 +192,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_134231) do
   add_foreign_key "project_templates", "courses"
   add_foreign_key "projects", "courses"
   add_foreign_key "projects", "enrolments"
-  add_foreign_key "projects", "ownerships"
   add_foreign_key "sessions", "users"
 end
