@@ -3,7 +3,7 @@ require "set"
 require "securerandom"
 
 class CoursesController < ApplicationController
-    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy ]
+    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv]
     before_action :check_staff, only: [ :new, :create ]
     before_action :access_topics, only: :show
 
@@ -260,6 +260,18 @@ class CoursesController < ApplicationController
     Rails.logger.info "PROFILE PARAMS: #{params.slice(:id, :participant_id, :participant_type).inspect}"
   end
     
+  def export_csv
+    @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
+    @group_list = @course.grouped? ? @course.project_groups.includes(:project_group_members => :user).to_a : []
+  
+    csv_content = generate_csv_export
+  
+    filename = "#{@course.course_name.parameterize}.csv"
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+  
+    render plain: csv_content
+  end
 
   private
   def students_with_projects
@@ -476,6 +488,122 @@ class CoursesController < ApplicationController
     end
   end
 
+  def generate_csv_export
+    template_fields = @course.project_template&.project_template_fields&.order(:id) || []
+    headers = build_csv_headers(template_fields)
+    rows = []
+
+    if @course.grouped?
+      @group_list.each do |group|
+        group_rows = build_group_rows(group, template_fields)
+        rows.concat(group_rows)
+      end
+    else 
+      @student_list.each do |student|
+        student_rows = build_student_rows(student, template_fields)
+        rows.concat(student_rows)
+      end
+    end
+
+    csv_strings = [headers.to_csv]
+    rows.each { |row| csv_strings << row.to_csv }
+    csv_strings.join
+  end
+
+  def build_csv_headers(template_fields)
+    headers = ['Student_Name', 'Student_ID', 'Email_Address']
+    headers << 'Student Group' if @course.grouped?
+    headers += [ 'Supervisor_Name','Supervisor_Email_Address', 'Project_Title', 'Project_Status']
+
+    # Project Title is handled by validation in Project.rb
+    template_fields = template_fields.reject { |field| field.label == "Project Title" }
+    project_fields = template_fields.select do |field|
+      field.applicable_to == 'proposals' || field.applicable_to == 'both'
+    end
+
+    project_fields.each do |field|
+      headers << field.label
+    end
+    return headers
+  end 
+
+  def build_group_rows(group, template_fields)
+    project = @course.projects.find_by(owner_type: "projectgroup", owner_id: group.id)
+    current_instance = project&.current_instance
+    supervisor = project&.supervisor
+    project_status = project&.current_status || 'not_submitted'
+    field_values = get_project_details_values(current_instance, template_fields)
+    rows = []
+
+    group.project_group_members.each do |member|
+      user = member.user
+      row = [
+        user.username || '',
+        user.student_id || '', 
+        user.email_address || '',
+        group.group_name || '',
+        supervisor&.username || '',
+        supervisor&.email_address || '',
+        project&.current_title || '',
+        project_status.humanize
+      ]
+      row.concat(field_values)
+      rows << row
+    end
+    return rows 
+  end
+
+  def build_student_rows(student, template_fields)
+    project = @course.projects.find_by(owner_type: "student", owner_id: student.id)
+    current_instance = project&.current_instance
+    supervisor = project&.supervisor
+    project_status = project&.current_status || 'not_submitted'
+    field_values = get_project_details_values(current_instance, template_fields)
+
+
+    row = [
+      student.username || '',
+      student.student_id || '',
+      student.email_address || '',
+      supervisor&.username || '',
+      supervisor&.email_address || '',
+      project&.current_title || '',
+      project_status.humanize
+    ]
+
+    row.concat(field_values)
+    return [row]
+  end
+
+  def get_project_details_values(current_instance, template_fields)
+    return [] unless current_instance
+
+    project_fields = template_fields.select do |field|
+      field.applicable_to == 'proposals' || field.applicable_to == 'both'
+    end.reject { |field| field.label == "Project Title" }
+
+    return Array.new(project_fields.count, '') if project_fields.empty?
+
+    instance_fields = current_instance.project_instance_fields.includes(:project_template_field).index_by(&:project_template_field_id)
+
+    project_fields.map do |template_field|
+      field = instance_fields[template_field.id]
+      if field&.value.present?
+        if template_field.dropdown? || template_field.radio?
+          begin
+            parsed_value = JSON.parse(field.value)
+            parsed_value.is_a?(Array) ? parsed_value.join(", ") : parsed_value.to_s
+          rescue JSON::ParserError
+            field.value.to_s
+          end
+        else
+          field.value.to_s
+        end
+      else 
+        ''
+      end 
+    end 
+  end 
 
   def access_topics
     @course                 = Course.find(params[:id])
