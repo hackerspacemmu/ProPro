@@ -21,11 +21,11 @@
     </header>
     <div class="project-list-gapper">
       <div class="cards-container">
-        <% available_topics = topic_list.select { |project| 
-             project_viewable_by_current_user?(course, project) 
+        <% available_topics = topic_list.select { |topic| 
+             topic_viewable_by_current_user?(course, topic) 
            } %>
         <% if available_topics.any? %>
-          <%= render partial: 'project_card', collection: available_topics, as: :project %>
+          <%= render partial: 'topic_card', collection: available_topics, as: :topic %>
         <% else %>
           <p class="empty-state">No topics are currently available.</p>
         <% end %>

@@ -6,9 +6,15 @@ class LecturersController < ApplicationController
   end
   
   def show
-    @enrolment = @course.enrolments.find_by(user_id: params[:id], role: [:lecturer, :coordinator])
-    @lecturer = @enrolment&.user
-    @lecturer_enrolment = @course.enrolments.find_by(user: @lecturer, role: :lecturer)
+    #@enrolment = @course.enrolments.where(user_id: params[:id], role: [:coordinator, :lecturer])
+    coordinator_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :coordinator)
+    @lecturer_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :lecturer)
+
+    coordinator_enrolment ? @enrolment = coordinator_enrolment : @enrolment = @lecturer_enrolment
+
+    @lecturer = @enrolment.user
+    #@lecturer_enrolment = @course.enrolments.find_by(user: @lecturer, role: :lecturer)
+    
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
     @is_coordinator = @current_user_enrolment&.coordinator?
     @is_student = @current_user_enrolment&.student?
@@ -24,18 +30,63 @@ class LecturersController < ApplicationController
     set_lecturer_topics
   end
   
+  def promote_to_coordinator
+    coordinators = @course.coordinators
+
+    unless coordinators.include? Current.user
+      return
+    end
+ 
+    new_coordinator = User.find(params[:id])
+
+    Enrolment.find_or_create_by!(
+      user: new_coordinator,
+      course: @course,
+      role: :coordinator
+    )
+    
+    redirect_to course_lecturer_path(@course, new_coordinator)
+  end
+
+  def demote_to_lecturer
+    coordinators = @course.coordinators
+
+    if coordinators.count == 1
+      return
+    end
+
+    unless coordinators.include? Current.user
+      return
+    end
+
+    new_coordinator = User.find(params[:id])
+
+    coordinator_enrolment = Enrolment.find_by(
+      user: new_coordinator,
+      course: @course,
+      role: :coordinator
+    )
+
+    if coordinator_enrolment
+      coordinator_enrolment.destroy
+    end
+
+    redirect_to course_lecturer_path(@course, new_coordinator)
+  end
+  
   private
   
   def set_course
     @courses = Current.user.courses
     @course = Course.find(params[:course_id])
-    @lecturers = @course.lecturers.includes(:user).map(&:user)
+    @lecturers = @course.lecturers
   end
   
   def set_supervised_projects
     return set_empty_projects unless @lecturer_enrolment
     
-    base_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
+    #base_projects = @course.projects.student_projects_for_lecturer(@lecturer_enrolment)
+    base_projects = @course.projects.where(enrolment: @lecturer_enrolment)
   
     if full_access?
       @my_student_projects = base_projects.approved
@@ -49,7 +100,7 @@ class LecturersController < ApplicationController
   def set_lecturer_topics
     return set_empty_topics unless @lecturer_enrolment
 
-    lecturer_owned_topics = @course.projects.lecturer_owned.where(ownerships: { owner_type: "User", owner_id: @lecturer.id})
+    lecturer_owned_topics = @course.topics.where(owner_type: "User", owner_id: @lecturer.id)
   
     if full_access?
       @approved_projects = lecturer_owned_topics

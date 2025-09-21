@@ -2,14 +2,14 @@
   <div class="action-group">
     <!-- Lecturer Edit Actions -->
     <% if members.include?(current_user) %>
-      <% if (project.status != "approved" && current_version == latest_version) || (!@course.require_coordinator_approval) %>
-        <div class="action-note"> Latest Version </div> <%= link_to "Edit Topic", edit_course_topic_path(course, project) %> <%= image_tag("edit.svg") %>
+      <% if (topic.status != "approved" && current_version == latest_version) || (!@course.require_coordinator_approval) %>
+        <div class="action-note"> Latest Version </div> <%= link_to "Edit Topic", edit_course_topic_path(course, topic) %> <%= image_tag("edit.svg") %>
       <% else %>
         <span class="action-note"><%= image_tag("lock.svg") %> Unable to Edit Topic</span>
       <% end %>
       
       <% if current_version == latest_version %>
-      <%= button_to "Delete Topic", course_topic_path(course, project), method: :delete, 
+      <%= button_to "Delete Topic", course_topic_path(course, topic), method: :delete, 
                   data: { confirm: "Are you sure you want to delete this topic?" },
                   class: "back-btn " %>
       <% end %>
@@ -17,7 +17,7 @@
     
     <!-- Version Jump -->
     <% if current_version != latest_version %>
-      <%= link_to "Jump to Current Version", course_topic_path(course, project) %>
+      <%= link_to "Jump to Current Version", course_topic_path(course, topic) %>
     <% end %>
   </div>
 </section>

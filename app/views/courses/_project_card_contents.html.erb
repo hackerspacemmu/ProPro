@@ -3,9 +3,9 @@
     <b><%= project_instance.title %></b><br>
     <b>
       <% image_tag"person_grey.svg" %> 
-      <%= project.ownership.owner.respond_to?(:username) ?
-            project.ownership.owner.username :
-            project.ownership.owner.group_name %>
+      <%= project.owner.respond_to?(:username) ?
+            project.owner.username :
+            project.owner.group_name %>
     </b>
     <ul>
       <li class="project-card inner">

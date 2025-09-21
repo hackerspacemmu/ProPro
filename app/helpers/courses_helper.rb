@@ -2,15 +2,13 @@ module CoursesHelper
   def group_project_for(group, course)
     @group_projects_cache ||= {}
     @group_projects_cache[group.id] ||= course.projects
-      .joins(:ownership)
-      .find_by(ownerships: { owner_type: 'ProjectGroup', owner_id: group.id })
+      .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
   end
   
   def student_project_for(student, course)
     @student_projects_cache ||= {}
     @student_projects_cache[student.id] ||= course.projects
-      .joins(:ownership)
-      .find_by(ownerships: { owner_type: 'User', owner_id: student.id })
+      .find_by(owner_type: 'User', owner_id: student.id)
   end
 
   def group_status(group, course)

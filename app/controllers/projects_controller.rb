@@ -7,20 +7,10 @@ class ProjectsController < ApplicationController
     end
 
     @instances = @project.project_instances.order(version: :asc)
-    @owner = @project.ownership&.owner
+    @owner = @project.owner
     @status = @project.status
-    @comments = @project.comments
-    @new_comment = Comment.new
 
-    user_type = @project.ownership&.ownership_type
-
-    if user_type == "lecturer"
-      @type = "topic"
-    else
-      @type = "proposal"
-    end
-
-    @lecturers = @course.enrolments.where(role: [:lecturer, :coordinator]).includes(:user).map(&:user)
+    @lecturers = @course.lecturers
 
     if @owner.is_a?(ProjectGroup)
       @members = @owner.users  #All memebers if group project
@@ -44,7 +34,7 @@ class ProjectsController < ApplicationController
 
     @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
 
-    @comments = @project.comments.where(project_version_number: @index)
+    @comments = @current_instance.comments
     @new_comment = Comment.new
 
     if @course.use_progress_updates
@@ -66,7 +56,7 @@ class ProjectsController < ApplicationController
       course: @course,
       project: @project,
       supervisor_username: Current.user.username
-    ).Status_Updated.deliver_now
+    ).Project_Status_Updated.deliver_now
 
     redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
   end
@@ -91,12 +81,14 @@ class ProjectsController < ApplicationController
   end
 
   def update
-    has_supervisor_comment = Comment.where(
-      project: @project,
-      project_version_number: @project.project_instances.count,
-      user_id: @project.supervisor
-    ).exists?
-
+    has_supervisor_comment = false
+    @project.project_instances.last.comments.each do |comment|
+      if comment.user_id == @project.supervisor.id
+        has_supervisor_comment = true
+        break
+      end
+    end
+    
     previous_supervisor_id = @project.supervisor.id
     new_instance_created = false
 
@@ -131,7 +123,7 @@ class ProjectsController < ApplicationController
         params[:fields].each do |field_id, value|
           existing_field = ProjectInstanceField.find_by(
             project_template_field_id: field_id,
-            project_instance: @instance
+            instance: @instance
           )
 
           if existing_field
@@ -163,18 +155,17 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic_id: nil)
         else
           # Treat as topic_id
-          topic = Project.find_by(id: params[:based_on_topic], course: @course)
+          topic = Topic.find_by(id: params[:based_on_topic], course: @course)
 
           if !topic
             raise StandardError
           end
 
-          topic_owner = topic&.owner
-          if !topic_owner.is_a?(User)
+          if !topic.owner.is_a?(User)
             raise StandardError
           end
 
-          supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
+          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
 
           if !supervisor_enrolment
             raise StandardError
@@ -182,6 +173,7 @@ class ProjectsController < ApplicationController
 
           @instance.update!(source_topic: topic)
         end
+
         @project.project_instances.last.update!(enrolment: supervisor_enrolment)
       end
     rescue StandardError => e
@@ -189,16 +181,10 @@ class ProjectsController < ApplicationController
       return
     end
 
-    if @course.grouped?
-      owner = @project.owner.group_name
-    else
-      owner = @project.owner.username
-    end
-
     if previous_supervisor_id != @project.supervisor.id || new_instance_created
       GeneralMailer.with(
         supervisor_username: @project.supervisor.username,
-        owner_name: owner,
+        owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
         course: @course,
         project: @project
       ).New_Student_Submission.deliver_now
@@ -214,22 +200,13 @@ class ProjectsController < ApplicationController
     end
 
     if @course.grouped?
-      has_project = !Current.user.project_groups.find_by(course: @course).ownership.nil?
+      has_project = Current.user.group_projects.find_by(course: @course).present?
     else
-      has_project = !@course.projects
-        .joins(:ownership)
-        .where(ownerships: { owner: current_user, ownership_type: :student })
-        .exists?
+      has_project = Current.user.solo_projects.find_by(course: @course).present?
     end
 
     if has_project
       redirect_to course_path(@course), alert: "You already have a project in this course."
-      return
-    end
-
-    enrolment = Enrolment.find_by(user: current_user, course: @course)
-    if enrolment && Project.exists?(enrolment: enrolment)
-      redirect_to course_path(@course), alert: "You already have a project."
       return
     end
 
@@ -254,22 +231,15 @@ class ProjectsController < ApplicationController
             raise StandardError, "You're not part of a project group."
           end
 
-          if group.ownership
+          if group.project
             raise StandardError, "Your group already has a project"
           end
-
-          @ownership = Ownership.create!(owner: group, ownership_type: :project_group)
         else
-          has_project = @course.projects
-          .joins(:ownership)
-          .where(ownerships: { owner: current_user, ownership_type: :student })
-          .exists?
+          has_project = Current.user.solo_projects.find_by(course: @course)
 
           if has_project
             raise StandardError, "You already have a project"
           end
-
-          @ownership = Ownership.create!(owner: current_user, ownership_type: :student)
         end
 
         if params[:based_on_topic].blank?
@@ -288,7 +258,7 @@ class ProjectsController < ApplicationController
           end
         else
           # Treat as topic_id
-          topic = Project.find_by(id: params[:based_on_topic], course: @course)
+          topic = Topic.find_by(id: params[:based_on_topic], course: @course)
 
           if !topic
             raise StandardError
@@ -308,7 +278,7 @@ class ProjectsController < ApplicationController
 
         @project = Project.create!(
           course: @course,
-          ownership: @ownership,
+          owner: @course.grouped? ? group : current_user,
           enrolment: supervisor_enrolment
         )
 
@@ -341,16 +311,10 @@ class ProjectsController < ApplicationController
       return
     end
 
-    if @course.grouped?
-      owner = @project.owner.group_name
-    else
-      owner = @project.owner.username
-    end
-
     GeneralMailer.with(
       email_address: @project.supervisor.email_address,
       supervisor_username: @project.supervisor.username,
-      owner_name: owner,
+      owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
       course: @course,
       project: @project
     ).New_Student_Submission.deliver_now
@@ -360,7 +324,6 @@ class ProjectsController < ApplicationController
 
 
   private
-
   def project_params
     params.require(:project).permit(:supervisor_id)
   end
@@ -373,13 +336,13 @@ class ProjectsController < ApplicationController
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
     # Build the list of projects/topics visible to the current user:
-    if @course.enrolments.exists?(user: current_user, role: :coordinator)
+    if @is_coordinator
       # Coordinators see everything
       @projects = @course.projects
     else
       # Non-coordinators:
       @projects = @course.projects.select do |project|
-        owner = project.ownership&.owner
+        owner = project&.owner
 
         # 1) Student-owned proposals (all statuses except rejected are OK)
         next true if owner.is_a?(User) &&
@@ -390,7 +353,7 @@ class ProjectsController < ApplicationController
                     owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
 
         # 3) Lecturer-proposed topics, but only once approved
-        next true if project.ownership.lecturer? &&
+        next true if project.lecturer? &&
                     project.status.to_s == "approved"                
 
         false
@@ -410,24 +373,22 @@ class ProjectsController < ApplicationController
     if @course.enrolments.exists?(user: current_user, role: :coordinator)
       authorized = true
 
-    elsif @course.lecturer_access && @course.lecturers.exists?(user: current_user)
+    elsif @course.lecturer_access && @course.lecturers.pluck(:id).include?(Current.user.id)
       authorized = true
 
     elsif @course.owner_only?
-      authorized = @project.nil? || @project.ownership&.owner == current_user
+      authorized = @project.nil? || @project.owner == current_user
 
     elsif @course.own_lecturer_only?
       authorized = @project.nil? || (
-        @project.ownership&.owner == current_user ||
+        @project.owner == current_user ||
         @latest_instance.supervisor == current_user
       )
     elsif @course.no_restriction?
       authorized = true
     end
 
-    @lecturers = User.joins(:enrolments)
-                    .where(enrolments: { course_id: @course.id, role: :lecturer })
-                    .distinct
+    @lecturers = @course.lecturers
 
     return redirect_to(course_path(@course), alert: "You are not authorized") unless authorized
   end
