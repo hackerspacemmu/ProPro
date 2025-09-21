@@ -485,7 +485,7 @@ group_template = ProjectTemplate.create!(
 project_description_field = ProjectTemplateField.create!(
   project_template: individual_template,
   field_type: 1, 
-  applicable_to: 0, 
+  applicable_to: 1, 
   label: "Project Description", 
   hint: "Describe your project objectives and scope"
 )
@@ -493,7 +493,7 @@ project_description_field = ProjectTemplateField.create!(
 lecturer_feedback_field = ProjectTemplateField.create!(
   project_template: individual_template,
   field_type: 1, 
-  applicable_to: 1, 
+  applicable_to: 0, 
   label: "Lecturer Feedback",
   hint: "Provide feedback on the proposal"
 )
@@ -501,7 +501,7 @@ lecturer_feedback_field = ProjectTemplateField.create!(
 group_description_field = ProjectTemplateField.create!(
   project_template: group_template,
   field_type: 1, # textarea
-  applicable_to: 0, # student
+  applicable_to: 1, # student
   label: "Group Project Description",
   hint: "Describe the group project scope and member responsibilities"
 )
