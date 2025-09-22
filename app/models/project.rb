@@ -1,14 +1,13 @@
 class Project < ApplicationRecord
+  enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
+  default_scope { where(ownership_type: [:student, :project_group]) }
+
   belongs_to :enrolment
-  belongs_to :ownership
   belongs_to :course
+  belongs_to :owner, polymorphic: true
 
   has_many :project_instances, dependent: :destroy
-  has_many :comments, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
-  delegate :owner, to: :ownership
-  #has_many :topic_responses, dependent: :destroy
-  has_many :proposed_topic_instances, class_name: "ProjectInstance", foreign_key: "source_topic_id"
 
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
@@ -16,11 +15,10 @@ class Project < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
-  scope :with_ownership, -> { joins(:ownership).includes(:ownership) }
-  scope :student_owned, -> { with_ownership.where(ownerships: { ownership_type: :student }) }
-  scope :group_owned, -> { with_ownership.where(ownerships: { ownership_type: :group }) }
-  scope :not_lecturer_owned, -> { with_ownership.where.not(ownerships: { ownership_type: :lecturer }) }
-  scope :lecturer_owned, -> { with_ownership.where(ownerships: { ownership_type: :lecturer }) }
+  scope :student_owned, -> { where(ownership_type: :student) }
+  scope :group_owned, -> { where(ownership_type: :group) }
+  #scope :not_lecturer_owned, -> { where.not(ownership_type: :lecturer) }
+  #scope :lecturer_owned, -> { where(ownership_type: :lecturer ) }
 
   # Status filters
   scope :pending, -> { where(status: :pending) }
@@ -31,13 +29,17 @@ class Project < ApplicationRecord
 
   # Enrolment (supervisor) filters
   scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
+=begin
   scope :student_projects_for_lecturer, ->(lecturer_enrolment) { 
-    not_lecturer_owned.supervised_by(lecturer_enrolment) 
+    supervised_by(lecturer_enrolment) 
   }
+=end
   scope :owned_by_user_or_groups, ->(user, groups) {
-    with_ownership.where(ownerships: { owner_type: 'User', owner_id: user.id })
+    with_ownership.where(owner_type: 'User', owner_id: user.id)
       .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
   }
+
+  before_validation :set_ownership_type
 
   def supervisor
     User.find(Enrolment.find(self.enrolment_id).user_id)
@@ -65,5 +67,10 @@ class Project < ApplicationRecord
 
   def current_title
     current_instance&.title || self.title
+  end
+
+  private
+  def set_ownership_type
+    self.ownership_type = :student
   end
 end

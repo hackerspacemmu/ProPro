@@ -12,6 +12,8 @@
         <%= image_tag "project_templates.svg" %>
         <span class="topbar-info">Edit Templates</span>
       </a>
+
+      <%= link_to "Export CSV", export_csv_course_path(@course) %>
     </div>
   <% end %>
 </div>

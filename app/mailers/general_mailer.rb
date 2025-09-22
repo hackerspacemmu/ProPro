@@ -7,7 +7,7 @@ class GeneralMailer < ApplicationMailer
       mail(to: @email_address, Subject: "Invitation for ProPro")
     end
 
-    def Status_Updated
+    def Project_Status_Updated
       @course = params[:course]
       @project = params[:project]
       @supervisor_username = params[:supervisor_username]
@@ -20,6 +20,15 @@ class GeneralMailer < ApplicationMailer
         @recipient = @project.owner.username
         mail(to: @project.owner.email_address, Subject: "Status Updated")
       end
+    end
+
+    def Topic_Status_Updated
+      @course = params[:course]
+      @topic = params[:topic]
+      @supervisor_username = params[:supervisor_username]
+
+      @recipient = @topic.owner.username
+      mail(to: @topic.owner.email_address, Subject: "Status Updated")
     end
 
     def New_Student_Submission

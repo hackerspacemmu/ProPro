@@ -70,8 +70,6 @@
           <% end %>
         </div>
       <% end %>
-    </div>
-
       <div class="field">
         <label>Based on Topic</label><br />
         <select name="based_on_topic" class="form-control" required>
@@ -81,18 +79,11 @@
           <% @lecturer_options.each do |lecturer_enrolment| %>
             <% lecturer = lecturer_enrolment.user %>
             <optgroup label="<%= lecturer.username %>">
-              <% approved_topics = Project
-                  .joins(:ownership)
-                  .where(ownerships: { owner: lecturer, ownership_type: :lecturer }, course: @course)
-                  .joins(:project_instances)
-                  .where(project_instances: { status: :approved })
-                  .distinct %>
+              <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
 
               <% approved_topics.each do |topic| %>
-                <% latest_instance = topic.project_instances
-                                      .where(status: :approved)
-                                      .order(version: :desc)
-                                      .first %>
+                <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+
                 <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
                   <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
                 </option>
@@ -106,10 +97,11 @@
         </select>
       </div>
 
-        
-    <div class="form-actions">
-      <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>
-      <%= submit_tag "Submit", class: "btn btn-primary" %>
+         
+      <div class="form-actions">
+        <%= link_to "← Back to Proposal", course_project_path(@course, @project), class: "btn btn-secondary" %>
+        <%= submit_tag "Submit", class: "btn btn-primary" %>
+      </div>
     </div>
   <% end %>
 </main>

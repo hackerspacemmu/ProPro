@@ -41,6 +41,13 @@
             <% end %>
           </div>
         </div>
+        <% if @course.coordinators.include? Current.user %>
+          <% if @course.coordinators.include?(@lecturer) && @lecturer != Current.user %>
+            <%= link_to "Demote to Lecturer", demote_to_lecturer_course_lecturer_path(@course, @lecturer), data: { turbo_method: :patch } %>
+          <% elsif @lecturer != Current.user %>
+            <%= link_to "Promote To Coordinator", promote_to_coordinator_course_lecturer_path(@course, @lecturer), data: { turbo_method: :patch } %>
+          <% end %>
+        <% end %>
       </header>
 
     <!-- PROJECTS  --!>
@@ -103,9 +110,9 @@
             </div>
           <% else %>
             <div class="cards-container">
-              <%= render partial: 'courses/project_card',
+              <%= render partial: 'courses/topic_card',
                         collection: @own_approved_projects,
-                        as: :project,
+                        as: :topic,
                         locals: { course: @course } %>
             </div>
           <% end %>
@@ -125,9 +132,9 @@
               </div>
             <% else %>
               <div class="cards-container">
-                <%= render partial: 'courses/project_card',
+                <%= render partial: 'courses/topic_card',
                           collection: @own_approved_projects,
-                          as: :project,
+                          as: :topic,
                           locals: { course: @course } %>
               </div>
             <% end %>
@@ -147,13 +154,12 @@
                 </div>
               <% else %>
                 <div class="cards-container">
-                  <%= render partial: 'courses/project_card',
+                  <%= render partial: 'courses/topic_card',
                             collection: @not_own_approved_projects,
-                            as: :project,
+                            as: :topic,
                             locals: { course: @course } %>
                 </div>
               <% end %>
-            </div>
         </section>
       <% end %>
         
