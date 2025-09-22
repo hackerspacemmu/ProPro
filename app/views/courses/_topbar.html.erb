@@ -1,5 +1,5 @@
-<div class="topbar">
-  <a href="<%= course_path(@course) %>"><%= current_user.username %>'s Course View</a>
+<div class="flex fixed justify-between content-center bg-[#e1e1e1] w-full top-0 left-0 h-13 z-5">
+  <a class="px-4 text-2xl font-bold self-center" href="<%= course_path(@course) %>"><%= current_user.username %>'s Course View</a>
 
   <% if @current_user_enrolment&.coordinator? %>
     <div class="topbar-actions">
