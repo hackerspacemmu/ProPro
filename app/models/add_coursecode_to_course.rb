@@ -1,0 +1,2 @@
+class AddCoursecodeToCourse < ApplicationRecord
+end

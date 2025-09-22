@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_14_192327) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_22_085054) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -37,6 +37,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_192327) do
     t.boolean "use_progress_updates", null: false
     t.string "course_description"
     t.string "file_link"
+    t.string "coursecode"
+    t.string "coursecode_url"
+    t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
   create_table "enrolments", force: :cascade do |t|
