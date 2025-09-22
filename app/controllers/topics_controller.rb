@@ -7,7 +7,7 @@ class TopicsController < ApplicationController
   def show
     @instances = @topic.topic_instances.order(version: :asc)
     @owner = @topic.owner
-    @status = @topic.status
+    @status = @topic.current_instance&.status
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
 
@@ -46,7 +46,10 @@ class TopicsController < ApplicationController
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
     if @is_coordinator
-      @topic.topic_instances.last.update!(status: params[:status])
+      current_instance = @topic.current_instance
+      if current_instance
+        current_instance.update!(status: params[:status])
+      end
 
       GeneralMailer.with(
         username: @topic.owner.username,
@@ -86,9 +89,10 @@ class TopicsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        status = @course.require_coordinator_approval ? "pending" : "approved"
+        status = @course.require_coordinator_approval ? :pending : :approved
+        current_status = @topic.current_instance&.status&.to_sym
 
-        if @topic.status == "rejected" || @topic.status == "redo" || (@topic.status == "pending" && has_coordinator_comment)
+        if current_status == :rejected || current_status == :redo || (current_status == :pending && has_coordinator_comment)
           version = @topic.topic_instances.count + 1
           @instance = @topic.topic_instances.build(version: version, created_by: current_user, status: status)
         else
@@ -200,7 +204,7 @@ class TopicsController < ApplicationController
 
   private
   def access_one
-    @course                 = Course.find(params[:course_id])
+    @course = Course.find(params[:course_id])
     
     coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
     lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
