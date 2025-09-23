@@ -60,7 +60,7 @@
     <% if my_topics.empty? %>
       <p class="empty-state">You haven't created any topics yet.</p>
     <% else %>
-      <% %w[pending redo rejected].each do |stat| %>
+      <% %w[pending redo rejected approved].each do |stat| %>
         <% group = my_topics.select { |p| p.status.to_s == stat } %>
         <% if group.any? %>
           <div class="status-group status-<%= stat %>">
