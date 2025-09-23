@@ -9,8 +9,8 @@ Rails.application.routes.draw do
   get "user/new_student", to: "user#new_student", as: :new_student
   get "user/profile"
   post "user/edit"
-
   root "homescreen#show"
+  get "join/:code", to: "courses#join_course", as: :join_course
 
   get "login", to: "sessions#new"
   resource :session
@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       get 'settings'
       post 'handle_settings'
       get 'export_csv'
+      post 'generate_coursecode'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
     end
 

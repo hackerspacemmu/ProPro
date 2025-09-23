@@ -27,4 +27,15 @@ class SessionsController < ApplicationController
     terminate_session
     redirect_to login_path
   end
+
+  private 
+
+  def after_authentication_url
+    if session[:join_course_code]
+      join_code = session[:join_course_code]
+      session[:join_course_code] = nil
+      return "/join/#{join_code}"
+    end 
+    redirect_to "/"
+  end 
 end

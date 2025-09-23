@@ -56,6 +56,12 @@ class UserController < ApplicationController
     # ugly ik, whachu gonna do about it
     if !user.is_staff
       if user.update(has_registered: true, password: response[:password])
+        if session[:join_course_code]
+          join_code = session[:join_course_code]
+          session[:join_course_code] = nil
+          redirect_to "/join/#{join_code}", alert: "Account successfully claimed"
+          return
+        end 
         redirect_to "/session/new", alert: "Account successfully claimed"
       else
         redirect_back_or_to "/", alert: "Something went wrong"

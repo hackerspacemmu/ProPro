@@ -3,10 +3,9 @@ require "set"
 require "securerandom"
 
 class CoursesController < ApplicationController
-    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv]
+    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv, :generate_coursecode]
     before_action :check_staff, only: [ :new, :create ]
     before_action :access_topics, only: :show
-
 
     def show
       @student_list = @course.students 
@@ -236,6 +235,67 @@ class CoursesController < ApplicationController
 
     redirect_to settings_course_path(@course), notice: "Course successfully updated"
   end
+
+def generate_coursecode
+  unless @course.coordinators.include?(Current.user)
+    redirect_back_or_to "/", alert: "Access denied"
+    return
+  end
+
+  begin
+    @course.generate_coursecode!
+    redirect_to course_path(@course), notice: "Course code generated successfully"
+  rescue StandardError => e
+    redirect_back_or_to "/", alert: "Failed to generate course code"
+  end
+end
+      
+def join_course 
+  code = params[:code]
+  @course = Course.find_by(coursecode: code)
+
+  if !@course
+    redirect_to "/", alert: "Invalid course code"
+    return 
+  end 
+
+  if !Current.user
+    session[:join_course_code] = code
+    redirect_to login_path, alert: "Please log in or register to join the course"
+    return 
+  end 
+
+  if Current.user.is_staff
+    redirect_to "/", alert: "Staff cannot join courses via course code"
+    return 
+  end 
+
+  existing_enrolment = Enrolment.find_by(user: Current.user, course: @course)
+  if existing_enrolment
+    redirect_to course_path(@course), notice: "You are already enrolled in this course"
+    return 
+  end 
+
+  begin 
+    ActiveRecord::Base.transaction do 
+      new_enrolment = Enrolment.find_or_create_by!(
+        user: Current.user,
+        course: @course,
+        role: :student
+      )
+      if @course.grouped
+        @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
+      else
+        @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
+      end
+    end 
+    redirect_to course_path(@course), notice: "Successfully joined #{@course.course_name}"
+
+  rescue StandardError => e 
+    redirect_to "/", alert: "Failed to join course"
+    return 
+  end 
+end 
 
   def destroy
     @course.destroy
