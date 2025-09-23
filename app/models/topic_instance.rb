@@ -23,9 +23,7 @@ class TopicInstance < ApplicationRecord
   private
   def update_parent_topic
     if topic.topic_instances.order(created_at: :asc).last == self
-      topic.update(
-        status: self.status
-      )
+      topic.update_column(:status, self.status)
     end
   end
 
