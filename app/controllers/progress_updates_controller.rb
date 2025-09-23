@@ -4,6 +4,18 @@ before_action :supervisor_access, except: [:show]
 
 def show
   @progress_update = ProgressUpdate.find(params[:id])
+  @project = @progress_update.project
+  @current_user = current_user
+
+  if @project.owner.is_a?(ProjectGroup)
+      @members = @project.owner.users
+    else
+      @members = [@project.owner]
+    end
+
+  @course  = @project.course
+  @comments = @progress_update.comments
+  @new_comment = Comment.new
 end
   
 def new

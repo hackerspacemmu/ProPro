@@ -7,7 +7,7 @@ class CommentsController < ApplicationController
       return
     end
 
-    unless ["TopicInstance", "ProjectInstance"].include? params[:comment][:source_type]
+    unless ["TopicInstance", "ProjectInstance", "ProgressUpdate"].include? params[:comment][:source_type]
       return
     end
     
@@ -17,6 +17,8 @@ class CommentsController < ApplicationController
     when "TopicInstance"
       whitelist = location.topic.course.coordinators.pluck(:id) << location.topic.owner.id
     when "ProjectInstance"
+      whitelist = location.project.course.coordinators.pluck(:id) << location.project.supervisor.id
+    when "ProgressUpdate"
       whitelist = location.project.course.coordinators.pluck(:id) << location.project.supervisor.id
 
       if location.project.course.grouped?
@@ -41,6 +43,9 @@ class CommentsController < ApplicationController
       redirect_to course_project_path(location.project.course, location.project, version: location.version)
     when "TopicInstance"
       redirect_to course_topic_path(location.topic.course, location.topic, version: location.version)
+    when "ProgressUpdate"
+      redirect_to course_project_progress_update_path(location.project.course, location.project, location)
+
     end
   end
 
