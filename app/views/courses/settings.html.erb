@@ -146,15 +146,12 @@
       </div>
       
       <div class="field-row">
-        <%= link_to "Add students",
-                    add_students_course_path(@course),
-                    class: "btn"
-                  %>
+        <%= link_to "Add students", add_students_course_path(@course), class: "btn"%>
+        <%= link_to "Add lecturers",add_lecturers_course_path(@course),class: "btn"%>
+      </div>
 
-        <%= link_to "Add lecturers",
-                    add_lecturers_course_path(@course),
-                    class: "btn"
-                  %>
+      <div class="field-row">
+        <%= link_to "Generate Join Code for Course", generate_coursecode_course_path(@course) %>
       </div>
 
       <div class="form-actions">
