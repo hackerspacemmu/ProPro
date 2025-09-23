@@ -47,6 +47,7 @@
 
   .diff del{
     text-decoration: none;
+    background-color: #FDFD96; 
   }
 
   .diff ins{
@@ -58,7 +59,7 @@
   }
 
   .del-change{
-    background-color: #f4d4d4; 
+  background-color: #f4d4d4; 
   text-decoration: line-through;
   }
 
@@ -75,7 +76,7 @@
   <h4>Comparison with next instance</h4>
   <br>
 
- <table>
+<table>
   <tr>
     <th>Field</th>
     <th>Deletions</th>
@@ -84,8 +85,15 @@
 
   <% fields.zip(next_fields).each do |current_field, next_field| %>
     <% field_name = (current_field || next_field).project_template_field.label %>
-    <% old_val    = current_field&.value.to_s %>
-    <% new_val    = next_field&.value.to_s %>
+
+    <% normalize = ->(text) do
+         text.to_s
+             .gsub(/\r\n?/, "\n")
+             .gsub(/^$/, "[[EMPTYLINE]]") 
+       end %>
+
+    <% old_val = normalize.call(current_field&.value) %>
+    <% new_val = normalize.call(next_field&.value) %>
 
     <tr>
       <td><%= field_name %></td>
@@ -93,39 +101,27 @@
       <% if old_val != new_val %>
         <% diff = Diffy::SplitDiff.new(old_val, new_val, format: :html) %>
 
-        <% left_lines  = diff.left
-                            .gsub('<strong>', '<span class="del-change">')
-                            .gsub('</strong>', '</span>')
-                            .split("\n") %>
-
-        <% right_lines = diff.right
-                            .gsub('<strong>', '<span class="ins-change">')
-                            .gsub('</strong>', '</span>')
-                            .split("\n") %>
-
-        <% max_lines = [left_lines.size, right_lines.size].max %>
-
         <td>
-          <ul>
-            <% max_lines.times do |i| %>
-              <%= (left_lines[i] || '<li class="empty"></li>').html_safe %>
-            <% end %>
-          </ul>
+          <%= diff.left
+              .gsub('[[EMPTYLINE]]', '<br>')
+              .gsub('<strong>', '<mark class="del-change">')
+              .gsub('</strong>', '</mark>')
+              .html_safe %>
         </td>
 
         <td>
-          <ul>
-            <% max_lines.times do |i| %>
-              <%= (right_lines[i] || '<li class="empty"></li>').html_safe %>
-            <% end %>
-          </ul>
+          <%= diff.right
+              .gsub('[[EMPTYLINE]]', '<br>')
+              .gsub('<strong>', '<mark class="ins-change">')
+              .gsub('</strong>', '</mark>')
+              .html_safe %>
         </td>
-
       <% else %>
         <td colspan="2">No changes</td>
       <% end %>
     </tr>
   <% end %>
 </table>
+
 
 <% end %>

@@ -14,7 +14,7 @@
               <%= owner.username %>
             </p>
           <% else %>
-            <% topic.owner.users.each do |user| %>
+            <% @topic.owner.users.each do |user| %>
               <p class="owner-row">
                 <span class="user-badge"><%= user.username[0].upcase %></span>
                 <%= user.username %>
@@ -25,11 +25,11 @@
       </div>
 
       <!-- Group Name (only if group project) -->
-      <% if topic.owner.is_a?(ProjectGroup) %>
+      <% if @topic.owner.is_a?(ProjectGroup) %>
         <div class="metadata-item">
           <span class="metadata-label"><%= image_tag("group.svg") %> Group Name</span>
           <span class="metadata-value">
-            <%= topic.owner.group_name %>
+            <%= @topic.owner.group_name %>
           </span>
         </div>
       <% end %>
