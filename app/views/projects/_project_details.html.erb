@@ -1,5 +1,16 @@
     <%= stylesheet_link_tag "projects" %>
     <div class="fields-container">
+
+    <% if @current_instance.last_edit_time.nil? %>
+      <p> Has not been Edited </p>
+    <% else %>
+      <p> Last edited at  
+        <%= @current_instance.last_edit_time.in_time_zone("Asia/Singapore").strftime("%I:%M %p , %d %b %Y") %>
+      </p>
+      <p>by <%= @editer %> </p>
+    <% end %>
+
+
       <% fields.each do |field| %>
         <div class="field-row"> 
           <div class="field-label">
@@ -66,9 +77,12 @@
   list-style: none;
 }
 
-  li.placeholder {
-    visibility: hidden;
-  }
+
+  .placeholder {
+  background-color: #e0e0e0; 
+  color: transparent;        
+  user-select: none;
+}
 
   .diff li {
     list-style: none;   /* ensures li items also don’t show bullets */
@@ -203,5 +217,4 @@
     </tr>
   <% end %>
 </table>
-
 <% end %>
