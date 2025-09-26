@@ -19,6 +19,9 @@
   <div class="container">
     <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
     <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+    
+    <%= button_to "Generate Join Code for Course", generate_coursecode_course_path(@course), method: :post, class: "btn"%>
+    <p> Course Code: <%= @course.coursecode || "-" %></p>
 
     <%= form_with url: handle_settings_course_path(@course),
                   model: @course,
@@ -144,15 +147,7 @@
           </div>
         </div>
       </div>
-      
-      <div class="field-row">
-        <%= link_to "Add students", add_students_course_path(@course), class: "btn"%>
-        <%= link_to "Add lecturers",add_lecturers_course_path(@course),class: "btn"%>
-      </div>
 
-      <div class="field-row">
-        <%= link_to "Generate Join Code for Course", generate_coursecode_course_path(@course) %>
-      </div>
 
       <div class="form-actions">
         <%= link_to "← Back to Course",

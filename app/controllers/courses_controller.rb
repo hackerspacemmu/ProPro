@@ -243,8 +243,17 @@ def generate_coursecode
   end
 
   begin
-    @course.generate_coursecode!
-    redirect_to course_path(@course), notice: "Course code generated successfully"
+    loop do 
+      code = SecureRandom.alphanumeric(5).upcase
+
+      unless Course.exists?(coursecode: code)
+        @course.coursecode = code
+        @course.save!
+        break
+      else 
+      end 
+    end 
+    redirect_back_or_to course_path(@course), notice: "Course code generated successfully"
   rescue StandardError => e
     redirect_back_or_to "/", alert: "Failed to generate course code"
   end
@@ -332,6 +341,9 @@ end
   
     render plain: csv_content
   end
+
+  def join_form 
+  end 
 
   private
   def students_with_projects

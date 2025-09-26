@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   post "user/edit"
   root "homescreen#show"
   get "join/:code", to: "courses#join_course", as: :join_course
+  get "join", to: "courses#join_form", as: :join_form
 
   get "login", to: "sessions#new"
   resource :session

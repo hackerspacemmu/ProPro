@@ -14,6 +14,7 @@
   <li><%= link_to "Home", root_url %></li>
   <li><%= link_to "Edit Profile", user_profile_path if Current.user.is_staff %></li>
   <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
+  <li><%= link_to "Enter code", join_form_path %></li>
 </ul>
 <div class="sidebar">
   <a href="#home">Courses</a>

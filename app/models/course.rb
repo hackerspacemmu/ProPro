@@ -40,6 +40,11 @@ class Course < ApplicationRecord
 
     before_validation :null_number_of_updates_if_not_used
 
+    def coursecode_url 
+        return nil unless coursecode.present?
+        Rails.application.routes.url_helpers.join_course_url(code: coursecode)
+    end 
+    
     private
     def null_number_of_updates_if_not_used
         unless use_progress_updates
