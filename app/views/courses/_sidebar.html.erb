@@ -1,19 +1,19 @@
-<div class="sidebar">
+<div class="flex flex-col fixed bg-[#f8f9fa] top-22 h-[calc(100%-5.5rem)] w-60 z-1 p-3.75 justify-between ">
   <div>
     <% if current_user_enrolment&.student? %>
-      <a id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
-      <a id="link-proposal-status"    href="#proposal-status">Proposal Status</a>
-      <a id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
-      <a href="#participants">Participants</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-proposal-status"    href="#proposal-status">Proposal Status</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#participants">Participants</a>
     <% end %>
 
     <% if current_user_enrolment&.coordinator? %>
-      <a id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
-      <a id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
-      <a id="link-my-topics"         href="#my-topics">My Topics</a>
-      <a id="link-pending-topics"    href="#pending-topics">Pending Topics</a>
-      <a id="link-pending-proposals" href="#pending-proposals">Pending Proposals</a>
-      <a href="#participants">Participants</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-my-topics"         href="#my-topics">My Topics</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-pending-topics"    href="#pending-topics">Pending Topics</a>
+      <a class="p-3.75 pt-2.5 text-sm block id="link-pending-proposals" href="#pending-proposals">Pending Proposals</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#participants">Participants</a>
   
     <hr class="sidebar-divider"></hr>
     <%= link_to "add students", add_students_course_path(@course) %>
@@ -21,11 +21,11 @@
   <% end %>
 
     <% if current_user_enrolment&.lecturer? %>
-      <a href="#proposal-guidelines">Proposal Description</a>
-      <a href="#supervisors-available">Supervisors Available</a>
-      <a href="#my-topics">My Topics</a>
-      <a href="#pending-topics">Pending Topics</a>
-      <a href="#participants">Participants</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#proposal-guidelines">Proposal Description</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#supervisors-available">Supervisors Available</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#my-topics">My Topics</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#pending-topics">Pending Topics</a>
+      <a class="p-3.75 pt-2.5 text-sm block href="#participants">Participants</a>
     <% end %>
   </div>
 
@@ -36,12 +36,12 @@
 
       <% if @current_user_enrolment&.coordinator? %>
         <div class="topbar-actions">
-          <a href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
+          <a class="p-3.75 pt-2.5 text-sm block href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
             <%= image_tag "settings.svg" %>
             <span class="topbar-info">Edit Course Settings</span>
           </a>
 
-          <a href="<%= edit_course_project_template_path(@course) %>" class="topbar-icon" title="Edit Project Templates">
+          <a class="p-3.75 pt-2.5 text-sm block href="<%= edit_course_project_template_path(@course) %>" class="topbar-icon" title="Edit Project Templates">
             <%= image_tag "project_templates.svg" %>
             <span class="topbar-info">Edit Templates</span>
           </a>
