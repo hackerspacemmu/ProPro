@@ -38,6 +38,9 @@ body {
   margin: 0 auto;
   padding: 60px 40px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;  
 }
 
 /* ============================================= */
@@ -46,7 +49,6 @@ body {
 
 .project-header {
   width: 100%;
-  margin-bottom: 48px;
 }
 
 .project-title {
@@ -235,7 +237,6 @@ body {
 
 .project-actions {
   width: 100%;
-  margin-bottom: 48px;
 }
 
 .action-group {
@@ -256,12 +257,36 @@ body {
   font-size: 18px;
 }
 
+.project-properties {
+  width: 100%;
+}
+
+.property-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px; 
+}
+
+.property-label {
+  flex-shrink: 0;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.property-value {
+  flex: 1;
+}
+
 /* ============================================= */
 /* PROJECT COMMENTS CONTAINER */
 /* ============================================= */
 
 .project-comments {
   width: 100%;
+  margin-top: 24px;
 }
 
 .project-comments .section-header .section-title{
@@ -394,8 +419,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-
-
 }
 
 .form-label {
@@ -412,16 +435,13 @@ body {
 
 .project-fields {
   width: 100%;
-  margin-bottom: 48px;
 }
 
 .project-fields .section-header {
-  margin-top: 30px;
   text-decoration: none;
 }
 
 .section-title {
-  margin-top: 24px;
   text-decoration: none;
   color: black;
 }
@@ -489,14 +509,14 @@ body {
   white-space: pre-line;
 }
 
-.field-value p
+.field-value p,
 .field-hint p {
   white-space: pre-line;
   margin: 0;
   margin-bottom: 1em;
 }
 
-.field-value p:last-child
+.field-value p:last-child,
 .field-hint p:last-child {
   margin-bottom: 0;
 }
@@ -714,6 +734,28 @@ textarea.form-control {
   margin-top: 0;
   border-bottom: 1px solid #e5e7eb;
   padding-bottom: 8px;
+}
+
+/* ============================================= */
+/* PROGRESS UPDATES */
+/* ============================================= */
+
+.progress-update-container {
+  margin: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center; 
+  gap: 20px;
+}
+
+.progress-update {
+  border: 1px solid black ;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 10px;
 }
 
 /* ============================================= */

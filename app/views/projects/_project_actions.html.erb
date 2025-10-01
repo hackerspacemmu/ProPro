@@ -26,3 +26,18 @@
     <% end %>
   </div>
 </section>
+
+<div class="project-properties">
+  <span class="metadata-label"> Properties </span>
+
+  <p class="property-row">
+    <span class="property-label"><%= image_tag("time.svg", alt: "") %> Created time</span>
+    <span class="property-value"><%= @current_instance.created_at.strftime("%B %d, %Y %I:%M %p") %></span>
+  </p>
+
+  <p class="property-row">
+    <span class="property-label"><%= image_tag("time.svg", alt: "") %> Last updated time</span>
+    <span class="property-value"><%= @current_instance.updated_at.strftime("%B %d, %Y %I:%M %p") %></span>
+  </p>
+</div>
+
