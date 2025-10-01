@@ -740,24 +740,6 @@ textarea.form-control {
 /* PROGRESS UPDATES */
 /* ============================================= */
 
-.progress-update-container {
-  margin: 10px;
-  padding: 10px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: center; 
-  gap: 20px;
-}
-
-.progress-update {
-  border: 1px solid black ;
-  border-radius: 10px;
-  margin: 10px;
-  padding: 10px;
-}
-
 /* ============================================= */
 /* RESPONSIVE BREAKPOINTS */
 /* ============================================= */
