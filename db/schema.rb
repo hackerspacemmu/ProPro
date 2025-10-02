@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_14_192327) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_01_144548) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -37,6 +37,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_192327) do
     t.boolean "use_progress_updates", null: false
     t.string "course_description"
     t.string "file_link"
+    t.string "coursecode"
+    t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
   create_table "enrolments", force: :cascade do |t|
@@ -111,6 +113,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_14_192327) do
     t.integer "enrolment_id"
     t.integer "source_topic_id"
     t.integer "project_instance_type", null: false
+    t.datetime "last_status_change_time"
+    t.datetime "last_edit_time"
+    t.integer "last_status_change_by"
+    t.integer "last_edit_by"
     t.index ["created_by_id"], name: "index_project_instances_on_created_by_id"
     t.index ["enrolment_id"], name: "index_project_instances_on_enrolment_id"
     t.index ["project_id", "version"], name: "index_project_instances_on_project_id_and_version", unique: true
