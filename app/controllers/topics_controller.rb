@@ -57,7 +57,7 @@ class TopicsController < ApplicationController
         course: @course,
         topic: @topic,
         supervisor_username: Current.user.username
-      ).Topic_Status_Updated.deliver_now
+      ).Topic_Status_Updated.deliver_later
 
       redirect_to course_topic_path(@course, @topic), notice: "Status updated."
     else

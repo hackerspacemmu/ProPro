@@ -50,6 +50,9 @@ preload_app!
 # Support IPv6 by binding to host `::` instead of `0.0.0.0`
 port(ENV['PORT'] || 3000, "::")
 
+# Run the Solid Queue supervisor inside of Puma for single-server deployments
+plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
+
 # Router keepalive idle timeout + 5 seconds
 persistent_timeout(95)
 
