@@ -20,7 +20,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 # Used to differentaite text
-gem 'diffy'
+gem 'diff-lcs'
 
 gem "tailwindcss-rails"
 
