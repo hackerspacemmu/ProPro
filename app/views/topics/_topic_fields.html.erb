@@ -44,7 +44,7 @@
   </section>
 
 <style>
-  table, th, td {
+  table, th, td, tr {
     border: 1px solid black;
     border-collapse: collapse;
     padding: 5px;
@@ -87,12 +87,17 @@
 }
 
   .diff li {
-    list-style: none;   /* ensures li items also don’t show bullets */
+    list-style: none;   
   }
 
-  td.no_change{
-    text-align: center;
-  }
+  .diff li { border: 1px dashed rgba(0,0,0,0.1); }
+
+
+  .diff-col {
+  width: 50%;              
+  word-wrap: break-word;   
+  vertical-align: top;
+}
 
 </style>
 
@@ -140,8 +145,8 @@
             <% aligned_right << "<li class='unchanged'>#{line}</li>" %>
 
           <% when '-' %>
-            <% line = change.old_element.to_s.strip %>
-            <% if line.empty? || line == "[[EMPTYLINE]]" %>
+            <% line = change.old_element.to_s %>
+            <% if line.strip.empty? || line == "[[EMPTYLINE]]" %>
               <% aligned_left  << "<li class='del'><span class='del-change'><br></span></li>" %>
               <% aligned_right << "<li class='placeholder'><br></li>" %>
             <% else %>
@@ -151,8 +156,8 @@
             <% end %>
 
           <% when '+' %>
-            <% line = change.new_element.to_s.strip %>
-            <% if line.empty? || line == "[[EMPTYLINE]]" %>
+            <% line = change.new_element.to_s %>
+            <% if line.strip.empty? || line == "[[EMPTYLINE]]" %>
               <% aligned_left  << "<li class='placeholder'><br></li>" %>
               <% aligned_right << "<li class='ins'><span class='ins-change'><br></span></li>" %>
             <% else %>
@@ -197,7 +202,7 @@
           <% end %>
         <% end %>
 
-        <td>
+        <td class = "diff-col">
           <ul class="diff">
             <%= aligned_left.join
                   .gsub('[[EMPTYLINE]]', '<br>')
@@ -205,7 +210,7 @@
           </ul>
         </td>
 
-        <td>
+        <td class = "diff-col">
           <ul class="diff">
             <%= aligned_right.join
                   .gsub('[[EMPTYLINE]]', '<br>')
