@@ -59,7 +59,7 @@ html {
     color: black;
 }
 
-.topbar-info {
+.topbar-info { /*text-sm font-normal ml-3.5 text-[#7e7e7e] align-middle*/
     vertical-align: middle;
     font-size: 14px;
     font-weight: normal;

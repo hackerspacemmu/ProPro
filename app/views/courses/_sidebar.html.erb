@@ -1,43 +1,45 @@
-<div class="flex flex-col fixed bg-[#f8f9fa] top-22 h-[calc(100%-5.5rem)] w-60 z-1 p-3.75 justify-between ">
+<div class="flex flex-col fixed bg-[#f8f9fa] top-22 h-[calc(100%-5.5rem)] w-60 z-1 justify-between ">
   <div>
     <% if current_user_enrolment&.student? %>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-proposal-status"    href="#proposal-status">Proposal Status</a>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
-      <a class="p-3.75 pt-2.5 text-sm block" href="#participants">Participants</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-proposal-status"    href="#proposal-status">Proposal Status</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" href="#participants">Participants</a>
     <% end %>
 
     <% if current_user_enrolment&.coordinator? or current_user_enrolment&.lecturer? %>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-my-topics"         href="#my-topics">My Topics</a>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-pending-topics"    href="#pending-topics">Pending Topics</a>
-      <a class="p-3.75 pt-2.5 text-sm block" id="link-pending-proposals" href="#pending-proposals">Pending Proposals</a>
-      <a class="p-3.75 pt-2.5 text-sm block" href="#participants">Participants</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-my-topics"         href="#my-topics">My Topics</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-pending-topics"    href="#pending-topics">Pending Topics</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-pending-proposals" href="#pending-proposals">Pending Proposals</a>
+      <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" href="#participants">Participants</a>
   
 
     <% end %>
 
   </div>
-  <div class="flex flex-col rounded-xl p-4">
+  <div class="flex flex-col rounded-xl justify-center">
  
     <% if current_user_enrolment&.lecturer? or current_user_enrolment&.coordinator?%>
-      <%= link_to "Add Students", add_students_course_path(@course), class:"p-3.75 pt-2.5 text-sm block" %> 
-      <%= link_to "Add Lecturers", add_lecturers_course_path(@course), class:"p-3.75 pt-2.5 text-sm block" %> 
+      <%= link_to "Add Students", add_students_course_path(@course), class:"p-3  text-sm block hover:bg-[#b5b5b5]" %> 
+      <%= link_to "Add Lecturers", add_lecturers_course_path(@course), class:"p-3  text-sm block hover:bg-[#b5b5b5]" %> 
 
-      <% if @current_user_enrolment&.coordinator? %>
-        <div class="topbar-actions">
-          <a class="p-3.75 pt-2.5 text-sm block" href="<%= settings_course_path(@course) %>"  title="Edit Course Settings">
-            <%= image_tag "settings.svg" %>
-            <span class="topbar-info">Edit Course Settings</span>
-          </a> 
+      <% if @current_user_enrolment&.coordinator? %>   
 
-          <a class="p-3.75 pt-2.5 text-sm block" href="<%= edit_course_project_template_path(@course) %>"  title="Edit Project Templates">
-            <%= image_tag "project_templates.svg" %>
-            <span class="topbar-info">Edit Templates</span>
-          </a>
+        <%= link_to "Export CSV", export_csv_course_path(@course), class:"p-3  text-sm block hover:bg-[#b5b5b5]" %>
+
+        <div class="flex hover:bg-[#b5b5b5]">   
+          <%= image_tag "settings.svg", class:"py-1" %>
+          <%= link_to "Edit Course Settings", settings_course_path(@course), class:"block text-sm font-normal align-middle p-3  pl-1" %>
+        </div>
+      
+        <div class="flex hover:bg-[#b5b5b5]">   
+          <%= image_tag "project_templates.svg", class:"py-1" %>
+          <%= link_to "Edit Course Settings", edit_course_project_template_path(@course), class:"block text-sm font-normal align-middle p-3  pl-1" %>
         </div>
       <% end %>
+      <div class="h-5"></div>
     <% end %>
   </div>
  
