@@ -1,3 +1,4 @@
+    <%= stylesheet_link_tag "projects" %>
     <div class="fields-container">
       <% fields.each do |field| %>
         <div class="field-row"> 
@@ -27,3 +28,180 @@
       <% end %>
       <p>Based on Topic: <%= based_on_topic_name || "Own Proposal" %></p>
     </div>
+    <br>
+
+<style>
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+    vertical-align: top;
+  }
+  
+  .diff-table {
+    width: 100%;
+    border: none;
+  }
+
+  .diff-table tr {
+    border: none;
+  }
+
+  .diff-cell {
+    border: none;
+    padding: 2px 5px;
+    vertical-align: top;
+    width: 50%;
+  }
+
+  .diff-cell.del {
+    background-color: #f4d4d4;
+  }
+
+  .diff-cell.ins {
+    background-color: #d4f4dd;
+  }
+
+  .diff-cell.unchanged {
+    background-color: transparent;
+  }
+
+  .ins-change {
+    background-color: #77DD77;
+  }
+
+  .del-change {
+    background-color: #FF6961;
+    text-decoration: line-through;
+  }
+
+  .placeholder {
+    background-color: #e0e0e0;
+    color: transparent;
+    user-select: none;
+  }
+
+  td.no_change {
+    text-align: center;
+  }
+</style>
+
+<% if @index < @instances.size %>
+  <h4>Difference with next (newer) version</h4>
+  <br>
+
+  <table>
+    <tr>
+      <th>Field</th>
+      <th>Deletions</th>
+      <th>Additions</th>
+    </tr>
+
+    <% fields.zip(next_fields).each do |current_field, next_field| %>
+      <% field_name = (current_field || next_field).project_template_field.label %>
+
+      <% normalize = ->(text) do
+          text.to_s
+              .gsub(/\r\n?/, "\n")
+              .gsub(/^$/, "[[EMPTYLINE]]")
+        end %>
+
+      <% old_val = normalize.call(current_field&.value) %>
+      <% new_val = normalize.call(next_field&.value) %>
+
+      <tr>
+        <td><%= field_name %></td>
+
+        <% if old_val != new_val %>
+          <% old_lines = old_val.split("\n") %>
+          <% new_lines = new_val.split("\n") %>
+
+          <% # Use Diff::LCS to align line changes properly %>
+          <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
+
+            <td colspan="2">
+              <table class="diff-table">
+                <% diffs.each do |change| %>
+                  <% case change.action %>
+                  <% when '=' %>
+                    <% line = h(change.old_element).gsub('[[EMPTYLINE]]', '<br>') %>
+                    <tr>
+                      <td class="diff-cell unchanged"><%= line.html_safe %></td>
+                      <td class="diff-cell unchanged"><%= line.html_safe %></td>
+                    </tr>
+
+                  <% when '-' %>
+                    <% line = change.old_element.to_s.strip %>
+                    <% if line.empty? || line == "[[EMPTYLINE]]" %>
+                      <tr>
+                        <td class="diff-cell del"><span class="del-change"><br></span></td>
+                        <td class="diff-cell placeholder"><br></td>
+                      </tr>
+                    <% else %>
+                      <% safe_line = h(change.old_element) %>
+                      <tr>
+                        <td class="diff-cell del"><span class="del-change"><%= safe_line %></span></td>
+                        <td class="diff-cell placeholder"><%= safe_line %></td>
+                      </tr>
+                    <% end %>
+
+                  <% when '+' %>
+                    <% line = change.new_element.to_s.strip %>
+                    <% if line.empty? || line == "[[EMPTYLINE]]" %>
+                      <tr>
+                        <td class="diff-cell placeholder"><br></td>
+                        <td class="diff-cell ins"><span class="ins-change"><br></span></td>
+                      </tr>
+                    <% else %>
+                      <% safe_line = h(change.new_element) %>
+                      <tr>
+                        <td class="diff-cell placeholder"><%= safe_line %></td>
+                        <td class="diff-cell ins"><span class="ins-change"><%= safe_line %></span></td>
+                      </tr>
+                    <% end %>
+
+                  <% when '!' %>
+                    <% old_line = change.old_element.to_s %>
+                    <% new_line = change.new_element.to_s %>
+                    <% old_words = old_line.split(/(\s+)/) %>
+                    <% new_words = new_line.split(/(\s+)/) %>
+                    <% word_diffs = Diff::LCS.sdiff(old_words, new_words) %>
+
+                    <% old_html = word_diffs.map do |w|
+                        case w.action
+                        when '='
+                          h(w.old_element)
+                        when '-', '!'
+                          "<span class='del-change'>#{h(w.old_element)}</span>"
+                        else
+                          ""
+                        end
+                      end.join %>
+
+                    <% new_html = word_diffs.map do |w|
+                        case w.action
+                        when '='
+                          h(w.new_element)
+                        when '+', '!'
+                          "<span class='ins-change'>#{h(w.new_element)}</span>"
+                        else
+                          ""
+                        end
+                      end.join %>
+
+                    <tr>
+                      <td class="diff-cell del"><%= old_html.html_safe %></td>
+                      <td class="diff-cell ins"><%= new_html.html_safe %></td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              </table>
+            </td>
+
+        <% else %>
+          <td colspan="2" class="no_change">No changes</td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

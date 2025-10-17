@@ -32,7 +32,16 @@ class ProjectsController < ApplicationController
 
     @current_instance = @instances[@index - 1]
 
-    @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+
+    @latest_version = @instances.size
+
+    @next_fields = nil
+
+    if @index < @instances.size
+      @next_instance = @instances[@index]
+      @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+    end
 
     @comments = @current_instance.comments
     @new_comment = Comment.new
@@ -56,7 +65,7 @@ class ProjectsController < ApplicationController
       course: @course,
       project: @project,
       supervisor_username: Current.user.username
-    ).Project_Status_Updated.deliver_now
+    ).Project_Status_Updated.deliver_later
 
     redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
   end
@@ -187,7 +196,7 @@ class ProjectsController < ApplicationController
         owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
         course: @course,
         project: @project
-      ).New_Student_Submission.deliver_now
+      ).New_Student_Submission.deliver_later
     end
 
     redirect_to course_project_path(@course, @project), notice: "Project updated successfully."
@@ -317,7 +326,7 @@ class ProjectsController < ApplicationController
       owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
       course: @course,
       project: @project
-    ).New_Student_Submission.deliver_now
+    ).New_Student_Submission.deliver_later
 
     redirect_to course_project_path(@course, @project), notice: "Project created!"
   end
