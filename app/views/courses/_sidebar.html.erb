@@ -19,20 +19,20 @@
     <% end %>
 
   </div>
-  <div class="flex flex-col rounded-xl p-4 bg-[#b5b5b5]">
+  <div class="flex flex-col rounded-xl p-4">
  
     <% if current_user_enrolment&.lecturer? or current_user_enrolment&.coordinator?%>
-      <%= link_to "Add Students", add_students_course_path(@course) %> <hr>
-      <%= link_to "Add Lecturers", add_lecturers_course_path(@course) %> <hr>
+      <%= link_to "Add Students", add_students_course_path(@course), class:"p-3.75 pt-2.5 text-sm block" %> 
+      <%= link_to "Add Lecturers", add_lecturers_course_path(@course), class:"p-3.75 pt-2.5 text-sm block" %> 
 
       <% if @current_user_enrolment&.coordinator? %>
         <div class="topbar-actions">
-          <a class="p-3.75 pt-2.5 text-sm block" href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
+          <a class="p-3.75 pt-2.5 text-sm block" href="<%= settings_course_path(@course) %>"  title="Edit Course Settings">
             <%= image_tag "settings.svg" %>
             <span class="topbar-info">Edit Course Settings</span>
-          </a> <hr>
+          </a> 
 
-          <a class="p-3.75 pt-2.5 text-sm block" href="<%= edit_course_project_template_path(@course) %>" class="topbar-icon" title="Edit Project Templates">
+          <a class="p-3.75 pt-2.5 text-sm block" href="<%= edit_course_project_template_path(@course) %>"  title="Edit Project Templates">
             <%= image_tag "project_templates.svg" %>
             <span class="topbar-info">Edit Templates</span>
           </a>
