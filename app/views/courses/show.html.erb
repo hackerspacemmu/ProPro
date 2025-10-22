@@ -1,5 +1,6 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "courses", "data-turbo-track": "reload" %>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <% end %>
 <% content_for :title, "#{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 <%= render 'topbar', user: current_user, course: @course %>
@@ -69,5 +70,5 @@
   <% end %>
 
   <%= render 'participants', course: @course %>
-  <%= render 'footer' %>
 </div>
+<%= render 'footer', class:"flex self-end" %>
