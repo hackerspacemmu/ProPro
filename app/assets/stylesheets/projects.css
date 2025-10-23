@@ -150,6 +150,11 @@ body {
   background-color: #dc2626;
 }
 
+.status-select.status-redo {
+  background-color: #e37401;
+}
+
+
 .version-navigation {
   display: flex !important;
   flex-wrap: nowrap;

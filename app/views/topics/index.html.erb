@@ -28,7 +28,7 @@
   <section class="topics-list" id="topics-list">
     <div class="cards-container">
       <% if @topics.any? %>
-        <%= render partial: 'courses/topic_card', collection: @topic, as: :topic %>
+        <%= render partial: 'courses/topic_card', collection: @topics, as: :topic %>
       <% else %>
         <p class="empty-state">No topics found.</p>
       <% end %>
