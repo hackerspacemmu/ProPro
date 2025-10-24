@@ -12,7 +12,7 @@ class UserController < ApplicationController
     begin
       @email = Otp.find_by(token: params[:token]).user.email_address
     rescue StandardError
-      redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try loggin in."
+      redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
     end
   end
 
