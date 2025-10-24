@@ -482,6 +482,13 @@ group_template = ProjectTemplate.create!(
 )
 
 # Create Project Template Fields 
+title_field_individual = ProjectTemplateField.create!(
+  project_template: individual_template,
+  field_type: :shorttext,
+  applicable_to: :both,
+  label: "Project Title"
+)
+
 project_description_field = ProjectTemplateField.create!(
   project_template: individual_template,
   field_type: 1, 
@@ -498,6 +505,13 @@ lecturer_feedback_field = ProjectTemplateField.create!(
   hint: "Provide feedback on the proposal"
 )
 
+title_field_group = ProjectTemplateField.create!(
+  project_template: group_template,
+  field_type: :shorttext,
+  applicable_to: :both,
+  label: "Project Title"
+)
+
 group_description_field = ProjectTemplateField.create!(
   project_template: group_template,
   field_type: 1, # textarea
@@ -506,300 +520,104 @@ group_description_field = ProjectTemplateField.create!(
   hint: "Describe the group project scope and member responsibilities"
 )
 
-# Create Ownerships
-=begin
-lecturer_1_topic_1_ownership = Ownership.create!(
-  owner: lecturer1,
-  ownership_type: :lecturer
-)
-
-lecturer_1_topic_2_ownership = Ownership.create!(
-  owner: lecturer1,
-  ownership_type: :lecturer
-)
-
-lecturer_1_topic_3_ownership = Ownership.create!(
-  owner: lecturer1,
-  ownership_type: :lecturer
-)
-
-lecturer_1_topic_4_ownership = Ownership.create!(
-  owner: lecturer1,
-  ownership_type: :lecturer
-)
-
-
-lecturer_2_topic_1_ownership = Ownership.create!(
-  owner: lecturer2,
-  ownership_type: :lecturer
-)
-
-lecturer_2_topic_2_ownership = Ownership.create!(
-  owner: lecturer2,
-  ownership_type: :lecturer
-)
-
-lecturer_2_topic_3_ownership = Ownership.create!(
-  owner: lecturer2,
-  ownership_type: :lecturer
-)
-
-lecturer_2_topic_4_ownership = Ownership.create!(
-  owner: lecturer2,
-  ownership_type: :lecturer
-)
-
-
-lecturer_3_topic_1_ownership = Ownership.create!(
-  owner: lecturer3,
-  ownership_type: :lecturer
-)
-
-lecturer_3_topic_2_ownership = Ownership.create!(
-  owner: lecturer3,
-  ownership_type: :lecturer
-)
-
-lecturer_3_topic_3_ownership = Ownership.create!(
-  owner: lecturer3,
-  ownership_type: :lecturer
-)
-
-lecturer_3_topic_4_ownership = Ownership.create!(
-  owner: lecturer3,
-  ownership_type: :lecturer
-)
-
-
-lecturer_1_topic_1_no_groups_ownership = Ownership.create!(
-  owner: lecturer1,
-  ownership_type: :lecturer
-)
-
-lecturer_1_topic_2_no_groups_ownership = Ownership.create!(
-  owner: lecturer1,
-  ownership_type: :lecturer
-)
-
-lecturer_2_topic_1_no_groups_ownership = Ownership.create!(
-  owner: lecturer2,
-  ownership_type: :lecturer
-)
-
-lecturer_2_topic_2_no_groups_ownership = Ownership.create!(
-  owner: lecturer2,
-  ownership_type: :lecturer
-)
-
-lecturer_3_topic_1_no_groups_ownership = Ownership.create!(
-  owner: lecturer3,
-  ownership_type: :lecturer
-)
-
-lecturer_3_topic_2_no_groups_ownership = Ownership.create!(
-  owner: lecturer3,
-  ownership_type: :lecturer
-)
-
-
-group_1_ownership = Ownership.create!(
-  owner: group_1,
-  ownership_type: :project_group
-)
-
-group_2_ownership = Ownership.create!(
-  owner: group_2,
-  ownership_type: :project_group
-)
-
-group_3_ownership = Ownership.create!(
-  owner: group_3,
-  ownership_type: :project_group
-)
-
-group_4_ownership = Ownership.create!(
-  owner: group_4,
-  ownership_type: :project_group
-)
-
-student_1_ownership = Ownership.create!(
-  owner: student1,
-  ownership_type: :student
-)
-
-student_2_ownership = Ownership.create!(
-  owner: student2,
-  ownership_type: :student
-)
-
-student_3_ownership = Ownership.create!(
-  owner: student3,
-  ownership_type: :student
-)
-
-student_4_ownership = Ownership.create!(
-  owner: student4,
-  ownership_type: :student
-)
-
-student_5_ownership = Ownership.create!(
-  owner: student5,
-  ownership_type: :student
-)
-=end
 # Create Projects
 lecturer_1_topic_1 = Topic.create!(
-  #ownership: lecturer_1_topic_1_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer1,
-  #ownership_type: :lecturer
 )
 
 lecturer_1_topic_2 = Topic.create!(
-  #ownership: lecturer_1_topic_2_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer1,
-  #ownership_type: :lecturer
 )
 
 lecturer_1_topic_3 = Topic.create!(
-  #ownership: lecturer_1_topic_3_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer1,
-  #ownership_type: :lecturer
 )
 
 lecturer_1_topic_4 = Topic.create!(
-  #ownership: lecturer_1_topic_4_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer1,
-  #ownership_type: :lecturer
 )
 
 
 lecturer_2_topic_1 = Topic.create!(
-  #ownership: lecturer_2_topic_1_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer2,
-  #ownership_type: :lecturer
 )
 
 lecturer_2_topic_2 = Topic.create!(
-  #ownership: lecturer_2_topic_2_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer2,
-  #ownership_type: :lecturer
 )
 
 lecturer_2_topic_3 = Topic.create!(
-  #ownership: lecturer_2_topic_3_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer2,
-  #ownership_type: :lecturer
 )
 
 lecturer_2_topic_4 = Topic.create!(
-  #ownership: lecturer_2_topic_4_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer2,
-  #ownership_type: :lecturer
 )
 
 
 lecturer_3_topic_1 = Topic.create!(
-  #ownership: lecturer_3_topic_1_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer3,
-  #ownership_type: :lecturer
 )
 
 lecturer_3_topic_2 = Topic.create!(
-  #ownership: lecturer_3_topic_2_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer3,
-  #ownership_type: :lecturer
 )
 
 lecturer_3_topic_3 = Topic.create!(
-  #ownership: lecturer_3_topic_3_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer3,
-  #ownership_type: :lecturer
 )
 
 lecturer_3_topic_4 = Topic.create!(
-  #ownership: lecturer_3_topic_4_ownership,
   course: course_with_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer3,
-  #ownership_type: :lecturer
 )
 
 
 lecturer_1_topic_1_no_groups = Topic.create!(
-  #ownership: lecturer_1_topic_1_no_groups_ownership,
   course: course_no_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer1,
-  #ownership_type: :lecturer
 )
 
 lecturer_1_topic_2_no_groups = Topic.create!(
-  #ownership: lecturer_1_topic_2_no_groups_ownership,
   course: course_no_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer1,
-  #ownership_type: :lecturer
 )
 
 
 lecturer_2_topic_1_no_groups = Topic.create!(
-  #ownership: lecturer_2_topic_1_no_groups_ownership,
   course: course_no_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer2,
-  #ownership_type: :lecturer
 )
 
 lecturer_2_topic_2_no_groups = Topic.create!(
-  #ownership: lecturer_2_topic_2_no_groups_ownership,
   course: course_no_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer2,
-  #ownership_type: :lecturer
 )
 
 
 lecturer_3_topic_1_no_groups = Topic.create!(
-  #ownership: lecturer_3_topic_1_no_groups_ownership,
   course: course_no_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer3,
-  #ownership_type: :lecturer
 )
 
 lecturer_3_topic_2_no_groups = Topic.create!(
-  #ownership: lecturer_3_topic_2_no_groups_ownership,
   course: course_no_groups,
-  #enrolment: lecturer_1_coordinator_enrolment,
   owner: lecturer3,
-  #ownership_type: :lecturer
 )
 
 
 group_1_project = Project.create!(
-  #ownership: group_1_ownership,
   course: course_with_groups,
   enrolment: lecturer_1_lecturer_enrolment,
   owner: group_1,
@@ -807,7 +625,6 @@ group_1_project = Project.create!(
 )
 
 group_2_project = Project.create!(
-  #ownership: group_2_ownership,
   course: course_with_groups,
   enrolment: lecturer_1_lecturer_enrolment,
   owner: group_2,
@@ -815,7 +632,6 @@ group_2_project = Project.create!(
 )
 
 group_3_project = Project.create!(
-  #ownership: group_3_ownership,
   course: course_with_groups,
   enrolment: lecturer_1_lecturer_enrolment,
   owner: group_3,
@@ -823,7 +639,6 @@ group_3_project = Project.create!(
 )
 
 group_4_project = Project.create!(
-  #ownership: group_4_ownership,
   course: course_with_groups,
   enrolment: lecturer_1_lecturer_enrolment,
   owner: group_4,
@@ -832,7 +647,6 @@ group_4_project = Project.create!(
 
 
 student_1_project = Project.create!(
-  #ownership: student_1_ownership,
   course: course_no_groups,
   enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student1,
@@ -840,7 +654,6 @@ student_1_project = Project.create!(
 )
 
 student_2_project = Project.create!(
-  #ownership: student_2_ownership,
   course: course_no_groups,
   enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student2,
@@ -848,7 +661,6 @@ student_2_project = Project.create!(
 )
 
 student_3_project = Project.create!(
-  #ownership: student_3_ownership,
   course: course_no_groups,
   enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student3,
@@ -856,7 +668,6 @@ student_3_project = Project.create!(
 )
 
 student_4_project = Project.create!(
-  #ownership: student_4_ownership,
   course: course_no_groups,
   enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student4,
@@ -871,7 +682,6 @@ lecturer_1_topic_1_instance_1 = TopicInstance.create!(
   created_by: lecturer1,
   title: "Difficult Topic 1",
   status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment
 )
 
 lecturer_1_topic_2_instance_1 = TopicInstance.create!(
@@ -880,7 +690,6 @@ lecturer_1_topic_2_instance_1 = TopicInstance.create!(
   created_by: lecturer1,
   title: "Difficult Topic 2",
   status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment
 )
 
 lecturer_1_topic_3_instance_1 = TopicInstance.create!(
@@ -889,7 +698,6 @@ lecturer_1_topic_3_instance_1 = TopicInstance.create!(
   created_by: lecturer1,
   title: "Difficult Topic 3",
   status: :pending,
-  #enrolment: lecturer_1_coordinator_enrolment
 )
 
 lecturer_1_topic_4_instance_1 = TopicInstance.create!(
@@ -898,7 +706,6 @@ lecturer_1_topic_4_instance_1 = TopicInstance.create!(
   created_by: lecturer1,
   title: "Difficult Topic 4",
   status: :redo,
-  #enrolment: lecturer_1_coordinator_enrolment
 )
 
 
@@ -908,7 +715,6 @@ lecturer_2_topic_1_instance_1 = TopicInstance.create!(
   created_by: lecturer2,
   title: "Difficult Topic 1 Lecturer 2",
   status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment
 )
 
 lecturer_2_topic_2_instance_1 = TopicInstance.create!(
@@ -916,8 +722,7 @@ lecturer_2_topic_2_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer2,
   title: "Difficult Topic 2 Lecturer 2",
-  status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :approved
 )
 
 lecturer_2_topic_3_instance_1 = TopicInstance.create!(
@@ -925,8 +730,7 @@ lecturer_2_topic_3_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer2,
   title: "Difficult Topic 3 Lecturer 2",
-  status: :pending,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :pending
 )
 
 lecturer_2_topic_4_instance_1 = TopicInstance.create!(
@@ -934,8 +738,7 @@ lecturer_2_topic_4_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer2,
   title: "Difficult Topic 4 Lecturer 2",
-  status: :redo,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :redo
 )
 
 
@@ -944,8 +747,7 @@ lecturer_3_topic_1_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer3,
   title: "Difficult Topic 1 Lecturer 3",
-  status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :approved
 )
 
 lecturer_3_topic_2_instance_1 = TopicInstance.create!(
@@ -953,8 +755,7 @@ lecturer_3_topic_2_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer3,
   title: "Difficult Topic 2 Lecturer 3",
-  status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :approved
 )
 
 lecturer_3_topic_3_instance_1 = TopicInstance.create!(
@@ -962,8 +763,7 @@ lecturer_3_topic_3_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer3,
   title: "Difficult Topic 3 Lecturer 3",
-  status: :pending,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :pending
 )
 
 lecturer_3_topic_4_instance_1 = TopicInstance.create!(
@@ -971,8 +771,7 @@ lecturer_3_topic_4_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer3,
   title: "Difficult Topic 4 Lecturer 3",
-  status: :rejected,
-  #enrolment: lecturer_1_coordinator_enrolment
+  status: :rejected
 )
 
 lecturer_1_topic_1_no_groups_instance_1 = TopicInstance.create!(
@@ -980,8 +779,7 @@ lecturer_1_topic_1_no_groups_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer1,
   title: "Difficult Topic Lecturer 1 no 1",
-  status: :rejected,
-  #enrolment: lecturer_1_coordinator_enrolment_no_groups
+  status: :rejected
 )
 
 lecturer_1_topic_2_no_groups_instance_1 = TopicInstance.create!(
@@ -989,8 +787,7 @@ lecturer_1_topic_2_no_groups_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer1,
   title: "Difficult Topic Lecturer 1 no 2",
-  status: :approved,
-  #enrolment: lecturer_1_coordinator_enrolment_no_groups
+  status: :approved
 )
 
 lecturer_2_topic_1_no_groups_instance_1 = TopicInstance.create!(
@@ -998,8 +795,7 @@ lecturer_2_topic_1_no_groups_instance_1 = TopicInstance.create!(
   version: 1,
   created_by: lecturer2,
   title: "Difficult Topic Lecturer 2 no 1",
-  status: :redo,
-  #enrolment: lecturer_1_coordinator_enrolment_no_groups
+  status: :redo
 )
 
 lecturer_2_topic_2_no_groups_instance_1 = TopicInstance.create!(
@@ -1007,8 +803,7 @@ lecturer_2_topic_2_no_groups_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer2,
   title: "Difficult Topic Lecturer 2 no 2",
-  status: :rejected,
-  #enrolment: lecturer_1_coordinator_enrolment_no_groups
+  status: :rejected
 )
 
 lecturer_3_topic_1_no_groups_instance_1 = TopicInstance.create!(
@@ -1016,8 +811,7 @@ lecturer_3_topic_1_no_groups_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer3,
   title: "Difficult Topic Lecturer 3 no 1",
-  status: :pending,
-  #enrolment: lecturer_1_coordinator_enrolment_no_groups
+  status: :pending
 )
 
 lecturer_3_topic_2_no_groups_instance_1 = TopicInstance.create!(
@@ -1025,8 +819,7 @@ lecturer_3_topic_2_no_groups_instance_1 = TopicInstance.create!(
   version: 1, 
   created_by: lecturer3,
   title: "Difficult Topic Lecturer 1 no 2",
-  status: :rejected,
-  #enrolment: lecturer_1_coordinator_enrolment_no_groups
+  status: :rejected
 )
 
 
@@ -1164,8 +957,20 @@ student_4_project_instance_1 = ProjectInstance.create!(
 # Create Project Instance Fields
 ProjectInstanceField.create!(
   instance: group_1_instance_1,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project 1"
+)
+
+ProjectInstanceField.create!(
+  instance: group_1_instance_1,
   project_template_field: group_description_field,
   value: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vitae lacus risus. Fusce nec mi nec ante porttitor interdum. Cras ut lacinia diam."
+)
+
+ProjectInstanceField.create!(
+  instance: group_1_instance_2,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project 2"
 )
 
 ProjectInstanceField.create!(
@@ -1176,8 +981,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: group_1_instance_3,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project 3"
+)
+
+ProjectInstanceField.create!(
+  instance: group_1_instance_3,
   project_template_field: group_description_field,
   value: "In interdum accumsan ante a aliquet. Donec viverra tempor ligula, vel efficitur velit ultrices non. Aliquam erat volutpat. Nam imperdiet arcu ut porttitor rutrum."
+)
+
+ProjectInstanceField.create!(
+  instance: group_1_instance_4,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project 4"
 )
 
 ProjectInstanceField.create!(
@@ -1186,6 +1003,11 @@ ProjectInstanceField.create!(
   value: "Phasellus orci ante, bibendum a maximus et, suscipit quis quam. Sed a vehicula mauris, sit amet sodales ex. Ut justo dolor, aliquet non nisi ac, porta sodales arcu."
 )
 
+ProjectInstanceField.create!(
+  instance: group_2_instance_1,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project Group 2"
+)
 
 ProjectInstanceField.create!(
   instance: group_2_instance_1,
@@ -1193,6 +1015,11 @@ ProjectInstanceField.create!(
   value: "Quisque efficitur magna nec eros luctus, at vestibulum ipsum rutrum. Donec auctor metus vitae feugiat gravida"
 )
 
+ProjectInstanceField.create!(
+  instance: group_3_instance_1,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project Group 3"
+)
 
 ProjectInstanceField.create!(
   instance: group_3_instance_1,
@@ -1200,6 +1027,11 @@ ProjectInstanceField.create!(
   value: "Cras vestibulum efficitur sapien ornare aliquet. Aliquam hendrerit vestibulum lectus, quis lacinia urna porta id."
 )
 
+ProjectInstanceField.create!(
+  instance: group_4_instance_1,
+  project_template_field: title_field_group,
+  value: "Difficult Group Project Group 4"
+)
 
 ProjectInstanceField.create!(
   instance: group_4_instance_1,
@@ -1207,11 +1039,21 @@ ProjectInstanceField.create!(
   value: "Praesent ultrices ipsum nec ante lobortis feugiat. Vivamus auctor ex eget lobortis cursus"
 )
 
+ProjectInstanceField.create!(instance: lecturer_1_topic_1_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 1"
+)
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_1_instance_1,
   project_template_field: project_description_field,
   value: "Sed ut vulputate neque"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_2_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 2"
 )
 
 ProjectInstanceField.create!(
@@ -1222,8 +1064,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_3_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 3"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_3_instance_1,
   project_template_field: project_description_field,
   value: "Etiam mollis risus nec dolor faucibus, lacinia consectetur quam semper"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_4_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 4"
 )
 
 ProjectInstanceField.create!(
@@ -1234,8 +1088,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_1_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 1 Lecturer 2"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_2_topic_1_instance_1,
   project_template_field: project_description_field,
   value: "Etiam eleifend sodales tincidunt"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_2_topic_2_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 2 Lecturer 2"
 )
 
 ProjectInstanceField.create!(
@@ -1246,8 +1112,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_3_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 3 Lecturer 2"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_2_topic_3_instance_1,
   project_template_field: project_description_field,
   value: "Donec mattis sed ex eget aliquet"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_2_topic_4_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 4 Lecturer 2"
 )
 
 ProjectInstanceField.create!(
@@ -1258,8 +1136,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_1_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 1 Lecturer 3"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_3_topic_1_instance_1,
   project_template_field: project_description_field,
   value: "Aenean accumsan vehicula ex eget aliquam."
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_3_topic_2_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 2 Lecturer 3"
 )
 
 ProjectInstanceField.create!(
@@ -1270,8 +1160,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_3_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 3 Lecturer 3"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_3_topic_3_instance_1,
   project_template_field: project_description_field,
   value: "Nullam vitae ornare ex"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_3_topic_4_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic 4 Lecturer 3"
 )
 
 ProjectInstanceField.create!(
@@ -1280,12 +1182,22 @@ ProjectInstanceField.create!(
   value: "Quisque efficitur magna nec eros luctus, at vestibulum ipsum rutrum."
 )
 
-
+ProjectInstanceField.create!(
+  instance: student_1_project_instance_1,
+  project_template_field: title_field_individual,
+  value: "Student 1 Project"
+)
 
 ProjectInstanceField.create!(
   instance: student_1_project_instance_1,
   project_template_field: project_description_field,
   value: "Vestibulum tincidunt et sapien sit amet semper."
+)
+
+ProjectInstanceField.create!(
+  instance: student_1_project_instance_2,
+  project_template_field: title_field_individual,
+  value: "Student 1 Project 2"
 )
 
 ProjectInstanceField.create!(
@@ -1296,8 +1208,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: student_1_project_instance_3,
+  project_template_field: title_field_individual,
+  value: "Student 1 Project 3"
+)
+
+ProjectInstanceField.create!(
+  instance: student_1_project_instance_3,
   project_template_field: project_description_field,
   value: "In ex enim, ornare id bibendum ac, euismod a libero."
+)
+
+ProjectInstanceField.create!(
+  instance: student_1_project_instance_4,
+  project_template_field: title_field_individual,
+  value: "Student 1 Project 4"
 )
 
 ProjectInstanceField.create!(
@@ -1308,10 +1232,21 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: student_2_project_instance_1,
+  project_template_field: title_field_individual,
+  value: "Student 2 Project"
+)
+
+ProjectInstanceField.create!(
+  instance: student_2_project_instance_1,
   project_template_field: project_description_field,
   value: "Vestibulum tincidunt et sapien sit amet semper. "
 )
 
+ProjectInstanceField.create!(
+  instance: student_3_project_instance_1,
+  project_template_field: title_field_individual,
+  value: "Student 3 Project"
+)
 
 ProjectInstanceField.create!(
   instance: student_3_project_instance_1,
@@ -1319,6 +1254,11 @@ ProjectInstanceField.create!(
   value: "Aliquam eget imperdiet mi, ac dictum massa."
 )
 
+ProjectInstanceField.create!(
+  instance: student_4_project_instance_1,
+  project_template_field: title_field_individual,
+  value: "Student 4 Project"
+)
 
 ProjectInstanceField.create!(
   instance: student_4_project_instance_1,
@@ -1326,11 +1266,22 @@ ProjectInstanceField.create!(
   value: "Nam eleifend nulla ut finibus interdum."
 )
 
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_1_no_groups_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic Lecturer 1 no 1"
+)
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_1_no_groups_instance_1,
   project_template_field: lecturer_feedback_field,
   value: "Nam eleifend nulla ut finibus interdum."
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_2_no_groups_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic Lecturer 1 no 2"
 )
 
 ProjectInstanceField.create!(
@@ -1341,8 +1292,20 @@ ProjectInstanceField.create!(
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_1_no_groups_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic Lecturer 2 no 1"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_2_topic_1_no_groups_instance_1,
   project_template_field: lecturer_feedback_field,
   value: "Class aptent taciti sociosqu ad litora torquent per conubia nostra"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_2_topic_2_no_groups_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic Lecturer 2 no 2"
 )
 
 ProjectInstanceField.create!(
@@ -1352,9 +1315,21 @@ ProjectInstanceField.create!(
 )
 
 ProjectInstanceField.create!(
+  instance: lecturer_3_topic_1_no_groups_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic Lecturer 3 no 1"
+)
+
+ProjectInstanceField.create!(
   instance: lecturer_3_topic_1_instance_1,
   project_template_field: lecturer_feedback_field,
   value: "Donec a cursus purus"
+)
+
+ProjectInstanceField.create!(
+  instance: lecturer_3_topic_2_no_groups_instance_1,
+  project_template_field: title_field_individual,
+  value: "Difficult Topic Lecturer 1 no 2"
 )
 
 ProjectInstanceField.create!(
