@@ -261,19 +261,22 @@ end
       
 def join_course 
   code = params[:code]
+  if code.blank?
+    redirect_to root_path, alert: "Please enter a course code"
+    return
+  end
+  
   @course = Course.find_by(coursecode: code)
-
   if !@course
     redirect_to "/", alert: "Invalid course code"
     return 
   end 
 
   if !Current.user
-    session[:join_course_code] = code
+    session[:return_to_after_authenticating] = join_course_path(code: code)
     redirect_to login_path, alert: "Please log in or register to join the course"
     return 
   end 
-
   if Current.user.is_staff
     redirect_to "/", alert: "Staff cannot join courses via course code"
     return 
@@ -341,9 +344,6 @@ end
   
     render plain: csv_content
   end
-
-  def join_form 
-  end 
 
   private
   def students_with_projects

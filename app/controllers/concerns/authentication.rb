@@ -36,12 +36,6 @@ module Authentication
     end
 
     def after_authentication_url
-      if session[:join_course_code]
-        join_code = session[:join_course_code]
-        session[:join_course_code] = nil
-        return "/join/#{join_code}"
-      end 
-
       session.delete(:return_to_after_authenticating) || root_url
     end
 

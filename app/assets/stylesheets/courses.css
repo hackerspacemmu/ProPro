@@ -838,6 +838,44 @@ p {
     margin-bottom: 12px;
 }
 
+/* ============================================= */
+/* COURSECODE */
+/* ============================================= */
+
+.join-course-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.breadcrumb-form {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.course-code-input {
+  text-transform: uppercase;
+  width: 120px;
+  padding: 0.25rem 0.5rem;
+}
+
+.join-button {
+  padding: 0.25rem 0.75rem;
+}
+
+.code-feedback {
+  font-size: 0.85em;
+  margin-left: 0.5rem;
+}
+
+.code-feedback.error {
+  color: var(--error-color, #dc2626);
+}
+
+.code-feedback.success {
+  color: var(--success-color, #16a34a);
+}
 
 /* forms (keith) */
 
