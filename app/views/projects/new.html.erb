@@ -1,7 +1,9 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
 <% end %>
+<% breadcrumb :new_project, @course %>
 <% content_for :title, "Create Proposal - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+
 
 <main class="project-edit">
   <header class="edit-header">

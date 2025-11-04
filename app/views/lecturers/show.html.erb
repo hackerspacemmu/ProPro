@@ -1,6 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "lecturers" %>
 <% end %>
+<% breadcrumb :lecturer, @course, @lecturer %>
 <% content_for :title, "#{@lecturer.username.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
 
 <main id="lecturer">
