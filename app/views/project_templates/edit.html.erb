@@ -1,6 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "project_templates" %>
 <% end %>
+<% provide :no_sidebar, true %>
 <% content_for :title, "Edit Project Template - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <main id="course">

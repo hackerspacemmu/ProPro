@@ -8,4 +8,183 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
-@import "courses";
+
+body {
+    background-color: #efefef;
+    font-family: 'Inter', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* top bar */
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e1e1e1;
+    overflow: hidden;
+    position: fixed;
+    top: 0;     
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 5;
+}
+
+.topbar > a:first-child {
+    color: #000000;
+    padding: 20px 20px;
+    text-decoration: none;
+    font-size: 25px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: 64px;
+    margin-left: auto;
+}
+
+.topbar-icon {
+    display: flex;
+    align-items: center;
+    color: #999999;
+    font-size: 18px;
+    font-weight: normal;
+    text-decoration: none;
+    padding: 0 24px 0 0;
+    height: 100%;
+}
+
+.topbar-icon img {
+    width: 28px;
+    height: 28px;
+    display: block;
+    color: black;
+}
+
+.topbar-info {
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: normal;
+    color: #7e7e7e;
+    margin-left: 8px;
+}
+
+/* breadcrumb */
+
+/* breadcrumb (keith) */
+
+.breadcrumb {
+    background-color: #b5b5b5;
+    overflow: hidden;
+    position: fixed;
+    top: 70px;  /* Fixed to match topbar height */
+    left: 0px;
+    height: 36px;
+    width: 100%;
+    z-index: 5;
+    padding: 10px 25px;
+    display: flex;
+    align-items: center;
+}
+
+/* Reset any nested lists */
+.breadcrumb ul,
+.breadcrumb ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* All breadcrumb items */
+.breadcrumb li,
+.breadcrumb > * {
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+/* Links in breadcrumbs */
+.breadcrumb a {
+    color: #000000;
+    text-decoration: none;
+    padding: 0 4px;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Current/last item (usually bold or non-link) */
+.breadcrumb b,
+.breadcrumb strong,
+.breadcrumb .current,
+.breadcrumb li:last-child {
+    color: #000000;
+    font-weight: normal;
+    padding: 0 4px;
+}
+
+/* Separator handling */
+.breadcrumb .separator,
+.breadcrumb li:not(:last-child)::after {
+    content: " ›› ";
+    color: #000000;
+    padding: 0 4px;
+    display: inline-block;
+}
+
+/* Don't double-up separators if Gretel adds its own */
+.breadcrumb li:not(:last-child):has(+ li .separator)::after,
+.breadcrumb li:has(.separator)::after {
+    content: none;
+}   
+
+/* side bar */
+
+.sidebar {
+    height: 100%;
+    width: 240px;
+    position: fixed;
+    z-index: 1;
+    top: 106px;
+    left: 0;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+    padding: 15px 15px;
+}
+
+.sidebar a {
+    padding: 10px 15px 15px 15px;
+    text-decoration: none;
+    font-size: 14px;
+    color: #000000;
+    display: block;
+}
+
+.sidebar a:hover {
+    color: #58c7ff;
+}
+
+.side-action {
+    margin-top: 300px;
+}
+
+.sidebar-divider {
+    opacity: 0.6;
+    margin-top: 50px;
+}
+

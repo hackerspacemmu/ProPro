@@ -1,0 +1,30 @@
+<div class="sidebar">
+  <% if @current_user_enrolment&.student? %>
+    <a id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
+    <a id="link-proposal-status"    href="#proposal-status">Proposal Status</a>
+    <a id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
+    <a href="#participants">Participants</a>
+  <% end %>
+
+  <% if @current_user_enrolment&.coordinator? %>
+    <a id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
+    <a id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
+    <a id="link-my-topics"         href="#my-topics">My Topics</a>
+    <a id="link-pending-topics"    href="#pending-topics">Pending Topics</a>
+    <a id="link-pending-proposals" href="#pending-proposals">Pending Proposals</a>
+    <a href="#participants">Participants</a>
+
+    <hr class="sidebar-divider"></hr>
+    <%= link_to "add students", add_students_course_path(@course) %>
+    <%= link_to "add lecturers", add_lecturers_course_path(@course) %>
+  <% end %>
+
+  <% if @current_user_enrolment&.lecturer? %>
+    <a href="#proposal-guidelines">Proposal Description</a>
+    <a href="#supervisors-available">Supervisors Available</a>
+    <a href="#my-topics">My Topics</a>
+    <a href="#pending-topics">Pending Topics</a>
+    <a href="#participants">Participants</a>
+  <% end %>
+
+</div>
