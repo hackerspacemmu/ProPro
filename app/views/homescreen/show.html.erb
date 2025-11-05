@@ -11,10 +11,10 @@
   <li class="hover:bg-[#efefef] px-4.5 py-2"><%= link_to "Edit Profile", user_profile_path if Current.user.is_staff %></li>
   <li class="hover:bg-[#efefef] px-4.5 py-2"><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
 </ul>
-<div class="flex flex-col fixed bg-[#f8f9fa] top-22 h-[calc(100%-5.5rem)] w-60 z-1">
+<div id="sidebar" class="flex flex-col fixed bg-[#f8f9fa] top-22 h-[calc(100%-5.5rem)] w-60 z-1">
   <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" href="#home">Courses</a>
 </div>
-<div class="main">
+<div id="main" class="main">
   <h1>Dashboard</h1>
   <h3>Your Courses</h3>
   <br>
