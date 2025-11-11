@@ -31,7 +31,7 @@ body {
   flex: 1;
   max-width: 900px;
   width: 100%;
-  margin: 0 auto;
+  margin-left: 240px;
   padding: 60px 40px;
 }
 

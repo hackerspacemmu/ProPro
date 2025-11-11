@@ -47,19 +47,14 @@ crumb :course_add_lecturers do |course|
   parent :course, course
 end
 
-crumb :course_participant_profile do |course, participant|
-  link participant.username, course_participant_profile_path(course, participant.id, participant.class.name)
-  parent :course, course  # change to :course_participants later 
-end
-
-crumb :project_template do |course|
-  link "Project Template", course_project_template_path(course)
-  parent :course, course
+crumb :course_participant_profile do |course, participant_name|
+  link participant_name, "#"  
+  parent :course, course # change to :course_participants later 
 end
 
 crumb :edit_project_template do |course|
   link "Edit Template", edit_course_project_template_path(course)
-  parent :project_template, course
+  parent :course, course
 end
 
 crumb :topics do |course|

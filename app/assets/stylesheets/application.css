@@ -10,8 +10,10 @@
  */
 
 body {
-    background-color: #efefef;
-    font-family: 'Inter', sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 html {
@@ -32,7 +34,7 @@ html {
     left: 0;
     width: 100%;
     height: 70px;
-    z-index: 5;
+    z-index: 100;
 }
 
 .topbar > a:first-child {
@@ -80,14 +82,11 @@ html {
 
 /* breadcrumb */
 
-/* breadcrumb (keith) */
-
 .breadcrumb {
     background-color: #b5b5b5;
-    overflow: hidden;
     position: fixed;
-    top: 70px;  /* Fixed to match topbar height */
-    left: 0px;
+    top: 70px;
+    left: 0;
     height: 36px;
     width: 100%;
     z-index: 5;
@@ -96,62 +95,34 @@ html {
     align-items: center;
 }
 
-/* Reset any nested lists */
-.breadcrumb ul,
-.breadcrumb ol {
+.breadcrumb,
+.breadcrumb ul {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    gap: 7px;
 }
 
-/* All breadcrumb items */
-.breadcrumb li,
-.breadcrumb > * {
-    display: inline-flex;
-    align-items: center;
+.breadcrumb li {
+    display: inline;
     font-size: 14px;
-    margin: 0;
-    padding: 0;
 }
 
-/* Links in breadcrumbs */
 .breadcrumb a {
     color: #000000;
     text-decoration: none;
-    padding: 0 4px;
+    margin-left: 10px;
 }
 
 .breadcrumb a:hover {
     text-decoration: underline;
 }
 
-/* Current/last item (usually bold or non-link) */
 .breadcrumb b,
-.breadcrumb strong,
-.breadcrumb .current,
-.breadcrumb li:last-child {
+.breadcrumb .current {
     color: #000000;
     font-weight: normal;
-    padding: 0 4px;
 }
-
-/* Separator handling */
-.breadcrumb .separator,
-.breadcrumb li:not(:last-child)::after {
-    content: " ›› ";
-    color: #000000;
-    padding: 0 4px;
-    display: inline-block;
-}
-
-/* Don't double-up separators if Gretel adds its own */
-.breadcrumb li:not(:last-child):has(+ li .separator)::after,
-.breadcrumb li:has(.separator)::after {
-    content: none;
-}   
 
 /* side bar */
 
