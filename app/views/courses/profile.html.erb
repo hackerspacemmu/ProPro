@@ -21,11 +21,21 @@
 <% @latest_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>
 
-<main id="lecturer">
+<% content_for :sidebar do %>
+  <div class="sidebar">
+    <a href="#title">Title</a>
+    <a href="#profile-information">Profile Information</a>
+    <% if @project.present? %>
+      <a href="#current-project">Current Project</a>
+    <% end %>
+  </div>
+<% end %>
+
+<main>
   <div class="lecturer-layout">
     <section class="lecturer-content">
       <header class="lecturer-header">
-        <div class="lecturer-title">
+        <div class="lecturer-title" id="title">
           <span class="lecturer-title-text">
             <% if @participant_type == 'group' %>
               View Group
@@ -44,7 +54,7 @@
           <% end %>
         </div>
         
-        <div class="lecturer-info">
+        <div class="lecturer-info" id="profile-information">
           <h2 class="lecturer-subtitle">Profile Information</h2>
           <div class="lecturer-line"></div>
           
@@ -133,7 +143,7 @@
 
       <!-- Current Project Section -->
       <% if @project.present? %>
-        <section class="lecturer-topics">
+        <section class="lecturer-topics", id="current-project">
           <header class="section-header">
             <h2 class="section-title">Current Project</h2>
           </header>

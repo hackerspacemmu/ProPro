@@ -3,6 +3,20 @@
 <% end %>
 <% breadcrumb :lecturer, @course, @lecturer %>
 <% content_for :title, "#{@lecturer.username.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
+<% content_for :sidebar do %>
+  <div class="sidebar">
+    <a href="#lecturer-name"> Name </a>
+    <a href="#profile-information"> Profile Information </a>
+    <a href="#projects"> Projects </a>
+    <a href="#proposals"> Proposals </a>
+    <% if full_access? %>
+      <a href="#full-released-topics"> Released Topics </a>
+    <% else %>
+      <a href="#released-topics"> Released Topics </a>
+    <% end %>
+    <a href="#pending-topics"> Pending Topics </a>
+  </div>
+<% end %>
 
 <main id="lecturer">
   <div class="lecturer-layout">
@@ -12,12 +26,12 @@
           <span class="lecturer-title-text">View Supervisor</span>
           <div class="title-line"></div>
         </div>
-        <div class="lecturer-name-row">
+        <div class="lecturer-name-row" id="lecturer-name">
           <div class="lecturer-badge"><%= @lecturer.username[0].upcase %></div>
           <h1 class="lecturer-name"><%= @lecturer.username %></h1>
         </div>
         
-        <div class="lecturer-info">
+        <div class="lecturer-info" id="profile-information">
           <h2 class="lecturer-subtitle">Profile Information</h2>
           <div class="lecturer-line"></div>
           
@@ -53,7 +67,7 @@
 
     <!-- PROJECTS  --!>
       <% if access? %>
-        <section class="lecturer-topics">
+        <section class="lecturer-topics" id="projects">
           <header class="section-header">
             <h2 class="section-title">Projects</h2>
           </header>
@@ -75,7 +89,7 @@
         </section>
 
       <!-- PROPOSALS  --!>
-        <section class="lecturer-topics">
+        <section class="lecturer-topics" id="proposals">
           <header class="section-header">
             <h2 class="section-title">Proposals</h2>
           </header>
@@ -99,7 +113,7 @@
 
     <!-- TOPICS --!>
     <% if @is_student || !access? %>
-      <section class="lecturer-topics">
+      <section class="lecturer-topics" id="released-topics">
         <header class="section-header">
           <h2 class="section-title">Released Topics</h2>
         </header>
@@ -121,7 +135,7 @@
 
 
       <% if full_access? %>
-        <section class="lecturer-topics">
+        <section class="lecturer-topics" id="full-released-topics">
           <header class="section-header">
             <h2 class="section-title">Released Topics</h2>
           </header>
@@ -145,7 +159,7 @@
         <!-- Pending Topics --!>
           <section class="lecturer-topics">
             <header class="section-header">
-              <h2 class="section-title">Pending Topics</h2>
+              <h2 class="section-title" id="pending-topics">Pending Topics</h2>
             </header>
             <div class="lecturer-line"></div>
             <div class="topics-container">
