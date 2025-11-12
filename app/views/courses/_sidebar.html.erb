@@ -1,0 +1,33 @@
+<% content_for :sidebar do %>
+  <div class="sidebar">
+    <% if @current_user_enrolment&.student? %>
+      <a href="#proposal-guidelines">Proposal Description</a>
+      <a href="#proposal-status">Proposal Status</a>
+      <a href="#supervisors-available">Supervisors Available</a>
+      <a href="#participants">Participants</a>
+    <% end %>
+
+    <% if @current_user_enrolment&.coordinator? %>
+      <a href="#proposal-guidelines">Proposal Description</a>
+      <a href="#my-student-projects">My Student Projects</a>
+      <a href="#incoming-proposals">Incoming Proposals</a>
+      <a href="#supervisors-available">Supervisors Available</a>
+      <a href="#my-topics">My Topics</a>
+      <a href="#incoming-topics">Incoming Topics</a>
+      <a href="#participants">Participants</a>
+
+      <hr class="sidebar-divider"></hr>
+      <%= link_to "add students", add_students_course_path(@course) %>
+      <%= link_to "add lecturers", add_lecturers_course_path(@course) %>
+    <% end %>
+
+    <% if @current_user_enrolment&.lecturer? %>
+      <a href="#proposal-guidelines">Proposal Description</a>
+      <a href="#my-student-projects">My Student Projects</a>
+      <a href="#incoming-proposals">Incoming Proposals</a>
+      <a href="#supervisors-available">Supervisors Available</a>
+      <a href="#my-topics">My Topics</a>
+      <a href="#participants">Participants</a>
+    <% end %>
+  </div>
+<% end %>

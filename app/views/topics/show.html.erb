@@ -3,6 +3,13 @@
 <% end %>
 <% breadcrumb :topic, @topic %>
 <% content_for :title, "#{@topic.current_title.truncate(TITLE_NAME_LIMIT)} - View Topic | ProPro" %>
+<% content_for :sidebar do %>
+  <div class="sidebar">
+    <a href="#topic-title"> Title </a>
+    <a href="#topic-properties"> Topic Properties </a>
+    <a href="#topic-comments"> Comments </a>
+  </div>
+<% end %>
 
 <main id="project">
   <div class="project-layout">

@@ -28,7 +28,7 @@
     <%= render 'shared/topbar', user: current_user, course: @course %>
     <%= breadcrumbs separator: " > ", class: "breadcrumb" %>
     <% unless content_for?(:no_sidebar) %>
-      <%= render "shared/sidebar" %>
+      <%= yield :sidebar %>
     <% end %>
 
     <%= yield %>
