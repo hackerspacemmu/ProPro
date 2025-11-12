@@ -42,7 +42,9 @@ class Project < ApplicationRecord
   before_validation :set_ownership_type
 
   def supervisor
-    User.find(Enrolment.find(self.enrolment_id).user_id)
+    return nil unless enrolment_id.present?
+    enrolment = Enrolment.find_by(id: enrolment_id)
+    enrolment&.user
   end
 
   def member

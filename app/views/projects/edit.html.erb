@@ -1,6 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
 <% end %>
+<% breadcrumb :edit_project, @project %>
 <% content_for :title, "Edit Proposal - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <main class="project-edit">

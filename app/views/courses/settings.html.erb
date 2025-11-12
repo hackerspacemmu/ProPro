@@ -1,8 +1,9 @@
 <% content_for :stylesheets do %>
     <%= stylesheet_link_tag "projects" %>
 <% end %>
-<% content_for :title, "Course Settings - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+<% breadcrumb :course_settings, @course %>
 
+<% content_for :title, "Course Settings - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 <main class="project-edit">
   <header class="edit-header">
     <div class="edit-header-row">

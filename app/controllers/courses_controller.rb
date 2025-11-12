@@ -528,7 +528,7 @@ class CoursesController < ApplicationController
   end 
 
   def build_group_rows(group, template_fields)
-    project = @course.projects.find_by(owner_type: "projectgroup", owner_id: group.id)
+    project = @course.projects.find_by(owner_type: "ProjectGroup", owner_id: group.id)
     current_instance = project&.current_instance
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
@@ -554,7 +554,7 @@ class CoursesController < ApplicationController
   end
 
   def build_student_rows(student, template_fields)
-    project = @course.projects.find_by(owner_type: "student", owner_id: student.id)
+    project = @course.projects.find_by(owner_type: "User", owner_id: student.id)
     current_instance = project&.current_instance
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
