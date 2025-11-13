@@ -1,13 +1,13 @@
 <header class="project-header">
   <h1 class="project-title"><%= current_instance.title %></h1>
 
-  <div class="project-metadata">
-    <div class="metadata-grid">
+  <div class="project-properties">
+    <div class="properties-grid">
 
       <!-- Owner -->
-      <div class="metadata-item owner-metadata">
-        <span class="metadata-label"><%= image_tag("person.svg") %> Owner</span>
-        <div class="metadata-value">
+      <div class="properties-item owner-properties">
+        <span class="properties-label"><%= image_tag("person.svg") %> Owner</span>
+        <div class="properties-value">
           <% if owner.is_a?(User) %>
             <p class="owner-row">
               <span class="user-badge"><%= owner.username[0].upcase %></span>
@@ -26,27 +26,27 @@
 
       <!-- Group Name (only if group project) -->
       <% if @topic.owner.is_a?(ProjectGroup) %>
-        <div class="metadata-item">
-          <span class="metadata-label"><%= image_tag("group.svg") %> Group Name</span>
-          <span class="metadata-value">
+        <div class="properties-item">
+          <span class="properties-label"><%= image_tag("group.svg") %> Group Name</span>
+          <span class="properties-value">
             <%= @topic.owner.group_name %>
           </span>
         </div>
       <% end %>
 
       <!-- Type -->
-      <div class="metadata-item">
-        <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
-        <span class="metadata-value">
+      <div class="properties-item">
+        <span class="properties-label"><%= image_tag("person.svg") %> Type</span>
+        <span class="properties-value">
           <p>Topic</p>
         </span>
       </div>
 
       <!-- Status -->
     <% if !@is_student %>
-      <div class="metadata-item">
-        <span class="metadata-label"><%= image_tag("status.svg") %> Status</span>
-        <div class="metadata-value">
+      <div class="properties-item">
+        <span class="properties-label"><%= image_tag("status.svg") %> Status</span>
+        <div class="properties-value">
           <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
             <div class="status-control">
               <%= form_with url: change_status_course_topic_path(@course, @topic), method: :patch, local: true, class: "status-change-form" do |f| %>
@@ -58,7 +58,7 @@
               <% end %>
             </div>
           <% else %>
-            <span class="metadata-value status-<%= current_instance.status %>">
+            <span class="properties-value status-<%= current_instance.status %>">
               <%= current_instance.status.humanize %>
             </span>
           <% end %>
@@ -66,14 +66,14 @@
       </div>
 
       <!-- Version Info with Navigation -->
-      <div class="metadata-item version-info">
-        <span class="metadata-label">
+      <div class="properties-item version-info">
+        <span class="properties-label">
           <%= image_tag("version.svg") %> Version
           <% if current_version != latest_version %>
             <em class="version-note">(viewing older version)</em>
           <% end %>
         </span>
-        <div class="metadata-value version-navigation">
+        <div class="properties-value version-navigation">
           <% # Back arrow: older version (lower index) %>
           <% if current_version > 1 %>
             <%= link_to course_topic_path(@course, topic, version: current_version - 1), class: "version-btn back-arrow" do %>

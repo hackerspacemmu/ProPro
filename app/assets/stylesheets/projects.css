@@ -56,52 +56,86 @@ body {
   font-size: 42px;
 }
 
-.project-metadata {
+.project-properties {
   width: 100%;
+  display: flex;
+  gap: 32px;
 }
 
-.metadata-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 0px;
-  align-items: start;
-}
-
-
-.metadata-item {
+.properties-column {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 8px;
+  gap: 24px;
 }
 
-.metadata-label {
+.properties-column-left {
+  padding-right: 32px;
+}
+
+.properties-column-left {
+  padding-left: 0px;
+}
+
+.properties-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start; 
+  padding: 0;
+  gap: 8px;
+}
+
+.properties-label {
   color: #454343;
   font-weight: 550;
   font-size: 16px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;  
+  min-width: 150px;
+  flex-shrink: 0;
 }
 
-.metadata-label img {
+.properties-label img {
   width: 17px;
   height: 17px;
   object-fit: contain;
 }
 
-.metadata-value {
+.properties-value {
   width: auto;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
   text-align: left;
+  flex: 1;
 }
 
-.owner-metadata .metadata-value {
+.owner-properties .properties-value {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   align-items: flex-start;
+}
+
+.version-container {
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.timestamp {
+  width: 100%;
+  font-size: 16px;
+  font-weight: 550px;
 }
 
 .status-control {
@@ -152,6 +186,7 @@ body {
 
 .version-navigation {
   display: flex !important;
+  flex-direction: row !important;
   flex-wrap: nowrap;
   align-items: center;
   white-space: nowrap;
@@ -731,7 +766,7 @@ textarea.form-control {
     max-width: 800px;
   }
 
-  .metadata-grid {
+  .properties-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
@@ -769,7 +804,7 @@ textarea.form-control {
     min-height: auto;
   }
 
-  .metadata-grid {
+  .properties-grid {
     grid-template-columns: 1fr;
   }
 
