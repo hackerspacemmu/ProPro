@@ -54,45 +54,43 @@
     <div class="properties-column properties-column-right">
       <!-- Status -->
       <div class="version-container">
-        <% if @current_instance.last_status_change_time.present? %>
-          <div class="timestamp"><%= format_timestamp(@current_instance.last_status_change_time) || '-' %></div>
-        <% end %>
-          <div class="properties-item">
-            <span class="properties-label"><%= image_tag("status.svg") %> Status</span>
-            <div class="properties-value">
-              <% if current_user == @project.supervisor && current_version== latest_version %>
-                <div class="status-control">
-                  <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
-                    <% statuses = Project.statuses.keys.without("not_submitted") %>
-                    <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@project.status}" %>
-                    <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
-                      <%= image_tag("check.svg") %>
-                    <% end %>
+        <div class="properties-item">
+          <span class="properties-label"><%= image_tag("status.svg") %> Status</span>
+          <div class="properties-value">
+            <% if current_user == @project.supervisor && current_version== latest_version %>
+              <div class="status-control">
+                <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "status-change-form" do |f| %>
+                  <% statuses = Project.statuses.keys.without("not_submitted") %>
+                  <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@project.status}" %>
+                  <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
+                    <%= image_tag("check.svg") %>
                   <% end %>
-                </div>
-              <% else %>
-                <span class="properties-value status-select status-<%= current_instance.status %>">
-                  <%= current_instance.status.humanize %>
-                </span>
-              <% end %>
-            </div>
+                <% end %>
+              </div>
+            <% else %>
+              <span class="properties-value status-select status-<%= current_instance.status %>">
+                <%= current_instance.status.humanize %>
+              </span>
+            <% end %>
           </div>
-
-        <div class="status-username">
-          <% if @current_instance.last_status_change_by.present? %>
-              <span class="status-dot <%= @current_instance.status %>"></span>
-              <%= username(@current_instance.last_status_change_by) || 'Not changed' %>
-          <% else %>
-            <%= image_tag("pending.svg") %> Awaiting review
+        </div>
+        <div class="timestamp-info">
+          <% if @current_instance.last_status_change_time.present? %>
+            <div class="timestamp"><%= format_timestamp(@current_instance.last_status_change_time) || '-' %></div>
           <% end %>
+          <div class="status-username">
+            <% if @current_instance.last_status_change_by.present? %>
+                <span class="status-dot <%= @current_instance.status %>"></span>
+                <%= username(@current_instance.last_status_change_by) || 'Not changed' %>
+            <% else %>
+              <%= image_tag("pending.svg") %> Awaiting review
+            <% end %>
+          </div>
         </div>
       </div>
 
       <!-- Version Info with Arrows -->
       <div class="version-container">
-        <% if @current_instance.last_edit_time.present? %>
-          <div class="timestamp"><%= format_timestamp(@current_instance.last_edit_time) || '-' %></div>
-        <% end %>
         <div class="properties-item version-info">
           <span 
             class="properties-label"><%= image_tag("version.svg") %> Version 
@@ -127,12 +125,17 @@
             <% end %>
           </div>
         </div>
-        <div class="status-username">
-          <% if @current_instance.last_edit_by.present? %>
-              <%= image_tag("edit.svg") %><%= username(@current_instance.last_edit_by) || 'Not changed' %>
-          <% else %>
-            No edits yet
+        <div class="timestamp-info">
+          <% if @current_instance.last_edit_time.present? %>
+            <div class="timestamp"><%= format_timestamp(@current_instance.last_edit_time) || '-' %></div>
           <% end %>
+          <div class="status-username">
+            <% if @current_instance.last_edit_by.present? %>
+                <%= image_tag("edit.svg") %><%= username(@current_instance.last_edit_by) || 'Not changed' %>
+            <% else %>
+              No edits yet
+            <% end %>
+          </div>
         </div>
       </div>
     </div>

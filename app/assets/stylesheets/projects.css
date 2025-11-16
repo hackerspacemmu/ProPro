@@ -59,15 +59,15 @@ body {
 .project-properties {
   width: 100%;
   display: flex;
+  gap: 12rem;
 }
 
 .properties-column {
-  flex: 0.35;
+  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
-
 
 .properties-item {
   display: flex;
@@ -124,20 +124,17 @@ body {
   border-radius: 12px;
 }
 
-.timestamp {
+.timestamp-info {
   color: #454343;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 12px;
   width: 100%;
+  opacity: 0.9;
 }
 
 .status-username {
   display: flex;
   align-items: center;
-  width: 100%;
-  color: #454343;
-  font-weight: 500;
-  font-size: 14px;
   gap: 10px;
 }
 
