@@ -1,9 +1,9 @@
 source "https://rubygems.org"
-ruby "3.4.4"
+ruby "3.4.7"
 
 gem "csv"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.2"
+gem "rails", ">= 8.0.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
@@ -20,11 +20,14 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 # Used to differentaite text
-gem 'diffy'
 gem 'diff-lcs'
 
 # Use to handle breadcrumb trails 
 gem "gretel"
+
+# tailwindcss
+gem "tailwindcss-rails", "~> 4.3"
+
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
@@ -34,14 +37,14 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 # gem "solid_cache"
-# gem "solid_queue"
+gem "solid_queue"
 # gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
-gem "kamal", require: false
+#gem "kamal", require: false
 
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
@@ -70,6 +73,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-
-gem "tailwindcss-rails", "~> 4.3"
