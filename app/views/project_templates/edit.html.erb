@@ -1,6 +1,8 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "project_templates" %>
 <% end %>
+<% provide :no_sidebar, true %>
+<% breadcrumb :edit_project_template, @course %>
 <% content_for :title, "Edit Project Template - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <main id="course">
@@ -38,7 +40,7 @@
 
       <div class="add-field-section">
         <button type="button"
-  label: "Project Title"
+          label: "Project Title"
           id="add-field-btn" 
           data-course-id="<%= @course.id %>" 
           data-field-index="<%= @project_template.project_template_fields.size %>"> 

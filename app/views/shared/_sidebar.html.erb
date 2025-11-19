@@ -1,13 +1,13 @@
 <div class="flex flex-col fixed bg-[#f8f9fa] top-22 h-[calc(100%-5.5rem)] w-60 z-1 justify-between ">
   <div>
-    <% if current_user_enrolment&.student? %>
+    <% if @current_user_enrolment&.student? %>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-proposal-status"    href="#proposal-status">Proposal Status</a>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" href="#participants">Participants</a>
     <% end %>
 
-    <% if current_user_enrolment&.coordinator? or current_user_enrolment&.lecturer? %>
+    <% if @current_user_enrolment&.coordinator? or current_user_enrolment&.lecturer? %>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-proposal-guidelines" href="#proposal-guidelines">Proposal Description</a>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-supervisors-available" href="#supervisors-available">Supervisors Available</a>
       <a class="p-3 pt-2 text-sm block hover:bg-[#b5b5b5] justify-center align-center" id="link-my-topics"         href="#my-topics">My Topics</a>
@@ -21,7 +21,7 @@
   </div>
   <div class="flex flex-col rounded-xl justify-center">
  
-    <% if current_user_enrolment&.lecturer? or current_user_enrolment&.coordinator?%>
+    <% if @current_user_enrolment&.lecturer? or current_user_enrolment&.coordinator?%>
       <%= link_to "Add Students", add_students_course_path(@course), class:"p-3  text-sm block hover:bg-[#b5b5b5]" %> 
       <%= link_to "Add Lecturers", add_lecturers_course_path(@course), class:"p-3  text-sm block hover:bg-[#b5b5b5]" %> 
 

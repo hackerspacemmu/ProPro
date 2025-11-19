@@ -2,10 +2,9 @@
   <%= stylesheet_link_tag "tailwind", "courses", "data-turbo-track": "reload" %>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <% end %>
+<% breadcrumb :course, @course %>
+
 <% content_for :title, "#{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
-<%= render 'topbar', user: current_user, course: @course %>
-<%= render 'breadcrumb', course: @course %>
-<%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
 <div class="main">
   <header class="course-header">

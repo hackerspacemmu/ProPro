@@ -1,11 +1,19 @@
 class UserController < ApplicationController
   allow_unauthenticated_access only: %i[ new_staff new_student create ]
   def new_student
-    @email = Otp.find_by(token: params[:token]).user.email_address
+    begin
+      @email = Otp.find_by(token: params[:token]).user.email_address
+    rescue StandardError
+      redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in." 
+    end
   end
 
   def new_staff
-    @email = Otp.find_by(token: params[:token]).user.email_address
+    begin
+      @email = Otp.find_by(token: params[:token]).user.email_address
+    rescue StandardError
+      redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
+    end
   end
 
   def create
@@ -39,7 +47,7 @@ class UserController < ApplicationController
       return
     end
 
-    otp_instance = Otp.find_by(token: response[:token], otp: response[:otp])
+    otp_instance = Otp.find_by(token: response[:token], otp: response[:otp].strip())
 
     if !otp_instance
       redirect_back_or_to "/", alert: "Something went wrong"

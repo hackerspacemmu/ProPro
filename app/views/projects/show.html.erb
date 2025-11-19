@@ -1,6 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
 <% end %>
+<% breadcrumb :project, @project %>
 <% content_for :title do %>
    <%=@project.current_title.truncate(TITLE_NAME_LIMIT) %> -
    View <%= @project.current_instance.approved? ? 'Project' : 'Proposal' %> | ProPro
@@ -61,5 +62,3 @@
      </div>
    </main>
 
- </body>
-</html>

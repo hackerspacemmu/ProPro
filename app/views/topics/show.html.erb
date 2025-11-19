@@ -1,6 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
 <% end %>
+<% breadcrumb :topic, @topic %>
 <% content_for :title, "#{@topic.current_title.truncate(TITLE_NAME_LIMIT)} - View Topic | ProPro" %>
 
 <main id="project">
