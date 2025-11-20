@@ -1,20 +1,28 @@
-<div class="project-card  status-<%= project.status %>">
-<% project_instance = project.project_instances.order(:version).last %>
-<% if project_instance %>
-  <% is_my_topic = project.lecturer? && project.owner == current_user %>
-  <% if is_my_topic || project_viewable_by_current_user?(@course, project) %>
-    <% path =
-      if project.lecturer?
-        course_topic_path(@course, project)
-      else
-        course_project_path(@course, project)
-      end %>
-
-    <%= link_to path, class: "card-link" do %>
+<div class="project-card status-<%= project.status %>">
+  <% project_instance = project.project_instances.order(:version).last %>
+  <% if project_instance %>
+    <% is_my_topic = project.lecturer? && project.owner == current_user %>
+    <% if is_my_topic || project_viewable_by_current_user?(@course, project) %>
+      <% 
+        # breadcrumb
+        path = if project.lecturer?
+          course_topic_path(@course, project)
+        elsif local_assigns[:lecturer].present?
+          # From lecturer/show
+          course_lecturer_project_path(course, lecturer, project)
+        elsif local_assigns[:participant_id].present? && local_assigns[:participant_type].present?
+          # From student/group show
+          course_project_path(course, project, from_participant: participant_id, participant_type: participant_type)
+        else
+          # From course/show
+          course_project_path(@course, project)
+        end
+      %>
+      <%= link_to path, class: "card-link" do %>
+        <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
+      <% end %>
+    <% else %>
       <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
     <% end %>
-  <% else %>
-    <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
   <% end %>
-<% end %>
 </div>
