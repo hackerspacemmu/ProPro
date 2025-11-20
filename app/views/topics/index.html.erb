@@ -1,11 +1,10 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "courses" %>
 <% end %>
-<% breadcrumb :topic, @topic %>
+<% breadcrumb :topics, @course %>
 
 <% content_for :title, "Topics List - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 <%= render 'topbar', user: current_user %>
-<%= render 'breadcrumb', course: @course %>
 <%= render 'courses/sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
 <main class="main">

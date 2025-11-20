@@ -490,24 +490,20 @@ class CoursesController < ApplicationController
 
   def generate_csv_export
     template_fields = @course.project_template&.project_template_fields&.order(:id) || []
-    headers = build_csv_headers(template_fields)
-    rows = []
-
-    if @course.grouped?
-      @group_list.each do |group|
-        group_rows = build_group_rows(group, template_fields)
-        rows.concat(group_rows)
-      end
-    else 
-      @student_list.each do |student|
-        student_rows = build_student_rows(student, template_fields)
-        rows.concat(student_rows)
+    
+    CSV.generate do |csv|
+      csv << build_csv_headers(template_fields)
+      
+      if @course.grouped?
+        @group_list.each do |group|
+          build_group_rows(group, template_fields).each { |row| csv << row }
+        end
+      else 
+        @student_list.each do |student|
+          build_student_rows(student, template_fields).each { |row| csv << row }
+        end
       end
     end
-
-    csv_strings = [headers.to_csv]
-    rows.each { |row| csv_strings << row.to_csv }
-    csv_strings.join
   end
 
   def build_csv_headers(template_fields)
@@ -518,7 +514,7 @@ class CoursesController < ApplicationController
     # Project Title is handled by validation in Project.rb
     template_fields = template_fields.reject { |field| field.label == "Project Title" }
     project_fields = template_fields.select do |field|
-      field.applicable_to == 'proposals' || field.applicable_to == 'both'
+      field.proposals? || field.both?
     end
 
     project_fields.each do |field|
@@ -597,7 +593,7 @@ class CoursesController < ApplicationController
             field.value.to_s
           end
         else
-          field.value.to_s
+          field.value
         end
       else 
         ''

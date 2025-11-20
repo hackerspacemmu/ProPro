@@ -4,16 +4,6 @@
     </header>
 
     <div class="fields-container">
-
-      <% if @is_coordinator || @is_lecturer %>
-        <% if @current_instance.last_edit_time.nil? %>
-          <p> Has not been Edited </p>
-        <% else %>
-          <p> <%= @current_instance.last_edit_time.in_time_zone("Asia/Singapore").strftime("%I:%M %p , %d %b %Y") %></p>
-          <p>by <%= @editer %> </p>
-        <% end %>
-      <% end %>
-
       <% fields.each do |field| %>
         <div class="field-row">
           <div class="field-label">
