@@ -57,7 +57,7 @@ class AddSolidQueueTables < ActiveRecord::Migration[8.0]
     t.bigint "supervisor_id"
     t.integer "pid", null: false
     t.string "hostname"
-    t.text "metadata"
+    t.text "properties"
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.index [ "last_heartbeat_at" ], name: "index_solid_queue_processes_on_last_heartbeat_at"

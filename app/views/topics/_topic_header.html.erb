@@ -1,13 +1,21 @@
 <header class="project-header" id="topic-title">
   <h1 class="project-title"><%= current_instance.title %></h1>
 
-  <div class="project-metadata" id="topic-properties">
-    <div class="metadata-grid">
+  <div class="project-properties">
+    <div class="properties-column properties-column-left">
+
+      <!-- Type -->
+      <div class="properties-item">
+        <span class="properties-label"><%= image_tag("person.svg") %> Type</span>
+        <span class="properties-value">
+          <p>Topic</p>
+        </span>
+      </div>
 
       <!-- Owner -->
-      <div class="metadata-item owner-metadata">
-        <span class="metadata-label"><%= image_tag("person.svg") %> Owner</span>
-        <div class="metadata-value">
+      <div class="properties-item owner-properties">
+        <span class="properties-label"><%= image_tag("person.svg") %> Owner</span>
+        <div class="properties-value">
           <% if owner.is_a?(User) %>
             <p class="owner-row">
               <span class="user-badge"><%= owner.username[0].upcase %></span>
@@ -26,80 +34,104 @@
 
       <!-- Group Name (only if group project) -->
       <% if @topic.owner.is_a?(ProjectGroup) %>
-        <div class="metadata-item">
-          <span class="metadata-label"><%= image_tag("group.svg") %> Group Name</span>
-          <span class="metadata-value">
+        <div class="properties-item">
+          <span class="properties-label"><%= image_tag("group.svg") %> Group Name</span>
+          <span class="properties-value">
             <%= @topic.owner.group_name %>
           </span>
         </div>
       <% end %>
+    </div>
 
-      <!-- Type -->
-      <div class="metadata-item">
-        <span class="metadata-label"><%= image_tag("person.svg") %> Type</span>
-        <span class="metadata-value">
-          <p>Topic</p>
-        </span>
-      </div>
-
-      <!-- Status -->
     <% if !@is_student %>
-      <div class="metadata-item">
-        <span class="metadata-label"><%= image_tag("status.svg") %> Status</span>
-        <div class="metadata-value">
-          <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
-            <div class="status-control">
-              <%= form_with url: change_status_course_topic_path(@course, @topic), method: :patch, local: true, class: "status-change-form" do |f| %>
-                <% statuses = TopicInstance.statuses.keys.without("not_submitted") %>
-                <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@topic.status}" %>
-                <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
-                  <%= image_tag("check.svg")%>
-                <% end %>
+      <div class="properties-column properties-column-right">
+        <!-- Status -->
+        <div class="version-container">
+          <div class="properties-item">
+            <span class="properties-label"><%= image_tag("status.svg") %> Status</span>
+            <div class="properties-value">
+              <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
+                <div class="status-control">
+                  <%= form_with url: change_status_course_topic_path(@course, @topic), method: :patch, local: true, class: "status-change-form" do |f| %>
+                    <% statuses = TopicInstance.statuses.keys.without("not_submitted") %>
+                    <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@topic.status}" %>
+                    <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
+                      <%= image_tag("check.svg")%>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% else %>
+                <span class="properties-value status-select status-<%= current_instance.status %>">
+                  <%= current_instance.status.humanize %>
+                </span>
               <% end %>
             </div>
-          <% else %>
-            <span class="metadata-value status-<%= current_instance.status %>">
-              <%= current_instance.status.humanize %>
-            </span>
-          <% end %>
-        </div>
-      </div>
-
-      <!-- Version Info with Navigation -->
-      <div class="metadata-item version-info">
-        <span class="metadata-label">
-          <%= image_tag("version.svg") %> Version
-          <% if current_version != latest_version %>
-            <em class="version-note">(viewing older version)</em>
-          <% end %>
-        </span>
-        <div class="metadata-value version-navigation">
-          <% # Back arrow: older version (lower index) %>
-          <% if current_version > 1 %>
-            <%= link_to course_topic_path(@course, topic, version: current_version - 1), class: "version-btn back-arrow" do %>
-              <%= image_tag("arrow_back.svg", class:"back-arrow") %>
+          </div>
+        
+          <div class="timestamp-info">
+            <% if @current_instance.last_status_change_time.present? %>
+              <div class="timestamp"><%= format_timestamp(@current_instance.last_status_change_time) || '-' %></div>
             <% end %>
-          <% else %>
-            <span class="version-btn back-arrow disabled">
-              <%= image_tag("arrow_back.svg", class:"back-arrow") %>
-            </span>
-          <% end %>
-
-          <span class="version-text"><%= current_version %> of <%= instances.size %></span>
-
-          <% # Next arrow: newer version (higher index) %>
-          <% if current_version < instances.size %>
-            <%= link_to course_topic_path(@course, topic, version: current_version + 1), class: "version-btn next-arrow" do %>
-              <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
-            <% end %>
-          <% else %>
-            <span class="version-btn next-arrow disabled">
-              <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
-            </span>
-          <% end %>
+            <div class="status-username">
+              <% if @current_instance.last_status_change_by.present? %>
+                  <span class="status-dot <%= @current_instance.status %>"></span>
+                  <%= username(@current_instance.last_status_change_by) || 'Not changed' %>
+              <% else %>
+                <%= image_tag("pending.svg") %> Awaiting review
+              <% end %>
+            </div>
+          </div>
         </div>
-      </div>
-    <% end %>
+
+          <!-- Version Info with Navigation -->
+          <div class="version-container">
+            <div class="properties-item version-info">
+              <span class="properties-label">
+                <%= image_tag("version.svg") %> Version
+                <% if current_version != latest_version %>
+                  <em class="version-note">(older)</em>
+                <% end %>
+              </span>
+              <div class="properties-value version-navigation">
+                <% # Back arrow: older version (lower index) %>
+                <% if current_version > 1 %>
+                  <%= link_to course_topic_path(@course, topic, version: current_version - 1), class: "version-btn back-arrow" do %>
+                    <%= image_tag("arrow_back.svg", class:"back-arrow") %>
+                  <% end %>
+                <% else %>
+                  <span class="version-btn back-arrow disabled">
+                    <%= image_tag("arrow_back.svg", class:"back-arrow") %>
+                  </span>
+                <% end %>
+
+                <span class="version-text"><%= current_version %> of <%= instances.size %></span>
+
+                <% # Next arrow: newer version (higher index) %>
+                <% if current_version < instances.size %>
+                  <%= link_to course_topic_path(@course, topic, version: current_version + 1), class: "version-btn next-arrow" do %>
+                    <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
+                  <% end %>
+                <% else %>
+                  <span class="version-btn next-arrow disabled">
+                    <%= image_tag("arrow_forward.svg", class:"foward-arrow") %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+            <div class="timestamp-info">
+              <% if @current_instance.last_edit_time.present? %>
+                <div class="timestamp"><%= format_timestamp(@current_instance.last_edit_time) || '-' %></div>
+              <% end %>
+              <div class="status-username">
+                <% if @current_instance.last_edit_by.present? %>
+                    <%= image_tag("edit.svg") %><%= username(@current_instance.last_edit_by) || 'Not changed' %>
+                <% else %>
+                  No edits yet
+                <% end %>
+              </div>
+            </div>
+          </div>
+      <% end %>
 
     </div>
   </div>

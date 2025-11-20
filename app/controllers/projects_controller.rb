@@ -59,7 +59,11 @@ class ProjectsController < ApplicationController
     end
 
     new_status = params[:status]
-    @project.project_instances.last.update!(status: new_status)
+    @project.project_instances.last.update!(
+      status: new_status,
+      last_status_change_time: Time.current,
+      last_status_change_by: current_user.id
+      )
 
     GeneralMailer.with(
       course: @course,
@@ -120,6 +124,9 @@ class ProjectsController < ApplicationController
         # Set title
         title_field_id = params[:fields].keys.first if params[:fields].present?
         @instance.title = params[:fields][title_field_id] if title_field_id.present?
+
+        @instance.last_edit_time = Time.current
+        @instance.last_edit_by = current_user.id
 
         if !@instance.save
           raise StandardError
