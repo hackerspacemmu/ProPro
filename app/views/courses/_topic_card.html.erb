@@ -1,10 +1,18 @@
-<div class="project-card  status-<%= topic.status %>">
+<div class="project-card status-<%= topic.status %>">
 <% topic_instance = topic.topic_instances.order(:version).last %>
 <% if topic_instance %>
   <% is_my_topic = topic.owner == current_user %>
   <% if is_my_topic || topic_viewable_by_current_user?(@course, topic) %>
-    <% path = course_topic_path(@course, topic) %>
-
+    <% 
+      # breadcrumb
+      path = if local_assigns[:lecturer].present?
+        # From lecturer/show
+        course_lecturer_topic_path(course, lecturer, topic)
+      else
+        # From topics/index or course/show
+        course_topic_path(@course, topic)
+      end
+    %>
     <%= link_to path, class: "card-link" do %>
       <%= render 'courses/topic_card_contents', topic: topic, topic_instance: topic_instance %>
     <% end %>

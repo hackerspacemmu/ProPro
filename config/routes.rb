@@ -55,6 +55,8 @@ Rails.application.routes.draw do
         patch 'promote_to_coordinator'
         patch 'demote_to_lecturer'
       end
+
+      resources :projects, only: [:show], controller: 'projects'
       
       resources :topics, only: [:index, :show, :edit, :update, :create, :new] do
         member do

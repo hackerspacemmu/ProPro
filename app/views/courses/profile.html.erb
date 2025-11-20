@@ -153,7 +153,10 @@
               <%= render partial: 'courses/project_card',
                         object: @project,
                         as: :project,
-                        locals: { course: @course } %>
+                        locals: { course: @course,
+                        participant_id: @participant_type == 'group' ? @group.id : @student.id,
+                        participant_type: @participant_type
+                        } %>
             </div>
           </div>
         </section>
