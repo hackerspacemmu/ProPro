@@ -17,11 +17,11 @@
                 <% else %>
                   <h4 class="comment-author"><%= comment.user.username %></h4>
                 <% end %>
-               <time class="comment-date">
+                <time class="comment-date">
                   <% if comment.created_at > 3.days.ago %>
                     <%= time_ago_in_words(comment.created_at) %> ago
                   <% else %>
-                    <%= comment.created_at.strftime("%d %b %Y, %I:%M %p") %>
+                    <%= format_timestamp(comment.created_at) %>
                   <% end %>
                 </time>
                 <% if Current.user == comment.user && !comment.deleted %>
