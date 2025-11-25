@@ -49,12 +49,16 @@ Rails.application.routes.draw do
       end
 
     end
+
+    resources :participants, only: [:index]
   
     resources :lecturers, only: [:index, :show] do
       member do
         patch 'promote_to_coordinator'
         patch 'demote_to_lecturer'
       end
+
+      resources :projects, only: [:show], controller: 'projects'
       
       resources :topics, only: [:index, :show, :edit, :update, :create, :new] do
         member do

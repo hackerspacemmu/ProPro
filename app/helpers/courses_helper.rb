@@ -22,4 +22,5 @@ module CoursesHelper
     return 'not_submitted' unless project
     project.current_status
   end
+
 end

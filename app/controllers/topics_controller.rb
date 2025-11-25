@@ -8,15 +8,17 @@ class TopicsController < ApplicationController
     @instances = @topic.topic_instances.order(version: :asc)
     @owner = @topic.owner
     @status = @topic.current_instance&.status
-
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
-
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
     if @owner.is_a?(ProjectGroup)
       @members = @owner.users  #All memebers if group project
     else
       @members = [@owner] #individual
+    end
+
+    if params[:lecturer_id]
+      @lecturer = User.find(params[:lecturer_id])
     end
 
     if !params[:version].blank?

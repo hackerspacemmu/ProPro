@@ -79,7 +79,21 @@ end
 
 crumb :project do |project|
   link project.project_instances.last&.title 
-  parent :course, project.course
+  
+  if params[:lecturer_id]
+    lecturer = ::User.find(params[:lecturer_id])
+    parent :lecturer, project.course, lecturer
+    
+  elsif params[:from_participant] && params[:participant_type]
+    if params[:participant_type] == 'group'
+      participant_name = ::ProjectGroup.find(params[:from_participant]).group_name
+    else
+      participant_name = ::User.find(params[:from_participant]).username
+    end
+    parent :course_participant_profile, project.course, participant_name
+  else
+    parent :course, project.course
+  end
 end
 
 crumb :new_project do |course|
@@ -114,23 +128,16 @@ crumb :lecturer do |course, lecturer|
   parent :course, course
 end
 
-crumb :lecturer_topics do |course, lecturer|
-  link "Topics", course_lecturer_topics_path(course, lecturer)
-  parent :lecturer, course, lecturer
-end
-
-crumb :lecturer_topic do |lecturer, topic|
+crumb :topic do |topic|
   link topic.topic_instances.last&.title 
-  parent :lecturer_topics, topic.course, lecturer
-end
-
-crumb :new_lecturer_topic do |course, lecturer|
-  link "New Topic", new_course_lecturer_topic_path(course, lecturer)
-  parent :lecturer_topics, course, lecturer
-end
-
-crumb :edit_lecturer_topic do |lecturer, topic|
-  link "Edit", edit_course_lecturer_topic_path(topic.course, lecturer, topic)
-  parent :lecturer_topic, lecturer, topic
+  
+  if params[:lecturer_id]
+    # From lecturer/show
+    lecturer = ::User.find(params[:lecturer_id])
+    parent :lecturer, topic.course, lecturer
+  else
+    # From topics/index
+    parent :topics, topic.course
+  end
 end
 
