@@ -49,6 +49,8 @@ Rails.application.routes.draw do
       end
 
     end
+
+    resources :participants, only: [:index]
   
     resources :lecturers, only: [:index, :show] do
       member do
