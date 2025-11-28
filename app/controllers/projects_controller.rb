@@ -230,11 +230,40 @@ class ProjectsController < ApplicationController
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
+    @field_values = {}
+
     # Optionally preselect topic or own proposal
     if params[:topic_id].present? && Project.exists?(id: params[:topic_id], course: @course)
       @selected_topic_id = params[:topic_id]
     end
   end
+
+def selected_topic
+  topic_id = params[:based_on_topic]
+
+  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+
+  if topic_id.start_with?("own_proposal_")
+
+    # Own Proposal
+    @field_values = {}
+  else
+    #Topics chosen
+    topic = Topic.find(topic_id)
+    latest_instance = topic.current_instance
+
+    # Sorts by id
+    @field_values = latest_instance.project_instance_fields.index_by(&:project_template_field_id)
+  end
+
+  render partial: "project_new",
+         locals: { template_fields: @template_fields,
+                   field_values: @field_values }
+end
+
+
+
+
 
   def create
     @course = Course.find(params[:course_id])

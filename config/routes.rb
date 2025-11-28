@@ -39,6 +39,9 @@ Rails.application.routes.draw do
       member do
         patch :change_status
       end
+      collection do
+        get 'selected_topic', to: 'projects#selected_topic'
+      end
 
       resources :progress_updates, only: [:show, :edit, :update, :create, :new, :destroy]
     end

@@ -19,6 +19,34 @@
   <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, local: true, class: "edit-form") do |form| %>
 
     <div class="fields-container">
+
+      <div class="field">
+        <label>Based on Topic</label><br/>
+        <select name="based_on_topic" class="form-control" required>
+          <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
+            <option value="" selected disabled>-- Select a Topic --</option>
+          <% end %>
+          <% @lecturer_options.each do |lecturer_enrolment| %>
+            <% lecturer = lecturer_enrolment.user %>
+            <optgroup label="<%= lecturer.username %>">
+              <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
+
+              <% approved_topics.each do |topic| %>
+                <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+
+                <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
+                  <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
+                </option>
+              <% end %>
+
+              <option value="own_proposal_<%= lecturer_enrolment.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>>
+                <%= "#{lecturer.username} - Own Proposal" %>
+              </option>
+            </optgroup>
+          <% end %>
+        </select>
+      </div>
+
       <% @template_fields.each do |field| %>
         <div class="field-row">
           <%= label_tag "fields_#{field.id}",
@@ -71,32 +99,6 @@
           <% end %>
         </div>
       <% end %>
-      <div class="field">
-        <label>Based on Topic</label><br/>
-        <select name="based_on_topic" class="form-control" required>
-          <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
-            <option value="" selected disabled>-- Select a Topic --</option>
-          <% end %>
-          <% @lecturer_options.each do |lecturer_enrolment| %>
-            <% lecturer = lecturer_enrolment.user %>
-            <optgroup label="<%= lecturer.username %>">
-              <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
-
-              <% approved_topics.each do |topic| %>
-                <% latest_instance = topic.topic_instances.order(version: :desc).first %>
-
-                <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
-                  <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
-                </option>
-              <% end %>
-
-              <option value="own_proposal_<%= lecturer_enrolment.id %>" <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>>
-                <%= "#{lecturer.username} - Own Proposal" %>
-              </option>
-            </optgroup>
-          <% end %>
-        </select>
-      </div>
 
          
       <div class="form-actions">

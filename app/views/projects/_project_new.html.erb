@@ -1,0 +1,41 @@
+<% template_fields.each do |field| %>
+  <% value = field_values[field.id]&.value %>
+
+  <div class="field-row">
+    <%= label_tag "fields_#{field.id}", field.label, class: "field-label" %>
+
+    <% case field.field_type %>
+    <% when "shorttext" %>
+      <%= text_field_tag "fields[#{field.id}]",
+                         value,
+                         class: "form-control",
+                         placeholder: field.hint %>
+
+    <% when "textarea" %>
+      <%= text_area_tag "fields[#{field.id}]",
+                        value,
+                        class: "form-control",
+                        placeholder: field.hint %>
+
+    <% when "dropdown" %>
+      <%= select_tag "fields[#{field.id}]",
+                     options_for_select(field.option_list, value),
+                     prompt: "Select an option",
+                     class: "form-control" %>
+
+    <% when "radio" %>
+      <% field.option_list.each_with_index do |option, idx| %>
+        <%= radio_button_tag "fields[#{field.id}]",
+                             option,
+                             value == option %>
+        <%= label_tag "field_#{field.id}_#{idx}", option %>
+      <% end %>
+
+    <% else %>
+      <%= text_field_tag "fields[#{field.id}]",
+                         value,
+                         class: "form-control" %>
+    <% end %>
+
+  </div>
+<% end %>
