@@ -24,7 +24,7 @@
     <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js" %>
   </head>
 
-  <body
+  <body>
     <%= render 'shared/topbar', user: current_user, course: @course %>
     <%= breadcrumbs separator: " > ", class: "breadcrumb" %>
     <% unless content_for?(:no_sidebar) %>
