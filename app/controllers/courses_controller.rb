@@ -144,7 +144,6 @@ class CoursesController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         # Remove the leading 'S-' from student IDs if present
-        puts 'Before cleaning IDs:'
         csv_obj.each do |row|
           student_id = row["ID number"]
           row["ID number"] = student_id&.replace(student_id[2..]) if student_id&.start_with?('S-')
