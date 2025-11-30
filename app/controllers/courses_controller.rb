@@ -143,6 +143,13 @@ class CoursesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
+        # Remove the leading 'S-' from student IDs if present
+        puts 'Before cleaning IDs:'
+        csv_obj.each do |row|
+          student_id = row["ID number"]
+          row["ID number"] = student_id&.replace(student_id[2..]) if student_id&.start_with?('S-')
+        end
+
         if @course.grouped
           student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
           create_db_entries_grouped(student_hashmap, @course, unregistered_students)
@@ -719,4 +726,3 @@ class CoursesController < ApplicationController
     students_by_status(params[:status_filter], @student_list, @students_with_projects, @students_without_projects, @course)
   end
 end
-
