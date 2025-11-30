@@ -1,5 +1,8 @@
 class NilEnrolmentIdInTopicInstancesAndTopics < ActiveRecord::Migration[8.0]
   def change
+    change_column_null :projects, :enrolment_id, true
+    change_column_null :project_instances, :enrolment_id, true
+
     Topic.find_each do |topic|
       topic.update!(enrolment_id: nil)
     end

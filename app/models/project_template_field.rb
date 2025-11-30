@@ -26,4 +26,3 @@ class ProjectTemplateField < ApplicationRecord
   end
 
 end
-

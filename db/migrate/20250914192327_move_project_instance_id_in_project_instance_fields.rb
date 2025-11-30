@@ -7,8 +7,8 @@ class MoveProjectInstanceIdInProjectInstanceFields < ActiveRecord::Migration[8.0
           next
         end
 
-        topic_instance = Topic.find_by(id: project_instance_field.project_instance_id)
-        project_instance = Project.find_by(id: project_instance_field.project_instance_id)
+        topic_instance = TopicInstance.find_by(id: project_instance_field.project_instance_id)
+        project_instance = ProjectInstance.find_by(id: project_instance_field.project_instance_id)
 
         if topic_instance
           project_instance_field.update!(instance: topic_instance)

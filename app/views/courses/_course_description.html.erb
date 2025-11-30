@@ -1,0 +1,5 @@
+<% if @project_template.present? %>
+  <article>
+      <h3>Proposal Guidelines</h3>
+      <%= simple_format(@project_template.description) %>
+  </article>

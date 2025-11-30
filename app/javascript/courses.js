@@ -22,4 +22,3 @@ function updateStatusBar() {
   const pct = (idx / (statusOrder.length - 1)) * 100;
   progress.style.width = pct + "%"
 }
-

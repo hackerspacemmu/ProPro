@@ -122,4 +122,3 @@ class UserController < ApplicationController
     redirect_to user_profile_path, notice: "Profile updated successfully"
   end
 end
-

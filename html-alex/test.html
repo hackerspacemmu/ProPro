@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="test.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex's 2510 Course View</title>
+  </head>
+  
+  <body>
+    <header id="top-bar">
+      <h1>Alex's 2510 Course View</h1>
+    </header>
+
+    <header id="breadcrumb">
+      <nav>
+        <ul>
+          <li><a href="#course">Course</a></li>
+          <li><a href="#your_proposal">Proposal</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <main id="course">
+      <section>
+        <header>
+          <p>FOUN-FCI-2510</p>
+          <h2>CSP1123-MINI IT PROJECT</h2>
+        </header>
+        
+        <article id="description">
+          <h3 id = "description-title">Proposal Guidelines</h3>
+          <p id="text">Welcome to Multimedia Fundamentals for the trimester 2430. As IT students, you may not be training in  design or artistic skill, but so much of art, design and entertainment takes place through computers that a strong understanding of how these  things are handled digitally is important in your studies.
+            
+            I also suspect that many of you are have at least some art or design  talents and motivations, and like all things, these things can be  learned through practice. So this course is an opportunity to put those  leanings to practice. Looking forward to seeing all the amazing things  you will create this trimester!
+          </p>
+        </article>
+        
+        <section id="status-bar">
+          <h3>Proposal Status</h3>
+          <div class="container">
+            <div class="progress-container">
+              <div class="progress" id="progress"></div> 
+                <div class="step active">
+                  <div class="circle"><img src="pending.svg"></div>
+                  <div class="label">Pending</div>
+                </div>
+                <div class="step">
+                  <div class="circle"><img src="redo.svg"></div>
+                  <div class="label">Redo</div>
+                </div>
+                <div class="step">
+                  <div class="circle"><img src="in_review.svg"></div>
+                  <div class="label">In review</div>
+                </div>
+                <div class="step">
+                  <div class="circle"><img src="approved.svg"></div>
+                  <div class="label">Approved</div>
+                </div>
+              </div>
+              <button class="btn" id="prev">Previous</button>
+              <button class="btn" id="next">Next</button>
+            </div>
+        </section>
+        
+        <section id="lecturer-list">
+          <h3>Supervisors Available</h3>
+          <ul class="supervisors">
+            <li class="profile">
+              <div class="avatar">W</div>
+              <div class="info">
+                <div class="top">
+                  <div class="name">Mr. Willie Poh Kaw Lik</div>
+                  <span class="capacity">0/4</span>
+                </div>
+                <div class="last-seen">last seen yesterday</p>
+                <div class="avg-time">avg response time – 1 day</p>
+              </div>
+            </li>
+
+            <li class="profile">
+              <div class="avatar">W</div>
+              <div class="info">
+                <div class="top">
+                  <div class="name">Mr. Willie Poh Kaw Lik</div>
+                  <span class="capacity">0/4</span>
+                </div>
+                <div class="last-seen">last seen yesterday</p>
+                <div class="avg-time">avg response time – 1 day</p>
+              </div>
+            </li>
+
+            <li class="profile">
+              <div class="avatar">W</div>
+              <div class="info">
+                <div class="top">
+                  <div class="name">Mr. Willie Poh Kaw Lik</div>
+                  <span class="capacity">0/4</span>
+                </div>
+                <div class="last-seen">last seen yesterday</p>
+                <div class="avg-time">avg response time – 1 day</p>
+              </div>
+            </li>
+
+            <li class="profile">
+              <div class="avatar">W</div>
+              <div class="info">
+                <div class="top">
+                  <div class="name">Mr. Willie Poh Kaw Lik</div>
+                  <span class="capacity">0/4</span>
+                </div>
+                <div class="last-seen">last seen yesterday</p>
+                <div class="avg-time">avg response time – 1 day</p>
+              </div>
+            </li>
+
+            <li class="profile">
+              <div class="avatar">W</div>
+              <div class="info">
+                <div class="top">
+                  <div class="name">Mr. Willie Poh Kaw Lik</div>
+                  <span class="capacity">0/4</span>
+                </div>
+                <div class="last-seen">last seen yesterday</p>
+                <div class="avg-time">avg response time – 1 day</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+        
+        <section id="topic-list">
+          <h3>Topics</h3>
+          <div class="cards-container">
+            <a href="#" class="card-link">
+              <div class="project-card">
+                <ul>
+                <h4>Student Peer Review System</h4>
+                  <p class="lecturer"> Mr. Willie Poh Kaw Lik</p>
+                  <ul>
+                    <li class="project-card inner">
+                      <p class="text">o Users – create, delete, login, logout, change password 
+                                      o Extra – Flexible/options in review settings/calculations, multiple classes 
+                                      o Review (Student) – review group member, add comment o Data – import students/groups from CSV, export results to CSV 
+                                      o Extra – Flexible/options in review settings/calculations, multiple classes. 
+                      </p>
+                    </li>   
+                  </ul>
+                </ul>
+              </div>
+            </a>
+          </div>
+        </section>
+        
+        <section id="participants">
+          <h3>Participants</h3>
+          <ul>
+            <li>
+              <h4>Mr. Alex Chiam</h4>
+              <p>proposal status: pending</p>
+            </li>
+          </ul>
+        </section>
+      </section>
+    </main>
+    
+    <aside id="sidebar">
+      <nav>
+        <ul>
+          <li><a href="#guidelines">Proposal Guidelines</a></li>
+          <li><a href="#supervisors">Supervisors Available</a></li>
+          <li><a href="#topics">Topics</a></li>
+          <li><a href="#participants">Participants</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <script src="app.js"></script>
+  </body>
+</html>

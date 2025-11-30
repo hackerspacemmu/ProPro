@@ -13,8 +13,6 @@ class MoveCommentsToPolymorphicLocation < ActiveRecord::Migration[8.0]
           comment.update!(location: project_instance)
         elsif topic_instance
           comment.update!(location: topic_instance)
-        else
-          raise StandardError
         end
       end
     end

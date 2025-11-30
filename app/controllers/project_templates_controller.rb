@@ -50,5 +50,4 @@ class ProjectTemplatesController < ApplicationController
       return
     end
   end
-
 end

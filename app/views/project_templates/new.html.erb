@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= stylesheet_link_tag "project_templates" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Template Creation</title>
+  </head>
+  <body>
+    <main id="course">
+      <section class="form-section">
+        <header class="form-header">
+          <h2>Create Project Template</h2>
+        </header>
+
+        <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "form" do |form| %>
+
+          <div class="row header-row">
+            <div class="column"><strong>Field Label</strong></div>
+            <div class="column"><strong>Hint Text (Optional)</strong></div>
+            <div class="column"><strong>Field Type</strong></div>
+            <div class="column"><strong>Applicable To</strong></div>
+            <div class="column"><strong>Options</strong></div>
+          </div>
+
+          <div id="template-fields">
+            <%= form.fields_for :project_template_fields do |field_form| %>
+               <%= render 'field_row', field_form: field_form %>  
+            <% end %>
+          </div>
+
+          <div class="add-field-section">
+            <button type="button"
+              id="add-field-btn" 
+              data-course-id="<%= @course.id %>" 
+              data-field-index="<%= @project_template.project_template_fields.size %>"> 
+              + Add Field 
+            </button>
+          </div>
+
+          <div class="form-actions">
+            <%= form.submit "Save Template" %>
+            <%= link_to "Cancel", course_path(@course) %>
+          </div>
+        <% end %>
+      </section>
+    </main>
+  </body>
+</html>
