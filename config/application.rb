@@ -25,5 +25,10 @@ module Propro
     # config.eager_load_paths << Rails.root.join("extras")
     config.time_zone = "Asia/Singapore"
     config.assets.enabled = false
+
+    # view constants thresholds
+    config.participants_threshold = 3
+    config.supervisors_threshold = 50
+
   end
 end
