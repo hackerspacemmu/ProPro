@@ -23,7 +23,6 @@
 				hx-trigger="change"
 				hx-target="#template-fields-container"
 				hx-swap="outerHTML"
-				hx-include="[name='based_on_topic']"
 				>
 
         <% if @selected_topic_id.nil? %>
@@ -51,11 +50,9 @@
       </select>
     </div>
 
-		<div id="template-fields-container">
   		<%= render 'project_new', 
 			template_fields: @template_fields,
 			field_values: @field_values %>
-		</div>
 
     <div>
       <%= link_to "← Back to Proposal", course_path(@course) %>

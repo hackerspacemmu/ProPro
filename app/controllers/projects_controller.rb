@@ -238,28 +238,28 @@ class ProjectsController < ApplicationController
     end
   end
 
-def selected_topic
-  topic_id = params[:based_on_topic]
+  def selected_topic
+    topic_id = params[:based_on_topic]
 
-  @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
 
-  if topic_id.start_with?("own_proposal_")
+    if topic_id.start_with?("own_proposal_")
 
-    # Own Proposal
-    @field_values = {}
-  else
-    #Topics chosen
-    topic = Topic.find(topic_id)
-    latest_instance = topic.current_instance
+      # Own Proposal
+      @field_values = {}
+    else
+      #Topics chosen
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
 
-    # Sorts by id
-    @field_values = latest_instance.project_instance_fields.index_by(&:project_template_field_id)
+      # Sorts by id
+      @field_values = latest_instance.project_instance_fields.index_by(&:project_template_field_id)
+    end
+
+    render partial: "project_new",
+          locals: { template_fields: @template_fields,
+                    field_values: @field_values }
   end
-
-  render partial: "project_new",
-         locals: { template_fields: @template_fields,
-                   field_values: @field_values }
-end
 
 
 
