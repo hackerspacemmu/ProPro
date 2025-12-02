@@ -35,7 +35,7 @@
 
     <%= yield %>
     <% unless content_for?(:no_footer) %>
-      <%= yield :foooter %>
+      <%= render 'shared/footer' %>
     <% end %>
   </body>
 </html>
