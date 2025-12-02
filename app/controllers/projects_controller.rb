@@ -93,6 +93,58 @@ class ProjectsController < ApplicationController
     end
   end
 
+
+  def selected_topic
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+
+    if topic_id.start_with?("own_proposal_")
+
+      # Own Proposal
+      @field_values = {}
+    else
+      #Topics chosen
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @field_values = latest_instance.project_instance_fields.index_by(&:project_template_field_id)
+    end
+
+    render partial: "project_new",
+          locals: { template_fields: @template_fields,
+                    field_values: @field_values }
+  end
+
+  def selected_topic_edit
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+
+    if topic_id.start_with?("own_proposal_")
+      #Does not load
+      @existing_values = nil
+      @field_values = {}      
+    else
+      #Chosen Topic
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @field_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+
+      @existing_values = {}
+    end
+
+    render partial: "project_edit",
+          locals: { template_fields: @template_fields,
+                    existing_values: @existing_values,
+                    field_values: @field_values }
+  end
+
   def update
     has_supervisor_comment = false
     @project.project_instances.last.comments.each do |comment|
@@ -237,33 +289,6 @@ class ProjectsController < ApplicationController
       @selected_topic_id = params[:topic_id]
     end
   end
-
-  def selected_topic
-    topic_id = params[:based_on_topic]
-
-    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
-
-    if topic_id.start_with?("own_proposal_")
-
-      # Own Proposal
-      @field_values = {}
-    else
-      #Topics chosen
-      topic = Topic.find(topic_id)
-      latest_instance = topic.current_instance
-
-      # Sorts by id
-      @field_values = latest_instance.project_instance_fields.index_by(&:project_template_field_id)
-    end
-
-    render partial: "project_new",
-          locals: { template_fields: @template_fields,
-                    field_values: @field_values }
-  end
-
-
-
-
 
   def create
     @course = Course.find(params[:course_id])

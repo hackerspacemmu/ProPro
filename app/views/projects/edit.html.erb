@@ -21,8 +21,13 @@
     <div class="fields-container">
 
       <div class="field">
-        <label>Based on Topic</label><br/>
-        <select name="based_on_topic" class="form-control" required>
+        <label class = "field-label">Based on Topic</label><br/>
+        <select name="based_on_topic" class="form-control" required
+        hx-get="<%= selected_topic_edit_course_projects_path(@course) %>"
+        hx-trigger="change"
+        hx-target="#template-fields-edit-container"
+        hx-swap="outerHTML"
+        >
           <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
             <option value="" selected disabled>-- Select a Topic --</option>
           <% end %>
@@ -46,59 +51,10 @@
           <% end %>
         </select>
       </div>
-
-      <% @template_fields.each do |field| %>
-        <div class="field-row">
-          <%= label_tag "fields_#{field.id}",
-                        field.label,
-                        class: "field-label",
-                        title: field.hint %>
-          <% if field.hint.present? %>
-            <p class="field-hint"><%= field.hint %></p>
-          <% end %>
-          <% existing_value = @existing_values[field.id] %>
-          <% case field.field_type %>
-          <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]",
-                              existing_value,
-                              class: "form-control",
-                              placeholder: field.hint,
-                              required: true %>
-          <% when "textarea" %>
-            <%= text_area_tag "fields[#{field.id}]",
-                              existing_value,
-                              class: "form-control",
-                              placeholder: field.hint,
-                              required: true %>
-          <% when "dropdown" %>
-            <% options = field.option_list %>
-            <%= select_tag "fields[#{field.id}]",
-                          options_for_select(options, existing_value),
-                          prompt: "Select an option",
-                          class: "form-control",
-                          required: true %>
-          <% when "radio" %>
-            <div class="radio-group">
-              <% options = field.option_list %>
-              <% options.each_with_index do |option, idx| %>
-                <div class="radio-option">
-                  <%= radio_button_tag "fields[#{field.id}]",
-                                        option,
-                                        (option.to_s == existing_value.to_s),
-                                        id: "field_#{field.id}_#{idx}",
-                                        required: true %>
-                  <%= label_tag "field_#{field.id}_#{idx}", option %>
-                </div>
-              <% end %>
-            </div>
-          <% else %>
-            <%= text_field_tag "fields[#{field.id}]",
-                              existing_value,
-                              class: "form-control",
-                              required: true %>
-          <% end %>
-        </div>
-      <% end %>
+          
+      <%= render 'project_edit', 
+			template_fields: @template_fields,
+			existing_values: @existing_values %>
 
          
       <div class="form-actions">

@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       end
       collection do
         get 'selected_topic', to: 'projects#selected_topic'
+        get 'selected_topic_edit', to: 'projects#selected_topic_edit'
       end
 
       resources :progress_updates, only: [:show, :edit, :update, :create, :new, :destroy]
