@@ -2,7 +2,6 @@
   <%= stylesheet_link_tag "courses", "data-turbo-track": "reload" %>
 <% end %>
 <% breadcrumb :course, @course %>
-<% content_for :title, "#{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 <%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
 
 <div class="main">
