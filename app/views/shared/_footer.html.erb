@@ -1,10 +1,10 @@
-<footer class="w-full bg-[#2bb8f0] px-8 py-4">
-    <div class="flex justify-center">
-        <ul class="flex flex-row gap-5 font-semibold list-none">
-            <li>Copyright ProPro</li>
-            <li class="hover:underline"><%= link_to "Terms of Service", terms_of_service_path %></li>
-            <li class="hover:underline"><%= link_to "Privacy Policy", privacy_policy_path %></li>
-            <li class="hover:underline"><%= link_to "About", about_path %></li>
+<footer class="w-full bg-black px-8 py-8 font-montserrat text-white">
+    <div class="flex flex-col items-center gap-4">
+        <ul class="flex flex-row gap-8 list-none text-md">
+            <li class="hover:underline hover:text-gray-300 transition-colors"><%= link_to "Terms of Service", terms_of_service_path %></li>
+            <li class="hover:underline hover:text-gray-300 transition-colors"><%= link_to "Privacy Policy", privacy_policy_path %></li>
+            <li class="hover:underline hover:text-gray-300 transition-colors"><%= link_to "About", about_path %></li>
         </ul>
+        <span class="text-lg text-gray-400"> © ProPro. All rights reserved. </span>
     </div>
 </footer>
