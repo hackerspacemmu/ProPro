@@ -30,15 +30,10 @@
     <% end %>
   </div>
 <% end %>
-<main
-  class="
-    min-h-screen bg-gray-50 p-4 md:p-8 pt-[140px] fixed left-[240px] bottom-0 w-full
-    duration-300
-  "
->
+<main class=" min-h-screen bg-gray-50 fixed left-[240px] top-[120px] w-full ">
   <div class="w-10/12">
 
-    <div class="mb-6 flex items-center">
+    <div class="flex items-center justify-start">
       <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
         <div
           class="
@@ -57,9 +52,9 @@
       <% end %>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pl-20">
 
-      <div class="lg:col-span-2 space-y-6 lg:space-y-8">
+      <div class="lg:col-span-2 space-y-6 lg:space-y-8 pl-20">
 
         <% current_version = @index %>
         <% oldest_version = 1 %>
@@ -67,7 +62,7 @@
 
         <section
           class="
-            bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden pl-10
+            bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden
           "
         >
           <%= render "project_header",
