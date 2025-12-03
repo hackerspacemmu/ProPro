@@ -1,24 +1,53 @@
-  <section class="project-fields" id="project-fields">
-    <header class="section-header">
-      <% if show_progress_tab? %>
-        <nav class="project-tabs">
-          <h2 id="project-details"><%= link_to "Project Details", 
-                  course_project_path(course, project, tab: 'details', anchor: 'project-details'),
-                  class: "section-title #{'active' if current_tab == 'details'}" %></h2>
-          <h2 id="project-progress"><%= link_to "Progress Updates", 
-                  course_project_path(course, project, tab: 'progress', anchor: 'project-progress'),
-                  class: "section-title #{'active' if current_tab == 'progress'}" %></h2>
-        </nav>
-      <% else %>
-          <h2 class="section-title active">Project Details</h2>
-      <% end %>
-    </header>
-  
-    <div class="tab-content">
-      <% if current_tab == 'details' %>
-        <%= render 'project_details', fields: fields, next_fields: next_fields, based_on_topic_name: based_on_topic_name %>
-      <% elsif current_tab == 'progress' %>
-      <%= render 'progress_updates', progress_updates: @progress_updates %>
-      <% end %>
-    </div>
-  </section>
+<section class="w-full overflow-auto" id="project-fields">
+  <header class="mt-2">
+    <% if show_progress_tab? %>
+      <nav class="flex items-end border-b-2 border-gray-200">
+
+        <% base_tab_styles =
+          "inline-flex items-center px-5 py-3 text-xl font-extrabold text-gray-900/60 hover:text-gray-900 hover:opacity-100 transition-all border-b-[3px] border-transparent" %>
+        <% active_tab_styles =
+          "!opacity-100 !text-gray-900 border-blue-500 translate-y-[2px]" %>
+
+        <h2 class="mb-0" id="project-details">
+          <%= link_to "Project Details",
+          course_project_path(course, project, tab: "details", anchor: "project-details"),
+          class: "#{base_tab_styles} #{active_tab_styles if current_tab == "details"}" %>
+        </h2>
+
+        <h2 class="mb-0" id="project-progress">
+          <%= link_to "Progress Updates",
+          course_project_path(
+            course,
+            project,
+            tab: "progress",
+            anchor: "project-progress",
+          ),
+          class: "#{base_tab_styles} #{active_tab_styles if current_tab == "progress"}" %>
+        </h2>
+
+      </nav>
+    <% else %>
+      <div class="border-b-2 border-gray-200">
+        <h2
+          class="
+            inline-flex items-center px-5 py-3 text-xl font-extrabold text-gray-900
+            border-b-[3px] border-transparent translate-y-[2px]
+          "
+        >
+          Project Details
+        </h2>
+      </div>
+    <% end %>
+  </header>
+
+  <div>
+    <% if current_tab == 'details' %>
+      <%= render "project_details",
+      fields: fields,
+      next_fields: next_fields,
+      based_on_topic_name: based_on_topic_name %>
+    <% elsif current_tab == 'progress' %>
+      <%= render "progress_updates", progress_updates: @progress_updates %>
+    <% end %>
+  </div>
+</section>

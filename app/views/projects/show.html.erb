@@ -48,7 +48,11 @@
 
 <% end %>
 
-<main class="min-h-screen bg-gray-50 fixed left-[240px] top-[120px] w-full ">
+<main
+  class="
+    min-h-screen bg-gray-50 fixed left-[240px] top-[120px] w-full overflow-y-scroll
+  "
+>
 
   <div class="w-[calc(100vw-240px)]">
 
@@ -76,9 +80,9 @@
 
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 bg-blue-500">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
-      <div class="lg:col-span-2 bg-green-500 w-full">
+      <div class="lg:col-span-2 w-full h-[calc(100vh-120px)]">
 
         <% current_version = @index %>
 
@@ -86,31 +90,22 @@
 
         <% latest_version = @instances.size %>
 
-        <section class="bg-pink-500 rounded-2xl shadow-sm w-full mb-6 p-8">
-
-          <%= render "project_header",
-          current_instance: @current_instance,
-          owner: @owner,
-          project: @project,
-          members: @members,
-          current_version: current_version,
-          latest_version: latest_version,
-          oldest_version: oldest_version,
-          instances: @instances %>
-
-        </section>
+        <%= render "project_header",
+        current_instance: @current_instance,
+        owner: @owner,
+        project: @project,
+        members: @members,
+        current_version: current_version,
+        latest_version: latest_version,
+        oldest_version: oldest_version,
+        instances: @instances %>
 
         <section
           class="
-            bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8
+            bg-white rounded-2xl shadow-sm border border-gray-100 max-h-[350px]
+            overflow-y-auto pl-6 pr-6 pb-6
           "
         >
-
-          <div class="border-b border-gray-100 pb-4 mb-6">
-
-            <h3 class="text-xl font-bold text-gray-800">Project Details</h3>
-
-          </div>
 
           <div class="prose max-w-none">
 
