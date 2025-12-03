@@ -30,58 +30,149 @@
     <% end %>
   </div>
 <% end %>
+<main
+  class="
+    min-h-screen bg-gray-50 p-4 md:p-8 pt-[140px] fixed left-[240px] bottom-0 w-full
+    duration-300
+  "
+>
+  <div class="w-10/12">
 
-<main id="project">
-  <div class="project-layout">
-    <section class="project-content">
-      <% current_version = @index %>
-      <% oldest_version = 1 %>
-      <% latest_version = @instances.size %>
-
-      <%= render "project_header",
-      current_instance: @current_instance,
-      owner: @owner,
-      project: @project,
-      members: @members,
-      current_version: current_version,
-      latest_version: latest_version,
-      oldest_version: oldest_version,
-      instances: @instances %>
-      <%= render "project_actions",
-      members: @members,
-      current_user: current_user,
-      project: @project,
-      current_version: current_version,
-      latest_version: latest_version,
-      course: @course %>
-      <%= render "project_comments",
-      comments: @comments,
-      new_comment: @new_comment,
-      course: @course,
-      project: @project,
-      current_instance_id: @current_instance.id,
-      current_version: current_version,
-      latest_version: latest_version %>
-
-      <% if @course.use_progress_updates && @current_instance.status == "approved" %>
-        <% if @current_instance.supervisor == current_user %>
-          <br>
-          <%= link_to "Record New Progress Update",
-          new_course_project_progress_update_path(@course, @project) %>
-        <% end %>
+    <div class="mb-6 flex items-center">
+      <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Course
       <% end %>
+    </div>
 
-      <%= render "project_fields",
-      project: @project,
-      fields: @current_fields,
-      next_fields: @next_fields,
-      based_on_topic_name:
-        @current_instance&.source_topic&.topic_instances&.last&.title || nil,
-      course: @course %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
-      <footer class="project-footer">
-        <%= link_to "← Back to Course", course_path(@course) %>
-      </footer>
-    </section>
+      <div class="lg:col-span-2 space-y-6 lg:space-y-8">
+
+        <% current_version = @index %>
+        <% oldest_version = 1 %>
+        <% latest_version = @instances.size %>
+
+        <section
+          class="
+            bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden pl-10
+          "
+        >
+          <%= render "project_header",
+          current_instance: @current_instance,
+          owner: @owner,
+          project: @project,
+          members: @members,
+          current_version: current_version,
+          latest_version: latest_version,
+          oldest_version: oldest_version,
+          instances: @instances %>
+        </section>
+
+        <section
+          class="
+            bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8
+          "
+        >
+          <div class="border-b border-gray-100 pb-4 mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Project Details</h3>
+          </div>
+          <div class="prose max-w-none">
+            <%= render "project_fields",
+            project: @project,
+            fields: @current_fields,
+            next_fields: @next_fields,
+            based_on_topic_name:
+              @current_instance&.source_topic&.topic_instances&.last&.title || nil,
+            course: @course %>
+          </div>
+        </section>
+      </div>
+
+      <div class="space-y-6">
+
+        <div class="lg:sticky lg:top-[140px] space-y-6">
+          <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+            <h4
+              class="
+                text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
+                gap-2
+              "
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                /></svg>
+              Actions
+            </h4>
+            <%= render "project_actions",
+            members: @members,
+            current_user: current_user,
+            project: @project,
+            current_version: current_version,
+            latest_version: latest_version,
+            course: @course %>
+          </section>
+
+          <% if @course.use_progress_updates && @current_instance.status == "approved" && @current_instance.supervisor == current_user %>
+            <div
+              class="
+                bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 border
+                border-blue-100 shadow-sm relative overflow-hidden group
+              "
+            >
+              <h4 class="font-bold text-blue-900 relative z-10">Weekly Update</h4>
+              <%= link_to new_course_project_progress_update_path(@course, @project), 
+                   class: "flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-[0.98] relative z-10 mt-3" do %>
+                Record Update
+              <% end %>
+            </div>
+          <% end %>
+
+          <section
+            class="
+              bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[500px]
+              max-h-[calc(100vh-180px)]
+            "
+          >
+            <div
+              class="
+                p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl flex justify-between
+                items-center flex-shrink-0
+              "
+            >
+              <h4 class="font-bold text-gray-700 text-sm">Discussion</h4>
+              <span class="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full"><%= @comments.count %></span>
+            </div>
+            <div class="flex-grow overflow-y-auto p-0 bg-gray-50/30 custom-scrollbar">
+              <%= render "project_comments",
+              comments: @comments,
+              new_comment: @new_comment,
+              course: @course,
+              project: @project,
+              current_instance_id: @current_instance.id,
+              current_version: current_version,
+              latest_version: latest_version %>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </div>
   </div>
 </main>
