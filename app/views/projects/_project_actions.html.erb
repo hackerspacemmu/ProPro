@@ -5,11 +5,11 @@ has_actions = is_member || is_history %>
 <section class="w-full">
   <div class="flex flex-col gap-4">
 
-    <%# --- EMPTY STATE --- %>
+    <%# --- if actions is empty render this --- %>
     <% unless has_actions %>
       <div
         class="
-          w-full py-6 px-4 border-2 border-dashed border-gray-100 rounded-xl flex flex-col
+          w-full py-2 px-4 border-2 border-dashed border-gray-100 rounded-xl flex flex-col
           items-center justify-center text-center gap-2 select-none
         "
       >

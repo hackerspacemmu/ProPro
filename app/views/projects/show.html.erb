@@ -51,12 +51,12 @@
 <main
   class="
     max-h-[calc(100vh-90px)] bg-gray-50 fixed left-[240px] top-[90px]
-    w-[calc(100vw-240px)] overflow-y-scroll pt-[30px] px-8
+    w-[calc(100vw-240px)] overflow-y-scroll pt-[30px] px-8 pb-[0.5em]
   "
 >
   <div class="max-w-[1600px] mx-auto w-full">
 
-    <div class="mb-6 flex items-center justify-start">
+    <div class="flex items-center justify-start">
       <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
         <div
           class="
@@ -111,9 +111,9 @@
 
       <div class="w-full xl:w-[450px] flex-shrink-0 space-y-6">
 
-        <div class="sticky top-6 space-y-6">
+        <div class="sticky top-4 space-y-6">
 
-          <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
             <h4
               class="
                 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
@@ -157,15 +157,6 @@
               max-h-[calc(100vh-200px)]
             "
           >
-            <div
-              class="
-                p-5 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl flex justify-between
-                items-center flex-shrink-0
-              "
-            >
-              <h4 class="font-bold text-gray-700 text-sm">Discussion</h4>
-              <span class="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full"><%= @comments.count %></span>
-            </div>
             <div class="flex-grow overflow-y-auto p-0 bg-gray-50/30 custom-scrollbar">
               <%= render "project_comments",
               comments: @comments,
