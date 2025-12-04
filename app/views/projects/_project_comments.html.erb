@@ -117,12 +117,12 @@
         <div
           class="
             flex items-end gap-2 bg-gray-50 rounded-xl p-2 border border-gray-200
-            transition-all
+            transition-all focus-within:border-black
           "
         >
           <%= form.text_area :user_comment,
                          class:
-                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 resize py-2 px-2 max-h-32 min-h-[40px]",
+                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 resize py-2 px-2 max-h-32 min-h-[40px] focus:outline-none",
                          rows: 1,
                          placeholder: "Write a comment..." %>
 
