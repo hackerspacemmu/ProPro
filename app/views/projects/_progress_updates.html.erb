@@ -80,14 +80,14 @@
           <div class="flex items-center gap-3">
             <%= button_to edit_course_project_progress_update_path(@course, @project, progress_update),
                 method: :get,
-                class: "text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors" do %>
+                class: "text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer" do %>
               Edit
             <% end %>
 
             <%= button_to course_project_progress_update_path(@course, @project, progress_update),
                 method: :delete,
                 form: { data: { turbo_confirm: "Are you sure?" } },
-                class: "text-sm font-medium text-red-500 hover:text-red-700 transition-colors" do %>
+                class: "text-sm font-medium text-red-500 hover:text-red-700 transition-colors hover:cursor-pointer cursor:pointer" do %>
               Delete
             <% end %>
           </div>
