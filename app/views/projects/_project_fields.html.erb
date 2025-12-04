@@ -1,32 +1,31 @@
-<section class="w-full scroll-mt-24" id="project-fields">
-
-  <div class="border-b border-gray-200 mb-2">
+<section class="w-full mb-12 scroll-mt-32" id="project-fields">
+  <div class="border-b border-gray-200 mb-6">
     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
 
+      <%# Shared Styles %>
       <% tab_base =
         "whitespace-nowrap py-4 px-1 border-b-2 font-bold text-lg transition-colors duration-200" %>
-
       <% tab_active = "border-blue-500 text-blue-600" %>
-
       <% tab_inactive =
         "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" %>
 
       <% if show_progress_tab? %>
 
         <%= link_to "Project Details",
-        course_project_path(course, project, tab: "details", anchor: "project-details"),
+        course_project_path(course, project, tab: "details"),
         class: "#{tab_base} #{current_tab == "details" ? tab_active : tab_inactive}",
-        id: "project-details" %>
+        id: "project-details",
+        data: {
+          turbo_action: "replace",
+        } %>
 
         <%= link_to "Progress Updates",
-        course_project_path(
-          course,
-          project,
-          tab: "progress",
-          anchor: "project-progress",
-        ),
+        course_project_path(course, project, tab: "progress"),
         class: "#{tab_base} #{current_tab == "progress" ? tab_active : tab_inactive}",
-        id: "project-progress" %>
+        id: "project-progress",
+        data: {
+          turbo_action: "replace",
+        } %>
 
       <% else %>
         <span
