@@ -15,7 +15,7 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-
+    
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "application" %>
     <%= yield :stylesheets %>
@@ -32,5 +32,8 @@
     <% end %>
 
     <%= yield %>
+    <% unless content_for?(:no_footer) %>
+      <%= render 'shared/footer' %>
+    <% end %>
   </body>
 </html>
