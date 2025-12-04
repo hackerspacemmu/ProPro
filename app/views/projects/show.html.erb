@@ -106,12 +106,12 @@
           <% if @course.use_progress_updates && @current_instance.status == "approved" && @current_instance.supervisor == current_user %>
             <div
               class="
-                bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border
-                border-blue-100 shadow-sm relative overflow-hidden group
+                bg-gray-50 rounded-2xl p-6 border border-blue-100 shadow-sm relative
+                overflow-hidden group
               "
             >
-              <h4 class="font-bold text-blue-900 relative z-10">Weekly Update</h4>
-              <%= link_to new_course_project_progress_update_path(@course, @project), class: "flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-[0.98] relative z-10 mt-4" do %>
+              <h4 class="font-bold text-black relative z-10">Weekly Update</h4>
+              <%= link_to new_course_project_progress_update_path(@course, @project), class: "flex items-center justify-center w-full bg-slate-500 hover:bg-slate-600 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] relative z-10 mt-4" do %>
                 Record Update
               <% end %>
             </div>
