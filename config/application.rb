@@ -26,8 +26,8 @@ module Propro
     config.time_zone = "Asia/Singapore"
 
     # view constants thresholds
-    config.participants_threshold = 3
-    config.supervisors_threshold = 50
+    config.participants_threshold = 500
+    config.supervisors_threshold = 100
 
   end
 end
