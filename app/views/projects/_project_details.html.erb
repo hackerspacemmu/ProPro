@@ -1,184 +1,71 @@
-<div class="w-full">
-  <% fields.each do |field| %>
-    <div class="grid grid-cols-[200px_1fr] w-full min-h-[40px]">
+<div class="w-full space-y-8">
+  <div
+    class="
+      bg-white rounded-xl divide-y divide-gray-100 border border-gray-100 shadow-sm
+      overflow-hidden
+    "
+  >
+    <% fields.each do |field| %>
 
-      <div class=" flex items-start p-[16px_20px] font-lg font-bold ">
-        <%= field.project_template_field.label %>
-      </div>
+      <div
+        class="
+          grid grid-cols-[120px_1fr] md:grid-cols-3 group hover:bg-gray-50/50
+          transition-colors
+        "
+      >
 
-      <div class="flex items-start p-[16px_20px]">
-        <% if field.value.present? %>
-          <% if field.project_template_field.dropdown? || field.project_template_field.radio?
-            begin
-              parsed_value = JSON.parse(field.value)
-              display_value =
-                parsed_value.is_a?(Array) ? parsed_value.join(", ") : parsed_value
-            rescue JSON::ParserError
+        <%# Field Label %>
+        <div
+          class="
+            p-4 md:p-6 md:col-span-1 bg-gray-50/30 border-r border-gray-100 flex
+            items-center md:items-start
+          "
+        >
+          <h4
+            class="
+              text-xs md:text-sm font-bold text-gray-700 uppercase tracking-wide
+              leading-relaxed break-words
+            "
+          >
+            <%= field.project_template_field.label %>
+          </h4>
+        </div>
+
+        <%# Field Value %>
+        <div
+          class="
+            p-4 md:p-6 md:col-span-2 text-gray-900 leading-relaxed break-words text-base
+            md:text-lg font-medium
+          "
+        >
+          <% if field.value.present? %>
+            <% if field.project_template_field.dropdown? || field.project_template_field.radio?
+              begin
+                parsed_value = JSON.parse(field.value)
+                display_value =
+                  parsed_value.is_a?(Array) ? parsed_value.join(", ") : parsed_value
+              rescue JSON::ParserError
+                display_value = field.value
+              end
+            else
               display_value = field.value
-            end
-          else
-            display_value = field.value
-          end %>
-          <%= display_value %>
-        <% else %>
-          No content provided
-        <% end %>
+            end %>
+            <%= display_value %>
+          <% else %>
+            <span class="text-gray-400 italic font-normal text-sm">No content provided</span>
+          <% end %>
+        </div>
       </div>
-    </div>
-  <% end %>
-
-  <p class="mt-4">Based on Topic:
-    <%= based_on_topic_name || "Own Proposal" %></p>
-</div>
-<br>
-
-<% if @index < @instances.size %>
-  <h4>Difference with next (newer) version</h4>
-  <br>
-
-  <table class="border border-black border-collapse p-[5px] align-top w-full">
-    <tr>
-      <th class="border border-black p-[5px] align-top text-left">Field</th>
-      <th class="border border-black p-[5px] align-top text-left">Deletions</th>
-      <th class="border border-black p-[5px] align-top text-left">Additions</th>
-    </tr>
-
-    <% fields.zip(next_fields).each do |current_field, next_field| %>
-      <% field_name = (current_field || next_field).project_template_field.label %>
-
-      <% normalize = ->(text) do
-        text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]")
-      end %>
-
-      <% old_val = normalize.call(current_field&.value) %>
-      <% new_val = normalize.call(next_field&.value) %>
-
-      <tr>
-        <td class="border border-black p-[5px] align-top"><%= field_name %></td>
-
-        <% if old_val != new_val %>
-          <% old_lines = old_val.split("\n") %>
-          <% new_lines = new_val.split("\n") %>
-
-          <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
-
-          <td colspan="2" class="border border-black p-[5px] align-top">
-            <table class="w-full border-none">
-              <% diffs.each do |change| %>
-                <% case change.action %>
-                <% when '=' %>
-                  <% line = h(change.old_element).gsub("[[EMPTYLINE]]", "<br>") %>
-                  <tr>
-                    <td class="border-none p-[2px_5px] align-top w-1/2 bg-transparent"><%= line.html_safe %></td>
-                    <td class="border-none p-[2px_5px] align-top w-1/2 bg-transparent"><%= line.html_safe %></td>
-                  </tr>
-
-                <% when '-' %>
-                  <% line = change.old_element.to_s.strip %>
-                  <% if line.empty? || line == "[[EMPTYLINE]]" %>
-                    <tr>
-                      <td class="border-none p-[2px_5px] align-top w-1/2 bg-[#f4d4d4]">
-                        <span class="bg-[#FF6961] line-through"><br></span>
-                      </td>
-                      <td
-                        class="
-                          border-none p-[2px_5px] align-top w-1/2 bg-[#e0e0e0] text-transparent
-                          select-none
-                        "
-                      ><br></td>
-                    </tr>
-                  <% else %>
-                    <% safe_line = h(change.old_element) %>
-                    <tr>
-                      <td class="border-none p-[2px_5px] align-top w-1/2 bg-[#f4d4d4]">
-                        <span class="bg-[#FF6961] line-through"><%= safe_line %></span>
-                      </td>
-                      <td
-                        class="
-                          border-none p-[2px_5px] align-top w-1/2 bg-[#e0e0e0] text-transparent
-                          select-none
-                        "
-                      ><%= safe_line %></td>
-                    </tr>
-                  <% end %>
-
-                <% when '+' %>
-                  <% line = change.new_element.to_s.strip %>
-                  <% if line.empty? || line == "[[EMPTYLINE]]" %>
-                    <tr>
-                      <td
-                        class="
-                          border-none p-[2px_5px] align-top w-1/2 bg-[#e0e0e0] text-transparent
-                          select-none
-                        "
-                      ><br></td>
-                      <td class="border-none p-[2px_5px] align-top w-1/2 bg-[#d4f4dd]">
-                        <span class="bg-[#77DD77]"><br></span>
-                      </td>
-                    </tr>
-                  <% else %>
-                    <% safe_line = h(change.new_element) %>
-                    <tr>
-                      <td
-                        class="
-                          border-none p-[2px_5px] align-top w-1/2 bg-[#e0e0e0] text-transparent
-                          select-none
-                        "
-                      ><%= safe_line %></td>
-                      <td class="border-none p-[2px_5px] align-top w-1/2 bg-[#d4f4dd]">
-                        <span class="bg-[#77DD77]"><%= safe_line %></span>
-                      </td>
-                    </tr>
-                  <% end %>
-
-                <% when '!' %>
-                  <% old_line = change.old_element.to_s %>
-                  <% new_line = change.new_element.to_s %>
-                  <% old_words = old_line.split(/(\s+)/) %>
-                  <% new_words = new_line.split(/(\s+)/) %>
-                  <% word_diffs = Diff::LCS.sdiff(old_words, new_words) %>
-
-                  <% old_html =
-                    word_diffs
-                      .map do |w|
-                        case w.action
-                        when "="
-                          h(w.old_element)
-                        when "-", "!"
-                          "<span class='bg-[#FF6961] line-through'>#{h(w.old_element)}</span>"
-                        else
-                          ""
-                        end
-                      end
-                      .join %>
-
-                  <% new_html =
-                    word_diffs
-                      .map do |w|
-                        case w.action
-                        when "="
-                          h(w.new_element)
-                        when "+", "!"
-                          "<span class='bg-[#77DD77]'>#{h(w.new_element)}</span>"
-                        else
-                          ""
-                        end
-                      end
-                      .join %>
-
-                  <tr>
-                    <td class="border-none p-[2px_5px] align-top w-1/2 bg-[#f4d4d4]"><%= old_html.html_safe %></td>
-                    <td class="border-none p-[2px_5px] align-top w-1/2 bg-[#d4f4dd]"><%= new_html.html_safe %></td>
-                  </tr>
-                <% end %>
-              <% end %>
-            </table>
-          </td>
-
-        <% else %>
-          <td colspan="2" class="border border-black p-[5px] align-top text-center">No changes</td>
-        <% end %>
-      </tr>
     <% end %>
-  </table>
-<% end %>
+
+    <div
+      class="
+        bg-gray-50/80 p-4 text-md text-gray-500 font-medium border-t border-gray-100
+        flex items-center gap-2
+      "
+    >
+      Based on Topic:
+      <span class="text-gray-700 font-semibold"><%= based_on_topic_name || "Own Proposal" %></span>
+    </div>
+  </div>
+</div>
