@@ -2,11 +2,11 @@
   <% fields.each do |field| %>
     <div class="grid grid-cols-[200px_1fr] w-full min-h-[40px]">
 
-      <div class="flex items-start p-[16px_20px] whitespace-pre-line">
+      <div class=" flex items-start p-[16px_20px] font-lg font-bold ">
         <%= field.project_template_field.label %>
       </div>
 
-      <div class="flex items-start p-[16px_20px] whitespace-pre-line">
+      <div class="flex items-start p-[16px_20px]">
         <% if field.value.present? %>
           <% if field.project_template_field.dropdown? || field.project_template_field.radio?
             begin
