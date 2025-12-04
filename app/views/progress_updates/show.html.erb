@@ -1,6 +1,7 @@
 <% breadcrumb :progress_update, @progress_update %>
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% content_for :title, "Progress Update - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
