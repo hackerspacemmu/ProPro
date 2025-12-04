@@ -1,46 +1,48 @@
-<section class="w-full overflow-auto scroll-mt-20" id="project-fields">
-  <header class="mt-2">
-    <% if show_progress_tab? %>
-      <nav class="flex items-end border-b-2 border-gray-200">
+<section class="w-full scroll-mt-24" id="project-fields">
 
-        <% base_tab_styles =
-          "inline-flex items-center px-5 py-3 text-xl font-extrabold text-gray-900/60 hover:text-gray-900 hover:opacity-100 transition-all border-b-[3px] border-transparent" %>
-        <% active_tab_styles =
-          "!opacity-100 !text-gray-900 border-blue-500 translate-y-[2px]" %>
+  <div class="border-b border-gray-200 mb-2">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
 
-        <h2 class="mb-0" id="project-details">
-          <%= link_to "Project Details",
-          course_project_path(course, project, tab: "details", anchor: "project-details"),
-          class: "#{base_tab_styles} #{active_tab_styles if current_tab == "details"}" %>
-        </h2>
+      <% tab_base =
+        "whitespace-nowrap py-4 px-1 border-b-2 font-bold text-lg transition-colors duration-200" %>
 
-        <h2 class="mb-0" id="project-progress">
-          <%= link_to "Progress Updates",
-          course_project_path(
-            course,
-            project,
-            tab: "progress",
-            anchor: "project-progress",
-          ),
-          class: "#{base_tab_styles} #{active_tab_styles if current_tab == "progress"}" %>
-        </h2>
+      <% tab_active = "border-blue-500 text-blue-600" %>
 
-      </nav>
-    <% else %>
-      <div class="border-b-2 border-gray-200">
-        <h2
+      <% tab_inactive =
+        "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" %>
+
+      <% if show_progress_tab? %>
+
+        <%= link_to "Project Details",
+        course_project_path(course, project, tab: "details", anchor: "project-details"),
+        class: "#{tab_base} #{current_tab == "details" ? tab_active : tab_inactive}",
+        id: "project-details" %>
+
+        <%= link_to "Progress Updates",
+        course_project_path(
+          course,
+          project,
+          tab: "progress",
+          anchor: "project-progress",
+        ),
+        class: "#{tab_base} #{current_tab == "progress" ? tab_active : tab_inactive}",
+        id: "project-progress" %>
+
+      <% else %>
+        <span
           class="
-            inline-flex items-center px-5 py-3 text-xl font-bold text-gray-900
-            border-b-[3px] border-transparent translate-y-[2px]
+            whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-bold
+            text-gray-900 text-lg
           "
         >
           Project Details
-        </h2>
-      </div>
-    <% end %>
-  </header>
+        </span>
+      <% end %>
 
-  <div>
+    </nav>
+  </div>
+
+  <div class="min-h-[200px]">
     <% if current_tab == 'details' %>
       <%= render "project_details",
       fields: fields,
@@ -50,4 +52,5 @@
       <%= render "progress_updates", progress_updates: @progress_updates %>
     <% end %>
   </div>
+
 </section>
