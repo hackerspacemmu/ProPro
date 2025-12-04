@@ -75,7 +75,7 @@
 
               <div class="text-sm text-gray-600 leading-relaxed break-words">
                 <% if !comment.deleted %>
-                  <%= simple_format(comment.text, class: "mb-0") %>
+                  <%= simple_format(comment.text, class: "mb-2 last:mb-0") %>
                 <% else %>
                   <span class="text-gray-400 italic text-xs bg-gray-100 px-2 py-0.5 rounded">This comment was deleted</span>
                 <% end %>
@@ -126,7 +126,7 @@
                          rows: 1,
                          placeholder: "Write a comment..." %>
 
-          <%= form.button type: "submit", class: "p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-colors flex-shrink-0", title: "Send" do %>
+          <%= form.button type: "submit", class: "p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-gray-100 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors flex-shrink-0", title: "Send" do %>
             <svg
               class="w-4 h-4 transform rotate-90"
               fill="none"
