@@ -14,44 +14,10 @@
   | ProPro
 <% end %>
 
-<% content_for :sidebar do %>
-
-  <div class="sidebar">
-
-    <a href="#project-title">
-      Title
-    </a>
-
-    <a href="#project-properties">
-      Project Properties
-    </a>
-
-    <a href="#project-comments">
-      Comments
-    </a>
-
-    <% if current_tab == 'details' %>
-
-      <a id="link-project-fields" href="#project-fields">
-        Project Details
-      </a>
-
-    <% elsif current_tab == 'progress' %>
-
-      <a id="link-project-fields" href="#project-fields">
-        Project Updates
-      </a>
-
-    <% end %>
-
-  </div>
-
-<% end %>
-
 <main
   class="
-    max-h-[calc(100vh-90px)] bg-gray-50 fixed left-[240px] top-[90px]
-    w-[calc(100vw-240px)] overflow-y-scroll pt-[30px] px-8 pb-[0.5em]
+    max-h-[calc(100vh-90px)] bg-gray-50 fixed top-[90px] w-full overflow-y-scroll
+    pt-[30px] px-8 pb-[0.5em]
   "
 >
   <div class="max-w-[1600px] mx-auto w-full">
