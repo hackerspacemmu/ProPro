@@ -23,6 +23,11 @@ module Propro
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    config.assets.enabled = false
+    config.time_zone = "Asia/Singapore"
+
+    # view constants thresholds
+    config.participants_threshold = 500
+    config.supervisors_threshold = 100
+
   end
 end

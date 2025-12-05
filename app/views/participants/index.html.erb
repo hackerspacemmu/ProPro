@@ -1,0 +1,18 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "courses", "data-turbo-track": "reload" %>
+<% end %>
+<% breadcrumb :course, @course %>
+<% content_for :sidebar do %>
+  <div class="sidebar">
+    <a href="#project-title"> Title </a>
+    <a href="#project-properties"> Project Properties </a>
+    <a href="#project-comments"> Comments </a>
+    <% if current_tab == 'details' %>
+      <a id="link-project-fields" href="#project-fields"> Project Details </a>
+    <% elsif current_tab == 'progress' %>
+      <a id="link-project-fields" href="#project-fields"> Project Updates </a>
+    <% end %>
+  </div>
+<% end %>
+
+<%= render 'courses/participants', course: @course, fullpage: true %>

@@ -260,13 +260,11 @@
           <% if @current_instance.last_edit_time.present? %>
             <div class="opacity-90"><%= format_timestamp(@current_instance.last_edit_time) || "-" %></div>
           <% end %>
+
           <div class="flex items-center gap-2">
-            <% if @current_instance.last_edit_by.present? %>
-              <%= image_tag("edit.svg", class: "w-4 h-4 opacity-50") %>
-              <%= username(@current_instance.last_edit_by) || "Not changed" %>
-            <% else %>
-              No edits yet
-            <% end %>
+            <% editor_id = @current_instance.last_edit_by || @current_instance.created_by_id %>
+            <%= image_tag("edit.svg", class: "w-4 h-4 opacity-50") %>
+            <%= username(editor_id) || "Not changed" %>
           </div>
         </div>
       </div>
