@@ -6,8 +6,8 @@ has_actions = is_member || is_history %>
   <div class="flex flex-col gap-4">
 
     <%# --- STUDENT ACTIONS --- %>
-    <% if is_member %>
-      <% if project.status != "approved" && !is_history %>
+    <% if is_member && !is_history %>
+      <% if project.status != "approved" %>
         <div class="w-full">
           <p
             class="
