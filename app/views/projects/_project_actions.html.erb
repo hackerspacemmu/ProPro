@@ -5,36 +5,6 @@ has_actions = is_member || is_history %>
 <section class="w-full">
   <div class="flex flex-col gap-4">
 
-    <%# --- if actions is empty render this --- %>
-    <% unless has_actions %>
-      <div
-        class="
-          w-full py-2 px-4 border-2 border-dashed border-gray-100 rounded-xl flex flex-col
-          items-center justify-center text-center gap-2 select-none
-        "
-      >
-        <div
-          class="
-            w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center
-            hover:cursor-not-allowed
-          "
-        >
-          <svg
-            class="w-4 h-4 text-gray-300"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          ><path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-            /></svg>
-        </div>
-        <p class="text-xs font-medium text-gray-400">No actions available</p>
-      </div>
-    <% end %>
-
     <%# --- STUDENT ACTIONS --- %>
     <% if is_member %>
       <% if project.status != "approved" && !is_history %>
@@ -64,7 +34,7 @@ has_actions = is_member || is_history %>
           "
         >
           <%= image_tag "lock.svg", class: "w-4 h-4 opacity-50 grayscale" %>
-          <span class="text-sm font-medium">Project Locked</span>
+          <span class="text-sm font-medium">Unable to Edit Project</span>
         </div>
       <% end %>
     <% end %>
