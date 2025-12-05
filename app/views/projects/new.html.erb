@@ -1,5 +1,6 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% breadcrumb :new_project, @course %>
 <% content_for :title, "Create Proposal - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
