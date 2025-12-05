@@ -97,3 +97,5 @@ yarn-debug.log*
 
 # Ignore mac environment files
 .DS_Store
+/app/assets/builds/*
+!/app/assets/builds/.keep

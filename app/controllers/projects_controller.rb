@@ -190,7 +190,9 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic: topic)
         end
 
-        @project.project_instances.last.update!(enrolment: supervisor_enrolment)
+        @project.project_instances.last.update!(
+          enrolment: supervisor_enrolment,
+        )
       end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed"
@@ -311,7 +313,9 @@ class ProjectsController < ApplicationController
           title: title_value,
           created_by: current_user,
           enrolment: supervisor_enrolment,
-          source_topic: topic || nil
+          source_topic: topic || nil,
+          last_edit_time: Time.current,   
+          last_edit_by: current_user.id  
         )
 
         #  Save fields

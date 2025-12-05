@@ -3,7 +3,6 @@
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% breadcrumb :topics, @course %>
-
 <% content_for :title, "Topics List - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 <%= render 'topbar', user: current_user %>
 <%= render 'courses/sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
@@ -29,7 +28,7 @@
   <section class="topics-list" id="topics-list">
     <div class="cards-container">
       <% if @topics.any? %>
-        <%= render partial: 'courses/topic_card', collection: @topic, as: :topic %>
+        <%= render partial: 'courses/topic_card', collection: @topics, as: :topic %>
       <% else %>
         <p class="empty-state">No topics found.</p>
       <% end %>

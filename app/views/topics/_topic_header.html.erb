@@ -1,5 +1,5 @@
-<header class="project-header" id="topic-title">
-  <h1 class="project-title"><%= current_instance.title %></h1>
+<header class="project-header">
+  <h1 class="project-title" id="topic-title"><%= current_instance.title %></h1>
 
   <div class="project-properties">
     <div class="properties-column properties-column-left">
@@ -43,7 +43,6 @@
       <% end %>
     </div>
 
-    <% if !@is_student %>
       <div class="properties-column properties-column-right">
         <!-- Status -->
         <div class="version-container">
@@ -123,16 +122,12 @@
                 <div class="timestamp"><%= format_timestamp(@current_instance.last_edit_time) || '-' %></div>
               <% end %>
               <div class="status-username">
-                <% if @current_instance.last_edit_by.present? %>
-                    <%= image_tag("edit.svg") %><%= username(@current_instance.last_edit_by) || 'Not changed' %>
-                <% else %>
-                  No edits yet
-                <% end %>
+                <% editor_id = @current_instance.last_edit_by || @current_instance.created_by_id %>
+                <%= image_tag("edit.svg") %><%= username(editor_id) || 'Not changed' %>
               </div>
             </div>
           </div>
-      <% end %>
+      </div>
 
-    </div>
   </div>
 </header>

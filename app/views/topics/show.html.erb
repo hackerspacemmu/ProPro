@@ -14,40 +14,40 @@
 
 <main id="project">
   <div class="project-layout">
-  <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-  <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-   <section class="project-content">
-    <% current_version = @index %>
-    <% oldest_version = 1 %>
-    <% latest_version = @instances.size %>
-     <%= render 'topic_header',
-                current_instance: @current_instance,
-                owner: @owner,
-                topic: @topic,
-                members: @members,
-                current_version: current_version,
-                latest_version: latest_version,
-                oldest_version: oldest_version,
-                instances: @instances %>
-     <%= render 'topic_actions',
-                members: @members,
-                current_user: current_user,
-                topic: @topic,
-                current_version: current_version,
-                latest_version: latest_version,
-                course: @course %>
-     <%= render 'topic_comments',
-                comments: @comments,
-                new_comment: @new_comment,
-                course: @course,
-                topic: @topic,
-                current_instance_id: @current_instance.id,
-                current_version: current_version,
-                latest_version: latest_version %>
-    <%= render 'topic_fields', fields: @fields, next_fields: @next_fields %>
-     <footer class="project-footer">
-       <%= link_to "← Back to Course", course_path(@course) %>
-     </footer>
+    <section class="project-content">
+      <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+      <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+      <% current_version = @index %>
+      <% oldest_version = 1 %>
+      <% latest_version = @instances.size %>
+      <%= render 'topic_header',
+                  current_instance: @current_instance,
+                  owner: @owner,
+                  topic: @topic,
+                  members: @members,
+                  current_version: current_version,
+                  latest_version: latest_version,
+                  oldest_version: oldest_version,
+                  instances: @instances %>
+      <%= render 'topic_actions',
+                  members: @members,
+                  current_user: current_user,
+                  topic: @topic,
+                  current_version: current_version,
+                  latest_version: latest_version,
+                  course: @course %>
+      <%= render 'topic_comments',
+                  comments: @comments,
+                  new_comment: @new_comment,
+                  course: @course,
+                  topic: @topic,
+                  current_instance_id: @current_instance.id,
+                  current_version: current_version,
+                  latest_version: latest_version %>
+      <%= render 'topic_fields', fields: @fields, next_fields: @next_fields %>
+      <footer class="project-footer">
+        <%= link_to "← Back to Course", course_path(@course) %>
+      </footer>
     </section>
   </div>
 </main>
