@@ -1,5 +1,6 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "lecturers"%>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% participant_name = @participant_type == 'group' ? @group.group_name : @student.username %>
 <% breadcrumb :course_participant_profile, @course, participant_name %>

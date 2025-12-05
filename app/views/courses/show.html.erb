@@ -1,5 +1,6 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "courses", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "tailwind","new_tailwind"%>
 <% end %>
 <% breadcrumb :course, @course %>
 <%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
