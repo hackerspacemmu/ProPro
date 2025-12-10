@@ -2,58 +2,156 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<div style="font-family:sans-serif;">
-    <h1>ProPro Terms and Conditions</h1>
-    
-    <p>Welcome to ProPro! These Terms and Conditions ("Terms") govern your use of the ProPro website and all its features and services (collectively, the "Service"). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you may not use the Service.</p>
-    
-    <h2>1. Acceptance of Terms</h2>
-    
-    <p>Your access to and use of the Service is conditioned upon your acceptance of and compliance with these Terms. These Terms apply to all visitors, users, and others who wish to access or use the Service.</p>
-    
-    <h2>2. User Accounts</h2>
-    
-    <p>To use certain features of the Service, you may be required to create an account. You agree to provide accurate, current, and complete information during the registration process and to keep your account information updated. You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password, whether your password is with our Service or a third-party service. You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.</p>
-    
-    <h2>3. Prohibited Uses</h2>
-    
-    <p>You may use the Service only for lawful purposes and in accordance with the Terms. You agree not to use the Service:</p>
-    
-    <ul>
-        <li>In any way that violates any applicable local, state, national, or international law or regulation.</li>
-        <li>To exploit, harm, or attempt to exploit or harm minors in any way by exposing them to inappropriate content or otherwise.</li>
-        <li>To transmit, or procure the sending of, any advertising or promotional material without our prior written consent, including "junk mail," "chain letter," "spam," or any other similar solicitation.</li>
-        <li>To impersonate or attempt to impersonate ProPro, a ProPro employee, another user, or any other person or entity.</li>
-        <li>To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the Service, or which, as determined by us, may harm ProPro or users of the Service or expose them to liability.</li>
-    </ul>
-    
-    <h2>4. Intellectual Property</h2>
-    
-    <p>The Service and its original content, features, and functionality are and will remain the exclusive property of ProPro and its licensors. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of ProPro.</p>
-    
-    <h2>5. User-Generated Content</h2>
-    
-    <p>If the Service allows you to post, link, store, share, and otherwise make available certain information, text, graphics, videos, or other material, you are responsible for the content that you post on or through the Service, including its legality, reliability, and appropriateness. By posting content on or through the Service, you represent and warrant that you own the content or have the right to use it and grant us the rights and license as provided in these Terms.</p>
-    
-    <h2>6. Termination</h2>
-    
-    <p>We may terminate or suspend your account and bar access to the Service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever, including without limitation a breach of the Terms. If you wish to terminate your account, you may simply discontinue using the Service.</p>
-    
-    <h2>7. Limitation of Liability</h2>
-    
-    <p>In no event shall ProPro, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the Service; (ii) any conduct or content of any third party on the Service; (iii) any content obtained from the Service; and (iv) unauthorized access, use, or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage.</p>
-    
-    <h2>8. Disclaimer</h2>
-    
-    <p>Your use of the Service is at your sole risk. The Service is provided on an "AS IS" and "AS AVAILABLE" basis. The Service is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.</p>
-    
-    <h2>9. Governing Law</h2>
-    
-    <p>These Terms shall be governed and construed in accordance with the laws of Malaysia, without regard to its conflict of law provisions. Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights.</p>
-    
-    <h2>10. Changes to Terms</h2>
-    
-    <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide at least 30 days' notice prior to any new terms taking effect. By continuing to access or use our Service after any revisions become effective, you agree to be bound by the revised terms.</p>
-    
-    <p>Return to <%= link_to "ProPro", root_path %>.</p>
+<div class="pt-20 pb-8 px-8 w-full lg:w-10/12 xl:w-8/12 mx-auto">
+  <h1 class="font-bold text-3xl text-center mb-2 p-4">ProPro Terms and Conditions</h1>
+
+  <p class="pb-4">Welcome to ProPro! These Terms and Conditions ("Terms") govern your use of
+    the ProPro website and all its features and services (collectively, the
+    "Service"). By accessing or using the Service, you agree to be bound by
+    these Terms. If you do not agree with any part of these Terms, you may not
+    use the Service.</p>
+
+  <div class="flex flex-col gap-4 items-center justify-center">
+
+    <div>
+      <h2 class="font-bold text-xl mb-2">1. Acceptance of Terms</h2>
+
+      <p>Your access to and use of the Service is conditioned upon your
+        acceptance of and compliance with these Terms. These Terms apply to all
+        visitors, users, and others who wish to access or use the Service.</p>
+
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-bold text-xl">2. User Accounts</h2>
+
+      <p>To use certain features of the Service, you may be required to create
+        an account. You agree to provide accurate, current, and complete
+        information during the registration process and to keep your account
+        information updated. You are responsible for safeguarding the password
+        that you use to access the Service and for any activities or actions
+        under your password, whether your password is with our Service or a
+        third-party service. You agree not to disclose your password to any
+        third party. You must notify us immediately upon becoming aware of any
+        breach of security or unauthorized use of your account.</p>
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-bold text-xl">3. Prohibited Uses</h2>
+
+      <p>You may use the Service only for lawful purposes and in accordance with
+        the Terms. You agree not to use the Service:</p>
+
+      <ul class="mt-2 space-y-3 list-disc list-outside ml-10 leading-relaxed">
+        <li class="pl-2 marker:text-black">
+          In any way that violates any applicable local, state, national, or
+          international law or regulation.
+        </li>
+        <li class="pl-2 marker:text-black">
+          To exploit, harm, or attempt to exploit or harm minors in any way by
+          exposing them to inappropriate content or otherwise.
+        </li>
+        <li class="pl-2 marker:text-black">
+          To transmit, or procure the sending of, any advertising or
+          promotional material without our prior written consent, including
+          "junk mail," "chain letter," "spam," or any other similar
+          solicitation.
+        </li>
+        <li class="pl-2 marker:text-black">
+          To impersonate or attempt to impersonate ProPro, a ProPro employee,
+          another user, or any other person or entity.
+        </li>
+        <li class="pl-2 marker:text-black">
+          To engage in any other conduct that restricts or inhibits anyone's
+          use or enjoyment of the Service, or which, as determined by us, may
+          harm ProPro or users of the Service or expose them to liability.
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-bold text-xl">4. Intellectual Property</h2>
+
+      <p>The Service and its original content, features, and functionality are
+        and will remain the exclusive property of ProPro and its licensors. Our
+        trademarks and trade dress may not be used in connection with any
+        product or service without the prior written consent of ProPro.</p>
+
+    </div>
+    <div>
+      <h2 class="mb-2 font-bold text-xl">5. User-Generated Content</h2>
+
+      <p>If the Service allows you to post, link, store, share, and otherwise
+        make available certain information, text, graphics, videos, or other
+        material, you are responsible for the content that you post on or
+        through the Service, including its legality, reliability, and
+        appropriateness. By posting content on or through the Service, you
+        represent and warrant that you own the content or have the right to use
+        it and grant us the rights and license as provided in these Terms.</p>
+
+    </div>
+    <div>
+      <h2 class="mb-2 font-bold text-xl">6. Termination</h2>
+
+      <p>We may terminate or suspend your account and bar access to the Service
+        immediately, without prior notice or liability, under our sole
+        discretion, for any reason whatsoever, including without limitation a
+        breach of the Terms. If you wish to terminate your account, you may
+        simply discontinue using the Service.</p>
+
+    </div>
+    <div>
+      <h2 class="mb-2 font-bold text-xl">7. Limitation of Liability</h2>
+
+      <p>In no event shall ProPro, nor its directors, employees, partners,
+        agents, suppliers, or affiliates, be liable for any indirect,
+        incidental, special, consequential, or punitive damages, including
+        without limitation, loss of profits, data, use, goodwill, or other
+        intangible losses, resulting from (i) your access to or use of or
+        inability to access or use the Service; (ii) any conduct or content of
+        any third party on the Service; (iii) any content obtained from the
+        Service; and (iv) unauthorized access, use, or alteration of your
+        transmissions or content, whether based on warranty, contract, tort
+        (including negligence), or any other legal theory, whether or not we
+        have been informed of the possibility of such damage.</p>
+    </div>
+
+    <div>
+      <h2 class="mb-2 font-bold text-xl">8. Disclaimer</h2>
+
+      <p>Your use of the Service is at your sole risk. The Service is provided
+        on an "AS IS" and "AS AVAILABLE" basis. The Service is provided without
+        warranties of any kind, whether express or implied, including, but not
+        limited to, implied warranties of merchantability, fitness for a
+        particular purpose, non-infringement, or course of performance.</p>
+
+    </div>
+    <div>
+      <h2 class="mb-2 font-bold text-xl">9. Governing Law</h2>
+
+      <p>These Terms shall be governed and construed in accordance with the laws
+        of Malaysia, without regard to its conflict of law provisions. Our
+        failure to enforce any right or provision of these Terms will not be
+        considered a waiver of those rights.</p>
+
+    </div>
+    <div>
+      <h2 class="mb-2 font-bold text-xl">10. Changes to Terms</h2>
+
+      <p>We reserve the right, at our sole discretion, to modify or replace
+        these Terms at any time. We will provide at least 30 days' notice prior
+        to any new terms taking effect. By continuing to access or use our
+        Service after any revisions become effective, you agree to be bound by
+        the revised terms.</p>
+
+    </div>
+    <div class="mt-2">
+      <p>
+        <a href="/" class="text-lg text-gray-500 hover:text-green-600 font-medium">
+          &larr;Return to ProPro
+        </a>
+      </p>
+    </div>
+  </div>
+
 </div>
