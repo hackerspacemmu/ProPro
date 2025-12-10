@@ -370,7 +370,7 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        new_group_member = ProjectGroupMember.find_by(user: new_user)
+        new_group_member = ProjectGroupMember.find_by(user: new_user, project_group: new_group)
 
         if new_group_member
           new_group_member.update!(project_group: new_group)
