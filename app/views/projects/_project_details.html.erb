@@ -31,9 +31,8 @@
           </h4>
         </div>
 
-        <%# this is for parsing before rendering (to minimize whitespace in project field value) %>
+        <%# Field value calculation (pre-calculated to prevent whitespace issues) %>
         <% display_text = nil
-        
         if field.value.present?
           if field.project_template_field.dropdown? ||
                field.project_template_field.radio?
@@ -49,12 +48,13 @@
           display_text = display_text.to_s.strip
         end %>
 
+        <%# Field value container %>
         <div
           class="
             p-4 md:p-6 md:col-span-2 text-gray-900 break-words text-base md:text-lg
-            font-medium whitespace-pre-wrap leading-relaxed
+            font-medium whitespace-pre-wrap leading-relaxed min-w-0
           "
-        ><% if display_text.present? %><%= display_text %><% else %><span class="text-gray-400 italic font-normal text-sm">No content provided</span><% end %></div>
+        ><% if display_text.present? %><%= display_text %><% else %><span class="text-gray-400 italic font-normal text-lg">No content provided</span><% end %></div>
       </div>
     <% end %>
 
@@ -83,6 +83,7 @@
   <%# --- VERSION DIFF COMPARISON --- %>
   <% if @index < @instances.size %>
     <div class="mt-8">
+
       <div class="flex items-center gap-3 mb-4">
         <h4 class="text-lg font-bold text-gray-800">Version Changes</h4>
         <span
@@ -106,7 +107,7 @@
             <thead>
               <tr
                 class="
-                  bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider
+                  bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wide
                   text-gray-500 font-semibold
                 "
               >
@@ -139,7 +140,7 @@
                   <tr class="bg-white group hover:bg-gray-50/20 transition-colors">
                     <td
                       class="
-                        p-3 text-sm font-bold text-gray-700 align-top border-r border-gray-200
+                        p-3 text-lg font-bold text-gray-700 align-top border-r border-gray-200
                         bg-gray-50/30
                       "
                     >
@@ -147,8 +148,7 @@
                     </td>
 
                     <td colspan="2" class="p-0 align-top">
-                      <div class="w-full font-mono text-sm leading-tight">
-
+                      <div class="w-full font-mono text-lg leading-snug">
                         <% old_lines = old_val.split("\n") %>
                         <% new_lines = new_val.split("\n") %>
                         <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
@@ -199,11 +199,10 @@
                                 word_diffs
                                   .map do |w|
                                     text = is_empty_marker.call(w.old_element) ? "&nbsp;" : h(w.old_element)
-                              
                                     if w.action == "-" || w.action == "!"
                                       "<span class='bg-red-200 text-red-900 line-through decoration-red-400 decoration-2'>#{text}</span>"
                                     else
-                                      "<span class='text-gray-500 opacity-80'>#{text}</span>"
+                                      "<span class='text-gray-500'>#{text}</span>"
                                     end
                                   end
                                   .join
@@ -212,7 +211,6 @@
                                 word_diffs
                                   .map do |w|
                                     text = is_empty_marker.call(w.new_element) ? "&nbsp;" : h(w.new_element)
-                              
                                     if w.action == "+" || w.action == "!"
                                       "<span class='bg-green-200 text-green-900 font-medium'>#{text}</span>"
                                     else
@@ -220,7 +218,6 @@
                                     end
                                   end
                                   .join %>
-
                               <div class="px-3 py-1 border-r border-red-200 bg-red-50 break-all">
                                 <%= left_html.html_safe %>
                               </div>
