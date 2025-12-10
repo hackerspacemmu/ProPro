@@ -1,7 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "courses" %>
+  <%= stylesheet_link_tag "tailwind","new_tailwind"%>
 <% end %>
-<% content_for :title, "Home | ProPro" %>
 
 <div class="topbar">
 <% if Current.user.is_staff %>
@@ -44,5 +44,6 @@
       <h5><img src="info.png" class="icon" size="20S">You have no courses at the moment. Please create one.</h5>
     <% end %>
   </div>
-  <%= link_to "+", new_course_path, class: "rounded-add-button" if Current.user.is_staff %>
+  <%= link_to "+", new_course_path, class: "rounded-add-button" if Current.user.is_staff %> 
 </div>
+

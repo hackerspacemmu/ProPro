@@ -22,4 +22,14 @@ module CoursesHelper
     return 'not_submitted' unless project
     project.current_status
   end
+
+  def participants_exceed?(course)
+    return false unless course.students.present? 
+    course.students.count > Rails.application.config.participants_threshold
+  end
+
+  def supervisors_exceed?(course)
+    return false unless course.supervisors.present?
+    course.supervisors.count > Rails.application.config.supervisors_threshold
+  end
 end

@@ -3,46 +3,52 @@
     <header class="section-header">
       <h4>Participants</h4>
       
-      <!-- Status Filter Dropdown -->
-      <div class="filter-container">
-        <label for="status-filter">Filter by Status:</label>
-        <div class="filter-select-container">
-        <select id="status-filter" 
-                name="status_filter" 
-                hx-get="<%= course_url(@course) %>"
-                hx-target="#participants-table-container"
-                hx-trigger="change"
-                hx-include="this"
-                hx-indicator="#loading-spinner">
-          <option value="all" <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>>All Statuses</option>
-          <option value="approved" <%= 'selected' if params[:status_filter] == 'approved' %>>Approved</option>
-          <option value="pending" <%= 'selected' if params[:status_filter] == 'pending' %>>Pending</option>
-          <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
-          <option value="rejected" <%= 'selected' if params[:status_filter] == 'rejected' %>>Rejected</option>
-          <option value="not_submitted" <%= 'selected' if params[:status_filter] == 'not_submitted' %>>Not Submitted</option>
-        </select>
-        <div id="loading-spinner" class="htmx-indicator"> (≥o≤) loading... </div>
+      <% if participants_exceed?(@course) && !local_assigns[:fullpage] %>
+        <%= link_to "Show all participants", course_participants_path(@course) %>
+      <% else %>
+        <!-- Status Filter -->
+        <div class="filter-container">
+          <label for="status-filter">Filter by Status:</label>
+          <div class="filter-select-container">
+          <select id="status-filter" 
+                  name="status_filter" 
+                  hx-get="<%= course_url(@course) %>"
+                  hx-target="#participants-table-container"
+                  hx-trigger="change"
+                  hx-include="this"
+                  hx-indicator="#loading-spinner">
+            <option value="all" <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>>All Statuses</option>
+            <option value="approved" <%= 'selected' if params[:status_filter] == 'approved' %>>Approved</option>
+            <option value="pending" <%= 'selected' if params[:status_filter] == 'pending' %>>Pending</option>
+            <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
+            <option value="rejected" <%= 'selected' if params[:status_filter] == 'rejected' %>>Rejected</option>
+            <option value="not_submitted" <%= 'selected' if params[:status_filter] == 'not_submitted' %>>Not Submitted</option>
+          </select>
+          <div id="loading-spinner" class="htmx-indicator"> (≥o≤) loading... </div>
+          </div>
         </div>
-      </div>
+      <% end %>
     </header>
 
-    <div id="participants-table-container">
-      <%= render 'participants_table', 
-          course: @course, 
-          group_list: @filtered_group_list, 
-          student_list: @filtered_student_list,
-          students_with_projects: @students_with_projects,
-          students_without_projects: @students_without_projects %>
-    </div>
+    <% unless participants_exceed?(@course) && !local_assigns[:fullpage] %>
+      <div id="participants-table-container">
+        <%= render 'courses/participants_table', 
+            course: @course, 
+            group_list: @filtered_group_list, 
+            student_list: @filtered_student_list,
+            students_with_projects: @students_with_projects,
+            students_without_projects: @students_without_projects %>
+      </div>
 
-    <!-- Summary Statistics -->
-    <div class="participants-summary">
-      <% if @course.grouped? %>
-        <p>Total Groups: <%= @filtered_group_list&.count || 0 %></p>
-        <p>Total Students: <%= @filtered_student_list&.count || 0 %></p>
-      <% else %>
-        <p>Total Students: <%= @filtered_student_list&.count || 0 %></p>
-      <% end %>
-    </div>
+      <!-- Summary Statistics -->
+      <div class="participants-summary">
+        <% if @course.grouped? %>
+          <p>Total Groups: <%= @filtered_group_list&.count || 0 %></p>
+          <p>Total Students: <%= @filtered_student_list&.count || 0 %></p>
+        <% else %>
+          <p>Total Students: <%= @filtered_student_list&.count || 0 %></p>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </section>

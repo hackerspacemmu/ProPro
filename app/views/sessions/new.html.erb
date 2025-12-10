@@ -1,31 +1,126 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "tailwind","new_tailwind"%>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<% provide :no_sidebar, true %>
 <% content_for :title, "Sign In | ProPro" %>
+<% provide :no_footer, true %>
 
-<div class="w-[30%] min-w-[350px] mx-auto mt-[200px] justify-center justify-self-center self-center items-center">
+<div
+  class="
+    flex flex-col items-center justify-center min-h-[85vh] w-full px-4 pt-20
+  "
+>
 
-    <h1 class="flex justify-center text-3xl font-bold my-[15px]">Welcome to Propro</h1>
+  <h1
+    class="
+      text-3xl md:text-4xl font-bold text-gray-900 mb-8 mt-4 tracking-tight
+    "
+  >Welcome to ProPro</h1>
 
-    <div class="flex w-full h-full justify-center justify-items-center flex-col  rounded-[10px] py-[15px] px-[0px] mb-[20px] shadow-[0_0_50px_1px_#b8b8b8] bg-[#f8f9fa] ">
-        <h1 class="flex justify-center my-[5px] mx-[0px] text-2xl font-bold">Sign In</h1><br>
-        <h5 class="flex justify-center"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-        <h5 class="flex justify-center"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-        <br>
+  <div
+    class="
+      w-full max-w-lg bg-white rounded-xl shadow-lg p-8 border border-gray-100
+    "
+  >
 
-        <%= form_with url: session_path do |form| %>
-        <div class="justify-center">
-            <label for= "email" class="text-base font-bold my-[0] mx-[5%]">Email</label><br>
-            <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class:"w-[90%] justify-center flex h-[30px] m-auto border border-[#6b6b6b] px-[5px] rounded-md"%><br>
-            <label for= "password" class="text-base font-bold my-[0] mx-[5%]">Password</label><br>
-            <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "w-[90%] justify-center flex h-[30px] m-auto border border-[#6b6b6b] px-[5px] rounded-md" %><br><br>
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Sign In</h2>
+    <% if flash[:notice] %>
+      <div
+        class="
+          mb-6 mx-auto w-full bg-green-50 border-1 border-l-4 border-green-500
+          text-green-700 p-4 rounded shadow-sm flex items-center animate-pulse
+        "
+        role="alert"
+      >
+        <svg
+          class="w-5 h-5 mr-3 text-green-500 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+
+        <div>
+          <p class="font-bold text-sm">Success</p>
+          <p class="text-sm"><%= flash[:notice] %></p>
         </div>
-        <div class="flex mt-[5px] mx-[5%] mb-[0px] justify-between items-center self-center">
-            <%= form.submit "Sign in", class:"rounded-md bg-green-500 hover:bg-green-700 font-bold py-[8px] px-[40px] hover:cursor-pointer " %>
-            <% end %>
+      </div>
+    <% end %>
 
-            <%= link_to "Forgot password?", new_password_path, class: "text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
+    <% if flash[:alert] %>
+      <div
+        class="
+          mb-6 mx-auto w-full bg-red-50 border-1 border-l-4 border-red-500 text-red-700
+          p-4 rounded shadow-sm flex items-center animate-pulse
+        "
+        role="alert"
+      >
+        <svg
+          class="w-5 h-5 mr-3 text-red-500 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          /></svg>
+        <div>
+          <p class="font-bold text-sm">Login Failed</p>
+          <p class="text-sm"><%= flash[:alert] %></p>
         </div>
-    </div>
+      </div>
+    <% end %>
+
+    <%= form_with url: session_path, class: "space-y-5" do |form| %>
+
+      <div>
+        <%= form.label :email_address,
+                   "Email Address",
+                   class: "block text-md font-semibold text-gray-700 mb-1" %>
+        <%= form.email_field :email_address,
+                         required: true,
+                         autofocus: true,
+                         autocomplete: "username",
+                         placeholder: "Enter your email address",
+                         value: params[:email_address],
+                         class:
+                           "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <%= form.label :password,
+                     "Password",
+                     class: "block text-md font-semibold text-gray-700" %>
+          <%= link_to "Forgot password?",
+          new_password_path,
+          class:
+            "text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
+        </div>
+
+        <%= form.password_field :password,
+                            required: true,
+                            autocomplete: "current-password",
+                            placeholder: "Enter your password",
+                            class:
+                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+      </div>
+
+      <div class="pt-2 mt-6">
+        <%= form.submit "Sign In",
+                    class:
+                      "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg cursor-pointer transition-colors shadow-md hover:shadow-lg text-lg" %>
+      </div>
+
+    <% end %>
+
+  </div>
 </div>
+

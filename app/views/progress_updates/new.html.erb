@@ -1,28 +1,121 @@
 <% breadcrumb :new_progress_update, @project %>
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "projects" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<% content_for :title, "New Progress Update - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+<% content_for :title,
+"New Progress Update - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-<main class="project-edit">
-  <h1><b> Progress Update </b></h1>
+<main class="min-h-screen bg-gray-50 w-full pt-[120px] pb-12 px-4 md:px-8">
+  <div class="mx-auto w-full xl:w-10/12 2xl:w-8/12">
 
-    <%= form_with(model: [@course, @project, @progress_update]) do |f| %>
-      <%= f.label :rating %>
-      <%= f.select :rating,
-            options_for_select(ProgressUpdate.ratings.keys.map { |s| [s.humanize, s] }, @progress_update.rating) %>
-      <br>
+    <div class="mb-8">
+      <%= link_to course_project_path(@course, @project), class: "group inline-flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Project
+      <% end %>
 
-      <%= f.label :feedback %>
-      <%= f.text_area :feedback, class: "form-control", required: true %>
+      <h1 class="text-3xl text-center sm:text-left font-bold text-gray-900">
+        New Progress Update
+      </h1>
+      <p class="text-gray-500 mt-2 text-center sm:text-left text-sm">
+        Record new progress update for
+        <strong><%= @project.current_title %></strong>.
+      </p>
+    </div>
 
+    <div
+      class="
+        bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden
+      "
+    >
+      <div class="p-6 md:p-8">
+        <%= form_with(model: [@course, @project, @progress_update], class: "space-y-8") do |f| %>
 
-      <%= f.label :date %>
-      <%= f.date_field :date, value: Date.today %>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <br>
-      <%= f.submit %>
-    <% end %>
+            <div class="flex flex-col">
+              <%= f.label :rating,
+                      "Rating",
+                      class:
+                        "block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2" %>
+              <div class="relative">
+                <%= f.select :rating,
+                         options_for_select(
+                           ProgressUpdate.ratings.keys.map { |s| [s.humanize, s] },
+                           @progress_update.rating,
+                         ),
+                         {},
+                         class:
+                           "w-full appearance-none pl-4 pr-10 py-3 border border-gray-200 rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" %>
+                <div
+                  class="
+                    absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
+                  "
+                >
+                  <svg
+                    class="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    /></svg>
+                </div>
+              </div>
+            </div>
 
-    <%= link_to "← Back to Project", course_project_path(@course, @project) %>
+            <div class="flex flex-col">
+              <%= f.label :date,
+                      "Date",
+                      class:
+                        "block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2" %>
+              <%= f.date_field :date,
+                           value: Date.today,
+                           class:
+                             "w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" %>
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <%= f.label :feedback,
+                    "Feedback",
+                    class:
+                      "block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2" %>
+            <%= f.text_area :feedback,
+                        class:
+                          "w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all min-h-[200px] resize-y leading-relaxed",
+                        required: true %>
+          </div>
+
+          <div class="border-gray-100 flex items-center justify-end gap-4">
+            <%= link_to "Cancel",
+            course_project_path(@course, @project),
+            class:
+              "text-sm font-bold text-gray-500 hover:text-gray-700 px-4 py-2 transition-colors" %>
+
+            <%= f.submit "Create Progress Update",
+                     class:
+                       "cursor-pointer bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-slate-500/20 transition-all transform active:scale-95 text-sm" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+  </div>
 </main>

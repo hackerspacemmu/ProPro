@@ -33,7 +33,6 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-
 *.rbc
 capybara-*.html
 .rspec
@@ -92,3 +91,12 @@ node_modules/
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+/app/assets/builds/*
+!/app/assets/builds/.keep
+
+# Ignore mac environment files
+.DS_Store
+/app/assets/builds/*
+!/app/assets/builds/.keep
+

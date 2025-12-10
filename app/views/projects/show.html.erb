@@ -1,73 +1,170 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "projects" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
+
 <% breadcrumb :project, @project %>
+
 <% content_for :title do %>
-   <%=@project.current_title.truncate(TITLE_NAME_LIMIT) %> -
-   View <%= @project.current_instance.approved? ? 'Project' : 'Proposal' %> | ProPro
-<% end %>
-<% content_for :sidebar do %>
-  <div class="sidebar">
-    <a href="#project-title"> Title </a>
-    <a href="#project-properties"> Project Properties </a>
-    <a href="#project-comments"> Comments </a>
-    <% if current_tab == 'details' %>
-      <a id="link-project-fields" href="#project-fields"> Project Details </a>
-    <% elsif current_tab == 'progress' %>
-      <a id="link-project-fields" href="#project-fields"> Project Updates </a>
-    <% end %>
-  </div>
+  <%= @project.current_title.truncate(TITLE_NAME_LIMIT) %>
+  - View
+  <%= @project.current_instance.approved? ? "Project" : "Proposal" %>
+  | ProPro
 <% end %>
 
-<main id="project">
-  <div class="project-layout">
-    <section class="project-content">
-      <% current_version = @index %>
-      <% oldest_version = 1 %>
-      <% latest_version = @instances.size %>
+<main class="min-h-screen bg-gray-50 w-full pt-[115px] pb-6">
 
-      <%= render 'project_header',
-                 current_instance: @current_instance,
-                 owner: @owner,
-                 project: @project,
-                 members: @members,
-                 current_version: current_version,
-                 latest_version: latest_version,
-                 oldest_version: oldest_version,
-                 instances: @instances %>
-      <%= render 'project_actions',
-                 members: @members,
-                 current_user: current_user,
-                 project: @project,
-                 current_version: current_version,
-                 latest_version: latest_version,  
-                 course: @course %>
-      <%= render 'project_comments',
-                  comments: @comments,
-                  new_comment: @new_comment,
-                  course: @course,
-                  project: @project,
-                  current_instance_id: @current_instance.id,
-                  current_version: current_version,
-                  latest_version: latest_version %>
-                    
-      <% if @course.use_progress_updates && @current_instance.status == "approved" %>
-        <% if @current_instance.supervisor == current_user %>
-          <br>
-          <%= link_to "Record New Progress Update", new_course_project_progress_update_path(@course, @project)%>
-        <% end %>
+  <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 xl:px-16">
+
+    <div class="flex items-center justify-start mb-2">
+      <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Course
       <% end %>
+    </div>
 
-      <%= render 'project_fields', 
-                  project: @project,
-                  fields: @current_fields,
-                  next_fields: @next_fields, 
-                  based_on_topic_name: @current_instance&.source_topic&.topic_instances&.last&.title || nil,
-                  course: @course %>
-        
-          <footer class="project-footer">
-            <%= link_to "← Back to Course", course_path(@course) %>
-          </footer>
-       </section>
-     </div>
-   </main>
+    <div
+      class="
+        flex flex-col xl:flex-row gap-0 md:gap-4 lg:gap-8 items-start justify-center
+      "
+    >
+
+      <div class="flex-1 w-full min-w-0 space-y-8">
+
+        <% current_version = @index %>
+        <% oldest_version = 1 %>
+        <% latest_version = @instances.size %>
+
+        <%= render "project_header",
+        current_instance: @current_instance,
+        owner: @owner,
+        project: @project,
+        members: @members,
+        current_version: current_version,
+        latest_version: latest_version,
+        oldest_version: oldest_version,
+        instances: @instances %>
+
+        <section>
+          <div>
+            <%= render "project_fields",
+            project: @project,
+            fields: @current_fields,
+            next_fields: @next_fields,
+            based_on_topic_name:
+              @current_instance&.source_topic&.topic_instances&.last&.title || nil,
+            course: @course %>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="w-full xl:w-[450px] flex-shrink-0 space-y-6">
+
+        <div class="sticky top-[100px] space-y-6">
+
+          <div class="flex flex-col md:flex-row xl:flex-col gap-6">
+
+            <% has_actions =
+              @members.include?(current_user) || current_version != latest_version %>
+
+            <% if has_actions %>
+              <section
+                class="
+                  bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
+                "
+              >
+                <h4
+                  class="
+                    text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
+                    gap-2
+                  "
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    /></svg>
+                  Actions
+                </h4>
+                <%= render "project_actions",
+                members: @members,
+                current_user: current_user,
+                project: @project,
+                current_version: current_version,
+                latest_version: latest_version,
+                course: @course %>
+              </section>
+            <% end %>
+
+            <% if @course.use_progress_updates && @current_instance.status == "approved" && @current_instance.supervisor == current_user %>
+              <div
+                class="
+                  bg-gray-50 rounded-2xl p-6 border border-blue-100 shadow-sm relative
+                  overflow-hidden group flex-1 flex flex-col justify-center
+                "
+              >
+                <h4 class="font-bold text-black relative z-10">Weekly Progress Update</h4>
+                <%= link_to new_course_project_progress_update_path(@course, @project), class: "flex items-center justify-center w-full bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] relative z-10 mt-4" do %>
+                  Record New Progress Update
+                <% end %>
+              </div>
+            <% end %>
+
+          </div>
+
+          <section
+            class="
+              bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[600px]
+              max-h-[calc(100vh-200px)]
+            "
+          >
+            <div class="flex-grow overflow-y-auto p-0 bg-gray-50/30 custom-scrollbar">
+              <%= render "project_comments",
+              comments: @comments,
+              new_comment: @new_comment,
+              course: @course,
+              project: @project,
+              current_instance_id: @current_instance.id,
+              current_version: current_version,
+              latest_version: latest_version %>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="flex items-center justify-center mt-3">
+      <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Course
+      <% end %>
+    </div>
+  </div>
+</main>

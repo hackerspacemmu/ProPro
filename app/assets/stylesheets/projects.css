@@ -5,7 +5,6 @@
 /* Reset and base */
 * {
   margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
@@ -34,7 +33,6 @@ body {
 
 .project-content {
   flex: 1;  
-  width: 100%;
   margin: 0 auto;
   padding: 60px 40px;
   position: relative;

@@ -143,6 +143,12 @@ class CoursesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
+        # Remove the leading 'S-' from student IDs if present
+        csv_obj.each do |row|
+          student_id = row["ID number"]
+          row["ID number"] = student_id&.replace(student_id[2..]) if student_id&.start_with?('S-')
+        end
+
         if @course.grouped
           student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
           create_db_entries_grouped(student_hashmap, @course, unregistered_students)
@@ -364,7 +370,7 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        new_group_member = ProjectGroupMember.find_by(user: new_user)
+        new_group_member = ProjectGroupMember.find_by(user: new_user, project_group: new_group)
 
         if new_group_member
           new_group_member.update!(project_group: new_group)
@@ -719,4 +725,3 @@ class CoursesController < ApplicationController
     students_by_status(params[:status_filter], @student_list, @students_with_projects, @students_without_projects, @course)
   end
 end
-

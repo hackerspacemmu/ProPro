@@ -1,5 +1,6 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "projects" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% breadcrumb :edit_project, @project %>
 <% content_for :title, "Edit Proposal - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
@@ -106,4 +107,3 @@
     </div>
   <% end %>
 </main>
-
