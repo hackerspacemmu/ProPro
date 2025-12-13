@@ -15,18 +15,22 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-    
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application" %>
     <%= yield :stylesheets %>
-    
+
     <%= javascript_importmap_tags %>
     <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js" %>
   </head>
 
-  <body>
-    <%= render 'shared/topbar', user: current_user, course: @course %>
+  <body
+    data-controller="scroll-spy"
+    data-scroll-spy-active-class="bg-blue-50 text-blue-700"
+    data-scroll-spy-inactive-class="text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+  >
+    <%= render "shared/topbar", user: current_user, course: @course %>
     <%= breadcrumbs separator: " > ", class: "breadcrumb" %>
     <% unless content_for?(:no_sidebar) %>
       <%= yield :sidebar %>
@@ -34,7 +38,7 @@
 
     <%= yield %>
     <% unless content_for?(:no_footer) %>
-      <%= render 'shared/footer' %>
+      <%= render "shared/footer" %>
     <% end %>
   </body>
 </html>
