@@ -108,26 +108,29 @@
                      "Password",
                      class: "block text-md font-semibold text-gray-700" %>
         </div>
+        <div data-controller="password-verify">
+            <%= form.password_field :password,
+                                required: true,
+                                autocomplete: "new-password",
+                                placeholder: "Enter your password",
+                                data: { password_verify_target: "password", action: "input->password-verify#validate" },
+                                class:
+                                "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
 
-        <%= form.password_field :password,
-                            required: true,
-                            autocomplete: "new-password",
-                            placeholder: "Enter your password",
-                            class:
-                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
-
-        <div class="flex items-center justify-between mb-1 mt-2">
-          <%= form.label :confirm_password,
-                     "Confirm Password",
-                     class: "block text-md font-semibold text-gray-700" %>
+            <div class="flex items-center justify-between mb-1 mt-2">
+            <%= form.label :confirm_password,
+                        "Confirm Password",
+                        class: "block text-md font-semibold text-gray-700" %>
+            </div>
+            <%= form.password_field :confirm_password,
+                                required: true,
+                                autocomplete: "new-password",
+                                placeholder: "Confirm password",
+                                data: { password_verify_target: "confirm", action: "input->password-verify#validate" },
+                                class:
+                                "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+            <div data-password-verify-target="message" class="mt-1"></div>
         </div>
-
-        <%= form.password_field :confirm_password,
-                            required: true,
-                            autocomplete: "new-password",
-                            placeholder: "Confirm password",
-                            class:
-                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
       </div>
 
       <div class="pt-2 mt-6 mb-2">
