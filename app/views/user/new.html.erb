@@ -18,7 +18,7 @@
 
   <div
     class="
-      w-full max-w-lg bg-white rounded-xl shadow-lg p-8 border border-gray-100 pb-4
+      w-full max-w-lg bg-white rounded-xl shadow-lg p-8 border border-gray-100
     "
   >
 
@@ -81,9 +81,17 @@
     <%= form_with url: session_path, class: "space-y-5" do |form| %>
 
       <div>
+        <%= form.label :fullname, "Full Name" %>
+        <%= form.text_field :fullname,
+                            required: true,
+                            autofocus: true,
+                            placeholder: "Enter your full name",
+                            value: params[:fullname],
+                            class:
+                            "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
         <%= form.label :email_address,
                    "Email Address",
-                   class: "block text-md font-semibold text-gray-700 mb-1" %>
+                   class: "block text-md font-semibold text-gray-700 mb-1 mt-3" %>
         <%= form.email_field :email_address,
                          required: true,
                          autofocus: true,
@@ -103,8 +111,21 @@
 
         <%= form.password_field :password,
                             required: true,
-                            autocomplete: "current-password",
+                            autocomplete: "new-password",
                             placeholder: "Enter your password",
+                            class:
+                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+
+        <div class="flex items-center justify-between mb-1 mt-2">
+          <%= form.label :confirm_password,
+                     "Confirm Password",
+                     class: "block text-md font-semibold text-gray-700" %>
+        </div>
+
+        <%= form.password_field :confirm_password,
+                            required: true,
+                            autocomplete: "new-password",
+                            placeholder: "Confirm password",
                             class:
                               "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
       </div>
