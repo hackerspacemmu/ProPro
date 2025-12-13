@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static classes = [ "active", "inactive" ]
   connect() {
-    // section is considered "active" if it hits top 20% of screen
+    // section is considered "active" if it hits 20%-60% of screen
     const observerOptions = {
       root: null,
       rootMargin: '-20% 0px -60% 0px', 
