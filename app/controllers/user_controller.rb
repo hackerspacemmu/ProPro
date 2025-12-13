@@ -1,5 +1,10 @@
 class UserController < ApplicationController
-  allow_unauthenticated_access only: %i[ new_staff new_student create ]
+  allow_unauthenticated_access only: %i[ new new_staff new_student create ]
+
+  def new
+    # Sign up page
+  end
+
   def new_student
     begin
       @email = Otp.find_by(token: params[:token]).user.email_address

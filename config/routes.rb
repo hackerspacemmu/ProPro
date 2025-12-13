@@ -13,6 +13,8 @@ Rails.application.routes.draw do
   root "homescreen#show"
 
   get "login", to: "sessions#new"
+
+  get "sign_up", to: "user#new", as: :sign_up
   resource :session
 
   resources :passwords, param: :token

@@ -22,7 +22,7 @@
     "
   >
 
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Log In</h2>
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Sign Up</h2>
     <% if flash[:notice] %>
       <div
         class="
@@ -72,7 +72,7 @@
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           /></svg>
         <div>
-          <p class="font-bold text-sm">Login Failed</p>
+          <p class="font-bold text-sm">Sign Up Failed</p>
           <p class="text-sm"><%= flash[:alert] %></p>
         </div>
       </div>
@@ -99,10 +99,6 @@
           <%= form.label :password,
                      "Password",
                      class: "block text-md font-semibold text-gray-700" %>
-          <%= link_to "Forgot password?",
-          new_password_path,
-          class:
-            "text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
         </div>
 
         <%= form.password_field :password,
@@ -114,15 +110,9 @@
       </div>
 
       <div class="pt-2 mt-6 mb-2">
-        <%= form.submit "Log In",
+        <%= form.submit "Sign Up",
                     class:
                       "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg cursor-pointer transition-colors shadow-md hover:shadow-lg text-lg" %>
-      </div>
-      <div class="flex justify-center" style="margin-top: 0px;">
-        <%= link_to "Sign Up",
-          sign_up_path,
-          class:
-            "text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
       </div>
     <% end %>
 
