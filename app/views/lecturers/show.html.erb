@@ -5,17 +5,69 @@
 <% breadcrumb :lecturer, @course, @lecturer %>
 <% content_for :title, "#{@lecturer.username.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
 <% content_for :sidebar do %>
-  <div class="sidebar">
-    <a href="#lecturer-name"> Name </a>
-    <a href="#profile-information"> Profile Information </a>
-    <a href="#projects"> Projects </a>
-    <a href="#proposals"> Proposals </a>
-    <% if full_access? %>
-      <a href="#full-released-topics"> Released Topics </a>
-    <% else %>
-      <a href="#released-topics"> Released Topics </a>
-    <% end %>
-    <a href="#pending-topics"> Pending Topics </a>
+  <div
+    class="
+      h-[calc(100vh-70px)] z-[20] sticky top-[70px] left-0 
+      bg-[#f8f9fa] border-r border-gray-200
+      transition-all duration-300
+      overflow-hidden w-0 px-0 opacity-0
+    "
+    data-sidebar-target="container"
+  >
+    <div class="p-4 space-y-1 w-64 font-medium text-sm text-gray-600">
+      
+      <a 
+        href="#lecturer-name" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Name
+      </a>
+
+      <a 
+        href="#profile-information" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Profile Information
+      </a>
+
+      <a 
+        href="#projects" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Projects
+      </a>
+
+      <a 
+        href="#proposals" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Proposals
+      </a>
+
+      <% if full_access? %>
+        <a 
+          href="#full-released-topics" 
+          class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+        >
+          Released Topics
+        </a>
+      <% else %>
+        <a 
+          href="#released-topics" 
+          class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+        >
+          Released Topics
+        </a>
+      <% end %>
+
+      <a 
+        href="#pending-topics" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Pending Topics
+      </a>
+
+    </div>
   </div>
 <% end %>
 
