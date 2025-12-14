@@ -22,7 +22,7 @@ gem "jbuilder"
 # Used to differentaite text
 gem 'diff-lcs'
 
-# Use to handle breadcrumb trails 
+# Use to handle breadcrumb trails
 gem "gretel"
 
 # tailwindcss
@@ -51,6 +51,9 @@ gem "thruster", require: false
 
 # Formatting and linting for Ruby code
 gem "rubocop", require: false
+
+# Linting for ERB and HTML Files
+gem 'erb_lint', require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
