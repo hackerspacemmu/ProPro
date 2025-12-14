@@ -3,20 +3,14 @@
   <head>
     <title><%= content_for(:title) || "ProPro" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
 
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application" %>
     <%= yield :stylesheets %>
-
     <%= javascript_importmap_tags %>
     <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js" %>
   </head>
@@ -35,14 +29,19 @@
         <%= yield :sidebar %>
       <% end %>
 
-      <div class="flex-1 w-full min-w-0 flex flex-col pt-[120px]">
+      <div class="flex-1 w-full min-w-0 flex flex-col pt-[2em]">
 
-        <div class="px-4 sm:px-6 md:px-8 py-4 flex items-center gap-4">
+        <div
+          class="
+            sticky top-[70px] z-30 w-full flex items-center gap-4 px-4 sm:px-6 md:px-8 py-3
+            bg-gray-50/95 backdrop-blur-sm border-b border-gray-200
+          "
+        >
           <button
             data-action="click->sidebar#toggle"
             class="
-              p-2 -ml-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100
-              transition-colors focus:outline-none
+              p-2 -ml-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-200
+              transition-colors focus:outline-none shrink-0
             "
             title="Toggle Sidebar"
           >
@@ -54,7 +53,10 @@
               ></path></svg>
           </button>
 
-          <%= breadcrumbs separator: " > ", class: "breadcrumb text-sm text-gray-500" %>
+          <div class="flex-1 min-w-0">
+            <%= breadcrumbs separator: " > ",
+            class: "text-sm text-gray-500 font-medium truncate" %>
+          </div>
         </div>
 
         <%= yield %>
