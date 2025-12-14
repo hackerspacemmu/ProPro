@@ -293,13 +293,6 @@ class CoursesController < ApplicationController
     end
   end
 
-  def check_staff
-    if !Current.user.is_staff
-      redirect_to "/", alert: "Only staff can create courses"
-      return
-    end
-  end
-
   def parse_csv_grouped(csv_obj, columns_to_check)
     ret = {}
 
@@ -334,7 +327,7 @@ class CoursesController < ApplicationController
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
 
       hash_map[group].each do |group_member|
-        new_user = User.find_by(email_address: group_member[:email_address], is_staff: false)
+        new_user = User.find_by(email_address: group_member[:email_address])
 
         if !new_user
           new_user = User.create!(
@@ -343,7 +336,6 @@ class CoursesController < ApplicationController
             password: SecureRandom.base64(24),
             has_registered: false,
             student_id: group_member[:student_id],
-            is_staff: false,
           )
 
           new_otp_instance = Otp.create!(
@@ -357,7 +349,6 @@ class CoursesController < ApplicationController
            :email_address => group_member[:email_address],
            :otp_token => new_otp_instance.token,
            :otp => new_otp_instance.otp,
-           :is_staff => false
           }
         )
         else
@@ -390,7 +381,6 @@ class CoursesController < ApplicationController
         email_address: user[:email_address],
         otp_token: user[:otp_token],
         otp: user[:otp],
-        is_staff: user[:is_staff]
       ).ProPro_Invite.deliver_later
     end
   end
@@ -415,7 +405,7 @@ class CoursesController < ApplicationController
 
   def create_db_entries_solo(student_set, parent_course, unregistered_students)
     student_set.each do |student|
-      new_user = User.find_by(email_address: student[:email_address], is_staff: false)
+      new_user = User.find_by(email_address: student[:email_address])
 
       if !new_user
         new_user = User.create!(
@@ -424,7 +414,6 @@ class CoursesController < ApplicationController
           password: SecureRandom.base64(24),
           has_registered: false,
           student_id: student[:student_id],
-          is_staff: false
         )
 
         new_otp_instance = Otp.create!(
@@ -438,7 +427,6 @@ class CoursesController < ApplicationController
            :email_address => student[:email_address],
            :otp_token => new_otp_instance.token,
            :otp => new_otp_instance.otp,
-           :is_staff => false
           }
         )
       else
@@ -459,14 +447,13 @@ class CoursesController < ApplicationController
         next
       end
 
-      new_lecturer = User.find_by(email_address: email, is_staff: true)
+      new_lecturer = User.find_by(email_address: email)
 
       if !new_lecturer
         new_lecturer = User.create!(
           email_address: email,
           password: SecureRandom.base64(24),
           has_registered: false,
-          is_staff: true,
           username: "Lecturer-#{SecureRandom.hex(2)}"
         )
 
@@ -481,7 +468,6 @@ class CoursesController < ApplicationController
            :email_address => email,
            :otp_token => new_otp_instance.token,
            :otp => new_otp_instance.otp,
-           :is_staff => true
           }
         )
       end

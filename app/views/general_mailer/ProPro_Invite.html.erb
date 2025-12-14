@@ -33,15 +33,9 @@
                                             You have been added to a course via your email address. An account have automatically been created for you. To claim your account, visit:
                                         </p>
                                         <p style="margin: 16px 0;">
-                                            <% if @is_staff %>
-                                                <a href="https://propro.click/user/new_staff?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
-                                                    https://propro.click/user/new_staff?token=<%= @otp_token %>
-                                                </a>
-                                            <% else%>
-                                                <a href="https://propro.click/user/new_student?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
-                                                https://propro.click/user/new_student?token=<%= @otp_token %>
+                                            <a href="https://propro.click/user/new_staff?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
+                                                https://propro.click/user/new_staff?token=<%= @otp_token %>
                                             </a>
-                                            <% end %>
                                         </p>
                                         <p style="margin: 16px 0;">
                                             and enter the one-time password shown below:

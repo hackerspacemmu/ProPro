@@ -56,25 +56,17 @@ class UserController < ApplicationController
 
     user = otp_instance.user
 
-    if response[:username].blank? && user.is_staff
+    if response[:username].blank?
       redirect_back_or_to "/", alert: "Name cannot be empty"
       return
     end
     
-    # ugly ik, whachu gonna do about it
-    if !user.is_staff
-      if user.update(has_registered: true, password: response[:password])
-        redirect_to "/session/new", alert: "Account successfully claimed"
-      else
-        redirect_back_or_to "/", alert: "Something went wrong"
-      end
-    else
+    # prettier now fuck you
       if user.update(has_registered: true, password: response[:password], username: response[:username].strip)
         redirect_to "/session/new", alert: "Account successfully claimed"
       else
         redirect_back_or_to "/", alert: "Something went wrong"
       end
-    end
 
     user.otp.destroy
   end
@@ -84,10 +76,6 @@ class UserController < ApplicationController
   end
 
   def edit
-    if !Current.user.is_staff
-      redirect_back_or_to "/", alert: "Only staff can edit profiles"
-      return
-    end
 
     if params[:user][:username].blank?
       redirect_back_or_to "/", alert: "Username cannot be empty"

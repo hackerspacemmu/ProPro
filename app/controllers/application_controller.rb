@@ -5,11 +5,4 @@ class ApplicationController < ActionController::Base
   
   helper_method :staff?, :student?
   
-  def staff?
-    current_user&.is_staff == true
-  end
-
-  def student?
-    current_user&.is_staff == false
-  end
 end
