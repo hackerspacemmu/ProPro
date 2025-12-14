@@ -2,13 +2,78 @@
   <%= stylesheet_link_tag "projects" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<% breadcrumb :topic, @topic %>
-<% content_for :title, "#{@topic.current_title.truncate(TITLE_NAME_LIMIT)} - View Topic | ProPro" %>
+<% content_for :breadcrumbs do %>
+
+  <%= link_to "Dashboard",
+  root_path,
+  class:
+    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
+
+  <span class="mx-3 text-gray-400">&nbsp;&gt;&nbsp;</span>
+
+  <%= link_to @topic.course.course_name,
+  course_path(@topic.course),
+  class:
+    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
+
+  <span class="mx-3 text-gray-400">&nbsp;&gt;&nbsp;</span>
+
+  <%= link_to "Topics",
+  course_topics_path(@topic.course),
+  class:
+    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
+
+  <span class="mx-3 text-gray-400">&nbsp;&gt;&nbsp;</span>
+
+  <span class="text-gray-900 font-medium truncate">
+    <%= @topic.topic_instances.last&.title || "Topic Details" %>
+  </span>
+
+<% end %>
+<% content_for :hide_toggler, true %>
+<% content_for :title,
+"#{@topic.current_title.truncate(TITLE_NAME_LIMIT)} - View Topic | ProPro" %>
 <% content_for :sidebar do %>
-  <div class="sidebar">
-    <a href="#topic-title"> Title </a>
-    <a href="#topic-properties"> Topic Properties </a>
-    <a href="#topic-comments"> Comments </a>
+  <div
+    class="
+      h-[calc(100vh-70px)] z-[20] sticky top-[70px] left-0 bg-[#f8f9fa] border-r
+      border-gray-200 transition-all duration-300 overflow-hidden w-0 px-0 opacity-0
+    "
+    data-sidebar-target="container"
+  >
+    <div class="p-4 space-y-1 w-64 font-medium text-sm text-gray-600">
+
+      <a
+        href="#topic-title"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Title
+      </a>
+
+      <a
+        href="#topic-properties"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Topic Properties
+      </a>
+
+      <a
+        href="#topic-comments"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Comments
+      </a>
+
+    </div>
   </div>
 <% end %>
 
@@ -20,31 +85,31 @@
       <% current_version = @index %>
       <% oldest_version = 1 %>
       <% latest_version = @instances.size %>
-      <%= render 'topic_header',
-                  current_instance: @current_instance,
-                  owner: @owner,
-                  topic: @topic,
-                  members: @members,
-                  current_version: current_version,
-                  latest_version: latest_version,
-                  oldest_version: oldest_version,
-                  instances: @instances %>
-      <%= render 'topic_actions',
-                  members: @members,
-                  current_user: current_user,
-                  topic: @topic,
-                  current_version: current_version,
-                  latest_version: latest_version,
-                  course: @course %>
-      <%= render 'topic_comments',
-                  comments: @comments,
-                  new_comment: @new_comment,
-                  course: @course,
-                  topic: @topic,
-                  current_instance_id: @current_instance.id,
-                  current_version: current_version,
-                  latest_version: latest_version %>
-      <%= render 'topic_fields', fields: @fields, next_fields: @next_fields %>
+      <%= render "topic_header",
+      current_instance: @current_instance,
+      owner: @owner,
+      topic: @topic,
+      members: @members,
+      current_version: current_version,
+      latest_version: latest_version,
+      oldest_version: oldest_version,
+      instances: @instances %>
+      <%= render "topic_actions",
+      members: @members,
+      current_user: current_user,
+      topic: @topic,
+      current_version: current_version,
+      latest_version: latest_version,
+      course: @course %>
+      <%= render "topic_comments",
+      comments: @comments,
+      new_comment: @new_comment,
+      course: @course,
+      topic: @topic,
+      current_instance_id: @current_instance.id,
+      current_version: current_version,
+      latest_version: latest_version %>
+      <%= render "topic_fields", fields: @fields, next_fields: @next_fields %>
       <footer class="project-footer">
         <%= link_to "← Back to Course", course_path(@course) %>
       </footer>

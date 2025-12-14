@@ -24,7 +24,6 @@ body {
   display: flex;
   width: 100%;
   min-height: 100vh;
-  padding-left: 240px;
 }
 
 /* ============================================= */
@@ -34,8 +33,10 @@ body {
 .project-content {
   flex: 1;  
   margin: 0 auto;
-  padding: 60px 40px;
+  padding: 5px 5em;
   position: relative;
+  justify-content: center;
+    align-items: center;
 }
 
 /* ============================================= */
@@ -50,7 +51,7 @@ body {
 .project-title {
   width: 100%;
   margin-bottom: 10px;
-  margin-top: 60px;
+  margin-top: 10px;
   font-size: 42px;
 }
 
