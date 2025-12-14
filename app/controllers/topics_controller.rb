@@ -158,9 +158,6 @@ class TopicsController < ApplicationController
 
 
   def new
-    unless Current.user.is_staff
-      redirect_to course_path(@course), alert: "You are not authorized"
-    end
 
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 

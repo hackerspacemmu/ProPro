@@ -3,8 +3,5 @@ Activate Your Account on ProPro!
 You have been invited and enrolled into a ProPro course. ProPro is a web app for Project Proposals and Progress monitoring. It is ideal for educators managing student projects where students propose their ideas for approval!
 
 You have been added to a course via your email address. An account have automatically been created for you. To claim your account, visit:
-<% if @is_staff %>
+
 https://propro.click/user/new_staff?token=<%= @otp_token %>
-<% else%>
-https://propro.click/user/new_student?token=<%= @otp_token %>
-<% end %>
