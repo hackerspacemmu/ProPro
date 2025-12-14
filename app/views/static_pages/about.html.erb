@@ -2,7 +2,11 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<div class="pt-20 pb-8 px-8 w-full lg:w-10/12 xl:w-8/12 mx-auto">
+
+<% content_for :hide_toggler, true %>
+<% content_for :hide_breadcrumbs, true %>
+
+<div class="pt-2 pb-8 px-8 w-full lg:w-10/12 xl:w-8/12 mx-auto">
   <h1 class="font-bold text-3xl text-center p-4 mb-2">About ProPro</h1>
 
   <p>Project-based learning is a powerful tool for education, but involving
@@ -81,4 +85,3 @@
     </div>
   </div>
 </div>
-
