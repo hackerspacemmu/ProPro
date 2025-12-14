@@ -1,9 +1,24 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "courses", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag "tailwind","new_tailwind"%>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<% breadcrumb :course, @course %>
-<%= render 'sidebar', course: @course, current_user_enrolment: @current_user_enrolment %>
+<% content_for :breadcrumbs do %>
+
+  <%= link_to "Dashboard",
+  root_path,
+  class:
+    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
+
+  <span class="mx-2 text-gray-400">/</span>
+
+  <span class="text-gray-900 font-medium truncate max-w-[200px] sm:max-w-md">
+    <%= @course.course_name %>
+  </span>
+
+<% end %>
+<%= render "sidebar",
+course: @course,
+current_user_enrolment: @current_user_enrolment %>
 
 <div class="main">
   <header class="course-header">
@@ -18,7 +33,7 @@
       <form>
         <h4>Project Details</h4>
         <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
-      </form> 
+      </form>
 
       <% if @course.file_link.present? %>
         <a href="<%= @course.file_link %>" target="_blank" rel="noopener noreferrer">
@@ -37,35 +52,37 @@
 
   <% if @current_user_enrolment&.coordinator? %>
     <!-- Coordinator View: My Topics, Pending Topics, Pending Proposals -->
-    <%= render 'coordinator_section', 
-        course: @course, 
-        current_user_enrolment: @current_user_enrolment, 
-        topic_list: @topic_list,
-        current_user: @current_user, 
-        my_student_projects: @my_student_projects,
-        incoming_proposals: @incoming_proposals,
-        lecturers: @lecturers %>
+    <%= render "coordinator_section",
+    course: @course,
+    current_user_enrolment: @current_user_enrolment,
+    topic_list: @topic_list,
+    current_user: @current_user,
+    my_student_projects: @my_student_projects,
+    incoming_proposals: @incoming_proposals,
+    lecturers: @lecturers %>
 
   <% elsif @current_user_enrolment&.lecturer? %>
-    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals -->
-    <%= render 'lecturer_section',
-        course: @course,
-        current_user_enrolment: @current_user_enrolment,
-        topic_list: @topic_list,
-        current_user: @current_user,
-        my_student_projects: @my_student_projects,
-        incoming_proposals: @incoming_proposals,
-        lecturers: @lecturers %>
+    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals
+    -->
+    <%= render "lecturer_section",
+    course: @course,
+    current_user_enrolment: @current_user_enrolment,
+    topic_list: @topic_list,
+    current_user: @current_user,
+    my_student_projects: @my_student_projects,
+    incoming_proposals: @incoming_proposals,
+    lecturers: @lecturers %>
 
   <% else %>
-    <!-- Student View: Supervisors Available, Proposal Status, Available Topics -->
-    <%= render 'student_section',
-        course: @course,
-        current_user_enrolment: @current_user_enrolment,
-        topic_list: @topic_list,
-        project: @project,
-        lecturers: @lecturers %>
+    <!-- Student View: Supervisors Available, Proposal Status, Available Topics
+    -->
+    <%= render "student_section",
+    course: @course,
+    current_user_enrolment: @current_user_enrolment,
+    topic_list: @topic_list,
+    project: @project,
+    lecturers: @lecturers %>
   <% end %>
 
-  <%= render 'participants', course: @course %>
+  <%= render "participants", course: @course %>
 </div>
