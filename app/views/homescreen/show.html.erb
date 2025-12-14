@@ -1,6 +1,6 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "courses" %>
-  <%= stylesheet_link_tag "tailwind","new_tailwind"%>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 
 <div class="topbar">
@@ -11,10 +11,18 @@
   <li><%= link_to "Edit Profile", user_profile_path %></li>
   <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
 </ul>
-<div class="sidebar">
-  <a href="#home">Courses</a>
-</div>
-<div class="main">
+
+<% content_for :sidebar do %>
+  <div
+    class="
+      h-full w-60 fixed z-[1] top-[106px] left-0 bg-[#f8f9fa] overflow-x-hidden
+      p-[15px]
+    "
+  >
+    <%= sidebar_link "Courses", "#home" %>
+  </div>
+<% end %>
+<div class="main" id="home">
   <h1>Dashboard</h1>
   <h3>Your Courses</h3>
   <br>
@@ -22,18 +30,20 @@
     <% if @courses.present? %>
       <% @courses.each do |course| %>
         <a href="<%= course_path(course) %>" class="card-link">
-        <div class="project-card">
-          <ul>
-          <b style="font-weight: bold;"><%= course.course_name %></b>
-          <br>
-          <b> Coordinator: <%= course.coordinators.first.username %></b>
-          <ul>
-            <li class="project-card inner">
-            <p class="text"><%= course.course_description || "No description available" %></p>
-            </li>
-          </ul>
-          </ul>
-        </div>
+          <div class="project-card">
+            <ul>
+              <b style="font-weight: bold;"><%= course.course_name %></b>
+              <br>
+              <b>
+                Coordinator:
+                <%= course.coordinators.first.username %></b>
+              <ul>
+                <li class="project-card inner">
+                  <p class="text"><%= course.course_description || "No description available" %></p>
+                </li>
+              </ul>
+            </ul>
+          </div>
         </a>
       <% end %>
     <% else %>
@@ -42,4 +52,3 @@
   </div>
   <%= link_to "+", new_course_path, class: "rounded-add-button" %> 
 </div>
-
