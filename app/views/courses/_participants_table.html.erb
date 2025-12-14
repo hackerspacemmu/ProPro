@@ -32,8 +32,8 @@
                         <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
                         <span><%= member.user.username || '-' %></span>
                          <% if !member.user.has_registered %>
-                          <span class="pending-badge">Pending</span>
-                          <%= button_to resend_invite_path(member.user), method: :post, class: "resend-invite-btn", title: "Resend Invitation" do %>
+                          <span class="pending-badge" title="Student has been invited but has not activated their ProPro account.">Pending</span>
+                          <%= button_to resend_invite_path(member.user), method: :post, class: "resend-invite-btn", title: "Resend the email invitation to the student." do %>
                             <%= image_tag "email.svg" %>
                           <% end %>
                         <% end %>
@@ -119,8 +119,8 @@
                   <% end %>
                   <% if !student.has_registered %>
                     <div class="pending-container">
-                      <span class="pending-badge">Pending</span>
-                      <%= button_to resend_invite_path(student), method: :post, class: "resend-invite-btn", title: "Resend Invitation" do %>
+                      <span class="pending-badge" title="Student has been invited but has not activated their ProPro account.">Pending</span>
+                      <%= button_to resend_invite_path(student), method: :post, class: "resend-invite-btn", title: "Resend the email invitation to the student." do %>
                         <%= image_tag "email.svg" %>
                       <% end %>
                     </div>
