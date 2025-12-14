@@ -84,13 +84,13 @@ class UserController < ApplicationController
     # ugly ik, whachu gonna do about it
     if !user.is_staff
       if user.update(has_registered: true, password: response[:password])
-        redirect_to "/session/new", alert: "Account successfully claimed"
+        redirect_to "/session/new", notice: "Account successfully claimed"
       else
         redirect_back_or_to "/", alert: "Something went wrong"
       end
     else
       if user.update(has_registered: true, password: response[:password], username: response[:username].strip)
-        redirect_to "/session/new", alert: "Account successfully claimed"
+        redirect_to "/session/new", notice: "Account successfully claimed"
       else
         redirect_back_or_to "/", alert: "Something went wrong"
       end
