@@ -4,7 +4,6 @@ require "securerandom"
 
 class CoursesController < ApplicationController
     before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv]
-    before_action :check_staff, only: [ :new, :create ]
     before_action :access_topics, only: :show
 
 
