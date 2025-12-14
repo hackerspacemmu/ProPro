@@ -1,6 +1,8 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
+<% content_for :hide_toggler, true %>
+<% content_for :hide_breadcrumbs, true %>
 <% content_for :title, "Sign In | ProPro" %>
 <% provide :no_footer, true %>
 
@@ -123,4 +125,3 @@
 
   </div>
 </div>
-
