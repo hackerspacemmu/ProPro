@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+mise.toml
 
 # Ignore all environment files.
 /.env*
