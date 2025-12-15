@@ -4,7 +4,7 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 /* page (keith) */
@@ -60,9 +60,9 @@ html {
 }
 
 .proposal-guidelines a {
-  text-decoration: none;
-  color: inherit;
-  width: max-content;
+    text-decoration: none;
+    color: inherit;
+    width: max-content;
 }
 
 
@@ -80,9 +80,9 @@ html {
     margin-top: 20px;
     text-decoration: none;
     flex-direction: column;
-    align-items: flex-start; 
-    justify-content: flex-start; 
-    padding: 20px; 
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 20px;
 }
 
 .project-file:hover {
@@ -242,13 +242,13 @@ html {
 }
 
 .student-proposal h4 {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .no-proposal {
-  margin-top: 8px;
-  font-size: 14px;
-  margin-bottom: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
 /* lecturer list (alex) */
@@ -261,12 +261,11 @@ html {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     justify-content: center
-    
 }
 
 .supervisors a {
-  text-decoration: none; 
-  color: inherit;        
+    text-decoration: none;
+    color: inherit;
 }
 
 
@@ -304,7 +303,7 @@ html {
 .lecturer-content {
     display: flex;
     align-items: center;
-    gap: 30px; 
+    gap: 30px;
     margin-bottom: 4px;
     font-size: 14px;
     font-style: bold;
@@ -336,25 +335,26 @@ html {
     font-size: 12px;
     font-style: italic;
 }
+
 .btn-normal:hover {
     background: none;
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  background-color: #fdf5f2;
-  color: #ef7575;
-  border: 1px solid #f4948c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    background-color: #fdf5f2;
+    color: #ef7575;
+    border: 1px solid #f4948c;
 }
 
 .btn:hover {
@@ -365,21 +365,21 @@ html {
 /* project list (alex) */
 
 .filter-container {
-  width: auto;
-  display: inline-block;
-  align-items: center; 
-  gap: 8px; 
+    width: auto;
+    display: inline-block;
+    align-items: center;
+    gap: 8px;
 }
 
 .htmx-indicator {
-  font-size: 20px;
-  color: gray;
+    font-size: 20px;
+    color: gray;
 }
 
 .filter-select-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; 
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .project-list-gapper {
@@ -395,7 +395,7 @@ html {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 21px; 
+    gap: 21px;
 }
 
 .card-link {
@@ -433,7 +433,7 @@ html {
     border-radius: 12px;
     border: 2px solid #B5B5B5;
     overflow: hidden;
-    background-color:#193b2a;
+    background-color: #193b2a;
 }
 
 .project-card b {
@@ -492,76 +492,85 @@ html {
     background-color: #F8F9FA;
 }
 
-.project-card.status-pending  { background-color: #284555 } 
-.project-card.status-redo     { background-color: #e37401} 
-.project-card.status-rejected { background-color: #a50e0f } 
-.project-card.status-approved { background-color: #81a48a}
+.project-card.status-pending {
+    background-color: #284555
+}
 
+.project-card.status-redo {
+    background-color: #e37401
+}
 
+.project-card.status-rejected {
+    background-color: #a50e0f
+}
+
+.project-card.status-approved {
+    background-color: #81a48a
+}
 
 /* participants list (alex) */
 
 .cell-link {
-  display: block;        
-  width: 100%;
-  height: 100%;
-  text-decoration: none; 
-  color: inherit;        
-  cursor: pointer;
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 
 .table-container {
-  margin-left: 20px;
-  width: calc(100% - 40px); 
+    margin-left: 20px;
+    width: calc(100% - 40px);
 }
 
 .participants-table {
-  width: 80%;
-  border-collapse: collapse;
-  border-top: 1px solid #ececea;
-  border-bottom: 1px solid #ececea;
-  overflow: hidden;
+    width: 80%;
+    border-collapse: collapse;
+    border-top: 1px solid #ececea;
+    border-bottom: 1px solid #ececea;
+    overflow: hidden;
 }
 
 .participants .participants-table th {
-  font-size: 12px;
-  font-weight: normal;
-  color: #8E8E8E;
-  text-align: left; 
-  vertical-align: middle; 
-  border-bottom: 1px solid #ececea;
-  border-right: 1px solid #ececea;
-  padding-left: 8px;
-  padding: 8px;
+    font-size: 12px;
+    font-weight: normal;
+    color: #8E8E8E;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #ececea;
+    border-right: 1px solid #ececea;
+    padding-left: 8px;
+    padding: 8px;
 }
 
 .participants .participants-table th:last-child {
-  border-right: none;
+    border-right: none;
 }
 
 .participants .participants-table td {
-  font-size: 12px;
-  font-weight: normal;
-  color: #3f3c37;
-  text-align: left; 
-  vertical-align: middle; 
-  padding: 8px; 
-  border-bottom: 1px solid #ececea;
-  border-right: 1px solid #ececea;
+    font-size: 12px;
+    font-weight: normal;
+    color: #3f3c37;
+    text-align: left;
+    vertical-align: middle;
+    padding: 8px;
+    border-bottom: 1px solid #ececea;
+    border-right: 1px solid #ececea;
 }
 
 .participants .participants-table td:last-child {
-  border-right: none;
+    border-right: none;
 }
 
 .participants .participants-table tbody tr:last-child td {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .profile-container {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .profile-avatar {
@@ -579,46 +588,74 @@ html {
 }
 
 .participants .participants-table th img {
-  width: 22px; 
-  height: 22px;
-  vertical-align: middle; 
-  display: inline-block;
-  margin-bottom: 5px;
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+    display: inline-block;
+    margin-bottom: 5px;
 }
 
 .status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: normal;
-  gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: normal;
+    gap: 6px;
 }
 
-.status-indicator{
-  width: 10px;
-  height: 10px;
-  border-radius: 100%;
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
 }
 
-.status-badge.pending { background-color: #d2e3fb; }
-.status-badge.approved { background-color: #cde9d6; }
-.status-badge.rejected { background-color: #fad1cf; }
-.status-badge.redo { background-color: #fdf0c4; }
-.status-badge.not-submitted { background-color: #f1f3f4; }
+.status-badge.pending {
+    background-color: #d2e3fb;
+}
 
-.status-indicator.pending { background-color: #284555 }
-.status-indicator.approved { background-color: #81a48a }
-.status-indicator.rejected { background-color: #a50e0f }
-.status-indicator.redo { background-color: #e37401; }
-.status-indicator.not-submitted { background-color: #9ba1a6; }
+.status-badge.approved {
+    background-color: #cde9d6;
+}
+
+.status-badge.rejected {
+    background-color: #fad1cf;
+}
+
+.status-badge.redo {
+    background-color: #fdf0c4;
+}
+
+.status-badge.not-submitted {
+    background-color: #f1f3f4;
+}
+
+.status-indicator.pending {
+    background-color: #284555
+}
+
+.status-indicator.approved {
+    background-color: #81a48a
+}
+
+.status-indicator.rejected {
+    background-color: #a50e0f
+}
+
+.status-indicator.redo {
+    background-color: #e37401;
+}
+
+.status-indicator.not-submitted {
+    background-color: #9ba1a6;
+}
 
 .participants-summary p {
-  font-size: 14px;
-  color: #7e7e7e;
-  font-weight: normal;
-  margin-top: 10px;
+    font-size: 14px;
+    color: #7e7e7e;
+    font-weight: normal;
+    margin-top: 10px;
 }
 
 /* typography (keith) */
@@ -751,8 +788,7 @@ input[type="submit"] {
     }
 }
 
-.rounded-add-button
-{
+.rounded-add-button {
     background-color: green;
     border-radius: 50%;
     width: 50px;
@@ -765,4 +801,63 @@ input[type="submit"] {
     position: fixed;
     bottom: 50px;
     right: 50px;
+}
+
+/* Pending Indicator and Resend Button */
+.pending-badge {
+    background-color: #2845aa;
+    color: white;
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    margin-right: 0px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+/* If resend-invite-btn is on the form */
+.resend-invite-btn {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* Reset the inner button styles */
+.resend-invite-btn button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    line-height: 0;
+}
+
+.participants-table .resend-invite-btn img {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.pending-container {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    gap: 4px;
+}
+
+.profile-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.profile-wrapper .cell-link {
+    width: auto;
+    margin-right: 8px;
+    /* space between name and pending */
 }
