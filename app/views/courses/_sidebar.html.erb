@@ -1,47 +1,38 @@
-<% content_for :sidebar do %>
-  <div
-    class="
-      h-screen w-64 z-[1] sticky pt-[5.5em] top-0 left-0 bg-[#f8f9fa]
-      overflow-x-hidden overflow-y-auto text-center
-    "
-    data-sidebar-target="container"
-  >
+<% render_sidebar do %>
+  <%# --- STUDENT VIEW --- %>
+  <% if @current_user_enrolment&.student? %>
+    <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
+    <%= sidebar_link "Proposal Status", "#proposal-status" %>
+    <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+    <%= sidebar_link "Participants", "#participants" %>
+  <% end %>
 
-    <%# --- STUDENT VIEW --- %>
-    <% if @current_user_enrolment&.student? %>
-      <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
-      <%= sidebar_link "Proposal Status", "#proposal-status" %>
-      <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
-      <%= sidebar_link "Participants", "#participants" %>
-    <% end %>
+  <%# --- COORDINATOR VIEW --- %>
+  <% if @current_user_enrolment&.coordinator? %>
+    <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
+    <%= sidebar_link "My Student Projects", "#my-student-projects" %>
+    <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
+    <%= sidebar_link "My Topics", "#my-topics" %>
+    <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+    <%= sidebar_link "Incoming Topics", "#incoming-topics" %>
+    <%= sidebar_link "Participants", "#participants" %>
 
-    <%# --- COORDINATOR VIEW --- %>
-    <% if @current_user_enrolment&.coordinator? %>
-      <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
-      <%= sidebar_link "My Student Projects", "#my-student-projects" %>
-      <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
-      <%= sidebar_link "My Topics", "#my-topics" %>
-      <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
-      <%= sidebar_link "Incoming Topics", "#incoming-topics" %>
-      <%= sidebar_link "Participants", "#participants" %>
+    <div class="py-2">
+      <div class="border-t border-gray-200"></div>
+    </div>
 
-      <div class="py-2">
-        <div class="border-t border-gray-200"></div>
-      </div>
+    <%= sidebar_link "Add Students", add_students_course_path(@course) %>
+    <%= sidebar_link "Add Lecturers", add_lecturers_course_path(@course) %>
+  <% end %>
 
-      <%= sidebar_link "Add Students", add_students_course_path(@course) %>
-      <%= sidebar_link "Add Lecturers", add_lecturers_course_path(@course) %>
-    <% end %>
+  <%# --- LECTURER VIEW --- %>
+  <% if @current_user_enrolment&.lecturer? %>
+    <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
+    <%= sidebar_link "My Student Projects", "#my-student-projects" %>
+    <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
+    <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+    <%= sidebar_link "My Topics", "#my-topics" %>
+    <%= sidebar_link "Participants", "#participants" %>
+  <% end %>
 
-    <%# --- LECTURER VIEW --- %>
-    <% if @current_user_enrolment&.lecturer? %>
-      <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
-      <%= sidebar_link "My Student Projects", "#my-student-projects" %>
-      <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
-      <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
-      <%= sidebar_link "My Topics", "#my-topics" %>
-      <%= sidebar_link "Participants", "#participants" %>
-    <% end %>
-
-  </div>
 <% end %>
