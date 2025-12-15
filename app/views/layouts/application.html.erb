@@ -60,6 +60,7 @@
 
             <div class="flex-1 min-w-0 flex items-center text-sm font-medium text-gray-600">
               <% unless content_for?(:hide_breadcrumbs) %>
+                <% render_custom_breadcrumbs %>
                 <% if content_for?(:breadcrumbs) %>
                   <%= yield :breadcrumbs %>
                 <% else %>

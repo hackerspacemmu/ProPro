@@ -2,34 +2,7 @@
   <%= stylesheet_link_tag "projects" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<% content_for :breadcrumbs do %>
-
-  <%= link_to "Dashboard",
-  root_path,
-  class:
-    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
-
-  <span class="mx-3 text-gray-400">&nbsp;&gt;&nbsp;</span>
-
-  <%= link_to @topic.course.course_name,
-  course_path(@topic.course),
-  class:
-    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
-
-  <span class="mx-3 text-gray-400">&nbsp;&gt;&nbsp;</span>
-
-  <%= link_to "Topics",
-  course_topics_path(@topic.course),
-  class:
-    "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
-
-  <span class="mx-3 text-gray-400">&nbsp;&gt;&nbsp;</span>
-
-  <span class="text-gray-900 font-medium truncate">
-    <%= @topic.topic_instances.last&.title || "Topic Details" %>
-  </span>
-
-<% end %>
+<% breadcrumb :topic, @topic %>
 <% content_for :hide_toggler, true %>
 <% content_for :title,
 "#{@topic.current_title.truncate(TITLE_NAME_LIMIT)} - View Topic | ProPro" %>

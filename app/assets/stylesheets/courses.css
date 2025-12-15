@@ -802,8 +802,6 @@ input[type="submit"] {
     bottom: 50px;
     right: 50px;
 }
-<<<<<<< HEAD
-=======
 
 /* Pending Indicator and Resend Button */
 .pending-badge {
@@ -863,4 +861,3 @@ input[type="submit"] {
     margin-right: 8px;
     /* space between name and pending */
 }
->>>>>>> main
