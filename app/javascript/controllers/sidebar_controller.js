@@ -4,7 +4,7 @@ export default class extends Controller {
     static targets = ["container"] 
 
     connect() {
-        const isMobile = window.innerWidth < 950 
+        const isMobile = window.innerWidth < 1024 
 
         if (isMobile) {
             const userPreferClosed = localStorage.getItem("sidebar-collapsed") === "true"

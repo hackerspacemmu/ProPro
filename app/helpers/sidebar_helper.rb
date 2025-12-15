@@ -10,7 +10,7 @@ module SidebarHelper
           'transition-all duration-300 ease-in-out',
 
           'w-0 opacity-0',
-          'md:w-64 md:opacity-100'
+          'lg:w-64 lg:opacity-100'
         ],
         data: { sidebar_target: 'container' } # connect to stimulus controller (js)
       ) do
