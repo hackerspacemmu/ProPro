@@ -14,9 +14,8 @@ html {
 }
 
 .main {
-    margin-top: 0;
-    margin-left: 1em;
-    margin-right: 60px;
+    width: 95%;
+    margin: 0 auto;
     font-size: 28px;
     padding: 10px 0px;
     flex: auto;
