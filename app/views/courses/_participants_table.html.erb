@@ -31,6 +31,12 @@
                       <div class="profile-container">
                         <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
                         <span><%= member.user.username || '-' %></span>
+                         <% if !member.user.has_registered %>
+                          <span class="pending-badge" title="Student has been invited but has not activated their ProPro account.">Pending</span>
+                          <%= button_to resend_invite_path(member.user), method: :post, class: "resend-invite-btn", title: "Resend the email invitation to the student." do %>
+                            <%= image_tag "email.svg" %>
+                          <% end %>
+                        <% end %>
                       </div>
                     <% end %>
                   </ul>
@@ -104,12 +110,22 @@
             <% supervisor = latest_instance&.supervisor %>
             <tr class="participant-row">
               <td>
-                <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
-                  <div class="profile-container">
-                    <div class="profile-avatar"><%= student.username.first.upcase %></div>
-                    <span><%= student.username || '-' %></span>
-                  </div>
-                <% end %>
+                <div class="profile-wrapper">
+                  <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
+                    <div class="profile-container">
+                      <div class="profile-avatar"><%= student.username.first.upcase %></div>
+                      <span><%= student.username || '-' %></span>
+                    </div>
+                  <% end %>
+                  <% if !student.has_registered %>
+                    <div class="pending-container">
+                      <span class="pending-badge" title="Student has been invited but has not activated their ProPro account.">Pending</span>
+                      <%= button_to resend_invite_path(student), method: :post, class: "resend-invite-btn", title: "Resend the email invitation to the student." do %>
+                        <%= image_tag "email.svg" %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
               </td>
               <td> 
                 <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
