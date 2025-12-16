@@ -15,35 +15,22 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> 03950e85229280f07d231bb18a956aaed3c15f2e
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application" %>
     <%= yield :stylesheets %>
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> 03950e85229280f07d231bb18a956aaed3c15f2e
     <%= javascript_importmap_tags %>
     <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js" %>
   </head>
 
-<<<<<<< HEAD
-  <body>
-    <%= render 'shared/topbar', user: current_user, course: @course %>
-=======
   <body
     data-controller="scroll-spy"
     data-scroll-spy-active-class="bg-sky-100 text-gray-950 font-semibold"
     data-scroll-spy-inactive-class="text-gray-600 hover:bg-gray-50 hover:text-gray-900"
   >
     <%= render "shared/topbar", user: current_user, course: @course %>
->>>>>>> 03950e85229280f07d231bb18a956aaed3c15f2e
     <%= breadcrumbs separator: " > ", class: "breadcrumb" %>
     <% unless content_for?(:no_sidebar) %>
       <%= yield :sidebar %>
@@ -51,11 +38,7 @@
 
     <%= yield %>
     <% unless content_for?(:no_footer) %>
-<<<<<<< HEAD
-      <%= render 'shared/footer' %>
-=======
       <%= render "shared/footer" %>
->>>>>>> 03950e85229280f07d231bb18a956aaed3c15f2e
     <% end %>
   </body>
 </html>
