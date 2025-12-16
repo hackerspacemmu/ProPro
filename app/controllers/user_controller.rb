@@ -1,5 +1,25 @@
 class UserController < ApplicationController
   allow_unauthenticated_access only: %i[ new_staff new_student create ]
+
+  def resend_invite
+    user = User.find(params[:id])
+    if user.has_registered
+      redirect_back_or_to "/", alert: "User already registered"
+      return
+    end
+    
+    # Ensure OTP exists or recreate if missing (though it should exist for unregistered users)
+    otp_instance = user.otp || Otp.create!(user: user, otp: SecureRandom.base64(8), token: SecureRandom.uuid)
+    
+    GeneralMailer.with(
+      email_address: user.email_address,
+      otp_token: otp_instance.token,
+      otp: otp_instance.otp,
+      is_staff: user.is_staff
+    ).ProPro_Invite.deliver_later
+
+    redirect_back_or_to "/", notice: "Invitation resent to #{user.email_address}"
+  end
   def new_student
     begin
       @email = Otp.find_by(token: params[:token]).user.email_address
@@ -64,13 +84,13 @@ class UserController < ApplicationController
     # ugly ik, whachu gonna do about it
     if !user.is_staff
       if user.update(has_registered: true, password: response[:password])
-        redirect_to "/session/new", alert: "Account successfully claimed"
+        redirect_to "/session/new", notice: "Account successfully claimed"
       else
         redirect_back_or_to "/", alert: "Something went wrong"
       end
     else
       if user.update(has_registered: true, password: response[:password], username: response[:username].strip)
-        redirect_to "/session/new", alert: "Account successfully claimed"
+        redirect_to "/session/new", notice: "Account successfully claimed"
       else
         redirect_back_or_to "/", alert: "Something went wrong"
       end
@@ -122,3 +142,4 @@ class UserController < ApplicationController
     redirect_to user_profile_path, notice: "Profile updated successfully"
   end
 end
+

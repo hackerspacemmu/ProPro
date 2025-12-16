@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+mise.toml
 
 # Ignore all environment files.
 /.env*
@@ -99,4 +100,3 @@ yarn-debug.log*
 .DS_Store
 /app/assets/builds/*
 !/app/assets/builds/.keep
-
