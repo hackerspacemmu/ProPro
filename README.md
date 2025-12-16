@@ -1,24 +1,40 @@
-# README
+# ProPro
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Student project management webapp
 
-Things you may want to cover:
+## Developer Setup
 
-* Ruby version
+### Dependencies
 
-* System dependencies
+- Ruby (for version management, [mise](https://mise.jdx.dev/) is recommended)
+- NPM
 
-* Configuration
+### Initial Setup
 
-* Database creation
+```bash
+# Clone the repo
+git clone https://github.com/hackerspacemmu/ProPro.git
+cd ProPro
 
-* Database initialization
+# Setup the project
+bundle install
+npm install
+./bin/rails tailwindcss:install
+./bin/rails db:reset
+```
 
-* How to run the test suite
+### Formatting & Linting
 
-* Services (job queues, cache servers, search engines, etc.)
+We use the following tools for formatting and linting purposes. Do use editor extensions (if needed) that uses these tools to ensure code consistency.
+- [Rubocop](https://rubocop.org/) for Ruby formatting and linting
+- [erb_lint](https://github.com/Shopify/erb_lint) for ERB linting
+- [erb-formatter](https://github.com/nebulab/erb-formatter) for ERB formatting
+- [Prettier](https://prettier.io/) for JavaScript and CSS formatting and linting
+- [EditorConfig](https://editorconfig.org/) for general code style consistency
 
-* Deployment instructions
+## Running the Application
 
-* ...
+```
+./bin/dev
+```
+
