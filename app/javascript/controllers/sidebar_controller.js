@@ -27,7 +27,8 @@ export default class extends Controller {
             this.containerTarget.classList.add("transition-all", "duration-200")
         }
 
-        this.containerTarget.classList.remove("w-64") 
+        this.containerTarget.classList.remove("lg:w-64", "lg:opacity-100") 
+        this.containerTarget.classList.remove("w-50", "w-64")
         this.containerTarget.classList.add("w-0")     
         
         this.containerTarget.classList.replace("px-4", "px-0")
@@ -40,7 +41,7 @@ export default class extends Controller {
         this.containerTarget.classList.add("transition-all", "duration-300")
 
         this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0")
-        this.containerTarget.classList.add("w-64", "opacity-100") 
+        this.containerTarget.classList.add("w-50", "opacity-100") 
         
         this.containerTarget.classList.replace("px-0", "px-4")
 

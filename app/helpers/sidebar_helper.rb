@@ -14,7 +14,7 @@ module SidebarHelper
         ],
         data: { sidebar_target: 'container' } # connect to stimulus controller (js)
       ) do
-        tag.div(class: 'w-64 p-4 space-y-1 font-medium text-sm text-gray-600') do
+        tag.div(class: 'w-50 lg:w-64 p-4 space-y-1 font-medium text-sm text-gray-600') do
           capture(&block)
         end
       end
