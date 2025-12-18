@@ -6,49 +6,6 @@
 <% content_for :hide_toggler, true %>
 <% content_for :title,
 "#{@topic.current_title.truncate(TITLE_NAME_LIMIT)} - View Topic | ProPro" %>
-<% content_for :sidebar do %>
-  <div
-    class="
-      h-[calc(100vh-70px)] z-[20] sticky top-[70px] left-0 bg-[#f8f9fa] border-r
-      border-gray-200 transition-all duration-300 overflow-hidden w-0 px-0 opacity-0
-    "
-    data-sidebar-target="container"
-  >
-    <div class="p-4 space-y-1 w-64 font-medium text-sm text-gray-600">
-
-      <a
-        href="#topic-title"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900
-          transition-colors
-        "
-      >
-        Title
-      </a>
-
-      <a
-        href="#topic-properties"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900
-          transition-colors
-        "
-      >
-        Topic Properties
-      </a>
-
-      <a
-        href="#topic-comments"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900
-          transition-colors
-        "
-      >
-        Comments
-      </a>
-
-    </div>
-  </div>
-<% end %>
 
 <main id="project">
   <div class="project-layout">

@@ -14,7 +14,7 @@ module BreadcrumbHelper
             crumb.url,
             class: 'text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline'
           )
-          separator = tag.span('>', class: 'mx-3 text-gray-400')
+          separator = tag.span('>', class: 'px-3 text-gray-400')
 
           safe_join([link, separator])
         end
