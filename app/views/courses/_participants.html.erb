@@ -34,15 +34,15 @@
             Filter by Status:
           </label>
 
-          <div class="relative flex items-center gap-3 w-full sm:w-auto">
-            <div class="relative w-full sm:w-[200px]">
+          <div class="relative flex items-center justify-center gap-3 w-full sm:w-auto">
+            <div class="relative flex items-center justify-center w-full sm:w-[200px]">
               <select
                 id="status-filter"
                 name="status_filter"
                 class="
                   bg-white border border-gray-300 text-gray-700 text-sm rounded-lg
                   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 shadow-sm
-                  transition-colors cursor-pointer appearance-none
+                  transition-colors cursor-pointer appearance-none justify-center items-center
                 "
                 hx-get="<%= course_url(@course) %>"
                 hx-target="#participants-table-container"
@@ -52,32 +52,36 @@
               >
                 <option
                   value="all"
+                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>
                 >All Statuses</option>
                 <option
                   value="approved"
+                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'approved' %>
                 >Approved</option>
                 <option
                   value="pending"
+                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'pending' %>
                 >Pending</option>
                 <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
                 <option
                   value="rejected"
+                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'rejected' %>
                 >Rejected</option>
                 <option
                   value="not_submitted"
+                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'not_submitted' %>
                 >Not Submitted</option>
               </select>
 
-              <%# Custom Chevron Icon %>
               <div
                 class="
-                  pointer-events-none absolute inset-y-0 right-0 flex items-center px-2
-                  text-gray-500
+                  pointer-events-none inset-y-0 right-0 flex justify-start items-center px-2
+                  text-gray-500 ml-[-1em] mt-[-0.25em]
                 "
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
@@ -124,7 +128,7 @@
       <% end %>
     </header>
 
-    <%# --- Table Content --- %>
+    <%# Table Content %>
     <% unless participants_exceed?(@course) && !local_assigns[:fullpage] %>
       <div id="participants-table-container" class="overflow-x-auto">
         <%= render "courses/participants_table",
@@ -135,7 +139,6 @@
         students_without_projects: @students_without_projects %>
       </div>
 
-      <%# --- Summary Footer --- %>
       <div
         class="
           mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-4 text-sm text-gray-500
@@ -162,4 +165,3 @@
 
   </div>
 </section>
-
