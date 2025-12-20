@@ -150,18 +150,18 @@
                 </td>
 
                 <td class="px-6 whitespace-nowrap align-top text-left lg:text-center">
-                  <% badge_classes =
+                  <% badge_classes, dot_class =
                     case status.to_s.downcase
                     when "approved"
-                      "bg-emerald-100 text-emerald-800 border-emerald-200"
+                      ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
                     when "pending"
-                      "bg-blue-100 text-blue-800 border-blue-200"
+                      ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
                     when "redo"
-                      "bg-orange-100 text-orange-800 border-orange-200"
+                      ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
                     when "rejected"
-                      "bg-rose-100 text-rose-800 border-rose-200"
+                      ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
                     else
-                      "bg-gray-100 text-gray-600 border-gray-200"
+                      ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
                     end %>
                   <% link_target =
                     group_project.present? ? course_project_path(@course, group_project) : "#" %>
@@ -172,6 +172,7 @@
                       <%= badge_classes %> capitalize hover:opacity-80
                     "
                   >
+                    <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                     <%= status.humanize %>
                   </a>
                 </td>
@@ -288,19 +289,19 @@
                   <% end %>
                 </td>
 
-                <td class="px-6 whitespace-nowrap align-top text-left lg:text-center">
-                  <% badge_classes =
+                <td class="px-6 py-4 whitespace-nowrap align-top text-left lg:text-center">
+                  <% badge_classes, dot_class =
                     case status.to_s.downcase
                     when "approved"
-                      "bg-emerald-100 text-emerald-800 border-emerald-200"
+                      ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
                     when "pending"
-                      "bg-blue-100 text-blue-800 border-blue-200"
+                      ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
                     when "redo"
-                      "bg-orange-100 text-orange-800 border-orange-200"
+                      ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
                     when "rejected"
-                      "bg-rose-100 text-rose-800 border-rose-200"
+                      ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
                     else
-                      "bg-gray-100 text-gray-600 border-gray-200"
+                      ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
                     end %>
                   <% link_target =
                     student_project.present? ? course_project_path(@course, student_project) : "#" %>
@@ -311,6 +312,8 @@
                       <%= badge_classes %> capitalize hover:opacity-80
                     "
                   >
+                    <%# The Dot span %>
+                    <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                     <%= status.humanize %>
                   </a>
                 </td>
