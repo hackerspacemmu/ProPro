@@ -5,12 +5,11 @@
       <%# --- Table Header --- %>
       <thead class="bg-gray-50">
         <tr>
-          <%# 1. Identity %>
           <th
             scope="col"
             class="
-              px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              w-1/7
+              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
+              <%= @course.grouped? ? 'w-[14.28%]' : 'w-1/3' %>
             "
           >
             <div class="flex items-center justify-start gap-2">
@@ -19,12 +18,11 @@
             </div>
           </th>
 
-          <%# 2. Members or Student ID %>
           <th
             scope="col"
             class="
-              px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              w-1/3
+              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
+              <%= @course.grouped? ? 'w-1/3' : 'w-[14.28%]' %>
             "
           >
             <div class="flex items-center justify-start gap-2">
@@ -37,7 +35,7 @@
           <th
             scope="col"
             class="
-              px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
+              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
               w-1/5
             "
           >
@@ -51,7 +49,7 @@
           <th
             scope="col"
             class="
-              px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider
+              px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider
               w-1/8
             "
           >
@@ -61,11 +59,12 @@
             </div>
           </th>
 
+          <%# 5. Supervisor %>
           <th
             scope="col"
             class="
-              px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              w-1/5
+              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
+              w-1/4
             "
           >
             <div class="flex items-center justify-start gap-2">
@@ -79,7 +78,6 @@
       <%# --- Table Body --- %>
       <tbody class="bg-white divide-y divide-gray-200">
 
-        <%# ========================= GROUPED COURSE LOGIC ========================= %>
         <% if @course.grouped? %>
           <% if group_list.present? %>
             <% group_list.each do |group| %>
@@ -96,7 +94,7 @@
                 <%# 1. Group Name %>
                 <td
                   class="
-                    px-6 py-4 text-sm font-medium text-gray-900 align-top break-words text-left
+                    px-4 py-4 text-sm font-medium text-gray-900 align-top break-words text-center
                   "
                 >
                   <%= link_to participant_profile_course_path(@course, group.id, 'group'), class: "hover:text-gray-700 hover:underline" do %>
@@ -105,15 +103,12 @@
                 </td>
 
                 <%# 2. Members List %>
-                <td class="px-6 py-4 text-sm text-gray-500 align-top text-left">
+                <td class="px-4 py-4 text-sm text-gray-500 align-top text-left">
                   <ul class="space-y-2">
                     <% group.project_group_members.includes(:user).each do |member| %>
-                      <%# Use block display with leading-snug to allow inline elements to wrap naturally %>
                       <li class="block leading-snug">
 
-                        <%# 1. The Student Link (Inline) %>
                         <%= link_to participant_profile_course_path(@course, member.user.id, 'student'), class: "inline group/member hover:text-gray-900" do %>
-                          <%# Avatar: inline-flex + align-middle keeps it centered on the text line %>
                           <div
                             class="
                               inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200
@@ -123,13 +118,11 @@
                           >
                             <%= member.user.username.first.upcase %>
                           </div>
-                          <%# Name: Align middle ensures it matches avatar height %>
                           <span class="text-xs text-gray-700 align-middle group-hover/member:underline"><%= member.user.username || "-" %></span>
                         <% end %>
 
-                        <%# 2. The Pending Badge (Inline, flows after name) %>
+                        <%# Pending Badge (Inline, flows after name) %>
                         <% unless member.user.has_registered %>
-                          <%# whitespace-nowrap keeps the 'Pending' and 'Email' together as one unit %>
                           <span
                             class="
                               inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap
@@ -156,7 +149,7 @@
                 </td>
 
                 <%# 3. Project Title %>
-                <td class="px-6 py-4 text-sm text-gray-700 align-top text-left">
+                <td class="px-4 py-4 text-sm text-gray-700 align-top text-left">
                   <% if group_project.present? %>
                     <%= link_to course_project_path(@course, group_project), class: "font-medium text-gray-900 hover:text-gray-700 hover:underline line-clamp-2" do %>
                       <%= latest_instance&.title || "-" %>
@@ -167,7 +160,7 @@
                 </td>
 
                 <%# 4. Status %>
-                <td class="px-6 whitespace-nowrap align-top text-center">
+                <td class="px-4 whitespace-nowrap align-top text-center">
                   <% badge_classes, dot_class =
                     case status.to_s.downcase
                     when "approved"
@@ -198,7 +191,7 @@
                 <%# 5. Supervisor %>
                 <td
                   class="
-                    px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
+                    px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
                   "
                 >
                   <% if supervisor.present? %>
@@ -240,7 +233,6 @@
             </tr>
           <% end %>
 
-          <%# ========================= STUDENT COURSE LOGIC ========================= %>
         <% else %>
           <% if student_list.present? %>
             <% student_list.each do |student| %>
@@ -255,8 +247,8 @@
               >
 
                 <%# 1. Student Name %>
-                <td class="px-6 py-4 text-sm font-medium text-gray-900 align-top text-left">
-                  <%# Same Logic Applied Here: Block container + Inline Children %>
+                <td class="px-4 py-4 text-sm font-medium text-gray-900 align-top text-left">
+                  <%# block display + leading-snug for natural wrapping %>
                   <div class="block leading-snug">
                     <%= link_to participant_profile_course_path(@course, student.id, 'student'), class: "inline group/member hover:text-gray-700" do %>
                       <div
@@ -295,14 +287,14 @@
                 </td>
 
                 <%# 2. Student ID %>
-                <td class="px-6 py-4 text-sm text-gray-500 align-top text-left">
+                <td class="px-4 py-4 text-sm text-gray-500 align-top text-left">
                   <%= link_to participant_profile_course_path(@course, student.id, 'student'), class: "hover:text-gray-700" do %>
                     <%= student.student_id || "-" %>
                   <% end %>
                 </td>
 
                 <%# 3. Project Title %>
-                <td class="px-6 py-4 text-sm text-gray-700 align-top text-left">
+                <td class="px-4 py-4 text-sm text-gray-700 align-top text-left">
                   <% if student_project.present? %>
                     <%= link_to course_project_path(@course, student_project), class: "font-medium text-gray-900 hover:text-gray-700 hover:underline line-clamp-2" do %>
                       <%= latest_instance&.title || "-" %>
@@ -313,7 +305,7 @@
                 </td>
 
                 <%# 4. Status %>
-                <td class="px-6 whitespace-nowrap align-top text-center">
+                <td class="px-4 whitespace-nowrap align-top text-center">
                   <% badge_classes, dot_class =
                     case status.to_s.downcase
                     when "approved"
@@ -344,7 +336,7 @@
                 <%# 5. Supervisor %>
                 <td
                   class="
-                    px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
+                    px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
                   "
                 >
                   <% if supervisor.present? %>
