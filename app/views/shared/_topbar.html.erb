@@ -1,19 +1,61 @@
-<div class="topbar">
-  <%= link_to "ProPro", root_path %>
+<div
+  class="
+    fixed top-0 left-0 z-[100] flex h-[70px] w-full items-center justify-between
+    overflow-hidden bg-[#e1e1e1]
+  "
+>
+
+  <%= link_to "ProPro",
+  root_path,
+  class: "shrink-0 px-5 py-5 text-[25px] font-bold text-black no-underline" %>
 
   <% if @current_user_enrolment&.coordinator? %>
-    <div class="topbar-actions">
-      <a href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
-        <%= image_tag "settings.svg" %>
-        <span class="topbar-info">Edit Course Settings</span>
+    <div class="ml-auto flex items-center gap-4 pr-5">
+
+      <a
+        href="<%= settings_course_path(@course) %>"
+        class="
+          flex h-full items-center pr-6 text-sm font-normal text-[#999999] no-underline
+        "
+        title="Edit Course Settings"
+      >
+
+        <%= image_tag "settings.svg", class: "block h-7 w-7" %>
+
+        <span
+          class="
+            ml-2 hover:text-black align-middle text-sm font-normal text-[#7e7e7e]
+            transition-colors duration-200
+          "
+        >
+          Edit Course Settings
+        </span>
       </a>
 
-      <a href="<%= edit_course_project_template_path(@course) %>" class="topbar-icon" title="Edit Project Templates">
-        <%= image_tag "project_templates.svg" %>
-        <span class="topbar-info">Edit Templates</span>
+      <a
+        href="<%= edit_course_project_template_path(@course) %>"
+        class="
+          flex h-full items-center pr-6 text-sm font-normal text-[#999999] no-underline
+        "
+        title="Edit Project Templates"
+      >
+
+        <%= image_tag "project_templates.svg", class: "block h-7 w-7" %>
+
+        <span
+          class="
+            transition-colors duration-200 hover:text-black ml-2 align-middle text-sm
+            font-normal text-[#7e7e7e]
+          "
+        >
+          Edit Templates
+        </span>
       </a>
 
-      <%= link_to "Export CSV", export_csv_course_path(@course) %>
+      <%= link_to "Export CSV",
+      export_csv_course_path(@course),
+      class:
+        "text-sm font-medium text-gray-600 hover:text-black duration-200 transition-colors" %>
     </div>
   <% end %>
 </div>
