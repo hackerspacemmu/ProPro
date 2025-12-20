@@ -1,60 +1,135 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "courses" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 
-<div class="topbar">
-  <% if Current.user.is_staff %>
-    <%= link_to "#{Current.user.username}'s Dashboard" %>
-  <% else %>
-    <%= link_to "#{Current.user.username}'s Dashboard" %>
-  <% end %>
-</div>
-<ul class="breadcrumb">
-  <li><%= link_to "Home", root_url %></li>
-  <li><%= link_to "Edit Profile", user_profile_path if Current.user.is_staff %></li>
-  <li><%= link_to "Log Out", session_path, data: { turbo_method: :delete } %></li>
-</ul>
+<% content_for :hide_toggler, true %>
+<% content_for :no_sidebar, true %>
+<%# 3. DEFINE TOP BAR LINKS %>
+<% content_for :breadcrumbs do %>
 
-<% content_for :sidebar do %>
-  <div
-    class="
-      h-full w-60 fixed z-[1] top-[106px] left-0 bg-[#f8f9fa] overflow-x-hidden
-      p-[15px]
-    "
-  >
-    <%= sidebar_link "Courses", "#home" %>
-  </div>
+  <%= link_to "Home",
+  root_url,
+  class:
+    "text-gray-600 hover:text-green-700 font-semibold transition-colors no-underline" %>
+
+  <span class="mx-3 text-gray-400"></span>
+
+  <% if Current.user.is_staff %>
+    <%= link_to "Edit Profile",
+    user_profile_path,
+    class:
+      "text-gray-600 hover:text-green-700 font-semibold transition-colors no-underline" %>
+    <span class="mx-3 text-gray-400"></span>
+  <% end %>
+
+  <%= link_to "Log Out",
+  session_path,
+  data: {
+    turbo_method: :delete,
+  },
+  class:
+    "text-red-600 hover:text-red-800 font-semibold transition-colors no-underline" %>
+
 <% end %>
-<div class="main" id="home">
-  <h1>Dashboard</h1>
-  <h3>Your Courses</h3>
-  <br>
-  <div class="cards-container">
+
+<div
+  id="home"
+  class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-8 font-sans text-gray-900"
+>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-1"><%= Current.user.username %>'s Dashboard</h1>
+    <h3 class="text-base text-gray-500 font-normal">Your Courses</h3>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
     <% if @courses.present? %>
       <% @courses.each do |course| %>
-        <a href="<%= course_path(course) %>" class="card-link">
-          <div class="project-card">
-            <ul>
-              <b style="font-weight: bold;"><%= course.course_name %></b>
-              <br>
-              <b>
+        <%= link_to course_path(course), class: "group block no-underline h-full" do %>
+
+          <div
+            class="
+              h-full bg-white rounded-xl border border-gray-200 p-6 transition-all
+              duration-200 ease-in-out group-hover:border-green-400 group-hover:shadow-md
+              group-hover:-translate-y-1 flex flex-col justify-between
+            "
+          >
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h4
+                  class="
+                    text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors
+                  "
+                >
+                  <%= course.course_name %>
+                </h4>
+                <svg
+                  class="
+                    w-5 h-5 text-gray-300 group-hover:text-green-500 transition-colors
+                  "
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  /></svg>
+              </div>
+
+              <p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">
+                <%= course.course_description.presence ||
+                  "No description available for this course." %>
+              </p>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
+              <div
+                class="
+                  w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs
+                  font-bold text-gray-500
+                "
+              >
+                <%= course.coordinators.first&.username&.first&.upcase || "?" %>
+              </div>
+              <span class="text-xs font-medium text-gray-400">
                 Coordinator:
-                <%= course.coordinators.first.username %></b>
-              <ul>
-                <li class="project-card inner">
-                  <p class="text"><%= course.course_description || "No description available" %></p>
-                </li>
-              </ul>
-            </ul>
+                <span class="text-gray-600"><%= course.coordinators.first&.username || "None" %></span>
+              </span>
+            </div>
           </div>
-        </a>
+        <% end %>
       <% end %>
+
     <% else %>
-      <h5><img src="info.png" class="icon" size="20S">You have no courses at the moment. Please create one.</h5>
+      <div
+        class="
+          col-span-full w-full flex items-center gap-3 p-6 bg-white rounded-xl border
+          border-gray-100 shadow-sm
+        "
+      >
+        <div
+          class="
+            w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0
+          "
+        >
+          <%= image_tag "info.png", class: "w-5 h-5 opacity-60" %>
+        </div>
+        <h5 class="text-sm text-gray-600 font-medium m-0">
+          You have no courses at the moment. Please create one.
+        </h5>
+      </div>
     <% end %>
+
   </div>
-  <%= if Current.user.is_staff
-    link_to "+", new_course_path, class: "rounded-add-button"
-  end %>
+
+  <% if Current.user.is_staff %>
+    <%= link_to new_course_path, 
+        class: "fixed bottom-12 right-12 w-[56px] h-[56px] bg-green-700 hover:bg-green-800 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-3xl no-underline z-50 pb-1" do %>
+      <span>+</span>
+    <% end %>
+  <% end %>
+
 </div>

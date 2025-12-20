@@ -1,14 +1,16 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
+<% content_for :hide_toggler, true %>
 <% breadcrumb :new_project, @course %>
+
 <% content_for :title,
 "Create Proposal - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <main
   class="
-    min-h-screen bg-gray-50 w-full pt-[110px] md:pt-[120px] pb-12 px-4 sm:px-6
-    md:px-8 transition-all duration-300
+    min-h-screen bg-gray-50 w-full pt-2 pb-12 px-4 sm:px-6 md:px-8 transition-all
+    duration-300
   "
 >
   <div
