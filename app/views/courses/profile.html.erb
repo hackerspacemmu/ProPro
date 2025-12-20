@@ -3,7 +3,21 @@
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% participant_name = @participant_type == 'group' ? @group.group_name : @student.username %>
-<% breadcrumb :course_participant_profile, @course, participant_name %>
+<% content_for :breadcrumbs do %>
+  <%= link_to "Dashboard",
+      root_path, 
+      class: "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
+  <span class="mx-3 text-gray-400">&nbsp;>&nbsp;</span>
+
+  <%= link_to @course.course_name, 
+      course_path(@course), 
+      class: "text-gray-500 hover:text-gray-900 font-medium transition-colors no-underline" %>
+  <span class="mx-3 text-gray-400">&nbsp;>&nbsp;</span>
+
+  <span class="text-gray-900 font-medium truncate">
+    <%= participant_name %>
+  </span>
+<% end %>
 <% content_for :title do %>
   <% if @participant_type == 'group' %>
     <%= @group.group_name %> - Group Profile | ProPro
@@ -23,16 +37,45 @@
 <% @supervisor = @project&.supervisor if @project %>
 
 <% content_for :sidebar do %>
-  <div class="sidebar">
-    <a href="#title">Title</a>
-    <a href="#profile-information">Profile Information</a>
-    <% if @project.present? %>
-      <a href="#current-project">Current Project</a>
-    <% end %>
+  <div
+    class="
+      h-[calc(100vh-70px)] z-[20] sticky top-[70px] left-0 
+      bg-[#f8f9fa] border-r border-gray-200
+      transition-all duration-300
+      overflow-hidden w-0 px-0 opacity-0
+    "
+    data-sidebar-target="container"
+  >
+    <div class="p-4 space-y-1 w-64 font-medium text-sm text-gray-600">
+      
+      <a 
+        href="#title" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Title
+      </a>
+
+      <a 
+        href="#profile-information" 
+        class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+      >
+        Profile Information
+      </a>
+
+      <% if @project.present? %>
+        <a 
+          href="#current-project" 
+          class="block px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
+        >
+          Current Project
+        </a>
+      <% end %>
+
+    </div>
   </div>
 <% end %>
 
-<main>
+<main class="pt-0 mt-0">
   <div class="lecturer-layout">
     <section class="lecturer-content">
       <header class="lecturer-header">

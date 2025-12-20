@@ -1,183 +1,370 @@
-<% if @course.grouped? %>
-  <!-- Grouped Course: Show Project Groups -->
-  <% if group_list.present? %>
-    <div class="table-container">
-      <table class="participants-table">
-        <thead>
-          <tr>
-            <th><%= image_tag "alphabet.svg" %> Group Name</th>
-            <th><%= image_tag "person_grey.svg" %> Members</th>
-            <th><%= image_tag "project.svg" %> Project Title</th>
-            <th><%= image_tag "status_grey.svg" %> Status</th>
-            <th><%= image_tag "person_grey.svg" %> Supervisor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% group_list.each do |group| %>
-            <% group_project = group_project_for(group, @course) %>
-            <% latest_instance = group_project&.project_instances&.order(:version)&.last %>
-            <% status = group_status(group, @course) %>
-            <% supervisor = latest_instance&.supervisor %>
-            <tr class="participant-row">
-              <td>
-                <%= link_to participant_profile_course_path(@course, group.id, 'group'), class:"cell-link" do %>            
-                  <%= group.group_name || "Group #{group.id}" %>
-                <% end %>
-              </td>
-              <td>
-                <%= link_to participant_profile_course_path(@course, group.id, 'group'), class:"cell-link" do %>
-                  <ul class="member-list">
+<div class="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 table-fixed">
+
+      <%# --- Table Header --- %>
+      <thead class="bg-gray-50">
+        <tr>
+          <th
+            scope="col"
+            class="
+              px-6 py-3 text-left lg:text-center text-xs font-bold text-gray-500 uppercase
+              tracking-wider w-1/6
+            "
+          >
+            <div class="flex items-center justify-start lg:justify-center gap-2">
+              <%= image_tag "alphabet.svg", class: "w-5 h-5 opacity-70" %>
+              <%= @course.grouped? ? "Group Name" : "Student Name" %>
+            </div>
+          </th>
+
+          <th
+            scope="col"
+            class="
+              px-6 py-3 text-left lg:text-center text-xs font-bold text-gray-500 uppercase
+              tracking-wider w-1/4
+            "
+          >
+            <div class="flex items-center justify-start lg:justify-center gap-2">
+              <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
+              <%= @course.grouped? ? "Members" : "Student ID" %>
+            </div>
+          </th>
+
+          <th
+            scope="col"
+            class="
+              px-6 py-3 text-left lg:text-center text-xs font-bold text-gray-500 uppercase
+              tracking-wider w-1/4
+            "
+          >
+            <div class="flex items-center justify-start lg:justify-center gap-2">
+              <%= image_tag "project.svg", class: "w-5 h-5 opacity-70" %>
+              Project Title
+            </div>
+          </th>
+
+          <th
+            scope="col"
+            class="
+              px-6 py-3 text-left lg:text-center text-xs font-bold text-gray-500 uppercase
+              tracking-wider w-1/8
+            "
+          >
+            <div class="flex items-center justify-start lg:justify-center gap-2">
+              <%= image_tag "status_grey.svg", class: "w-5 h-5 opacity-70" %>
+              Status
+            </div>
+          </th>
+
+          <th
+            scope="col"
+            class="
+              px-6 py-3 text-left lg:text-center text-xs font-bold text-gray-500 uppercase
+              tracking-wider w-1/4
+            "
+          >
+            <div class="flex items-center justify-start lg:justify-center gap-2">
+              <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
+              Supervisor
+            </div>
+          </th>
+        </tr>
+      </thead>
+
+      <%# --- Table Body --- %>
+      <tbody class="bg-white divide-y divide-gray-200">
+
+        <%# GROUPED COURSE LOGIC %>
+        <% if @course.grouped? %>
+          <% if group_list.present? %>
+            <% group_list.each do |group| %>
+              <% group_project = group_project_for(group, @course)
+              latest_instance = group_project&.project_instances&.order(:version)&.last
+              status = group_status(group, @course)
+              supervisor = latest_instance&.supervisor %>
+              <tr
+                class="
+                  hover:bg-gray-50 transition-colors duration-150 group divide-x divide-gray-200
+                "
+              >
+
+                <td
+                  class="
+                    px-6 py-4 text-sm font-medium text-gray-900 align-top break-words text-left
+                    lg:text-center
+                  "
+                >
+                  <%= link_to participant_profile_course_path(@course, group.id, 'group'), class: "hover:text-gray-700 hover:underline" do %>
+                    <%= group.group_name || "Group #{group.id}" %>
+                  <% end %>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-gray-500 align-top text-left lg:text-center">
+                  <ul class="space-y-2">
                     <% group.project_group_members.includes(:user).each do |member| %>
-                      <div class="profile-container">
-                        <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
-                        <span><%= member.user.username || '-' %></span>
-                         <% if !member.user.has_registered %>
-                          <span class="pending-badge" title="Student has been invited but has not activated their ProPro account.">Pending</span>
-                          <%= button_to resend_invite_path(member.user), method: :post, class: "resend-invite-btn", title: "Resend the email invitation to the student." do %>
-                            <%= image_tag "email.svg" %>
-                          <% end %>
+                      <li class="flex flex-wrap items-center justify-start lg:justify-center gap-2">
+                        <%= link_to participant_profile_course_path(@course, member.user.id, 'student'), class: "flex items-center gap-2 group/member hover:text-gray-900" do %>
+                          <div
+                            class="
+                              w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
+                              font-bold text-gray-600 shrink-0 group-hover/member:bg-gray-300
+                              transition-colors
+                            "
+                          >
+                            <%= member.user.username.first.upcase %>
+                          </div>
+                          <span class="text-xs text-gray-700 group-hover/member:underline"><%= member.user.username || "-" %></span>
+                        <% end %>
+
+                        <% unless member.user.has_registered %>
+                          <div class="flex items-center justify-start lg:justify-center gap-2">
+                            <span
+                              class="
+                                bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border
+                                border-yellow-200 leading-none
+                              "
+                            >Pending</span>
+                            <%= button_to resend_invite_path(member.user), 
+                                method: :post, 
+                                form: { class: "inline-flex items-center" }, 
+                                class: "flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors", 
+                                title: "Resend Invite" do %>
+                              <%= image_tag "email.svg", class: "w-4 h-4 opacity-80" %>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-gray-700 align-top text-left lg:text-center">
+                  <% if group_project.present? %>
+                    <%= link_to course_project_path(@course, group_project), class: "font-medium text-gray-900 hover:text-gray-700 hover:underline line-clamp-2" do %>
+                      <%= latest_instance&.title || "-" %>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400 italic text-xs">-</span>
+                  <% end %>
+                </td>
+
+                <td class="px-6 whitespace-nowrap align-top text-left lg:text-center">
+                  <% badge_classes, dot_class =
+                    case status.to_s.downcase
+                    when "approved"
+                      ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
+                    when "pending"
+                      ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
+                    when "redo"
+                      ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
+                    when "rejected"
+                      ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
+                    else
+                      ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
+                    end %>
+                  <% link_target =
+                    group_project.present? ? course_project_path(@course, group_project) : "#" %>
+                  <a
+                    href="<%= link_target %>"
+                    class="
+                      inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
+                      <%= badge_classes %> capitalize hover:opacity-80
+                    "
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
+                    <%= status.humanize %>
+                  </a>
+                </td>
+
+                <td
+                  class="
+                    px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
+                    lg:text-center
+                  "
+                >
+                  <% if supervisor.present? %>
+                    <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start lg:justify-center gap-2 group/sup" do %>
+                      <div
+                        class="
+                          w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
+                          font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
+                          group-hover/sup:text-gray-700 transition-colors
+                        "
+                      >
+                        <%= supervisor.username.first.upcase %>
+                      </div>
+                      <span
+                        class="
+                          truncate max-w-[150px] group-hover/sup:text-gray-700
+                        "
+                        title="<%= supervisor.username %>"
+                      >
+                        <%= supervisor.username %>
+                      </span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500 italic">
+                <%= if params[:status_filter].present? && params[:status_filter] != "all"
+                  "No groups found with #{params[:status_filter].humanize} status."
+                else
+                  "No Groups have been added yet."
+                end %>
+              </td>
+            </tr>
+          <% end %>
+
+          <%#  SOLO GROUP LOGIC %>
+        <% else %>
+          <% if student_list.present? %>
+            <% student_list.each do |student| %>
+              <% student_project = student_project_for(student, @course)
+              latest_instance = student_project&.project_instances&.order(:version)&.last
+              status = student_status(student, @course)
+              supervisor = latest_instance&.supervisor %>
+              <tr
+                class="
+                  hover:bg-gray-50 transition-colors duration-150 group divide-x divide-gray-200
+                "
+              >
+                <td
+                  class="
+                    px-6 py-4 text-sm font-medium text-gray-900 align-top text-left lg:text-center
+                  "
+                >
+                  <div class="flex flex-col items-start lg:items-center gap-1">
+                    <%= link_to participant_profile_course_path(@course, student.id, 'student'), class: "flex items-center gap-2 hover:text-gray-700 hover:underline" do %>
+                      <div
+                        class="
+                          w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
+                          font-bold text-gray-600 shrink-0
+                        "
+                      >
+                        <%= student.username.first.upcase %>
+                      </div>
+                      <span><%= student.username || "-" %></span>
+                    <% end %>
+
+                    <% unless student.has_registered %>
+                      <div class="flex items-center justify-start lg:justify-center gap-2 mt-1">
+                        <span
+                          class="
+                            bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border
+                            border-yellow-200 leading-none
+                          "
+                        >Pending</span>
+                        <%= button_to resend_invite_path(student), 
+                            method: :post, 
+                            form: { class: "inline-flex items-center" }, 
+                            class: "flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors", 
+                            title: "Resend Invite" do %>
+                          <%= image_tag "email.svg", class: "w-4 h-4 opacity-80 hover:opacity-100 block" %>
                         <% end %>
                       </div>
                     <% end %>
-                  </ul>
-                <% end %>
-              </td>
-              <td>
-                <% if group_project.present? %>
-                  <%= link_to (latest_instance&.title || '-'), course_project_path(@course, group_project), class:"cell-link" %>
-                <% else %>
-                  <span><%= latest_instance&.title || '-' %></span>
-                <% end %>
-              </td>
-              <td>
-                <% if group_project.present? %>
-                  <%= link_to course_project_path(@course, group_project), class:"cell-link" do %>
-                    <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                      <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
-                      <%= status.humanize %>
-                    </span>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-gray-500 align-top text-left lg:text-center">
+                  <%= link_to participant_profile_course_path(@course, student.id, 'student'), class: "hover:text-gray-700" do %>
+                    <%= student.student_id || "-" %>
                   <% end %>
-                <% else %>
-                  <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                    <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
+                </td>
+
+                <td class="px-6 py-4 text-sm text-gray-700 align-top text-left lg:text-center">
+                  <% if student_project.present? %>
+                    <%= link_to course_project_path(@course, student_project), class: "font-medium text-gray-900 hover:text-gray-700 hover:underline line-clamp-2" do %>
+                      <%= latest_instance&.title || "-" %>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400 italic text-xs">-</span>
+                  <% end %>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap align-top text-left lg:text-center">
+                  <% badge_classes, dot_class =
+                    case status.to_s.downcase
+                    when "approved"
+                      ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
+                    when "pending"
+                      ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
+                    when "redo"
+                      ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
+                    when "rejected"
+                      ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
+                    else
+                      ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
+                    end %>
+                  <% link_target =
+                    student_project.present? ? course_project_path(@course, student_project) : "#" %>
+                  <a
+                    href="<%= link_target %>"
+                    class="
+                      inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
+                      <%= badge_classes %> capitalize hover:opacity-80
+                    "
+                  >
+                    <%# The Dot span %>
+                    <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                     <%= status.humanize %>
-                  </span>
-                <% end %>
-              </td>
-              <td>
-                <% if supervisor.present? %>
-                  <%= link_to course_lecturer_path(@course, supervisor), class:"cell-link" do %>
-                    <div class="profile-container">
-                      <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
-                      <%= supervisor&.username || '-' %>
-                    </div>
+                  </a>
+                </td>
+
+                <td
+                  class="
+                    px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
+                    lg:text-center
+                  "
+                >
+                  <% if supervisor.present? %>
+                    <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start lg:justify-center gap-2 group/sup" do %>
+                      <div
+                        class="
+                          w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
+                          font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
+                          group-hover/sup:text-gray-700 transition-colors
+                        "
+                      >
+                        <%= supervisor.username.first.upcase %>
+                      </div>
+                      <span
+                        class="
+                          truncate max-w-[150px] group-hover/sup:text-gray-700
+                        "
+                        title="<%= supervisor.username %>"
+                      >
+                        <%= supervisor.username %>
+                      </span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
                   <% end %>
-                <% else %>
-                  <span> - </span>
-                <% end %>
+                </td>
+
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500 italic">
+                <%= if params[:status_filter].present? && params[:status_filter] != "all"
+                  "No students found with #{params[:status_filter].humanize} status."
+                else
+                  "No students have been enrolled yet."
+                end %>
               </td>
             </tr>
           <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% else %>
-    <p class="empty-state">
-      <%= params[:status_filter].present? && params[:status_filter] != 'all' ?
-          "No groups found with #{params[:status_filter].humanize} status." :
-          "No Groups/Students have been added yet." %>
-    </p>
-  <% end %>
-<% else %>
-  <!-- Individual Course: Show Students -->
-  <% if student_list.present? %>
-    <div class="table-container">
-      <table class="participants-table">
-        <thead>
-          <tr>
-            <th><%= image_tag "alphabet.svg" %> Student Name</th>
-            <th><%= image_tag "person_grey.svg" %> Student ID</th>
-            <th><%= image_tag "project.svg" %> Project Title</th>
-            <th><%= image_tag "status_grey.svg" %> Status</th>
-            <th><%= image_tag "person_grey.svg" %> Supervisor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% student_list.each do |student| %>
-            <% student_project = student_project_for(student, @course) %>
-            <% latest_instance = student_project&.project_instances&.order(:version)&.last %>
-            <% status = student_status(student, @course) %>
-            <% supervisor = latest_instance&.supervisor %>
-            <tr class="participant-row">
-              <td>
-                <div class="profile-wrapper">
-                  <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
-                    <div class="profile-container">
-                      <div class="profile-avatar"><%= student.username.first.upcase %></div>
-                      <span><%= student.username || '-' %></span>
-                    </div>
-                  <% end %>
-                  <% if !student.has_registered %>
-                    <div class="pending-container">
-                      <span class="pending-badge" title="Student has been invited but has not activated their ProPro account.">Pending</span>
-                      <%= button_to resend_invite_path(student), method: :post, class: "resend-invite-btn", title: "Resend the email invitation to the student." do %>
-                        <%= image_tag "email.svg" %>
-                      <% end %>
-                    </div>
-                  <% end %>
-                </div>
-              </td>
-              <td> 
-                <%= link_to participant_profile_course_path(@course, student.id, 'student'), class:"cell-link" do %>
-                  <%= student.student_id || '-' %>
-                <% end %>
-              </td>
-              <td>
-                <% if student_project.present? %>
-                  <%= link_to course_project_path(@course, student_project), class:"cell-link" do %>
-                    <%= latest_instance&.title || '-' %>
-                  <% end %>
-                <% else %>
-                  <span><%= latest_instance&.title || '-' %></span>
-                <% end %>
-              </td>
-              <td>
-                <% if student_project.present? %>
-                  <%= link_to course_project_path(@course, student_project), class:"cell-link" do %>
-                    <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                      <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
-                      <%= status.humanize %>
-                    </span>
-                  <% end %>
-                <% else %>
-                  <span class="status-badge <%= status.downcase.gsub('_', '-') %>">
-                    <div class="status-indicator <%= status.downcase.gsub('_', '-') %>"></div>
-                    <%= status.humanize %>
-                  </span>
-                <% end %>
-              </td>
-              <td>
-                <% if supervisor.present? %>
-                  <%= link_to course_lecturer_path(@course, supervisor), class:"cell-link" do %>
-                    <div class="profile-container">
-                      <div class="profile-avatar"><%= supervisor&.username.first.upcase %></div>
-                      <%= supervisor&.username || '-' %>
-                    </div>
-                  <% end %>
-                <% else %>
-                  <span> - </span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% else %>
-    <p class="empty-state">
-      <%= params[:status_filter].present? && params[:status_filter] != 'all' ?
-          "No students found with #{params[:status_filter].humanize} status." :
-          "No students have been enrolled yet." %>
-    </p>
-  <% end %>
-<% end %>
+        <% end %>
+
+      </tbody>
+    </table>
+  </div>
+</div>
