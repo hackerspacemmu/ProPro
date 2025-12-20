@@ -40,8 +40,9 @@ export default class extends Controller {
         if (animate) {
             this.containerTarget.classList.add("transition-all", "duration-200")
         }
+
         this.containerTarget.classList.remove("lg:w-64", "lg:opacity-100")
-        this.containerTarget.classList.remove("w-64") 
+        this.containerTarget.classList.remove("w-50") 
         this.containerTarget.classList.add("w-0")
 
         this.containerTarget.classList.replace("px-4", "px-0")
@@ -52,10 +53,8 @@ export default class extends Controller {
 
     expand() {
         this.containerTarget.classList.add("transition-all", "duration-300")
-
         this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0")
-        this.containerTarget.classList.add("w-64", "opacity-100") 
-
+        this.containerTarget.classList.add("w-50", "opacity-100") 
         if (window.innerWidth >= 1024) {
              this.containerTarget.classList.add("lg:w-64", "lg:opacity-100")
         }
@@ -67,7 +66,7 @@ export default class extends Controller {
 
     resetToDesktopDefaults() {
         this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0")
-        this.containerTarget.classList.add("lg:w-64", "lg:opacity-100", "w-64", "opacity-100")
+        this.containerTarget.classList.add("lg:w-64", "lg:opacity-100", "w-50", "opacity-100")
         this.containerTarget.classList.replace("px-0", "px-4")
     }
 }
