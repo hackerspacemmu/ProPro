@@ -251,9 +251,6 @@
       </div>
     </section>
 
-    <%# ========================================== %>
-    <%# CARD 2: CURRENT PROJECT %>
-    <%# ========================================== %>
     <section
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
@@ -262,7 +259,7 @@
     >
       <div
         class="
-          px-8 py-6 border-b border-gray-100 flex items-center justify-between
+          px-8 pt-6 border-b border-gray-100 flex items-center justify-between
         "
       >
         <h2 class="text-xl font-semibold text-gray-900">Current Project</h2>
@@ -270,38 +267,98 @@
 
       <div class="px-8 py-8">
         <% if @project.present? %>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-start">
-            <%= render partial: "courses/project_card",
-            object: @project,
-            as: :project,
-            locals: {
-              course: @course,
-              participant_id: @participant_type == "group" ? @group.id : @student.id,
-              participant_type: @participant_type,
-            } %>
+          <% 
+             status_key = @status.to_s.downcase
+             
+             header_bg = case status_key
+               when 'approved' then 'bg-emerald-600'
+               when 'pending' then 'bg-sky-700'
+               when 'redo' then 'bg-amber-600'
+               when 'rejected' then 'bg-red-700'
+               else 'bg-gray-600'
+             end
+
+             # --- Fetch Description Logic (SAFE MODE) ---
+             description_text = "No details provided for this project."
+             version_number = 1
+             updated_time = @project.updated_at
+
+             if @latest_instance.present?
+               version_number = @latest_instance.version
+               
+               # 1. Safely load fields
+               fields = @latest_instance.project_instance_fields.includes(:project_template_field)
+               
+               # 2. Try to find the description field safely
+               description_field = fields.find { |f| 
+                 # Use safe navigation (&.) to avoid crash if template field is missing
+                 label = f.project_template_field&.label.to_s.downcase
+                 label.include?('description') || label.include?('summary') || label.include?('abstract')
+               }
+               
+               # 3. Get the value, or fallback to the first field's value if description isn't found
+               found_text = description_field&.value || fields.first&.value
+               description_text = found_text if found_text.present?
+             end
+          %>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <%# --- THE PROJECT CARD --- %>
+            <%= link_to course_project_path(@course, @project), class: "group block relative bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col h-full" do %>
+              
+              <%# 1. Colored Header Band %>
+              <div class="<%= header_bg %> px-5 py-4 flex justify-between items-start">
+                <div class="text-white">
+                  <h3 class="text-lg font-bold leading-tight group-hover:underline decoration-white/50 underline-offset-2">
+                    <%= @latest_instance&.title || "Untitled Project" %>
+                  </h3>
+                  <% if @participant_type == 'group' %>
+                    <p class="text-white/80 text-xs font-medium mt-1 uppercase tracking-wide">
+                      <%= @group.group_name %>
+                    </p>
+                  <% end %>
+                </div>
+                
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-white/90 text-gray-800 shadow-sm shrink-0 ml-3">
+                  <%= status_key.humanize %>
+                </span>
+              </div>
+
+              <%# 2. White Body Area %>
+              <div class="p-5 flex-grow flex flex-col bg-gray-50/50">
+                <%# Description Box %>
+                <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm flex-grow">
+                  <p class="text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line">
+                    <%= description_text %>
+                  </p>
+                </div>
+
+                <%# Footer Metadata %>
+                <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Updated <%= time_ago_in_words(updated_time) %> ago</span>
+                  </div>
+                  <span class="font-mono">v<%= version_number %></span>
+                </div>
+              </div>
+            <% end %>
+
           </div>
+
         <% else %>
-          <div
-            class="
-              py-12 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              flex flex-col items-center justify-center gap-3
-            "
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-10 w-10 text-gray-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <p class="text-gray-500 text-base font-medium">No project has been submitted yet.</p>
+          <%# ... Empty state remains same ... %>
+          <div class="py-12 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-3">
+             <div class="p-3 bg-white rounded-full shadow-sm">
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+               </svg>
+             </div>
+             <div class="text-center">
+               <p class="text-gray-900 font-medium">No project has been submitted yet.</p>
+               <p class="text-gray-500 text-sm mt-1">When a project is submitted, it will appear here.</p>
+             </div>
           </div>
         <% end %>
       </div>
