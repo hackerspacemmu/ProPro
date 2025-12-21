@@ -68,7 +68,7 @@
 <% end %>
 
 <%# --- Main Layout --- %>
-<main class="w-[95%] max-w-5xl mx-auto py-6 flex-auto">
+<main class="w-[90%] mx-auto py-6 flex-auto">
   <div class="space-y-8">
     <section
       class="
@@ -110,7 +110,7 @@
 
       <%# --- Profile Information Section --- %>
       <div class="px-8 pt-2 pb-6" id="profile-information">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 mt-2">Profile Information</h2>
 
         <div class="grid grid-cols-1 gap-y-8">
 
@@ -147,15 +147,12 @@
                     <div class="flex flex-col">
                       <strong class="text-base font-semibold text-gray-900"><%= member.user.username %></strong>
                       <% if member.user.student_id.present? %>
-                        <span class="text-gray-500 text-xs font-mono mt-0.5">ID:
+                        <span class="text-gray-700 text-sm font-mono mt-0.5">STUDENT ID:
                           <%= member.user.student_id %></span>
                       <% end %>
-                      <a
-                        href="mailto:<%= member.user.email_address %>"
-                        class="
-                          text-sm text-indigo-600 hover:text-indigo-800 hover:underline mt-1
-                        "
-                      ><%= member.user.email_address %></a>
+                      <p class="text-sm text-gray-900">
+                        <%= member.user.email_address %></a>
+                      </p>
                     </div>
                   </div>
                 <% end %>
@@ -180,10 +177,7 @@
             <%# Email %>
             <div class="flex flex-col items-start gap-2">
               <span class="font-medium text-gray-500 text-sm">Email</span>
-              <a
-                href="mailto:<%= @student.email_address %>"
-                class="text-indigo-600 text-base hover:underline"
-              ><%= @student.email_address %></a>
+              <%= @student.email_address %></a>
             </div>
 
           <% end %>
@@ -238,14 +232,10 @@
             <% if @supervisor.present? %>
               <div class="flex flex-col items-start gap-2">
                 <span class="font-medium text-gray-500 text-sm">Supervisor</span>
-                <div
-                  class="
-                    flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors -ml-2
-                  "
-                >
+                <div class=" flex items-center gap-3 rounded-lg -ml-2 ">
                   <div
                     class="
-                      w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+                      w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center
                       justify-center text-xs font-bold text-gray-700 shrink-0
                     "
                   >
