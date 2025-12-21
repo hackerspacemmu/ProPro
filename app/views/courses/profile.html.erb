@@ -286,17 +286,13 @@
              if @latest_instance.present?
                version_number = @latest_instance.version
                
-               # 1. Safely load fields
                fields = @latest_instance.project_instance_fields.includes(:project_template_field)
                
-               # 2. Try to find the description field safely
                description_field = fields.find { |f| 
-                 # Use safe navigation (&.) to avoid crash if template field is missing
                  label = f.project_template_field&.label.to_s.downcase
                  label.include?('description') || label.include?('summary') || label.include?('abstract')
                }
-               
-               # 3. Get the value, or fallback to the first field's value if description isn't found
+
                found_text = description_field&.value || fields.first&.value
                description_text = found_text if found_text.present?
              end
@@ -328,7 +324,7 @@
               <%# 2. White Body Area %>
               <div class="p-5 flex-grow flex flex-col bg-gray-50/50">
                 <%# Description Box %>
-                <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm flex-grow">
+                <div class="bg-white p-4 pt-0 rounded-lg border border-gray-100 shadow-sm flex-grow">
                   <p class="text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line">
                     <%= description_text %>
                   </p>
