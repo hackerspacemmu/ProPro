@@ -1,15 +1,29 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["container"] 
+    static targets = ["container"]
 
     connect() {
-        const isMobile = window.innerWidth < 1024 
+        this.checkResponsive()
+        this.resizeHandler = this.checkResponsive.bind(this)
+        window.addEventListener("resize", this.resizeHandler)
+    }
 
-        if (isMobile) {
+    disconnect() {
+        window.removeEventListener("resize", this.resizeHandler)
+    }
+
+    checkResponsive() {
+        const isDesktop = window.innerWidth >= 1024
+
+        if (isDesktop) {
+            if (!this.containerTarget.classList.contains("lg:w-64")) {
+                this.resetToDesktopDefaults()
+            }
+        } else {
             const userPreferClosed = localStorage.getItem("sidebar-collapsed") === "true"
             if (userPreferClosed) {
-                this.collapse(false) 
+                this.collapse(false)
             }
         }
     }
@@ -27,10 +41,10 @@ export default class extends Controller {
             this.containerTarget.classList.add("transition-all", "duration-200")
         }
 
-        this.containerTarget.classList.remove("lg:w-64", "lg:opacity-100") 
-        this.containerTarget.classList.remove("w-50", "w-64")
-        this.containerTarget.classList.add("w-0")     
-        
+        this.containerTarget.classList.remove("lg:w-64", "lg:opacity-100")
+        this.containerTarget.classList.remove("w-50") 
+        this.containerTarget.classList.add("w-0")
+
         this.containerTarget.classList.replace("px-4", "px-0")
         this.containerTarget.classList.add("overflow-hidden", "opacity-0")
 
@@ -39,12 +53,20 @@ export default class extends Controller {
 
     expand() {
         this.containerTarget.classList.add("transition-all", "duration-300")
-
         this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0")
         this.containerTarget.classList.add("w-50", "opacity-100") 
-        
+        if (window.innerWidth >= 1024) {
+             this.containerTarget.classList.add("lg:w-64", "lg:opacity-100")
+        }
+
         this.containerTarget.classList.replace("px-0", "px-4")
 
         localStorage.setItem("sidebar-collapsed", "false")
+    }
+
+    resetToDesktopDefaults() {
+        this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0")
+        this.containerTarget.classList.add("lg:w-64", "lg:opacity-100", "w-50", "opacity-100")
+        this.containerTarget.classList.replace("px-0", "px-4")
     }
 }
