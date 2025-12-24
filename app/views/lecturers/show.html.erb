@@ -189,7 +189,7 @@
           <div class="flex flex-col items-start gap-2 md:col-span-2">
             <span class="font-bold text-sm text-black">Description</span>
             <p class="text-gray-900 text-base leading-relaxed whitespace-pre-line">
-              <%= @lecturer.description.presence "No description provided." %>
+              <%= @lecturer.description.presence || "No description provided." %>
             </p>
           </div>
 
@@ -293,7 +293,7 @@
     <%# ========================================== %>
     <%# SECTION 5: TOPICS (Student/Guest View) %>
     <%# ========================================== %>
-    <% if @is_student  !access? %>
+    <% if @is_student || !access? %>
       <section
         class="
           bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
