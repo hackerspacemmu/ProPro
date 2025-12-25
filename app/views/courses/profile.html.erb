@@ -70,47 +70,47 @@
 <%# --- Main Layout --- %>
 <main class="w-[90%] mx-auto py-6 flex-auto">
   <div class="space-y-8">
+
+    <div class="flex flex-col gap-1">
+      
+      <%# 1. The Label Row %>
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-sm font-bold text-gray-500 uppercase tracking-wider">
+          <% if @participant_type == 'group' %>
+            View Group
+          <% else %>
+            View Student
+          <% end %>
+        </span>
+        <div class="h-px bg-gray-300 flex-grow"></div>
+      </div>
+
+      <%# 2. The Avatar & Name Row %>
+      <div class="flex items-center gap-6">
+        <% if @participant_type == 'student' %>
+          <div
+            class="
+              w-20 h-20 bg-gray-200 text-gray-700 rounded-full flex items-center
+              justify-center text-3xl font-bold shrink-0 uppercase shadow-sm
+            "
+          >
+            <%= @student.username[0].upcase %>
+          </div>
+          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.username %></h1>
+        <% else %>
+          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @group.group_name %></h1>
+        <% end %>
+      </div>
+    </div>
+
+    <%# --- Card 1: Profile Information --- %>
     <section
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
       "
     >
-
-      <%# --- Header Section --- %>
-      <div class="px-8 py-8 border-b border-gray-100" id="title">
-        <%# Title Line %>
-        <div class="flex items-center gap-4 mb-6">
-          <span class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-            <% if @participant_type == 'group' %>
-              View Group
-            <% else %>
-              View Student
-            <% end %>
-          </span>
-          <div class="h-px bg-gray-100 flex-grow"></div>
-        </div>
-
-        <%# Name Row %>
-        <div class="flex items-center gap-6">
-          <% if @participant_type == 'student' %>
-            <div
-              class="
-                w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center
-                justify-center text-3xl font-bold shrink-0 uppercase ring-4 ring-white
-              "
-            >
-              <%= @student.username[0].upcase %>
-            </div>
-            <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.username %></h1>
-          <% else %>
-            <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @group.group_name %></h1>
-          <% end %>
-        </div>
-      </div>
-
-      <%# --- Profile Information Section --- %>
-      <div class="px-8 pt-2 pb-6" id="profile-information">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6 mt-2">Profile Information</h2>
+      <div class="px-8 pt-8 pb-8" id="profile-information">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
 
         <div class="grid grid-cols-1 gap-y-8">
 
@@ -251,6 +251,7 @@
       </div>
     </section>
 
+    <%# --- Card 2: Current Project --- %>
     <section
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
