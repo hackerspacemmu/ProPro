@@ -89,9 +89,6 @@
 <main class="w-[90%] mx-auto py-6 flex-auto">
   <div class="space-y-8">
 
-    <%# ========================================== %>
-    <%# SECTION 1: IDENTITY (Transparent Background) %>
-    <%# ========================================== %>
     <section class="overflow-hidden" id="lecturer-name">
       <div class="px-8 py-4">
 
@@ -108,7 +105,7 @@
           <div
             class="
               w-20 h-20 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center
-              text-3xl font-bold shrink-0 uppercase ring-4 ring-white
+              text-3xl font-bold shrink-0 uppercase
             "
           >
             <%= @lecturer.username[0].upcase %>
@@ -118,9 +115,6 @@
       </div>
     </section>
 
-    <%# ========================================== %>
-    <%# SECTION 2: PROFILE INFORMATION (White Card) %>
-    <%# ========================================== %>
     <section
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
@@ -135,7 +129,7 @@
         "
       >
         <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
-        <%# Admin Actions %>
+        <%# Coordinator Actions %>
         <% if @course.coordinators.include? Current.user %>
           <div class="text-sm">
             <% if @course.coordinators.include?(@lecturer) && @lecturer != Current.user %>
@@ -177,36 +171,22 @@
           <%# Email %>
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Email</span>
-            <a
-              href="mailto:<%= @lecturer.email_address %>"
-              class="text-gray-900 hover:text-blue-600 hover:underline"
-            >
-              <%= @lecturer.email_address %>
-            </a>
+            <%= @lecturer.email_address %>
           </div>
 
-          <%# Description (Full Width) %>
-          <div class="flex flex-col items-start gap-2 md:col-span-2">
+          <%# Description %>
+          <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Description</span>
-            <p class="text-gray-900 text-base leading-relaxed whitespace-pre-line">
+            <p class="text-gray-900 text-base leading-relaxed">
               <%= @lecturer.description.presence || "No description provided." %>
             </p>
           </div>
 
           <%# Portfolio %>
-          <div class="flex flex-col items-start gap-2 md:col-span-2">
+          <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Portfolio / MMU Directory</span>
             <% if @lecturer.web_link.present? %>
-              <a
-                href="<%= @lecturer.web_link %>"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="
-                  text-blue-600 hover:text-blue-800 hover:underline break-all
-                "
-              >
-                <%= @lecturer.web_link %>
-              </a>
+              <%= @lecturer.web_link %>
             <% else %>
               <span class="text-gray-500 italic">No web link provided.</span>
             <% end %>
