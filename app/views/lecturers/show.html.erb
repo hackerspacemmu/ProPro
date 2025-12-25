@@ -177,8 +177,7 @@
           <%# Description %>
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Description</span>
-            <p class="text-gray-900 text-base leading-relaxed">
-              <%= @lecturer.description.presence || "No description provided." %>
+            <p class="text-gray-900 text-base leading-relaxed whitespace-pre-wrap"><%= @lecturer.description.presence || "No description provided." %>
             </p>
           </div>
 
