@@ -26,20 +26,16 @@ owner_name =
 
 <%# --- CARD HEADER (Colored) --- %>
 <div class="<%= header_bg %> px-5 py-4 flex justify-between items-start">
-  <div class="text-white overflow-hidden">
+  <div class="text-white">
     <h3
       class="
         text-lg font-bold leading-tight group-hover:underline decoration-white/50
-        underline-offset-2 line-clamp-2
+        underline-offset-2
       "
     >
       <%= project_instance.title.presence || "Untitled Project" %>
     </h3>
-    <p
-      class="
-        text-white/80 text-xs font-medium mt-1 uppercase tracking-wide truncate
-      "
-    >
+    <p class="text-white/80 text-xs font-medium mt-1 uppercase tracking-wide">
       <%= owner_name %>
     </p>
   </div>
@@ -57,8 +53,12 @@ owner_name =
 <%# --- CARD BODY (White) --- %>
 <div class="p-5 flex-grow flex flex-col bg-gray-50/50">
 
-  <%# Description Container %>
-  <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm flex-grow">
+  <%# Description Container (Added pt-0 to match student profile) %>
+  <div
+    class="
+      bg-white p-4 pt-0 rounded-lg border border-gray-100 shadow-sm flex-grow
+    "
+  >
     <p
       class="
         text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
