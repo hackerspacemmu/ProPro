@@ -1,60 +1,88 @@
+<%# Locals: project, project_instance, header_bg, status_key %>
 
-  <ul>
-    <b><%= project_instance.title %></b><br>
-    <b>
-      <% image_tag"person_grey.svg" %> 
-      <%= project.owner.respond_to?(:username) ?
-            project.owner.username :
-            project.owner.group_name %>
-    </b>
-    <ul>
-      <li class="project-card inner">
-        <% fields = project_instance.project_instance_fields
-          .joins(:project_template_field)
-          .order(:id) 
-        %>
+<% description_text = "No details provided."
+fields =
+  project_instance.project_instance_fields.includes(:project_template_field)
 
-        <% display_parts = [] %>
+desc_field =
+  fields.find do |f|
+    label = f.project_template_field&.label.to_s.downcase
+    label.include?("description") || label.include?("summary") ||
+      label.include?("abstract")
+  end
 
-        <% first_field = fields[0] %>
-        <% first_max_chars = 170 %>
-        <% if first_field && first_field.project_template_field.textarea? %>
-          <% content = first_field.value.to_s.strip %>
-          <% display_parts << content.truncate_words(90) %>
-        <% else %>
-          <% if first_field && (first_field.project_template_field.shorttext? || first_field.project_template_field.dropdown? || first_field.project_template_field.radio?) %>
-            <% display_parts << first_field.value.to_s.strip %>
-          <% end %>
-        <% end %>
+found_text = desc_field&.value || fields.first&.value
+description_text = found_text if found_text.present?
 
-        <% second_field = fields[1] %>
-        <% second_max_chars = 135 %>
+# --- Determine Owner Name ---
+owner_name =
+  if project.owner.respond_to?(:username)
+    project.owner.username
+  elsif project.owner.respond_to?(:group_name)
+    project.owner.group_name
+  else
+    "Unknown"
+  end %>
 
-        <% if (second_field && second_field.project_template_field.textarea?) && !first_field.project_template_field.textarea? %>
-          <% content = second_field.value.to_s.strip %>
-          <% display_parts << content.truncate_words(90) %>
-        <% else %>
-          <% if second_field && (second_field.project_template_field.shorttext? || second_field.project_template_field.dropdown? || second_field.project_template_field.radio?) %>
-            <% content = second_field.value.to_s.strip %>
-            <% display_parts << (content.length > second_max_chars ? content[0, second_max_chars] + "..." : content) %>
-          <% end %>
-        <% end %>
+<%# --- CARD HEADER (Colored) --- %>
+<div class="<%= header_bg %> px-5 py-4 flex justify-between items-start">
+  <div class="text-white overflow-hidden">
+    <h3
+      class="
+        text-lg font-bold leading-tight group-hover:underline decoration-white/50
+        underline-offset-2 line-clamp-2
+      "
+    >
+      <%= project_instance.title.presence || "Untitled Project" %>
+    </h3>
+    <p
+      class="
+        text-white/80 text-xs font-medium mt-1 uppercase tracking-wide truncate
+      "
+    >
+      <%= owner_name %>
+    </p>
+  </div>
 
+  <span
+    class="
+      inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase
+      tracking-wide bg-white/90 text-gray-800 shadow-sm shrink-0 ml-3
+    "
+  >
+    <%= status_key.humanize %>
+  </span>
+</div>
 
-        <% third_field = fields[2] %>
-        <% third_max_chars = 90 %>
-        <% if (third_field && third_field.project_template_field.textarea?) && !second_field.project_template_field.textarea? %>
-          <% content = third_field.value.to_s.strip %>
-          <% display_parts << content.truncate_words(90) %>
-        <% else %>
-          <% if third_field && (third_field.project_template_field.shorttext? || third_field.project_template_field.dropdown? || third_field.project_template_field.radio?) %>
-            <% display_parts << third_field.value.to_s.strip %>
-          <% end %>
-        <% end %>
+<%# --- CARD BODY (White) --- %>
+<div class="p-5 flex-grow flex flex-col bg-gray-50/50">
 
-        <% preview = display_parts.join("<br>") %>
-        <p class="text"><%= raw(preview) %></p>
-      </li>
-    </ul>
-  </ul>
+  <%# Description Container %>
+  <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm flex-grow">
+    <p
+      class="
+        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
+      "
+    >
+      <%= description_text %>
+    </p>
+  </div>
 
+  <%# Footer Metadata %>
+  <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
+    <div class="flex items-center gap-1.5">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+      <span>Updated
+        <%= time_ago_in_words(project.updated_at) %>
+        ago</span>
+    </div>
+    <span class="font-mono">v<%= project_instance.version %></span>
+  </div>
+</div>

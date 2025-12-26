@@ -89,23 +89,18 @@
 <main class="w-[90%] mx-auto py-6 flex-auto">
   <div class="space-y-8">
 
+    <%# --- SECTION 1: IDENTITY --- %>
     <section class="overflow-hidden" id="lecturer-name">
-      <div class="py-4">
-
-        <%# View Label Line %>
+      <div class="px-8 py-4">
         <div class="flex items-center gap-4 mb-6">
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-            View Supervisor
-          </span>
+          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">View Supervisor</span>
           <div class="h-px bg-gray-300 flex-grow"></div>
         </div>
-
-        <%# Name & Avatar Row %>
         <div class="flex items-center gap-6">
           <div
             class="
               w-20 h-20 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center
-              text-3xl font-bold shrink-0 uppercase
+              text-3xl font-bold shrink-0 uppercase ring-4 ring-white
             "
           >
             <%= @lecturer.username[0].upcase %>
@@ -115,21 +110,19 @@
       </div>
     </section>
 
+    <%# --- SECTION 2: PROFILE INFORMATION --- %>
     <section
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
       "
       id="profile-information"
     >
-
-      <%# Card Header with Actions %>
       <div
         class="
           px-8 pt-6 pb-4 border-b border-gray-100 flex items-center justify-between
         "
       >
         <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
-        <%# Coordinator Actions %>
         <% if @course.coordinators.include? Current.user %>
           <div class="text-sm">
             <% if @course.coordinators.include?(@lecturer) && @lecturer != Current.user %>
@@ -151,11 +144,8 @@
         <% end %>
       </div>
 
-      <%# Card Content %>
       <div class="px-8 py-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
-
-          <%# Role %>
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Role</span>
             <span
@@ -164,51 +154,50 @@
                 bg-gray-100 text-gray-800
               "
             >
-              <%= @enrolment.role.humanize %>
+              <%= @enrolment&.role&.humanize || "Lecturer" %>
             </span>
           </div>
-
-          <%# Email %>
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Email</span>
-            <%= @lecturer.email_address %>
+            <a
+              href="mailto:<%= @lecturer.email_address %>"
+              class="text-gray-900 hover:text-blue-600 hover:underline"
+            ><%= @lecturer.email_address %></a>
           </div>
-
-          <%# Description %>
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Description</span>
-            <p class="text-gray-900 text-base leading-relaxed whitespace-pre-wrap"><%= @lecturer.description.presence || "No description provided." %>
-            </p>
+            <p class="text-gray-900 text-base leading-relaxed whitespace-pre-line"><%= @lecturer.description.presence || "No description provided." %></p>
           </div>
-
-          <%# Portfolio %>
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Portfolio / MMU Directory</span>
             <% if @lecturer.web_link.present? %>
-              <%= @lecturer.web_link %>
+              <a
+                href="<%= @lecturer.web_link %>"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="
+                  text-blue-600 hover:text-blue-800 hover:underline break-all
+                "
+              ><%= @lecturer.web_link %></a>
             <% else %>
               <span class="text-gray-500 italic">No web link provided.</span>
             <% end %>
           </div>
-
         </div>
       </div>
     </section>
 
-    <%# ========================================== %>
-    <%# SECTION 3: PROJECTS %>
-    <%# ========================================== %>
+    <%# --- SECTION 3: PROJECTS & PROPOSALS --- %>
     <% if access? %>
       <section
         class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
+          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
         "
         id="projects"
       >
         <div class="px-8 pt-6 pb-4 border-b border-gray-100">
           <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
         </div>
-
         <div class="px-8 py-6">
           <% if @my_student_projects.empty? %>
             <div
@@ -232,19 +221,15 @@
         </div>
       </section>
 
-      <%# ========================================== %>
-      <%# SECTION 4: PROPOSALS %>
-      <%# ========================================== %>
       <section
         class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
+          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
         "
         id="proposals"
       >
         <div class="px-8 pt-6 pb-4 border-b border-gray-100">
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
         </div>
-
         <div class="px-8 py-6">
           <% if @incoming_proposals.empty? %>
             <div
@@ -269,105 +254,53 @@
       </section>
     <% end %>
 
-    <%# ========================================== %>
-    <%# SECTION 5: TOPICS (Student/Guest View) %>
-    <%# ========================================== %>
+    <%# --- SECTION 4: TOPICS (USING TOPIC PARTIAL - IGNORED FOR NOW) --- %>
+    <% topic_collections = [] %>
     <% if @is_student || !access? %>
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
-        "
-        id="released-topics"
-      >
-        <div class="px-8 pt-6 pb-4 border-b border-gray-100">
-          <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
-        </div>
-        <div class="px-8 py-6">
-          <% if @approved_projects.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              "
-            >
-              <p class="text-gray-500">No Topics Released</p>
-            </div>
-          <% else %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <%= render partial: "courses/topic_card",
-              collection: @own_approved_projects,
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
+      <% topic_collections << {
+        title: "Released Topics",
+        id: "released-topics",
+        data: @own_approved_projects,
+      } %>
     <% end %>
-
-    <%# ========================================== %>
-    <%# SECTION 6: TOPICS (Full Access View) %>
-    <%# ========================================== %>
     <% if full_access? %>
-      <%# RELEASED TOPICS %>
+      <% topic_collections << {
+        title: "Released Topics",
+        id: "full-released-topics",
+        data: @own_approved_projects,
+      } %>
+      <% topic_collections << {
+        title: "Pending Topics",
+        id: "pending-topics",
+        data: @not_own_approved_projects,
+      } %>
+    <% end %>
+
+    <% topic_collections.uniq { |t| t[:id] }.each do |section| %>
       <section
         class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
+          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
         "
-        id="full-released-topics"
+        id="<%= section[:id] %>"
       >
         <div class="px-8 pt-6 pb-4 border-b border-gray-100">
-          <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
+          <h2 class="text-xl font-semibold text-gray-900"><%= section[:title] %></h2>
         </div>
-
         <div class="px-8 py-6">
-          <% if @own_approved_projects.empty? %>
+          <% if section[:data].empty? %>
             <div
               class="
                 py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
               "
             >
-              <p class="text-gray-500">No Topics Released</p>
+              <p class="text-gray-500">No
+                <%= section[:title] %>
+                Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/topic_card",
-              collection: @own_approved_projects,
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
-
-      <%# PENDING TOPICS %>
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
-        "
-        id="pending-topics"
-      >
-        <div class="px-8 pt-6 pb-4 border-b border-gray-100">
-          <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
-        </div>
-
-        <div class="px-8 py-6">
-          <% if @not_own_approved_projects.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              "
-            >
-              <p class="text-gray-500">No Topics Available</p>
-            </div>
-          <% else %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <%= render partial: "courses/topic_card",
-              collection: @not_own_approved_projects,
+              collection: section[:data],
               as: :topic,
               locals: {
                 course: @course,
@@ -379,8 +312,7 @@
       </section>
     <% end %>
 
-    <%# --- Footer --- %>
-    <footer class="flex justify-start">
+    <footer class="pt-8 flex justify-start">
       <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors duration-150 no-underline rounded-lg hover:bg-gray-100" do %>
         <svg
           xmlns="http://www.w3.org/2000/svg"
