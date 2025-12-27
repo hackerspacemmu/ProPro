@@ -23,6 +23,9 @@
 
     <%= sidebar_link "Add Students", add_students_course_path(@course) %>
     <%= sidebar_link "Add Lecturers", add_lecturers_course_path(@course) %>
+    <%= sidebar_link "Edit Course Settings", settings_course_path(@course) %>
+    <%= sidebar_link "Edit Templates", edit_course_project_template_path(@course) %>
+    <%= sidebar_link "Export CSV", export_csv_course_path(@course) %>
   <% end %>
 
   <%# --- LECTURER VIEW --- %>
