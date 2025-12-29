@@ -33,8 +33,9 @@
     end
   
   # --- 3. Base Classes (Card Wrapper) ---
+  # UPDATED: w-full (fills grid cell), h-64 (fixed height for uniformity)
   card_classes =
-    "group block relative bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col h-full text-left"
+    "group block relative w-full h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
   
   # --- 4. Visibility ---
   can_view = project_viewable_by_current_user?(@course, project) %>
@@ -57,4 +58,3 @@
     </div>
   <% end %>
 <% end %>
-

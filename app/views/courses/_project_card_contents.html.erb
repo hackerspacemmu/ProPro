@@ -24,16 +24,25 @@ owner_name =
     "Unknown"
   end %>
 
-<%# --- CARD HEADER (Colored) --- %>
-<div class="<%= header_bg %> px-5 py-4 flex justify-between items-start">
-  <div class="text-white">
+<div
+  class="
+    <%= header_bg %> px-5 py-4 flex justify-between
+    items-start shrink-0
+  "
+>
+  <div class="text-white overflow-hidden">
     <h3
       class="
         text-lg whitespace-normal pt-0 mt-0 font-bold group-hover:underline
+        leading-tight decoration-white/50 underline-offset-2 line-clamp-2
       "
     ><%= project_instance.title.presence || "Untitled Project" %>
     </h3>
-    <p class="text-white/80 text-xs font-medium mt-1 uppercase tracking-wide">
+    <p
+      class="
+        text-white/80 text-xs font-medium mt-1 uppercase tracking-wide truncate
+      "
+    >
       <%= owner_name %>
     </p>
   </div>
@@ -49,17 +58,19 @@ owner_name =
 </div>
 
 <%# --- CARD BODY (White) --- %>
-<div class="p-5 flex-grow flex flex-col bg-gray-50/50">
+<%# Removed fixed height fractions. Added flex-1 and min-h-0 to fill remaining space %>
+<div class="p-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
 
-  <%# Description Container (Added pt-0 to match student profile) %>
+  <%# Description Container (Restored white box styling from student profile) %>
   <div
     class="
-      bg-white p-4 pt-0 rounded-lg border border-gray-100 shadow-sm flex-grow
+      bg-white p-4 pt-0 rounded-lg border border-gray-100 shadow-sm flex-1 min-h-0
+      overflow-hidden
     "
   >
     <p
       class="
-        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
+        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line mt-0
       "
     >
       <%= description_text %>
@@ -67,7 +78,11 @@ owner_name =
   </div>
 
   <%# Footer Metadata %>
-  <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
+  <div
+    class="
+      mt-4 flex items-center justify-between text-xs text-gray-400 shrink-0
+    "
+  >
     <div class="flex items-center gap-1.5">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
