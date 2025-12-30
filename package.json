@@ -4,5 +4,8 @@
     "eslint": "^9.39.2",
     "globals": "^16.5.0",
     "prettier": "3.7.4"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .git_hooks"
   }
 }
