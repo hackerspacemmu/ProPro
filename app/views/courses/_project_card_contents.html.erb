@@ -27,14 +27,14 @@ owner_name =
 <div
   class="
     <%= header_bg %> px-5 py-4 flex justify-between
-    items-start shrink-0
+    items-start shrink-0 max-h-[120px]
   "
 >
   <div class="text-white overflow-hidden">
     <h3
       class="
         text-lg whitespace-normal pt-0 mt-0 font-bold group-hover:underline
-        leading-tight decoration-white/50 underline-offset-2 line-clamp-2
+        leading-tight decoration-white/50 underline-offset-2 line-clamp-1
       "
     ><%= project_instance.title.presence || "Untitled Project" %>
     </h3>
@@ -62,20 +62,13 @@ owner_name =
 <div class="p-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
 
   <%# Description Container (Restored white box styling from student profile) %>
-  <div
+  <p
     class="
-      bg-white p-4 pt-0 rounded-lg border border-gray-100 shadow-sm flex-1 min-h-0
-      overflow-hidden
+      text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line mt-0
+      flex-1 min-h-0
     "
-  >
-    <p
-      class="
-        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line mt-0
-      "
-    >
-      <%= description_text %>
-    </p>
-  </div>
+  ><%= description_text %>
+  </p>
 
   <%# Footer Metadata %>
   <div
