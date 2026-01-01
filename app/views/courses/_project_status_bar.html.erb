@@ -14,7 +14,7 @@
 <% if project %>
   <div class="student-proposal">
     <h4>Your Current Proposal</h4>
-    <div class="w:8/12 lg:w-5/12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <%= render partial: "project_card", object: project, as: :project %>
     </div>
   </div>

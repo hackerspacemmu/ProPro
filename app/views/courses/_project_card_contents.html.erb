@@ -38,7 +38,12 @@ owner_name =
       "
     ><%= project_instance.title.presence || "Untitled Project" %>
     </h3>
-    <p class=" text-white text-xs mt-1 uppercase tracking-wide font-bold truncate ">
+    <p
+      class="
+        text-white text-xs mt-1 uppercase tracking-wide font-bold truncate
+        whitespace-pre-line
+      "
+    >
       <%= owner_name %>
     </p>
   </div>
@@ -54,16 +59,17 @@ owner_name =
 </div>
 
 <%# --- CARD BODY (White) --- %>
-<%# Removed fixed height fractions. Added flex-1 and min-h-0 to fill remaining space %>
-<div class="p-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
+<div class="px-5 py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
 
-  <p
-    class="
-      text-sm text-gray-600 line-clamp-5 leading-relaxed whitespace-normal mt-0 flex-1
-      min-h-0 font-semibold overflow-hidden
-    "
-  ><%= description_text %>
-  </p>
+  <div class="flex-1 min-h-0 mt-0">
+    <p
+      class="
+        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
+        font-semibold overflow-hidden
+      "
+    ><%= description_text %>
+    </p>
+  </div>
 
   <%# Footer Metadata %>
   <div
