@@ -14,8 +14,23 @@ js_files=$(echo "$files" | grep '\.js$')
 css_files=$(echo "$files" | grep '\.css$')
 html_files=$(echo "$files" | grep '\.html$')
 
-npx prettier $js_files $css_files $html_files --write
-rubocop -a $ruby_files
-bundle exec erb-format $embedded_ruby_files
+# Run formatters only if there are files to format
+if [ -z "$js_files" ] || [ -z "$css_files" ] || [ -z "$html_files" ]; then
+    echo "No JavaScript, CSS, or HTML files to format."
+else
+    npx prettier $js_files $css_files $html_files --write
+fi
+
+if [ -z "$ruby_files" ]; then
+    echo "No Ruby files to format."
+else
+    rubocop -a $ruby_files
+fi
+
+if [ -z "$embedded_ruby_files" ]; then
+    echo "No Embedded Ruby files to format."
+else
+    bundle exec erb-format $embedded_ruby_files
+fi
 
 echo "Pre-push auto-formatting complete\n"
