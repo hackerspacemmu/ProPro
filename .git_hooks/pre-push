@@ -14,7 +14,8 @@ js_files=$(echo "$files" | grep '\.js$')
 css_files=$(echo "$files" | grep '\.css$')
 html_files=$(echo "$files" | grep '\.html$')
 
-prettier $js_files $css_files $html_files --write
-rubocop -x $ruby_files $embedded_ruby_files
+npx prettier $js_files $css_files $html_files --write
+rubocop -a $ruby_files
+bundle exec erb-format $embedded_ruby_files
 
 echo "Pre-push auto-formatting complete\n"
