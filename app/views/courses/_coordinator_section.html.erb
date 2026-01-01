@@ -4,7 +4,7 @@
       <h4>My Student Projects</h4>
       <p class="section-description">Approved student projects currently under supervision</p>
     </header>
-    <div class="project-list-gapper">
+    <div class="project-list-gapper flex items-f ">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         <% if my_student_projects.any? %>
           <%= render partial: "project_card",
@@ -33,9 +33,11 @@
       <% %w[pending redo rejected].each do |stat| %>
         <% group = incoming_proposals.select { |p| p.status.to_s == stat } %>
         <% if group.any? %>
-          <div class="status-group status-<%= stat %>">
-            <h5 class="status-header"><%= stat.titleize %>
-              <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
+          <div class="status-group status-<%= stat %> mb-3">
+
+            <%= image_tag "#{stat}.svg", class: "inline-block status-indicator-icon" %>
+            <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
+            </h5>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               <%= render partial: "project_card", collection: group, as: :project %>
             </div>

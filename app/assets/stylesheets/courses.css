@@ -378,7 +378,6 @@ html {
   display: flex;
   align-items: flex-start;
   gap: 15px;
-  margin-left: 10px;
   margin-top: 20px;
   flex-wrap: wrap;
 }
@@ -693,19 +692,15 @@ h4 {
 }
 
 h5 {
-  font-size: 12px;
   font-weight: normal;
-  color: #ff2b2b;
   margin-top: 0px;
   margin-bottom: 0px;
 }
 
 p {
   font-size: 12px;
-  color: #000000;
   margin-top: 0px;
   margin-bottom: 0px;
-  font-weight: bold;
 }
 
 .description-text {
