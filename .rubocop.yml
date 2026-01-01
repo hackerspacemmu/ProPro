@@ -1,8 +1,13 @@
 plugins:
-  - rubocop-rails
+    - rubocop-rails
 
 AllCops:
     NewCops: enable
 
+# No need for frozen string literal comments in modern Ruby versions
+# See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
 Style/FrozenStringLiteralComment:
-  Enabled: false
+    Enabled: false
+
+Layout/LineLength:
+    Enabled: false
