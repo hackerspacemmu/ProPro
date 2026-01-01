@@ -3,7 +3,7 @@
 files=$(git log main..HEAD --oneline --name-only --pretty=format: | sort -u | sed '/^$/d')
 
 if [ -z "$files" ]; then
-    echo "No files changed.\n"
+    echo "No files changed."
     exit 0
 fi
 
@@ -33,4 +33,7 @@ else
     bundle exec erb-format $embedded_ruby_files
 fi
 
-echo "Pre-push auto-formatting complete\n"
+echo "Pre-push auto-formatting complete"
+
+git add $files
+git commit -m "Hook: Auto-format code before push"
