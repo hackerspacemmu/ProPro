@@ -7,24 +7,34 @@
 course: @course,
 current_user_enrolment: @current_user_enrolment %>
 
-<div class="main">
-  <header class="course-header">
-    <h1><%= @course.course_name.upcase %></h1>
-    <h3>Your Course</h3>
+<div class="w-[95%] mx-auto my-0 py-2.5">
+  <header class="mb-5">
+    <h1 class="font-bold text-xl text-black my-0"><%= @course.course_name.upcase %></h1>
+    <h3 class="text-base font-normal">Your Course</h3>
     <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
     <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
   </header>
 
-  <section class="proposal-guidelines" id="proposal-guidelines">
-    <div class="container">
+  <section id="proposal-guidelines">
+    <div class="rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-[20px]">
       <form>
-        <h4>Project Details</h4>
-        <h2 class="description-text"><%= @description || "No description available for this course." %></h2>
+        <h4 class="break-all whitespace-pre-line">Project Details</h4>
+        <h2 class="text-[1rem] mt-3 leading-[1.3] whitespace-pre-line"><%= @description || "No description available for this course." %></h2>
       </form>
 
       <% if @course.file_link.present? %>
-        <a href="<%= @course.file_link %>" target="_blank" rel="noopener noreferrer">
-          <div class="project-file">
+        <a
+          class="text-decoration-none max-w-max text-inherit"
+          href="<%= @course.file_link %>"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div
+            class="
+              text-[#313848] inline-block flex-wrap z-0 border-2 border-[#ebf0f9] pl-4 pr-5
+              pt-4 pb-3 rounded-[12px] mt-4
+            "
+          >
             <div class="file-icon">
               <%= image_tag "folder.svg" %>
             </div>
