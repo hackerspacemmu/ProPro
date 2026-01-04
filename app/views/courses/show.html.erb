@@ -11,8 +11,8 @@ current_user_enrolment: @current_user_enrolment %>
   <header class="mb-5">
     <h1 class="font-bold text-xl text-black my-0"><%= @course.course_name.upcase %></h1>
     <h3 class="text-base font-normal">Your Course</h3>
-    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+    <h5 class="font-normal whitespace-pre-line break-all"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+    <h5 class="font-normal whitespace-pre-line break-all"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
   </header>
 
   <section id="proposal-guidelines">
@@ -35,10 +35,15 @@ current_user_enrolment: @current_user_enrolment %>
               pt-4 pb-3 rounded-[12px] mt-4
             "
           >
-            <div class="file-icon">
+            <div
+              class="
+                file-icon flex items-center justify-center mr-4 bg-[#399be2] rounded-[10px]
+                w-[40px] h-[40px] shrink-0
+              "
+            >
               <%= image_tag "folder.svg" %>
             </div>
-            <div class="file-info">
+            <div class="flex flex-col justify-center font-bold font-lg mt-1">
               <span>Attachment Link</span>
             </div>
           </div>
