@@ -71,7 +71,7 @@
           <div class="status-group status-<%= stat %>">
             <h5 class="status-header"><%= stat.titleize %>
               <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
-            <div class="cards-container">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               <%= render partial: "topic_card", collection: group, as: :topic %>
             </div>
           </div>
@@ -118,7 +118,7 @@
             <h5 class="status-header">
               <%= stat.titleize %>
               <%= image_tag "#{stat}.svg", class: "status-indicator-icon" %></h5>
-            <div class="cards-container">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               <%= render partial: "topic_card", collection: group, as: :topic %>
             </div>
           </div>
