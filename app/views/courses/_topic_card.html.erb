@@ -3,7 +3,6 @@
 <% if topic_instance %>
   <% status_key = topic.status.to_s.downcase
 
-  # TODO: pass header-bg to _topic_card_contents partial
   header_bg =
     case status_key
     when "approved"
@@ -34,13 +33,17 @@
     <%= link_to path, class: card_classes do %>
       <%= render "courses/topic_card_contents",
       topic: topic,
-      topic_instance: topic_instance %>
+      topic_instance: topic_instance,
+      header_bg: header_bg,
+      status_key: status_key %>
     <% end %>
   <% else %>
     <div class="<%= card_classes %> opacity-75 cursor-not-allowed">
       <%= render "courses/topic_card_contents",
       topic: topic,
-      topic_instance: topic_instance %>
+      topic_instance: topic_instance,
+      header_bg: header_bg,
+      status_key: status_key %>
     </div>
   <% end %>
 
