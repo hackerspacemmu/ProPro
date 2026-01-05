@@ -34,7 +34,9 @@
 
 <div
   id="home"
-  class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-8 font-sans text-gray-900"
+  class="
+    flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-8 font-sans text-gray-900 bg-gray-50
+  "
 >
 
   <div class="mb-8">
@@ -126,7 +128,7 @@
   </div>
 
   <% if Current.user.is_staff %>
-    <%= link_to new_course_path, 
+    <%= link_to new_course_path,
         class: "fixed bottom-12 right-12 w-[56px] h-[56px] bg-green-700 hover:bg-green-800 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-3xl no-underline z-50 pb-1" do %>
       <span>+</span>
     <% end %>

@@ -1,21 +1,50 @@
 <li>
-  <%= link_to course_lecturer_path(course, lecturer), class: "profile" do %>
-    <div class="lecturer-avatar"><%= lecturer.username.first.upcase %></div>
-    <div class="lecturer-item">
-      <div class="lecturer-content">
-        <div class="lecturer-name"><%= lecturer.username %></div>
+  <%= link_to course_lecturer_path(course, lecturer), class: "flex items-start gap-[15px] ml-2.5 mb-1.5 group no-underline w-full" do %>
+
+    <div
+      class="
+        w-10 h-10 bg-[#d9d9d9] rounded-full shrink-0 flex justify-center items-center
+        text-[20px] text-gray-700 font-medium
+      "
+    >
+      <%= lecturer.username.first.upcase %>
+    </div>
+
+    <div class="flex-1 min-w-0">
+
+      <div class="flex items-center gap-[30px] mb-1 text-sm font-bold">
+        <div class="text-[#454343] text-base truncate">
+          <%= lecturer.username %>
+        </div>
+
         <% capacity_info = @lecturer_capacity_info[lecturer.id] %>
-        <span class="capacity <%= 'at-capacity' if capacity_info[:is_at_capacity] %>">
+        <% capacity_text_color =
+          capacity_info[:is_at_capacity] ? "text-red-500" : "text-black" %>
+
+        <span
+          class="
+            text-base ml-auto pr-5 whitespace-nowrap <%= capacity_text_color %>
+          "
+        >
           <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %>
+
           <% if capacity_info[:pending_proposals] > 0 %>
-            <span class="pending-indicator">(<%= capacity_info[:pending_proposals] %> pending)</span>
+            <span class="text-xs font-normal text-amber-600 ml-1">
+              (<%= capacity_info[:pending_proposals] %>
+              pending)
+            </span>
           <% end %>
         </span>
       </div>
-      <div class="lecturer-information">
-        <div class="last-seen">Statistics coming soon...</div>
-        <div class="avg-time"></div>
+
+      <div class="flex flex-col">
+        <div class="text-xs text-[#7e7e7e]/80 my-0.5 leading-[0.7]">
+          Statistics coming soon...
+        </div>
+        <div class="text-xs text-[#7e7e7e]/80 my-0.5 leading-[0.7]">
+        </div>
       </div>
+
     </div>
   <% end %>
 </li>

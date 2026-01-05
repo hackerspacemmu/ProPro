@@ -38,7 +38,7 @@ module SidebarHelper
                       data: { sidebar_target: 'container' }
                     ) do
                       # Inner Content Wrapper
-                      tag.div(class: 'w-64 p-4 space-y-4 md:space-y-3 pt-11 lg:pt-4 font-medium text-sm text-gray-600') do
+                      tag.div(class: 'w-64 p-4 space-y-4 md:space-y-2 lg:space-y-1 pt-11 lg:pt-4 font-medium text-sm text-gray-600') do
                         capture(&)
                       end
                     end
