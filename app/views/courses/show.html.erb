@@ -8,8 +8,8 @@ course: @course,
 current_user_enrolment: @current_user_enrolment %>
 
 <div class="w-[95%] mx-auto my-0 py-2.5">
-  <header class="mb-5">
-    <h1 class="font-bold text-xl text-black my-0"><%= @course.course_name.upcase %></h1>
+  <header class="mb-5 text-center md:text-left">
+    <h1 class=" font-bold text-lg md:text-xl text-black my-0 "><%= @course.course_name.upcase %></h1>
     <h3 class="text-base font-normal">Your Course</h3>
     <h5 class="font-normal whitespace-pre-line break-all"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
     <h5 class="font-normal whitespace-pre-line break-all"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
@@ -18,7 +18,7 @@ current_user_enrolment: @current_user_enrolment %>
   <section id="proposal-guidelines">
     <div
       class="
-        border border-gray-300 rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-[20px]
+        border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5
       "
     >
       <form>
