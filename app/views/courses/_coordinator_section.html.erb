@@ -1,12 +1,12 @@
 <% container_classes =
-  "border border-gray-300 rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5" %>
+  "border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5" %>
 <section id="my-student-projects">
   <div class="<%= container_classes %>">
     <header>
       <h4 class="font-lg text-black mb-3 font-normal break-word whitespace-pre-line">My Student Projects</h4>
       <p class="text-gray-500">Student projects currently under supervision</p>
     </header>
-    <div class="flex flex-start gap-4 flex-wrap mt-2">
+    <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-3">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         <% if my_student_projects.any? %>
           <%= render partial: "project_card",

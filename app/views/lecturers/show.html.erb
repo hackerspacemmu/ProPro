@@ -19,36 +19,28 @@
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
         "
-      >
-        Name
-      </a>
+      >Name</a>
       <a
         href="#profile-information"
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
         "
-      >
-        Profile Information
-      </a>
+      >Profile Information</a>
       <a
         href="#projects"
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
         "
-      >
-        Projects
-      </a>
+      >Projects</a>
       <a
         href="#proposals"
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
         "
-      >
-        Proposals
-      </a>
+      >Proposals</a>
 
       <% if full_access? %>
         <a
@@ -57,9 +49,7 @@
             block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
             transition-colors
           "
-        >
-          Released Topics
-        </a>
+        >Released Topics</a>
       <% else %>
         <a
           href="#released-topics"
@@ -67,9 +57,7 @@
             block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
             transition-colors
           "
-        >
-          Released Topics
-        </a>
+        >Released Topics</a>
       <% end %>
 
       <a
@@ -78,25 +66,32 @@
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
         "
-      >
-        Pending Topics
-      </a>
+      >Pending Topics</a>
     </div>
   <% end %>
 <% end %>
 
 <%# --- Main Layout --- %>
-<main class="w-[90%] mx-auto py-6 flex-auto">
+<div class="w-[95%] min-w-0 mx-auto my-0 py-2.5 overflow-x-hidden">
   <div class="space-y-8">
 
     <%# --- SECTION 1: IDENTITY --- %>
-    <section class="overflow-hidden" id="lecturer-name">
+    <section class="overflow-hidden w-full" id="lecturer-name">
       <div class="py-4 px-2">
         <div class="flex items-center gap-4 mb-6">
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">View Supervisor</span>
-          <div class="h-px bg-gray-300 flex-grow"></div>
+          <span
+            class="
+              text-sm font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap
+            "
+          >View Supervisor</span>
+          <div class="h-px bg-gray-300 flex-grow w-full min-w-0"></div>
         </div>
-        <div class="flex items-center gap-6">
+
+        <div
+          class="
+            flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6
+          "
+        >
           <div
             class="
               w-20 h-20 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center
@@ -105,7 +100,15 @@
           >
             <%= @lecturer.username[0].upcase %>
           </div>
-          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @lecturer.username %></h1>
+
+          <h1
+            class="
+              text-2xl sm:text-4xl font-bold text-gray-900 tracking-tight break-words min-w-0
+              text-center sm:text-left
+            "
+          >
+            <%= @lecturer.username %>
+          </h1>
         </div>
       </div>
     </section>
@@ -119,7 +122,8 @@
     >
       <div
         class="
-          px-8 pt-6 pb-4 border-b border-gray-100 flex items-center justify-between
+          px-4 md:px-8 pt-6 pb-4 border-b border-gray-100 flex flex-col sm:flex-row
+          items-start sm:items-center justify-between gap-2
         "
       >
         <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
@@ -144,7 +148,7 @@
         <% end %>
       </div>
 
-      <div class="px-8 py-6">
+      <div class="px-4 md:px-8 py-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
           <div class="flex flex-col items-start gap-2">
             <span class="font-bold text-sm text-black">Role</span>
@@ -157,18 +161,27 @@
               <%= @enrolment&.role&.humanize || "Lecturer" %>
             </span>
           </div>
-          <div class="flex flex-col items-start gap-2">
+          <div class="flex flex-col items-start gap-2 w-full min-w-0">
             <span class="font-bold text-sm text-black">Email</span>
             <a
               href="mailto:<%= @lecturer.email_address %>"
-              class="text-gray-900 hover:text-blue-600 hover:underline"
-            ><%= @lecturer.email_address %></a>
+              class="
+                text-gray-900 hover:text-blue-600 hover:underline break-all
+              "
+            >
+              <%= @lecturer.email_address %>
+            </a>
           </div>
-          <div class="flex flex-col items-start gap-2">
+          <div class="flex flex-col items-start gap-2 col-span-1">
             <span class="font-bold text-sm text-black">Description</span>
-            <p class="text-gray-900 text-base leading-relaxed whitespace-pre-line"><%= @lecturer.description.presence || "No description provided." %></p>
+            <p
+              class="
+                text-gray-900 text-base leading-relaxed whitespace-pre-line break-words w-full
+              "
+            ><%= @lecturer.description.presence || "No description provided." %>
+            </p>
           </div>
-          <div class="flex flex-col items-start gap-2">
+          <div class="flex flex-col items-start gap-2 w-full min-w-0">
             <span class="font-bold text-sm text-black">Portfolio / MMU Directory</span>
             <% if @lecturer.web_link.present? %>
               <a
@@ -178,7 +191,9 @@
                 class="
                   text-blue-600 hover:text-blue-800 hover:underline break-all
                 "
-              ><%= @lecturer.web_link %></a>
+              >
+                <%= @lecturer.web_link %>
+              </a>
             <% else %>
               <span class="text-gray-500 italic">No web link provided.</span>
             <% end %>
@@ -195,10 +210,10 @@
         "
         id="projects"
       >
-        <div class="px-8 pt-6 pb-4 border-b border-gray-100">
+        <div class="px-4 md:px-8 pt-6 pb-4 border-b border-gray-100">
           <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
         </div>
-        <div class="px-8 py-6">
+        <div class="px-4 md:px-8 py-6">
           <% if @my_student_projects.empty? %>
             <div
               class="
@@ -227,10 +242,10 @@
         "
         id="proposals"
       >
-        <div class="px-8 pt-6 pb-4 border-b border-gray-100">
+        <div class="px-4 md:px-8 pt-6 pb-4 border-b border-gray-100">
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
         </div>
-        <div class="px-8 py-6">
+        <div class="px-4 md:px-8 py-6">
           <% if @incoming_proposals.empty? %>
             <div
               class="
@@ -254,7 +269,7 @@
       </section>
     <% end %>
 
-    <%# --- SECTION 4: TOPICS (USING TOPIC PARTIAL - IGNORED FOR NOW) --- %>
+    <%# --- SECTION 4: TOPICS --- %>
     <% topic_collections = [] %>
     <% if @is_student || !access? %>
       <% topic_collections << {
@@ -283,10 +298,10 @@
         "
         id="<%= section[:id] %>"
       >
-        <div class="px-8 pt-6 pb-4 border-b border-gray-100">
+        <div class="px-4 md:px-8 pt-6 pb-4 border-b border-gray-100">
           <h2 class="text-xl font-semibold text-gray-900"><%= section[:title] %></h2>
         </div>
-        <div class="px-8 py-6">
+        <div class="px-4 md:px-8 py-6">
           <% if section[:data].empty? %>
             <div
               class="
@@ -333,4 +348,4 @@
     </footer>
 
   </div>
-</main>
+</div>
