@@ -1,7 +1,7 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-
+<% content_for :body_class, "bg-gray-50" %>
 <% participant_name =
   @participant_type == "group" ? @group.group_name : @student.username %>
 
@@ -68,7 +68,7 @@
 <% end %>
 
 <%# --- Main Layout --- %>
-<main class="w-[95%] mx-auto pt-6 flex-auto">
+<main class="w-[95%] mx-auto pt-6 flex-auto bg-gray-50">
   <div class="space-y-8">
 
     <div class="flex flex-col gap-1 px-2">

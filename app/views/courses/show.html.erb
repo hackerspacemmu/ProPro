@@ -8,7 +8,7 @@ current_user_enrolment: @current_user_enrolment %>
 
 <div class="w-[95%] bg-[#efefef] mx-auto my-0 py-2.5">
   <header class="mb-5 text-center md:text-left">
-    <h1 class="font-bold text-xl md:text-3xl text-black my-1"><%= @course.course_name.upcase %></h1>
+    <h1 class="font-bold text-3xl text-black my-1"><%= @course.course_name.upcase %></h1>
     <h3 class="text-base font-normal">Your Course</h3>
     <h5 class="text-base font-normal whitespace-pre-line break-all"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
     <h5 class="text-base font-normal whitespace-pre-line break-all"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>

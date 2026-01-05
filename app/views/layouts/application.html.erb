@@ -19,7 +19,9 @@
   </head>
 
   <body
-    class="bg-[#efefef] min-h-screen flex flex-col font-['Inter']"
+    class="
+      min-h-screen flex flex-col font-['Inter'] <%= content_for?(:body_class) ? yield(:body_class) : "bg-[#efefef]" %>
+    "
     data-controller="scroll-spy sidebar"
     data-scroll-spy-active-class="bg-transparent md:bg-sky-100 text-gray-950 font-semibold"
     data-scroll-spy-inactive-class="text-gray-600 hover:bg-gray-50 hover:text-gray-900"

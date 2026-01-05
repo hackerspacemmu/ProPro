@@ -2,6 +2,7 @@
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 
+<% content_for :body_class, "bg-gray-50" %>
 <%# --- Breadcrumbs --- %>
 <% breadcrumb :course, @course %>
 <% breadcrumb :lecturer, @course, @lecturer %>
