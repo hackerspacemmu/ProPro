@@ -16,7 +16,11 @@ current_user_enrolment: @current_user_enrolment %>
   </header>
 
   <section id="proposal-guidelines">
-    <div class="rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-[20px]">
+    <div
+      class="
+        border border-gray-300 rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-[20px]
+      "
+    >
       <form>
         <h4 class="break-all whitespace-pre-line">Project Details</h4>
         <h2 class="text-[1rem] mt-3 leading-[1.3] whitespace-pre-line"><%= @description || "No description available for this course." %></h2>
