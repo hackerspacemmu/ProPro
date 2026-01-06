@@ -1,25 +1,24 @@
-  <div class="status-bar-header">
-    <h4 class="status-title">Proposal Status</h4>
-  </div>
-  <div class="progress-container">
-    <div class="progress" id="progress"></div>
-    <% %w[not_submitted rejected pending redo approved].each do |status| %>
-      <div class="step <%= @current_status == status ? 'active' : '' %>">
-        <div class="circle"><%= image_tag "#{status}.svg" %></div>
-        <div class="label"><%= status.humanize %></div>
-      </div>
-    <% end %>
-  </div>
-
-  <% if project %>
-    <div class="student-proposal">
-      <h4>Your Current Proposal</h4>
-      <div class="cards-container">
-        <%= render partial: 'project_card', object: project, as: :project %>
-      </div>
+<div class="status-bar-header">
+  <h4 class="status-title">Proposal Status</h4>
+</div>
+<div class="progress-container">
+  <div class="progress" id="progress"></div>
+  <% %w[not_submitted rejected pending redo approved].each do |status| %>
+    <div class="step <%= @current_status == status ? 'active' : '' %>">
+      <div class="circle"><%= image_tag "#{status}.svg" %></div>
+      <div class="label"><%= status.humanize %></div>
     </div>
-  <% else %>
-    <p class="no-proposal">No proposal submitted yet.</p>
-    <%= link_to "Submit Proposal", new_course_project_path(@course), class: "btn" %>
   <% end %>
+</div>
 
+<% if project %>
+  <div class="student-proposal">
+    <h4>Your Current Proposal</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <%= render partial: "project_card", object: project, as: :project %>
+    </div>
+  </div>
+<% else %>
+  <p class="no-proposal">No proposal submitted yet.</p>
+  <%= link_to "Submit Proposal", new_course_project_path(@course), class: "btn" %>
+<% end %>

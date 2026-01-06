@@ -1,28 +1,59 @@
-<div class="project-card status-<%= project.status %>">
-  <% project_instance = project.project_instances.order(:version).last %>
-  <% if project_instance %>
-    <% is_my_topic = project.lecturer? && project.owner == current_user %>
-    <% if is_my_topic || project_viewable_by_current_user?(@course, project) %>
-      <% 
-        # breadcrumb
-        path = if project.lecturer?
-          course_topic_path(@course, project)
-        elsif local_assigns[:lecturer].present?
-          # From lecturer/show
-          course_lecturer_project_path(course, lecturer, project)
-        elsif local_assigns[:participant_id].present? && local_assigns[:participant_type].present?
-          # From student/group show
-          course_project_path(course, project, from_participant: participant_id, participant_type: participant_type)
-        else
-          # From course/show
-          course_project_path(@course, project)
-        end
-      %>
-      <%= link_to path, class: "card-link" do %>
-        <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
-      <% end %>
-    <% else %>
-      <%= render 'courses/project_card_contents', project: project, project_instance: project_instance %>
+<% project_instance = project.project_instances.order(:version).last %>
+
+<% if project_instance %>
+  <% status_key = project.status.to_s.downcase
+  header_bg =
+    case status_key
+    when "approved"
+      "bg-emerald-600"
+    when "pending"
+      "bg-sky-700"
+    when "redo"
+      "bg-amber-600"
+    when "rejected"
+      "bg-red-700"
+    else
+      "bg-gray-600"
+    end
+  
+  # --- 2. Determine Link Path ---
+  path =
+    if local_assigns[:lecturer].present?
+      course_lecturer_project_path(course, lecturer, project)
+    elsif local_assigns[:participant_id].present? &&
+          local_assigns[:participant_type].present?
+      course_project_path(
+        course,
+        project,
+        from_participant: participant_id,
+        participant_type: participant_type,
+      )
+    else
+      course_project_path(@course, project)
+    end
+  
+  # --- 3. Base Classes (Card Wrapper) ---
+  card_classes =
+    "group block relative w-full h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
+  
+  # --- 4. Visibility ---
+  can_view = project_viewable_by_current_user?(@course, project) %>
+
+  <% if can_view %>
+    <%= link_to path, class: card_classes do %>
+      <%= render "courses/project_card_contents",
+      project: project,
+      project_instance: project_instance,
+      header_bg: header_bg,
+      status_key: status_key %>
     <% end %>
+  <% else %>
+    <div class="<%= card_classes %> opacity-75 cursor-not-allowed">
+      <%= render "courses/project_card_contents",
+      project: project,
+      project_instance: project_instance,
+      header_bg: header_bg,
+      status_key: status_key %>
+    </div>
   <% end %>
-</div>
+<% end %>

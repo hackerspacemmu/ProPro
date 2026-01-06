@@ -134,10 +134,10 @@
                                 border-yellow-200 leading-none
                               "
                             >Pending</span>
-                            <%= button_to resend_invite_path(member.user), 
-                                method: :post, 
-                                form: { class: "inline-flex items-center" }, 
-                                class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors", 
+                            <%= button_to resend_invite_path(member.user),
+                                method: :post,
+                                form: { class: "inline-flex items-center" },
+                                class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors",
                                 title: "Resend Invite" do %>
                               <%= image_tag "email.svg", class: "w-4 h-4 opacity-80 hover:opacity-100 block" %>
                             <% end %>
@@ -160,7 +160,7 @@
                 </td>
 
                 <%# 4. Status %>
-                <td class="px-4 whitespace-nowrap align-top text-center">
+                <td class="px-4 pt-3 whitespace-nowrap align-top text-center">
                   <% badge_classes, dot_class =
                     case status.to_s.downcase
                     when "approved"
@@ -274,10 +274,10 @@
                             border-yellow-200 leading-none
                           "
                         >Pending</span>
-                        <%= button_to resend_invite_path(student), 
-                            method: :post, 
-                            form: { class: "inline-flex items-center" }, 
-                            class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors", 
+                        <%= button_to resend_invite_path(student),
+                            method: :post,
+                            form: { class: "inline-flex items-center" },
+                            class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors",
                             title: "Resend Invite" do %>
                           <%= image_tag "email.svg", class: "w-4 h-4 opacity-80 hover:opacity-100 block" %>
                         <% end %>
@@ -305,7 +305,7 @@
                 </td>
 
                 <%# 4. Status %>
-                <td class="px-4 whitespace-nowrap align-top text-center">
+                <td class="px-4 pt-2.5 whitespace-nowrap align-top text-center">
                   <% badge_classes, dot_class =
                     case status.to_s.downcase
                     when "approved"
