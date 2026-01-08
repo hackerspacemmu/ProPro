@@ -9,5 +9,7 @@ indent_style = space
 indent_size = 4
 
 [*.{rb, erb, rake}]
-indent_style = space
+indent_size = 2
+
+[*.js]
 indent_size = 2
