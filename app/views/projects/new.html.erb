@@ -83,7 +83,8 @@
                   nil,
                   class: input_classes,
                   placeholder: "Enter #{field.label.downcase}...",
-                  required: true %>
+                  required: true,
+                  autocomplete: "off" %>
 
                 <% when "textarea" %>
                   <%= text_area_tag "fields[#{field.id}]",
@@ -135,7 +136,7 @@
                   </div>
 
                 <% else %>
-                  <%= text_field_tag "fields[#{field.id}]", nil, class: input_classes, required: true %>
+                  <%= text_field_tag "fields[#{field.id}]", nil, class: input_classes, required: true, autocomplete: "off" %>
                 <% end %>
               </div>
             <% end %>

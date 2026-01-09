@@ -24,10 +24,10 @@
 
           <% case field.field_type %>
           <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
 
           <% when "textarea" %>
-            <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+            <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
 
           <% when "dropdown" %>
             <% options = field.option_list %>
@@ -47,7 +47,7 @@
               </div>
             <% end %>
           <% else %>
-            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
+            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true, autocomplete: "off" %>
           <% end %>
         </div>
       <% end %>

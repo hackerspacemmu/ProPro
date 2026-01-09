@@ -119,7 +119,7 @@
         <% old_lines = old_val.split("\n") %>
         <% new_lines = new_val.split("\n") %>
 
-        <% # Use Diff::LCS to align line changes properly %>
+        <%# Use Diff::LCS to align line changes properly %>
         <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
 
         <% aligned_left  = [] %>
@@ -158,7 +158,7 @@
             <% old_line = change.old_element.to_s %>
             <% new_line = change.new_element.to_s %>
 
-            <% # 🔹 Do word-level diff inside this line %>
+            <%# 🔹 Do word-level diff inside this line %>
             <% old_words = old_line.split(/(\s+)/) %>
             <% new_words = new_line.split(/(\s+)/) %>
             <% word_diffs = Diff::LCS.sdiff(old_words, new_words) %>

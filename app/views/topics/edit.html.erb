@@ -28,7 +28,7 @@
 
           <% case field.field_type %>
           <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
+            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
           <% when "textarea" %>
             <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
           <% when "dropdown" %>
@@ -49,7 +49,7 @@
             <% end %>
             </div>
           <% else %>
-            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
+            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true, autocomplete: "off" %>
           <% end %>
         </div>
       <% end %>

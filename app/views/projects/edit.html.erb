@@ -85,7 +85,8 @@
                   existing_value,
                   class: input_classes,
                   placeholder: field.hint,
-                  required: true %>
+                  required: true,
+                  autocomplete: "off" %>
 
                 <% when "textarea" %>
                   <%= text_area_tag "fields[#{field.id}]",
@@ -140,7 +141,8 @@
                   <%= text_field_tag "fields[#{field.id}]",
                   existing_value,
                   class: input_classes,
-                  required: true %>
+                  required: true,
+                  autocomplete: "off" %>
                 <% end %>
               </div>
             <% end %>
