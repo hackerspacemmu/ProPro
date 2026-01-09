@@ -52,7 +52,6 @@ gem 'thruster', require: false
 gem 'rubocop', require: false
 
 # Linting for ERB and HTML Files
-gem 'erb_lint', require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
@@ -78,5 +77,3 @@ group :test do
   gem 'capybara'
   gem 'selenium-webdriver'
 end
-
-gem 'erb-formatter', '~> 0.7.3'
