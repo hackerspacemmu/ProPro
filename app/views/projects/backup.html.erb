@@ -7,7 +7,7 @@
 <% if current_version < oldest_version %>
   <%= link_to "< Previous", course_project_path(@course, @project, version: current_version + 1) %>
 <% else %>
-  <span style="color: gray;">< Previous</span>
+  <span style="color: gray;"><Previous>
 <% end %>
 
 <% if current_version > latest_version %>
@@ -20,7 +20,6 @@
 
 <p><%= current_user&.username %></p>
 <p><%= @type %></p>
-
 
 <!-- Title -->
 <h2><%= @current_instance.title %></h2>
@@ -48,7 +47,6 @@
   <p><strong>Group Members:</strong> <%= @members.map(&:username).join(", ") %></p>
 <% end %>
 
-
 <p><strong>Status: </strong><%= @project.status %></p>
 
 <!-- Change Status --!>
@@ -71,7 +69,6 @@
 <% end %>
 
 <p><% @lecturers %></p>
-
 
 <p>
   <%= link_to "Back to all proposals", course_projects_path(@course) %>

@@ -21,8 +21,8 @@
     </header>
     <div class="project-list-gapper">
       <div class="cards-container">
-        <% available_topics = topic_list.select { |topic| 
-             topic_viewable_by_current_user?(course, topic) 
+        <% available_topics = topic_list.select { |topic|
+             topic_viewable_by_current_user?(course, topic)
            } %>
         <% if available_topics.any? %>
           <%= render partial: 'topic_card', collection: available_topics, as: :topic %>

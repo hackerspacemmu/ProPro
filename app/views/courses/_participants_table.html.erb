@@ -10,8 +10,7 @@
             class="
               px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
               <%= @course.grouped? ? 'w-[14.28%]' : 'w-1/3' %>
-            "
-          >
+            ">
             <div class="flex items-center justify-start gap-2">
               <%= image_tag "alphabet.svg", class: "w-5 h-5 opacity-70" %>
               <%= @course.grouped? ? "Group Name" : "Student Name" %>
@@ -23,8 +22,7 @@
             class="
               px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
               <%= @course.grouped? ? 'w-1/3' : 'w-[14.28%]' %>
-            "
-          >
+            ">
             <div class="flex items-center justify-start gap-2">
               <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
               <%= @course.grouped? ? "Members" : "Student ID" %>
@@ -37,8 +35,7 @@
             class="
               px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
               w-1/5
-            "
-          >
+            ">
             <div class="flex items-center justify-start gap-2">
               <%= image_tag "project.svg", class: "w-5 h-5 opacity-70" %>
               Project Title
@@ -51,8 +48,7 @@
             class="
               px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider
               w-1/8
-            "
-          >
+            ">
             <div class="flex items-center justify-center gap-2">
               <%= image_tag "status_grey.svg", class: "w-5 h-5 opacity-70" %>
               Status
@@ -65,8 +61,7 @@
             class="
               px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
               w-1/4
-            "
-          >
+            ">
             <div class="flex items-center justify-start gap-2">
               <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
               Supervisor
@@ -88,15 +83,13 @@
               <tr
                 class="
                   hover:bg-gray-50 transition-colors duration-150 group divide-x divide-gray-200
-                "
-              >
+                ">
 
                 <%# 1. Group Name %>
                 <td
                   class="
                     px-4 py-4 text-sm font-medium text-gray-900 align-top break-words text-center
-                  "
-                >
+                  ">
                   <%= link_to participant_profile_course_path(@course, group.id, 'group'), class: "hover:text-gray-700 hover:underline" do %>
                     <%= group.group_name || "Group #{group.id}" %>
                   <% end %>
@@ -114,8 +107,7 @@
                               inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200
                               text-[10px] font-bold text-gray-600 align-middle mr-1
                               group-hover/member:bg-gray-300 transition-colors
-                            "
-                          >
+                            ">
                             <%= member.user.username.first.upcase %>
                           </div>
                           <span class="text-xs text-gray-700 align-middle group-hover/member:underline"><%= member.user.username || "-" %></span>
@@ -126,14 +118,12 @@
                           <span
                             class="
                               inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap
-                            "
-                          >
+                            ">
                             <span
                               class="
                                 bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border
                                 border-yellow-200 leading-none
-                              "
-                            >Pending</span>
+                              ">Pending</span>
                             <%= button_to resend_invite_path(member.user),
                                 method: :post,
                                 form: { class: "inline-flex items-center" },
@@ -181,8 +171,7 @@
                     class="
                       inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
                       <%= badge_classes %> capitalize hover:opacity-80
-                    "
-                  >
+                    ">
                     <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                     <%= status.humanize %>
                   </a>
@@ -192,8 +181,7 @@
                 <td
                   class="
                     px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
-                  "
-                >
+                  ">
                   <% if supervisor.present? %>
                     <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
                       <div
@@ -201,16 +189,14 @@
                           w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
                           font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
                           group-hover/sup:text-gray-700 transition-colors
-                        "
-                      >
+                        ">
                         <%= supervisor.username.first.upcase %>
                       </div>
                       <span
                         class="
                           truncate max-w-[150px] group-hover/sup:text-gray-700
                         "
-                        title="<%= supervisor.username %>"
-                      >
+                        title="<%= supervisor.username %>">
                         <%= supervisor.username %>
                       </span>
                     <% end %>
@@ -243,8 +229,7 @@
               <tr
                 class="
                   hover:bg-gray-50 transition-colors duration-150 group divide-x divide-gray-200
-                "
-              >
+                ">
 
                 <%# 1. Student Name %>
                 <td class="px-4 py-4 text-sm font-medium text-gray-900 align-top text-left">
@@ -255,8 +240,7 @@
                         class="
                           inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200
                           text-[10px] font-bold text-gray-600 align-middle mr-1
-                        "
-                      >
+                        ">
                         <%= student.username.first.upcase %>
                       </div>
                       <span class="align-middle group-hover/member:underline"><%= student.username || "-" %></span>
@@ -266,14 +250,12 @@
                       <span
                         class="
                           inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap
-                        "
-                      >
+                        ">
                         <span
                           class="
                             bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border
                             border-yellow-200 leading-none
-                          "
-                        >Pending</span>
+                          ">Pending</span>
                         <%= button_to resend_invite_path(student),
                             method: :post,
                             form: { class: "inline-flex items-center" },
@@ -326,8 +308,7 @@
                     class="
                       inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
                       <%= badge_classes %> capitalize hover:opacity-80
-                    "
-                  >
+                    ">
                     <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                     <%= status.humanize %>
                   </a>
@@ -337,8 +318,7 @@
                 <td
                   class="
                     px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
-                  "
-                >
+                  ">
                   <% if supervisor.present? %>
                     <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
                       <div
@@ -346,16 +326,14 @@
                           w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
                           font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
                           group-hover/sup:text-gray-700 transition-colors
-                        "
-                      >
+                        ">
                         <%= supervisor.username.first.upcase %>
                       </div>
                       <span
                         class="
                           truncate max-w-[150px] group-hover/sup:text-gray-700
                         "
-                        title="<%= supervisor.username %>"
-                      >
+                        title="<%= supervisor.username %>">
                         <%= supervisor.username %>
                       </span>
                     <% end %>

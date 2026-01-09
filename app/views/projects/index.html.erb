@@ -8,7 +8,6 @@
     <%= submit_tag "Search" %>
     <% end %>
 
-    
   <% @projects.each do |project| %>
     <% latest_instance = project.project_instances.order(version: :desc).first %>
     <% description_field = latest_instance&.project_instance_fields&.find do |field|

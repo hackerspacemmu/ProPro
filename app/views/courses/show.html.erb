@@ -18,8 +18,7 @@ current_user_enrolment: @current_user_enrolment %>
     <div
       class="
         border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5
-      "
-    >
+      ">
       <form>
         <h4 class="break-all whitespace-pre-line text-xl">Project Details</h4>
         <p class="text-[1rem] mt-3 leading-[1.3] whitespace-pre-line text-gray-500"><%= @description || "No description available for this course." %></p>
@@ -30,20 +29,17 @@ current_user_enrolment: @current_user_enrolment %>
           class="text-decoration-none max-w-max text-inherit"
           href="<%= @course.file_link %>"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           <div
             class="
               text-[#313848] inline-block flex-wrap z-0 border-2 border-[#ebf0f9] pl-4 pr-5
               pt-4 pb-3 rounded-[12px] mt-4
-            "
-          >
+            ">
             <div
               class="
                 file-icon flex items-center justify-center mr-4 bg-[#399be2] rounded-[10px]
                 w-[40px] h-[40px] shrink-0
-              "
-            >
+              ">
               <%= image_tag "folder.svg" %>
             </div>
             <div class="flex flex-col justify-center font-bold font-lg mt-1">

@@ -1,12 +1,12 @@
 <div class="field-row" data-field-index="<%= field_form.index %>">
   <% is_project_title = field_form.object.label == "Project Title" %>
-  
+
   <% unless is_project_title %>
     <button type="button" class="remove-field">
       <%= image_tag("delete.svg") %>
     </button>
   <% end %>
- 
+
   <div class="row">
     <div class="column">
       <% if is_project_title %>
@@ -17,7 +17,7 @@
     </div>
     <div class="hint-row">
       <%= field_form.text_area :hint, placeholder: "Hint Text" %>
-    </div>  
+    </div>
     <div class="column">
       <% if is_project_title %>
         <%= field_form.select :field_type,
@@ -61,6 +61,6 @@
       <% end %>
     </div>
   </div>
- 
+
   <%= field_form.hidden_field :_destroy, value: false, class: "destroy-flag" %>
 </div>

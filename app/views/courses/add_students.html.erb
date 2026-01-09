@@ -1,5 +1,5 @@
 <% content_for :stylesheets do %>
-    <%= stylesheet_link_tag "tailwind","new_tailwind"%>
+    <%= stylesheet_link_tag "tailwind","new_tailwind" %>
     <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% content_for :title, "Add Students - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
@@ -17,7 +17,7 @@
         <div class="flex w-full justify-self-start px-5">
             <%= form_with url: handle_add_students_course_path, class:"w-full", method: :post do |form| %>
                 <p class="flex justify-start mb-3">Upload CSV export from EBwise: </p>
-                
+
                 <div class="flex justify-between content-center">
                     <%= form.file_field :csv_file, class:"content-center w-full border border-gray-300 rounded-lg cursor-pointer bg-gray-50 file:border-gray-300 file:rounded-l-lg file:h-full file:bg-gray-300 hover:file:bg-gray-400 file:px-1 lg:file:px-5" %>
                     <%= form.submit "Add Students", class:"flex rounded-md bg-green-400 hover:bg-green-600 py-[4px] px-[10px] mx-[5px] my-[5px] hover:cursor-pointer hover:cursor-pointer" %>
@@ -66,7 +66,7 @@
                         You may refer to a sample screenshot below.
                     </p><br>
                     <%= image_tag "#{"Source of Solo Students"}.png" %>
-                </div><br><br>   
+                </div><br><br>
             <% end %>
 
         </div>
