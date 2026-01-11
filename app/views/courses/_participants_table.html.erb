@@ -356,7 +356,7 @@
                     <%# --- PROGRESS INDICATOR (Below Badge) --- %>
                     <% if use_progress_updates && student_project.present? && project_status == "approved" %>
                       <% count = student_project.progress_updates.count %>
-                      <span class="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                      <span class="text-sm text-gray-400 font-medium flex items-center gap-1">
                         <%= count %>
                         updates
                       </span>
