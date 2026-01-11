@@ -1,0 +1,53 @@
+#!/usr/bin/bash
+
+set -e
+
+js_files=$(echo "$1" | grep -E '\.js$') || true
+css_files=$(echo "$1" | grep -E '\.css$') || true
+rb_files=$(echo "$1" | grep -E '\.rb$') || true
+erb_files=$(echo "$1" | grep -E '\.erb$') || true
+
+if [ -n "$js_files" ]; then
+    echo "Linting JavaScript files..."
+    if npx eslint --fix "$js_files" --max-warnings 0; then
+        echo "JavaScript linting passed."
+    else
+        echo "JavaScript linting failed."
+        exit 1
+    fi
+    echo "Formatting JavaScript files..."
+    npx prettier --write "$js_files"
+else
+    echo "No JavaScript files to lint or format."
+fi
+
+if [ -n "$css_files" ]; then
+    echo "Formatting CSS files..."
+    npx prettier --write "$css_files"
+else
+    echo "No CSS files to lint or format."
+fi
+
+if [ -n "$erb_files" ]; then
+    echo "Linting ERB files..."
+    if npx @herb-tools/linter --fix "$erb_files" --fail-level warning; then
+        echo "ERB linting passed."
+    else
+        echo "ERB linting failed."
+        exit 1
+    fi
+else
+    echo "No ERB files to lint."
+fi
+
+if [ -n "$rb_files" ]; then
+    echo "Linting and formatting Ruby files..."
+    if bundle exec rubocop -a "$rb_files" --fail-level warning; then
+        echo "Ruby linting passed."
+    else
+        echo "Ruby linting failed."
+        exit 1
+    fi
+else
+    echo "No Ruby files to lint."
+fi
