@@ -46,6 +46,7 @@
                 <%= label_tag "field_#{field.id}_#{idx}", option %>
               </div>
             <% end %>
+            </div>
           <% else %>
             <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true, autocomplete: "off" %>
           <% end %>
