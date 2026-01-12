@@ -42,7 +42,10 @@ fi
 
 if [ -n "$rb_files" ]; then
     echo "Linting and formatting Ruby files..."
-    if bundle exec rubocop -a $rb_files --fail-level error; then
+
+    # Force exclusion ensures that .rubocop.yml exclusions are respected
+    # Even if I shove those files to rubocop
+    if bundle exec rubocop -a $rb_files --fail-level error --force-exclusion; then
         echo "Ruby linting passed."
     else
         echo "Ruby linting failed."
