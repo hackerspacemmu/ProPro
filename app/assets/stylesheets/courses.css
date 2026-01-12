@@ -112,10 +112,6 @@ html {
 
 /* progress container (alex) */
 
-.status-bar-header {
-    margin-left: 16px;
-}
-
 .status-bar-container {
     background-color: inherit;
     margin-bottom: 30px;

@@ -1,3 +1,5 @@
+<%# --- locals: course, use_progress_updates %>
+
 <section class="mb-8 scroll-mt-24" id="participants" data-turbo="false">
   <div
     class="
@@ -128,6 +130,8 @@
     </header>
 
     <%# Table Content %>
+
+    <% use_progress_updates = local_assigns[:use_progress_updates] %>
     <% unless participants_exceed?(@course) && !local_assigns[:fullpage] %>
       <div id="participants-table-container" class="overflow-x-auto">
         <%= render "courses/participants_table",
@@ -135,7 +139,8 @@
         group_list: @filtered_group_list,
         student_list: @filtered_student_list,
         students_with_projects: @students_with_projects,
-        students_without_projects: @students_without_projects %>
+        students_without_projects: @students_without_projects,
+        use_progress_updates: use_progress_updates %>
       </div>
 
       <div

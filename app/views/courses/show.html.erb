@@ -89,5 +89,7 @@ current_user_enrolment: @current_user_enrolment %>
     lecturers: @lecturers %>
   <% end %>
 
-  <%= render "participants", course: @course %>
+  <%= render "participants",
+  course: @course,
+  use_progress_updates: @course.use_progress_updates %>
 </div>
