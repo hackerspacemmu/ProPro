@@ -10,150 +10,150 @@
  */
 
 body {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
 }
 
 /* top bar */
 
 .topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #e1e1e1;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e1e1e1;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  z-index: 100;
 }
 
 .topbar > a:first-child {
-    color: #000000;
-    padding: 20px 20px;
-    text-decoration: none;
-    font-size: 25px;
-    font-weight: bold;
-    flex-shrink: 0;
+  color: #000000;
+  padding: 20px 20px;
+  text-decoration: none;
+  font-size: 25px;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
 .topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-left: 64px;
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 64px;
+  margin-left: auto;
 }
 
 .topbar-icon {
-    display: flex;
-    align-items: center;
-    color: #999999;
-    font-size: 18px;
-    font-weight: normal;
-    text-decoration: none;
-    padding: 0 24px 0 0;
-    height: 100%;
+  display: flex;
+  align-items: center;
+  color: #999999;
+  font-size: 18px;
+  font-weight: normal;
+  text-decoration: none;
+  padding: 0 24px 0 0;
+  height: 100%;
 }
 
 .topbar-icon img {
-    width: 28px;
-    height: 28px;
-    display: block;
-    color: black;
+  width: 28px;
+  height: 28px;
+  display: block;
+  color: black;
 }
 
 .topbar-info {
-    vertical-align: middle;
-    font-size: 14px;
-    font-weight: normal;
-    color: #7e7e7e;
-    margin-left: 8px;
+  vertical-align: middle;
+  font-size: 14px;
+  font-weight: normal;
+  color: #7e7e7e;
+  margin-left: 8px;
 }
 
 /* breadcrumb */
 
 .breadcrumb {
-    background-color: #b5b5b5;
-    position: fixed;
-    top: 70px;
-    left: 0;
-    height: 36px;
-    width: 100%;
-    z-index: 5;
-    padding: 10px 25px;
-    display: flex;
-    align-items: center;
+  background-color: #b5b5b5;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  height: 36px;
+  width: 100%;
+  z-index: 5;
+  padding: 10px 25px;
+  display: flex;
+  align-items: center;
 }
 
 .breadcrumb,
 .breadcrumb ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    gap: 7px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 7px;
 }
 
 .breadcrumb li {
-    display: inline;
-    font-size: 14px;
+  display: inline;
+  font-size: 14px;
 }
 
 .breadcrumb a {
-    color: #000000;
-    text-decoration: none;
-    margin-left: 10px;
+  color: #000000;
+  text-decoration: none;
+  margin-left: 10px;
 }
 
 .breadcrumb a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .breadcrumb b,
 .breadcrumb .current {
-    color: #000000;
-    font-weight: normal;
+  color: #000000;
+  font-weight: normal;
 }
 
 /* side bar */
 
 .sidebar {
-    height: 100%;
-    width: 240px;
-    position: fixed;
-    z-index: 1;
-    top: 106px;
-    left: 0;
-    background-color: #f8f9fa;
-    overflow-x: hidden;
-    padding: 15px 15px;
+  height: 100%;
+  width: 240px;
+  position: fixed;
+  z-index: 1;
+  top: 106px;
+  left: 0;
+  background-color: #f8f9fa;
+  overflow-x: hidden;
+  padding: 15px 15px;
 }
 
 .sidebar a {
-    padding: 10px 15px 15px 15px;
-    text-decoration: none;
-    font-size: 14px;
-    color: #000000;
-    display: block;
+  padding: 10px 15px 15px 15px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #000000;
+  display: block;
 }
 
 .sidebar a:hover {
-    color: #58c7ff;
+  color: #58c7ff;
 }
 
 .side-action {
-    margin-top: 300px;
+  margin-top: 300px;
 }
 
 .sidebar-divider {
-    opacity: 0.6;
-    margin-top: 50px;
+  opacity: 0.6;
+  margin-top: 50px;
 }
