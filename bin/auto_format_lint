@@ -9,7 +9,7 @@ erb_files=$(echo "$1" | grep -E '\.erb$') || true
 
 if [ -n "$js_files" ]; then
     echo "Linting JavaScript files..."
-    if npx eslint --fix $js_files --max-warnings 0; then
+    if npx eslint --fix $js_files; then
         echo "JavaScript linting passed."
     else
         echo "JavaScript linting failed."
@@ -30,7 +30,7 @@ fi
 
 if [ -n "$erb_files" ]; then
     echo "Linting ERB files..."
-    if npx @herb-tools/linter --fix $erb_files --fail-level warning; then
+    if npx @herb-tools/linter --fix $erb_files; then
         echo "ERB linting passed."
     else
         echo "ERB linting failed."
@@ -42,7 +42,7 @@ fi
 
 if [ -n "$rb_files" ]; then
     echo "Linting and formatting Ruby files..."
-    if bundle exec rubocop -a $rb_files --fail-level warning; then
+    if bundle exec rubocop -a $rb_files --fail-level error; then
         echo "Ruby linting passed."
     else
         echo "Ruby linting failed."
