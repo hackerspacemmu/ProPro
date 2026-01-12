@@ -6,8 +6,5 @@
     "globals": "^16.5.0",
     "lint-staged": "^16.2.7",
     "prettier": "3.7.4"
-  },
-  "scripts": {
-    "prepare": "git config core.hooksPath .git_hooks"
   }
 }

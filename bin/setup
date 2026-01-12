@@ -14,6 +14,11 @@ FileUtils.chdir APP_ROOT do
 
   puts "== Installing dependencies =="
   system("bundle check") || system!("bundle install")
+  system! "npm install"
+
+  puts "\n== Setting up Git configurations =="
+  system! "git config core.hooksPath .git_hooks"
+  system! "git config blame.ignoreRevsFile .git-blame-ignore-revs"
 
   # puts "\n== Copying sample files =="
   # unless File.exist?("config/database.yml")
@@ -31,4 +36,4 @@ FileUtils.chdir APP_ROOT do
     STDOUT.flush # flush the output before exec(2) so that it displays
     exec "bin/dev"
   end
-end
+ end
