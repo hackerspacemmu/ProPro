@@ -53,28 +53,23 @@
               >
                 <option
                   value="all"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>
                 >All Statuses</option>
                 <option
                   value="approved"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'approved' %>
                 >Approved</option>
                 <option
                   value="pending"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'pending' %>
                 >Pending</option>
                 <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
                 <option
                   value="rejected"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'rejected' %>
                 >Rejected</option>
                 <option
                   value="not_submitted"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'not_submitted' %>
                 >Not Submitted</option>
               </select>
