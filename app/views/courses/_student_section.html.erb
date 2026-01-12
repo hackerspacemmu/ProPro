@@ -1,33 +1,51 @@
-<section class="proposal-status" id="proposal-status">
-  <div class="status-bar-container">
-    <%= render 'project_status_bar', project: project, course: course, enrolment: current_user_enrolment %>
+<% container_classes =
+  "border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5" %>
+
+<section id="proposal-status">
+  <div class="<%= container_classes %>">
+    <%= render "project_status_bar",
+    project: project,
+    course: course,
+    enrolment: current_user_enrolment %>
   </div>
 </section>
 
-<section class="supervisors-available" id="supervisors-available">
-  <div class="container">
-    <h4>Supervisors Available</h4>
-    <ul class="supervisors">
-      <%= render partial: 'lecturers', collection: lecturers, as: :lecturer, locals: { course: course } %>
+<section id="supervisors-available">
+  <div class="<%= container_classes %>">
+    <header>
+      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Supervisors Available</h4>
+    </header>
+    <ul
+      class="
+        list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5
+      "
+    >
+      <%= render partial: "lecturers",
+      collection: lecturers,
+      as: :lecturer,
+      locals: {
+        course: course,
+      } %>
     </ul>
   </div>
 </section>
 
-<section class="available-topics" id="available-topics">
-  <div class="container">
-    <header class="section-header">
-      <h4>Available Topics</h4>
-      <p class="section-description">Topics available for selection</p>
+<section id="available-topics">
+  <div class="<%= container_classes %>">
+    <header>
+      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Available Topics</h4>
+      <p class="text-gray-500">Topics available for selection</p>
     </header>
-    <div class="project-list-gapper">
-      <div class="cards-container">
-        <% available_topics = topic_list.select { |topic|
-             topic_viewable_by_current_user?(course, topic)
-           } %>
+
+    <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <% available_topics =
+          topic_list.select { |topic| topic_viewable_by_current_user?(course, topic) } %>
+
         <% if available_topics.any? %>
-          <%= render partial: 'topic_card', collection: available_topics, as: :topic %>
+          <%= render partial: "topic_card", collection: available_topics, as: :topic %>
         <% else %>
-          <p class="empty-state">No topics are currently available.</p>
+          <p class="mt-1 col-span-full text-left">No topics are currently available.</p>
         <% end %>
       </div>
     </div>

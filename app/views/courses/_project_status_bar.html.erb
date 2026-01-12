@@ -1,24 +1,71 @@
-<div class="status-bar-header">
-  <h4 class="status-title">Proposal Status</h4>
-</div>
-<div class="progress-container">
-  <div class="progress" id="progress"></div>
-  <% %w[not_submitted rejected pending redo approved].each do |status| %>
-    <div class="step <%= @current_status == status ? 'active' : '' %>">
-      <div class="circle"><%= image_tag "#{status}.svg" %></div>
-      <div class="label"><%= status.humanize %></div>
+<% container_classes = "w-full py-2 px-0 mb-1" %>
+
+<div class="<%= container_classes %>">
+  <div class="mb-2">
+    <h4 class="text-xl text-black font-normal ml-0">Proposal Status</h4>
+  </div>
+
+  <div
+    class="
+      relative flex justify-between items-center w-full max-w-[600px] mx-auto mb-14
+    "
+  >
+
+    <div
+      class="
+        absolute top-1/2 left-0 w-full h-[2px] bg-[#8e8e8e] -translate-y-1/2 -z-0
+      "
+    ></div>
+
+    <% %w[not_submitted rejected pending redo approved].each do |status| %>
+      <% is_active = @current_status == status %>
+
+      <div class="relative z-10 flex flex-col items-center justify-center h-10 w-10">
+
+        <div
+          class="
+            flex items-center justify-center rounded-full border-2 bg-white transition-all
+            duration-300 <%= is_active ? 'w-10 h-10 border-[#8e8e8e] bg-[#f2f3f7]' : 'w-[17px] h-[17px] border-[#8e8e8e]' %>
+          "
+        >
+          <% if is_active %>
+            <%= image_tag "#{status}.svg", class: "w-5 h-5" %>
+          <% end %>
+        </div>
+
+        <div
+          class="
+            absolute top-11 left-1/2 -translate-x-1/2 whitespace-nowrap text-center
+            <%= is_active ? 'block' : 'hidden sm:block' %>
+          "
+        >
+          <span
+            class="
+              text-[10px] sm:text-xs <%= is_active ? 'text-black font-medium' : 'text-[#454343] opacity-60' %>
+            "
+          >
+            <%= status.humanize %>
+          </span>
+        </div>
+
+      </div>
+    <% end %>
+  </div>
+
+  <% if project %>
+    <div class="mt-8 border-t border-gray-200 pt-6">
+      <h4 class="text-xl text-black font-normal mb-4">Your Current Proposal</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <%= render partial: "project_card", object: project, as: :project %>
+      </div>
+    </div>
+  <% else %>
+    <div class="mt-8 border-t border-gray-200 pt-8 pb-4 text-center">
+      <p class="text-sm text-gray-500 mb-4">No proposal submitted yet.</p>
+      <%= link_to "Submit Proposal",
+      new_course_project_path(@course),
+      class:
+        "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
     </div>
   <% end %>
 </div>
-
-<% if project %>
-  <div class="student-proposal">
-    <h4>Your Current Proposal</h4>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <%= render partial: "project_card", object: project, as: :project %>
-    </div>
-  </div>
-<% else %>
-  <p class="no-proposal">No proposal submitted yet.</p>
-  <%= link_to "Submit Proposal", new_course_project_path(@course), class: "btn" %>
-<% end %>
