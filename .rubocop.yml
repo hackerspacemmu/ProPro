@@ -1,13 +1,18 @@
 plugins:
-    - rubocop-rails
+  - rubocop-rails
 
 AllCops:
-    NewCops: enable
+  NewCops: enable
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'bin/{rails,rake}'
 
-# No need for frozen string literal comments in modern Ruby versions
-# See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
+  # No need for frozen string literal comments in modern Ruby versions
+  # See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
 Style/FrozenStringLiteralComment:
-    Enabled: false
+  Enabled: false
 
 Layout/LineLength:
-    Enabled: false
+  Enabled: false
