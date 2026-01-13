@@ -19,6 +19,7 @@ FileUtils.chdir APP_ROOT do
   puts "\n== Setting up Git configurations =="
   system! "git config core.hooksPath .git_hooks"
   system! "git config blame.ignoreRevsFile .git-blame-ignore-revs"
+  system! "git config core.autocrlf false"
 
   # puts "\n== Copying sample files =="
   # unless File.exist?("config/database.yml")
