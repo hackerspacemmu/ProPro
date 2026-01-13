@@ -65,7 +65,8 @@ class CoursesController < ApplicationController
              group_list: @filtered_group_list,
              student_list: @filtered_student_list,
              students_with_projects: @students_with_projects,
-             students_without_projects: @students_without_projects
+             students_without_projects: @students_without_projects,
+             use_progress_updates: @course.use_progress_updates
            }
     nil
   end
@@ -694,9 +695,12 @@ class CoursesController < ApplicationController
   end
 
   def filtered_group_list
-    return @group_list unless params[:status_filter].present? && params[:status_filter] != 'all'
-
-    groups_by_status(params[:status_filter], @group_list, @course)
+    group_list = if params[:status_filter].present? && params[:status_filter] != 'all'
+                   groups_by_status(params[:status_filter], @group_list, @course)
+                 else
+                   @group_list
+                 end
+    group_list.sort_by(&:group_name)
   end
 
   def filtered_student_list
