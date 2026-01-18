@@ -2,6 +2,7 @@
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% breadcrumb :new_course %>
+<% content_for :hide_toggler, true %>
 <% content_for :title, "Create Course | ProPro" %>
 <% content_for :body_class, "bg-gray-100" %>
 
@@ -91,12 +92,13 @@
                               autofocus: true,
                               placeholder: "Enter Course Name",
                               class:
-                                "block w-full rounded-lg border-gray-400 py-3 px-4 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm shadow-sm transition duration-150 ease-in-out" %>
+                                "block w-full bg-zinc-50 rounded-lg border-gray-400 py-3 px-4 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm shadow-sm transition duration-150 ease-in-out" %>
             </div>
           </div>
 
-          <fieldset class="bg-gray-50 rounded-xl p-6 border border-gray-100">
-            <legend class="text-base font-semibold text-gray-900 mb-4">How will students work?</legend>
+          <p class="text-base font-semibold text-gray-900 mb-4">How will students work?</p>
+          <fieldset class="bg-zinc-50 rounded-xl p-6 border border-gray-100">
+
             <div class="space-y-4">
 
               <div class="flex items-start">
@@ -112,7 +114,7 @@
                              "In groups",
                              value: true,
                              class: "font-medium text-gray-900 cursor-pointer" %>
-                  <p class="text-gray-500">Students will be assigned to teams for this course.</p>
+                  <p class="text-gray-500">Students will be assigned to groups.</p>
                 </div>
               </div>
 
@@ -129,14 +131,14 @@
                              "By themselves",
                              value: false,
                              class: "font-medium text-gray-900 cursor-pointer" %>
-                  <p class="text-gray-500">Students work individually on all assignments.</p>
+                  <p class="text-gray-500">Students work individually.</p>
                 </div>
               </div>
 
             </div>
           </fieldset>
 
-          <div class="pt-2">
+          <div>
             <%= form.submit "Create Course",
                         class:
                           "w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 cursor-pointer" %>
