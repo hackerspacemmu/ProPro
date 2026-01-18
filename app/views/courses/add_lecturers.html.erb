@@ -17,7 +17,7 @@
 
             <%= form_with url: handle_add_lecturers_course_path, method: :post do |form| %>
             <p>Add lecturers<br>Use format <strong>EMAIL&semi;</strong> for each entry</p>
-            <%= form.text_field :invited_lecturers, required: true, placeholder: "Additions"%><br>
+            <%= form.text_field :invited_lecturers, required: true, placeholder: "Additions" %><br>
 
             <%= form.submit "Add Lecturers" %>
             <% end %>

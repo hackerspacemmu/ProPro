@@ -8,6 +8,6 @@ class CreateProjectInstances < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :project_instances, [:project_id, :version], unique: true
+    add_index :project_instances, %i[project_id version], unique: true
   end
 end

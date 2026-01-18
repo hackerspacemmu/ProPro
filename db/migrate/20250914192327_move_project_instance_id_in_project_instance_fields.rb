@@ -3,9 +3,7 @@ class MoveProjectInstanceIdInProjectInstanceFields < ActiveRecord::Migration[8.0
     ActiveRecord::Base.transaction do
       ProjectInstanceField.find_each do |project_instance_field|
         # The seeds don't need this migration but live does
-        if project_instance_field.project_instance_id.nil?
-          next
-        end
+        next if project_instance_field.project_instance_id.nil?
 
         topic_instance = Topic.find_by(id: project_instance_field.project_instance_id)
         project_instance = Project.find_by(id: project_instance_field.project_instance_id)

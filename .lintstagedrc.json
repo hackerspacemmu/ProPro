@@ -1,0 +1,6 @@
+{
+    "*.js": [ "npx eslint --fix", "npx prettier --write" ],
+    "*.css": [ "npx prettier --write" ],
+    "*.rb": [ "bundle exec rubocop -a" ],
+    "*.erb": [ "npx @herb-tools/linter --fix" ]
+}

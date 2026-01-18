@@ -1,6 +1,6 @@
-require_relative "boot"
+require_relative 'boot'
 
-require "rails/all"
+require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -23,11 +23,10 @@ module Propro
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    config.time_zone = "Asia/Singapore"
+    config.time_zone = 'Asia/Singapore'
 
     # view constants thresholds
     config.participants_threshold = 500
     config.supervisors_threshold = 100
-
   end
 end

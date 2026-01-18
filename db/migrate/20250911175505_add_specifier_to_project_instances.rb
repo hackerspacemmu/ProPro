@@ -12,9 +12,9 @@ class AddSpecifierToProjectInstances < ActiveRecord::Migration[8.0]
         topic = Topic.find_by(id: project_instance.project_id)
         project = Project.find_by(id: project_instance.project_id)
 
-        if (topic && !project)
+        if topic && !project
           project_instance.update_columns(type: :topic)
-        elsif (project && !topic)
+        elsif project && !topic
           project_instance.update_columns(type: :project)
         else
           raise StandardError

@@ -39,8 +39,7 @@
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        "
-      >
+        ">
         Title
       </a>
       <a
@@ -48,8 +47,7 @@
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        "
-      >
+        ">
         Profile Information
       </a>
       <% if @project.present? %>
@@ -58,8 +56,7 @@
           class="
             block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
             transition-colors
-          "
-        >
+          ">
           Current Project
         </a>
       <% end %>
@@ -92,8 +89,7 @@
             class="
               w-20 h-20 bg-gray-200 text-gray-700 rounded-full flex items-center
               justify-center text-3xl font-bold shrink-0 uppercase shadow-sm
-            "
-          >
+            ">
             <%= @student.username[0].upcase %>
           </div>
           <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.username %></h1>
@@ -107,8 +103,7 @@
     <section
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
-      "
-    >
+      ">
       <div class="px-8 pt-8 pb-8" id="profile-information">
         <h2 class="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
 
@@ -132,15 +127,13 @@
                     class="
                       flex items-start gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200/50
                       hover:border-gray-300 transition-colors
-                    "
-                  >
+                    ">
                     <%# Profile Avatar %>
                     <div
                       class="
                         w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center
                         justify-center text-sm font-bold text-gray-700 shrink-0 shadow-sm
-                      "
-                    >
+                      ">
                       <%= member.user.username.first.upcase %>
                     </div>
 
@@ -220,8 +213,7 @@
                   class="
                     inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-2
                     <%= badge_classes %>
-                  "
-                >
+                  ">
                   <div class="w-2 h-2 rounded-full <%= dot_classes %>"></div>
                   <span><%= status_display.humanize %></span>
                 </div>
@@ -237,8 +229,7 @@
                     class="
                       w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center
                       justify-center text-xs font-bold text-gray-700 shrink-0
-                    "
-                  >
+                    ">
                     <%= @supervisor.username.first.upcase %>
                   </div>
                   <span class="text-gray-900 text-base font-medium"><%= @supervisor.username %></span>
@@ -256,8 +247,7 @@
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
       "
-      id="current-project"
-    >
+      id="current-project">
       <div class=" px-8 pt-6 pb-1 flex items-center justify-between ">
         <h2 class="text-xl font-semibold text-gray-900">Current Project</h2>
       </div>
@@ -266,8 +256,7 @@
         <div
           class="
             pb-6 pt-4 px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6
-          "
-        >
+          ">
           <%= render partial: "courses/project_card",
           locals: {
             project: @project,
@@ -281,22 +270,19 @@
         <div
           class="
             py-12 text-center rounded-xl flex flex-col items-center justify-center gap-3
-          "
-        >
+          ">
           <div class="p-3 bg-white rounded-full shadow-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-8 w-8 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+              stroke="currentColor">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="1.5"
-                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
+                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
           <div class="text-center">
@@ -315,14 +301,12 @@
           class="h-4 w-4 transition-transform group-hover:-translate-x-1"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+          stroke="currentColor">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
+            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Back to Course
       <% end %>

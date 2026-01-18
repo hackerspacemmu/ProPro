@@ -7,8 +7,9 @@
 }
 
 body {
-  background-color: #F2F3F7;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #f2f3f7;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   line-height: 1.5;
 }
 
@@ -72,7 +73,7 @@ body {
 .lecturer-badge {
   width: 60px;
   height: 60px;
-  background-color: #8E8E8E;
+  background-color: #8e8e8e;
   color: #fff;
   border-radius: 50%;
   font-size: 24px;
@@ -116,7 +117,7 @@ body {
 
 .info-item {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   align-items: flex-start;
   font-size: 16px;
   margin-bottom: 20px;
@@ -209,8 +210,6 @@ body {
   font-size: 16px;
 }
 
-
-
 /* ============================================= */
 /* FOOTER */
 /* ============================================= */
@@ -241,84 +240,92 @@ body {
 /* PROJECT CARD STYLES */
 /* ============================================= */
 .cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 327px);
-    grid-auto-rows: 175px;
-    gap: 21px;
-    justify-content: start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 327px);
+  grid-auto-rows: 175px;
+  gap: 21px;
+  justify-content: start;
 }
 
 .card-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  flex-shrink: 0;
 }
 
 .project-card {
-    color: #FFFFFF;
-    background-color: #1d2f24;
-    display: flex;
-    flex-wrap: wrap;
-    z-index: 0;
-    width: 327px;
-    height: 175px;
-    font-size: 14px;
-    border-radius: 12px;
-    border: 2px solid #B5B5B5;
-    overflow: hidden;
+  color: #ffffff;
+  background-color: #1d2f24;
+  display: flex;
+  flex-wrap: wrap;
+  z-index: 0;
+  width: 327px;
+  height: 175px;
+  font-size: 14px;
+  border-radius: 12px;
+  border: 2px solid #b5b5b5;
+  overflow: hidden;
 }
 
 .project-card b {
-    margin-left: 30px;
-    top: 10px;
-    vertical-align: middle;
-    color: #ffffff;
-    font-weight: normal;
-    flex: 1;
+  margin-left: 30px;
+  top: 10px;
+  vertical-align: middle;
+  color: #ffffff;
+  font-weight: normal;
+  flex: 1;
 }
 
 .project-card ul {
-    padding-left: 0;
-    margin-left: 0;
+  padding-left: 0;
+  margin-left: 0;
 }
 
 .project-card li {
-    list-style: none;
-    padding-left: 0;
-    margin-left: 0;
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
 }
 
 .project-card.inner {
-    position: relative;
-    width: 304px;
-    height: 105px;
-    background-color: #F8F9FA;
-    z-index: 1;
-    right: -30px;
-    top: 35px;
-    border-radius: none;
-    overflow: hidden;
+  position: relative;
+  width: 304px;
+  height: 105px;
+  background-color: #f8f9fa;
+  z-index: 1;
+  right: -30px;
+  top: 35px;
+  border-radius: none;
+  overflow: hidden;
 }
 
-.project-card.status-pending  { background-color: #284555 } 
-.project-card.status-redo     { background-color: #e37401} 
-.project-card.status-rejected { background-color: #a50e0f } 
-.project-card.status-approved { background-color: #81a48a}
+.project-card.status-pending {
+  background-color: #284555;
+}
+.project-card.status-redo {
+  background-color: #e37401;
+}
+.project-card.status-rejected {
+  background-color: #a50e0f;
+}
+.project-card.status-approved {
+  background-color: #81a48a;
+}
 
 .project-card.inner .text {
-    color: #5D5D5D;
-    white-space: pre-line;
-    line-height: 1.4;
+  color: #5d5d5d;
+  white-space: pre-line;
+  line-height: 1.4;
 }
 
 .card-link:hover .project-card {
-    background-color: #275d42;
-    transition: background-color 0.2s ease-in-out;
+  background-color: #275d42;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .card-link:hover .project-card.inner {
-    background-color: #F8F9FA;
+  background-color: #f8f9fa;
 }
 
 /* ============================================= */
@@ -326,17 +333,17 @@ body {
 /* ============================================= */
 
 .profile-avatar {
-    width: 20px;
-    height: 20px;
-    background-color: #D9D9D9;
-    border-radius: 50%;
-    flex-shrink: 0;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    font-weight: bold;
+  width: 20px;
+  height: 20px;
+  background-color: #d9d9d9;
+  border-radius: 50%;
+  flex-shrink: 0;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .profile-container-lecturer {
@@ -352,15 +359,14 @@ body {
   gap: 8px;
 }
 
-
 .members-list .member-info {
   display: flex;
   flex-direction: column;
   align-items: left;
-  gap: 12px;        
+  gap: 12px;
   margin: 0 0 6px 0;
-  flex-wrap: wrap;  
-  white-space: normal; 
+  flex-wrap: wrap;
+  white-space: normal;
 }
 
 .members-list .member-info strong {
@@ -375,10 +381,9 @@ body {
   font-weight: 400;
 }
 
-
 .info-value .status-badge {
   margin-top: 0;
-  display: inline-flex;  
+  display: inline-flex;
   vertical-align: middle;
 }
 
@@ -392,23 +397,43 @@ body {
   gap: 6px;
 }
 
-.status-indicator{
+.status-indicator {
   width: 10px;
   height: 10px;
   border-radius: 100%;
 }
 
-.status-badge.pending { background-color: #d2e3fb; }
-.status-badge.approved { background-color: #cde9d6; }
-.status-badge.rejected { background-color: #fad1cf; }
-.status-badge.redo { background-color: #fdf0c4; }
-.status-badge.not-submitted { background-color: #f1f3f4; }
+.status-badge.pending {
+  background-color: #d2e3fb;
+}
+.status-badge.approved {
+  background-color: #cde9d6;
+}
+.status-badge.rejected {
+  background-color: #fad1cf;
+}
+.status-badge.redo {
+  background-color: #fdf0c4;
+}
+.status-badge.not-submitted {
+  background-color: #f1f3f4;
+}
 
-.status-indicator.pending { background-color: #284555 }
-.status-indicator.approved { background-color: #81a48a }
-.status-indicator.rejected { background-color: #a50e0f }
-.status-indicator.redo { background-color: #e37401; }
-.status-indicator.not-submitted { background-color: #9ba1a6; }
+.status-indicator.pending {
+  background-color: #284555;
+}
+.status-indicator.approved {
+  background-color: #81a48a;
+}
+.status-indicator.rejected {
+  background-color: #a50e0f;
+}
+.status-indicator.redo {
+  background-color: #e37401;
+}
+.status-indicator.not-submitted {
+  background-color: #9ba1a6;
+}
 
 /* ============================================= */
 /* RESPONSIVE BREAKPOINTS */

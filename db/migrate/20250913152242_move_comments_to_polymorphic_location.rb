@@ -8,7 +8,7 @@ class MoveCommentsToPolymorphicLocation < ActiveRecord::Migration[8.0]
       Comment.find_each do |comment|
         project_instance = ProjectInstance.find_by(project_id: comment.project_id, version: comment.project_version_number)
         topic_instance = TopicInstance.find_by(project_id: comment.project_id, version: comment.project_version_number)
-        
+
         if project_instance
           comment.update!(location: project_instance)
         elsif topic_instance

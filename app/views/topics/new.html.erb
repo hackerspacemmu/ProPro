@@ -24,10 +24,10 @@
 
           <% case field.field_type %>
           <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
 
           <% when "textarea" %>
-            <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
+            <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
 
           <% when "dropdown" %>
             <% options = field.option_list %>
@@ -36,7 +36,6 @@
                           prompt: "Select an option",
                           class: "form-control",
                           required: true %>
-
 
           <% when "radio" %>
             <div class="radio-group">
@@ -47,15 +46,16 @@
                 <%= label_tag "field_#{field.id}_#{idx}", option %>
               </div>
             <% end %>
+            </div>
           <% else %>
-            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
+            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true, autocomplete: "off" %>
           <% end %>
         </div>
       <% end %>
     </div>
 
     <div class="form-actions">
-      <%= link_to "← Back to Topics", course_topics_path(@course)%>
+      <%= link_to "← Back to Topics", course_topics_path(@course) %>
       <%= submit_tag "Create Topic", class: "btn btn-primary" %>
     </div>
   <% end %>

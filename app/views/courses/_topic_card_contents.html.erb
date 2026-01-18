@@ -63,30 +63,26 @@ owner_name =
   class="
     <%= header_bg %> px-5 py-4 flex justify-between
     items-start shrink-0 max-h-[120px]
-  "
->
+  ">
   <div class="text-white overflow-hidden">
     <h3
       class="
         text-lg whitespace-normal pt-0 mt-0 font-bold group-hover:underline
         leading-tight decoration-white/50 underline-offset-2 line-clamp-1
-      "
-    ><%= topic_instance.title.presence || "Untitled Topic" %>
+      "><%= topic_instance.title.presence || "Untitled Topic" %>
     </h3>
     <div class="flex justify-start items-center gap-2 mt-4">
       <svg class="w-3 h-3 opacity-80" fill="currentColor" viewBox="0 0 20 20">
         <path
           fill-rule="evenodd"
           d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-          clip-rule="evenodd"
-        />
+          clip-rule="evenodd" />
       </svg>
       <p
         class="
           text-white text-xs uppercase tracking-wide font-bold truncate
           whitespace-pre-line flex items-center gap-1
-        "
-      ><%= owner_name %>
+        "><%= owner_name %>
       </p>
     </div>
   </div>
@@ -95,8 +91,7 @@ owner_name =
     class="
       inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase
       tracking-wide bg-white/90 text-gray-800 shadow-sm shrink-0 ml-3
-    "
-  >
+    ">
     <%= status_key.humanize %>
   </span>
 </div>
@@ -109,8 +104,7 @@ owner_name =
       class="
         text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
         font-semibold overflow-hidden
-      "
-    ><%= description_text %>
+      "><%= description_text %>
     </p>
   </div>
 
@@ -118,16 +112,14 @@ owner_name =
   <div
     class="
       mt-4 flex items-center justify-between text-xs text-gray-400 shrink-0
-    "
-  >
+    ">
     <div class="flex items-center gap-1.5">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <span>Updated
         <%= time_ago_in_words(topic.updated_at) %>

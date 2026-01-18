@@ -1,38 +1,44 @@
-document.addEventListener("turbo:load", function() {
-  const addFieldBtn    = document.getElementById('add-field-btn');
-  const templateFields = document.getElementById('template-fields');
-  
+document.addEventListener("turbo:load", function () {
+  const addFieldBtn = document.getElementById("add-field-btn");
+  const templateFields = document.getElementById("template-fields");
+
   if (!addFieldBtn) return;
 
-  let fieldIndex = Number(addFieldBtn.dataset.fieldIndex) || templateFields.querySelectorAll('.field-row').length;
+  let fieldIndex =
+    Number(addFieldBtn.dataset.fieldIndex) ||
+    templateFields.querySelectorAll(".field-row").length;
 
   // Field type options from Rails enum
   const fieldTypeOptions = [
-    { value: 'shorttext', label: 'Shorttext' },
-    { value: 'textarea', label: 'Textarea' },
-    { value: 'dropdown', label: 'Dropdown' },
-    { value: 'radio', label: 'Radio' }
+    { value: "shorttext", label: "Shorttext" },
+    { value: "textarea", label: "Textarea" },
+    { value: "dropdown", label: "Dropdown" },
+    { value: "radio", label: "Radio" },
   ];
 
-  // Applicable to options from Rails enum  
+  // Applicable to options from Rails enum
   const applicableToOptions = [
-    { value: 'topics', label: 'Topics' },
-    { value: 'proposals', label: 'Proposals' },
-    { value: 'both', label: 'Both' }
+    { value: "topics", label: "Topics" },
+    { value: "proposals", label: "Proposals" },
+    { value: "both", label: "Both" },
   ];
 
   // Generate field type select options HTML
   function generateFieldTypeOptions() {
-    return fieldTypeOptions.map(option => 
-      `<option value="${option.value}">${option.label}</option>`
-    ).join('');
+    return fieldTypeOptions
+      .map(
+        (option) => `<option value="${option.value}">${option.label}</option>`,
+      )
+      .join("");
   }
 
   // Generate applicable to select options HTML
   function generateApplicableToOptions() {
-    return applicableToOptions.map(option => 
-      `<option value="${option.value}">${option.label}</option>`
-    ).join('');
+    return applicableToOptions
+      .map(
+        (option) => `<option value="${option.value}">${option.label}</option>`,
+      )
+      .join("");
   }
 
   // Create new field HTML directly
@@ -42,7 +48,7 @@ document.addEventListener("turbo:load", function() {
         <button type="button" class="remove-field">
           ×
         </button>
-        
+
         <div class="row">
           <div class="column">
             <input type="text"
@@ -52,7 +58,7 @@ document.addEventListener("turbo:load", function() {
           <div class="hint-row">
             <textarea name="project_template[project_template_fields_attributes][${index}][hint]"
                       placeholder="Hint Text"></textarea>
-          </div>  
+          </div>
           <div class="column">
             <select name="project_template[project_template_fields_attributes][${index}][field_type]"
                     class="field-type-select">
@@ -83,7 +89,7 @@ document.addEventListener("turbo:load", function() {
   }
 
   // Create dropdown option HTML
-  function createDropdownOptionHTML(fieldIndex, optionIndex, optionValue = '') {
+  function createDropdownOptionHTML(fieldIndex, optionIndex, optionValue = "") {
     return `
       <div class="dropdown-option-row"
            data-field-index="${fieldIndex}"
@@ -97,8 +103,8 @@ document.addEventListener("turbo:load", function() {
     `;
   }
 
-  // Create radio option HTML  
-  function createRadioOptionHTML(fieldIndex, optionIndex, optionValue = '') {
+  // Create radio option HTML
+  function createRadioOptionHTML(fieldIndex, optionIndex, optionValue = "") {
     return `
       <div class="radio-option-cell"
            data-field-index="${fieldIndex}"
@@ -116,64 +122,69 @@ document.addEventListener("turbo:load", function() {
   }
 
   // Add new field
-  addFieldBtn.addEventListener('click', function(e) {
+  addFieldBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    
+
     const newFieldHTML = createNewFieldHTML(fieldIndex);
-    templateFields.insertAdjacentHTML('beforeend', newFieldHTML);
-    
+    templateFields.insertAdjacentHTML("beforeend", newFieldHTML);
+
     // Hide options section by default for new fields
-    const rows = templateFields.querySelectorAll('.field-row');
+    const rows = templateFields.querySelectorAll(".field-row");
     const newFieldRow = rows[rows.length - 1];
-    const optionsSection = newFieldRow.querySelector('.options-section');
-    
+    const optionsSection = newFieldRow.querySelector(".options-section");
+
     if (optionsSection) {
-      optionsSection.classList.add('hidden');
+      optionsSection.classList.add("hidden");
     }
-    
+
     fieldIndex++;
   });
 
   // Handle field type changes
-  templateFields.addEventListener('change', function(e) {
-    if (!e.target.classList.contains('field-type-select')) return;
+  templateFields.addEventListener("change", function (e) {
+    if (!e.target.classList.contains("field-type-select")) return;
 
-    const fieldRow = e.target.closest('.field-row');
+    const fieldRow = e.target.closest(".field-row");
     const labelInput = fieldRow.querySelector('input[name*="[label]"]');
     const isProjectTitle = labelInput && labelInput.value === "Project Title";
-    
+
     if (isProjectTitle) return;
 
-    const optionsSection = fieldRow.querySelector('.options-section');
-    const addOptionBtn = optionsSection.querySelector('.add-option-btn');
+    const optionsSection = fieldRow.querySelector(".options-section");
+    const addOptionBtn = optionsSection.querySelector(".add-option-btn");
     const fieldType = e.target.value;
 
     if (optionsSection) {
-      if (fieldType === 'dropdown' || fieldType === 'radio') {
-        optionsSection.classList.remove('hidden');
-        
+      if (fieldType === "dropdown" || fieldType === "radio") {
+        optionsSection.classList.remove("hidden");
+
         // Clear existing options and create appropriate container
-        const existingContainer = optionsSection.querySelector('.options-list, .radio-grid');
+        const existingContainer = optionsSection.querySelector(
+          ".options-list, .radio-grid",
+        );
         if (existingContainer) {
           existingContainer.remove();
         }
-        
+
         // Create new container based on field type
-        const containerHTML = fieldType === 'dropdown' 
-          ? '<div class="options-list"></div>'
-          : '<div class="radio-grid"></div>';
-        
-        addOptionBtn.insertAdjacentHTML('beforebegin', containerHTML);
-        
+        const containerHTML =
+          fieldType === "dropdown"
+            ? '<div class="options-list"></div>'
+            : '<div class="radio-grid"></div>';
+
+        addOptionBtn.insertAdjacentHTML("beforebegin", containerHTML);
+
         // Update button data attributes
         if (addOptionBtn) {
           addOptionBtn.dataset.fieldType = fieldType;
-          addOptionBtn.dataset.optionIndex = '0';
+          addOptionBtn.dataset.optionIndex = "0";
         }
       } else {
-        optionsSection.classList.add('hidden');
+        optionsSection.classList.add("hidden");
         // Clear options when switching away from dropdown/radio
-        const container = optionsSection.querySelector('.options-list, .radio-grid');
+        const container = optionsSection.querySelector(
+          ".options-list, .radio-grid",
+        );
         if (container) {
           container.remove();
         }
@@ -182,91 +193,99 @@ document.addEventListener("turbo:load", function() {
   });
 
   // Handle clicks (remove field, add option, remove option)
-  templateFields.addEventListener('click', function(e) {
+  templateFields.addEventListener("click", function (e) {
     // Remove field
-    if (e.target.classList.contains('remove-field')) {
+    if (e.target.classList.contains("remove-field")) {
       e.preventDefault();
-      
-      const fieldRow = e.target.closest('.field-row');
+
+      const fieldRow = e.target.closest(".field-row");
       const labelInput = fieldRow.querySelector('input[name*="[label]"]');
       const isProjectTitle = labelInput && labelInput.value === "Project Title";
-      
+
       if (isProjectTitle) {
-        console.log('Cannot delete Project Title field');
+        console.log("Cannot delete Project Title field");
         return;
       }
-      
-      const destroyFlag = fieldRow.querySelector('.destroy-flag');
-      
+
+      const destroyFlag = fieldRow.querySelector(".destroy-flag");
+
       if (destroyFlag) {
-        destroyFlag.value = 'true';
-        fieldRow.style.display = 'none';
+        destroyFlag.value = "true";
+        fieldRow.style.display = "none";
       } else {
         fieldRow.remove();
       }
     }
 
     // Add option
-    if (e.target.classList.contains('add-option-btn')) {
+    if (e.target.classList.contains("add-option-btn")) {
       e.preventDefault();
 
       const btn = e.target;
       const fieldIndex = btn.dataset.fieldIndex;
       const optionIndex = parseInt(btn.dataset.optionIndex, 10);
       const fieldType = btn.dataset.fieldType;
-      
-      const optionsSection = btn.closest('.options-section');
-      const containerSelector = fieldType === 'dropdown' ? '.options-list' : '.radio-grid';
+
+      const optionsSection = btn.closest(".options-section");
+      const containerSelector =
+        fieldType === "dropdown" ? ".options-list" : ".radio-grid";
       let container = optionsSection.querySelector(containerSelector);
-      
+
       // Create container if it doesn't exist
       if (!container) {
-        const containerHTML = fieldType === 'dropdown' 
-          ? '<div class="options-list"></div>'
-          : '<div class="radio-grid"></div>';
-        btn.insertAdjacentHTML('beforebegin', containerHTML);
+        const containerHTML =
+          fieldType === "dropdown"
+            ? '<div class="options-list"></div>'
+            : '<div class="radio-grid"></div>';
+        btn.insertAdjacentHTML("beforebegin", containerHTML);
         container = optionsSection.querySelector(containerSelector);
       }
 
       // Create and add option HTML
-      const optionHTML = fieldType === 'dropdown' 
-        ? createDropdownOptionHTML(fieldIndex, optionIndex)
-        : createRadioOptionHTML(fieldIndex, optionIndex);
-      
-      container.insertAdjacentHTML('beforeend', optionHTML);
-      
+      const optionHTML =
+        fieldType === "dropdown"
+          ? createDropdownOptionHTML(fieldIndex, optionIndex)
+          : createRadioOptionHTML(fieldIndex, optionIndex);
+
+      container.insertAdjacentHTML("beforeend", optionHTML);
+
       // Update option index for next addition
       btn.dataset.optionIndex = optionIndex + 1;
     }
 
     // Remove option
-    if (e.target.classList.contains('remove-option')) {
+    if (e.target.classList.contains("remove-option")) {
       e.preventDefault();
-      const optionRow = e.target.closest('.dropdown-option-row, .radio-option-cell');
+      const optionRow = e.target.closest(
+        ".dropdown-option-row, .radio-option-cell",
+      );
       if (optionRow) {
         optionRow.remove();
       }
     }
   });
 
-  templateFields.querySelectorAll('.field-row').forEach(row => {
-  const labelInput = row.querySelector('input[name*="[label]"]');
+  templateFields.querySelectorAll(".field-row").forEach((row) => {
+    const labelInput = row.querySelector('input[name*="[label]"]');
     if (labelInput && labelInput.value === "Project Title") {
-      const btn = row.querySelector('.remove-field');
-      if (btn) { btn.disabled = true; btn.title = "Cannot remove title"; }
+      const btn = row.querySelector(".remove-field");
+      if (btn) {
+        btn.disabled = true;
+        btn.title = "Cannot remove title";
+      }
     }
   });
 
   // Focus handling for visual feedback
-  templateFields.addEventListener('focusin', function(e) {
-    const row = e.target.closest('.field-row');
-    if (row) row.classList.add('focus-within');
+  templateFields.addEventListener("focusin", function (e) {
+    const row = e.target.closest(".field-row");
+    if (row) row.classList.add("focus-within");
   });
 
-  templateFields.addEventListener('focusout', function(e) {
-    const row = e.target.closest('.field-row');
+  templateFields.addEventListener("focusout", function (e) {
+    const row = e.target.closest(".field-row");
     if (row && !row.contains(document.activeElement)) {
-      row.classList.remove('focus-within');
+      row.classList.remove("focus-within");
     }
   });
 });

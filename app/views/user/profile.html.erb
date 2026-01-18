@@ -19,9 +19,9 @@
 
     <%= form_with url: user_edit_path, model: @user, method: :post, local: true, class: "edit-form" do |form| %>
       <div class="fields-container">
-        <div class="account-details">   
+        <div class="account-details">
         <h4>Account details</h4>
-        
+
         <div class="field-row">
           <%= form.label :username, "Username", class: "field-label" %>
           <%= form.text_field :username, class: "form-control" %>
@@ -41,7 +41,7 @@
 
         <div class="change-password">
         <h4>Change password</h4>
-        
+
         <div class="field-row">
           <%= form.label :new_password, "New Password", class: "field-label" %>
           <%= form.password_field :new_password, class: "form-control" %>
