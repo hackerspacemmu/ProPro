@@ -5,5 +5,5 @@ import "project_template_fields";
 import "htmx.org";
 
 document.addEventListener("turbo:load", function () {
-  htmx.process(document.body);
+  window.htmx.process(document.body);
 });
