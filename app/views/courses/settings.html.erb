@@ -10,13 +10,12 @@
   <div class="max-w-3xl mx-auto text-center mb-8">
     <h1
       class="
-        text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl flex
-        items-center justify-center gap-3
+        text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
+        justify-center
       "
     >
-      <span class="text-gray-700">Course Settings -
-      </span>
-      <span class="text-green-700"><%= @course.course_name %></span>
+      Course Settings -
+      <span class="inline-block text-green-700"><%= @course.course_name %></span>
       <%= image_tag(
         "edit.svg",
         class:
@@ -142,7 +141,7 @@
         </div>
       </div>
 
-      <hr class="border-gray-200"/>
+      <hr class="border-gray-200">
 
       <div class="space-y-6">
         <h3 class="text-lg font-medium leading-6 text-gray-900">Permissions & Rules</h3>
@@ -288,7 +287,11 @@
           Back to Course
         <% end %>
 
-        <div class="flex items-center gap-3 order-1 sm:order-2 w-full sm:w-auto">
+        <div
+          class="
+            flex items-center flex-col sm:flex-row gap-3 order-1 sm:order-2 w-full sm:w-auto
+          "
+        >
           <%= link_to "Delete Course",
           course_path(@course),
           class:
