@@ -15,7 +15,7 @@
       <%= @course.course_name %></h1>
   </header>
 
-  <section class="search-bar-container">
+  <section class="search-bar-container mb-2">
     <%= form_with url: course_topics_path(@course), method: :get, local: true, class: "search-form" do %>
       <%= label_tag :query, "Search topics:", class: "search-label" %>
       <%= text_field_tag :query,
@@ -30,7 +30,7 @@
   <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
 
   <section class="topics-list" id="topics-list">
-    <div class="cards-container">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
       <% if @topics.any? %>
         <%= render partial: "courses/topic_card", collection: @topics, as: :topic %>
       <% else %>

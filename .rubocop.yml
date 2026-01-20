@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
@@ -6,3 +7,18 @@ inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 # # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
 # Layout/SpaceInsideArrayLiteralBrackets:
 #   Enabled: false
+=======
+plugins:
+    - rubocop-rails
+
+AllCops:
+    NewCops: enable
+
+# No need for frozen string literal comments in modern Ruby versions
+# See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
+Style/FrozenStringLiteralComment:
+    Enabled: false
+
+Layout/LineLength:
+    Enabled: false
+>>>>>>> 352469147a777f5051c9b7b86890d4ec4b034083

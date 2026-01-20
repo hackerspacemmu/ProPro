@@ -25,6 +25,7 @@ gem 'diff-lcs'
 # Use to handle breadcrumb trails
 gem "gretel"
 
+# tailwindcss
 gem "tailwindcss-rails", "~> 4.3"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
@@ -41,14 +42,11 @@ gem "solid_queue"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-# Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
-# gem "kamal", require: false
-
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 1.2"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -71,3 +69,4 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+

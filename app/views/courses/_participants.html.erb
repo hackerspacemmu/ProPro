@@ -1,3 +1,4 @@
+<%# --- locals: course, use_progress_updates %>
 <section class="mb-8 scroll-mt-24" id="participants" data-turbo="false">
   <div
     class="
@@ -51,28 +52,23 @@
               >
                 <option
                   value="all"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>
                 >All Statuses</option>
                 <option
                   value="approved"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'approved' %>
                 >Approved</option>
                 <option
                   value="pending"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'pending' %>
                 >Pending</option>
                 <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
                 <option
                   value="rejected"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'rejected' %>
                 >Rejected</option>
                 <option
                   value="not_submitted"
-                  class="text-md"
                   <%= 'selected' if params[:status_filter] == 'not_submitted' %>
                 >Not Submitted</option>
               </select>
@@ -80,7 +76,7 @@
               <div
                 class="
                   pointer-events-none inset-y-0 right-0 flex justify-start items-center px-2
-                  text-gray-500 ml-[-1em] mt-[-0.25em]
+                  text-gray-500 -ml-[2em] -mt-[0.5em]
                 "
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
@@ -128,14 +124,15 @@
     </header>
 
     <%# Table Content %>
+    <% use_progress_updates = local_assigns[:use_progress_updates] %>
     <% unless participants_exceed?(@course) && !local_assigns[:fullpage] %>
       <div id="participants-table-container" class="overflow-x-auto">
         <%= render "courses/participants_table",
         course: @course,
         group_list: @filtered_group_list,
-        student_list: @filtered_student_list,
-        students_with_projects: @students_with_projects,
-        students_without_projects: @students_without_projects %>
+        student_list: @filtered_student_list
+        students_without_projects: @students_without_projects,
+        use_progress_updates: use_progress_updates %>
       </div>
 
       <div

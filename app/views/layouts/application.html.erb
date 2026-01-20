@@ -7,7 +7,10 @@
     <%= csp_meta_tag %>
     <%= yield :head %>
     <link rel="icon" href="/icon.png" type="image/png">
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application" %>
     <%= yield :stylesheets %>
@@ -16,9 +19,11 @@
   </head>
 
   <body
-    class="bg-gray-50 min-h-screen flex flex-col"
+    class="
+      min-h-screen flex flex-col font-['Inter'] <%= content_for?(:body_class) ? yield(:body_class) : "bg-[#efefef]" %>
+    "
     data-controller="scroll-spy sidebar"
-    data-scroll-spy-active-class="bg-sky-100 text-gray-950 font-semibold"
+    data-scroll-spy-active-class="bg-transparent md:bg-sky-100 text-gray-950 font-semibold"
     data-scroll-spy-inactive-class="text-gray-600 hover:bg-gray-50 hover:text-gray-900"
   >
     <%= render "shared/topbar", user: current_user, course: @course %>

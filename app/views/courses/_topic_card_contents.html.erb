@@ -1,57 +1,139 @@
-  <ul>
-    <b><%= topic_instance.title %></b><br>
-    <b>
-      <% image_tag"person_grey.svg" %> 
-      <%= topic.owner.username %>
-    </b>
-    <ul>
-      <li class="project-card inner">
-        <% fields = topic_instance.project_instance_fields
-          .joins(:project_template_field)
-          .order(:id) 
-        %>
+<%# Locals: topic, topic_instance, header_bg, status_key %>
 
-        <% display_parts = [] %>
+<% fields =
+  topic_instance
+    .project_instance_fields
+    .joins(:project_template_field)
+    .order(:id)
 
-        <% first_field = fields[1] %>
-        <% first_max_chars = 170 %>
-        <% if first_field && first_field.project_template_field.textarea? %>
-          <% content = first_field.value.to_s.strip %>
-          <% display_parts << content.truncate_words(90) %>
-        <% else %>
-          <% if first_field && (first_field.project_template_field.shorttext? || first_field.project_template_field.dropdown? || first_field.project_template_field.radio?) %>
-            <% display_parts << first_field.value.to_s.strip %>
-          <% end %>
-        <% end %>
+display_parts = []
 
-        <% second_field = fields[2] %>
-        <% second_max_chars = 135 %>
+# -- Field 1 --
+first_field = fields[1]
+if first_field
+  tmpl = first_field.project_template_field
+  val = first_field.value.to_s.strip
+  if tmpl.textarea?
+    display_parts << val.truncate_words(90)
+  elsif tmpl.shorttext? || tmpl.dropdown? || tmpl.radio?
+    display_parts << val
+  end
+end
 
-        <% if (second_field && second_field.project_template_field.textarea?) && !first_field.project_template_field.textarea? %>
-          <% content = second_field.value.to_s.strip %>
-          <% display_parts << content.truncate_words(90) %>
-        <% else %>
-          <% if second_field && (second_field.project_template_field.shorttext? || second_field.project_template_field.dropdown? || second_field.project_template_field.radio?) %>
-            <% content = second_field.value.to_s.strip %>
-            <% display_parts << (content.length > second_max_chars ? content[0, second_max_chars] + "..." : content) %>
-          <% end %>
-        <% end %>
+# -- Field 2 --
+second_field = fields[2]
+if second_field
+  tmpl = second_field.project_template_field
+  val = second_field.value.to_s.strip
+  if tmpl.textarea? && !fields[1]&.project_template_field&.textarea?
+    display_parts << val.truncate_words(90)
+  elsif tmpl.shorttext? || tmpl.dropdown? || tmpl.radio?
+    display_parts << val.truncate(135)
+  end
+end
 
+# -- Field 3 --
+third_field = fields[3]
+if third_field
+  tmpl = third_field.project_template_field
+  val = third_field.value.to_s.strip
+  if tmpl.textarea? && !fields[2]&.project_template_field&.textarea?
+    display_parts << val.truncate_words(90)
+  elsif tmpl.shorttext? || tmpl.dropdown? || tmpl.radio?
+    display_parts << val
+  end
+end
 
-        <% third_field = fields[3] %>
-        <% third_max_chars = 90 %>
-        <% if (third_field && third_field.project_template_field.textarea?) && !second_field.project_template_field.textarea? %>
-          <% content = third_field.value.to_s.strip %>
-          <% display_parts << content.truncate_words(90) %>
-        <% else %>
-          <% if third_field && (third_field.project_template_field.shorttext? || third_field.project_template_field.dropdown? || third_field.project_template_field.radio?) %>
-            <% display_parts << third_field.value.to_s.strip %>
-          <% end %>
-        <% end %>
+# Join parts or use fallback
+description_text =
+  display_parts.any? ? display_parts.join(" ") : "No details provided."
 
-        <% preview = display_parts.join("<br>") %>
-        <p class="text"><%= raw(preview) %></p>
-      </li>
-    </ul>
-  </ul>
+# --- Determine Owner Name ---
+owner_name =
+  if topic.owner.respond_to?(:username)
+    topic.owner.username
+  elsif topic.owner.respond_to?(:group_name)
+    topic.owner.group_name
+  else
+    "Unknown Owner"
+  end %>
 
+<%# --- CARD HEADER (Colored) --- %>
+<div
+  class="
+    <%= header_bg %> px-5 py-4 flex justify-between
+    items-start shrink-0 max-h-[120px]
+  "
+>
+  <div class="text-white overflow-hidden">
+    <h3
+      class="
+        text-lg whitespace-normal pt-0 mt-0 font-bold group-hover:underline
+        leading-tight decoration-white/50 underline-offset-2 line-clamp-1
+      "
+    ><%= topic_instance.title.presence || "Untitled Topic" %>
+    </h3>
+    <div class="flex justify-start items-center gap-2 mt-4">
+      <svg class="w-3 h-3 opacity-80" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          fill-rule="evenodd"
+          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <p
+        class="
+          text-white text-xs uppercase tracking-wide font-bold truncate
+          whitespace-pre-line flex items-center gap-1
+        "
+      ><%= owner_name %>
+      </p>
+    </div>
+  </div>
+
+  <span
+    class="
+      inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase
+      tracking-wide bg-white/90 text-gray-800 shadow-sm shrink-0 ml-3
+    "
+  >
+    <%= status_key.humanize %>
+  </span>
+</div>
+
+<%# --- CARD BODY (White) --- %>
+<div class="px-5 py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
+
+  <div class="flex-1 min-h-0 mt-0">
+    <p
+      class="
+        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
+        font-semibold overflow-hidden
+      "
+    ><%= description_text %>
+    </p>
+  </div>
+
+  <%# Footer Metadata %>
+  <div
+    class="
+      mt-4 flex items-center justify-between text-xs text-gray-400 shrink-0
+    "
+  >
+    <div class="flex items-center gap-1.5">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+      <span>Updated
+        <%= time_ago_in_words(topic.updated_at) %>
+        ago</span>
+    </div>
+    <span class="font-mono">v<%= topic_instance.version %></span>
+  </div>
+
+</div>
