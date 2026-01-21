@@ -1,57 +1,149 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "project_templates" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% provide :no_sidebar, true %>
 <% breadcrumb :edit_project_template, @course %>
-<% content_for :title, "Edit Project Template - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+<% content_for :title,
+"Edit Project Template - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-<main id="course">
-  <section class="form-section">
-    <header class="form-header">
-      <h2>Edit Project Template</h2>
+<main id="course" class="bg-gray-50 font-sans min-h-screen">
+  <section class="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto">
+
+    <%# --- Page Header --- %>
+    <header>
+      <h2 class="text-2xl font-bold text-gray-900">Edit Project Template</h2>
+      <p class="text-sm text-gray-500 mt-1">Define the fields students must fill out for their project proposals.</p>
     </header>
 
-    <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "form" do |form| %>
+    <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "flex flex-col bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden" do |form| %>
 
+      <%# --- Errors Section --- %>
       <% if @project_template.errors.any? %>
-        <div class="form-errors">
-          <h3><%= pluralize(@project_template.errors.count, "error") %> prevented this template from being saved:</h3>
-          <ul>
-            <% @project_template.errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-            <% end %>
-          </ul>
+        <div class="bg-red-50 border-b border-red-200 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                <%= pluralize(@project_template.errors.count, "error") %>
+                prevented saving:
+              </h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @project_template.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
         </div>
       <% end %>
 
-      <div class="row header-row">
-        <div class="column"><strong>Field Label</strong></div>
-        <div class="column"><strong>Hint Text (Optional)</strong></div>
-        <div class="column"><strong>Field Type</strong></div>
-        <div class="column"><strong>Applicable To</strong></div>
-        <div class="column"><strong>Options</strong></div>
+      <%# --- Table Container --- %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+
+          <%# --- Table Header (Hidden on Mobile) --- %>
+          <thead class="bg-gray-50 hidden lg:table-header-group">
+            <tr>
+              <th
+                scope="col"
+                class="
+                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  w-[20%]
+                "
+              >Field Label</th>
+              <th
+                scope="col"
+                class="
+                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  w-[25%]
+                "
+              >Hint Text</th>
+              <th
+                scope="col"
+                class="
+                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  w-[15%]
+                "
+              >Type</th>
+              <th
+                scope="col"
+                class="
+                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  w-[15%]
+                "
+              >Applicable To</th>
+              <th
+                scope="col"
+                class="
+                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  w-[25%]
+                "
+              >Options</th>
+            </tr>
+          </thead>
+
+          <%# --- Table Body --- %>
+          <tbody id="template-fields" class="bg-white divide-y divide-gray-200">
+            <%= form.fields_for :project_template_fields do |field_form| %>
+              <%= render "field_row", field_form: field_form %>
+            <% end %>
+          </tbody>
+        </table>
       </div>
 
-      <div id="template-fields">
-        <%= form.fields_for :project_template_fields do |field_form| %>
-            <%= render 'field_row', field_form: field_form %>
-        <% end %>
-      </div>
-
-      <div class="add-field-section">
-        <button type="button"
-          label="Project Title"
+      <%# --- Add Field Button --- %>
+      <div class="bg-gray-50 border-t border-gray-200 p-3">
+        <button
+          type="button"
           id="add-field-btn"
+          class="
+            inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm
+            font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+            transition-colors
+          "
           data-course-id="<%= @course.id %>"
-          data-field-index="<%= @project_template.project_template_fields.size %>">
-          + New Field
+          data-field-index="<%= @project_template.project_template_fields.size %>"
+        >
+          <svg
+            class="-ml-1 mr-2 h-5 w-5 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Add New Field
         </button>
       </div>
 
-      <div class="form-actions">
-        <%= form.submit "Save Template" %>
-        <%= link_to "Cancel", course_path(@course) %>
+      <%# --- Footer Actions --- %>
+      <div
+        class="
+          px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end
+          gap-3
+        "
+      >
+        <%= link_to "Cancel",
+        course_path(@course),
+        class:
+          "text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors" %>
+
+        <%= form.submit "Save Template",
+                    class:
+                      "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer" %>
       </div>
 
     <% end %>
