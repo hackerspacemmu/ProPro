@@ -1,86 +1,239 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "projects" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
+<% content_for :hide_toggler, true %>
 <% breadcrumb :new_project, @course %>
-<% content_for :title, "Create Proposal - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
+<% content_for :title,
+"Create Proposal - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-<main class="project-edit">
-  <header class="edit-header">
-    <div class="edit-header-row">
-      <h1 class="edit-title">Create Proposal for <%= @course.course_name %> <%= image_tag("edit.svg") %></h1>
-    </div>
-    <p class="edit-description">Fill out your proposal details and information below.</p>
-  </header>
+<main
+  class="
+    min-h-screen bg-gray-50 w-full pt-2 pb-12 px-4 sm:px-6 md:px-8 transition-all
+    duration-300
+  "
+>
+  <div
+    class="
+      mx-auto w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:w-10/12 2xl:w-8/12
+    "
+  >
 
-  <%= form_with url: course_projects_path(@course), method: :post, class: "edit-form" do |form| %>
-    <div class="fields-container">
-      <% @template_fields.each do |field| %>
-        <div class="field-row">
-          <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
-          <% if field.hint.present? %>
-            <p class="field-hint"><%= field.hint %></p>
-          <% end %>
-
-          <% case field.field_type %>
-          <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
-
-          <% when "textarea" %>
-            <%= text_area_tag "fields[#{field.id}]", nil, class: "form-control", placeholder: field.hint, required: true %>
-
-          <% when "dropdown" %>
-            <% options = field.option_list %>
-            <%= select_tag "fields[#{field.id}]", options_for_select(options), prompt: "Select an option", class: "form-control", required: true %>
-
-          <% when "radio" %>
-            <div class="radio-group">
-            <% options = field.option_list %>
-            <% options.each_with_index do |option, idx| %>
-              <div class="radio-option">
-                <%= radio_button_tag "fields[#{field.id}]", option, false, id: "field_#{field.id}_#{idx}", required: true %>
-                <%= label_tag "field_#{field.id}_#{idx}", option %>
-              </div>
-          <% end %>
-          </div>
-          <% else %>          
-            <%= text_field_tag "fields[#{field.id}]", nil, class: "form-control", required: true %>
-          <% end %>
+    <div class="mb-8">
+      <%= link_to course_path(@course), class: "group inline-flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
         </div>
+        Back to Course
       <% end %>
 
-    <div class="field">
-      <label>Based on Topic</label><br />
-      <select name="based_on_topic" class="form-control" required>
-        <% if @selected_topic_id.nil? %>
-          <option value="" selected disabled>-- Select a Topic --</option>
-        <% end %>
-        <% @lecturer_options.each do |lecturer_enrolment| %>
-          <% lecturer = lecturer_enrolment.user %>
-          <optgroup label="<%= lecturer.username %>">
-            <% approved_topics = Topic.where(status: :approved, course: @course, owner_type: "User", owner_id: lecturer.id) %>
+      <h1
+        class="
+          text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
+          justify-center
+        "
+      >
+        Create Proposal for
+        <span class="inline-block text-green-700"><%= @course.course_name %></span>
+        <%= image_tag(
+          "edit.svg",
+          class: "w-5 h-5 sm:w-6 sm:h-6 opacity-60 hidden sm:inline-block mt-1",
+        ) %>
+      </h1>
 
-            <% approved_topics.each do |topic| %>
-              <% latest_instance = topic.topic_instances
-                                    .order(version: :desc)
-                                    .first %>
-              <option value="<%= topic.id %>" <%= 'selected' if topic.id == @selected_topic_id %>>
-                <%= "#{lecturer.username} - #{latest_instance&.title || 'Untitled Topic'}" %>
-              </option>
+      <p class="text-gray-500 mt-3 text-sm sm:text-base text-center">
+        Fill out the details below to submit your project proposal.
+      </p>
+    </div>
+
+    <div
+      class="
+        bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100
+        overflow-hidden
+      "
+    >
+      <div class="p-5 sm:p-8 md:p-10">
+        <%= form_with url: course_projects_path(@course), method: :post, class: "space-y-8" do |form| %>
+
+          <%# Reusable input class definition %>
+          <% input_classes =
+            "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
+
+          <div class="grid grid-cols-1 gap-6 sm:gap-8">
+            <% @template_fields.each do |field| %>
+              <div class="flex flex-col group">
+
+                <%= label_tag "fields_#{field.id}",
+                field.label,
+                class:
+                  "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2",
+                title: field.hint %>
+
+                <% if field.hint.present? %>
+                  <p class="text-xs text-gray-400 mb-2 leading-normal whitespace-pre-line"><%= field.hint %></p>
+                <% end %>
+
+                <% case field.field_type %>
+                <% when "shorttext" %>
+                  <%= text_field_tag "fields[#{field.id}]",
+                  nil,
+                  class: input_classes,
+                  placeholder: "Enter #{field.label.downcase}...",
+                  required: true %>
+
+                <% when "textarea" %>
+                  <%= text_area_tag "fields[#{field.id}]",
+                  nil,
+                  class:
+                    "#{input_classes} min-h-[120px] sm:min-h-[150px] resize-y leading-relaxed",
+                  placeholder: "Enter details...",
+                  required: true %>
+
+                <% when "dropdown" %>
+                  <div class="relative">
+                    <% options = field.option_list %>
+                    <%= select_tag "fields[#{field.id}]",
+                    options_for_select(options),
+                    prompt: "Select an option",
+                    class: "#{input_classes} appearance-none pr-10 cursor-pointer",
+                    required: true %>
+                    <div
+                      class="
+                        absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
+                        text-gray-500
+                      "
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 9l-7 7-7-7"
+                        /></svg>
+                    </div>
+                  </div>
+
+                <% when "radio" %>
+                  <div class="mt-2 space-y-3 pl-1">
+                    <% options = field.option_list %>
+                    <% options.each_with_index do |option, idx| %>
+                      <div class="flex items-center">
+                        <%= radio_button_tag "fields[#{field.id}]",
+                        option,
+                        false,
+                        id: "field_#{field.id}_#{idx}",
+                        required: true,
+                        class:
+                          "w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+                        <%= label_tag "field_#{field.id}_#{idx}",
+                        option,
+                        class:
+                          "ml-3 block text-sm sm:text-base font-medium text-gray-700 cursor-pointer hover:text-gray-900" %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                <% else %>
+                  <%= text_field_tag "fields[#{field.id}]", nil, class: input_classes, required: true %>
+                <% end %>
+              </div>
             <% end %>
+          </div>
 
-            <option value="own_proposal_<%= lecturer.id %>">
-              <%= "#{lecturer.username} - Own Proposal" %>
-            </option>
-          </optgroup>
+          <div class="flex flex-col group">
+            <label
+              class="
+                block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2
+              "
+            >
+              Based on Topic
+            </label>
+
+            <div class="relative">
+              <select
+                name="based_on_topic"
+                class="
+                  <%= input_classes %> appearance-none pr-10 cursor-pointer
+                "
+                required
+              >
+                <% if @selected_topic_id.nil? %>
+                  <option value="" selected disabled>-- Select a Topic --</option>
+                <% end %>
+                <% @lecturer_options.each do |lecturer_enrolment| %>
+                  <% lecturer = lecturer_enrolment.user %>
+                  <optgroup label="<%= lecturer.username %>" class="font-bold text-gray-900">
+                    <% approved_topics =
+                      Topic.where(
+                        status: :approved,
+                        course: @course,
+                        owner_type: "User",
+                        owner_id: lecturer.id,
+                      ) %>
+
+                    <% approved_topics.each do |topic| %>
+                      <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+                      <option
+                        value="<%= topic.id %>"
+                        <%= 'selected' if topic.id == @selected_topic_id %>
+                      >
+                        <%= "#{lecturer.username} - #{latest_instance&.title || "Untitled Topic"}" %>
+                      </option>
+                    <% end %>
+
+                    <option
+                      value="own_proposal_<%= lecturer.id %>"
+                      class="text-blue-600 font-medium"
+                    >
+                      <%= "#{lecturer.username} - Own Proposal" %>
+                    </option>
+                  </optgroup>
+                <% end %>
+              </select>
+              <div
+                class="
+                  absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
+                  text-gray-500
+                "
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  /></svg>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="
+              pt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center
+              sm:justify-end gap-3 sm:gap-4
+            "
+          >
+            <%= link_to "Cancel",
+            course_path(@course),
+            class:
+              "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
+
+            <%= submit_tag "Create Proposal",
+            class:
+              "w-full sm:w-auto cursor-pointer bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
+          </div>
+
         <% end %>
-      </select>
+      </div>
     </div>
 
-    <div>
-      <%= link_to "← Back to Proposal", course_path(@course) %>
-      <%= submit_tag "Create Proposal", class: "btn btn-primary" %>
-    </div>
-  <% end %>
+  </div>
 </main>

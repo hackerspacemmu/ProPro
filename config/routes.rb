@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get "user/new_student", to: "user#new_student", as: :new_student
   get "user/profile"
   post "user/edit"
+  post "user/:id/resend_invite", to: "user#resend_invite", as: :resend_invite
 
   root "homescreen#show"
 

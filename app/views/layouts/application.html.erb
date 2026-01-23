@@ -3,38 +3,88 @@
   <head>
     <title><%= content_for(:title) || "ProPro" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-    
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application" %>
     <%= yield :stylesheets %>
-    
     <%= javascript_importmap_tags %>
     <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js" %>
   </head>
 
-  <body>
-    <%= render 'shared/topbar', user: current_user, course: @course %>
-    <%= breadcrumbs separator: " > ", class: "breadcrumb" %>
-    <% unless content_for?(:no_sidebar) %>
-      <%= yield :sidebar %>
-    <% end %>
+  <body
+    class="
+      min-h-screen flex flex-col font-['Inter'] <%= content_for?(:body_class) ? yield(:body_class) : "bg-[#efefef]" %>
+    "
+    data-controller="scroll-spy sidebar"
+    data-scroll-spy-active-class="bg-transparent md:bg-sky-100 text-gray-950 font-semibold"
+    data-scroll-spy-inactive-class="text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+  >
+    <%= render "shared/topbar", user: current_user, course: @course %>
 
-    <%= yield %>
-    <% unless content_for?(:no_footer) %>
-      <%= render 'shared/footer' %>
-    <% end %>
+    <div class="flex flex-1 relative">
+
+      <% unless content_for?(:no_sidebar) %>
+        <%= yield :sidebar %>
+      <% end %>
+
+      <div class="flex-1 w-full min-w-0 flex flex-col pt-[70px]">
+
+        <% unless content_for?(:hide_toggler) && content_for?(:hide_breadcrumbs) %>
+
+          <div
+            class="
+              sticky top-[70px] z-30 w-full flex items-center gap-4 px-4 sm:px-6 md:px-8 py-3
+              bg-gray-50/95 backdrop-blur-sm border-b border-gray-200
+            "
+          >
+
+            <% unless content_for?(:hide_toggler) %>
+              <button
+                data-action="click->sidebar#toggle"
+                class="
+                  p-2 -ml-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-200
+                  transition-colors focus:outline-none shrink-0 lg:hidden
+                "
+                title="Toggle Sidebar"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  ></path></svg>
+              </button>
+            <% end %>
+
+            <div class="flex-1 min-w-0 flex items-center text-sm font-medium text-gray-600">
+              <% unless content_for?(:hide_breadcrumbs) %>
+                <% render_custom_breadcrumbs %>
+                <% if content_for?(:breadcrumbs) %>
+                  <%= yield :breadcrumbs %>
+                <% else %>
+                  <%= link_to "Home", root_path, class: "hover:text-gray-900 transition-colors" %>
+                <% end %>
+              <% end %>
+            </div>
+
+          </div>
+
+        <% end %>
+
+        <%= yield %>
+
+        <% unless content_for?(:no_footer) %>
+          <%= render "shared/footer" %>
+        <% end %>
+      </div>
+
+    </div>
   </body>
 </html>

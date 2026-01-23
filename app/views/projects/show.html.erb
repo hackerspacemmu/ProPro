@@ -2,6 +2,8 @@
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 
+<% content_for :hide_toggler, true %>
+
 <% breadcrumb :project, @project %>
 
 <% content_for :title do %>
@@ -11,7 +13,7 @@
   | ProPro
 <% end %>
 
-<main class="min-h-screen bg-gray-50 w-full pt-[115px] pb-6">
+<main class="min-h-screen bg-gray-50 w-full pt-[1em] pb-6">
 
   <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 xl:px-16">
 
@@ -72,7 +74,7 @@
 
       <div class="w-full xl:w-[450px] flex-shrink-0 space-y-6">
 
-        <div class="sticky top-[100px] space-y-6">
+        <div class="space-y-6">
 
           <div class="flex flex-col md:flex-row xl:flex-col gap-6">
 

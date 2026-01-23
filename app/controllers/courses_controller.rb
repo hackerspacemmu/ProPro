@@ -3,17 +3,19 @@ require "set"
 require "securerandom"
 
 class CoursesController < ApplicationController
+    before_action :set_course, only: [:show, :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv, :profile]
     before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv]
     before_action :check_staff, only: [ :new, :create ]
-    before_action :access_topics, only: :show
-
 
     def show
-      @student_list = @course.students 
+      @student_list = @course.students
       @description = @course.course_description
-      @lecturers = @course.lecturers 
+      @lecturers = @course.lecturers
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
+
+      @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+      @topic_list = policy_scope(@course.topics)
 
       # SET STUDENT PROJECTS
       projects_ownerships = @course.projects.approved
@@ -143,6 +145,12 @@ class CoursesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
+        # Remove the leading 'S-' from student IDs if present
+        csv_obj.each do |row|
+          student_id = row["ID number"]
+          row["ID number"] = student_id&.replace(student_id[2..]) if student_id&.start_with?('S-')
+        end
+
         if @course.grouped
           student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
           create_db_entries_grouped(student_hashmap, @course, unregistered_students)
@@ -274,13 +282,16 @@ class CoursesController < ApplicationController
   end
 
   private
+
+  def set_course
+    @course = Course.find(params[:id])
+  end
+
   def students_with_projects
     @course.projects.not_lecturer_owned.approved.where(owner_type: "User").pluck("owner_id")
   end
 
   def disallow_noncoordinator_requests
-    @course = Course.find(params[:id])
-
     unless @course.coordinators.include? Current.user
       redirect_back_or_to "/", alert: "Access denied"
       return
@@ -364,7 +375,7 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        new_group_member = ProjectGroupMember.find_by(user: new_user)
+        new_group_member = ProjectGroupMember.find_by(user: new_user, project_group: new_group)
 
         if new_group_member
           new_group_member.update!(project_group: new_group)
@@ -601,39 +612,6 @@ class CoursesController < ApplicationController
     end 
   end 
 
-  def access_topics
-    @course                 = Course.find(params[:id])
-    coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
-    lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
-    student_enrolment = @course.enrolments.find_by(user: Current.user, role: :student)
-    
-    if coordinator_enrolment
-      @current_user_enrolment = coordinator_enrolment
-    elsif lecturer_enrolment
-      @current_user_enrolment = lecturer_enrolment
-    else
-      @current_user_enrolment = student_enrolment
-    end
-
-    # 1) Coordinator: sees all topics (any status)
-    if @current_user_enrolment&.coordinator?
-      @topic_list = @course.topics
-
-    # Lecturer: sees their own topics (any status)
-    # plus other lecturers’ only if approved
-    elsif @current_user_enrolment&.lecturer?
-      own = @course.topics.where(owner_id: current_user.id)
-
-      approved = @course.topics.where(status: :approved)
-
-      @topic_list = own.or(approved)
-
-    #Students: see only approved topics
-    else
-      @topic_list = @course.topics.where(status: :approved)
-    end
-  end
-
   def lecturer_approved_proposals_count(lecturer, course)
     lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
     return 0 unless lecturer_enrolment
@@ -719,4 +697,3 @@ class CoursesController < ApplicationController
     students_by_status(params[:status_filter], @student_list, @students_with_projects, @students_without_projects, @course)
   end
 end
-

@@ -1,17 +1,25 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "lecturers"%>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-<% participant_name = @participant_type == 'group' ? @group.group_name : @student.username %>
+<% content_for :body_class, "bg-gray-50" %>
+<% participant_name =
+  @participant_type == "group" ? @group.group_name : @student.username %>
+
+<%# --- Breadcrumbs --- %>
+<% breadcrumb :course, @course %>
 <% breadcrumb :course_participant_profile, @course, participant_name %>
+
 <% content_for :title do %>
   <% if @participant_type == 'group' %>
-    <%= @group.group_name %> - Group Profile | ProPro
+    <%= @group.group_name %>
+    - Group Profile | ProPro
   <% else %>
-    <%= @student.username %> - Student Profile | ProPro
+    <%= @student.username %>
+    - Student Profile | ProPro
   <% end %>
 <% end %>
 
+<%# --- Data Fetching --- %>
 <% if @participant_type == 'group' %>
   <% @project = group_project_for(@group, @course) %>
   <% @status = group_status(@group, @course) %>
@@ -22,162 +30,303 @@
 <% @latest_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>
 
+<%# --- Sidebar --- %>
 <% content_for :sidebar do %>
-  <div class="sidebar">
-    <a href="#title">Title</a>
-    <a href="#profile-information">Profile Information</a>
-    <% if @project.present? %>
-      <a href="#current-project">Current Project</a>
-    <% end %>
-  </div>
+  <%= render_sidebar do %>
+    <div class="space-y-1 font-medium text-sm text-gray-600">
+      <a
+        href="#title"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Title
+      </a>
+      <a
+        href="#profile-information"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Profile Information
+      </a>
+      <% if @project.present? %>
+        <a
+          href="#current-project"
+          class="
+            block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+            transition-colors
+          "
+        >
+          Current Project
+        </a>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
-<main>
-  <div class="lecturer-layout">
-    <section class="lecturer-content">
-      <header class="lecturer-header">
-        <div class="lecturer-title" id="title">
-          <span class="lecturer-title-text">
-            <% if @participant_type == 'group' %>
-              View Group
-            <% else %>
-              View Student
-            <% end %>
-          </span>
-          <div class="title-line"></div>
-        </div>
-        <div class="lecturer-name-row">
-          <% if @participant_type == 'student' %>
-            <div class="lecturer-badge"><%= @student.username[0].upcase %></div>
-            <h1 class="lecturer-name"><%= @student.username %></h1>
-          <% else %>
-            <h1 class="lecturer-name"><%= @group.group_name %></h1>
-          <% end %>
-        </div>
-        
-        <div class="lecturer-info" id="profile-information">
-          <h2 class="lecturer-subtitle">Profile Information</h2>
-          <div class="lecturer-line"></div>
-          
+<%# --- Main Layout --- %>
+<main class="w-[95%] mx-auto pt-6 flex-auto bg-gray-50">
+  <div class="space-y-8">
+
+    <div class="flex flex-col gap-1 px-2">
+
+      <%# 1. The Label Row %>
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-sm font-bold text-gray-500 uppercase tracking-wider">
           <% if @participant_type == 'group' %>
-            <!-- Group Information -->
-            <div class="info-item">
-              <span class="info-label">Group Name</span>
-              <span class="info-value"><%= @group.group_name %></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Members</span>
-              <div class="info-value members-list">
-                <% @members.each_with_index do |member, index| %>
-                  <span class="member-info">
-                    <div class="profile-container">
-                      <div class="profile-avatar"><%= member.user.username.first.upcase %></div>
-                      <strong><%= member.user.username %></strong>
-                    </div>
-                    <% if member.user.student_id.present? %>
-                      STUDENT ID: <%= member.user.student_id %>
-                    <% end %>
-                    <em><%= member.user.email_address %></em>
-                  </span>
-                <% end %>
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Project Status</span>
-              <span class="info-value">
-                <% status_display = @status || 'not_submitted' %>
-                <span class="status-badge <%= status_display.downcase.gsub('_', '-') %>">
-                  <div class="status-indicator <%= status_display.downcase.gsub('_', '-') %>"></div>
-                  <span><%= status_display.humanize %></span>
-                </span>
-              </span>
-            </div>
-            <% if @supervisor.present? %>
-              <div class="info-item">
-                <span class="info-label">Supervisor</span>
-                <div class="profile-container-lecturer">
-                  <div class="profile-avatar"><%= @supervisor.username.first.upcase %></div>
-                  <span class="info-value"><%= @supervisor.username %></span>
-                </div>
-              </div>
-            <% end %>
+            View Group
           <% else %>
-            <!-- Student Information -->
-            <div class="info-item">
-              <span class="info-label">Name</span>
-              <div class="profile-container">
-                <div class="profile-avatar"><%= @student.username.first.upcase %></div>
-                <span class="info-value"><%= @student.username %></span>
+            View Student
+          <% end %>
+        </span>
+        <div class="h-px bg-gray-300 flex-grow"></div>
+      </div>
+
+      <%# 2. The Avatar & Name Row %>
+      <div class="flex items-center gap-6">
+        <% if @participant_type == 'student' %>
+          <div
+            class="
+              w-20 h-20 bg-gray-200 text-gray-700 rounded-full flex items-center
+              justify-center text-3xl font-bold shrink-0 uppercase shadow-sm
+            "
+          >
+            <%= @student.username[0].upcase %>
+          </div>
+          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.username %></h1>
+        <% else %>
+          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @group.group_name %></h1>
+        <% end %>
+      </div>
+    </div>
+
+    <%# --- Card 1: Profile Information --- %>
+    <section
+      class="
+        bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
+      "
+    >
+      <div class="px-8 pt-8 pb-8" id="profile-information">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
+
+        <div class="grid grid-cols-1 gap-y-8">
+
+          <% if @participant_type == 'group' %>
+            <%# --- Group Logic --- %>
+
+            <%# Group Name %>
+            <div class="flex flex-col items-start gap-2">
+              <span class="font-medium text-gray-500 text-sm">Group Name</span>
+              <span class="text-gray-900 text-base font-medium"><%= @group.group_name %></span>
+            </div>
+
+            <%# Members %>
+            <div class="flex flex-col items-start gap-3">
+              <span class="font-medium text-gray-500 text-sm">Members</span>
+              <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <% @members.each do |member| %>
+                  <div
+                    class="
+                      flex items-start gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200/50
+                      hover:border-gray-300 transition-colors
+                    "
+                  >
+                    <%# Profile Avatar %>
+                    <div
+                      class="
+                        w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center
+                        justify-center text-sm font-bold text-gray-700 shrink-0 shadow-sm
+                      "
+                    >
+                      <%= member.user.username.first.upcase %>
+                    </div>
+
+                    <div class="flex flex-col">
+                      <strong class="text-base font-semibold text-gray-900"><%= member.user.username %></strong>
+                      <% if member.user.student_id.present? %>
+                        <span class="text-gray-700 text-sm font-mono mt-0.5">STUDENT ID:
+                          <%= member.user.student_id %></span>
+                      <% end %>
+                      <p class="text-sm text-gray-900">
+                        <%= member.user.email_address %>
+                      </p>
+                    </div>
+                  </div>
+                <% end %>
               </div>
             </div>
-            <div class="info-item">
-              <span class="info-label">Student ID</span>
-              <span class="info-value"><%= @student.student_id || '-' %></span>
+
+          <% else %>
+            <%# --- Student Logic --- %>
+
+            <%# Name %>
+            <div class="flex flex-col items-start gap-2">
+              <span class="font-medium text-gray-500 text-sm">Name</span>
+              <span class="text-gray-900 text-base font-medium"><%= @student.username %></span>
             </div>
-            <div class="info-item">
-              <span class="info-label">Email</span>
-              <span class="info-value"><%= @student.email_address %></span>
+
+            <%# ID %>
+            <div class="flex flex-col items-start gap-2">
+              <span class="font-medium text-gray-500 text-sm">Student ID</span>
+              <span class="text-gray-900 text-base font-mono"><%= @student.student_id || "-" %></span>
             </div>
-            <div class="info-item">
-              <span class="info-label">Project Status</span>
-              <span class="info-value">
-                <% status_display = @status || 'not_submitted' %>
-                <span class="status-badge <%= status_display.downcase.gsub('_', '-') %>">
-                  <div class="status-indicator <%= status_display.downcase.gsub('_', '-') %>"></div>
+
+            <%# Email %>
+            <div class="flex flex-col items-start gap-2">
+              <span class="font-medium text-gray-500 text-sm">Email</span>
+              <%= @student.email_address %>
+            </div>
+
+          <% end %>
+
+          <%# --- Shared Logic (Status & Supervisor) --- %>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <%# Project Status %>
+            <div class="flex flex-col items-start gap-2">
+              <span class="font-medium text-gray-500 text-sm">Project Status</span>
+              <div>
+                <% status_display = @status || "not_submitted" %>
+                <% badge_classes =
+                  case status_display.to_s.downcase
+                  when "approved"
+                    "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                  when "pending"
+                    "bg-blue-50 text-blue-700 ring-1 ring-blue-600/20"
+                  when "redo"
+                    "bg-amber-50 text-amber-700 ring-1 ring-amber-600/20"
+                  when "rejected"
+                    "bg-rose-50 text-rose-700 ring-1 ring-rose-600/20"
+                  else
+                    "bg-gray-100 text-gray-700 ring-1 ring-gray-600/20"
+                  end
+                dot_classes =
+                  case status_display.to_s.downcase
+                  when "approved"
+                    "bg-emerald-500"
+                  when "pending"
+                    "bg-blue-500"
+                  when "redo"
+                    "bg-amber-500"
+                  when "rejected"
+                    "bg-rose-500"
+                  else
+                    "bg-gray-500"
+                  end %>
+                <div
+                  class="
+                    inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-2
+                    <%= badge_classes %>
+                  "
+                >
+                  <div class="w-2 h-2 rounded-full <%= dot_classes %>"></div>
                   <span><%= status_display.humanize %></span>
-                </span>
-              </span>
+                </div>
+              </div>
             </div>
+
+            <%# Supervisor %>
             <% if @supervisor.present? %>
-              <div class="info-item">
-                <span class="info-label">Supervisor</span>
-                <div class="profile-container-lecturer">
-                  <div class="profile-avatar"><%= @supervisor.username.first.upcase %></div>
-                  <span class="info-value"><%= @supervisor.username %></span>
+              <div class="flex flex-col items-start gap-2">
+                <span class="font-medium text-gray-500 text-sm">Supervisor</span>
+                <div class=" flex items-center gap-3 rounded-lg -ml-2 ">
+                  <div
+                    class="
+                      w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center
+                      justify-center text-xs font-bold text-gray-700 shrink-0
+                    "
+                  >
+                    <%= @supervisor.username.first.upcase %>
+                  </div>
+                  <span class="text-gray-900 text-base font-medium"><%= @supervisor.username %></span>
                 </div>
               </div>
             <% end %>
-          <% end %>
+          </div>
+
         </div>
-        <br>
-      </header>
-
-      <!-- Current Project Section -->
-      <% if @project.present? %>
-        <section class="lecturer-topics", id="current-project">
-          <header class="section-header">
-            <h2 class="section-title">Current Project</h2>
-          </header>
-          <div class="lecturer-line"></div>
-          <div class="topics-container">
-            <div class="cards-container">
-              <%= render partial: 'courses/project_card',
-                        object: @project,
-                        as: :project,
-                        locals: { course: @course,
-                        participant_id: @participant_type == 'group' ? @group.id : @student.id,
-                        participant_type: @participant_type
-                        } %>
-            </div>
-          </div>
-        </section>
-      <% else %>
-        <section class="lecturer-topics">
-          <header class="section-header">
-            <h2 class="section-title">Current Project</h2>
-          </header>
-          <div class="lecturer-line"></div>
-          <div class="topics-container">
-            <div class="no-topics">
-              <p>No Project Submitted</p>
-            </div>
-          </div>
-        </section>
-      <% end %>
-
-      <footer class="lecturer-footer">
-        <%= link_to "← Back to Course", course_path(@course) %>
-      </footer>
+      </div>
     </section>
+
+    <%# --- Card 2: Current Project --- %>
+    <section
+      class="
+        bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
+      "
+      id="current-project"
+    >
+      <div class=" px-8 pt-6 pb-1 flex items-center justify-between ">
+        <h2 class="text-xl font-semibold text-gray-900">Current Project</h2>
+      </div>
+
+      <% if @project.present? %>
+        <div
+          class="
+            pb-6 pt-4 px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6
+          "
+        >
+          <%= render partial: "courses/project_card",
+          locals: {
+            project: @project,
+            course: @course,
+            participant_id: @participant_type == "group" ? @group.id : @student.id,
+            participant_type: @participant_type,
+          } %>
+        </div>
+      <% else %>
+        <%# Empty State %>
+        <div
+          class="
+            py-12 text-center rounded-xl flex flex-col items-center justify-center gap-3
+          "
+        >
+          <div class="p-3 bg-white rounded-full shadow-sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <div class="text-center">
+            <p class="text-gray-900 font-medium">No project has been submitted yet.</p>
+            <p class="text-gray-500 text-sm mt-1">When a project is submitted, it will appear here.</p>
+          </div>
+        </div>
+      <% end %>
+    </section>
+
+    <%# --- Footer --- %>
+    <footer class="pt-2 pb-2 flex justify-start">
+      <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors duration-150 no-underline rounded-lg hover:bg-gray-100" do %>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 transition-transform group-hover:-translate-x-1"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        Back to Course
+      <% end %>
+    </footer>
+
   </div>
 </main>

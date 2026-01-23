@@ -19,7 +19,7 @@
         <div>
           <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
             <% if (total - i) > @weeks %>
-              <span class="text-indigo-600">Extra
+              <span class="text-blue-600">Extra
                 <%= (total - @weeks - i) %></span>
             <% else %>
               <span>Progress
@@ -65,11 +65,7 @@
 
       <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-4">
         <strong class=" block text-md font-bold uppercase tracking-wide mb-2 ">Feedback</strong>
-        <div
-          class="
-            text-gray-700 text-sm leading-relaxed line-clamp-3 hover:line-clamp-none
-          "
-        >
+        <div class=" text-gray-700 text-sm leading-relaxed">
           <%= h(progress_update.feedback).gsub("\n", "<br/>").html_safe %>
         </div>
       </div>

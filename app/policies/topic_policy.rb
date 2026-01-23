@@ -32,6 +32,14 @@ class TopicPolicy < ApplicationPolicy
     coordinator?
   end
 
+  def new?
+    user.is_staff
+  end
+
+  def destroy?
+    own_topic?
+  end
+
   private
 
   def coordinator?

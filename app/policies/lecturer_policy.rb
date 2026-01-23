@@ -16,10 +16,10 @@ class LecturerPolicy < ApplicationPolicy
 
     user_group_ids = user.project_groups.where(course: course).pluck(:id)
     
-    course.projects.supervised_by(lecturer_enrolment).where(
-      "(owner_type = 'User' AND owner_id = ?) OR 
-       (owner_type = 'ProjectGroup' AND owner_id IN (?))",
-       user.id, user_group_ids
+    @course.projects.supervised_by(lecturer_enrolment).where(
+      "(owner_type = 'User' AND owner_id = :user_id) OR
+       (owner_type = 'ProjectGroup' AND owner_id IN (:user_group_ids) )",
+      user_id: current_user.id, user_group_ids: user_group_ids
     ).exists?
   end
 
@@ -46,6 +46,6 @@ class LecturerPolicy < ApplicationPolicy
   end
 
   def course
-    @course 
+    record.courses.find_by(id: @course_id)
   end
 end

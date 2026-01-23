@@ -41,7 +41,8 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def show?
-    coordinator? || 
+    coordinator? ||
+      lecturer_access? ||
       own_project? || 
       own_supervisor? ||
       unrestricted_access?
@@ -59,6 +60,10 @@ class ProjectPolicy < ApplicationPolicy
 
   def coordinator?
     course.enrolments.exists?(user: user, role: :coordinator)
+  end
+
+  def lecturer_access?
+    course.lecturer_access && course.enrolments.exists?(user: user, role: :lecturer)
   end
 
   def own_project?

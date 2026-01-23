@@ -1,10 +1,10 @@
 body {
     background-color: #efefef;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
 }
 
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 /* page (keith) */
@@ -14,9 +14,8 @@ html {
 }
 
 .main {
-    margin-top: 120px;
-    margin-left: 300px;
-    margin-right: 60px;
+    width: 95%;
+    margin: 0 auto;
     font-size: 28px;
     padding: 10px 0px;
     flex: auto;
@@ -60,11 +59,10 @@ html {
 }
 
 .proposal-guidelines a {
-  text-decoration: none;
-  color: inherit;
-  width: max-content;
+    text-decoration: none;
+    color: inherit;
+    width: max-content;
 }
-
 
 .project-file {
     color: #313848;
@@ -80,9 +78,9 @@ html {
     margin-top: 20px;
     text-decoration: none;
     flex-direction: column;
-    align-items: flex-start; 
-    justify-content: flex-start; 
-    padding: 20px; 
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 20px;
 }
 
 .project-file:hover {
@@ -112,12 +110,7 @@ html {
     margin-top: 4px;
 }
 
-
 /* progress container (alex) */
-
-.status-bar-header {
-    margin-left: 16px;
-}
 
 .status-bar-container {
     background-color: inherit;
@@ -138,7 +131,7 @@ html {
 
 .progress-container::before {
     content: "";
-    background-color: #8E8E8E;
+    background-color: #8e8e8e;
     position: absolute;
     top: 20px;
     left: 0;
@@ -148,7 +141,7 @@ html {
 }
 
 .progress {
-    background-color: #8E8E8E;
+    background-color: #8e8e8e;
     position: absolute;
     top: 20px;
     left: 0;
@@ -175,7 +168,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #8E8E8E;
+    border: 2px solid #8e8e8e;
     transition: 0.4s ease;
     margin-bottom: 8px;
     position: absolute;
@@ -197,8 +190,8 @@ html {
 }
 
 .step.active .circle {
-    border-color: #8E8E8E;
-    background-color: #F2F3F7;
+    border-color: #8e8e8e;
+    background-color: #f2f3f7;
     width: 40px;
     height: 40px;
     top: 0px;
@@ -231,7 +224,6 @@ html {
     background-color: #0056b3;
 }
 
-
 .btn:active {
     transform: scale(0.98);
 }
@@ -242,13 +234,13 @@ html {
 }
 
 .student-proposal h4 {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .no-proposal {
-  margin-top: 8px;
-  font-size: 14px;
-  margin-bottom: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
 /* lecturer list (alex) */
@@ -260,16 +252,13 @@ html {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
-    justify-content: center
-    
+    justify-content: center;
 }
 
 .supervisors a {
-  text-decoration: none; 
-  color: inherit;        
+    text-decoration: none;
+    color: inherit;
 }
-
-
 
 .supervisors li {
     padding: 0;
@@ -287,7 +276,7 @@ html {
 .lecturer-avatar {
     width: 40px;
     height: 40px;
-    background-color: #D9D9D9;
+    background-color: #d9d9d9;
     border-radius: 50%;
     flex-shrink: 0;
     display: flex;
@@ -304,7 +293,7 @@ html {
 .lecturer-content {
     display: flex;
     align-items: center;
-    gap: 30px; 
+    gap: 30px;
     margin-bottom: 4px;
     font-size: 14px;
     font-style: bold;
@@ -330,64 +319,62 @@ html {
     line-height: 0.7;
 }
 
-
 /* topic list (alex) */
 .btn-normal {
     font-size: 12px;
     font-style: italic;
 }
+
 .btn-normal:hover {
     background: none;
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  background-color: #fdf5f2;
-  color: #ef7575;
-  border: 1px solid #f4948c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    background-color: #fdf5f2;
+    color: #ef7575;
+    border: 1px solid #f4948c;
 }
 
 .btn:hover {
     background-color: #f4c4bc;
 }
 
-
 /* project list (alex) */
 
 .filter-container {
-  width: auto;
-  display: inline-block;
-  align-items: center; 
-  gap: 8px; 
+    width: auto;
+    display: inline-block;
+    align-items: center;
+    gap: 8px;
 }
 
 .htmx-indicator {
-  font-size: 20px;
-  color: gray;
+    font-size: 20px;
+    color: gray;
 }
 
 .filter-select-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; 
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .project-list-gapper {
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    margin-left: 10px;
-    margin-top: 20px;
+    margin-top: 8px;
     flex-wrap: wrap;
 }
 
@@ -395,7 +382,7 @@ html {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 21px; 
+    gap: 21px;
 }
 
 .card-link {
@@ -421,9 +408,8 @@ html {
     margin-bottom: 6px;
 }
 
-
 .project-card {
-    color: #FFFFFF;
+    color: #ffffff;
     display: flex;
     flex-wrap: wrap;
     z-index: 0;
@@ -431,9 +417,9 @@ html {
     height: 175px;
     font-size: 14px;
     border-radius: 12px;
-    border: 2px solid #B5B5B5;
+    border: 2px solid #b5b5b5;
     overflow: hidden;
-    background-color:#193b2a;
+    background-color: #193b2a;
 }
 
 .project-card b {
@@ -460,7 +446,7 @@ html {
     position: relative;
     width: 304px;
     height: 105px;
-    background-color: #F8F9FA;
+    background-color: #f8f9fa;
     z-index: 1;
     right: -30px;
     top: 35px;
@@ -469,7 +455,7 @@ html {
 }
 
 .project-card.inner .text {
-    color: #5D5D5D;
+    color: #5d5d5d;
     white-space: pre-line;
     line-height: 1.6;
     opacity: 0.6;
@@ -489,85 +475,94 @@ html {
 }
 
 .card-link:hover .project-card.inner {
-    background-color: #F8F9FA;
+    background-color: #f8f9fa;
 }
 
-.project-card.status-pending  { background-color: #284555 } 
-.project-card.status-redo     { background-color: #e37401} 
-.project-card.status-rejected { background-color: #a50e0f } 
-.project-card.status-approved { background-color: #81a48a}
+.project-card.status-pending {
+    background-color: #284555;
+}
 
+.project-card.status-redo {
+    background-color: #e37401;
+}
 
+.project-card.status-rejected {
+    background-color: #a50e0f;
+}
+
+.project-card.status-approved {
+    background-color: #81a48a;
+}
 
 /* participants list (alex) */
 
 .cell-link {
-  display: block;        
-  width: 100%;
-  height: 100%;
-  text-decoration: none; 
-  color: inherit;        
-  cursor: pointer;
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 
 .table-container {
-  margin-left: 20px;
-  width: calc(100% - 40px); 
+    margin-left: 20px;
+    width: calc(100% - 40px);
 }
 
 .participants-table {
-  width: 80%;
-  border-collapse: collapse;
-  border-top: 1px solid #ececea;
-  border-bottom: 1px solid #ececea;
-  overflow: hidden;
+    width: 80%;
+    border-collapse: collapse;
+    border-top: 1px solid #ececea;
+    border-bottom: 1px solid #ececea;
+    overflow: hidden;
 }
 
 .participants .participants-table th {
-  font-size: 12px;
-  font-weight: normal;
-  color: #8E8E8E;
-  text-align: left; 
-  vertical-align: middle; 
-  border-bottom: 1px solid #ececea;
-  border-right: 1px solid #ececea;
-  padding-left: 8px;
-  padding: 8px;
+    font-size: 12px;
+    font-weight: normal;
+    color: #8e8e8e;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #ececea;
+    border-right: 1px solid #ececea;
+    padding-left: 8px;
+    padding: 8px;
 }
 
 .participants .participants-table th:last-child {
-  border-right: none;
+    border-right: none;
 }
 
 .participants .participants-table td {
-  font-size: 12px;
-  font-weight: normal;
-  color: #3f3c37;
-  text-align: left; 
-  vertical-align: middle; 
-  padding: 8px; 
-  border-bottom: 1px solid #ececea;
-  border-right: 1px solid #ececea;
+    font-size: 12px;
+    font-weight: normal;
+    color: #3f3c37;
+    text-align: left;
+    vertical-align: middle;
+    padding: 8px;
+    border-bottom: 1px solid #ececea;
+    border-right: 1px solid #ececea;
 }
 
 .participants .participants-table td:last-child {
-  border-right: none;
+    border-right: none;
 }
 
 .participants .participants-table tbody tr:last-child td {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .profile-container {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .profile-avatar {
     width: 20px;
     height: 20px;
-    background-color: #D9D9D9;
+    background-color: #d9d9d9;
     border-radius: 50%;
     flex-shrink: 0;
     flex-shrink: 0;
@@ -579,46 +574,74 @@ html {
 }
 
 .participants .participants-table th img {
-  width: 22px; 
-  height: 22px;
-  vertical-align: middle; 
-  display: inline-block;
-  margin-bottom: 5px;
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+    display: inline-block;
+    margin-bottom: 5px;
 }
 
 .status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: normal;
-  gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: normal;
+    gap: 6px;
 }
 
-.status-indicator{
-  width: 10px;
-  height: 10px;
-  border-radius: 100%;
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
 }
 
-.status-badge.pending { background-color: #d2e3fb; }
-.status-badge.approved { background-color: #cde9d6; }
-.status-badge.rejected { background-color: #fad1cf; }
-.status-badge.redo { background-color: #fdf0c4; }
-.status-badge.not-submitted { background-color: #f1f3f4; }
+.status-badge.pending {
+    background-color: #d2e3fb;
+}
 
-.status-indicator.pending { background-color: #284555 }
-.status-indicator.approved { background-color: #81a48a }
-.status-indicator.rejected { background-color: #a50e0f }
-.status-indicator.redo { background-color: #e37401; }
-.status-indicator.not-submitted { background-color: #9ba1a6; }
+.status-badge.approved {
+    background-color: #cde9d6;
+}
+
+.status-badge.rejected {
+    background-color: #fad1cf;
+}
+
+.status-badge.redo {
+    background-color: #fdf0c4;
+}
+
+.status-badge.not-submitted {
+    background-color: #f1f3f4;
+}
+
+.status-indicator.pending {
+    background-color: #284555;
+}
+
+.status-indicator.approved {
+    background-color: #81a48a;
+}
+
+.status-indicator.rejected {
+    background-color: #a50e0f;
+}
+
+.status-indicator.redo {
+    background-color: #e37401;
+}
+
+.status-indicator.not-submitted {
+    background-color: #9ba1a6;
+}
 
 .participants-summary p {
-  font-size: 14px;
-  color: #7e7e7e;
-  font-weight: normal;
-  margin-top: 10px;
+    font-size: 14px;
+    color: #7e7e7e;
+    font-weight: normal;
+    margin-top: 10px;
 }
 
 /* typography (keith) */
@@ -627,8 +650,7 @@ h1,
 h2,
 h3,
 h4,
-h5,
-p {
+h5 {
     word-break: break-word;
     white-space: pre-line;
 }
@@ -642,7 +664,6 @@ h1 {
 }
 
 h2 {
-    font-size: 12px;
     font-weight: normal;
     color: #7e7e7e;
     margin-top: 0px;
@@ -652,7 +673,6 @@ h2 {
 h3 {
     font-size: 16px;
     font-weight: 20px;
-    color: #7e7e7e;
     margin-top: 0px;
     margin-bottom: 0px;
 }
@@ -666,19 +686,14 @@ h4 {
 }
 
 h5 {
-    font-size: 12px;
     font-weight: normal;
-    color: #ff2b2b;
     margin-top: 0px;
     margin-bottom: 0px;
 }
 
 p {
-    font-size: 12px;
-    color: #000000;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    font-weight: bold;
+    /*  margin-top: 0px;
+  margin-bottom: 0px; */
 }
 
 .description-text {
@@ -695,7 +710,6 @@ p {
     margin-left: 15px;
     margin-bottom: 12px;
 }
-
 
 /* forms (keith) */
 
@@ -719,7 +733,7 @@ textarea {
     box-sizing: border-box;
     font-size: 10px;
     margin-top: 10px;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
 }
 
 label {
@@ -751,8 +765,7 @@ input[type="submit"] {
     }
 }
 
-.rounded-add-button
-{
+.rounded-add-button {
     background-color: green;
     border-radius: 50%;
     width: 50px;
@@ -765,4 +778,63 @@ input[type="submit"] {
     position: fixed;
     bottom: 50px;
     right: 50px;
+}
+
+/* Pending Indicator and Resend Button */
+.pending-badge {
+    background-color: #2845aa;
+    color: white;
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    margin-right: 0px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+/* If resend-invite-btn is on the form */
+.resend-invite-btn {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* Reset the inner button styles */
+.resend-invite-btn button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    line-height: 0;
+}
+
+.participants-table .resend-invite-btn img {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.pending-container {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    gap: 4px;
+}
+
+.profile-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.profile-wrapper .cell-link {
+    width: auto;
+    margin-right: 8px;
+    /* space between name and pending */
 }

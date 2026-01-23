@@ -1,23 +1,50 @@
-<div class="project-card status-<%= topic.status %>">
 <% topic_instance = topic.topic_instances.order(:version).last %>
+
 <% if topic_instance %>
-  <% is_my_topic = topic.owner == current_user %>
-  <% if is_my_topic || topic_viewable_by_current_user?(@course, topic) %>
-    <% 
-      # breadcrumb
-      path = if local_assigns[:lecturer].present?
-        # From lecturer/show
-        course_lecturer_topic_path(course, lecturer, topic)
-      else
-        # From topics/index or course/show
-        course_topic_path(@course, topic)
-      end
-    %>
-    <%= link_to path, class: "card-link" do %>
-      <%= render 'courses/topic_card_contents', topic: topic, topic_instance: topic_instance %>
+  <% status_key = topic.status.to_s.downcase
+
+  header_bg =
+    case status_key
+    when "approved"
+      "bg-emerald-600"
+    when "pending"
+      "bg-sky-700"
+    when "redo"
+      "bg-amber-600"
+    when "rejected"
+      "bg-red-700"
+    else
+      "bg-gray-600"
+    end
+
+  path =
+    if local_assigns[:lecturer].present?
+      course_lecturer_topic_path(course, lecturer, topic)
+    else
+      course_topic_path(@course, topic)
+    end
+
+  card_classes =
+    "group block relative w-full h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
+
+  is_my_topic = topic.owner == current_user
+  can_view = is_my_topic || topic_viewable_by_current_user?(@course, topic) %>
+  <% if can_view %>
+    <%= link_to path, class: card_classes do %>
+      <%= render "courses/topic_card_contents",
+      topic: topic,
+      topic_instance: topic_instance,
+      header_bg: header_bg,
+      status_key: status_key %>
     <% end %>
   <% else %>
-    <%= render 'courses/topic_card_contents', topic: topic, topic_instance: topic_instance %>
+    <div class="<%= card_classes %> opacity-75 cursor-not-allowed">
+      <%= render "courses/topic_card_contents",
+      topic: topic,
+      topic_instance: topic_instance,
+      header_bg: header_bg,
+      status_key: status_key %>
+    </div>
   <% end %>
+
 <% end %>
-</div>

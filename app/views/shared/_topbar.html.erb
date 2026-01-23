@@ -1,19 +1,12 @@
-<div class="topbar">
-  <%= link_to "ProPro", root_path %>
+<div
+  class="
+    fixed top-0 left-0 z-[100] flex h-[70px] w-full items-center justify-between
+    overflow-hidden bg-[#e1e1e1]
+  "
+>
 
-  <% if @current_user_enrolment&.coordinator? %>
-    <div class="topbar-actions">
-      <a href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
-        <%= image_tag "settings.svg" %>
-        <span class="topbar-info">Edit Course Settings</span>
-      </a>
+  <%= link_to "ProPro",
+  root_path,
+  class: "shrink-0 px-5 py-5 text-[25px] font-bold text-black no-underline" %>
 
-      <a href="<%= edit_course_project_template_path(@course) %>" class="topbar-icon" title="Edit Project Templates">
-        <%= image_tag "project_templates.svg" %>
-        <span class="topbar-info">Edit Templates</span>
-      </a>
-
-      <%= link_to "Export CSV", export_csv_course_path(@course) %>
-    </div>
-  <% end %>
 </div>

@@ -1,7 +1,11 @@
 class TopicsController < ApplicationController
-  before_action :access_one,  only: [:index, :show, :edit, :update, :destroy, :change_status]
-  before_action :set_course, only: [:new, :create]
+  before_action :set_course
+  before_action :set_topic, only: [:show, :edit, :update, :destroy, :change_status]
+  before_action -> { authorize @topic }, only: [:show, :edit, :update, :destroy, :change_status]
+
   def index
+    @topics = policy_scope(@course.topics)
+    search if params[:query].present?
   end
 
   def show
@@ -16,33 +20,26 @@ class TopicsController < ApplicationController
     else
       @members = [@owner] #individual
     end
-
     if params[:lecturer_id]
       @lecturer = User.find(params[:lecturer_id])
     end
-
     if !params[:version].blank?
       @index = params[:version].to_i
     else
       @index = @instances.size
     end
-
     if @index <= 0 || @index > @instances.size
       @index = @instances.size
     end
 
     @current_instance = @instances[@index - 1]
-
     if @current_instance.nil?
       redirect_to course_path(@course), alert: "No project instance available."
       return
     end
 
-
   @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-
   @latest_version = @instances.size
-
   @next_fields = nil
 
   if @index < @instances.size
@@ -52,35 +49,28 @@ class TopicsController < ApplicationController
 
   @comments = @current_instance.comments.order(created_at: :asc)
     @new_comment = Comment.new
-
     @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
   end
 
   def change_status
-    @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
+    authorize @topic
 
-    if @is_coordinator
-      current_instance = @topic.current_instance
-      if current_instance
-        current_instance.update!(
-          status: params[:status],
-          last_status_change_time: Time.current,
-          last_status_change_by: current_user.id
-        )
-      end 
+    current_instance = @topic.current_instance
+    current_instance.update!(
+      status: params[:status],
+      last_status_change_time: Time.current,
+      last_status_change_by: current_user.id
+    )
 
-      GeneralMailer.with(
-        username: @topic.owner.username,
-        email_address: @topic.owner.email_address,
-        course: @course,
-        topic: @topic,
-        supervisor_username: Current.user.username
-      ).Topic_Status_Updated.deliver_later
+    GeneralMailer.with(
+      username: @topic.owner.username,
+      email_address: @topic.owner.email_address,
+      course: @course,
+      topic: @topic,
+      supervisor_username: Current.user.username
+    ).Topic_Status_Updated.deliver_later
 
-      redirect_to course_topic_path(@course, @topic), notice: "Status updated."
-    else
-      redirect_to course_topic_path(@course, @topic), alert: "You are not authorized to perform this action."
-    end
+    redirect_to course_topic_path(@course, @topic), notice: "Status updated."
   end
 
   def edit
@@ -158,10 +148,7 @@ class TopicsController < ApplicationController
 
 
   def new
-    unless Current.user.is_staff
-      redirect_to course_path(@course), alert: "You are not authorized"
-    end
-
+    authorize Topic
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
 
     if @template_fields.blank?
@@ -215,60 +202,13 @@ class TopicsController < ApplicationController
   end
 
   def destroy
-    if Current.user == @topic.owner
-      @topic.destroy
-      redirect_to course_path(@course), notice: "Topic deleted"
-    else
-      redirect_to course_topic_path(@course, @topic), alert: "You are not authorized to delete this topic."
-    end
+    authorize @topic
+    @topic.destroy
+    redirect_to course_path(@course), notice: "Topic deleted"
   end
 
   private
-  def access_one
-    @course = Course.find(params[:course_id])
-    
-    coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
-    lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
-    student_enrolment = @course.enrolments.find_by(user: Current.user, role: :student)
-    
-    if coordinator_enrolment
-      @current_user_enrolment = coordinator_enrolment
-    elsif lecturer_enrolment
-      @current_user_enrolment = lecturer_enrolment
-    else
-      @current_user_enrolment = student_enrolment
-    end
-
-    @is_coordinator         = @current_user_enrolment&.coordinator?
-    @is_lecturer            = @current_user_enrolment&.lecturer?
-    @is_student             = @current_user_enrolment&.student?
-
-    if action_name == 'index'
-      # FOR TOPICS/INDEX
-      @topics = @course.topics.where(status: :approved)
-      return
-    end
-
-    # FOR COURSES/SHOW
-    if @is_coordinator
-      @topics = @course.topics # Coordinators see every lecturer topic (any status)
-
-    elsif @is_lecturer
-      own = @course.topics.where(owner: Current.user)
-      approved = @course.topics.where(status: :approved)
-
-      @topics = own.or(approved) # Lecturers see their own (any status) OR others' approved
-    else
-      @topics = @course.topics.where(status: :approved) # Students see only approved
-    end
-
-    @topic = @topics.find_by(id: params[:id])
-    unless @topic
-      redirect_to course_path(@course), alert: "You are not authorized to view this topic."
-      return
-    end
-
-    #Search
+  def search
     query = params[:query].to_s.downcase
     if query.present?
       @topics = @topics.select do |topic|
@@ -285,6 +225,14 @@ class TopicsController < ApplicationController
   end
 
   def set_course
-    @course  = Course.find(params[:course_id])
+    @course = Course.find(params[:course_id])
+  end
+
+  def set_topic
+    @topic = @course.topics.find(params[:id])
+  end
+
+  def authorize_topic
+    authorize @topic
   end
 end
