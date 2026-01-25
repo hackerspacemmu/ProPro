@@ -1,85 +1,98 @@
 class ProjectPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
-      if coordinator?
-        scope.all
+      return scope.all if coordinator
+      
+      if student && course.student_access.to_s == "owner_only"
+        own_projects
       else
-        scope.select { |project| viewable?(project) }
+        viewable
       end
     end
-
+    
     private
 
-    def coordinator?
+    # SCOPE METHODS, DO NOT USE IN POLICIES
+    def viewable
+      student_owned = scope.where(ownership_type: :student)
+      group_owned = scope.where(ownership_type: :project_group)
+      approved_topics = scope.where(ownership_type: :lecturer, status: :approved)
+      
+      student_owned.or(group_owned).or(approved_topics)
+    end
+
+    def own_projects
+      user_groups = user.project_groups.where(course: course)
+      scope.owned_by_user_or_groups(user, user_groups)
+    end
+    
+    def coordinator
       course.enrolments.exists?(user: user, role: :coordinator)
     end
-
-    def viewable?(project)
-      # Proposals
-      return true if student_proposal?(project)
-      # Topics
-      return true if approved_lecturer_topic?(project)
-      false
-    end
-
-    def student_proposal?(project)
-      owner = project.owner
-      return true if owner.is_a?(User) && 
-                     course.enrolments.exists?(user: owner, role: :student)
-      return true if owner.is_a?(ProjectGroup) &&
-                     owner.users.all? { |u| course.enrolments.exists?(user: u, role: :student) }
-      false
-    end
-
-    def approved_lecturer_topic?(project)
-      project.lecturer? && project.status.to_s == "approved"
+    
+    def student
+      course.enrolments.exists?(user: user, role: :student)
     end
 
     def course
-      @course ||= scope.first&.course
+      @course ||= scope.take&.course
     end
   end
 
+  # POLICY METHODS
   def show?
-    coordinator? ||
-      lecturer_access? ||
-      own_project? || 
-      own_supervisor? ||
-      unrestricted_access?
+    coordinator ||
+      has_lecturer_view_access ||
+      is_project_owner ||
+      is_assigned_supervisor ||
+      has_unrestricted_student_access
   end
-
+  
   def update?
-    own_project? || (coordinator? && record.student?)
+    is_project_owner || (coordinator && record.student?)
+  end
+  
+  def change_status?
+    is_assigned_supervisor
   end
 
-  def change_status?
+    def create?
+    student || coordinator
+  end
+  
+  # PROJECT ACCESS
+  def has_lecturer_view_access
+    lecturer && course.lecturer_access
+  end
+  
+  def is_project_owner
+    record.owner == user || (record.owner.is_a?(ProjectGroup) && record.owner.users.include?(user))
+  end
+  
+  def is_assigned_supervisor
     record.supervisor == user
   end
-
-  private
-
-  def coordinator?
+  
+  def has_unrestricted_student_access
+    student && course.student_access.to_s == "no_restriction"
+  end
+  
+  def coordinator
     course.enrolments.exists?(user: user, role: :coordinator)
   end
-
-  def lecturer_access?
-    course.lecturer_access && course.enrolments.exists?(user: user, role: :lecturer)
+  
+  def lecturer
+    course.enrolments.exists?(user: user, role: :lecturer)
+  end
+  
+  def course
+    record.course
   end
 
-  def own_project?
-    record.owner == user ||
-      (record.owner.is_a?(ProjectGroup) && record.owner.users.include?(user))
+  def student
+    course.enrolments.exists?(user: user, role: :student)
   end
-
-  def own_supervisor?
-    return false unless course.student_access.to_s == "own_lecturer_only"
-    record.supervisor == user
-  end
-
-  def unrestricted_access?
-    course.student_access.to_s == "no_restriction"
-  end
-
+  
   def course
     record.course
   end

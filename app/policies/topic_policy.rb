@@ -15,21 +15,23 @@ class TopicPolicy < ApplicationPolicy
 
     private
 
+    # SCOPE METHODS, DO NOT USE IN POLICIES
     def course
       @course ||= scope.first&.course
     end
   end
 
+  # POLICY METHODS
   def show?
-    coordinator? || own_topic? || approved?
+    coordinator || own_topic || approved
   end
 
   def update?
-    coordinator? || own_topic?
+    coordinator || own_topic
   end
 
   def change_status?
-    coordinator?
+    coordinator
   end
 
   def new?
@@ -37,20 +39,18 @@ class TopicPolicy < ApplicationPolicy
   end
 
   def destroy?
-    own_topic?
+    own_topic
   end
 
-  private
-
-  def coordinator?
+  def coordinator
     course.enrolments.exists?(user: user, role: :coordinator)
   end
 
-  def own_topic?
+  def own_topic
     course.enrolments.exists?(user: user, role: :lecturer) && record.owner == user
   end
 
-  def approved?
+  def approved
     record.status.to_s == "approved"
   end
 

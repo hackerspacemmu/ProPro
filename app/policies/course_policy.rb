@@ -2,6 +2,30 @@ class CoursePolicy < ApplicationPolicy
   def show?
     enrolled
   end
+
+  def create?
+    user.is_staff
+  end
+  
+  def update?
+    coordinator?
+  end
+  
+  def destroy?
+    coordinator?
+  end
+  
+  def manage_students?
+    coordinator?
+  end
+  
+  def manage_lecturers?
+    coordinator?
+  end
+  
+  def export_csv?
+    coordinator?
+  end
   
   def promote_to_coordinator?
     coordinator
@@ -24,10 +48,8 @@ class CoursePolicy < ApplicationPolicy
     case record.student_access&.to_sym
     when :no_restriction
       true
-    when :own_lecturer_only
+    when :own_lecturer_only, :owner_only
       supervised_by?(lecturer)
-    when :owner_only
-      record.projects.where(owner: user).supervised_by?(lecturer)
     else
       false
     end
@@ -41,7 +63,7 @@ class CoursePolicy < ApplicationPolicy
     
     record.projects
       .supervised_by(lecturer_enrolment)
-      .owned_by_student_or_groups(user, user.project_groups.where(course: record))
+      .owned_by_user_or_groups(user, user.project_groups.where(course: record))
       .exists?
   end
   

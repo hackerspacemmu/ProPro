@@ -24,10 +24,12 @@ class Project < ApplicationRecord
 
   # Enrolment (supervisor) filters
   scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
-
-  scope :owned_by_student_or_groups, ->(user, groups) {
+  
+  scope :owned_by_user_or_groups, ->(user, groups) {
     where(owner: [user] + groups.to_a)
   }
+  scope :owned_by_user, ->(user) { where(owner: user) }
+  scope :owned_by_groups, ->(groups) { where(owner: groups) }
 
   before_validation :set_ownership_type
 

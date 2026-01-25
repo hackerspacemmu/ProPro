@@ -4,17 +4,23 @@ require "securerandom"
 
 class CoursesController < ApplicationController
     before_action :set_course, only: [:show, :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv, :profile]
-    before_action :disallow_noncoordinator_requests, only: [ :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv]
-    before_action :check_staff, only: [ :new, :create ]
+    before_action :authorize_create, only: [:new, :create]
+    before_action :authorize_destroy, only: [:destroy]
+    before_action :authorize_update, only: [:settings, :handle_settings]
+    before_action :authorize_manage_students, only: [:add_students, :handle_add_students]
+    before_action :authorize_lecturers, only: [:add_lecturers, :handle_add_lecturers]
+    before_action :authorize_export_csv, only: [:export_csv]
 
     def show
+      authorize @course
+
       @student_list = @course.students
       @description = @course.course_description
       @lecturers = @course.lecturers
       @group_list = @course.grouped? ? @course.project_groups.to_a : []
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
-
       @current_user_enrolment = @course.enrolments.find_by(user: current_user)
+      
       @topic_list = policy_scope(@course.topics)
 
       # SET STUDENT PROJECTS
@@ -291,18 +297,28 @@ class CoursesController < ApplicationController
     @course.projects.not_lecturer_owned.approved.where(owner_type: "User").pluck("owner_id")
   end
 
-  def disallow_noncoordinator_requests
-    unless @course.coordinators.include? Current.user
-      redirect_back_or_to "/", alert: "Access denied"
-      return
-    end
+  def authorize_create
+    authorize Course.new, :create?
   end
 
-  def check_staff
-    if !Current.user.is_staff
-      redirect_to "/", alert: "Only staff can create courses"
-      return
-    end
+  def authorize_destroy
+    authorize @course, :destroy?
+  end
+
+  def authorize_update
+    authorize @course, :update?
+  end
+
+  def authorize_manage_students
+    authorize @course, :manage_students?
+  end
+
+  def authorize_manage_lecturers
+    authorize @course, :manage_lecturers?
+  end
+
+  def authorize_export_csv
+    authorize @course, :export_csv?
   end
 
   def parse_csv_grouped(csv_obj, columns_to_check)
@@ -310,12 +326,10 @@ class CoursesController < ApplicationController
 
     csv_obj.each do |row|
       mapped_columns = columns_to_check.map { |item| row[item] }
-      # in the csv, an empty group still has a row, just that all columns of that row are not populated, this is valid
       if mapped_columns.all?(&:nil?) 
         next
       end
 
-      # if it passed the previous check, it means that the current row is not ALL empty, but ONE OF the columns might still be, this is invalid
       mapped_columns.each do |column|
         if column.nil?
           raise StandardError, "Invalid CSV file"
