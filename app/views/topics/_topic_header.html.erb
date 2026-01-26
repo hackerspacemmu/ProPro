@@ -22,7 +22,7 @@
               <%= owner.username %>
             </p>
           <% else %>
-            <% @topic.owner.users.each do |user| %>
+            <% topic.owner.users.each do |user| %>
               <p class="owner-row">
                 <span class="user-badge"><%= user.username[0].upcase %></span>
                 <%= user.username %>
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Group Name (only if group project) -->
-      <% if @topic.owner.is_a?(ProjectGroup) %>
+      <% if topic.owner.is_a?(ProjectGroup) %>
         <div class="properties-item">
           <span class="properties-label"><%= image_tag("group.svg") %> Group Name</span>
           <span class="properties-value">
@@ -49,9 +49,9 @@
           <div class="properties-item">
             <span class="properties-label"><%= image_tag("status.svg") %> Status</span>
             <div class="properties-value">
-              <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
+              <% if policy(topic).change_status? &&  current_version == latest_version %>
                 <div class="status-control">
-                  <%= form_with url: change_status_course_topic_path(@course, @topic), method: :patch, local: true, class: "status-change-form" do |f| %>
+                  <%= form_with url: change_status_course_topic_path(@course, topic), method: :patch, local: true, class: "status-change-form" do |f| %>
                     <% statuses = TopicInstance.statuses.keys.without("not_submitted") %>
                     <%= f.select :status, options_for_select(statuses.map { |s| [s.humanize, s] }, current_instance.status), {}, class: "status-select status-#{@topic.status}" %>
                     <%= f.button type: "submit", class: "status-save-btn", title: "Save status" do %>
@@ -68,13 +68,13 @@
           </div>
         
           <div class="timestamp-info">
-            <% if @current_instance.last_status_change_time.present? %>
-              <div class="timestamp"><%= format_timestamp(@current_instance.last_status_change_time) || '-' %></div>
+            <% if current_instance.last_status_change_time.present? %>
+              <div class="timestamp"><%= format_timestamp(current_instance.last_status_change_time) || '-' %></div>
             <% end %>
             <div class="status-username">
               <% if @current_instance.last_status_change_by.present? %>
-                  <span class="status-dot <%= @current_instance.status %>"></span>
-                  <%= username(@current_instance.last_status_change_by) || 'Not changed' %>
+                  <span class="status-dot <%= current_instance.status %>"></span>
+                  <%= username(current_instance.last_status_change_by) || 'Not changed' %>
               <% else %>
                 <%= image_tag("pending.svg") %> Awaiting review
               <% end %>
@@ -118,11 +118,11 @@
               </div>
             </div>
             <div class="timestamp-info">
-              <% if @current_instance.last_edit_time.present? %>
-                <div class="timestamp"><%= format_timestamp(@current_instance.last_edit_time) || '-' %></div>
+              <% if current_instance.last_edit_time.present? %>
+                <div class="timestamp"><%= format_timestamp(current_instance.last_edit_time) || '-' %></div>
               <% end %>
               <div class="status-username">
-                <% editor_id = @current_instance.last_edit_by || @current_instance.created_by_id %>
+                <% editor_id = current_instance.last_edit_by || current_instance.created_by_id %>
                 <%= image_tag("edit.svg") %><%= username(editor_id) || 'Not changed' %>
               </div>
             </div>

@@ -30,11 +30,10 @@ class ProjectsController < ApplicationController
     end
 
     @current_instance = @instances[@index - 1]
-
-    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-
+    @current_version = @index
     @latest_version = @instances.size
 
+    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
     @next_fields = nil
 
     if @index < @instances.size
@@ -43,7 +42,7 @@ class ProjectsController < ApplicationController
     end
 
     @comments = @current_instance.comments.order(created_at: :asc)
-    @new_comment = Comment.new
+    @new_comment = Comment.new(user: current_user, location: @current_instance)
 
     if @course.use_progress_updates
       @progress = @project.progress_updates.order(date: :desc)

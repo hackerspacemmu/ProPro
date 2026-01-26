@@ -10,15 +10,15 @@
 
     
   <% @projects.each do |project| %>
-    <% latest_instance = project.project_instances.order(version: :desc).first %>
-    <% description_field = latest_instance&.project_instance_fields&.find do |field|
+    <% current_instance = project.project_instances.order(version: :desc).first %>
+    <% description_field = current_instance&.project_instance_fields&.find do |field|
          field.project_template_field.label.strip.downcase.include?("description")
        end %>
 
     <li>
       <p>
         <strong>Project:</strong>
-        <%= link_to latest_instance&.title || "Untitled Topic", course_project_path(@course, project) %>
+        <%= link_to current_instance&.title || "Untitled Topic", course_project_path(@course, project) %>
       </p>
 
       <% owner = project.ownership&.owner %>
@@ -34,7 +34,10 @@
     </li>
   <% end %>
 </ul>
+
+<% if policy(Project.new(course: @course)).create? %>
   <% enrolment = current_user.enrolments.find_by(course: @course) %>
   <% unless enrolment && Project.exists?(enrolment: enrolment) %>
     <%= link_to "Create Project", new_course_project_path(@course), class: "btn btn-primary" %>
   <% end %>
+<% end %>

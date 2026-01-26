@@ -1,7 +1,7 @@
 class ProjectTemplatesController < ApplicationController
   before_action :set_course
   before_action :set_project_template
-  before_action :only_authorise_coordinator
+  before_action :authorize_update_template
 
   def update
     if @project_template.update(project_template_params)
@@ -17,7 +17,6 @@ class ProjectTemplatesController < ApplicationController
   def edit
     @project_template = @course.project_template
   end
-
 
   private 
 
@@ -44,11 +43,8 @@ class ProjectTemplatesController < ApplicationController
     )
   end
 
-  def only_authorise_coordinator
-    unless @course.coordinators.pluck(:id).include? Current.user.id
-      redirect_back_or_to "/", alert: "Not authorised"
-      return
-    end
+  def authorize_update_template
+    authorize @course, :update?
   end
 
 end

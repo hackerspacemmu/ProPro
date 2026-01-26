@@ -47,20 +47,24 @@ class ProjectPolicy < ApplicationPolicy
       is_assigned_supervisor ||
       has_unrestricted_student_access
   end
+
+  def create?
+    student || coordinator
+  end
   
   def update?
-    is_project_owner || (coordinator && record.student?)
+    is_project_owner && !approved
   end
   
   def change_status?
     is_assigned_supervisor
   end
 
-    def create?
-    student || coordinator
+  def can_record_progress_update?
+    is_assigned_supervisor && approved && course.use_progress_updates
   end
   
-  # PROJECT ACCESS
+  # PROJECT ACCESS METHODS
   def has_lecturer_view_access
     lecturer && course.lecturer_access
   end
@@ -95,5 +99,9 @@ class ProjectPolicy < ApplicationPolicy
   
   def course
     record.course
+  end
+
+  def approved
+    record.status.to_s == "approved"
   end
 end

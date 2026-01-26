@@ -6,8 +6,7 @@ has_actions = is_member || is_history %>
   <div class="flex flex-col gap-4">
 
     <%# --- STUDENT ACTIONS --- %>
-    <% if is_member && !is_history %>
-      <% if project.status != "approved" %>
+    <% if policy(project).update? && !is_history %>
         <div class="w-full">
           <p
             class="
@@ -26,7 +25,7 @@ has_actions = is_member || is_history %>
           <% end %>
         </div>
 
-      <% else %>
+    <% elsif is_member && !is_history %>
         <div
           class="
             w-full p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center
@@ -36,7 +35,6 @@ has_actions = is_member || is_history %>
           <%= image_tag "lock.svg", class: "w-4 h-4 opacity-50 grayscale" %>
           <span class="text-sm font-medium">Unable to Edit Project</span>
         </div>
-      <% end %>
     <% end %>
 
     <%# --- VERSION JUMP ACTION --- %>

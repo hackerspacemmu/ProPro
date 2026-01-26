@@ -122,7 +122,7 @@
           </span>
 
           <div class="flex-1 flex justify-end">
-            <% if current_user == @project.supervisor && current_version == latest_version %>
+            <% if policy(project).change_status? && current_version == latest_version %>
               <div class="flex items-center gap-2">
                 <%= form_with url: change_status_course_project_path(@course, @project), method: :patch, local: true, class: "flex items-center gap-2" do |f| %>
                   <% statuses = Project.statuses.keys.without("not_submitted") %>

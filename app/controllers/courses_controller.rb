@@ -22,6 +22,7 @@ class CoursesController < ApplicationController
       @current_user_enrolment = @course.enrolments.find_by(user: current_user)
       
       @topic_list = policy_scope(@course.topics)
+      @my_topics = @topic_list.where(owner: current_user)
 
       # SET STUDENT PROJECTS
       projects_ownerships = @course.projects.approved
@@ -270,7 +271,7 @@ class CoursesController < ApplicationController
       @student = User.find(@participant_id)
     end
 
-    @latest_instance = @project&.project_instances&.order(:version)&.last
+    @current_instance = @project&.project_instances&.order(:version)&.last
     Rails.logger.info "PROFILE PARAMS: #{params.slice(:id, :participant_id, :participant_type).inspect}"
   end
     

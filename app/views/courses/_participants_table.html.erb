@@ -82,9 +82,9 @@
           <% if group_list.present? %>
             <% group_list.each do |group| %>
               <% group_project = group_project_for(group, @course)
-              latest_instance = group_project&.project_instances&.order(:version)&.last
+              current_instance = group_project&.project_instances&.order(:version)&.last
               status = group_status(group, @course)
-              supervisor = latest_instance&.supervisor %>
+              supervisor = current_instance&.supervisor %>
               <tr
                 class="
                   hover:bg-gray-50 transition-colors duration-150 group divide-x divide-gray-200
@@ -152,7 +152,7 @@
                 <td class="px-4 py-4 text-sm text-gray-700 align-top text-left">
                   <% if group_project.present? %>
                     <%= link_to course_project_path(@course, group_project), class: "font-medium text-gray-900 hover:text-gray-700 hover:underline line-clamp-2" do %>
-                      <%= latest_instance&.title || "-" %>
+                      <%= current_instance&.title || "-" %>
                     <% end %>
                   <% else %>
                     <span class="text-gray-400 italic text-xs">-</span>
@@ -253,9 +253,9 @@
           <% if student_list.present? %>
             <% student_list.each do |student| %>
               <% student_project = student_project_for(student, @course)
-              latest_instance = student_project&.project_instances&.order(:version)&.last
+              current_instance = student_project&.project_instances&.order(:version)&.last
               status = student_status(student, @course)
-              supervisor = latest_instance&.supervisor %>
+              supervisor = current_instance&.supervisor %>
               <tr
                 class="
                   hover:bg-gray-50 transition-colors duration-150 group divide-x divide-gray-200
@@ -312,7 +312,7 @@
                 <td class="px-4 py-4 text-sm text-gray-700 align-top text-left">
                   <% if student_project.present? %>
                     <%= link_to course_project_path(@course, student_project), class: "font-medium text-gray-900 hover:text-gray-700 hover:underline line-clamp-2" do %>
-                      <%= latest_instance&.title || "-" %>
+                      <%= current_instance&.title || "-" %>
                     <% end %>
                   <% else %>
                     <span class="text-gray-400 italic text-xs">-</span>

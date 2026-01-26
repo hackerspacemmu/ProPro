@@ -213,14 +213,14 @@
           <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if @approved_projects.empty? %>
+          <% if @my_student_projects.empty? %>
             <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
               <p class="italic text-gray-500">No Projects Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-                        collection: @approved_projects,
+                        collection: @my_student_projects,
                         as: :project,
                         locals: { course: @course, lecturer: @lecturer } %>
             </div>
@@ -236,14 +236,14 @@
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if @proposals.empty? %>
+          <% if @incoming_projects.empty? %>
             <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
               <p class="text-gray-500 italic">No Proposals Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-                        collection: @proposals,
+                        collection: @incoming_projects,
                         as: :project,
                         locals: { course: @course, lecturer: @lecturer } %>
             </div>
@@ -260,14 +260,14 @@
           <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if @approved_projects.empty? %>
+          <% if @my_student_projects.empty? %>
             <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
               <p class="italic text-gray-500">No Projects Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-                        collection: @approved_projects,
+                        collection: @my_student_projects_projects,
                         as: :project,
                         locals: { course: @course, lecturer: @lecturer } %>
             </div>

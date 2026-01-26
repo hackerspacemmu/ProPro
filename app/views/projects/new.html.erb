@@ -181,12 +181,12 @@
                       ) %>
 
                     <% approved_topics.each do |topic| %>
-                      <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+                      <% current_instance = topic.topic_instances.order(version: :desc).first %>
                       <option
                         value="<%= topic.id %>"
                         <%= 'selected' if topic.id == @selected_topic_id %>
                       >
-                        <%= "#{lecturer.username} - #{latest_instance&.title || "Untitled Topic"}" %>
+                        <%= "#{lecturer.username} - #{current_instance&.title || "Untitled Topic"}" %>
                       </option>
                     <% end %>
 

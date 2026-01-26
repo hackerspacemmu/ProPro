@@ -22,7 +22,12 @@ current_user_enrolment: @current_user_enrolment %>
     >
       <form>
         <h4 class="break-all whitespace-pre-line text-xl">Project Details</h4>
-        <p class="text-[1rem] mt-3 leading-[1.3] whitespace-pre-line text-gray-500"><%= @description || "No description available for this course." %></p>
+        <p
+          class="
+            text-[0.9rem] sm:text-[1rem] mt-3 leading-[1.3] whitespace-pre-line
+            text-gray-500 break-words
+          "
+        ><%= @description || "No description available for this course." %></p>
       </form>
 
       <% if @course.file_link.present? %>
@@ -61,26 +66,26 @@ current_user_enrolment: @current_user_enrolment %>
     course: @course,
     current_user_enrolment: @current_user_enrolment,
     topic_list: @topic_list,
+    my_topics: @my_topics,
     current_user: @current_user,
     my_student_projects: @my_student_projects,
     incoming_proposals: @incoming_proposals,
     lecturers: @lecturers %>
 
   <% elsif @current_user_enrolment&.lecturer? %>
-    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals
-    -->
+    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals -->
     <%= render "lecturer_section",
     course: @course,
     current_user_enrolment: @current_user_enrolment,
     topic_list: @topic_list,
+    my_topics: @my_topics,
     current_user: @current_user,
     my_student_projects: @my_student_projects,
     incoming_proposals: @incoming_proposals,
     lecturers: @lecturers %>
 
   <% else %>
-    <!-- Student View: Supervisors Available, Proposal Status, Available Topics
-    -->
+    <!-- Student View: Supervisors Available, Proposal Status, Available Topics -->
     <%= render "student_section",
     course: @course,
     current_user_enrolment: @current_user_enrolment,

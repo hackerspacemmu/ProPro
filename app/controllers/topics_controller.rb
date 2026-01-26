@@ -33,13 +33,15 @@ class TopicsController < ApplicationController
     end
 
     @current_instance = @instances[@index - 1]
+    @current_version = @index
+    @latest_version = @instances.size
+
     if @current_instance.nil?
       redirect_to course_path(@course), alert: "No project instance available."
       return
     end
 
   @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-  @latest_version = @instances.size
   @next_fields = nil
 
   if @index < @instances.size
@@ -48,7 +50,7 @@ class TopicsController < ApplicationController
   end
 
   @comments = @current_instance.comments.order(created_at: :asc)
-    @new_comment = Comment.new
+    @new_comment = Comment.new(user: current_user, location: @current_instance)
     @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
   end
 

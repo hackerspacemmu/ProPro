@@ -7,7 +7,7 @@ class ParticipantsController < ApplicationController
         @filtered_group_list = filtered_group_list
         @filtered_student_list = filtered_student_list
 
-        projects_ownerships = @course.projects.approved
+        projects_ownerships = @course.projects.approved 
                               .where(owner_type: "User")
                               .pluck("owner_id")
 

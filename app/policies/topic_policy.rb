@@ -31,7 +31,7 @@ class TopicPolicy < ApplicationPolicy
   end
 
   def change_status?
-    coordinator
+    coordinator && course.require_coordinator_approval?
   end
 
   def new?
