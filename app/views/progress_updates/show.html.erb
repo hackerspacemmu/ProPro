@@ -12,7 +12,7 @@
 <strong>Feedback:</strong>
 <p><%= h(@progress_update.feedback).gsub("\n", "<br/>").html_safe %></p>
 
-<% if policy(@project).can_record_progress_update? %>
+<% if policy(@project).can_record_progress_update? && (current_version == latest_version) %>
   <div style="display: flex; gap: 10px;">
     <%=
       button_to "Edit Progress Update",

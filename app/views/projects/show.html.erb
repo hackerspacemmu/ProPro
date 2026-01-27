@@ -73,7 +73,7 @@
 
           <div class="flex flex-col md:flex-row xl:flex-col gap-6">
 
-            <% if policy(@project).update? %>
+            <% if policy(@project).update? || @current_version != @latest_version %>
               <section
                 class="
                   bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
@@ -103,7 +103,7 @@
               </section>
             <% end %>
 
-            <% if policy(@project).can_record_progress_update? %>
+            <% if policy(@project).can_record_progress_update? && @current_version == @latest_version %>
               <div
                 class="
                   bg-gray-50 rounded-2xl p-6 border border-blue-100 shadow-sm relative
