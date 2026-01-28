@@ -26,7 +26,16 @@
             </div>
             <% end %>
 
-            <p><%= form.label :course_name, "Course Name:" %></p>
+            <div class="flex justify-between items-end mb-1">
+                <p><%= form.label :course_name, "Course Name:" %></p>
+                
+                <%= button_tag type: 'button', 
+                            id: 'copy-course-btn', 
+                            class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm transition duration-150" do %>
+                    <span>Reuse details from another course</span>
+                <% end %>
+            </div>
+
             <%= form.text_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name"%>
             <br>
 
