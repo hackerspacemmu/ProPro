@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 
 # Git hooks automatically redirect stdout, so we need to redirect it to stderr
 exec 1>&2
