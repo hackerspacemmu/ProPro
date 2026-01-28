@@ -81,14 +81,14 @@ crumb :project do |project|
   link project.project_instances.last&.title, course_project_path(project.course, project)
 
   if params[:lecturer_id]
-    lecturer = ::User.find(params[:lecturer_id])
+    lecturer = User.find(params[:lecturer_id])
     parent :lecturer, project.course, lecturer
 
   elsif params[:from_participant] && params[:participant_type]
     participant_name = if params[:participant_type] == 'group'
-                         ::ProjectGroup.find(params[:from_participant]).group_name
+                         ProjectGroup.find(params[:from_participant]).group_name
                        else
-                         ::User.find(params[:from_participant]).username
+                         User.find(params[:from_participant]).username
                        end
     parent :course_participant_profile, project.course, participant_name
   else
@@ -133,7 +133,7 @@ crumb :topic do |topic|
 
   if params[:lecturer_id]
     # From lecturer/show
-    lecturer = ::User.find(params[:lecturer_id])
+    lecturer = User.find(params[:lecturer_id])
     parent :lecturer, topic.course, lecturer
   else
     # From topics/index

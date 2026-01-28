@@ -12,23 +12,23 @@
     </div>
     <p class="edit-description">Update your project details and information below.</p>
   </header>
-  
+
   <%= form_with(model: [@course, @topic], url: course_topic_path(@course, @topic), method: :patch, local: true, class: "edit-form") do |form| %>
 
     <div class="fields-container">
       <% @template_fields.each do |field| %>
         <div class="field-row">
           <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
-          
+
           <% if field.hint.present? %>
             <p class="field-hint"><%= field.hint %></p>
           <% end %>
-          
+
           <% existing_value = @existing_values[field.id] %>
-          
+
           <% case field.field_type %>
           <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
+            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
           <% when "textarea" %>
             <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
           <% when "dropdown" %>
@@ -49,12 +49,12 @@
             <% end %>
             </div>
           <% else %>
-            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true %>
+            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true, autocomplete: "off" %>
           <% end %>
         </div>
       <% end %>
     </div>
-    
+
     <div class="form-actions">
       <%= link_to "← Back to Topic", course_path(@course), class: "btn btn-secondary" %>
       <%= submit_tag "Submit", class: "btn btn-primary" %>

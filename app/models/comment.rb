@@ -4,5 +4,5 @@ class Comment < ApplicationRecord
 
   attribute :deleted, :boolean, default: false
 
-  validates :text, presence: { message: "cannot be empty" }
+  validates :text, presence: { message: 'cannot be empty' }
 end

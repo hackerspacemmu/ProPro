@@ -8,7 +8,6 @@
 <%= @current_instance.title %>
 <p><strong>Date:</strong> <%= @progress_update.date %></p>
 <p><strong>Rating:</strong> <%= @progress_update.rating.gsub("_", " ").titleize %></p>
-<p>
 <strong>Feedback:</strong>
 <p><%= h(@progress_update.feedback).gsub("\n", "<br/>").html_safe %></p>
 
@@ -26,4 +25,5 @@
       method: :delete,
       class: "delete-btn"
     %>
-  <% end %>
+  </div>
+<% end %>

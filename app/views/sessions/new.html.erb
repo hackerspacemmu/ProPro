@@ -16,14 +16,12 @@
   <h1
     class="
       text-3xl md:text-4xl font-bold text-gray-900 mb-8 mt-4 tracking-tight
-    "
-  >Welcome to ProPro</h1>
+    ">Welcome to ProPro</h1>
 
   <div
     class="
       w-full max-w-lg bg-white rounded-xl shadow-lg p-8 border border-gray-100
-    "
-  >
+    ">
 
     <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Sign In</h2>
     <% if flash[:notice] %>
@@ -32,20 +30,17 @@
           mb-6 mx-auto w-full bg-green-50 border-1 border-l-4 border-green-500
           text-green-700 p-4 rounded shadow-sm flex items-center animate-pulse
         "
-        role="alert"
-      >
+        role="alert">
         <svg
           class="w-5 h-5 mr-3 text-green-500 flex-shrink-0"
           fill="none"
           stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+          viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M5 13l4 4L19 7"
-          />
+            d="M5 13l4 4L19 7" />
         </svg>
 
         <div>
@@ -61,19 +56,16 @@
           mb-6 mx-auto w-full bg-red-50 border-1 border-l-4 border-red-500 text-red-700
           p-4 rounded shadow-sm flex items-center animate-pulse
         "
-        role="alert"
-      >
+        role="alert">
         <svg
           class="w-5 h-5 mr-3 text-red-500 flex-shrink-0"
           fill="none"
           stroke="currentColor"
-          viewBox="0 0 24 24"
-        ><path
+          viewBox="0 0 24 24"><path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          /></svg>
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
         <div>
           <p class="font-bold text-sm">Login Failed</p>
           <p class="text-sm"><%= flash[:alert] %></p>

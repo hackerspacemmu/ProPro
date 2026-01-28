@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Git hooks automatically redirect stdout, so we need to redirect it to stderr
+exec 1>&2
+
+files=$(git diff --cached --name-only)
+
+# # Stash first
+# git stash push --staged
+#
+# # Re-apply the stashed changes and re-stage
+# git stash apply
+# git add "$files"
+
+bin/auto_format_lint "$files"
+
+echo "Auto formatting and linting completed."

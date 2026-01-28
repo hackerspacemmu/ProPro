@@ -1,4 +1,4 @@
-require "test_helper"
+require 'test_helper'
 
 class OtpMailerTest < ActionMailer::TestCase
   # test "the truth" do

@@ -9,8 +9,9 @@
 }
 
 body {
-  background-color: #F2F3F7;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #f2f3f7;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   line-height: 1.5;
 }
 
@@ -31,12 +32,12 @@ body {
 /* ============================================= */
 
 .project-content {
-  flex: 1;  
+  flex: 1;
   margin: 0 auto;
   padding: 5px 5em;
   position: relative;
   justify-content: center;
-    align-items: center;
+  align-items: center;
 }
 
 /* ============================================= */
@@ -72,7 +73,7 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  align-items: flex-start; 
+  align-items: flex-start;
   padding: 0;
   gap: 8px;
 }
@@ -85,7 +86,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;  
+  white-space: nowrap;
   min-width: 150px;
   flex-shrink: 0;
 }
@@ -157,7 +158,7 @@ body {
 }
 
 .status-dot.pending {
-  background-color: #8E8E8E;
+  background-color: #8e8e8e;
 }
 
 .status-username img {
@@ -217,7 +218,7 @@ body {
 }
 
 .status-select.status-pending {
-  background-color: #8E8E8E;
+  background-color: #8e8e8e;
 }
 
 .version-navigation {
@@ -292,7 +293,7 @@ body {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #8E8E8E;
+  background-color: #8e8e8e;
   color: #fff;
   font-size: 0.875rem;
   font-weight: 600;
@@ -335,7 +336,7 @@ body {
   width: 100%;
 }
 
-.project-comments .section-header .section-title{
+.project-comments .section-header .section-title {
   width: 100%;
   font-size: 16px;
   color: #454343;
@@ -360,9 +361,9 @@ body {
 }
 
 .comment-date {
-    font-size: 12px;
-    color: #454343;
-    opacity: 0.8;
+  font-size: 12px;
+  color: #454343;
+  opacity: 0.8;
 }
 
 .comment {
@@ -408,7 +409,6 @@ body {
 .comment-body-wrapper {
   grid-column: 2;
 }
-
 
 .comment-header {
   display: flex;
@@ -465,8 +465,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-
-
 }
 
 .form-label {
@@ -517,7 +515,9 @@ body {
   opacity: 0.6;
   font-size: 20px;
   font-weight: 800;
-  transition: opacity 0.2s, color 0.2s;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
 }
 
 .project-tabs h2 .section-title.active {
@@ -560,18 +560,15 @@ body {
   white-space: pre-line;
 }
 
-.field-value p
-.field-hint p {
+.field-value p .field-hint p {
   white-space: pre-line;
   margin: 0;
   margin-bottom: 1em;
 }
 
-.field-value p:last-child
-.field-hint p:last-child {
+.field-value p:last-child .field-hint p:last-child {
   margin-bottom: 0;
 }
-
 
 /* ============================================= */
 /* PROJECT FOOTER CONTAINER */
@@ -672,7 +669,9 @@ body {
   color: #374151;
   line-height: 1.5;
   background-color: #ffffff;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
   font-family: inherit;
 }
 
