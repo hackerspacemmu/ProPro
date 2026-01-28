@@ -1,12 +1,10 @@
 <header
-  class="w-full bg-gray-50 rounded-xl flex flex-col items-center gap-6 px-8"
->
+  class="w-full bg-gray-50 rounded-xl flex flex-col items-center gap-6 px-8">
   <h1
     class="
       text-3xl md:text-4xl font-bold text-gray-900 mb-6 mt-4 w-full break-words
       text-center md:text-left
-    "
-  >
+    ">
     <%= current_instance.title %>
   </h1>
 
@@ -19,8 +17,7 @@
           class="
             text-gray-700 font-semibold text-base flex items-center gap-2 min-w-[140px]
             shrink-0
-          "
-        >
+          ">
           <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70") %>
           Type
         </span>
@@ -34,8 +31,7 @@
           class="
             text-gray-700 font-semibold text-base flex items-center gap-2 min-w-[140px]
             shrink-0
-          "
-        >
+          ">
           <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70") %>
           Owner
         </span>
@@ -46,8 +42,7 @@
                 class="
                   inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-400
                   text-white text-xs font-bold uppercase
-                "
-              >
+                ">
                 <%= owner.username[0].upcase %>
               </span>
               <%= owner.username %>
@@ -59,8 +54,7 @@
                   class="
                     inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-400
                     text-white text-xs font-bold uppercase
-                  "
-                >
+                  ">
                   <%= user.username[0].upcase %>
                 </span>
                 <%= user.username %>
@@ -75,8 +69,7 @@
           class="
             text-gray-700 font-semibold text-base flex items-center gap-2 min-w-[140px]
             shrink-0
-          "
-        >
+          ">
           <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70") %>
           Supervisor
         </span>
@@ -91,8 +84,7 @@
             class="
               text-gray-700 font-semibold text-base flex items-center gap-2 min-w-[140px]
               shrink-0
-            "
-          >
+            ">
             <%= image_tag("group.svg", class: "w-4 h-4 object-contain opacity-70") %>
             Group Name
           </span>
@@ -109,14 +101,12 @@
         class="
           bg-white/80 backdrop-blur-sm rounded-xl p-3 flex flex-col gap-3 shadow-sm border
           border-white/50
-        "
-      >
+        ">
         <div class="flex flex-row items-center justify-between gap-3">
           <span
             class="
               text-gray-700 font-semibold text-base flex items-center gap-2 shrink-0
-            "
-          >
+            ">
             <%= image_tag("status.svg", class: "w-4 h-4 object-contain opacity-70") %>
             Status
           </span>
@@ -166,8 +156,7 @@
                 class="
                   px-3 py-1 rounded-md text-white text-sm font-medium capitalize
                   <%= badge_color %>
-                "
-              >
+                ">
                 <%= current_instance.status.humanize %>
               </span>
             <% end %>
@@ -178,8 +167,7 @@
           class="
             text-xs text-gray-500 font-medium flex flex-col gap-1 border-t
             border-gray-200/50 pt-2 mt-1
-          "
-        >
+          ">
           <% if @current_instance.last_status_change_time.present? %>
             <div class="opacity-90"><%= format_timestamp(@current_instance.last_status_change_time) || "-" %></div>
           <% end %>
@@ -212,14 +200,12 @@
         class="
           bg-white/80 backdrop-blur-sm rounded-xl p-3 flex flex-col gap-3 shadow-sm border
           border-white/50
-        "
-      >
+        ">
         <div class="flex flex-row items-center justify-between gap-3">
           <span
             class="
               text-gray-700 font-semibold text-base flex items-center gap-2 shrink-0
-            "
-          >
+            ">
             <%= image_tag("version.svg", class: "w-4 h-4 object-contain opacity-70") %>
             Version
             <% if current_version != latest_version %>
@@ -260,8 +246,7 @@
           class="
             text-xs text-gray-500 font-medium flex flex-col gap-1 border-t
             border-gray-200/50 pt-2 mt-1
-          "
-        >
+          ">
           <% if @current_instance.last_edit_time.present? %>
             <div class="opacity-90"><%= format_timestamp(@current_instance.last_edit_time) || "-" %></div>
           <% end %>

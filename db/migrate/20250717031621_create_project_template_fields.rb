@@ -6,10 +6,9 @@ class CreateProjectTemplateFields < ActiveRecord::Migration[8.0]
       t.integer :applicable_to, null: false
       t.string :label, null: false
       t.text :hint
-      t.json :options 
+      t.json :options
 
       t.timestamps
     end
-  end 
+  end
 end
-  

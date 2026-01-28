@@ -21,7 +21,8 @@
       <%= text_field_tag :query,
       params[:query],
       class: "search-input",
-      placeholder: "Enter keyword..." %>
+      placeholder: "Enter keyword...",
+      autocomplete: "topics-search" %>
       <%= submit_tag "Search", class: "btn btn-secondary" %>
     <% end %>
   </section>

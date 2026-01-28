@@ -8,12 +8,12 @@ class ProjectTemplate < ApplicationRecord
   private
 
   def ensure_title_field
-    return if project_template_fields.any? { |f| f.label == "Project Title" }
-    
+    return if project_template_fields.any? { |f| f.label == 'Project Title' }
+
     project_template_fields.build(
-      label:         "Project Title",
-      field_type:    "shorttext",
-      applicable_to: "both"
+      label: 'Project Title',
+      field_type: 'shorttext',
+      applicable_to: 'both'
     )
   end
 
