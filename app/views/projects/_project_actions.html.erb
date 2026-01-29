@@ -7,7 +7,7 @@ has_actions = is_member || is_history %>
 
     <%# --- STUDENT ACTIONS --- %>
     <% if is_member && !is_history %>
-      <% if project.status != "approved" %>
+      <% if policy(project).update? %>
         <div class="w-full">
           <p
             class="

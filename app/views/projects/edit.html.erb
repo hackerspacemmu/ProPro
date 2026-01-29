@@ -11,11 +11,13 @@
   class="
     min-h-screen bg-gray-50 w-full pt-2 pb-12 px-4 sm:px-6 md:px-8 transition-all
     duration-300
-  ">
+  "
+>
   <div
     class="
       mx-auto w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:w-10/12 2xl:w-8/12
-    ">
+    "
+  >
 
     <div class="mb-8">
       <%= link_to course_project_path(@course, @project), class: "group inline-flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
@@ -23,12 +25,14 @@
           class="
             w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
             justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
-          ">
+          "
+        >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
         </div>
         Back to Project
       <% end %>
@@ -37,7 +41,8 @@
         class="
           text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
           justify-center
-        ">
+        "
+      >
         Edit Proposal for
         <span class="inline-block text-green-700"><%= @project.current_title %></span>
         <%= image_tag(
@@ -55,7 +60,8 @@
       class="
         bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100
         overflow-hidden
-      ">
+      "
+    >
       <div class="p-5 sm:p-8 md:p-10">
         <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, local: true, class: "space-y-8") do |form| %>
 
@@ -85,8 +91,7 @@
                   existing_value,
                   class: input_classes,
                   placeholder: field.hint,
-                  required: true,
-                  autocomplete: "off" %>
+                  required: true %>
 
                 <% when "textarea" %>
                   <%= text_area_tag "fields[#{field.id}]",
@@ -108,12 +113,14 @@
                       class="
                         absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
                         text-gray-500
-                      ">
+                      "
+                    >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
                           stroke-linecap="round"
                           stroke-linejoin="round"
                           stroke-width="2"
-                          d="M19 9l-7 7-7-7" /></svg>
+                          d="M19 9l-7 7-7-7"
+                        /></svg>
                     </div>
                   </div>
 
@@ -141,8 +148,7 @@
                   <%= text_field_tag "fields[#{field.id}]",
                   existing_value,
                   class: input_classes,
-                  required: true,
-                  autocomplete: "off" %>
+                  required: true %>
                 <% end %>
               </div>
             <% end %>
@@ -152,7 +158,8 @@
             <label
               class="
                 block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2
-              ">
+              "
+            >
               Based on Topic
             </label>
 
@@ -162,7 +169,8 @@
                 class="
                   <%= input_classes %> appearance-none pr-10 cursor-pointer
                 "
-                required>
+                required
+              >
                 <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
                   <option value="" selected disabled>-- Select a Topic --</option>
                 <% end %>
@@ -178,18 +186,20 @@
                       ) %>
 
                     <% approved_topics.each do |topic| %>
-                      <% latest_instance = topic.topic_instances.order(version: :desc).first %>
+                      <% current_instance = topic.topic_instances.order(version: :desc).first %>
                       <option
                         value="<%= topic.id %>"
-                        <%= 'selected' if topic.id == @selected_topic_id %>>
-                        <%= "#{lecturer.username} - #{latest_instance&.title || "Untitled Topic"}" %>
+                        <%= 'selected' if topic.id == @selected_topic_id %>
+                      >
+                        <%= "#{lecturer.username} - #{current_instance&.title || "Untitled Topic"}" %>
                       </option>
                     <% end %>
 
                     <option
                       value="own_proposal_<%= lecturer_enrolment.id %>"
                       <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>
-                      class="text-blue-600 font-medium">
+                      class="text-blue-600 font-medium"
+                    >
                       <%= "#{lecturer.username} - Own Proposal" %>
                     </option>
                   </optgroup>
@@ -199,12 +209,14 @@
                 class="
                   absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
                   text-gray-500
-                ">
+                "
+              >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 9l-7 7-7-7" /></svg>
+                    d="M19 9l-7 7-7-7"
+                  /></svg>
               </div>
             </div>
           </div>
@@ -213,7 +225,8 @@
             class="
               pt-6 flex flex-col-reverse sm:flex-row items-center sm:justify-end gap-3
               sm:gap-4
-            ">
+            "
+          >
             <%= link_to "Cancel",
             course_project_path(@course, @project),
             class:

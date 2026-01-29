@@ -1,5 +1,4 @@
 <section class="project-comments" id="topic-comments">
-<% if !@is_student %>
   <header class="section-header">
     <h2 class="section-title">Comments</h2>
   </header>
@@ -25,7 +24,7 @@
                     <%= format_timestamp(comment.created_at) %>
                   <% end %>
                 </time>
-                <% if Current.user == comment.user && !comment.deleted %>
+                <% if policy(comment).destroy? %>
                     <div class="comment-actions">
                       <%= link_to soft_delete_comment_path(comment),
                         data: { turbo_method: :patch, confirm: "Are you sure you want to delete this comment?" },
@@ -52,24 +51,23 @@
         <p>There are no comments yet.</p>
       </div>
     <% end %>
-    <% if current_version == latest_version %>
+    
+    <% if policy(new_comment).create? %>
       <div class="comment-form-container">
         <%= form_with model: new_comment, local: true, class: "comment-form" do |form| %>
+          <%= form.hidden_field :source_type, value: "TopicInstance" %>
+          <%= form.hidden_field :source_id, value: current_instance_id %>
+          
           <div class="form-group">
-            <% if (current_version == latest_version) && (@current_user.id == @topic.owner_id || @is_coordinator) %>
-              <div class="comment-input-wrapper">
-                <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "add a comment..." %>
-                <%= form.hidden_field :source_type, value: "TopicInstance" %>
-                <%= form.hidden_field :source_id, value: current_instance_id %>
-                <%= form.button class: "send-btn", type: "submit", title: "Send comment" do %>
-                  <%= image_tag "send.svg" %>
-                <% end %>
-              </div>
-            <% end %>
+            <div class="comment-input-wrapper">
+              <%= form.text_area :user_comment, class: "comment-textarea", rows: 4, placeholder: "add a comment..." %>
+              <%= form.button class: "send-btn", type: "submit", title: "Send comment" do %>
+                <%= image_tag "send.svg" %>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>
     <% end %>
   </div>
-<% end %>
 </section>
