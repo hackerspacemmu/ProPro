@@ -4,7 +4,7 @@ class ProjectPolicy < ApplicationPolicy
       return scope.all if coordinator
       
       if student && course.student_access.to_s == "owner_only"
-        own_projects
+        own_project
       else
         viewable
       end
@@ -21,7 +21,7 @@ class ProjectPolicy < ApplicationPolicy
       student_owned.or(group_owned).or(approved_topics)
     end
 
-    def own_projects
+    def own_project
       user_groups = user.project_groups.where(course: course)
       scope.owned_by_user_or_groups(user, user_groups)
     end
@@ -43,8 +43,8 @@ class ProjectPolicy < ApplicationPolicy
   def show?
     coordinator ||
       has_lecturer_view_access ||
-      is_project_owner ||
-      is_assigned_supervisor ||
+      project_owner ||
+      assigned_supervisor ||
       has_unrestricted_student_access
   end
 
@@ -53,15 +53,15 @@ class ProjectPolicy < ApplicationPolicy
   end
   
   def update?
-    is_project_owner && !approved
+    project_owner && !approved
   end
   
   def change_status?
-    is_assigned_supervisor
+    assigned_supervisor
   end
 
   def can_record_progress_update?
-    is_assigned_supervisor && approved && course.use_progress_updates
+    assigned_supervisor && approved && course.use_progress_updates
   end
   
   # PROJECT ACCESS METHODS
@@ -69,11 +69,11 @@ class ProjectPolicy < ApplicationPolicy
     lecturer && course.lecturer_access
   end
   
-  def is_project_owner
+  def project_owner
     record.owner == user || (record.owner.is_a?(ProjectGroup) && record.owner.users.include?(user))
   end
   
-  def is_assigned_supervisor
+  def assigned_supervisor
     record.supervisor == user
   end
   
@@ -95,10 +95,6 @@ class ProjectPolicy < ApplicationPolicy
 
   def student
     course.enrolments.exists?(user: user, role: :student)
-  end
-  
-  def course
-    record.course
   end
 
   def approved

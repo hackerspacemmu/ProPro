@@ -1,30 +1,31 @@
 class CoursePolicy < ApplicationPolicy
+  # STANDARD ACTIONS
   def show?
     enrolled
   end
-
+  
   def create?
     user.is_staff
   end
   
   def update?
-    coordinator?
+    coordinator
   end
   
   def destroy?
-    coordinator?
+    coordinator
   end
   
   def manage_students?
-    coordinator?
+    coordinator
   end
   
   def manage_lecturers?
-    coordinator?
+    coordinator
   end
   
   def export_csv?
-    coordinator?
+    coordinator
   end
   
   def promote_to_coordinator?
@@ -35,16 +36,16 @@ class CoursePolicy < ApplicationPolicy
     coordinator && record.coordinators.count > 1
   end
   
-  # LECTURER PROFILE
+  # LECTURER PROFILE ACCESS
   def unrestricted_lecturer_access?(lecturer)
     coordinator ||
       user == lecturer ||
       (lecturer && record.lecturer_access)
   end
-
+  
   def student_can_view_lecturer?(lecturer)
     return false unless student
-
+    
     case record.student_access&.to_sym
     when :no_restriction
       true
