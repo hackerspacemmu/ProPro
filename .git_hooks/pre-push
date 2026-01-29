@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Fail on any error
+set -e
+
+# Git hooks automatically redirect stdout, so we need to redirect it to stderr
+exec 1>&2
+
+# Get the list of files changed compared to main, excluding deleted files
+# merge-base finds the common ancestor to avoid issues with rebases
+# --diff-filter=d excludes deleted files (so that linters/formatters don't try to read them)
+files=$(git diff --name-only --diff-filter=d $(git merge-base HEAD main))
+bin/auto_format_lint "$files"

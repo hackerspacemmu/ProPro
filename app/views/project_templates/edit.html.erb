@@ -24,7 +24,7 @@
           </ul>
         </div>
       <% end %>
-      
+
       <div class="row header-row">
         <div class="column"><strong>Field Label</strong></div>
         <div class="column"><strong>Hint Text (Optional)</strong></div>
@@ -35,17 +35,17 @@
 
       <div id="template-fields">
         <%= form.fields_for :project_template_fields do |field_form| %>
-            <%= render 'field_row', field_form: field_form %>  
+            <%= render 'field_row', field_form: field_form %>
         <% end %>
       </div>
 
       <div class="add-field-section">
         <button type="button"
-          label: "Project Title"
-          id="add-field-btn" 
-          data-course-id="<%= @course.id %>" 
-          data-field-index="<%= @project_template.project_template_fields.size %>"> 
-          + New Field 
+          label="Project Title"
+          id="add-field-btn"
+          data-course-id="<%= @course.id %>"
+          data-field-index="<%= @project_template.project_template_fields.size %>">
+          + New Field
         </button>
       </div>
 

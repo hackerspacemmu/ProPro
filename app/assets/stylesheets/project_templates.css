@@ -1,7 +1,7 @@
-html,  
+html,
 body {
-  background-color: #F2F3F7;
-  font-family: 'Inter', sans-serif; 
+  background-color: #f2f3f7;
+  font-family: "Inter", sans-serif;
   margin: 70px;
 }
 
@@ -21,13 +21,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
-  border: 1px solid #CBD5E1;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .header-row {
-  border-bottom: 1px solid #CBD5E1;
+  border-bottom: 1px solid #cbd5e1;
   border-right: none;
   padding: 0.75rem 1rem;
   font-weight: 600;
@@ -55,7 +55,7 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-right: 1px solid #CBD5E1;
+  border-right: 1px solid #cbd5e1;
   align-items: flex-start;
   justify-content: center;
 }
@@ -69,15 +69,15 @@ body {
   padding-left: 40px;
   transition: background-color 0.15s ease;
   width: 100%;
-  border-bottom: 1px solid #CBD5E1;
+  border-bottom: 1px solid #cbd5e1;
 }
 
 .field-row:hover {
-  background: #F8F9FA;
+  background: #f8f9fa;
 }
 
 .field-row.focus-within {
-  background: #F8F9FA;
+  background: #f8f9fa;
 }
 
 select:disabled,
@@ -104,9 +104,9 @@ input:disabled {
   justify-content: center;
 }
 
-.field-row:hover  .remove-field,
+.field-row:hover .remove-field,
 .field-row.focus-within .remove-field {
-  display: inline-flex;    
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -160,7 +160,6 @@ select {
   background-size: 1.2em 1.2em;
   padding-right: 2rem;
 }
-
 
 .hint-row {
   padding: 0.5rem 1rem;
@@ -228,7 +227,7 @@ select {
   padding: 0.25rem 0.5rem;
   border: 1px solid transparent;
   border-radius: 3px;
-  background: #F8F9FA;
+  background: #f8f9fa;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -236,7 +235,7 @@ select {
 .dropdown-option-row input[type="text"]:focus,
 .radio-option-cell input[type="text"]:focus {
   border-color: #3b82f6;
-  background: #F8F9FA;
+  background: #f8f9fa;
   box-shadow: 0 0 0 1px #3b82f6;
 }
 
@@ -266,7 +265,7 @@ select {
 .add-option-btn:hover {
   color: #3b82f6;
   border-color: #3b82f6;
-  background: #F8F9FA;
+  background: #f8f9fa;
 }
 
 .remove-option {
@@ -296,26 +295,21 @@ select {
 }
 
 #add-field-btn {
-  
   background: none;
   border: none;
-  color: #6b7280;          
-  font-size: 0.875rem;      
+  color: #6b7280;
+  font-size: 0.875rem;
   cursor: pointer;
-  padding: 0.5rem 0 0.5rem 1.5rem;    
-  text-align: left;         
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  text-align: left;
 }
 #add-field-btn:hover {
-  color: #111827;           
+  color: #111827;
 }
-
-
-
-
 
 /* Focus states */
 .column:focus-within {
-  background: #F8F9FA;
+  background: #f8f9fa;
 }
 
 /* Responsive adjustments */
@@ -324,17 +318,17 @@ select {
     grid-template-columns: 1fr;
     border-bottom: 1px solid #e5e7eb;
   }
-  
+
   .column {
     border-right: none;
     border-bottom: 1px solid #e5e7eb;
     padding: 0.5rem 1rem;
   }
-  
+
   .column:last-child {
     border-bottom: none;
   }
-  
+
   .remove-field {
     left: 6px;
     width: 18px;

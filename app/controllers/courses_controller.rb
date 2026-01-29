@@ -8,7 +8,7 @@ class CoursesController < ApplicationController
     before_action :authorize_destroy, only: [:destroy]
     before_action :authorize_update, only: [:settings, :handle_settings]
     before_action :authorize_manage_students, only: [:add_students, :handle_add_students]
-    before_action :authorize_lecturers, only: [:add_lecturers, :handle_add_lecturers]
+    before_action :authorize_manage_lecturers, only: [:add_lecturers, :handle_add_lecturers]
     before_action :authorize_export_csv, only: [:export_csv]
 
     def show
@@ -79,7 +79,8 @@ class CoursesController < ApplicationController
                 group_list: @filtered_group_list,
                 student_list: @filtered_student_list,
                 students_with_projects: @students_with_projects,
-                students_without_projects: @students_without_projects
+                students_without_projects: @students_without_projects,
+                use_progress_updates: @course.use_progress_updates
              }
      return
     end

@@ -23,14 +23,12 @@
           class="
             w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
             justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
-          "
-        >
+          ">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            /></svg>
+              d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         </div>
         Back to Course
       <% end %>
@@ -39,8 +37,7 @@
     <div
       class="
         flex flex-col xl:flex-row gap-0 md:gap-4 lg:gap-8 items-start justify-center
-      "
-    >
+      ">
 
       <div class="flex-1 w-full min-w-0 space-y-8">
 
@@ -77,20 +74,17 @@
               <section
                 class="
                   bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
-                "
-              >
+                ">
                 <h4
                   class="
                     text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
                     gap-2
-                  "
-                >
+                  ">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    /></svg>
+                      d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                   Actions
                 </h4>
                 <%= render "project_actions",
@@ -108,8 +102,7 @@
                 class="
                   bg-gray-50 rounded-2xl p-6 border border-blue-100 shadow-sm relative
                   overflow-hidden group flex-1 flex flex-col justify-center
-                "
-              >
+                ">
                 <h4 class="font-bold text-black relative z-10">Weekly Progress Update</h4>
                 <%= link_to new_course_project_progress_update_path(@course, @project), class: "flex items-center justify-center w-full bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] relative z-10 mt-4" do %>
                   Record New Progress Update
@@ -122,8 +115,7 @@
             class="
               bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[600px]
               max-h-[calc(100vh-200px)]
-            "
-          >
+            ">
             <div class="flex-grow overflow-y-auto p-0 bg-gray-50/30 custom-scrollbar">
               <%= render "project_comments",
               comments: @comments,
@@ -147,14 +139,12 @@
           class="
             w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
             justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
-          "
-        >
+          ">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            /></svg>
+              d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         </div>
         Back to Course
       <% end %>
