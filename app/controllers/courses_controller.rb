@@ -167,7 +167,7 @@ class CoursesController < ApplicationController
 
   def new
     @new_course = Course.new
-    @courses = current_user.courses.order(created_at: :desc)
+    @courses = current_user.courses.order(created_at: :desc).distinct
   end
 
   def create
