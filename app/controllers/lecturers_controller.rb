@@ -151,10 +151,8 @@ class LecturersController < ApplicationController
 
     user_group_ids = current_user.project_groups.where(course: @course).pluck(:id)
 
-    @course.projects.student_projects_for_lecturer(@lecturer_enrolment).joins(:ownership).where(
-      "(ownerships.owner_type = 'User' AND ownerships.owner_id = ?) OR
-       (ownerships.owner_type = 'ProjectGroup' AND ownerships.owner_id IN (?))",
-      current_user.id, user_group_ids
+    @course.projects.where(
+      enrolment: @lecturer_enrolment
     ).exists?
   end
 end

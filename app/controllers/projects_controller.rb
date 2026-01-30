@@ -11,7 +11,7 @@ class ProjectsController < ApplicationController
     @lecturers = @course.lecturers
 
     @members = if @owner.is_a?(ProjectGroup)
-                 @owner.users # All memebers if group project
+                 @owner.users # All members if group project
                else
                  [@owner] # individual
                end
@@ -72,29 +72,31 @@ class ProjectsController < ApplicationController
 
   def new
     unless @is_student
-      redirect_to course_path(@course), alert: 'You are not authorized'
+      redirect_to course_path(@course), alert: "You are not authorized"
       return
     end
 
-    has_project = if @course.grouped?
-                    Current.user.group_projects.find_by(course: @course).present?
-                  else
-                    Current.user.solo_projects.find_by(course: @course).present?
-                  end
+    if @course.grouped?
+      has_project = Current.user.group_projects.find_by(course: @course).present?
+    else
+      has_project = Current.user.solo_projects.find_by(course: @course).present?
+    end
 
     if has_project
-      redirect_to course_path(@course), alert: 'You already have a project in this course.'
+      redirect_to course_path(@course), alert: "You already have a project in this course."
       return
     end
 
-    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
-    # Optionally preselect topic or own proposal
-    return unless params[:topic_id].present? && Project.exists?(id: params[:topic_id], course: @course)
+    @field_values = {}
 
-    @selected_topic_id = params[:topic_id]
+    # Optionally preselect topic or own proposal
+    if params[:topic_id].present? && Project.exists?(id: params[:topic_id], course: @course)
+      @selected_topic_id = params[:topic_id]
+    end
   end
 
   def edit
@@ -305,6 +307,61 @@ class ProjectsController < ApplicationController
     end
 
     redirect_to course_project_path(@course, @project), notice: 'Project updated successfully.'
+  end
+
+  def selected_topic
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+
+    if topic_id.start_with?("own_proposal_")
+
+      # Own Proposal
+      @field_values = {}
+    else
+      #Topics chosen
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @field_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+      
+    end
+
+    render partial: "project_new",
+          locals: { template_fields: @template_fields,
+                    field_values: @field_values,
+                  input_classes: "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" 
+                 }
+  end
+
+
+  def selected_topic_edit
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:proposals, :both])
+
+    if topic_id.start_with?("own_proposal_")
+      #Does not load
+      @existing_values = nil   
+    else
+      #Chosen Topic
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @existing_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+    end
+
+    render partial: "project_edit",
+          locals: { template_fields: @template_fields,
+                    existing_values: @existing_values,
+                    input_classes: input_classes
+                }
   end
 
   private
