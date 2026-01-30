@@ -5,9 +5,12 @@ class ProjectTemplatesController < ApplicationController
 
   def edit
     @project_template = @course.project_template
+    @courses = Course.where.not(id: @course.id)
   end
 
   def update
+    @courses = Course.where.not(id: @course.id)
+
     if @project_template.update(project_template_params)
       redirect_to edit_course_project_template_path(@course), notice: 'Template updated'
     else

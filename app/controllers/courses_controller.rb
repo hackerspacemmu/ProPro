@@ -167,7 +167,6 @@ class CoursesController < ApplicationController
 
   def new
     @new_course = Course.new
-    @courses = current_user.courses.order(created_at: :desc).distinct
   end
 
   def create
@@ -207,7 +206,10 @@ class CoursesController < ApplicationController
     redirect_to course_path(@new_course), notice: 'Course successfully created'
   end
 
-  def settings; end
+  def settings
+    @course = Course.find(params[:id])
+    @courses = Course.where.not(id: @course.id)
+  end
 
   def handle_settings
     @course.update(
