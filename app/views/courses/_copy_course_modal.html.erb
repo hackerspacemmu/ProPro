@@ -17,7 +17,8 @@
         <% if @courses.present? %>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <% @courses.each do |course| %>
-              <div class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between">
+              <div data-overlay-target="card" data-action="click->overlay#select" data-overlay-course-id-param="<%= course.id %>"
+                  class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between">
                 <div>
                   <div class="flex items-start justify-between mb-2">
                     <h4 class="text-lg font-bold text-gray-900 transition-colors">

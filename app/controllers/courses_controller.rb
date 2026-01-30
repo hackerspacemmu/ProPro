@@ -269,6 +269,11 @@ class CoursesController < ApplicationController
     render plain: csv_content
   end
 
+  def details
+    @course = Course.find(params[:id])
+    render json: @course
+  end
+
   private
 
   def students_with_projects
