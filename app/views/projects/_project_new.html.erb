@@ -1,12 +1,6 @@
 <div id="template-fields-container" class="grid grid-cols-1 gap-6 sm:gap-8">
-  <p>Topic ID: <%= params[:based_on_topic] %></p>
-  <p>Field Values: <%= field_values.inspect %></p>
   <% @template_fields.each do |field| %>
     <% value = field_values[field.id] %>
-
-    <p>Template Field ID: <%= field.id %></p>
-    <p>Value Object: <%= field_values[field.id].inspect %></p>
-
     <div class="flex flex-col group">
 
       <%= label_tag "fields_#{field.id}",
