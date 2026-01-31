@@ -40,6 +40,10 @@ Rails.application.routes.draw do
       member do
         patch :change_status
       end
+      collection do
+        get 'selected_topic', to: 'projects#selected_topic'
+        get 'selected_topic_edit', to: 'projects#selected_topic_edit'
+      end
 
       resources :progress_updates, only: %i[show edit update create new destroy]
     end
