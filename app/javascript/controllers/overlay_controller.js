@@ -28,13 +28,8 @@ export default class extends Controller {
 
   select(event) {
     const courseId = event.params.courseId;
-
-    fetch(`/courses/${courseId}/details`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Database Data:", data);
-      });
+    const url = `/courses/${courseId}/details`;
+    
+    Turbo.visit(url, { frame: "overlay_content" });
   }
 }

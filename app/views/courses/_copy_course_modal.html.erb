@@ -8,7 +8,8 @@
   <div data-overlay-target="menu" data-action="click->overlay#closeOnBackdrop"
       class="fixed inset-0 z-[60] flex items-start justify-center pt-20 bg-black/50 transition-opacity duration-150 opacity-0 pointer-events-none">
 
-    <div class="bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative">
+    <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
+        data: { overlay_target: "container" } do %>
       <div class="mb-6">
         <h3 class="text-2xl font-bold text-gray-600">Select a Course to Copy</h3>
       </div><br>
@@ -60,6 +61,6 @@
           Cancel
         </button>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>
