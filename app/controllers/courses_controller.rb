@@ -271,7 +271,7 @@ class CoursesController < ApplicationController
 
   def details
     @course = Course.find(params[:id])
-    render partial: 'courses/copy_course_details', locals: { course: @course }
+    render partial: 'courses/copy_course_details', locals: { course: @course, mode: params[:mode] }
   end
 
   private

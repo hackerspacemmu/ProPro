@@ -2,6 +2,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
+  static values = { mode: String };
   static targets = ["menu", "content"];
 
   // Open the overlay
@@ -29,8 +30,12 @@ export default class extends Controller {
 
   select(event) {
     const courseId = event.params.courseId;
-    const url = `/courses/${courseId}/details`;
+    const mode = this.modeValue;
+    const frame = document.getElementById("overlay_content");
 
-    Turbo.visit(url, { frame: "overlay_content" });
+    frame.src = `/courses/${courseId}/details?mode=${mode}`;
+
+    const targetUrl = `/courses/${courseId}/details?mode=${mode}`
+    console.log(targetUrl);
   }
 }
