@@ -72,8 +72,11 @@
             </label>
 
             <div class="relative">
-            <p class="text-[11px] sm:text-xs text-gray-700 tracking-normal mb-2">
-               Note: Switching to a lecturer's topic will autofill that topic's details. (You will lose any existing details in the fields!)
+            <% red_warning = "text-[11px] sm:text-xs font-bold text-red-600 tracking-normal mb-2" %>
+            <% grey_warning = "text-[11px] sm:text-xs text-gray-700 tracking-normal mb-2" %>
+            <p>
+              <span class= "<%= red_warning %>"> Warning:</span>
+              <span class="<%= grey_warning%>">Switching to a lecturer's topic will autofill that topic's details. (You will lose any existing details in the fields!)</p>
             </p>
               <select
                 name="based_on_topic"
