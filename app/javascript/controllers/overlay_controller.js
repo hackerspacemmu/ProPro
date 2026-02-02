@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static values = { mode: String };
+  static values = { targetCourseId: String, mode: String };
   static targets = ["menu", "content"];
 
   // Open the overlay
@@ -30,7 +30,7 @@ export default class extends Controller {
 
   select(event) {
     const sourceCourseId = event.params.courseId;
-    const targetCourseId = this.element.dataset.overlayTargetCourseId;
+    const targetCourseId = this.targetCourseIdValue
     const mode = this.modeValue;
     const frame = document.getElementById("overlay_content");
 
