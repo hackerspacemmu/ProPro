@@ -289,6 +289,7 @@ class CoursesController < ApplicationController
           data = @source_course.attributes.slice(*fields_to_copy)
           @target_course.update!(data)
         end
+        redirect_to settings_course_path(@target_course)
       elsif params[:mode] == 'template'
         field_ids = params[:template_field_ids] || []
         source_fields = @source_course.project_template.project_template_fields.where(id: field_ids)
@@ -298,11 +299,15 @@ class CoursesController < ApplicationController
           new_field.project_template_id = @target_course.project_template.id
           new_field.save!
         end
+        redirect_to edit_course_project_template_path(@target_course)
       end
     end
-    redirect_to settings_course_path(@target_course)
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
-    redirect_to settings_course_path(@target_course)
+    if params[:mode] == 'settings'
+      redirect_to settings_course_path(@target_course)
+    elsif params[:mode] == 'template'
+      redirect_to edit_course_project_template_path(@target_course)
+    end
   end
 
   private

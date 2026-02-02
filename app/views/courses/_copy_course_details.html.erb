@@ -2,7 +2,7 @@
   <%= form_with url: import_details_course_path(target), method: :post, data: { turbo: false } do |f| %>
   <%= hidden_field_tag :source_id, source.id %>
   <%= hidden_field_tag :mode, mode %>
-  
+
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-2xl font-bold text-gray-600">Select Fields to Copy: <%= source.course_name %></h3>
       <%= link_to "← Back", :back, data: { turbo_frame: "course_card_display" }, class: "text-sm text-blue-600 hover:underline" %>
@@ -115,6 +115,8 @@
       <% elsif mode == "template" %>
         <ul class="divide-y divide-gray-200">
           <% source.project_template.project_template_fields.each do |field| %>
+            <% next if field.label == "Project Title" %>
+
             <li class="py-5 flex items-start gap-6">
               <div class="flex-shrink-0 mt-1">
                 <input type="checkbox" name="template_field_ids[]" value="<%= field.id %>" checked 
