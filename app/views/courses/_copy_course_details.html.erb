@@ -1,8 +1,8 @@
-<%= form_with url: import_details_course_path(target), method: :post do |f| %>
+<%= turbo_frame_tag "overlay_content" do %>
+  <%= form_with url: import_details_course_path(target), method: :post, data: { turbo: false } do |f| %>
   <%= hidden_field_tag :source_id, source.id %>
   <%= hidden_field_tag :mode, mode %>
-
-  <%= turbo_frame_tag "overlay_content" do %>
+  
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-2xl font-bold text-gray-600">Select Fields to Copy: <%= source.course_name %></h3>
       <%= link_to "← Back", :back, data: { turbo_frame: "course_card_display" }, class: "text-sm text-blue-600 hover:underline" %>
