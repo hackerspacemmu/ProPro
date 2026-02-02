@@ -270,8 +270,10 @@ class CoursesController < ApplicationController
   end
 
   def details
-    @course = Course.find(params[:id])
-    render partial: 'courses/copy_course_details', locals: { course: @course, mode: params[:mode] }
+    @target_course = Course.find(params[:id])
+    @source_course = Course.find(params[:source_id])
+
+    render partial: 'courses/copy_course_details', locals: { target: @target_course, source: @source_course, mode: params[:mode] }
   end
 
   def import_details
