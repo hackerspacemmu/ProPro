@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
       get 'details', to: 'courses#details'
+      post 'import_details'
     end
 
     resources :projects, only: %i[show edit update create new] do

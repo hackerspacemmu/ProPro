@@ -34,8 +34,5 @@ export default class extends Controller {
     const frame = document.getElementById("overlay_content");
 
     frame.src = `/courses/${courseId}/details?mode=${mode}`;
-
-    const targetUrl = `/courses/${courseId}/details?mode=${mode}`
-    console.log(targetUrl);
   }
 }
