@@ -208,7 +208,7 @@ class CoursesController < ApplicationController
 
   def settings
     @course = Course.find(params[:id])
-    @courses = Course.where.not(id: @course.id)
+    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
   end
 
   def handle_settings
@@ -271,7 +271,7 @@ class CoursesController < ApplicationController
 
   def details
     @target_course = Course.find(params[:id])
-    @source_course = Course.find(params[:source_id])
+    @source_course = Course.managed_by(current_user).find_by(id: params[:source_id])
 
     render partial: 'courses/copy_course_details', locals: { target: @target_course, source: @source_course, mode: params[:mode] }
   end

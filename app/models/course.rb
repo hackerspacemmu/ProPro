@@ -24,6 +24,8 @@ class Course < ApplicationRecord
 
   enum :student_access, { owner_only: 0, own_lecturer_only: 1, no_restriction: 2 }
 
+  scope :managed_by, ->(user) { joins(:enrolments).where(enrolments: { user_id: user.id, role: %i[lecturer coordinator] }).distinct }
+
   validates :course_name, presence: { message: 'cannot be empty' }
   validates :require_coordinator_approval, inclusion: { in: [true, false], message: 'must be true or false' }
   validates :grouped, inclusion: { in: [true, false], message: 'must be true or false' }
