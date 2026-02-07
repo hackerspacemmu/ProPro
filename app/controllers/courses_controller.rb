@@ -77,6 +77,7 @@ class CoursesController < ApplicationController
 
   def handle_add_lecturers
     unregistered_lecturers = Set[]
+    registered_lecturers = Array[]
 
     if params[:invited_lecturers].blank?
       redirect_back_or_to '/', alert: 'Invited lecturers cannot be empty'
@@ -87,7 +88,7 @@ class CoursesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers)
+        create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers, registered_lecturers)
       end
 
       if @course.grouped
@@ -100,13 +101,15 @@ class CoursesController < ApplicationController
       return
     end
 
-    send_emails(unregistered_lecturers)
+    send_invite_emails(unregistered_lecturers)
+    send_notification_emails(registered_lecturers, @course)
 
     redirect_to course_path(@course)
   end
 
   def handle_add_students
     unregistered_students = Set[]
+    registered_students = Array[]
 
     if params[:csv_file].blank? || params[:csv_file].content_type != 'text/csv'
       redirect_back_or_to '/', alert: 'Please provide a CSV file from ebwise'
@@ -144,10 +147,10 @@ class CoursesController < ApplicationController
 
         if @course.grouped
           student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
-          create_db_entries_grouped(student_hashmap, @course, unregistered_students)
+          create_db_entries_grouped(student_hashmap, @course, unregistered_students, registered_students)
         else
           student_set = parse_csv_solo(csv_obj, columns_to_check)
-          create_db_entries_solo(student_set, @course, unregistered_students)
+          create_db_entries_solo(student_set, @course, unregistered_students, registered_students)
         end
 
         if @course.grouped
@@ -161,7 +164,8 @@ class CoursesController < ApplicationController
       return
     end
 
-    send_emails(unregistered_students)
+    send_invite_emails(unregistered_students)
+    send_notification_emails(registered_students, @course)
     redirect_to course_path(@course)
   end
 
@@ -357,7 +361,7 @@ class CoursesController < ApplicationController
     ret
   end
 
-  def create_db_entries_grouped(hash_map, parent_course, unregistered_students)
+  def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)
     hash_map.keys.each do |group|
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
 
@@ -366,6 +370,7 @@ class CoursesController < ApplicationController
 
         if new_user
           new_user.update!(student_id: group_member[:student_id])
+          registered_students.push(group_member[:email_address])
         else
           new_user = User.create!(
             email_address: group_member[:email_address],
@@ -412,7 +417,7 @@ class CoursesController < ApplicationController
     end
   end
 
-  def send_emails(unregistered_users)
+  def send_invite_emails(unregistered_users)
     unregistered_users.each do |user|
       GeneralMailer.with(
         email_address: user[:email_address],
@@ -420,6 +425,15 @@ class CoursesController < ApplicationController
         otp: user[:otp],
         is_staff: user[:is_staff]
       ).ProPro_Invite.deliver_later
+    end
+  end
+
+  def send_notification_emails(registered_emails, course)
+    registered_emails.each do |email|
+      GeneralMailer.with(
+        course: course,
+        recipient: email
+      ).Course_Invite_Notification.deliver_later
     end
   end
 
@@ -439,12 +453,13 @@ class CoursesController < ApplicationController
     ret
   end
 
-  def create_db_entries_solo(student_set, parent_course, unregistered_students)
+  def create_db_entries_solo(student_set, parent_course, unregistered_students, registered_students)
     student_set.each do |student|
       new_user = User.find_by(email_address: student[:email_address], is_staff: false)
 
       if new_user
         new_user.update!(student_id: student[:student_id])
+        registered_students.push(student[:email_address])
       else
         new_user = User.create!(
           email_address: student[:email_address],
@@ -479,7 +494,7 @@ class CoursesController < ApplicationController
     end
   end
 
-  def create_lecturer_enrolments(lecturer_emails, parent_course, unregistered_lecturers)
+  def create_lecturer_enrolments(lecturer_emails, parent_course, unregistered_lecturers, registered_lecturers)
     lecturer_emails.each do |email|
       next if email.blank?
 
@@ -508,6 +523,8 @@ class CoursesController < ApplicationController
             is_staff: true
           }
         )
+      else
+        registered_lecturers.push(email)
       end
 
       Enrolment.find_or_create_by!(
