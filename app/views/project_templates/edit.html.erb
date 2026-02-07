@@ -45,7 +45,10 @@
         </div>
       <% end %>
 
-      <%# --- Table Container --- %>
+      <%# --- New Feature from Main Branch --- %>
+      <%= render "courses/copy_course_overlay", course: @course, mode: "template" %>
+
+      <%# --- Table Container (Tailwind Style) --- %>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
 

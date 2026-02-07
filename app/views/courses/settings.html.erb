@@ -5,6 +5,7 @@
 
 <% content_for :title,
 "Course Settings - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+
 <main class="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
 
   <div class="max-w-3xl mx-auto text-center mb-8">
@@ -55,10 +56,7 @@
       border-gray-100
     "
   >
-    <%= form_with url: handle_settings_course_path(@course),
-                  model: @course,
-                  method: :post,
-                  class: "space-y-6" do |form| %>
+    <%= form_with url: handle_settings_course_path(@course), model: @course, method: :post, class: "space-y-6" do |form| %>
 
       <% if @course.errors.any? %>
         <div class="rounded-md bg-red-50 p-4 mb-6">
@@ -77,6 +75,8 @@
           </div>
         </div>
       <% end %>
+
+      <%= render "copy_course_overlay", course: @course, mode: "settings" %>
 
       <div class="space-y-6">
         <div>
