@@ -151,8 +151,6 @@ class LecturersController < ApplicationController
 
     current_user.project_groups.where(course: @course).pluck(:id)
 
-    @course.projects.where(
-      enrolment: @lecturer_enrolment
-    ).exists?
+    @course.projects.where(enrolment: @lecturer_enrolment).exists?
   end
 end
