@@ -206,7 +206,10 @@ class CoursesController < ApplicationController
     redirect_to course_path(@new_course), notice: 'Course successfully created'
   end
 
-  def settings; end
+  def settings
+    @course = Course.find(params[:id])
+    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
+  end
 
   def handle_settings
     @course.update(
@@ -264,6 +267,47 @@ class CoursesController < ApplicationController
     response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
 
     render plain: csv_content
+  end
+
+  def details
+    @target_course = Course.find(params[:id])
+    @source_course = Course.managed_by(current_user).find_by(id: params[:source_id])
+
+    render partial: 'courses/copy_course_details', locals: { target: @target_course, source: @source_course, mode: params[:mode] }
+  end
+
+  def import_details
+    @target_course = Course.find(params[:id])
+    @source_course = Course.find(params[:source_id])
+
+    ActiveRecord::Base.transaction do
+      if params[:mode] == 'settings'
+        allowed_fields = %w[course_description supervisor_projects_limit file_link require_coordinator_approval starting_week use_progress_updates number_of_updates lecturer_access student_access]
+        fields_to_copy = (params[:fields_to_copy] || []) & allowed_fields
+
+        if fields_to_copy.any?
+          data = @source_course.attributes.slice(*fields_to_copy)
+          @target_course.update!(data)
+        end
+        redirect_to settings_course_path(@target_course)
+      elsif params[:mode] == 'template'
+        field_ids = params[:template_field_ids] || []
+        source_fields = @source_course.project_template.project_template_fields.where(id: field_ids)
+
+        source_fields.each do |field|
+          new_field = field.dup
+          new_field.project_template_id = @target_course.project_template.id
+          new_field.save!
+        end
+        redirect_to edit_course_project_template_path(@target_course)
+      end
+    end
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+    if params[:mode] == 'settings'
+      redirect_to settings_course_path(@target_course)
+    elsif params[:mode] == 'template'
+      redirect_to edit_course_project_template_path(@target_course)
+    end
   end
 
   private

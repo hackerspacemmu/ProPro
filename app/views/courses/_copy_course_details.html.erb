@@ -1,0 +1,171 @@
+<%= turbo_frame_tag "overlay_content" do %>
+  <%= form_with url: import_details_course_path(target), method: :post, data: { turbo: false } do |f| %>
+  <%= hidden_field_tag :source_id, source.id %>
+  <%= hidden_field_tag :mode, mode %>
+
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-2xl font-bold text-gray-600">Select Fields to Copy: <%= source.course_name %></h3>
+      <%= link_to "← Back", :back, data: { turbo_frame: "course_card_display" }, class: "text-sm text-blue-600 hover:underline" %>
+    </div><br>
+
+    <div class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+      <% if mode == "settings" %>
+        <ul class="divide-y divide-gray-100">
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="course_description" <%= source.course_description.blank? ? 'disabled' : 'checked' %>
+                  class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 <%= source.course_description.blank? ? 'cursor-not-allowed' : 'cursor-pointer' %>">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Project details</span>
+              <% if source.course_description.present? %>
+                <span class="text-gray-800 text-base"><%= source.course_description %></span>
+              <% else %>
+                <span class="text-gray-400 italic text-base">No description provided</span>
+              <% end %>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="supervisor_projects_limit" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Maximum projects per supervisor</span>
+              <span class="text-gray-800 text-base"><%= source.supervisor_projects_limit %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="file_link" <%= source.file_link.blank? ? 'disabled' : 'checked' %> 
+                  class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 <%= source.file_link.blank? ? 'cursor-not-allowed' : 'cursor-pointer' %>">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Project file link</span>
+              <% if source.file_link.present? %>
+                <%= link_to "View Document", source.file_link, target: "_blank", class: "text-blue-600 hover:underline" %>
+              <% else %>
+                <span class="text-gray-400 italic">No link available</span>
+              <% end %>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="require_coordinator_approval" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Lecturer topics require approval?</span>
+              <span class="text-gray-800 text-base"><%= source.require_coordinator_approval ? "True" : "False" %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="starting_week" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Starting Week</span>
+              <span class="text-gray-800 text-base"><%= source.starting_week %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="use_progress_updates" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Use progress updates?</span>
+              <span class="text-gray-800 text-base"><%= source.use_progress_updates ? "True" : "False" %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="number_of_updates" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Number of progress updates</span>
+              <span class="text-gray-800 text-base"><%= source.number_of_updates || 0 %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="lecturer_access" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Lecturer views public?</span>
+              <span class="text-gray-800 text-base"><%= source.lecturer_access ? "True" : "False" %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="student_access" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Student can see projects from</span>
+              <span class="text-gray-800 text-base"><%= source.student_access&.humanize %></span>
+            </div>
+          </li>
+        </ul>
+
+      <% elsif mode == "template" %>
+        <ul class="divide-y divide-gray-200">
+          <% source.project_template.project_template_fields.each do |field| %>
+            <% next if field.label == "Project Title" %>
+
+            <li class="py-5 flex items-start gap-6">
+              <div class="flex-shrink-0 mt-1">
+                <input type="checkbox" name="template_field_ids[]" value="<%= field.id %>" checked 
+                    class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+              </div>
+
+              <div class="flex flex-col flex-grow">
+                <div class="flex items-center gap-3">
+                  <span class="block text-lg font-semibold text-gray-800 py-1">
+                    <%= field.label %>
+                  </span>
+                  <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                    <%= field.field_type.humanize %>
+                  </span>
+                </div>
+
+                <div class="text-gray-800 text-base">
+                  <% if field.hint.present? %>
+                    <%= field.hint %>
+                  <% else %>
+                    <span class="text-gray-400 italic text-base">No hint provided</span>
+                  <% end %>
+                </div>
+
+                <div class="mt-2 flex flex-wrap gap-4 text-xs text-gray-500 font-medium uppercase tracking-wider">
+                  <span>Target: <%= field.applicable_to.humanize %></span>
+                </div>
+                  
+                <% if field.field_type.in?(%w[dropdown radio]) %>
+                  <div class="mt-2 flex flex-wrap gap-4 text-xs text-gray-500 font-medium uppercase tracking-wider">
+                    <div class="flex gap-1 items-center">
+                      <span>Options:</span>
+                      <div class="flex flex-wrap gap-1">
+                        <% field.option_list.each do |option| %>
+                          <span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"><%= option %></span>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+
+    <div class="mt-6 flex justify-end">
+      <%= f.submit "Copy Details", class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm transition" %>
+    </div>
+  <% end %>
+<% end %>
