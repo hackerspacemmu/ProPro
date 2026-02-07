@@ -11,7 +11,7 @@ class ProjectsController < ApplicationController
     @lecturers = @course.lecturers
 
     @members = if @owner.is_a?(ProjectGroup)
-                 @owner.users # All memebers if group project
+                 @owner.users # All members if group project
                else
                  [@owner] # individual
                end
@@ -90,6 +90,8 @@ class ProjectsController < ApplicationController
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
+
+    @field_values = {}
 
     # Optionally preselect topic or own proposal
     return unless params[:topic_id].present? && Project.exists?(id: params[:topic_id], course: @course)
@@ -305,6 +307,58 @@ class ProjectsController < ApplicationController
     end
 
     redirect_to course_project_path(@course, @project), notice: 'Project updated successfully.'
+  end
+
+  def selected_topic
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
+
+    if topic_id.start_with?('own_proposal_')
+
+      # Own Proposal
+      @field_values = nil
+    else
+      # Topics chosen
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @field_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+    end
+
+    render partial: 'project_new',
+           locals: { template_fields: @template_fields,
+                     field_values: @field_values,
+                     input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
+  end
+
+
+  def selected_topic_edit
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
+
+    if topic_id.start_with?('own_proposal_')
+      # Does not load
+      @existing_values = nil
+    else
+      # Chosen Topic
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @existing_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+    end
+
+    render partial: 'project_edit',
+           locals: { template_fields: @template_fields,
+                     existing_values: @existing_values,
+                     input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
   end
 
   private

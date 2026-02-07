@@ -149,7 +149,7 @@ class LecturersController < ApplicationController
     return false unless @is_student
     return false unless @lecturer_enrolment
 
-    user_group_ids = current_user.project_groups.where(course: @course).pluck(:id)
+    current_user.project_groups.where(course: @course).pluck(:id)
 
     @course.projects.where(enrolment: @lecturer_enrolment).exists?
   end
