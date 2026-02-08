@@ -17,10 +17,7 @@ git clone https://github.com/hackerspacemmu/ProPro.git
 cd ProPro
 
 # Setup the project
-bundle install
-npm install
-./bin/rails tailwindcss:install
-./bin/rails db:reset
+./bin/setup
 ```
 
 ### Formatting & Linting

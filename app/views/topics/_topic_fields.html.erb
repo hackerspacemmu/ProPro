@@ -11,7 +11,7 @@
           </div>
           <div class="field-value">
             <% if field.value.present? %>
-              <% 
+              <%
                 if field.project_template_field.dropdown? || field.project_template_field.radio?
                   begin
                     parsed_value = JSON.parse(field.value)
@@ -47,12 +47,12 @@
 
   .diff del, li.del{
     text-decoration: none;
-    background-color:  #f4d4d4; 
+    background-color:  #f4d4d4;
   }
 
   .diff ins, li.ins{
     text-decoration: none;
-    background-color: #d4f4dd; 
+    background-color: #d4f4dd;
   }
 
   .ins-change{
@@ -69,23 +69,21 @@
   list-style: none;
 }
 
-
   .placeholder {
-  background-color: #e0e0e0; 
-  color: transparent;        
+  background-color: #e0e0e0;
+  color: transparent;
   user-select: none;
 }
 
   .diff li {
-    list-style: none;   
+    list-style: none;
   }
 
   .diff li { border: 1px dashed rgba(0,0,0,0.1); }
 
-
   .diff-col {
-  width: 50%;              
-  word-wrap: break-word;   
+  width: 50%;
+  word-wrap: break-word;
   vertical-align: top;
 }
 
@@ -121,7 +119,7 @@
         <% old_lines = old_val.split("\n") %>
         <% new_lines = new_val.split("\n") %>
 
-        <% # Use Diff::LCS to align line changes properly %>
+        <%# Use Diff::LCS to align line changes properly %>
         <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
 
         <% aligned_left  = [] %>
@@ -160,7 +158,7 @@
             <% old_line = change.old_element.to_s %>
             <% new_line = change.new_element.to_s %>
 
-            <% # 🔹 Do word-level diff inside this line %>
+            <%# 🔹 Do word-level diff inside this line %>
             <% old_words = old_line.split(/(\s+)/) %>
             <% new_words = new_line.split(/(\s+)/) %>
             <% word_diffs = Diff::LCS.sdiff(old_words, new_words) %>
@@ -192,7 +190,7 @@
           <% end %>
         <% end %>
 
-        <td class = "diff-col">
+        <td class="diff-col">
           <ul class="diff">
             <%= aligned_left.join
                   .gsub('[[EMPTYLINE]]', '<br>')
@@ -200,7 +198,7 @@
           </ul>
         </td>
 
-        <td class = "diff-col">
+        <td class="diff-col">
           <ul class="diff">
             <%= aligned_right.join
                   .gsub('[[EMPTYLINE]]', '<br>')

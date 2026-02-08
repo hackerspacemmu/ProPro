@@ -4,11 +4,10 @@
 
   <%= form_with url: course_topics_path(@course), method: :get, local: true do %>
     <%= label_tag :query, "Search topics:" %>
-    <%= text_field_tag :query, params[:query], placeholder: "Enter keyword..." %>
+    <%= text_field_tag :query, params[:query], placeholder: "Enter keyword...", autocomplete: "proposal-search" %>
     <%= submit_tag "Search" %>
     <% end %>
 
-    
   <% @projects.each do |project| %>
     <% latest_instance = project.project_instances.order(version: :desc).first %>
     <% description_field = latest_instance&.project_instance_fields&.find do |field|

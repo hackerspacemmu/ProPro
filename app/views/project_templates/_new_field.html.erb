@@ -2,19 +2,20 @@
   <button type="button" class="remove-field">
     <%= image_tag("delete.svg") %>
   </button>
- 
+
   <div class="row">
     <div class="column">
-      <input type="text" 
-             name="project_template[project_template_fields_attributes][<%= index %>][label]" 
-             placeholder="Field Label" />
+      <input type="text"
+             name="project_template[project_template_fields_attributes][<%= index %>][label]"
+             placeholder="Field Label"
+             autocomplete="field-label">
     </div>
     <div class="hint-row">
-      <textarea name="project_template[project_template_fields_attributes][<%= index %>][hint]" 
+      <textarea name="project_template[project_template_fields_attributes][<%= index %>][hint]"
                 placeholder="Hint Text"></textarea>
-    </div>  
+    </div>
     <div class="column">
-      <select name="project_template[project_template_fields_attributes][<%= index %>][field_type]" 
+      <select name="project_template[project_template_fields_attributes][<%= index %>][field_type]"
               class="field-type-select">
         <option value="">Select field type</option>
         <% ProjectTemplateField.field_types.keys.each do |key| %>

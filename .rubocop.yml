@@ -1,24 +1,24 @@
-<<<<<<< HEAD
-# Omakase Ruby styling for Rails
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
-
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
-=======
 plugins:
-    - rubocop-rails
+  - rubocop-rails
 
 AllCops:
-    NewCops: enable
+  NewCops: enable
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'bin/{rails,rake}'
 
-# No need for frozen string literal comments in modern Ruby versions
-# See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
+  # No need for frozen string literal comments in modern Ruby versions
+  # See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
 Style/FrozenStringLiteralComment:
-    Enabled: false
+  Enabled: false
 
 Layout/LineLength:
-    Enabled: false
->>>>>>> 352469147a777f5051c9b7b86890d4ec4b034083
+  Enabled: false
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Metrics:
+  Enabled: false

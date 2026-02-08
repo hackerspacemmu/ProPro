@@ -29,8 +29,7 @@
       <h4
         class="
           text-xl text-black mb-3 font-normal break-word whitespace-pre-line
-        "
-      >Incoming Proposals</h4>
+        ">Incoming Proposals</h4>
       <p class="text-gray-500">Student proposals awaiting approval</p>
     </header>
     <% if incoming_proposals.empty? %>
@@ -101,8 +100,7 @@
     <ul
       class="
         list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5
-      "
-    >
+      ">
       <%= render partial: "lecturers",
       collection: lecturers,
       as: :lecturer,

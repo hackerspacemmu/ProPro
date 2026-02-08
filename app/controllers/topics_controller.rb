@@ -1,8 +1,7 @@
 class TopicsController < ApplicationController
-  before_action :access_one,  only: [:index, :show, :edit, :update, :destroy, :change_status]
-  before_action :set_course, only: [:new, :create]
-  def index
-  end
+  before_action :access_one, only: %i[index show edit update destroy change_status]
+  before_action :set_course, only: %i[new create]
+  def index; end
 
   def show
     @instances = @topic.topic_instances.order(version: :asc)
@@ -11,46 +10,41 @@ class TopicsController < ApplicationController
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
 
-    if @owner.is_a?(ProjectGroup)
-      @members = @owner.users  #All memebers if group project
-    else
-      @members = [@owner] #individual
-    end
+    @members = if @owner.is_a?(ProjectGroup)
+                 @owner.users # All memebers if group project
+               else
+                 [@owner] # individual
+               end
 
-    if params[:lecturer_id]
-      @lecturer = User.find(params[:lecturer_id])
-    end
+    @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
 
-    if !params[:version].blank?
-      @index = params[:version].to_i
-    else
-      @index = @instances.size
-    end
+    @index = if params[:version].present?
+               params[:version].to_i
+             else
+               @instances.size
+             end
 
-    if @index <= 0 || @index > @instances.size
-      @index = @instances.size
-    end
+    @index = @instances.size if @index <= 0 || @index > @instances.size
 
     @current_instance = @instances[@index - 1]
 
     if @current_instance.nil?
-      redirect_to course_path(@course), alert: "No project instance available."
+      redirect_to course_path(@course), alert: 'No project instance available.'
       return
     end
 
+    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
 
-  @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+    @latest_version = @instances.size
 
-  @latest_version = @instances.size
+    @next_fields = nil
 
-  @next_fields = nil
+    if @index < @instances.size
+      @next_instance = @instances[@index]
+      @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+    end
 
-  if @index < @instances.size
-    @next_instance = @instances[@index]
-    @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-  end
-
-  @comments = @current_instance.comments.order(created_at: :asc)
+    @comments = @current_instance.comments.order(created_at: :asc)
     @new_comment = Comment.new
 
     @fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
@@ -67,7 +61,7 @@ class TopicsController < ApplicationController
           last_status_change_time: Time.current,
           last_status_change_by: current_user.id
         )
-      end 
+      end
 
       GeneralMailer.with(
         username: @topic.owner.username,
@@ -77,10 +71,21 @@ class TopicsController < ApplicationController
         supervisor_username: Current.user.username
       ).Topic_Status_Updated.deliver_later
 
-      redirect_to course_topic_path(@course, @topic), notice: "Status updated."
+      redirect_to course_topic_path(@course, @topic), notice: 'Status updated.'
     else
-      redirect_to course_topic_path(@course, @topic), alert: "You are not authorized to perform this action."
+      redirect_to course_topic_path(@course, @topic), alert: 'You are not authorized to perform this action.'
     end
+  end
+
+  def new
+    redirect_to course_path(@course), alert: 'You are not authorized' unless Current.user.is_staff
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[topics both])
+
+    return if @template_fields.present?
+
+    redirect_to course_path(@course), alert: 'Project template is missing or incomplete. Please set it up before creating a project.'
+    nil
   end
 
   def edit
@@ -90,7 +95,49 @@ class TopicsController < ApplicationController
       h[f.project_template_field_id] = f.value
     end
 
-    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[topics both])
+  end
+
+  def create
+    begin
+      ActiveRecord::Base.transaction do
+        status = @course.require_coordinator_approval? ? :pending : :approved
+
+        @topic = Topic.create!(
+          course: @course,
+          owner: current_user
+        )
+
+        title_value = nil
+
+        params[:fields]&.each do |field_id, value|
+          template_field = ProjectTemplateField.find(field_id)
+          title_value = value if template_field.label.strip.downcase.include?('title')
+        end
+
+        @instance = @topic.topic_instances.create!(
+          version: 1,
+          title: title_value,
+          created_by: current_user,
+          status: status
+        )
+
+        # saves all fields to the instance
+        params[:fields]&.each do |field_id, value|
+          template_field = ProjectTemplateField.find(field_id)
+
+          @instance.project_instance_fields.create!(
+            project_template_field: template_field,
+            value: value
+          )
+        end
+      end
+    rescue StandardError
+      redirect_to course_topic_path(@course, @topic), alert: 'Topic creation failed'
+      return
+    end
+
+    redirect_to course_topic_path(@course, @topic), notice: 'Topic created!'
   end
 
   def update
@@ -116,10 +163,8 @@ class TopicsController < ApplicationController
         else
           @instance = @topic.topic_instances.last
         end
-        
-        if !params[:fields].present?
-          raise StandardError
-        end
+
+        raise StandardError unless params[:fields].present?
 
         # Set title
         title_field_id = params[:fields].keys.first if params[:fields].present?
@@ -127,10 +172,8 @@ class TopicsController < ApplicationController
 
         @instance.last_edit_time = Time.current
         @instance.last_edit_by = current_user.id
-        
-        if !@instance.save
-          raise StandardError
-        end
+
+        raise StandardError unless @instance.save
 
         params[:fields].each do |field_id, value|
           existing_field = ProjectInstanceField.find_by(
@@ -148,96 +191,39 @@ class TopicsController < ApplicationController
           end
         end
       end
-    rescue StandardError => e
-      redirect_to course_topic_path(@course, @topic), alert: "Project update failed"
+    rescue StandardError
+      redirect_to course_topic_path(@course, @topic), alert: 'Project update failed'
       return
     end
 
-    redirect_to course_topic_path(@course, @topic), notice: "Project updated successfully."
-  end
-
-
-  def new
-    unless Current.user.is_staff
-      redirect_to course_path(@course), alert: "You are not authorized"
-    end
-
-    @template_fields = @course.project_template.project_template_fields.where(applicable_to: [:topics, :both])
-
-    if @template_fields.blank?
-      redirect_to course_path(@course), alert: "Project template is missing or incomplete. Please set it up before creating a project."
-      return
-    end
-  end
-
-  def create
-    begin
-      ActiveRecord::Base.transaction do
-        status = @course.require_coordinator_approval? ? :pending : :approved
-
-        @topic = Topic.create!(
-          course: @course,
-          owner: current_user
-        )
-
-        title_value = nil
-
-        params[:fields]&.each do |field_id, value|
-          template_field = ProjectTemplateField.find(field_id)
-          if template_field.label.strip.downcase.include?("title")
-            title_value = value
-          end
-        end
-
-        @instance = @topic.topic_instances.create!(
-          version: 1,
-          title: title_value,
-          created_by: current_user,
-          status: status
-        )
-
-        # saves all fields to the instance
-        params[:fields]&.each do |field_id, value|
-          template_field = ProjectTemplateField.find(field_id)
-
-          @instance.project_instance_fields.create!(
-            project_template_field: template_field,
-            value: value
-          )
-        end
-      end
-    rescue StandardError => e
-      redirect_to course_topic_path(@course, @topic), alert: "Topic creation failed"
-      return
-    end
-
-    redirect_to course_topic_path(@course, @topic), notice: "Topic created!"
+    redirect_to course_topic_path(@course, @topic), notice: 'Project updated successfully.'
   end
 
   def destroy
     if Current.user == @topic.owner
       @topic.destroy
-      redirect_to course_path(@course), notice: "Topic deleted"
+      redirect_to course_path(@course), notice: 'Topic deleted'
     else
-      redirect_to course_topic_path(@course, @topic), alert: "You are not authorized to delete this topic."
+      redirect_to course_topic_path(@course, @topic), alert: 'You are not authorized to delete this topic.'
     end
   end
 
   private
+
   def access_one
     @course = Course.find(params[:course_id])
-    
+
     coordinator_enrolment = @course.enrolments.find_by(user: Current.user, role: :coordinator)
     lecturer_enrolment = @course.enrolments.find_by(user: Current.user, role: :lecturer)
     student_enrolment = @course.enrolments.find_by(user: Current.user, role: :student)
-    
-    if coordinator_enrolment
-      @current_user_enrolment = coordinator_enrolment
-    elsif lecturer_enrolment
-      @current_user_enrolment = lecturer_enrolment
-    else
-      @current_user_enrolment = student_enrolment
-    end
+
+    @current_user_enrolment = if coordinator_enrolment
+                                coordinator_enrolment
+                              elsif lecturer_enrolment
+                                lecturer_enrolment
+                              else
+                                student_enrolment
+                              end
 
     @is_coordinator         = @current_user_enrolment&.coordinator?
     @is_lecturer            = @current_user_enrolment&.lecturer?
@@ -264,27 +250,27 @@ class TopicsController < ApplicationController
 
     @topic = @topics.find_by(id: params[:id])
     unless @topic
-      redirect_to course_path(@course), alert: "You are not authorized to view this topic."
+      redirect_to course_path(@course), alert: 'You are not authorized to view this topic.'
       return
     end
 
-    #Search
+    # Search
     query = params[:query].to_s.downcase
-    if query.present?
-      @topics = @topics.select do |topic|
-        latest = topic.topic_instances.order(version: :desc).first
-        title = latest&.title&.downcase
-        description = latest&.project_instance_fields
-          &.includes(:project_template_field)
-          &.find { |f| f.project_template_field.label.downcase.include?("description") }
-          &.value&.downcase
+    return unless query.present?
 
-        title&.include?(query) || description&.include?(query)
-      end
+    @topics = @topics.select do |topic|
+      latest = topic.topic_instances.order(version: :desc).first
+      title = latest&.title&.downcase
+      description = latest&.project_instance_fields
+                          &.includes(:project_template_field)
+                          &.find { |f| f.project_template_field.label.downcase.include?('description') }
+                          &.value&.downcase
+
+      title&.include?(query) || description&.include?(query)
     end
   end
 
   def set_course
-    @course  = Course.find(params[:course_id])
+    @course = Course.find(params[:course_id])
   end
 end

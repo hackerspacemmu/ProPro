@@ -6,21 +6,22 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
-  font-family: 'Inter', sans-serif;
-  background: #F2F3F7;
+  font-family: "Inter", sans-serif;
+  background: #f2f3f7;
 }
 
 body {
   display: grid;
   grid-template-rows:
-    80px   
-    44px  
-    1fr;   
+    80px
+    44px
+    1fr;
   grid-template-columns:
-    255px 
-    1fr;   
+    255px
+    1fr;
   grid-template-areas:
     "topbar topbar"
     "breadcrumb breadcrumb"
@@ -34,22 +35,22 @@ p {
   line-height: 1.5;
 }
 
-#top-bar {  
+#top-bar {
   grid-area: topbar;
-  background: #E1E1E1;
+  background: #e1e1e1;
   font-size: 12px;
   font-weight: bold;
   display: flex;
-  align-items: center;   
+  align-items: center;
   padding-left: 24px;
 }
 
 #breadcrumb {
   grid-area: breadcrumb;
-  background: #B5B5B5;
+  background: #b5b5b5;
   display: flex;
   align-items: center;
-  padding: 0 24px;  
+  padding: 0 24px;
 }
 
 #breadcrumb h1 {
@@ -82,7 +83,7 @@ p {
   grid-area: sidebar;
   width: 255px;
   height: 900px;
-  background: #F8F9FA;
+  background: #f8f9fa;
   padding: 20px 8px;
   overflow-y: auto;
 }
@@ -114,7 +115,7 @@ p {
 #lecturer-list,
 #topic-list,
 #participants {
-  background: #F8F9FA;
+  background: #f8f9fa;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 24px;
@@ -130,7 +131,7 @@ p {
   color: #333;
 }
 
-#description p{
+#description p {
   white-space: pre-line;
 }
 
@@ -197,7 +198,7 @@ p {
 /* progress_bar.css */
 .container {
   text-align: center;
-  background: #F8F9FA;
+  background: #f8f9fa;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 24px;
@@ -210,15 +211,15 @@ p {
   margin-bottom: 30px;
   max-width: 100%;
   width: 350px;
-  height: 60px; 
+  height: 60px;
   margin: 0 auto 30px auto;
 }
 
 .progress-container::before {
   content: "";
-  background-color: #8E8E8E;
+  background-color: #8e8e8e;
   position: absolute;
-  top: 20px; 
+  top: 20px;
   left: 0;
   height: 2px;
   width: 100%;
@@ -226,9 +227,9 @@ p {
 }
 
 .progress {
-  background-color: #8E8E8E;
+  background-color: #8e8e8e;
   position: absolute;
-  top: 20px; 
+  top: 20px;
   left: 0;
   height: 4px;
   width: 0%;
@@ -253,11 +254,11 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid #8E8E8E;
+  border: 2px solid #8e8e8e;
   transition: 0.4s ease;
   margin-bottom: 8px;
   position: absolute;
-  top: 12.5px; 
+  top: 12.5px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -275,11 +276,11 @@ p {
 }
 
 .step.active .circle {
-  border-color: #8E8E8E;
-  background-color: #F2F3F7;
+  border-color: #8e8e8e;
+  background-color: #f2f3f7;
   width: 40px;
   height: 40px;
-  top: 0px; 
+  top: 0px;
 }
 
 .label {
@@ -289,7 +290,7 @@ p {
   text-align: center;
   white-space: nowrap;
   position: absolute;
-  top: 45px; 
+  top: 45px;
   padding: 5px;
   left: 50%;
   transform: translateX(-50%);
@@ -334,7 +335,7 @@ p {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
-  justify-content: center
+  justify-content: center;
 }
 
 #lecturer-list .supervisors li {
@@ -345,15 +346,14 @@ p {
 #lecturer-list .profile {
   display: flex;
   align-items: flex-start;
-  gap: 15px;          
-  margin-bottom: 0; 
+  gap: 15px;
+  margin-bottom: 0;
 }
-
 
 #lecturer-list .avatar {
   width: 40px;
   height: 40px;
-  background-color: #D9D9D9;
+  background-color: #d9d9d9;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
@@ -369,7 +369,7 @@ p {
 #lecturer-list .top {
   display: flex;
   align-items: center;
-  gap: 10px;        
+  gap: 10px;
   margin-bottom: 4px;
   font-size: 14px;
 }
@@ -411,25 +411,24 @@ p {
 }
 
 .project-card {
-    color: #FFFFFF;
-    background-color: #1d2f24;
-    display: flex;
-    flex-wrap: wrap;
-    z-index: 0;
-    width: 327px;
-    height: 175px;
-    font-size: 14px;
-    border-radius: 12px;
-    border: 2px solid #B5B5B5;
-    overflow: hidden;
+  color: #ffffff;
+  background-color: #1d2f24;
+  display: flex;
+  flex-wrap: wrap;
+  z-index: 0;
+  width: 327px;
+  height: 175px;
+  font-size: 14px;
+  border-radius: 12px;
+  border: 2px solid #b5b5b5;
+  overflow: hidden;
 }
 
 .project-card .lecturer {
   position: relative;
   right: -30px;
   top: 20px;
-  color: #FFFFFF;
-
+  color: #ffffff;
 }
 
 .project-card h4 {
@@ -453,7 +452,7 @@ p {
   position: relative;
   width: 304px;
   height: 105px;
-  background-color: #F8F9FA;
+  background-color: #f8f9fa;
   z-index: 1;
   right: -30px;
   top: 35px;
@@ -461,8 +460,8 @@ p {
   overflow: hidden;
 }
 
-.project-card.inner .text{
-  color: #5D5D5D;
+.project-card.inner .text {
+  color: #5d5d5d;
   white-space: pre-line;
   line-height: 1.4;
 }
@@ -479,5 +478,5 @@ p {
 }
 
 .card-link:hover .project-card.inner {
-  background-color: #F8F9FA;
+  background-color: #f8f9fa;
 }
