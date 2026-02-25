@@ -39,4 +39,11 @@ class GeneralMailer < ApplicationMailer
 
     mail(to: @project.supervisor.email_address, Subject: 'New Student Submission')
   end
+
+  def Course_Invite_Notification
+    @course = params[:course]
+    @recipient = params[:email_address]
+
+    mail(to: @recipient, Subject: "You've Been Added To A Course in ProPro")
+  end
 end

@@ -330,6 +330,161 @@ class ProjectsController < ApplicationController
     redirect_to course_project_path(@course, @project), notice: "Project created!"
   end
 
+  def update
+    has_supervisor_comment = false
+    @project.project_instances.last.comments.each do |comment|
+      if comment.user_id == @project.supervisor.id
+        has_supervisor_comment = true
+        break
+      end
+    end
+
+    previous_supervisor_id = @project.supervisor.id
+    new_instance_created = false
+
+    begin
+      ActiveRecord::Base.transaction do
+        if @project.status == 'approved'
+          return
+        elsif @project.status == 'rejected' || @project.status == 'redo' || (@project.status == 'pending' && has_supervisor_comment)
+          version = @project.project_instances.count + 1
+          @instance = @project.project_instances.build(
+            version: version,
+            created_by: current_user,
+            enrolment: @project.enrolment
+          )
+          new_instance_created = true
+        else
+          @instance = @project.project_instances.last
+        end
+
+        # Set title
+        title_field_id = params[:fields].keys.first if params[:fields].present?
+        @instance.title = params[:fields][title_field_id] if title_field_id.present?
+
+        @instance.last_edit_time = Time.current
+        @instance.last_edit_by = current_user.id
+
+        raise StandardError unless @instance.save
+
+        raise StandardError unless params[:fields].present?
+
+        params[:fields].each do |field_id, value|
+          existing_field = ProjectInstanceField.find_by(
+            project_template_field_id: field_id,
+            instance: @instance
+          )
+
+          if existing_field
+            existing_field.update!(value: value)
+          else
+            @instance.project_instance_fields.create!(
+              project_template_field_id: field_id,
+              value: value
+            )
+          end
+        end
+
+        raise StandardError, 'Please choose a lecturer and topic' if params[:based_on_topic].blank?
+
+        # 2 formats, PROJECT_ID or own_proposal_LECTURER_ID
+        if params[:based_on_topic].start_with?('own_proposal_')
+          # Extract lecturer ID from value
+          lecturer_id = params[:based_on_topic].split('_').last.to_i
+
+          # Find lecturer enrolment for course
+          supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
+
+          raise StandardError unless supervisor_enrolment
+
+          @instance.update!(source_topic_id: nil)
+        else
+          # Treat as topic_id
+          topic = Topic.find_by(id: params[:based_on_topic], course: @course)
+
+          raise StandardError unless topic
+
+          raise StandardError unless topic.owner.is_a?(User)
+
+          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
+
+          raise StandardError unless supervisor_enrolment
+
+          @instance.update!(source_topic: topic)
+        end
+
+        @project.project_instances.last.update!(
+          enrolment: supervisor_enrolment
+        )
+      end
+    rescue StandardError
+      redirect_to course_project_path(@course, @project), alert: 'Project update failed'
+      return
+    end
+
+    if previous_supervisor_id != @project.supervisor.id || new_instance_created
+      GeneralMailer.with(
+        supervisor_username: @project.supervisor.username,
+        owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
+        course: @course,
+        project: @project
+      ).New_Student_Submission.deliver_later
+    end
+
+    redirect_to course_project_path(@course, @project), notice: 'Project updated successfully.'
+  end
+
+  def selected_topic
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
+
+    if topic_id.start_with?('own_proposal_')
+
+      # Own Proposal
+      @field_values = nil
+    else
+      # Topics chosen
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @field_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+    end
+
+    render partial: 'project_new',
+           locals: { template_fields: @template_fields,
+                     field_values: @field_values,
+                     input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
+  end
+
+
+  def selected_topic_edit
+    topic_id = params[:based_on_topic]
+
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
+
+    if topic_id.start_with?('own_proposal_')
+      # Does not load
+      @existing_values = nil
+    else
+      # Chosen Topic
+      topic = Topic.find(topic_id)
+      latest_instance = topic.current_instance
+
+      # Sorts by id
+      @existing_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+        h[f.project_template_field_id] = f.value
+      end
+    end
+
+    render partial: 'project_edit',
+           locals: { template_fields: @template_fields,
+                     existing_values: @existing_values,
+                     input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
+  end
 
   private
   def set_course

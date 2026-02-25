@@ -1,9 +1,17 @@
 class ProjectTemplatesController < ApplicationController
   before_action :set_course
   before_action :set_project_template
+  before_action :only_authorise_coordinator
+
+  def edit
+    @project_template = @course.project_template
+    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
+  end
   before_action :authorize_update_template
 
   def update
+    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
+
     if @project_template.update(project_template_params)
       redirect_to edit_course_project_template_path(@course), notice: "Template updated"
     else
