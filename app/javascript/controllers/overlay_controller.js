@@ -28,12 +28,15 @@ export default class extends Controller {
     }
   }
 
-  select(event) {
+  selectSetting(event) {
     const sourceCourseId = event.params.courseId;
     const targetCourseId = this.targetCourseIdValue
     const mode = this.modeValue;
     const frame = document.getElementById("overlay_content");
 
     frame.src = `/courses/${targetCourseId}/details?source_id=${sourceCourseId}&mode=${mode}`;
+  }
+
+  selectTopic(event) {
   }
 }
