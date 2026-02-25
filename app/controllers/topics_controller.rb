@@ -80,6 +80,8 @@ class TopicsController < ApplicationController
   def new
     redirect_to course_path(@course), alert: 'You are not authorized' unless Current.user.is_staff
 
+    @approved_topics = Topic.includes(:topic_instances).all.select { |t| t.current_status == 'approved' }
+
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[topics both])
 
     return if @template_fields.present?
