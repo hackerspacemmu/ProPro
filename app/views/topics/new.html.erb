@@ -14,6 +14,8 @@
   </header>
 
   <%= form_with url: course_topics_path(@course), method: :post, class: "edit-form" do |form| %>
+    <%= render "copy_topic_overlay" %>
+
     <div class="fields-container">
       <% @template_fields.each do |field| %>
         <div class="field-row">
