@@ -78,7 +78,12 @@ class TopicsController < ApplicationController
   end
 
   def new
-    redirect_to course_path(@course), alert: 'You are not authorized' unless Current.user.is_staff
+    return redirect_to course_path(@course), alert: 'You are not authorized', status: :see_other unless Current.user.is_staff
+
+    if params[:source_topic_id].present?
+      @source_topic = Topic.find(params[:source_topic_id])
+      return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
+    end
 
     @approved_topics = Topic.includes(:topic_instances).all.select { |t| t.current_status == 'approved' }
 
@@ -86,7 +91,7 @@ class TopicsController < ApplicationController
 
     return if @template_fields.present?
 
-    redirect_to course_path(@course), alert: 'Project template is missing or incomplete. Please set it up before creating a project.'
+    redirect_to course_path(@course), alert: 'Project template is missing or incomplete. Please set it up before creating a project.', status: :see_other
     nil
   end
 

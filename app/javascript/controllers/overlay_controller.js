@@ -38,5 +38,10 @@ export default class extends Controller {
   }
 
   selectTopic(event) {
+    const sourceTopicId = event.params.courseId;
+    const targetCourseId = this.targetCourseIdValue;
+    const frame = document.getElementById("overlay_content");
+
+    frame.src = `/courses/${targetCourseId}/topics/new?source_topic_id=${sourceTopicId}`;
   }
 }
