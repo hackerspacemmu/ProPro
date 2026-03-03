@@ -370,7 +370,10 @@ class CoursesController < ApplicationController
 
         if new_user
           new_user.update!(student_id: group_member[:student_id])
-          registered_students.push(group_member[:email_address])
+
+          if new_user.enrolments.where(course: parent_course).empty?
+            registered_students.push(group_member[:email_address])
+          end
         else
           new_user = User.create!(
             email_address: group_member[:email_address],
@@ -459,7 +462,10 @@ class CoursesController < ApplicationController
 
       if new_user
         new_user.update!(student_id: student[:student_id])
-        registered_students.push(student[:email_address])
+
+        if new_user.enrolments.where(course: parent_course).empty?
+          registered_students.push(student[:email_address])
+        end
       else
         new_user = User.create!(
           email_address: student[:email_address],
