@@ -432,7 +432,7 @@ class CoursesController < ApplicationController
     registered_emails.each do |email|
       GeneralMailer.with(
         course: course,
-        recipient: email
+        email_address: email
       ).Course_Invite_Notification.deliver_later
     end
   end
