@@ -370,7 +370,10 @@ class CoursesController < ApplicationController
 
         if new_user
           new_user.update!(student_id: group_member[:student_id])
-          registered_students.push(group_member[:email_address])
+
+          if new_user.enrolments.where(course: parent_course).empty?
+            registered_students.push(group_member[:email_address])
+          end
         else
           new_user = User.create!(
             email_address: group_member[:email_address],
@@ -459,7 +462,10 @@ class CoursesController < ApplicationController
 
       if new_user
         new_user.update!(student_id: student[:student_id])
-        registered_students.push(student[:email_address])
+
+        if new_user.enrolments.where(course: parent_course).empty?
+          registered_students.push(student[:email_address])
+        end
       else
         new_user = User.create!(
           email_address: student[:email_address],
@@ -500,7 +506,7 @@ class CoursesController < ApplicationController
 
       new_lecturer = User.find_by(email_address: email, is_staff: true)
 
-      unless new_lecturer
+      if !new_lecturer
         new_lecturer = User.create!(
           email_address: email,
           password: SecureRandom.base64(24),
@@ -523,7 +529,7 @@ class CoursesController < ApplicationController
             is_staff: true
           }
         )
-      else
+      elsif new_lecturer.enrolments.where(course: parent_course).empty?
         registered_lecturers.push(email)
       end
 
