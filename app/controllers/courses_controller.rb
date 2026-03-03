@@ -506,7 +506,7 @@ class CoursesController < ApplicationController
 
       new_lecturer = User.find_by(email_address: email, is_staff: true)
 
-      unless new_lecturer
+      if !new_lecturer
         new_lecturer = User.create!(
           email_address: email,
           password: SecureRandom.base64(24),
@@ -529,7 +529,7 @@ class CoursesController < ApplicationController
             is_staff: true
           }
         )
-      else
+      elsif new_lecturer.enrolments.where(course: parent_course).empty?
         registered_lecturers.push(email)
       end
 
