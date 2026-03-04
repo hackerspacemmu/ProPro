@@ -90,12 +90,6 @@ class CoursesController < ApplicationController
       ActiveRecord::Base.transaction do
         create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers, registered_lecturers)
       end
-
-      if @course.grouped
-        @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
-      else
-        @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
-      end
     rescue StandardError => e
       redirect_back_or_to '/', alert: e.message
       return
@@ -151,12 +145,6 @@ class CoursesController < ApplicationController
         else
           student_set = parse_csv_solo(csv_obj, columns_to_check)
           create_db_entries_solo(student_set, @course, unregistered_students, registered_students)
-        end
-
-        if @course.grouped
-          @course.update(supervisor_projects_limit: (@course.project_groups.count / @course.lecturers.count).ceil)
-        else
-          @course.update(supervisor_projects_limit: (@course.students.count / @course.lecturers.count).ceil)
         end
       end
     rescue StandardError => e
