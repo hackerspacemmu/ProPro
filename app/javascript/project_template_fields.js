@@ -197,6 +197,7 @@ document.addEventListener("turbo:load", function () {
         if (addOptionBtn) {
           addOptionBtn.dataset.fieldType = fieldType;
           addOptionBtn.dataset.optionIndex = "0";
+          addOptionBtn.click();
         }
       } else {
         optionsSection.classList.add("hidden");
@@ -238,10 +239,11 @@ document.addEventListener("turbo:load", function () {
     }
 
     // Add option
-    if (e.target.classList.contains("add-option-btn")) {
+    const addBtn = e.target.closest(".add-option-btn");
+    if (addBtn) {
       e.preventDefault();
 
-      const btn = e.target;
+      const btn = addBtn; // Use the button we found with .closest()
       const fieldIndex = btn.dataset.fieldIndex;
       const optionIndex = parseInt(btn.dataset.optionIndex, 10);
       const fieldType = btn.dataset.fieldType;
