@@ -96,12 +96,12 @@ class ProjectsController < ApplicationController
     # Optionally preselect topic or own proposal
     topic_id = params[:topic_id].presence || params[:based_on_topic]
 
-    if topic_id.present?
-      if topic_id.to_s.start_with?("own_proposal_")
-        @selected_topic_id = topic_id
-      elsif @course.topics.exists?(id: topic_id)
-        @selected_topic_id = topic_id
-      end
+    return unless topic_id.present?
+
+    if topic_id.to_s.start_with?('own_proposal_')
+      @selected_topic_id = topic_id
+    elsif @course.topics.exists?(id: topic_id)
+      @selected_topic_id = topic_id
     end
   end
 
@@ -316,12 +316,7 @@ class ProjectsController < ApplicationController
   end
 
   def selected_topic
-
-    if params[:topic_id].present?
-      topic_id = params[:topic_id]
-    else
-      topic_id = params[:based_on_topic]
-    end
+    topic_id = params[:topic_id].presence || params[:based_on_topic]
 
     @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[proposals both])
 
@@ -345,7 +340,6 @@ class ProjectsController < ApplicationController
                      field_values: @field_values,
                      input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
   end
-
 
   def selected_topic_edit
     topic_id = params[:based_on_topic]
