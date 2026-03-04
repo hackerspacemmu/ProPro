@@ -244,7 +244,7 @@ class TopicsController < ApplicationController
         @topics = @course.topics.where(status: :approved)
       end
 
-      if params[:id].present
+      if params[:id].present?
         @topic = @topics.find_by(id: params[:id])
         unless @topic
           redirect_to course_path(@course), alert: 'You are not authorized to view this topic.'
