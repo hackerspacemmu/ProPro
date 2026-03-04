@@ -232,26 +232,25 @@ class TopicsController < ApplicationController
     if action_name == 'index'
       # FOR TOPICS/INDEX
       @topics = @course.topics.where(status: :approved)
-      return
-    end
-
-    # FOR COURSES/SHOW
-    if @is_coordinator
-      @topics = @course.topics # Coordinators see every lecturer topic (any status)
-
-    elsif @is_lecturer
-      own = @course.topics.where(owner: Current.user)
-      approved = @course.topics.where(status: :approved)
-
-      @topics = own.or(approved) # Lecturers see their own (any status) OR others' approved
     else
-      @topics = @course.topics.where(status: :approved) # Students see only approved
-    end
+      if @is_coordinator
+        @topics = @course.topics
+      elsif @is_lecturer
+        own = @course.topics.where(owner: Current.user)
+        approved = @course.topics.where(status: :approved)
 
-    @topic = @topics.find_by(id: params[:id])
-    unless @topic
-      redirect_to course_path(@course), alert: 'You are not authorized to view this topic.'
-      return
+        @topics = own.or(approved) # Lecturers see their own (any status) OR others' approved
+      else
+        @topics = @course.topics.where(status: :approved)
+      end
+
+      if params[:id].present
+        @topic = @topics.find_by(id: params[:id])
+        unless @topic
+          redirect_to course_path(@course), alert: 'You are not authorized to view this topic.'
+          return
+        end
+      end
     end
 
     # Search
