@@ -7,7 +7,7 @@
       <p class="text-gray-500">Student projects currently under supervision</p>
     </header>
     <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-1">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
         <% if my_student_projects.any? %>
           <%= render partial: "project_card",
           collection: my_student_projects,
@@ -29,7 +29,8 @@
       <h4
         class="
           text-xl text-black mb-3 font-normal break-word whitespace-pre-line
-        ">Incoming Proposals</h4>
+        "
+      >Incoming Proposals</h4>
       <p class="text-gray-500">Student proposals awaiting approval</p>
     </header>
     <% if incoming_proposals.empty? %>
@@ -44,7 +45,7 @@
               <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
               </h5>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
               <%= render partial: "project_card", collection: group, as: :project %>
             </div>
           </div>
@@ -84,7 +85,7 @@
               <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
               </h5>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
               <%= render partial: "topic_card", collection: group, as: :topic %>
             </div>
           </div>
@@ -100,7 +101,8 @@
     <ul
       class="
         list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5
-      ">
+      "
+    >
       <%= render partial: "lecturers",
       collection: lecturers,
       as: :lecturer,
@@ -136,7 +138,7 @@
               <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
               </h5>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
               <%= render partial: "topic_card", collection: group, as: :topic %>
             </div>
           </div>
