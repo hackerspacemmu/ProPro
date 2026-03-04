@@ -7,7 +7,7 @@
 <% breadcrumb :topics, @course %>
 <% content_for :title,
 "Topics List - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
-<%= render "topbar", user: current_user %>
+<%= render "shared/topbar" %>
 
 <main class="main">
   <header class="section-header">
