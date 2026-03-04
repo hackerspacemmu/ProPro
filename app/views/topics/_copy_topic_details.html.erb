@@ -12,38 +12,11 @@
         <% current_instance = source.topic_instances.order(version: :desc).first %>
         <% fields = current_instance.project_instance_fields.includes(:project_template_field) %>
 
-        <% fields.each do |instance_field| %>
-          <% template_field = instance_field.project_template_field %>
-
-          <li class="py-5 flex items-start gap-6">
-            <div class="flex flex-col flex-grow">
-              <div class="flex items-center gap-3">
-                <span class="block text-lg font-semibold text-gray-800 py-1">
-                  <%= template_field.label %>
-                </span>
-                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-                  <%= template_field.field_type.humanize %>
-                </span>
-              </div>
-
-              <div class="flex flex-col">
-                <% if instance_field.value.present? %>
-                  <span class="text-gray-800 text-base"><%= instance_field.value %></span>
-                <% else %>
-                  <span class="text-gray-400 italic">No value provided</span>
-                <% end %>
-              </div>
-            </div>
-          </li>
-        <% end %>
-
-        <hr>
-
         <% @template_fields.each do |field| %>
-          <li class="py-5 flex items-start gap-6">
+          <li class="py-5 flex items-start gap-6 border-b border-gray-100 last:border-0">
             <div class="flex flex-col flex-grow">
-              <div class="flex items-center gap-3">
-                <span class="block text-lg font-semibold text-gray-800 py-1">
+              <div class="flex items-center gap-3 mb-2">
+                <span class="block text-lg font-semibold text-gray-800">
                   <%= field.label %>
                 </span>
                 <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
@@ -51,12 +24,17 @@
                 </span>
               </div>
 
-              <div class="flex flex-col">
-                <% if field.hint.present? %>
-                  <span class="text-gray-500 text-sm italic"><%= field.hint %></span>
-                <% else %>
-                  <span class="text-gray-400 text-sm italic">No hint provided</span>
-                <% end %>
+              <div class="flex items-center gap-3 mb-2">
+                <label for="instance_field_select_<%= field.id %>" class="sr-only">Select Instance Field</label>
+                <select id="instance_field_select_<%= field.id %>" name="template_field[<%= field.id %>][instance_field_id]"
+                    class="block w-full rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-4 pr-10 text-slate-500 transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                >
+                  <option value="">-- Select a value --</option>
+                  <% fields.each do |instance_field| %>
+                    <% template_field = instance_field.project_template_field %>
+                    <option value="<%= instance_field.id %>"><%= template_field.label %></option>
+                  <% end %>
+                </select>
               </div>
             </div>
           </li>
