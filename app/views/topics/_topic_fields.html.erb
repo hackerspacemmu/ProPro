@@ -33,6 +33,11 @@
     </div>
   </section>
 
+  <% if @is_student %>
+    <%= link_to "Propose based on this Topic", new_course_project_path(@course, topic_id: topic), 
+    class: "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+  <% end %>
+
 <style>
   table, th, td, tr {
     border: 1px solid black;
