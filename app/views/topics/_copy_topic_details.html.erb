@@ -36,6 +36,31 @@
             </div>
           </li>
         <% end %>
+
+        <hr>
+
+        <% @template_fields.each do |field| %>
+          <li class="py-5 flex items-start gap-6">
+            <div class="flex flex-col flex-grow">
+              <div class="flex items-center gap-3">
+                <span class="block text-lg font-semibold text-gray-800 py-1">
+                  <%= field.label %>
+                </span>
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                  <%= field.field_type.humanize %>
+                </span>
+              </div>
+
+              <div class="flex flex-col">
+                <% if field.hint.present? %>
+                  <span class="text-gray-500 text-sm italic"><%= field.hint %></span>
+                <% else %>
+                  <span class="text-gray-400 text-sm italic">No hint provided</span>
+                <% end %>
+              </div>
+            </div>
+          </li>
+        <% end %>
       </ul>
     </div>
   <% end %>

@@ -80,14 +80,14 @@ class TopicsController < ApplicationController
   def new
     return redirect_to course_path(@course), alert: 'You are not authorized', status: :see_other unless Current.user.is_staff
 
+    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[topics both])
+
     if params[:source_topic_id].present?
       @source_topic = Topic.find(params[:source_topic_id])
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
     @approved_topics = Topic.includes(:topic_instances).all.select { |t| t.current_status == 'approved' }
-
-    @template_fields = @course.project_template.project_template_fields.where(applicable_to: %i[topics both])
 
     return if @template_fields.present?
 
