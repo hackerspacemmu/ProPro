@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static values = { targetCourseId: String, mode: String };
-  static targets = ["menu", "content"];
+  static targets = ["preview", "label", "value", "menu", "container", "content"]
 
   // Open the overlay
   open(e) {
@@ -43,5 +43,27 @@ export default class extends Controller {
     const frame = document.getElementById("overlay_content");
 
     frame.src = `/courses/${targetCourseId}/topics/new?source_topic_id=${sourceTopicId}`;
+  }
+
+  updateDropdown(event) {
+    const select = event.target;
+    const option = select.options[select.selectedIndex];
+    
+    const row = select.closest('.field-row');
+    if (!row) return;
+
+    // Filter targets to find the ones specifically inside this row
+    const preview = this.previewTargets.find(el => row.contains(el));
+    const label = this.labelTargets.find(el => row.contains(el));
+    const value = this.valueTargets.find(el => row.contains(el));
+
+    if (!option || !option.value) {
+      if (preview) preview.classList.add('hidden');
+      return;
+    }
+
+    if (label) label.textContent = option.dataset.label;
+    if (value) value.textContent = option.dataset.value || "No value provided";
+    if (preview) preview.classList.remove('hidden');
   }
 }

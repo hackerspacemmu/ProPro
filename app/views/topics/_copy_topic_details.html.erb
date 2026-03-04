@@ -13,28 +13,36 @@
         <% fields = current_instance.project_instance_fields.includes(:project_template_field) %>
 
         <% @template_fields.each do |field| %>
-          <li class="py-5 flex items-start gap-6 border-b border-gray-100 last:border-0">
-            <div class="flex flex-col flex-grow">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="block text-lg font-semibold text-gray-800">
+          <li class="field-row py-5 flex items-start gap-6 border-b border-gray-100 last:border-0">
+            <div class="flex flex-col w-full gap-4">
+              <div class="flex items-center gap-2"> 
+                <span class="block text-xl font-bold text-gray-900 tracking-tight">
                   <%= field.label %>
                 </span>
-                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-medium text-indigo-600 ring-1 ring-inset ring-indigo-200">
                   <%= field.field_type.humanize %>
                 </span>
               </div>
 
-              <div class="flex items-center gap-3 mb-2">
-                <label for="instance_field_select_<%= field.id %>" class="sr-only">Select Instance Field</label>
-                <select id="instance_field_select_<%= field.id %>" name="template_field[<%= field.id %>][instance_field_id]"
-                    class="block w-full rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-4 pr-10 text-slate-500 transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+              <div class="flex flex-col w-full">
+                <select name="template_field[<%= field.id %>][instance_field_id]" 
+                        data-action="change->overlay#updateDropdown"
+                        class="block w-full rounded-t-lg border border-gray-100 bg-gray-50 px-4 py-4 pr-10 text-base transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   <option value="">-- Select a value --</option>
                   <% fields.each do |instance_field| %>
-                    <% template_field = instance_field.project_template_field %>
-                    <option value="<%= instance_field.id %>"><%= template_field.label %></option>
+                    <option value="<%= instance_field.id %>"
+                            data-label="<%= instance_field.project_template_field.label %>"
+                            data-value="<%= instance_field.value %>">
+                      <%= instance_field.project_template_field.label %>
+                    </option>
                   <% end %>
                 </select>
+
+                <div data-overlay-target="preview" class="hidden w-full border-x border-b border-gray-100 bg-white px-5 pt-3 pb-5 rounded-b-lg">
+                  <p data-overlay-target="value" class="text-gray-600 text-sm leading-relaxed"></p>
+                </div>
               </div>
             </div>
           </li>
