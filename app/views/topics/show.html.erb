@@ -26,11 +26,11 @@
 
     <%# --- Top Back Button --- %>
     <div class="flex items-center justify-start mb-2">
-      <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
+      <%= link_to course_path(@course), class: "group flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
         <div
           class="
             w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
-            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+            justify-center group-hover:border-green-300 shadow-sm transition-all
           "
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
@@ -144,12 +144,12 @@
     </div>
 
     <%# --- Bottom Back Button --- %>
-    <div class="flex items-center justify-center mt-3">
-      <%= link_to course_path(@course), class: "group flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
+    <div class="flex items-center justify-center pt-4 mb-2">
+      <%= link_to course_path(@course), class: "group flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
         <div
           class="
             w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
-            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
+            justify-center group-hover:border-green-300 shadow-sm transition-all
           "
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
