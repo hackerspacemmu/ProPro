@@ -15,7 +15,7 @@
       <p class="text-sm text-gray-500 mt-1">Define the fields students must fill out for their project proposals.</p>
     </header>
 
-    <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "flex flex-col bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden" do |form| %>
+    <%= form_with model: [@course, @project_template], url: course_project_template_path(@course), local: true, class: "flex flex-col bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden" do |form| %>
 
       <%# --- Errors Section --- %>
       <% if @project_template.errors.any? %>
@@ -47,44 +47,44 @@
 
       <%= render "courses/copy_course_overlay", course: @course, mode: "template" %>
 
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto pb-4">
         <table class="min-w-full divide-y divide-gray-200">
 
-          <%# --- Table Header (Hidden on Mobile) --- %>
+          <%# --- Table Header --- %>
           <thead class="bg-gray-50 hidden lg:table-header-group">
             <tr>
               <th
                 scope="col"
                 class="
-                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
-                  w-[20%]
+                  pl-12 pl-6 py-4 text-left text-xs font-bold text-gray-500 uppercase
+                  tracking-wider w-[20%]
                 "
               >Field Label</th>
               <th
                 scope="col"
                 class="
-                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
                   w-[25%]
                 "
               >Hint Text</th>
               <th
                 scope="col"
                 class="
-                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
                   w-[15%]
                 "
               >Type</th>
               <th
                 scope="col"
                 class="
-                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
                   w-[15%]
                 "
               >Applicable To</th>
               <th
                 scope="col"
                 class="
-                  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
                   w-[25%]
                 "
               >Options</th>
@@ -92,7 +92,7 @@
           </thead>
 
           <%# --- Table Body --- %>
-          <tbody id="template-fields" class="bg-white divide-y divide-gray-200">
+          <tbody id="template-fields" class="bg-white divide-y divide-gray-100">
             <%= form.fields_for :project_template_fields do |field_form| %>
               <%= render "field_row", field_form: field_form %>
             <% end %>
@@ -101,13 +101,13 @@
       </div>
 
       <%# --- Add Field Button --- %>
-      <div class="bg-gray-50 border-t border-gray-200 p-3">
+      <div class="bg-gray-50 border-t border-gray-200 p-4">
         <button
           type="button"
           id="add-field-btn"
           class="
-            inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm
-            font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50
+            inline-flex items-center px-4 py-2.5 border border-gray-300 shadow-sm text-sm
+            font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-100
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
             transition-colors
           "
@@ -116,9 +116,8 @@
         >
           <svg
             class="-ml-1 mr-2 h-5 w-5 text-gray-500"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
             fill="currentColor"
+            viewBox="0 0 20 20"
           >
             <path
               fill-rule="evenodd"
@@ -133,18 +132,17 @@
       <%# --- Footer Actions --- %>
       <div
         class="
-          px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end
-          gap-3
+          px-6 py-5 bg-white border-t border-gray-200 flex flex-col-reverse sm:flex-row
+          items-center justify-end gap-3
         "
       >
         <%= link_to "Cancel",
         course_path(@course),
         class:
-          "text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors" %>
-
+          "w-full sm:w-auto text-center text-sm font-bold text-gray-600 hover:text-gray-900 px-5 py-2.5 rounded-lg hover:bg-gray-100 transition-colors" %>
         <%= form.submit "Save Template",
                     class:
-                      "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer" %>
+                      "w-full sm:w-auto cursor-pointer inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all" %>
       </div>
 
     <% end %>
