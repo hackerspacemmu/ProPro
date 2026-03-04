@@ -1,5 +1,4 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "courses" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% content_for :no_sidebar, true %>
@@ -7,41 +6,131 @@
 <% breadcrumb :topics, @course %>
 <% content_for :title,
 "Topics List - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+
 <%= render "shared/topbar" %>
 
-<main class="main">
-  <header class="section-header">
-    <h1>Topics for
-      <%= @course.course_name %></h1>
-  </header>
+<main class="bg-gray-50 w-full pt-8 pb-6 px-4 sm:px-6 md:px-8">
+  <div class="max-w-[1920px] mx-auto w-full xl:px-8">
 
-  <section class="search-bar-container mb-2">
-    <%= form_with url: course_topics_path(@course), method: :get, local: true, class: "search-form" do %>
-      <%= label_tag :query, "Search topics:", class: "search-label" %>
-      <%= text_field_tag :query,
-      params[:query],
-      class: "search-input",
-      placeholder: "Enter keyword...",
-      autocomplete: "topics-search" %>
-      <%= submit_tag "Search", class: "btn btn-secondary" %>
+    <%# --- Flash Messages --- %>
+    <% if flash[:alert] %>
+      <div
+        class="
+          bg-red-50 text-red-700 p-4 rounded-xl mb-6 text-sm font-medium shadow-sm
+        "
+      ><%= flash[:alert] %></div>
     <% end %>
-  </section>
+    <% if flash[:notice] %>
+      <div
+        class="
+          bg-green-50 text-green-700 p-4 rounded-xl mb-6 text-sm font-medium shadow-sm
+        "
+      ><%= flash[:notice] %></div>
+    <% end %>
 
-  <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-  <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+    <%# --- Page Header --- %>
+    <header class="mb-8">
+      <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 break-words">
+        Topics for
+        <span class="text-green-700"><%= @course.course_name %></span>
+      </h1>
+    </header>
 
-  <section class="topics-list" id="topics-list">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-      <% if @topics.any? %>
-        <%= render partial: "courses/topic_card", collection: @topics, as: :topic %>
-      <% else %>
-        <p class="empty-state">No topics found.</p>
+    <section class="mb-10 max-w-3xl">
+      <%= form_with url: course_topics_path(@course), method: :get, local: true, class: "w-full" do %>
+
+        <%= label_tag :query,
+        "Search Topics",
+        class: "block text-sm font-bold text-gray-700 uppercase tracking-wide mb-3" %>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
+          <div class="relative flex-grow w-full">
+            <div
+              class="
+                absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none
+              "
+            >
+              <svg
+                class="h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <%= text_field_tag :query,
+            params[:query],
+            class:
+              "block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all sm:text-base placeholder-gray-400",
+            placeholder: "Enter keyword to search topics...",
+            autocomplete: "off" %>
+          </div>
+
+          <%# Submit Button %>
+          <%= submit_tag "Search",
+          class:
+            "w-full sm:w-auto cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-8 rounded-lg shadow-sm transition-all transform active:scale-95 text-sm sm:text-base whitespace-nowrap" %>
+        </div>
+
+      <% end %>
+    </section>
+
+    <%# --- Topics Grid --- %>
+    <section class="topics-list mb-12" id="topics-list">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
+        <% if @topics.any? %>
+          <%= render partial: "courses/topic_card", collection: @topics, as: :topic %>
+        <% else %>
+          <div
+            class="
+              col-span-full py-12 flex flex-col items-center justify-center bg-white
+              rounded-2xl border border-gray-200 border-dashed
+            "
+          >
+            <svg
+              class="w-12 h-12 text-gray-300 mb-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              /></svg>
+            <p class="text-gray-500 font-medium text-lg">No topics found.</p>
+            <p class="text-gray-400 text-sm mt-1">Try adjusting your search keywords.</p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <%# --- Bottom Back Button --- %>
+    <div class="flex items-center justify-center">
+      <%= link_to course_path(@course), class: "group flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
+        <div
+          class="
+            w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Course
       <% end %>
     </div>
-  </section>
 
-  <div class="form-actions">
-    <%= link_to "Back to Course", course_path(@course), class: "btn-normal" %>
   </div>
 </main>
 
