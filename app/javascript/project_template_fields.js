@@ -234,7 +234,7 @@ document.addEventListener("turbo:load", function () {
       const destroyFlag = fieldRow.querySelector(".destroy-flag");
 
       if (destroyFlag) {
-        destroyFlag.value = "true";
+        destroyFlag.value = "1";
         fieldRow.style.display = "none";
       } else {
         fieldRow.remove();
