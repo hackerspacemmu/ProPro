@@ -78,7 +78,10 @@ document.addEventListener("turbo:load", function () {
 
         <td class="block lg:table-cell px-6 py-4 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Applicable To</span>
-          <span class="text-sm text-gray-500 italic">All students</span>
+          <select name="project_template[project_template_fields_attributes][${index}][applicable_to]"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer">
+            ${generateApplicableToOptions()}
+          </select>
         </td>
 
         <td class="block lg:table-cell px-6 py-4 align-top">
