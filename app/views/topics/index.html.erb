@@ -83,7 +83,11 @@
 
     <%# --- Topics Grid --- %>
     <section class="topics-list mb-12" id="topics-list">
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
+      <div
+        class="
+          grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
+        "
+      >
         <% if @topics.any? %>
           <%= render partial: "courses/topic_card", collection: @topics, as: :topic %>
         <% else %>
