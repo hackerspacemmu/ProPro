@@ -14,6 +14,9 @@
 
         <% @template_fields.each do |field| %>
           <li class="field-row py-5 flex items-start gap-6 border-b border-gray-100 last:border-0">
+            <% initial_field = fields.find { |f| f.project_template_field.label == field.label } %>
+            <% matched_found = initial_field.present? %>
+
             <div class="flex flex-col w-full gap-4">
               <div class="flex items-center gap-2"> 
                 <span class="block text-xl font-bold text-gray-900 tracking-tight">
@@ -32,19 +35,19 @@
                 >
                   <option value="">-- Select a value --</option>
                   <% fields.each do |instance_field| %>
-                    <% matched_found = instance_field.project_template_field.label == field.label %>
-
                     <option value="<%= instance_field.id %>"
                             data-label="<%= instance_field.project_template_field.label %>"
                             data-value="<%= instance_field.value %>"
-                            <%= "selected" if matched_found %>>
+                            <%= "selected" if instance_field == initial_field %>>
                       <%= instance_field.project_template_field.label %>
                     </option>
                   <% end %>
                 </select>
 
-                <div data-overlay-target="preview" class="hidden w-full border-x border-b border-gray-100 bg-white px-5 pt-3 pb-5 rounded-b-lg">
-                  <p data-overlay-target="value" class="text-gray-600 text-sm leading-relaxed"></p>
+                <div data-overlay-target="preview" class="<%= 'hidden' unless matched_found %> w-full border-x border-b border-gray-100 bg-white px-5 pt-3 pb-5 rounded-b-lg">
+                  <p data-overlay-target="value" class="text-gray-600 text-sm leading-relaxed">
+                    <%= initial_field&.value if matched_found %>
+                  </p>
                 </div>
               </div>
             </div>
