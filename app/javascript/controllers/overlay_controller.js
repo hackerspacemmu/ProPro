@@ -5,6 +5,23 @@ export default class extends Controller {
   static values = { targetCourseId: String, mode: String };
   static targets = ["preview", "label", "value", "menu", "container", "content"]
 
+  connect() {
+    this.initializeSelects();
+
+    this.element.addEventListener("turbo:frame-render", () => {
+      this.initializeSelects();
+    });
+  }
+
+  initializeSelects() {
+    this.element.querySelectorAll('select').forEach(select => {
+      // Only trigger if a value is selected
+      if (select.value && select.value !== "") {
+        this.updateDropdown({ target: select });
+      }
+    });
+  }
+
   // Open the overlay
   open(e) {
     e.preventDefault();

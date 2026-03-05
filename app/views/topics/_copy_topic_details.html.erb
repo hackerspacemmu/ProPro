@@ -32,9 +32,12 @@
                 >
                   <option value="">-- Select a value --</option>
                   <% fields.each do |instance_field| %>
+                    <% matched_found = instance_field.project_template_field.label == field.label %>
+
                     <option value="<%= instance_field.id %>"
                             data-label="<%= instance_field.project_template_field.label %>"
-                            data-value="<%= instance_field.value %>">
+                            data-value="<%= instance_field.value %>"
+                            <%= "selected" if matched_found %>>
                       <%= instance_field.project_template_field.label %>
                     </option>
                   <% end %>
