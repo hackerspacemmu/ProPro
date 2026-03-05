@@ -121,10 +121,9 @@
           </span>
 
           <div class="flex-1 flex justify-end min-w-0 ml-2">
-            <%# Coordinator Approval Form %>
             <% if @is_coordinator && @course.require_coordinator_approval && current_version == latest_version %>
-              <div class="flex items-center gap-1 sm:gap-2 min-w-0 w-full justify-end">
-                <%= form_with url: change_status_course_topic_path(@course, topic), method: :patch, local: true, class: "flex items-center gap-1 sm:gap-2 min-w-0 w-full justify-end" do |f| %>
+              <div class="flex items-center gap-1 sm:gap-2 min-w-0 justify-end">
+                <%= form_with url: change_status_course_topic_path(@course, topic), method: :patch, local: true, class: "flex items-center gap-1 sm:gap-2 min-w-0 justify-end" do |f| %>
                   <% statuses = TopicInstance.statuses.keys.without("not_submitted") %>
                   <% status_color_class =
                     case current_instance.status
@@ -145,9 +144,8 @@
                            ),
                            {},
                            class:
-                             "flex-1 min-w-0 w-auto px-2 py-1 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none truncate " +
-                               "max-[324px]:truncate max-[324px]:max-w-[80px] " +
-                               status_color_class %>
+                             "min-w-0 w-auto px-2 py-1 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none truncate " +
+                               "max-[324px]:max-w-[80px] " + status_color_class %>
 
                   <%= f.button type: "submit", class: "shrink-0 cursor-pointer hover:scale-110 transition-transform p-1", title: "Save status" do %>
                     <%= image_tag("check.svg", class: "w-4 h-4 shrink-0") %>
