@@ -121,7 +121,6 @@
 
     </div>
 
-    <%# --- New Comment Form --- %>
     <% if (current_version == latest_version) && (@current_user.id == @topic.owner_id || @is_coordinator) %>
       <div class="p-4 border-t border-gray-100 bg-white">
         <%= form_with model: new_comment, local: true, class: "relative" do |form| %>
@@ -137,9 +136,9 @@
           >
 
             <%= form.text_area :user_comment,
-                           class:
-                             "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 resize py-2 px-2 max-h-32 min-h-[40px] focus:outline-none focus:ring-0",
                            rows: 1,
+                           class:
+                             "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 py-2 px-2 focus:outline-none resize-none overflow-y-auto max-h-[120px]",
                            placeholder: "Write a comment..." %>
 
             <%= form.button type: "submit", class: "p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-gray-100 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors flex-shrink-0", title: "Send" do %>

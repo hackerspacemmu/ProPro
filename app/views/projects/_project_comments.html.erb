@@ -22,7 +22,11 @@
     <% end %>
   </div>
 
-  <div class="flex-1 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative">
+  <div
+    class="
+      flex-1 min-h-0 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative
+    "
+  >
 
     <% if comments.any? %>
       <div class="space-y-6 relative pl-4">
@@ -128,8 +132,12 @@
         >
           <%= form.text_area :user_comment,
                          class:
-                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 resize py-2 px-2 max-h-32 min-h-[40px] focus:outline-none",
+                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 py-2 px-2 focus:outline-none resize-none overflow-y-auto max-h-[120px]",
                          rows: 1,
+                         data: {
+                           controller: "textarea-resize",
+                           action: "input->textarea-resize#resize",
+                         },
                          placeholder: "Write a comment..." %>
 
           <%= form.button type: "submit", class: "p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-gray-100 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors flex-shrink-0", title: "Send" do %>
