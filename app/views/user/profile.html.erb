@@ -134,7 +134,13 @@
                 meet you to request you as supervisor in case of FYP/Mini IT
                 Project.
               </p>
-              <%= form.text_area :description, class: "#{input_classes} min-h-[140px] resize-y" %>
+              <%= form.text_area :description,
+                             class:
+                               "#{input_classes} min-h-[140px] overflow-hidden resize-none",
+                             data: {
+                               controller: "textarea-resize",
+                               action: "input->textarea-resize#resize",
+                             } %>
             </div>
           </section>
 

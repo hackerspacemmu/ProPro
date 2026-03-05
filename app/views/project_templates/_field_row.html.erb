@@ -58,7 +58,11 @@
                          rows: 1,
                          placeholder: "Instructions...",
                          class:
-                           "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y min-h-[44px]" %>
+                           "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden",
+                         data: {
+                           controller: "textarea-resize",
+                           action: "input->textarea-resize#resize",
+                         } %>
   </td>
 
   <%# --- Type --- %>
