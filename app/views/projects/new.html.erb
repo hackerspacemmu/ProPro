@@ -115,7 +115,8 @@
 
                     <option
                       value="own_proposal_<%= lecturer.id %>"
-                      class="text-blue-600 font-medium">
+                      class="text-blue-600 font-medium"
+                      <%= 'selected' if @selected_topic_id == "own_proposal_#{lecturer.id}" %>>
                       <%= "#{lecturer.username} - Own Proposal" %>
                     </option>
                   </optgroup>
