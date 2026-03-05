@@ -43,9 +43,11 @@ document.addEventListener("turbo:load", function () {
   // Create new field HTML directly (Tailwind tr format)
   function createNewFieldHTML(index) {
     return `
-      <tr class="field-row group flex flex-col lg:table-row bg-white hover:bg-gray-50/50 transition-colors relative border-b lg:border-none last:border-b-0" data-field-index="${index}">
-
-        <td class="block lg:table-cell pl-12 pr-6 py-5 whitespace-nowrap align-top">
+      <tr
+        class="field-row group relative flex flex-col bg-white transition-colors hover:bg-gray-50/50 border-b border-gray-600 last-of-type:border-b-0 lg:table-row lg:border-none"
+        data-field-index="${index}"
+      >
+        <td class="block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
           <div class="relative">
             <textarea
