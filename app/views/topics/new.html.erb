@@ -100,7 +100,11 @@
                 <% when "textarea" %>
                   <%= text_area_tag "fields[#{field.id}]",
                   nil,
-                  class: "#{input_classes} min-h-[120px] resize-y",
+                  class: "#{input_classes} resize-none overflow-hidden",
+                  data: {
+                    controller: "textarea-resize",
+                    action: "input->textarea-resize#resize",
+                  },
                   placeholder: field.hint,
                   required: true,
                   autocomplete: "off" %>
