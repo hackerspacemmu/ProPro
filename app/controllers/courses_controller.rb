@@ -1,6 +1,8 @@
 require 'csv'
 require 'securerandom'
 
+# REMOVE: FOR LINTER TESTING ONLY
+
 class CoursesController < ApplicationController
   before_action :disallow_noncoordinator_requests, only: %i[add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv]
   before_action :check_staff, only: %i[new create]
