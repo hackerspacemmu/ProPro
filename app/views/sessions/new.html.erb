@@ -1,8 +1,5 @@
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
-  <style>
-    body { background-color: #f9fafb; }
-  </style>
 <% end %>
 <% content_for :hide_toggler, true %>
 <% content_for :hide_breadcrumbs, true %>
@@ -12,7 +9,7 @@
 <div
   class="
     flex flex-col items-center justify-center w-full px-4 pt-2 bg-gray-50
-    min-h-[85vh]
+    min-h-[calc(100vh-70px)] bg-gray-50
   "
 >
 
