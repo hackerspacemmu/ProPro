@@ -1,8 +1,6 @@
 require 'csv'
 require 'securerandom'
 
-# REMOVE: FOR LINTER TESTING ONLY
-
 class CoursesController < ApplicationController
   before_action :disallow_noncoordinator_requests, only: %i[add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv]
   before_action :check_staff, only: %i[new create]
@@ -53,10 +51,10 @@ class CoursesController < ApplicationController
       @incoming_proposals = @course.projects.where(enrolment: @current_user_enrolment).proposals
     end
 
-    # SET LECTURER CAPACITY INFO
+    # SET LECTURER CAPACITY
     @lecturer_capacity_info = {}
     @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = lecturer_capacity_info(lecturer, @course)
+      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
     end
 
     return unless request.headers['HX-Request'] && params[:status_filter].present?
@@ -79,7 +77,7 @@ class CoursesController < ApplicationController
 
   def handle_add_lecturers
     unregistered_lecturers = Set[]
-    registered_lecturers = Array[]
+    registered_lecturers = []
 
     if params[:invited_lecturers].blank?
       redirect_back_or_to '/', alert: 'Invited lecturers cannot be empty'
@@ -111,7 +109,7 @@ class CoursesController < ApplicationController
 
   def handle_add_students
     unregistered_students = Set[]
-    registered_students = Array[]
+    registered_students = []
 
     if params[:csv_file].blank? || params[:csv_file].content_type != 'text/csv'
       redirect_back_or_to '/', alert: 'Please provide a CSV file from ebwise'
@@ -148,10 +146,10 @@ class CoursesController < ApplicationController
         end
 
         if @course.grouped
-          student_hashmap = parse_csv_grouped(csv_obj, columns_to_check)
+          student_hashmap = @course.parse_csv_grouped(csv_obj)
           create_db_entries_grouped(student_hashmap, @course, unregistered_students, registered_students)
         else
-          student_set = parse_csv_solo(csv_obj, columns_to_check)
+          student_set = @course.parse_csv_solo(csv_obj)
           create_db_entries_solo(student_set, @course, unregistered_students, registered_students)
         end
 
@@ -338,31 +336,6 @@ class CoursesController < ApplicationController
     nil
   end
 
-  def parse_csv_grouped(csv_obj, columns_to_check)
-    ret = {}
-
-    csv_obj.each do |row|
-      mapped_columns = columns_to_check.map { |item| row[item] }
-      # in the csv, an empty group still has a row, just that all columns of that row are not populated, this is valid
-      next if mapped_columns.all?(&:nil?)
-
-      # if it passed the previous check, it means that the current row is not ALL empty, but ONE OF the columns might still be, this is invalid
-      mapped_columns.each do |column|
-        raise StandardError, 'Invalid CSV file' if column.nil?
-      end
-
-      group = row['Group'].strip
-
-      if ret.key?(group)
-        ret[group].add({ name: row['Last name'].strip, student_id: row['ID number'].strip, email_address: row['Email address'].strip })
-      else
-        ret[group] = Set[{ name: row['Last name'].strip, student_id: row['ID number'].strip, email_address: row['Email address'].strip }]
-      end
-    end
-
-    ret
-  end
-
   def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)
     hash_map.keys.each do |group|
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
@@ -373,9 +346,7 @@ class CoursesController < ApplicationController
         if new_user
           new_user.update!(student_id: group_member[:student_id])
 
-          if new_user.enrolments.where(course: parent_course).empty?
-            registered_students.push(group_member[:email_address])
-          end
+          registered_students.push(group_member[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
         else
           new_user = User.create!(
             email_address: group_member[:email_address],
@@ -442,22 +413,6 @@ class CoursesController < ApplicationController
     end
   end
 
-  def parse_csv_solo(csv_obj, columns_to_check)
-    ret = Set[]
-
-    csv_obj.each do |row|
-      mapped_columns = columns_to_check.map { |item| row[item] }
-
-      mapped_columns.each do |column|
-        raise StandardError, 'Invalid CSV file' if column.nil?
-      end
-
-      ret.add({ name: row['Last name'].strip, student_id: row['ID number'].strip, email_address: row['Email address'].strip })
-    end
-
-    ret
-  end
-
   def create_db_entries_solo(student_set, parent_course, unregistered_students, registered_students)
     student_set.each do |student|
       new_user = User.find_by(email_address: student[:email_address], is_staff: false)
@@ -465,9 +420,7 @@ class CoursesController < ApplicationController
       if new_user
         new_user.update!(student_id: student[:student_id])
 
-        if new_user.enrolments.where(course: parent_course).empty?
-          registered_students.push(student[:email_address])
-        end
+        registered_students.push(student[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
       else
         new_user = User.create!(
           email_address: student[:email_address],
@@ -688,84 +641,9 @@ class CoursesController < ApplicationController
     end
   end
 
-  def lecturer_approved_proposals_count(lecturer, course)
-    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-    return 0 unless lecturer_enrolment
-
-    course.projects.supervised_by(lecturer_enrolment).approved.count
-  end
-
-  def lecturer_pending_proposals_count(lecturer, course)
-    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-    return 0 unless lecturer_enrolment
-
-    course.projects.supervised_by(lecturer_enrolment).pending_redo.count
-  end
-
-  def lecturer_capacity_info(lecturer, course)
-    approved_count = lecturer_approved_proposals_count(lecturer, course)
-    pending_count = lecturer_pending_proposals_count(lecturer, course)
-    max_capacity = course.supervisor_projects_limit
-
-    {
-      approved_proposals: approved_count,
-      pending_proposals: pending_count,
-      total_proposals: approved_count + pending_count,
-      max_capacity: max_capacity,
-      remaining_capacity: [max_capacity - approved_count, 0].max,
-      is_at_capacity: approved_count >= max_capacity
-    }
-  end
-
-  def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
-    return [] unless student_list.present?
-
-    case status
-    when 'approved'
-      students_with_projects || []
-    when 'pending', 'redo', 'rejected'
-      student_list.select do |student|
-        project = course.projects
-                        .find_by(owner_type: 'User', owner_id: student.id)
-        project&.current_status == status
-      end
-    when 'not_submitted'
-      students_without_projects || []
-    else
-      []
-    end
-  end
-
-  def groups_by_status(status, group_list, course)
-    return [] unless group_list.present?
-
-    case status
-    when 'approved'
-      group_list.select do |group|
-        project = course.projects
-                        .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
-        project&.current_status == 'approved'
-      end
-    when 'pending', 'redo', 'rejected'
-      group_list.select do |group|
-        project = course.projects
-                        .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
-        project&.current_status == status
-      end
-    when 'not_submitted'
-      group_list.select do |group|
-        project = course.projects
-                        .find_by(owner_type: 'ProjectGroup', owner_id: group.id)
-        project.nil?
-      end
-    else
-      []
-    end
-  end
-
   def filtered_group_list
     group_list = if params[:status_filter].present? && params[:status_filter] != 'all'
-                   groups_by_status(params[:status_filter], @group_list, @course)
+                   @course.groups_with_status(params[:status_filter], @group_list, @course)
                  else
                    @group_list
                  end
@@ -775,6 +653,6 @@ class CoursesController < ApplicationController
   def filtered_student_list
     return @student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
 
-    students_by_status(params[:status_filter], @student_list, @students_with_projects, @students_without_projects, @course)
+    @course.students_with_status(params[:status_filter], @student_list)
   end
 end

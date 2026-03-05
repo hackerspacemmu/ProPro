@@ -335,7 +335,6 @@ class ProjectsController < ApplicationController
                      input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
   end
 
-
   def selected_topic_edit
     topic_id = params[:based_on_topic]
 

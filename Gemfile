@@ -67,10 +67,10 @@ group :development, :test do
   gem 'rubocop-rails-omakase', require: false
 
   # Use Factory Bot in place of fixtures to generate realistic test data
-  gem "factory_bot_rails"
+  gem 'factory_bot_rails'
 
   # Use Faker to generate values for attributes in each factory
-  gem "faker"
+  gem 'faker'
 end
 
 group :development do
