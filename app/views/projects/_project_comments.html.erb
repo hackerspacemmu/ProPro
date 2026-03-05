@@ -63,7 +63,7 @@
                   </span>
                 </div>
 
-                <%#delete button %>
+                <%# delete button %>
                 <% if Current.user == comment.user && !comment.deleted %>
                   <%= link_to soft_delete_comment_path(comment),
                       data: { turbo_method: :patch, confirm: "Delete this comment?" },

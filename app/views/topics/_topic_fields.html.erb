@@ -28,18 +28,24 @@
       <% fields.each do |field| %>
         <div
           class="
-            grid grid-cols-[140px_1fr] md:grid-cols-3 group hover:bg-gray-50/50
-            transition-colors
+            flex flex-col sm:grid sm:grid-cols-[130px_1fr] md:grid-cols-3 group
+            hover:bg-gray-50/50 transition-colors
           "
         >
 
           <%# Left Column: Field Label %>
           <div
             class="
-              md:col-span-1 p-4 md:p-6 md:border-r border-gray-100 flex items-start
+              px-4 py-3 sm:p-4 md:p-6 sm:col-span-1 bg-gray-50/30 border-b sm:border-b-0
+              sm:border-r border-gray-100 flex items-center sm:items-start
             "
           >
-            <h3 class="text-sm font-bold text-slate-600 uppercase tracking-wide">
+            <h3
+              class="
+                text-xs md:text-sm font-bold text-slate-600 uppercase tracking-wide
+                leading-relaxed break-words
+              "
+            >
               <%= field.project_template_field.label %>
             </h3>
           </div>
@@ -65,10 +71,10 @@
           <%# Field value container %>
           <div
             class="
-              p-4 md:p-6 md:col-span-2 text-gray-900 break-words text-base md:text-lg
-              font-medium whitespace-pre-wrap leading-relaxed min-w-0
+              p-4 md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
+              md:text-lg font-medium whitespace-pre-wrap leading-relaxed min-w-0
             "
-          ><% if display_text.present? %><%= display_text %><% else %><span class="text-gray-400 italic font-normal text-lg">No content provided</span><% end %></div>
+          ><% if display_text.present? %><%= display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
 
         </div>
       <% end %>
