@@ -43,7 +43,7 @@
         "
       >Proposals</a>
 
-      <% if full_access? %>
+      <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
         <a
           href="#full-released-topics"
           class="
@@ -130,14 +130,14 @@
         <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
         <% if @course.coordinators.include? Current.user %>
           <div class="text-sm">
-            <% if @course.coordinators.include?(@lecturer) && @lecturer != Current.user %>
+            <% if policy(@course).demote_to_lecturer? %>
               <%= link_to "Demote to Lecturer",
               demote_to_lecturer_course_lecturer_path(@course, @lecturer),
               data: {
                 turbo_method: :patch,
               },
               class: "text-red-600 hover:text-red-800 font-medium hover:underline" %>
-            <% elsif @lecturer != Current.user %>
+            <% elsif policy(@course).promote_to_coordinator? %>
               <%= link_to "Promote To Coordinator",
               promote_to_coordinator_course_lecturer_path(@course, @lecturer),
               data: {
@@ -204,7 +204,7 @@
     </section>
 
     <%# --- SECTION 3: PROJECTS & PROPOSALS --- %>
-    <% if access? %>
+    <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
       <section
         class="
           bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
@@ -230,12 +230,9 @@
               "
             >
               <%= render partial: "courses/project_card",
-              collection: @my_student_projects,
-              as: :project,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
+                        collection: @my_student_projects,
+                        as: :project,
+                        locals: { course: @course, lecturer: @lecturer } %>
             </div>
           <% end %>
         </div>
@@ -266,12 +263,33 @@
               "
             >
               <%= render partial: "courses/project_card",
-              collection: @incoming_proposals,
-              as: :project,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
+                        collection: @incoming_projects,
+                        as: :project,
+                        locals: { course: @course, lecturer: @lecturer } %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+    <% elsif policy(@course).student_can_view_lecturer?(@lecturer) %>
+      <section
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="student-projects"
+      >
+        <div class="px-4 md:px-8 pt-6">
+          <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
+        </div>
+        <div class="px-4 md:px-8 py-6">
+          <% if @my_student_projects.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
+              <p class="italic text-gray-500">No Projects Available</p>
+            </div>
+          <% else %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <%= render partial: "courses/project_card",
+                        collection: @my_student_projects_projects,
+                        as: :project,
+                        locals: { course: @course, lecturer: @lecturer } %>
             </div>
           <% end %>
         </div>
@@ -279,28 +297,30 @@
     <% end %>
 
     <%# --- SECTION 4: TOPICS --- %>
-    <% topic_collections = [] %>
-    <% if @is_student || !access? %>
-      <% topic_collections << {
-        title: "Released Topics",
-        id: "released-topics",
-        data: @own_approved_projects,
-      } %>
-    <% end %>
-    <% if full_access? %>
-      <% topic_collections << {
-        title: "Released Topics",
-        id: "full-released-topics",
-        data: @own_approved_projects,
-      } %>
-      <% topic_collections << {
-        title: "Pending Topics",
-        id: "pending-topics",
-        data: @not_own_approved_projects,
-      } %>
-    <% end %>
+    <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
+      <section
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="full-released-topics"
+      >
+        <div class="px-4 md:px-8 pt-4">
+          <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
+        </div>
+        <div class="px-4 md:px-8 py-6">
+          <% if @approved_topics.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200">
+              <p class="text-gray-500 italic">No Released Topics Available</p>
+            </div>
+          <% else %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <%= render partial: "courses/topic_card",
+                        collection: @approved_topics,
+                        as: :topic,
+                        locals: { course: @course, lecturer: @lecturer } %>
+            </div>
+          <% end %>
+        </div>
+      </section>
 
-    <% topic_collections.uniq { |t| t[:id] }.each do |section| %>
       <section
         class="
           bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
@@ -308,7 +328,7 @@
         id="<%= section[:id] %>"
       >
         <div class="px-4 md:px-8 pt-4">
-          <h2 class="text-xl font-semibold text-gray-900"><%= section[:title] %></h2>
+          <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
           <% if section[:data].empty? %>
@@ -328,12 +348,9 @@
               "
             >
               <%= render partial: "courses/topic_card",
-              collection: section[:data],
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
+                        collection: @approved_topics,
+                        as: :topic,
+                        locals: { course: @course, lecturer: @lecturer } %>
             </div>
           <% end %>
         </div>

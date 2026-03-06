@@ -7,29 +7,34 @@ class ProjectTemplatesController < ApplicationController
     @project_template = @course.project_template
     @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
   end
+  before_action :authorize_update_template
 
   def update
     @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
 
     if @project_template.update(project_template_params)
-      redirect_to edit_course_project_template_path(@course), notice: 'Template updated'
+      redirect_to edit_course_project_template_path(@course), notice: "Template updated"
     else
-      flash.now[:alert] = 'Please correct the errors below before saving.'
+      flash.now[:alert] = "Please correct the errors below before saving."
       render :edit
     end
-  rescue StandardError
+  rescue
     render :edit
   end
 
-  private
+  def edit
+    @project_template = @course.project_template
+  end
+
+  private 
 
   def set_course
     @course = Course.find(params[:course_id])
   end
 
   def set_project_template
-    @project_template = @course.project_template
-  end
+    @project_template = @course.project_template 
+  end 
 
   def project_template_params
     params.require(:project_template).permit(
@@ -46,10 +51,8 @@ class ProjectTemplatesController < ApplicationController
     )
   end
 
-  def only_authorise_coordinator
-    return if @course.coordinators.pluck(:id).include? Current.user.id
-
-    redirect_back_or_to '/', alert: 'Not authorised'
-    nil
+  def authorize_update_template
+    authorize @course, :update?
   end
+
 end
