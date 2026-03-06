@@ -8,6 +8,22 @@ export default class extends Controller {
       forceSync: true,
       status: false,
       spellChecker: false,
+      toolbar: [
+        "bold",
+        "italic",
+        "heading",
+        "|",
+        "ordered-list",
+        "unordered-list",
+        "|",
+        "code",
+        "quote",
+        "link",
+        "table",
+        "|",
+        "preview",
+        "guide",
+      ],
     });
 
     this.editor.codemirror.setOption("viewportMargin", Infinity);
