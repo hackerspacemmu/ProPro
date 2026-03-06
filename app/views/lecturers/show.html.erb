@@ -19,40 +19,46 @@
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        ">Name</a>
+        "
+      >Name</a>
       <a
         href="#profile-information"
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        ">Profile Information</a>
+        "
+      >Profile Information</a>
       <a
         href="#projects"
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        ">Projects</a>
+        "
+      >Projects</a>
       <a
         href="#proposals"
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        ">Proposals</a>
+        "
+      >Proposals</a>
 
-      <% if full_access? %>
+      <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
         <a
           href="#full-released-topics"
           class="
             block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
             transition-colors
-          ">Released Topics</a>
-      <% else %>
+          "
+        >Released Topics</a>
+      <% elsif policy(@course).student_can_view_lecturer?(@lecturer) %>
         <a
           href="#released-topics"
           class="
             block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
             transition-colors
-          ">Released Topics</a>
+          "
+        >Released Topics</a>
       <% end %>
 
       <a
@@ -60,7 +66,8 @@
         class="
           block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
           transition-colors
-        ">Pending Topics</a>
+        "
+      >Pending Topics</a>
     </div>
   <% end %>
 <% end %>
@@ -76,19 +83,22 @@
           <span
             class="
               text-sm font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap
-            ">View Supervisor</span>
+            "
+          >View Supervisor</span>
           <div class="h-px bg-gray-300 flex-grow w-full min-w-0"></div>
         </div>
 
         <div
           class="
             flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6
-          ">
+          "
+        >
           <div
             class="
               w-20 h-20 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center
               text-3xl font-bold shrink-0 uppercase
-            ">
+            "
+          >
             <%= @lecturer.username[0].upcase %>
           </div>
 
@@ -96,7 +106,8 @@
             class="
               text-2xl sm:text-4xl font-bold text-gray-900 tracking-tight break-words min-w-0
               text-center sm:text-left
-            ">
+            "
+          >
             <%= @lecturer.username %>
           </h1>
         </div>
@@ -108,23 +119,25 @@
       class="
         bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
       "
-      id="profile-information">
+      id="profile-information"
+    >
       <div
         class="
           px-4 md:px-8 pt-6 pb-2 flex flex-col sm:flex-row items-start sm:items-center
           justify-between gap-2
-        ">
+        "
+      >
         <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
         <% if @course.coordinators.include? Current.user %>
           <div class="text-sm">
-            <% if @course.coordinators.include?(@lecturer) && @lecturer != Current.user %>
+            <% if policy(@course).demote_to_lecturer? %>
               <%= link_to "Demote to Lecturer",
               demote_to_lecturer_course_lecturer_path(@course, @lecturer),
               data: {
                 turbo_method: :patch,
               },
               class: "text-red-600 hover:text-red-800 font-medium hover:underline" %>
-            <% elsif @lecturer != Current.user %>
+            <% elsif policy(@course).promote_to_coordinator? %>
               <%= link_to "Promote To Coordinator",
               promote_to_coordinator_course_lecturer_path(@course, @lecturer),
               data: {
@@ -144,7 +157,8 @@
               class="
                 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                 bg-gray-100 text-gray-800
-              ">
+              "
+            >
               <%= @enrolment&.role&.humanize || "Lecturer" %>
             </span>
           </div>
@@ -154,7 +168,8 @@
               href="mailto:<%= @lecturer.email_address %>"
               class="
                 text-gray-900 hover:text-blue-600 hover:underline break-all
-              ">
+              "
+            >
               <%= @lecturer.email_address %>
             </a>
           </div>
@@ -163,7 +178,8 @@
             <p
               class="
                 text-gray-900 text-base leading-relaxed whitespace-pre-line break-words w-full
-              "><%= @lecturer.description.presence || "No description provided." %>
+              "
+            ><%= @lecturer.description.presence || "No description provided." %>
             </p>
           </div>
           <div class="flex flex-col items-start gap-2 w-full min-w-0">
@@ -175,7 +191,8 @@
                 rel="noopener noreferrer"
                 class="
                   text-blue-600 hover:text-blue-800 hover:underline break-all
-                ">
+                "
+              >
                 <%= @lecturer.web_link %>
               </a>
             <% else %>
@@ -187,62 +204,72 @@
     </section>
 
     <%# --- SECTION 3: PROJECTS & PROPOSALS --- %>
-    <% if access? %>
+    <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
       <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="projects">
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="projects"
+      >
         <div class="px-4 md:px-8 pt-6">
           <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
           <% if @my_student_projects.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
-              ">
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
               <p class="italic text-gray-500">No Projects Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-              collection: @my_student_projects,
-              as: :project,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
+                        collection: @my_student_projects,
+                        as: :project,
+                        locals: { course: @course, lecturer: @lecturer } %>
             </div>
           <% end %>
         </div>
       </section>
 
       <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="proposals">
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="proposals"
+      >
         <div class="px-4 md:px-8 pt-6">
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if @incoming_proposals.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
-              ">
-              <p class="text-gray-500 italic">No Incoming Proposals</p>
+          <% if @incoming_projects.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
+              <p class="text-gray-500 italic">No Proposals Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-              collection: @incoming_proposals,
-              as: :project,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
+                        collection: @incoming_projects,
+                        as: :project,
+                        locals: { course: @course, lecturer: @lecturer } %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+    <% elsif policy(@course).student_can_view_lecturer?(@lecturer) %>
+      <section
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="student-projects"
+      >
+        <div class="px-4 md:px-8 pt-6">
+          <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
+        </div>
+        <div class="px-4 md:px-8 py-6">
+          <% if @my_student_projects.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
+              <p class="italic text-gray-500">No Projects Available</p>
+            </div>
+          <% else %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <%= render partial: "courses/project_card",
+                        collection: @my_student_projects_projects,
+                        as: :project,
+                        locals: { course: @course, lecturer: @lecturer } %>
             </div>
           <% end %>
         </div>
@@ -250,55 +277,72 @@
     <% end %>
 
     <%# --- SECTION 4: TOPICS --- %>
-    <% topic_collections = [] %>
-    <% if @is_student || !access? %>
-      <% topic_collections << {
-        title: "Released Topics",
-        id: "released-topics",
-        data: @own_approved_projects,
-      } %>
-    <% end %>
-    <% if full_access? %>
-      <% topic_collections << {
-        title: "Released Topics",
-        id: "full-released-topics",
-        data: @own_approved_projects,
-      } %>
-      <% topic_collections << {
-        title: "Pending Topics",
-        id: "pending-topics",
-        data: @not_own_approved_projects,
-      } %>
-    <% end %>
-
-    <% topic_collections.uniq { |t| t[:id] }.each do |section| %>
+    <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
       <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="<%= section[:id] %>">
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="full-released-topics"
+      >
         <div class="px-4 md:px-8 pt-4">
-          <h2 class="text-xl font-semibold text-gray-900"><%= section[:title] %></h2>
+          <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if section[:data].empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              ">
-              <p class="text-gray-500 italic">No
-                <%= section[:title] %>
-                Available</p>
+          <% if @approved_topics.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200">
+              <p class="text-gray-500 italic">No Released Topics Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/topic_card",
-              collection: section[:data],
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
+                        collection: @approved_topics,
+                        as: :topic,
+                        locals: { course: @course, lecturer: @lecturer } %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <section
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="pending-topics"
+      >
+        <div class="px-4 md:px-8 pt-4">
+          <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
+        </div>
+        <div class="px-4 md:px-8 py-6">
+          <% if @pending_topics.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200">
+              <p class="text-gray-500 italic">No Pending Topics Available</p>
+            </div>
+          <% else %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <%= render partial: "courses/topic_card",
+                        collection: @pending_topics,
+                        as: :topic,
+                        locals: { course: @course, lecturer: @lecturer } %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+    <% elsif policy(@course).student_can_view_lecturer?(@lecturer) %>
+      <section
+        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        id="released-topics"
+      >
+        <div class="px-4 md:px-8 pt-4">
+          <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
+        </div>
+        <div class="px-4 md:px-8 py-6">
+          <% if @approved_topics.empty? %>
+            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200">
+              <p class="text-gray-500 italic">No Released Topics Available</p>
+            </div>
+          <% else %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <%= render partial: "courses/topic_card",
+                        collection: @approved_topics,
+                        as: :topic,
+                        locals: { course: @course, lecturer: @lecturer } %>
             </div>
           <% end %>
         </div>
@@ -312,12 +356,14 @@
           class="h-4 w-4 transition-transform group-hover:-translate-x-1"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor">
+          stroke="currentColor"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
         </svg>
         Back to Lecturers
       <% end %>

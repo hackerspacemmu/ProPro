@@ -1,8 +1,8 @@
 <% field_index = local_assigns[:field_index] || field_form.index %>
 <% options = Array(field_form.object.options) %>
-<% effective_field_type = field_type || field_form.object.field_type || 'dropdown' %>
+<% field_type = field_type || field_form.object.field_type || 'dropdown' %>
 
-<% if effective_field_type == 'dropdown' %>
+<% if field_type == 'dropdown' %>
   <div class="options-list">
     <% (options.present? ? options : ['']).each_with_index do |opt, i| %>
       <%= render "project_templates/option_row_dropdown",
@@ -25,7 +25,7 @@
 <button type="button"
         class="add-option-btn"
         data-field-index="<%= field_index %>"
-        data-field-type="<%= effective_field_type %>"
+        data-field-type="<%= field_type %>"
         data-option-index="<%= options.size %>">
   + Add Option
 </button>
