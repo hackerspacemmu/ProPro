@@ -3,19 +3,22 @@
   class="
     w-full flex flex-col h-full bg-white rounded-2xl shadow-sm border
     border-gray-100 overflow-hidden
-  ">
+  "
+>
 
   <div
     class="
       px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center
       justify-between
-    ">
+    "
+  >
     <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Comments</h2>
     <% if comments.any? %>
       <span
         class="
           px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 text-xs font-bold
-        "><%= comments.count %></span>
+        "
+      ><%= comments.count %></span>
     <% end %>
   </div>
 
@@ -32,38 +35,46 @@
                 class="
                   w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center
                   text-xs font-bold ring-4 ring-gray-50/30
-                ">
+                "
+              >
                 <%= comment.user.username[0].upcase %>
               </div>
             </div>
 
             <div class="flex-1 min-w-0">
-              <header class="flex items-center gap-2 mb-1">
-                <% if Current.user == comment.user %>
-                  <h4 class="text-sm font-bold text-green-600"><%= comment.user.username %></h4>
-                <% else %>
-                  <h4 class="text-sm font-bold text-gray-800"><%= comment.user.username %></h4>
-                <% end %>
 
-                <span class="text-xs text-gray-400">
-                  <% if comment.created_at > 3.days.ago %>
-                    <%= time_ago_in_words(comment.created_at) %>
-                    ago
+              <%# --- FIXED HEADER LAYOUT --- %>
+              <header class="flex items-center justify-between gap-2 mb-1">
+
+                <div class="flex items-baseline gap-2 min-w-0 flex-1">
+                  <% if Current.user == comment.user %>
+                    <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.username %></h4>
                   <% else %>
-                    <%= format_timestamp(comment.created_at) %>
+                    <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.username %></h4>
                   <% end %>
-                </span>
 
-                <% if policy(comment).destroy? %>
+                  <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                    <% if comment.created_at > 3.days.ago %>
+                      <%= time_ago_in_words(comment.created_at) %>
+                      ago
+                    <% else %>
+                      <%= format_timestamp(comment.created_at) %>
+                    <% end %>
+                  </span>
+                </div>
+
+                <%# delete button %>
+                <% if Current.user == comment.user && !comment.deleted %>
                   <%= link_to soft_delete_comment_path(comment),
                       data: { turbo_method: :patch, confirm: "Delete this comment?" },
-                      class: "ml-auto text-red-500 hover:text-red-700 transition-colors p-1",
+                      class: "flex-shrink-0 text-red-400 hover:text-red-600 transition-colors p-1 -mr-1",
                       title: "Delete comment" do %>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12" /></svg>
+                        d="M6 18L18 6M6 6l12 12"
+                      /></svg>
                   <% end %>
                 <% end %>
               </header>
@@ -84,16 +95,19 @@
       <div
         class="
           h-full flex flex-col items-center justify-center text-center opacity-60
-        ">
+        "
+      >
         <svg
           class="w-12 h-12 text-gray-300 mb-2"
           fill="none"
           stroke="currentColor"
-          viewBox="0 0 24 24"><path
+          viewBox="0 0 24 24"
+        ><path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          /></svg>
         <p class="text-sm text-gray-500">No comments yet.</p>
         <p class="text-xs text-gray-400">Be the first to start the discussion.</p>
       </div>
@@ -110,7 +124,8 @@
           class="
             flex items-end gap-2 bg-gray-50 rounded-xl p-2 border-2 border-gray-200
             transition-all focus-within:border-2 focus-within:border-black
-          ">
+          "
+        >
           <%= form.text_area :user_comment,
                          class:
                            "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 resize py-2 px-2 max-h-32 min-h-[40px] focus:outline-none",
@@ -122,11 +137,13 @@
               class="w-4 h-4 transform rotate-90"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"><path
+              viewBox="0 0 24 24"
+            ><path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              /></svg>
           <% end %>
         </div>
       <% end %>
