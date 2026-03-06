@@ -230,9 +230,12 @@
               "
             >
               <%= render partial: "courses/project_card",
-                        collection: @my_student_projects,
-                        as: :project,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @my_student_projects,
+              as: :project,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
@@ -248,7 +251,7 @@
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if @incoming_proposals.empty? %>
+          <% if @incoming_projects.empty? %>
             <div
               class="
                 py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
@@ -263,9 +266,12 @@
               "
             >
               <%= render partial: "courses/project_card",
-                        collection: @incoming_projects,
-                        as: :project,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @incoming_projects,
+              as: :project,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
@@ -273,7 +279,9 @@
 
     <% elsif policy(@course).student_can_view_lecturer?(@lecturer) %>
       <section
-        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        class="
+          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
+        "
         id="student-projects"
       >
         <div class="px-4 md:px-8 pt-6">
@@ -281,15 +289,22 @@
         </div>
         <div class="px-4 md:px-8 py-6">
           <% if @my_student_projects.empty? %>
-            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100">
+            <div
+              class="
+                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
+              "
+            >
               <p class="italic text-gray-500">No Projects Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-                        collection: @my_student_projects_projects,
-                        as: :project,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @my_student_projects_projects,
+              as: :project,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
@@ -299,7 +314,9 @@
     <%# --- SECTION 4: TOPICS --- %>
     <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
       <section
-        class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8"
+        class="
+          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
+        "
         id="full-released-topics"
       >
         <div class="px-4 md:px-8 pt-4">
@@ -307,15 +324,22 @@
         </div>
         <div class="px-4 md:px-8 py-6">
           <% if @approved_topics.empty? %>
-            <div class="py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200">
+            <div
+              class="
+                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
+              "
+            >
               <p class="text-gray-500 italic">No Released Topics Available</p>
             </div>
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/topic_card",
-                        collection: @approved_topics,
-                        as: :topic,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @approved_topics,
+              as: :topic,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
@@ -325,21 +349,19 @@
         class="
           bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
         "
-        id="<%= section[:id] %>"
+        id="pending-topics"
       >
         <div class="px-4 md:px-8 pt-4">
           <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if section[:data].empty? %>
+          <% if @pending_topics.blank? %>
             <div
               class="
                 py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
               "
             >
-              <p class="text-gray-500 italic">No
-                <%= section[:title] %>
-                Available</p>
+              <p class="text-gray-500 italic">No Pending Topics Available</p>
             </div>
           <% else %>
             <div
@@ -347,10 +369,14 @@
                 grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
               "
             >
+              <%# Changed collection from @approved_topics to @pending_topics %>
               <%= render partial: "courses/topic_card",
-                        collection: @approved_topics,
-                        as: :topic,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @pending_topics,
+              as: :topic,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
