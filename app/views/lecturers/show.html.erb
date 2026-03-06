@@ -299,7 +299,7 @@
           <% else %>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <%= render partial: "courses/project_card",
-              collection: @my_student_projects_projects,
+              collection: @my_student_projects,
               as: :project,
               locals: {
                 course: @course,
@@ -369,9 +369,41 @@
                 grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
               "
             >
-              <%# Changed collection from @approved_topics to @pending_topics %>
               <%= render partial: "courses/topic_card",
               collection: @pending_topics,
+              as: :topic,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+    <% else %>
+      <section
+        class="
+          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
+        "
+        id="released-topics"
+      >
+        <div class="px-4 md:px-8 pt-4">
+          <h2 class="text-xl font-semibold text-gray-900">Available Topics</h2>
+        </div>
+        <div class="px-4 md:px-8 py-6">
+          <% if @approved_topics.blank? %>
+            <div
+              class="
+                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
+              "
+            >
+              <p class="text-gray-500 italic">This lecturer has no available topics yet.</p>
+            </div>
+          <% else %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <%= render partial: "courses/topic_card",
+              collection: @approved_topics,
               as: :topic,
               locals: {
                 course: @course,
