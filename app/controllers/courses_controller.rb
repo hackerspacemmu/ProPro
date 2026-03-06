@@ -21,7 +21,7 @@ class CoursesController < ApplicationController
       @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
       @current_user_enrolment = @course.enrolments.find_by(user: current_user)
       
-      @topic_list = policy_scope(@course.topics)
+      @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
       @my_topics = @topic_list.where(owner: current_user)
 
       # SET STUDENT PROJECTS

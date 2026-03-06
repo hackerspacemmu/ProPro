@@ -17,7 +17,7 @@ class TopicPolicy < ApplicationPolicy
 
     # SCOPE METHODS, DO NOT USE IN POLICIES
     def course
-      @course ||= scope.first&.course
+      @course ||= Course.find(scope.where_values_hash["course_id"])
     end
   end
 
@@ -35,7 +35,11 @@ class TopicPolicy < ApplicationPolicy
   end
 
   def new?
-    user.is_staff
+    coordinator || lecturer
+  end
+
+  def create?
+    coordinator || lecturer
   end
 
   def destroy?
@@ -56,5 +60,11 @@ class TopicPolicy < ApplicationPolicy
 
   def course
     record.course
+  end
+
+  private
+  
+  def lecturer
+    course.enrolments.exists?(user: user, role: :lecturer)
   end
 end
