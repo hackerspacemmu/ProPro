@@ -1,13 +1,13 @@
-<%= turbo_frame_tag "overlay_content" do %>
-  <%= form_with url: import_details_course_path(target), method: :post do |f| %>
+<%= turbo_frame_tag "overlay_content", class: "flex flex-col h-full" do %>
+  <%= form_with url: import_details_course_path(target), method: :post, class: "flex flex-col h-full max-h-[75vh]" do |f| %>
     <%= f.hidden_field :source_topic_id, value: source.id %>
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex-none mb-6 flex items-center justify-between">
       <h3 class="text-2xl font-bold text-gray-600">Duplicate "<%= source.current_title %>" to:</h3>
       <%= link_to "← Back", new_course_topic_path(@course), class: "text-sm text-blue-600 hover:underline" %>
     </div><br>
 
-    <div class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+    <div class="flex-grow overflow-y-auto pr-2 scrollbar-thin">
       <ul class="divide-y divide-gray-100">
         <% current_instance = source.topic_instances.order(version: :desc).first %>
         <% fields = current_instance.project_instance_fields.includes(:project_template_field) %>
@@ -56,7 +56,7 @@
       </ul>
     </div>
 
-    <div class="mt-6 flex justify-end">
+    <div class="flex-none mt-6 pt-4 flex justify-end">
       <%= f.submit "Copy Details", class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm transition" %>
     </div>
   <% end %>
