@@ -61,10 +61,10 @@ class LecturersController < ApplicationController
     if @lecturer_enrolment
       projects = Pundit.policy_scope!(current_user, Project.where(course: @course))
       @my_student_projects = projects.supervised_by(@lecturer_enrolment).approved
-      @incoming_projects = projects.supervised_by(@lecturer_enrolment).proposals
+      @incoming_proposals = projects.supervised_by(@lecturer_enrolment).proposals
     else
       @my_student_projects = []
-      @incoming_projects = []
+      @incoming_proposals = []
     end
   end
 
