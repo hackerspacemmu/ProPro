@@ -9,16 +9,16 @@ class TopicsController < ApplicationController
     @topics = policy_scope(@course.topics)
 
     query = params[:query].to_s.downcase
-    if query.present?
-      @topics = @topics.select do |topic|
-        latest = topic.topic_instances.order(version: :desc).first
-        title = latest&.title&.downcase
-        description = latest&.project_instance_fields
-                            &.includes(:project_template_field)
-                            &.find { |f| f.project_template_field.label.downcase.include?('description') }
-                            &.value&.downcase
-        title&.include?(query) || description&.include?(query)
-      end
+    return unless query.present?
+
+    @topics = @topics.select do |topic|
+      latest = topic.topic_instances.order(version: :desc).first
+      title = latest&.title&.downcase
+      description = latest&.project_instance_fields
+                          &.includes(:project_template_field)
+                          &.find { |f| f.project_template_field.label.downcase.include?('description') }
+                          &.value&.downcase
+      title&.include?(query) || description&.include?(query)
     end
   end
 
@@ -62,11 +62,11 @@ class TopicsController < ApplicationController
 
   def new
     @template_fields = @course.project_template.project_template_fields
-                               .where(applicable_to: %i[topics both])
+                              .where(applicable_to: %i[topics both])
 
-    if @template_fields.blank?
-      redirect_to course_path(@course), alert: 'Project template is missing or incomplete.'
-    end
+    return if @template_fields.present?
+
+    redirect_to course_path(@course), alert: 'Project template is missing or incomplete.'
   end
 
   def edit
@@ -75,7 +75,7 @@ class TopicsController < ApplicationController
       h[f.project_template_field_id] = f.value
     end
     @template_fields = @course.project_template.project_template_fields
-                               .where(applicable_to: %i[topics both])
+                              .where(applicable_to: %i[topics both])
   end
 
   def create
