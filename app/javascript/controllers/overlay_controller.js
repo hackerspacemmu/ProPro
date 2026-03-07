@@ -5,9 +5,17 @@ export default class extends Controller {
   static values = { targetCourseId: String, mode: String };
   static targets = ["preview", "label", "value", "menu", "container", "content"]
 
+  connect() {
+    this.courseList= null;
+  }
+
   // Open the overlay
   open(e) {
     e.preventDefault();
+    if (!this.courseList) {
+      this.courseList = this.containerTarget.innerHTML;
+    }
+
     this.menuTarget.classList.remove("opacity-0", "pointer-events-none");
     this.contentTarget.classList.remove("translate-y-full");
     document.body.classList.add("overflow-hidden");
@@ -19,6 +27,10 @@ export default class extends Controller {
     this.menuTarget.classList.add("opacity-0", "pointer-events-none");
     this.contentTarget.classList.add("translate-y-full");
     document.body.classList.remove("overflow-hidden");
+
+    setTimeout(() => {
+      if (this.courseList) this.containerTarget.innerHTML = this.courseList;
+    }, 200);
   }
 
   // Close when clicking outsite of the ovelay
@@ -28,21 +40,26 @@ export default class extends Controller {
     }
   }
 
+  goBack(event) {
+    if (event) event.preventDefault();
+    if (this.courseList) {
+      this.containerTarget.innerHTML = this.courseList;
+    }
+  }
+
   selectSetting(event) {
     const sourceCourseId = event.params.courseId;
     const targetCourseId = this.targetCourseIdValue
     const mode = this.modeValue;
-    const frame = document.getElementById("overlay_content");
 
-    frame.src = `/courses/${targetCourseId}/details?source_id=${sourceCourseId}&mode=${mode}`;
+    this.containerTarget.src = `/courses/${targetCourseId}/details?source_id=${sourceCourseId}&mode=${mode}`;
   }
 
   selectTopic(event) {
     const sourceTopicId = event.params.courseId;
     const targetCourseId = this.targetCourseIdValue;
-    const frame = document.getElementById("overlay_content");
 
-    frame.src = `/courses/${targetCourseId}/topics/new?source_topic_id=${sourceTopicId}`;
+    this.containerTarget.src = `/courses/${targetCourseId}/topics/new?source_topic_id=${sourceTopicId}`;
   }
 
   updateDropdown(event) {

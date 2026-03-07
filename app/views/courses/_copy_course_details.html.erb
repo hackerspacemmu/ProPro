@@ -5,7 +5,11 @@
 
     <div class="flex-none mb-6 flex items-center justify-between">
       <h3 class="text-2xl font-bold text-gray-600">Select Fields to Copy: <%= source.course_name %></h3>
-      <%= link_to "← Back", :back, data: { turbo_frame: "course_card_display" }, class: "text-sm text-blue-600 hover:underline" %>
+      <button type="button" 
+              data-action="click->overlay#goBack" 
+              class="text-sm text-blue-600 hover:underline">
+        ← Back
+      </button>
     </div><br>
 
     <div class="flex-grow overflow-y-auto pr-2 scrollbar-thin">
