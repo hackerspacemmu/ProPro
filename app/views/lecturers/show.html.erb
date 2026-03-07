@@ -251,7 +251,7 @@
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
         </div>
         <div class="px-4 md:px-8 py-6">
-          <% if @incoming_projects.empty? %>
+          <% if @incoming_proposals.empty? %>
             <div
               class="
                 py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
@@ -266,9 +266,12 @@
               "
             >
               <%= render partial: "courses/project_card",
-                        collection: @incoming_proposals,
-                        as: :project,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @incoming_proposals,
+              as: :project,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
