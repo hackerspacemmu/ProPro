@@ -1,9 +1,11 @@
 class ProjectsController < ApplicationController
-  before_action :access
+  before_action :set_course
+  before_action :set_project, only: %i[show edit update change_status]
+  before_action :authorize_project, only: %i[show edit update]
+  before_action :authorize_change_status, only: [:change_status]
+  before_action :authorize_create, only: %i[new create]
 
   def show
-    redirect_to course_path(@course), alert: 'Project not found or access denied.' and return if @project.nil?
-
     @instances = @project.project_instances.order(version: :asc)
     @owner = @project.owner
     @status = @project.status
@@ -11,27 +13,25 @@ class ProjectsController < ApplicationController
     @lecturers = @course.lecturers
 
     @members = if @owner.is_a?(ProjectGroup)
-                 @owner.users # All members if group project
+                 @owner.users # all memebers if group project
                else
                  [@owner] # individual
                end
 
     # Determine which version to show (default: newest, i.e., array length - 1)
-
-    @index = if params[:version].blank?
-               @instances.size
-             else
+    @index = if params[:version].present?
                params[:version].to_i
+             else
+               @instances.size
              end
 
     @index = @instances.size if @index <= 0 || @index > @instances.size
 
     @current_instance = @instances[@index - 1]
-
-    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-
+    @current_version = @index
     @latest_version = @instances.size
 
+    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
     @next_fields = nil
 
     if @index < @instances.size
@@ -40,7 +40,7 @@ class ProjectsController < ApplicationController
     end
 
     @comments = @current_instance.comments.order(created_at: :asc)
-    @new_comment = Comment.new
+    @new_comment = Comment.new(user: current_user, location: @current_instance)
 
     return unless @course.use_progress_updates
 
@@ -49,11 +49,6 @@ class ProjectsController < ApplicationController
   end
 
   def change_status
-    if current_user != @project.supervisor
-      redirect_to course_project_path(@course, @project), alert: 'You are not authorized to perform this action.'
-      return
-    end
-
     new_status = params[:status]
     @project.project_instances.last.update!(
       status: new_status,
@@ -71,11 +66,6 @@ class ProjectsController < ApplicationController
   end
 
   def new
-    unless @is_student
-      redirect_to course_path(@course), alert: 'You are not authorized'
-      return
-    end
-
     has_project = if @course.grouped?
                     Current.user.group_projects.find_by(course: @course).present?
                   else
@@ -317,7 +307,7 @@ class ProjectsController < ApplicationController
     if topic_id.start_with?('own_proposal_')
 
       # Own Proposal
-      @field_values = nil
+      @field_values = {}
     else
       # Topics chosen
       topic = Topic.find(topic_id)
@@ -335,7 +325,6 @@ class ProjectsController < ApplicationController
                      input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
   end
 
-
   def selected_topic_edit
     topic_id = params[:based_on_topic]
 
@@ -343,7 +332,7 @@ class ProjectsController < ApplicationController
 
     if topic_id.start_with?('own_proposal_')
       # Does not load
-      @existing_values = nil
+      @existing_values = {}
     else
       # Chosen Topic
       topic = Topic.find(topic_id)
@@ -363,72 +352,25 @@ class ProjectsController < ApplicationController
 
   private
 
-  def project_params
-    params.require(:project).permit(:supervisor_id)
+  def set_course
+    @course = Course.find(params[:course_id])
   end
 
-  # make sure that same logic in helpers/projects_helper.rb
-  def access
-    @course = Course.find(params[:course_id])
+  def set_project
+    @project = @course.projects.find_by(id: params[:id])
+  end
 
-    @is_student = @course.enrolments.exists?(user: current_user, role: :student)
-    @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
+  def authorize_project
+    authorize @project || Project.new(course: @course)
+  rescue Pundit::NotAuthorizedError
+    redirect_to course_path(@course), alert: 'Project not found or access denied.'
+  end
 
-    # Build the list of projects/topics visible to the current user:
-    @projects = if @is_coordinator
-                  # Coordinators see everything
-                  @course.projects
-                else
-                  # Non-coordinators:
-                  @course.projects.select do |project|
-                    owner = project&.owner
+  def authorize_change_status
+    authorize @project, :change_status?
+  end
 
-                    # 1) Student-owned proposals (all statuses except rejected are OK)
-                    next true if owner.is_a?(User) &&
-                                 @course.enrolments.exists?(user: owner, role: :student)
-
-                    # 2) Group-owned proposals (all members are students)
-                    next true if owner.is_a?(ProjectGroup) &&
-                                 owner.users.all? { |u| @course.enrolments.exists?(user: u, role: :student) }
-
-                    # 3) Lecturer-proposed topics, but only once approved
-                    next true if project.lecturer? &&
-                                 project.status.to_s == 'approved'
-
-                    false
-                  end
-                end
-
-    if params[:id]
-      @project = @projects.find { |p| p.id == params[:id].to_i }
-      @instances = @project.project_instances.order(version: :asc)
-      @index = @instances.size
-      @latest_instance = @instances[@index - 1]
-      return redirect_to(course_path(@course), alert: 'You are not authorized') if @project.nil?
-    end
-
-    authorized = false
-
-    if @course.enrolments.exists?(user: current_user, role: :coordinator)
-      authorized = true
-
-    elsif @course.lecturer_access && @course.lecturers.pluck(:id).include?(Current.user.id)
-      authorized = true
-
-    elsif @course.owner_only?
-      authorized = @project.nil? || @project.owner == current_user
-
-    elsif @course.own_lecturer_only?
-      authorized = @project.nil? || (
-        @project.owner == current_user ||
-        @latest_instance.supervisor == current_user
-      )
-    elsif @course.no_restriction?
-      authorized = true
-    end
-
-    @lecturers = @course.lecturers
-
-    redirect_to(course_path(@course), alert: 'You are not authorized') unless authorized
+  def authorize_create
+    authorize Project.new(course: @course), :create?
   end
 end

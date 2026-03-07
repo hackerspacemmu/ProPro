@@ -39,9 +39,7 @@
 
     <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-3">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        <% available_topics =
-          topic_list.select { |topic| topic_viewable_by_current_user?(course, topic) } %>
-
+        <% available_topics = policy_scope(@topic_list) %>
         <% if available_topics.any? %>
           <%= render partial: "topic_card", collection: available_topics, as: :topic %>
         <% else %>
