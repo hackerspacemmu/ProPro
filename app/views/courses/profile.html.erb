@@ -27,7 +27,7 @@
   <% @project = student_project_for(@student, @course) %>
   <% @status = student_status(@student, @course) %>
 <% end %>
-<% @latest_instance = @project&.project_instances&.order(:version)&.last %>
+<% @current_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>
 
 <%# --- Sidebar --- %>
