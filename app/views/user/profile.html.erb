@@ -1,62 +1,196 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "projects" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
-
+<% breadcrumb :user_profile %>
 <% content_for :title, "Edit Profile | ProPro" %>
-  <main class="project-edit">
-    <header class="edit-header">
-      <div class="edit-header-row">
-        <h1 class="edit-title">Edit Profile <%= image_tag("edit.svg") %></h1>
-      </div>
-      <p class="edit-description">Update your profile details and information below.</p>
-    </header>
 
-    <div class="fields-container">
-      <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-      <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-    </div>
+<main
+  class="
+    min-h-screen bg-gray-50 w-full pt-8 pb-12 px-4 sm:px-6 md:px-8 transition-all
+    duration-300
+  "
+>
+  <div class="mx-auto w-full max-w-xl md:max-w-3xl lg:max-w-4xl">
 
-    <%= form_with url: user_edit_path, model: @user, method: :post, local: true, class: "edit-form" do |form| %>
-      <div class="fields-container">
-        <div class="account-details">
-        <h4>Account details</h4>
-
-        <div class="field-row">
-          <%= form.label :username, "Username", class: "field-label" %>
-          <%= form.text_field :username, class: "form-control" %>
-        </div>
-
-        <div class="field-row">
-          <%= form.label :web_link, "Link to MMU directory/Portfolio", class: "field-label" %>
-          <%= form.text_field :web_link, class: "form-control" %>
-        </div>
-
-        <div class="field-row">
-          <%= form.label :description, "Description", class: "field-label" %>
-          <p class="field-hint">Describe yourself to indicate to students what project topics you may accept for the courses you are teaching. Also indicate Consultation Hours (days of week and time) when students can meet you to request you as supervisor in case of FYP/Mini IT Project.</p>
-          <%= form.text_area :description, class: "form-control" %>
-        </div>
-        </div>
-
-        <div class="change-password">
-        <h4>Change password</h4>
-
-        <div class="field-row">
-          <%= form.label :new_password, "New Password", class: "field-label" %>
-          <%= form.password_field :new_password, class: "form-control" %>
-        </div>
-
-        <div class="field-row">
-          <%= form.label :new_password_confirmation, "New Password Confirmation", class: "field-label" %>
-          <%= form.password_field :new_password_confirmation, class: "form-control" %>
-        </div>
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <%= link_to "← Back", "/", class: "btn btn-secondary" %>
-        <%= form.submit "Save changes", class: "btn btn-primary" %>
+    <%# --- Flash Messages --- %>
+    <% if flash[:alert] %>
+      <div
+        class="
+          bg-red-50 text-red-700 p-4 rounded-xl mb-6 text-sm font-medium shadow-sm flex
+          items-center gap-3
+        "
+      >
+        <svg
+          class="w-5 h-5 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          /></svg>
+        <%= flash[:alert] %>
       </div>
     <% end %>
-  </main>
+    <% if flash[:notice] %>
+      <div
+        class="
+          bg-green-50 text-green-700 p-4 rounded-xl mb-6 text-sm font-medium shadow-sm
+          flex items-center gap-3
+        "
+      >
+        <svg
+          class="w-5 h-5 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          /></svg>
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+
+    <%# --- Page Header --- %>
+    <div class="mb-8 text-center sm:text-left">
+      <%= link_to "/", class: "group inline-flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors mb-6" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center group-hover:border-blue-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Dashboard
+      <% end %>
+
+      <h1
+        class="
+          text-3xl lg:text-4xl font-bold text-gray-900 mb-2 flex items-center
+          justify-center sm:justify-start gap-3
+        "
+      >
+        Edit Profile
+        <%= image_tag("edit.svg", class: "w-6 h-6 sm:w-8 sm:h-8 opacity-40") %>
+      </h1>
+      <p class="text-gray-500 text-sm sm:text-base font-medium">
+        Update your personal details and account settings below.
+      </p>
+    </div>
+
+    <div
+      class="
+        bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100
+        overflow-hidden
+      "
+    >
+      <div class="p-6 sm:p-8 md:p-10">
+        <%= form_with url: user_edit_path, model: @user, method: :post, local: true, class: "space-y-10" do |form| %>
+
+          <%# Shared Input Classes %>
+          <% input_classes =
+            "w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
+          <% label_classes =
+            "block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2" %>
+
+          <%# --- Section 1: Account Details --- %>
+          <section class="space-y-6">
+            <h3
+              class="
+                text-lg font-bold text-gray-900 border-b border-gray-100 pb-3 flex items-center
+                gap-2
+              "
+            >
+              Account Details
+            </h3>
+
+            <div class="flex flex-col gap-2">
+              <%= form.label :username, "Username", class: label_classes %>
+              <%= form.text_field :username, class: input_classes, placeholder: "e.g. jdoe123" %>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <%= form.label :web_link, "Link to MMU Directory or Portfolio", class: label_classes %>
+              <%= form.text_field :web_link, class: input_classes, placeholder: "https://..." %>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <%= form.label :description, "Description", class: label_classes %>
+              <p class="text-sm text-gray-500 mb-2 leading-relaxed">
+                Describe yourself to indicate to students what project topics
+                you may accept for the courses you are teaching. Also indicate
+                Consultation Hours (days of week and time) when students can
+                meet you to request you as supervisor in case of FYP/Mini IT
+                Project.
+              </p>
+              <%= form.text_area :description,
+                             class:
+                               "#{input_classes} min-h-[140px] overflow-hidden resize-none",
+                             data: {
+                               controller: "textarea-resize",
+                               action: "input->textarea-resize#resize",
+                             } %>
+            </div>
+          </section>
+
+          <%# --- Section 2: Password --- %>
+          <section class="space-y-6 pt-4">
+            <h3
+              class="
+                text-lg font-bold text-gray-900 border-b border-gray-100 pb-3 flex items-center
+                gap-2
+              "
+            >
+              Change Password
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div class="flex flex-col gap-2">
+                <%= form.label :new_password, "New Password", class: label_classes %>
+                <%= form.password_field :new_password,
+                                    class: input_classes,
+                                    placeholder: "Leave blank to keep current" %>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <%= form.label :new_password_confirmation, "Confirm Password", class: label_classes %>
+                <%= form.password_field :new_password_confirmation,
+                                    class: input_classes,
+                                    placeholder: "Confirm new password" %>
+              </div>
+            </div>
+          </section>
+
+          <div
+            class="
+              pt-2 sm:pt-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3
+              sm:gap-4
+            "
+          >
+            <%= link_to "Cancel",
+            "/",
+            class:
+              "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3.5 rounded-xl hover:bg-gray-100 transition-colors" %>
+
+            <%= form.submit "Save Changes",
+                        class:
+                          "w-full sm:w-auto cursor-pointer bg-slate-600 hover:bg-slate-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</main>
