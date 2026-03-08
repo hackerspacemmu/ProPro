@@ -245,10 +245,13 @@
         class="
           bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
         "
-        id="proposals"
-      >
-        <div class="px-4 md:px-8 pt-6">
+        id="proposals">
+        <div class="px-4 md:px-8 pt-6 flex items-center justify-between">
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
+          <% if @is_student %>
+            <%= link_to "Propose Own Topic to Lecturer", new_course_project_path(@course, based_on_topic: "own_proposal_#{@lecturer.id}"), 
+              class: "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+          <% end %>
         </div>
         <div class="px-4 md:px-8 py-6">
           <% if @incoming_proposals.empty? %>
