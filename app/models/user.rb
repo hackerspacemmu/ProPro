@@ -8,7 +8,7 @@ class User < ApplicationRecord
   has_many :enrolments, dependent: :destroy
   has_many :courses, through: :enrolments
 
-  has_many :project_group_members
+  has_many :project_group_members, dependent: :destroy
   has_many :project_groups, through: :project_group_members
 
   has_many :comments, dependent: :destroy
