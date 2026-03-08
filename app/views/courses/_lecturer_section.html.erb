@@ -85,7 +85,7 @@
           <%= link_to "View All Lecturer Topics",
           course_topics_path(course),
           class: "mr-3 italic text-base text-blue-600 hover:underline" %>
-          <% if current_user_enrolment&.lecturer? || current_user_enrolment&.coordinator? %>
+          <% if policy(Topic.new(course: course)).create? %>
             <%= link_to "Create Topics",
             new_course_topic_path(course),
             class: "mx-3 italic text-base text-blue-600 hover:underline" %>
@@ -94,7 +94,6 @@
       </div>
     </header>
 
-    <% my_topics = topic_list.select { |topic| topic.owner == current_user } %>
     <% if my_topics.empty? %>
       <p class="mt-3 col-span-full text-left text-gray-500">You haven't created any topics yet.</p>
     <% else %>

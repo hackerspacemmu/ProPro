@@ -71,7 +71,7 @@
           <%= progress_update.updated_at.strftime("%d-%m-%Y") %>
         </p>
 
-        <% if @current_instance.supervisor == current_user %>
+        <% if policy(@project).can_record_progress_update? && @current_version == @latest_version %>
           <div class="flex items-center gap-3">
             <%= button_to edit_course_project_progress_update_path(@course, @project, progress_update),
                 method: :get,

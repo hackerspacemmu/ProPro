@@ -118,7 +118,7 @@
     <% end %>
   </div>
 
-  <% if (current_version == latest_version) && ((@members.map(&:id).include?(@current_user.id)) || @current_user == @current_instance.supervisor || @is_coordinator) %>
+  <% if policy(new_comment).create? %>
     <div class="p-4 border-t border-gray-100 bg-white">
       <%= form_with model: new_comment, local: true, class: "relative" do |form| %>
         <%= form.hidden_field :source_type, value: "ProjectInstance" %>
