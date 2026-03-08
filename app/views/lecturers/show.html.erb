@@ -269,9 +269,12 @@
               "
             >
               <%= render partial: "courses/project_card",
-                        collection: @incoming_proposals,
-                        as: :project,
-                        locals: { course: @course, lecturer: @lecturer } %>
+              collection: @incoming_proposals,
+              as: :project,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             </div>
           <% end %>
         </div>
