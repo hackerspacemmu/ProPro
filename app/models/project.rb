@@ -1,6 +1,6 @@
 class Project < ApplicationRecord
   enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
-  default_scope { where(ownership_type: [:student, :project_group]) }
+  default_scope { where(ownership_type: %i[student project_group]) }
 
   belongs_to :enrolment
   belongs_to :course
@@ -8,7 +8,6 @@ class Project < ApplicationRecord
 
   has_many :project_instances, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
-
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
@@ -19,13 +18,13 @@ class Project < ApplicationRecord
   scope :pending, -> { where(status: :pending) }
   scope :approved, -> { where(status: :approved) }
   scope :rejected, -> { where(status: :rejected) }
-  scope :pending_redo, -> { where(status: [:pending, :redo]) }
-  scope :proposals, -> { where(status: [:pending, :redo, :rejected]) }
+  scope :pending_redo, -> { where(status: %i[pending redo]) }
+  scope :proposals, -> { where(status: %i[pending redo rejected]) }
 
   # Enrolment (supervisor) filters
   scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
-  
-  scope :owned_by_user_or_groups, ->(user, groups) {
+
+  scope :owned_by_user_or_groups, lambda { |user, groups|
     where(owner: [user] + groups.to_a)
   }
   scope :owned_by_user, ->(user) { where(owner: user) }
@@ -35,6 +34,7 @@ class Project < ApplicationRecord
 
   def supervisor
     return nil unless enrolment_id.present?
+
     enrolment = Enrolment.find_by(id: enrolment_id)
     enrolment&.user
   end
@@ -43,12 +43,12 @@ class Project < ApplicationRecord
     if ownership.owner.is_a?(ProjectGroup)
       ownership.owner.users
     else
-      [ ownership.user ]
+      [ownership.user]
     end
   end
 
   def current_instance
-    if project_instances.column_names.include?("version")
+    if project_instances.column_names.include?('version')
       project_instances.order(version: :desc, created_at: :desc).first
     else
       project_instances.order(created_at: :desc).first
@@ -56,14 +56,15 @@ class Project < ApplicationRecord
   end
 
   def current_status
-    (current_instance&.status || self.status || :not_submitted).to_s
+    (current_instance&.status || status || :not_submitted).to_s
   end
 
   def current_title
-    current_instance&.title || self.title
+    current_instance&.title || title
   end
 
   private
+
   def set_ownership_type
     self.ownership_type = :student
   end

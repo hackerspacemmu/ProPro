@@ -1,9 +1,8 @@
 class LecturersController < ApplicationController
   before_action :set_course
-  
-  def index
-  end
-  
+
+  def index; end
+
   def show
     @lecturers = @course.lecturers
     coordinator_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :coordinator)
@@ -12,7 +11,7 @@ class LecturersController < ApplicationController
     @enrolment = coordinator_enrolment || @lecturer_enrolment
 
     @lecturer = @enrolment.user
-    
+
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
     @is_coordinator = @current_user_enrolment&.coordinator?
     @is_student = @current_user_enrolment&.student?
@@ -22,7 +21,7 @@ class LecturersController < ApplicationController
       redirect_to course_lecturers_path(@course), alert: 'Not a lecturer.'
       return
     end
-  
+
     set_supervised_projects
     set_lecturer_topics
   end
@@ -42,12 +41,12 @@ class LecturersController < ApplicationController
   def demote_to_lecturer
     authorize @course, :demote_to_lecturer?
 
-    coordinator_enrolment = Enrolment.find_by(
+    Enrolment.find_by(
       user: new_coordinator,
       course: @course,
       role: :coordinator
     )
-    
+
     redirect_to course_lecturer_path(@course, new_coordinator)
   end
 
