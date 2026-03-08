@@ -39,6 +39,8 @@
           w-full border-none bg-transparent p-0 text-sm text-gray-900
           placeholder:text-gray-400 placeholder:italic focus:ring-0 focus:outline-none
         "
+        data-controller="textarea-resize"
+        data-action="input->textarea-resize#resize"
       >
     </div>
 
@@ -54,10 +56,12 @@
         placeholder="Hint Text"
         rows="1"
         class="
-          w-full min-h-[32px] resize-y border-none bg-transparent p-0 text-[0.8125rem]
-          text-gray-900 placeholder:text-gray-400 placeholder:italic focus:ring-0
-          focus:outline-none
+          w-full min-h-[32px] resize-none overflow-hidden border-none bg-transparent p-0
+          text-[0.8125rem] text-gray-900 placeholder:text-gray-400 placeholder:italic
+          focus:ring-0 focus:outline-none
         "
+        data-controller="textarea-resize"
+        data-action="input->textarea-resize#resize"
       ></textarea>
     </div>
 

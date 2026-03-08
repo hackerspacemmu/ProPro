@@ -1,12 +1,17 @@
 <tr
   class="
-    field-row group flex flex-col lg:table-row bg-white hover:bg-gray-50/50
-    transition-colors relative border-b lg:border-none last:border-b-0
+    field-row group relative flex flex-col bg-white transition-colors
+    hover:bg-gray-50/50 border-b border-gray-600 last-of-type:border-b-0
+    lg:table-row lg:border-none
   "
   data-controller="project-template-fields"
 >
   <%# --- Label --- %>
-  <td class="block lg:table-cell pl-12 pr-6 py-5 whitespace-nowrap align-top">
+  <td
+    class="
+      block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top
+    "
+  >
     <span
       class="
         lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
@@ -14,12 +19,16 @@
     >Field Label</span>
 
     <div class="relative">
-      <%= field_form.text_field :label,
-                            placeholder: "e.g. Project Title",
-                            class:
-                              "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+      <%= field_form.text_area :label,
+                           rows: 1,
+                           placeholder: "e.g. Project Title",
+                           class:
+                             "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden",
+                           data: {
+                             controller: "textarea-resize",
+                             action: "input->textarea-resize#resize",
+                           } %>
 
-      <%# Shifted to -left-10 to fit perfectly in the new pl-12 padding %>
       <button
         type="button"
         class="
@@ -58,7 +67,11 @@
                          rows: 1,
                          placeholder: "Instructions...",
                          class:
-                           "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y min-h-[44px]" %>
+                           "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden",
+                         data: {
+                           controller: "textarea-resize",
+                           action: "input->textarea-resize#resize",
+                         } %>
   </td>
 
   <%# --- Type --- %>

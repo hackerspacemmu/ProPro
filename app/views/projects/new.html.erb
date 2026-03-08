@@ -44,7 +44,7 @@
         "
       >
         Create Proposal for
-        <span class="inline-block text-green-700"><%= @course.course_name %></span>
+        <span class="inline-block text-green-700 break-all"><%= @course.course_name %></span>
         <%= image_tag(
           "edit.svg",
           class: "w-5 h-5 sm:w-6 sm:h-6 opacity-60 hidden sm:inline-block mt-1",
@@ -148,7 +148,7 @@
             </div>
           </div>
 
-          <%= render 'project_new', 
+          <%= render 'project_new',
             template_fields: @template_fields,
             field_values: @field_values,
             input_classes: input_classes %>
