@@ -11,17 +11,17 @@ class ProjectTemplatesController < ApplicationController
   def update
     @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
     if @project_template.update(project_template_params)
-      redirect_to edit_course_project_template_path(@course), notice: "Template updated"
+      redirect_to edit_course_project_template_path(@course), notice: 'Template updated'
     else
-      flash.now[:alert] = "Please correct the errors below before saving."
+      flash.now[:alert] = 'Please correct the errors below before saving.'
       render :edit
     end
-  rescue
+  rescue StandardError
     render :edit
   end
 
   private
-  
+
   def set_course
     @course = Course.find(params[:course_id])
   end
