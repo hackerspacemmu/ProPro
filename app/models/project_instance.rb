@@ -19,6 +19,9 @@ class ProjectInstance < ApplicationRecord
   before_validation :set_project_type
   after_save :update_parent_project
 
+  validates :version, presence: true, numericality: { only_integer: true, greater_than: 0 }
+  validates :title, presence: true
+
   def supervisor
     enrolment&.user
   end
