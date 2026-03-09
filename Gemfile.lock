@@ -380,13 +380,10 @@ DEPENDENCIES
   csv
   debug
   diff-lcs
-<<<<<<< HEAD
   factory_bot_rails
   faker
-=======
   erb-formatter (~> 0.7.3)
   erb_lint
->>>>>>> main
   gretel
   importmap-rails
   jbuilder

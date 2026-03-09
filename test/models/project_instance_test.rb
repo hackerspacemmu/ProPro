@@ -34,7 +34,7 @@ class ProjectInstanceTest < ActiveSupport::TestCase
     assert_equal "pending", @project.reload.status
   end
 
-  test "saving an older instance (if somehow) does not overwrite parent project status" do
+  test "saving an older instance does not overwrite parent project status sad path" do
     instance_v1 = ProjectInstance.create!(
       project: @project, enrolment: @enrolment,
       created_by: @user, version: 1,
@@ -78,5 +78,19 @@ class ProjectInstanceTest < ActiveSupport::TestCase
   test "pending project is editable" do
     @project.update_column(:status, :pending)
     assert @project.editable?
+  end
+
+  test "cannot create two instances with the same version for the same project" do
+    ProjectInstance.create!(
+      project: @project, enrolment: @enrolment,
+      created_by: @user, version: 1, title: "First"
+    )
+
+    assert_raises ActiveRecord::RecordNotUnique do
+      ProjectInstance.create!(
+        project: @project, enrolment: @enrolment,
+        created_by: @user, version: 1, title: "Duplicate"
+      )
+    end
   end
 end
