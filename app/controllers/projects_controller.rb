@@ -219,9 +219,9 @@ class ProjectsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        if @project.status == 'approved'
-          return
-        elsif @project.status == 'rejected' || @project.status == 'redo' || (@project.status == 'pending' && has_supervisor_comment)
+        return unless @project.editable?
+        
+        if @project.rejected? || @project.redo? || (@project.pending? && has_supervisor_comment)
           version = @project.project_instances.count + 1
           @instance = @project.project_instances.build(
             version: version,
@@ -366,7 +366,6 @@ class ProjectsController < ApplicationController
     params.require(:project).permit(:supervisor_id)
   end
 
-  # make sure that same logic in helpers/projects_helper.rb
   def access
     @course = Course.find(params[:course_id])
 

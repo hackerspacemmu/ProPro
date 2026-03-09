@@ -26,7 +26,7 @@ class ProjectInstance < ApplicationRecord
   private
 
   def update_parent_project
-    return unless project.project_instances.order(version: :desc, created_at: :asc).last == self
+    return unless project.project_instances.order(version: :desc, created_at: :desc).first == self
 
     project.update(
       status: status,

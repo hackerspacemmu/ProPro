@@ -65,6 +65,10 @@ class Project < ApplicationRecord
     current_instance&.title || title
   end
 
+  def editable?
+    !approved?
+  end
+
   private
 
   def set_ownership_type
