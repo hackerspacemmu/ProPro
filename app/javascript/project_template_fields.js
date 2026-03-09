@@ -16,7 +16,6 @@ document.addEventListener("turbo:load", function () {
     { value: "radio", label: "Radio" },
   ];
 
-  // Applicable to options from Rails enum
   const applicableToOptions = [
     { value: "topics", label: "Topics" },
     { value: "proposals", label: "Proposals" },
@@ -44,15 +43,21 @@ document.addEventListener("turbo:load", function () {
   // Create new field HTML directly (Tailwind tr format)
   function createNewFieldHTML(index) {
     return `
-      <tr class="field-row group flex flex-col lg:table-row bg-white hover:bg-gray-50/50 transition-colors relative border-b lg:border-none last:border-b-0" data-field-index="${index}">
-
-        <td class="block lg:table-cell pl-12 pr-6 py-5 whitespace-nowrap align-top">
+      <tr
+        class="field-row group relative flex flex-col bg-white transition-colors hover:bg-gray-50/50 border-b border-gray-600 last-of-type:border-b-0 lg:table-row lg:border-none"
+        data-field-index="${index}"
+      >
+        <td class="block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
           <div class="relative">
-            <input type="text"
+            <textarea
                    name="project_template[project_template_fields_attributes][${index}][label]"
                    placeholder="e.g. Project Title"
-                   class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                   rows="1"
+                   class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
+                   data-controller="textarea-resize"
+                   data-action="input->textarea-resize#resize"
+            ></textarea>
 
             <button type="button" class="remove-field hidden lg:flex items-center justify-center absolute -left-10 top-1/2 -translate-y-1/2 w-8 h-8 text-gray-400 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-600 rounded-md transition-all" title="Remove Field">
               <svg class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -65,7 +70,10 @@ document.addEventListener("turbo:load", function () {
           <textarea name="project_template[project_template_fields_attributes][${index}][hint]"
                     placeholder="Instructions..."
                     rows="1"
-                    class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y min-h-[44px]"></textarea>
+                    class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
+                    data-controller="textarea-resize"
+                    data-action="input->textarea-resize#resize"
+          ></textarea>
         </td>
 
         <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
@@ -110,8 +118,8 @@ document.addEventListener("turbo:load", function () {
   function createDropdownOptionHTML(fieldIndex, optionIndex, optionValue = "") {
     return `
       <div class="dropdown-option-row group flex items-center gap-2 py-1 rounded transition-colors duration-150 ease-in-out hover:bg-gray-200"
-           data-field-index="${fieldIndex}"
-           data-option-index="${optionIndex}">
+            data-field-index="${fieldIndex}"
+            data-option-index="${optionIndex}">
         <input type="text"
                name="project_template[project_template_fields_attributes][${fieldIndex}][options][]"
                value="${optionValue}"
@@ -127,8 +135,8 @@ document.addEventListener("turbo:load", function () {
   function createRadioOptionHTML(fieldIndex, optionIndex, optionValue = "") {
     return `
       <div class="radio-option-cell group flex items-center gap-2 py-1 rounded transition-colors duration-150 ease-in-out hover:bg-gray-200"
-           data-field-index="${fieldIndex}"
-           data-option-index="${optionIndex}">
+            data-field-index="${fieldIndex}"
+            data-option-index="${optionIndex}">
         <input type="radio"
                name="preview_field_${fieldIndex}"
                disabled
@@ -167,8 +175,11 @@ document.addEventListener("turbo:load", function () {
     if (!e.target.classList.contains("field-type-select")) return;
 
     const fieldRow = e.target.closest(".field-row");
-    const labelInput = fieldRow.querySelector('input[name*="[label]"]');
-    const isProjectTitle = labelInput && labelInput.value === "Project Title";
+    const labelInput = fieldRow.querySelector(
+      'textarea[name*="[label]"], input[name*="[label]"]',
+    );
+    const isProjectTitle =
+      labelInput && labelInput.value.trim() === "Project Title";
 
     if (isProjectTitle) return;
 
@@ -180,7 +191,6 @@ document.addEventListener("turbo:load", function () {
       if (fieldType === "dropdown" || fieldType === "radio") {
         optionsSection.classList.remove("hidden");
 
-        // Clear existing options and create appropriate container
         const existingContainer = optionsSection.querySelector(
           ".options-list, .radio-grid",
         );
@@ -217,14 +227,16 @@ document.addEventListener("turbo:load", function () {
 
   // Handle clicks (remove field, add option, remove option)
   templateFields.addEventListener("click", function (e) {
-    // Remove field (handle clicks on button or inner SVG)
     if (e.target.closest(".remove-field")) {
       e.preventDefault();
 
       const btn = e.target.closest(".remove-field");
       const fieldRow = btn.closest(".field-row");
-      const labelInput = fieldRow.querySelector('input[name*="[label]"]');
-      const isProjectTitle = labelInput && labelInput.value === "Project Title";
+      const labelInput = fieldRow.querySelector(
+        'textarea[name*="[label]"], input[name*="[label]"]',
+      );
+      const isProjectTitle =
+        labelInput && labelInput.value.trim() === "Project Title";
 
       if (isProjectTitle) {
         console.log("Cannot delete Project Title field");
@@ -246,7 +258,7 @@ document.addEventListener("turbo:load", function () {
     if (addBtn) {
       e.preventDefault();
 
-      const btn = addBtn; // Use the button we found with .closest()
+      const btn = addBtn;
       const fieldIndex = btn.dataset.fieldIndex;
       const optionIndex = parseInt(btn.dataset.optionIndex, 10);
       const fieldType = btn.dataset.fieldType;
@@ -292,8 +304,10 @@ document.addEventListener("turbo:load", function () {
 
   // Initial check to disable remove button on Project Title
   templateFields.querySelectorAll(".field-row").forEach((row) => {
-    const labelInput = row.querySelector('input[name*="[label]"]');
-    if (labelInput && labelInput.value === "Project Title") {
+    const labelInput = row.querySelector(
+      'textarea[name*="[label]"], input[name*="[label]"]',
+    );
+    if (labelInput && labelInput.value.trim() === "Project Title") {
       const btn = row.querySelector(".remove-field");
       if (btn) {
         btn.disabled = true;

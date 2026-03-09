@@ -44,7 +44,7 @@
         "
       >
         Create Proposal for
-        <span class="inline-block text-green-700"><%= @course.course_name %></span>
+        <span class="inline-block text-green-700 break-all"><%= @course.course_name %></span>
         <%= image_tag(
           "edit.svg",
           class: "w-5 h-5 sm:w-6 sm:h-6 opacity-60 hidden sm:inline-block mt-1",
@@ -55,6 +55,8 @@
         Fill out the details below to submit your project proposal.
       </p>
     </div>
+
+    
 
     <div
       class="
@@ -82,8 +84,8 @@
             <% red_warning = "text-[11px] sm:text-xs font-bold text-red-600 tracking-normal mb-2" %>
             <% grey_warning = "text-[11px] sm:text-xs text-gray-700 tracking-normal mb-2" %>
             <p>
-              <span class= "<%= red_warning %>"> Warning:</span>
-              <span class="<%= grey_warning%>">Switching to a lecturer's topic will autofill that topic's details. (You will lose any existing details in the fields!)</span>
+              <span class="<%= red_warning %>"> Warning:</span>
+              <span class="<%= grey_warning %>">Switching to a lecturer's topic will autofill that topic's details. (You will lose any existing details in the fields!)</span>
             </p>
               <select
                 name="based_on_topic"
@@ -92,7 +94,7 @@
                 "
                 required
                 hx-get="<%= selected_topic_course_projects_path(@course) %>"
-                hx-trigger="change"
+                hx-trigger="change, load"
                 hx-target="#template-fields-container"
                 hx-swap="outerHTML"
                 >
@@ -115,7 +117,7 @@
                       <% current_instance = topic.topic_instances.order(version: :desc).first %>
                       <option
                         value="<%= topic.id %>"
-                        <%= 'selected' if topic.id == @selected_topic_id %>
+                        <%= 'selected' if topic.id.to_s == @selected_topic_id.to_s %>
                       >
                         <%= "#{lecturer.username} - #{current_instance&.title || "Untitled Topic"}" %>
                       </option>
@@ -124,7 +126,7 @@
                     <option
                       value="own_proposal_<%= lecturer.id %>"
                       class="text-blue-600 font-medium"
-                    >
+                      <%= 'selected' if @selected_topic_id.to_s == "own_proposal_#{lecturer.id}" %>>
                       <%= "#{lecturer.username} - Own Proposal" %>
                     </option>
                   </optgroup>
@@ -146,7 +148,7 @@
             </div>
           </div>
 
-          <%= render 'project_new', 
+          <%= render 'project_new',
             template_fields: @template_fields,
             field_values: @field_values,
             input_classes: input_classes %>

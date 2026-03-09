@@ -40,11 +40,11 @@
       <h1
         class="
           text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
-          justify-center
+          justify-center break-words
         "
       >
         Create Topic for
-        <span class="inline-block text-green-700"><%= @course.course_name %></span>
+        <span class="inline-block text-green-700 break-all"><%= @course.course_name %></span>
         <%= image_tag(
           "edit.svg",
           class: "w-5 h-5 sm:w-6 sm:h-6 opacity-60 hidden sm:inline-block mt-1",
@@ -103,7 +103,11 @@
                 <% when "textarea" %>
                   <%= text_area_tag "fields[#{field.id}]",
                   nil,
-                  class: "#{input_classes} min-h-[120px] resize-y",
+                  class: "#{input_classes} resize-none overflow-hidden",
+                  data: {
+                    controller: "textarea-resize",
+                    action: "input->textarea-resize#resize",
+                  },
                   placeholder: field.hint,
                   required: true,
                   autocomplete: "off" %>

@@ -27,6 +27,7 @@ class TopicsController < ApplicationController
     @owner = @topic.owner
     @status = @topic.current_instance&.status
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
+    @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]

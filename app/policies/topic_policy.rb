@@ -2,11 +2,11 @@ class TopicPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
       enrolment = course.enrolments.find_by(user: user)
-      
+
       case enrolment&.role
-      when "coordinator"
+      when 'coordinator'
         scope.all
-      when "lecturer"
+      when 'lecturer'
         scope.where(owner: user).or(scope.where(status: :approved))
       else
         scope.where(status: :approved)
@@ -17,7 +17,7 @@ class TopicPolicy < ApplicationPolicy
 
     # SCOPE METHODS, DO NOT USE IN POLICIES
     def course
-      @course ||= Course.find(scope.where_values_hash["course_id"])
+      @course ||= Course.find(scope.where_values_hash['course_id'])
     end
   end
 
@@ -55,15 +55,13 @@ class TopicPolicy < ApplicationPolicy
   end
 
   def approved
-    record.status.to_s == "approved"
+    record.status.to_s == 'approved'
   end
 
-  def course
-    record.course
-  end
+  delegate :course, to: :record
 
   private
-  
+
   def lecturer
     course.enrolments.exists?(user: user, role: :lecturer)
   end
