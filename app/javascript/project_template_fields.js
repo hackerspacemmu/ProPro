@@ -326,14 +326,13 @@ document.addEventListener("turbo:load", function () {
         btn.classList.add("opacity-50", "cursor-not-allowed");
       }
       const requiredCheckbox = row.querySelector(
-        'input[type="checkbox"][name*="[required]"]'
+        'input[type="checkbox"][name*="[required]"]',
       );
       if (requiredCheckbox) {
         requiredCheckbox.checked = true;
         requiredCheckbox.disabled = true;
         requiredCheckbox.required = true;
         requiredCheckbox.title = "Title is Required";
-        
       }
     }
   });

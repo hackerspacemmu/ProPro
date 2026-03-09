@@ -10,8 +10,8 @@ class ProjectTemplateField < ApplicationRecord
   validates :applicable_to, presence: true
   validates :options, presence: true, if: -> { field_type.in?(%w[dropdown radio]) }
 
-  before_destroy :cannot_delete_if_in_use
   before_validation :force_title_required
+  before_destroy :cannot_delete_if_in_use
 
   def option_list
     options.to_s.gsub(/[\[\]"]/, '').split(',').map(&:strip)
@@ -27,6 +27,6 @@ class ProjectTemplateField < ApplicationRecord
   end
 
   def force_title_required
-    self.required = true if label == "Project Title"
+    self.required = true if label == 'Project Title'
   end
 end
