@@ -1,66 +1,156 @@
-<div class="field-row" data-field-index="<%= field_form.index %>">
-  <% is_project_title = field_form.object.label == "Project Title" %>
+<tr
+  class="
+    field-row group relative flex flex-col bg-white transition-colors
+    hover:bg-gray-50/50 border-b border-gray-600 last-of-type:border-b-0
+    lg:table-row lg:border-none
+  "
+  data-controller="project-template-fields"
+>
+  <%# --- Label --- %>
+  <td
+    class="
+      block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top
+    "
+  >
+    <span
+      class="
+        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
+      "
+    >Field Label</span>
 
-  <% unless is_project_title %>
-    <button type="button" class="remove-field">
-      <%= image_tag("delete.svg") %>
+    <div class="relative">
+      <%= field_form.text_area :label,
+                           rows: 1,
+                           placeholder: "e.g. Project Title",
+                           class:
+                             "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden",
+                           data: {
+                             controller: "textarea-resize",
+                             action: "input->textarea-resize#resize",
+                           } %>
+
+      <button
+        type="button"
+        class="
+          remove-field hidden lg:flex items-center justify-center absolute -left-10
+          top-1/2 -translate-y-1/2 w-8 h-8 text-gray-400 opacity-60 hover:opacity-100
+          hover:bg-red-50 hover:text-red-600 rounded-md transition-all
+        "
+        title="Remove Field"
+        data-action="click->project-template-fields#remove"
+      >
+        <svg
+          class="h-5 w-5 pointer-events-none"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
+        </svg>
+      </button>
+    </div>
+  </td>
+
+  <%# --- Hint --- %>
+  <td class="block lg:table-cell px-6 py-5 align-top">
+    <span
+      class="
+        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
+      "
+    >Hint Text</span>
+    <%= field_form.text_area :hint,
+                         rows: 1,
+                         placeholder: "Instructions...",
+                         class:
+                           "block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden",
+                         data: {
+                           controller: "textarea-resize",
+                           action: "input->textarea-resize#resize",
+                         } %>
+  </td>
+
+  <%# --- Type --- %>
+  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+    <span
+      class="
+        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
+      "
+    >Field Type</span>
+    <%= field_form.select :field_type,
+                      options_for_select(
+                        ProjectTemplateField.field_types.keys.map do |k|
+                          [k.humanize, k]
+                        end,
+                        field_form.object.field_type,
+                      ),
+                      {},
+                      class:
+                        "field-type-select block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer",
+                      data: {
+                        action: "change->project-template-fields#toggleOptions",
+                      } %>
+  </td>
+
+  <%# --- Applicable To --- %>
+  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+    <span
+      class="
+        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
+      "
+    >Applicable To</span>
+    <%= field_form.select :applicable_to,
+                      options_for_select(
+                        ProjectTemplateField.applicable_tos.keys.map do |k|
+                          [k.humanize, k]
+                        end,
+                        field_form.object.applicable_to || "topics",
+                      ),
+                      {},
+                      class:
+                        "block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer" %>
+  </td>
+
+  <%# --- Options --- %>
+  <td
+    class="block lg:table-cell px-6 py-5 align-top"
+    data-project-template-fields-target="optionsContainer"
+  >
+    <span
+      class="
+        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
+      "
+    >Options</span>
+    <%= render "option_section", field_form: field_form %>
+
+    <%# Mobile Remove Button %>
+    <button
+      type="button"
+      class="
+        remove-field lg:hidden mt-3 inline-flex items-center text-xs text-red-500
+        hover:text-red-700 font-medium bg-red-50 px-3 py-2 rounded-md
+      "
+      data-action="click->project-template-fields#remove"
+    >
+      <svg
+        class="mr-1.5 h-4 w-4 pointer-events-none"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        />
+      </svg>
+      Remove Field
     </button>
-  <% end %>
-
-  <div class="row">
-    <div class="column">
-      <% if is_project_title %>
-        <%= field_form.text_field :label, placeholder: "Field Label", disabled: true %>
-      <% else %>
-        <%= field_form.text_field :label, placeholder: "Field Label" %>
-      <% end %>
-    </div>
-    <div class="hint-row">
-      <%= field_form.text_area :hint, placeholder: "Hint Text" %>
-    </div>
-    <div class="column">
-      <% if is_project_title %>
-        <%= field_form.select :field_type,
-            options_for_select([["Shorttext", "shorttext"]], "shorttext"),
-            {},
-            { class: "field-type-select", disabled: true } %>
-        <%= field_form.hidden_field :field_type, value: "shorttext" %>
-      <% else %>
-        <%= field_form.select :field_type,
-            options_for_select(
-              ProjectTemplateField.field_types.keys.map { |key| [key.humanize, key] },
-              field_form.object.field_type
-            ),
-            { prompt: "Select field type" },
-            { class: "field-type-select" } %>
-      <% end %>
-    </div>
-    <div class="column">
-      <% if is_project_title %>
-        <%= field_form.select :applicable_to,
-            options_for_select([["Both", "both"]], "both"),
-            {},
-            { disabled: true } %>
-        <%= field_form.hidden_field :applicable_to, value: "both" %>
-      <% else %>
-        <%= field_form.select :applicable_to,
-            options_for_select(
-              ProjectTemplateField.applicable_tos.keys.map { |key| [key.humanize, key] },
-              field_form.object.applicable_to
-            ),
-            { prompt: "Select applicability" } %>
-      <% end %>
-    </div>
-    <div class="column options-column">
-      <% unless is_project_title %>
-        <% field_type = field_form.object.field_type %>
-        <% show_options = ['dropdown', 'radio'].include?(field_type) %>
-        <div class="options-section <%= 'hidden' unless show_options %>">
-          <%= render 'option_section', field_form: field_form, field_type: field_type %>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <%= field_form.hidden_field :_destroy, value: false, class: "destroy-flag" %>
-</div>
+    <%= field_form.hidden_field :_destroy, class: "destroy-flag" %>
+  </td>
+</tr>

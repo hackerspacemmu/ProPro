@@ -1,7 +1,7 @@
 class ProjectTemplatesController < ApplicationController
   before_action :set_course
   before_action :set_project_template
-  before_action :only_authorise_coordinator
+  before_action :authorize_coordinator
 
   def edit
     @project_template = @course.project_template
@@ -10,7 +10,6 @@ class ProjectTemplatesController < ApplicationController
 
   def update
     @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
-
     if @project_template.update(project_template_params)
       redirect_to edit_course_project_template_path(@course), notice: 'Template updated'
     else
@@ -31,25 +30,16 @@ class ProjectTemplatesController < ApplicationController
     @project_template = @course.project_template
   end
 
+  def authorize_coordinator
+    authorize @course, :update?
+  end
+
   def project_template_params
     params.require(:project_template).permit(
       :description,
       project_template_fields_attributes: [
-        :id,
-        :label,
-        :hint,
-        :field_type,
-        :applicable_to,
-        :_destroy,
-        { options: [] }
+        :id, :label, :hint, :field_type, :applicable_to, :_destroy, { options: [] }
       ]
     )
-  end
-
-  def only_authorise_coordinator
-    return if @course.coordinators.pluck(:id).include? Current.user.id
-
-    redirect_back_or_to '/', alert: 'Not authorised'
-    nil
   end
 end

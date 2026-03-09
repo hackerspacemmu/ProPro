@@ -1,175 +1,316 @@
 <% content_for :stylesheets do %>
-    <%= stylesheet_link_tag "projects" %>
-    <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% breadcrumb :course_settings, @course %>
 
-<% content_for :title, "Course Settings - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
-<main class="project-edit">
-  <header class="edit-header">
-    <div class="edit-header-row">
-      <h1 class="edit-title">
-        Course Settings
-        <%= image_tag("edit.svg") %>
-      </h1>
-    </div>
-    <p class="edit-description">
-      Update your course configuration below.
-    </p>
-  </header>
+<% content_for :title,
+"Course Settings - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-  <div class="container">
-    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+<main class="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
 
-    <%= form_with url: handle_settings_course_path(@course),
-                  model: @course,
-                  method: :post,
-                  class: "edit-form" do |form| %>
+  <div class="max-w-3xl mx-auto text-center mb-8">
+    <h1
+      class="
+        text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
+        justify-center
+      "
+    >
+      Course Settings -
+      <span class="inline-block text-green-700"><%= @course.course_name %></span>
+      <%= image_tag(
+        "edit.svg",
+        class:
+          "w-6 h-6 opacity-40 hover:opacity-100 transition-opacity cursor-pointer",
+      ) %>
+    </h1>
+    <p class="mt-2 text-md text-gray-600">Update your course configuration below.</p>
+  </div>
 
-        <% if @course.errors.any? %>
-          <div id="error_explanation">
-            <h2><%= pluralize(@course.errors.count, "error") %> prohibited this course from being saved:</h2>
-            <ul>
-              <% @course.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
+  <div class="max-w-3xl mx-auto space-y-4 mb-6">
+    <% if flash[:alert] %>
+      <div class="rounded-md bg-red-50 p-4 border-l-4 border-red-500">
+        <div class="flex">
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Alert</h3>
+            <div class="mt-2 text-sm text-red-700"><%= flash[:alert] %></div>
           </div>
-        <% end %>
-        
-        <%= render "copy_course_overlay", course: @course, mode: "settings" %>
+        </div>
+      </div>
+    <% end %>
 
-      <div class="fields-container">
-        <div class="field-row">
+    <% if flash[:notice] %>
+      <div class="rounded-md bg-green-50 p-4 border-l-4 border-green-500">
+        <div class="flex">
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">Success</h3>
+            <div class="mt-2 text-sm text-green-700"><%= flash[:notice] %></div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div
+    class="
+      bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border
+      border-gray-100
+    "
+  >
+    <%= form_with url: handle_settings_course_path(@course), model: @course, method: :post, class: "space-y-6" do |form| %>
+
+      <% if @course.errors.any? %>
+        <div class="rounded-md bg-red-50 p-4 mb-6">
+          <div class="flex">
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                <%= pluralize(@course.errors.count, "error") %>
+                prohibited saving:
+              </h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <% @course.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= render "copy_course_overlay", course: @course, mode: "settings" %>
+
+      <div class="space-y-6">
+        <div>
           <%= form.label :course_name,
-                          "Course name",
-                          class: "field-label" %><br>
-          <%= form.text_field :course_name,
-                              class: "form-control",
+                     "Course Name",
+                     class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_field :course_name,
+                            required: true,
+                            class:
+                              "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+          </div>
+        </div>
+
+        <div>
+          <%= form.label :course_description,
+                     "Project Details",
+                     class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_area :course_description,
+                           rows: 2,
+                           class:
+                             "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm resize-none overflow-hidden",
+                           data: {
+                             controller: "textarea-resize",
+                             action: "input->textarea-resize#resize",
+                           } %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :supervisor_projects_limit,
+                       "Maximum Projects per Supervisor",
+                       class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.number_field :supervisor_projects_limit,
+                                required: true,
+                                class:
+                                  "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+            </div>
+          </div>
+
+          <div>
+            <%= form.label :starting_week,
+                       "Starting Week",
+                       class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.text_field :starting_week,
                               required: true,
-                              placeholder: "Enter course name" %>
+                              class:
+                                "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+            </div>
+          </div>
         </div>
 
-        <div class="field-row">
-          <%= form.label :course_description, "Project details", class: "field-label" %><br>
-          <%= form.text_area :course_description,
-                              class: "form-control",
-                              placeholder: "Enter course description" %>
-        </div>
-
-        <div class="field-row">
-          <%= form.label :supervisor_projects_limit,
-                          "Maximum projects per supervisor",
-                          class: "field-label" %><br>
-          <%= form.text_field :supervisor_projects_limit,
-                              class: "form-control",
-                              required: true,
-                              placeholder: "Enter maximum number" %>
-        </div>
-
-        <div class="field-row">
+        <div>
           <%= form.label :file_link,
-                          "Project file link",
-                          class: "field-label" %><br>
-          <%= form.text_field :file_link,
-                              class: "form-control",
-                              placeholder: "Enter file link" %>
+                     "Project File Link (URL)",
+                     class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_field :file_link,
+                            class:
+                              "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-blue-600 underline" %>
+          </div>
         </div>
+      </div>
 
-        <div class="field-row">
-          <p class="field-label">Lecturer topics require approval?</p>
-          <div class="radio-group">
-            <div class="radio-option">
-              <%= form.radio_button :require_coordinator_approval, true %>
-              <%= form.label :require_coordinator_approval, "True", value: true %>
+      <hr class="border-gray-200">
+
+      <div class="space-y-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Permissions & Rules</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+
+          <div>
+            <span class="block text-sm font-medium text-gray-700 mb-2">Lecturer topics require approval?</span>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <%= form.radio_button :require_coordinator_approval,
+                                  true,
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :require_coordinator_approval,
+                           "Yes",
+                           value: true,
+                           class: "ml-2 block text-sm text-gray-700" %>
+              </div>
+              <div class="flex items-center">
+                <%= form.radio_button :require_coordinator_approval,
+                                  false,
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :require_coordinator_approval,
+                           "No",
+                           value: false,
+                           class: "ml-2 block text-sm text-gray-700" %>
+              </div>
             </div>
-            <div class="radio-option">
-              <%= form.radio_button :require_coordinator_approval, false %>
-              <%= form.label :require_coordinator_approval, "False", value: false %>
+          </div>
+
+          <div>
+            <span class="block text-sm font-medium text-gray-700 mb-2">Use progress updates?</span>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <%= form.radio_button :use_progress_updates,
+                                  true,
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :use_progress_updates,
+                           "Yes",
+                           value: true,
+                           class: "ml-2 block text-sm text-gray-700" %>
+              </div>
+              <div class="flex items-center">
+                <%= form.radio_button :use_progress_updates,
+                                  false,
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :use_progress_updates,
+                           "No",
+                           value: false,
+                           class: "ml-2 block text-sm text-gray-700" %>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <span class="block text-sm font-medium text-gray-700 mb-2">Lecturer views public?</span>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <%= form.radio_button :lecturer_access,
+                                  true,
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :lecturer_access,
+                           "Yes",
+                           value: true,
+                           class: "ml-2 block text-sm text-gray-700" %>
+              </div>
+              <div class="flex items-center">
+                <%= form.radio_button :lecturer_access,
+                                  false,
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :lecturer_access,
+                           "No",
+                           value: false,
+                           class: "ml-2 block text-sm text-gray-700" %>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <%= form.label :number_of_updates,
+                       "Number of progress updates",
+                       class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.number_field :number_of_updates,
+                                class:
+                                  "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
             </div>
           </div>
         </div>
 
-        <div class="field-row">
-          <%= form.label :starting_week, "Starting week", class: "field-label" %><br>
-          <%= form.text_field :starting_week,
-                              class: "form-control",
-                              required: true,
-                              placeholder: "Enter starting week" %>
-        </div>
-
-        <div class="field-row">
-          <p class="field-label">Use progress updates?</p>
-          <div class="radio-group">
-            <div class="radio-option">
-              <%= form.radio_button :use_progress_updates, true %>
-              <%= form.label :use_progress_updates, "True", value: true %>
-            </div>
-            <div class="radio-option">
-              <%= form.radio_button :use_progress_updates, false %>
-              <%= form.label :use_progress_updates, "False", value: false %>
-            </div>
-          </div>
-        </div>
-
-        <div class="field-row">
-          <%= form.label :number_of_updates,
-                          "Number of progress updates",
-                          class: "field-label" %><br>
-          <%= form.text_field :number_of_updates,
-                              class: "form-control",
-                              placeholder: "Enter number of updates" %>
-        </div>
-
-        <div class="field-row">
-          <p class="field-label">Lecturer views public?</p>
-          <div class="radio-group">
-            <div class="radio-option">
-              <%= form.radio_button :lecturer_access, true %>
-              <%= form.label :lecturer_access, "True", value: true %>
-            </div>
-            <div class="radio-option">
-              <%= form.radio_button :lecturer_access, false %>
-              <%= form.label :lecturer_access, "False", value: false %>
-            </div>
-          </div>
-        </div>
-
-        <div class="field-row">
-          <p class="field-label">Student can see projects from:</p>
-          <div class="radio-group">
+        <div class="pt-4">
+          <span class="block text-sm font-medium text-gray-700 mb-2">Student can see projects from:</span>
+          <div class="bg-gray-50 rounded-md p-4 space-y-2">
             <% Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] }.each_with_index do |(value, label_text), idx| %>
-              <div class="radio-option">
-                <%= form.radio_button :student_access, value, id: "student_access_#{idx}" %>
-                <%= form.label :student_access, label_text, value: value, for: "student_access_#{idx}" %>
+              <div class="flex items-center">
+                <%= form.radio_button :student_access,
+                                  value,
+                                  id: "student_access_#{idx}",
+                                  class:
+                                    "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+                <%= form.label :student_access,
+                           label_text,
+                           value: value,
+                           for: "student_access_#{idx}",
+                           class: "ml-3 block text-sm text-gray-700" %>
               </div>
             <% end %>
           </div>
         </div>
       </div>
 
-      <div class="field-row">
-        <%= link_to "Add students",
-                    add_students_course_path(@course),
-                    class: "btn" %>
-
-        <%= link_to "Add lecturers",
-                    add_lecturers_course_path(@course),
-                    class: "btn" %>
+      <div
+        class="
+          bg-gray-50 -mx-4 px-4 py-4 sm:-mx-10 sm:px-10 border-t border-gray-100 flex
+          flex-col sm:flex-row gap-3 justify-center
+        "
+      >
+        <%= link_to "Add Students",
+        add_students_course_path(@course),
+        class:
+          "w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+        <%= link_to "Add Lecturers",
+        add_lecturers_course_path(@course),
+        class:
+          "w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
       </div>
 
-      <div class="form-actions">
-        <%= link_to "← Back to Course",
-                    course_path(@course),
-                    class: "btn btn-secondary" %>
-        <%= link_to "DELETE COURSE",
-                    course_path(@course),
-                    class: "btn btn-primary",
-                    data: { turbo_method: :delete } %>
-        <%= form.submit "Save Settings",
-                        class: "btn btn-primary" %>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+
+        <%= link_to course_path(@course), class: "order-2 sm:order-1 inline-flex items-center text-sm text-gray-500 hover:text-gray-900 transition-colors" do %>
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path></svg>
+          Back to Course
+        <% end %>
+
+        <div
+          class="
+            flex items-center flex-col sm:flex-row gap-3 order-1 sm:order-2 w-full sm:w-auto
+          "
+        >
+          <%= link_to "Delete Course",
+          course_path(@course),
+          class:
+            "w-full sm:w-auto inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
+          data: {
+            turbo_method: :delete,
+            turbo_confirm: "Are you sure? This cannot be undone.",
+          } %>
+
+          <%= form.submit "Save Settings",
+                      class:
+                        "w-full sm:w-auto inline-flex justify-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer" %>
+        </div>
       </div>
+
     <% end %>
   </div>
 </main>

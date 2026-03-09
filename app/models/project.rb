@@ -14,9 +14,6 @@ class Project < ApplicationRecord
   attribute :status, :integer, default: :pending
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
 
-  scope :student_owned, -> { where(ownership_type: :student) }
-  scope :group_owned, -> { where(ownership_type: :group) }
-
   # Status filters
   scope :pending, -> { where(status: :pending) }
   scope :approved, -> { where(status: :approved) }
@@ -28,9 +25,10 @@ class Project < ApplicationRecord
   scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
 
   scope :owned_by_user_or_groups, lambda { |user, groups|
-    with_ownership.where(owner_type: 'User', owner_id: user.id)
-                  .or(with_ownership.where(ownerships: { owner_type: 'ProjectGroup', owner_id: groups.select(:id) }))
+    where(owner: [user] + groups.to_a)
   }
+  scope :owned_by_user, ->(user) { where(owner: user) }
+  scope :owned_by_groups, ->(groups) { where(owner: groups) }
 
   before_validation :set_ownership_type
 

@@ -8,7 +8,7 @@ current_user_enrolment: @current_user_enrolment %>
 
 <div class="w-[95%] bg-[#efefef] mx-auto my-0 py-2.5">
   <header class="mb-5 text-center md:text-left">
-    <h1 class="font-bold text-3xl text-black my-1"><%= @course.course_name.upcase %></h1>
+    <h1 class="font-bold text-3xl text-black my-1 break-words"><%= @course.course_name.upcase %></h1>
     <h3 class="text-base font-normal">Your Course</h3>
     <h5 class="text-base font-normal whitespace-pre-line break-all"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
     <h5 class="text-base font-normal whitespace-pre-line break-all"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
@@ -18,7 +18,8 @@ current_user_enrolment: @current_user_enrolment %>
     <div
       class="
         border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5
-      ">
+      "
+    >
       <form>
         <h4 class="break-all whitespace-pre-line text-xl">Project Details</h4>
         <p
@@ -34,17 +35,20 @@ current_user_enrolment: @current_user_enrolment %>
           class="text-decoration-none max-w-max text-inherit"
           href="<%= @course.file_link %>"
           target="_blank"
-          rel="noopener noreferrer">
+          rel="noopener noreferrer"
+        >
           <div
             class="
-              text-[#313848] inline-block flex-wrap z-0 border-2 border-[#ebf0f9] pl-4 pr-5
-              pt-4 pb-3 rounded-[12px] mt-4
-            ">
+              text-[#313848] w-fit flex z-0 border-2 border-[#ebf0f9] pl-4 pr-5 pt-4 pb-3
+              rounded-[12px] mt-4
+            "
+          >
             <div
               class="
                 file-icon flex items-center justify-center mr-4 bg-[#399be2] rounded-[10px]
                 w-[40px] h-[40px] shrink-0
-              ">
+              "
+            >
               <%= image_tag "folder.svg" %>
             </div>
             <div class="flex flex-col justify-center font-bold font-lg mt-1">
@@ -62,26 +66,26 @@ current_user_enrolment: @current_user_enrolment %>
     course: @course,
     current_user_enrolment: @current_user_enrolment,
     topic_list: @topic_list,
+    my_topics: @my_topics,
     current_user: @current_user,
     my_student_projects: @my_student_projects,
     incoming_proposals: @incoming_proposals,
     lecturers: @lecturers %>
 
   <% elsif @current_user_enrolment&.lecturer? %>
-    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals
-    -->
+    <!-- Lecturer View: Supervisors Available, My Topics, Pending Proposals -->
     <%= render "lecturer_section",
     course: @course,
     current_user_enrolment: @current_user_enrolment,
     topic_list: @topic_list,
+    my_topics: @my_topics,
     current_user: @current_user,
     my_student_projects: @my_student_projects,
     incoming_proposals: @incoming_proposals,
     lecturers: @lecturers %>
 
   <% else %>
-    <!-- Student View: Supervisors Available, Proposal Status, Available Topics
-    -->
+    <!-- Student View: Supervisors Available, Proposal Status, Available Topics -->
     <%= render "student_section",
     course: @course,
     current_user_enrolment: @current_user_enrolment,
