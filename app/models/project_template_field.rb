@@ -11,6 +11,7 @@ class ProjectTemplateField < ApplicationRecord
   validates :options, presence: true, if: -> { field_type.in?(%w[dropdown radio]) }
 
   before_destroy :cannot_delete_if_in_use
+  before_validation :force_title_required
 
   def option_list
     options.to_s.gsub(/[\[\]"]/, '').split(',').map(&:strip)
@@ -23,5 +24,9 @@ class ProjectTemplateField < ApplicationRecord
 
     errors.add(:base, "Field “#{label}” is in use and can’t be removed")
     throw :abort
+  end
+
+  def force_title_required
+    self.required = true if label == "Project Title"
   end
 end

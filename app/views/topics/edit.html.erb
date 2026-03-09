@@ -98,7 +98,7 @@
                   existing_value,
                   class: input_classes,
                   placeholder: field.hint,
-                  required: true,
+                  required: field.required,
                   autocomplete: "off" %>
 
                 <% when "textarea" %>
@@ -111,7 +111,7 @@
                   },
                   placeholder: field.hint,
                   rows: 2,
-                  required: true %>
+                  required: field.required %>
 
                 <% when "dropdown" %>
                   <div class="relative">
@@ -120,7 +120,7 @@
                     options_for_select(options, existing_value),
                     prompt: "Select an option",
                     class: "#{input_classes} appearance-none pr-10 cursor-pointer",
-                    required: true %>
+                    required: field.required %>
                     <div
                       class="
                         absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
@@ -145,7 +145,7 @@
                         option,
                         (option.to_s == existing_value.to_s),
                         id: "field_#{field.id}_#{idx}",
-                        required: true,
+                        required: field.required,
                         class:
                           "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer" %>
                         <span
@@ -161,7 +161,7 @@
                   <%= text_field_tag "fields[#{field.id}]",
                   existing_value,
                   class: input_classes,
-                  required: true,
+                  required: field.required,
                   autocomplete: "off" %>
                 <% end %>
 

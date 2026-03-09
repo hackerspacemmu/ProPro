@@ -153,4 +153,15 @@
     </button>
     <%= field_form.hidden_field :_destroy, class: "destroy-flag" %>
   </td>
+
+  <%# --- Required --- %>
+  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-center">
+    <span
+      class="
+        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
+      "
+    >Required</span>
+    <%= field_form.check_box :required,
+      class: "block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer" %>
+  </td>
 </tr>

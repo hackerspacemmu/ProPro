@@ -21,7 +21,7 @@
   </button>
 
   <%# --- Main Grid Row --- %>
-  <div class="grid grid-cols-1 lg:grid-cols-5 min-h-[48px]">
+  <div class="grid grid-cols-1 lg:grid-cols-6 min-h-[48px]">
 
     <%# --- Column 1: Input --- %>
     <div
@@ -132,5 +132,14 @@
       </div>
     </div>
 
+    <%# --- Column 6: Required --- %>
+    <div class="flex items-center justify-center p-3">
+      <input
+        type="checkbox"
+        name="project_template[project_template_fields_attributes][<%= index %>][required]"
+        value="true"
+        class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      >
+    </div>
   </div>
 </div>
