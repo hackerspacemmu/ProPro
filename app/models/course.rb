@@ -1,3 +1,6 @@
+require 'sqids'
+
+# Represents courses
 class Course < ApplicationRecord
   has_many :enrolments, dependent: :destroy
   has_many :users, through: :enrolments
@@ -46,5 +49,10 @@ class Course < ApplicationRecord
     return if use_progress_updates
 
     self.number_of_updates = nil
+  end
+
+  def generate_coursecode
+    sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
+    self.coursecode = sqids.encode([id, Time.now.to_i])
   end
 end
