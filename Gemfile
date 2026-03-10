@@ -83,3 +83,5 @@ end
 gem "pundit", "~> 2.5"
 
 gem "erb-formatter", "~> 0.7.3"
+
+gem "sqids", "~> 0.2.2"
