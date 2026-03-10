@@ -11,5 +11,13 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    include FactoryBot::Syntax::Methods
+  
+    def login_as(user, password: "password")
+      post sessions_path, params: {
+        email_address: user.email_address,
+        password: password
+      }
+    end
   end
 end
