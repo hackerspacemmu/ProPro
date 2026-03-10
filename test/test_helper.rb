@@ -14,10 +14,10 @@ module ActiveSupport
     include FactoryBot::Syntax::Methods
   
     def login_as(user, password: "password")
-      post sessions_path, params: {
-        email_address: user.email_address,
-        password: password
-      }
+      visit login_path
+      fill_in "email_address", with: user.email_address
+      fill_in "password", with: password
+      click_button "Sign In"
     end
   end
 end
