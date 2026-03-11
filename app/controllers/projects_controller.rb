@@ -223,23 +223,18 @@ class ProjectsController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         return unless @project.editable?
-        
-        if @project.rejected? || @project.redo? || (@project.pending? && has_supervisor_comment)
-          version = @project.project_instances.count + 1
-          @instance = @project.project_instances.build(
-            version: version,
-            created_by: current_user,
-            enrolment: @project.enrolment
-          )
-          new_instance_created = true
-        else
-          @instance = @project.project_instances.last
-        end
+
+        @instance = @project.instance_to_edit(
+          created_by: current_user,
+          has_supervisor_comment: has_supervisor_comment
+        )
+        new_instance_created = @instance.new_record?
 
         # Set title
         title_field_id = params[:fields].keys.first if params[:fields].present?
         @instance.title = params[:fields][title_field_id] if title_field_id.present?
 
+        # Timestamps
         @instance.last_edit_time = Time.current
         @instance.last_edit_by = current_user.id
 
