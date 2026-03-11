@@ -210,7 +210,7 @@ class CoursesController < ApplicationController
 
   def settings
     @course = Course.find(params[:id])
-    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
+    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators).sort_by(&:created_at).reverse
   end
 
   def handle_settings

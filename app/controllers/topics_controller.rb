@@ -69,7 +69,7 @@ class TopicsController < ApplicationController
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
-    @approved_topics = Topic.includes(:topic_instances).all.select { |t| t.current_status == 'approved' }
+    @approved_topics = Topic.includes(:topic_instances).all.select { |t| t.current_status == 'approved' }.sort_by(&:created_at).reverse
 
     return if @template_fields.present?
 
