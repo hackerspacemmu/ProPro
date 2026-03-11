@@ -45,11 +45,25 @@
               </div>
 
               <div class="flex flex-col w-full">
+                <% 
+                  valid_options = fields.select do |instance_field|
+                    opt_value = instance_field.value.to_s.strip
+                    if ["dropdown", "radio"].include?(field.field_type.downcase)
+                      allowed_options = (field.options || []).map { |opt| opt.to_s.strip }
+                      opt_value.blank? || allowed_options.include?(opt_value)
+                    else
+                      true
+                    end
+                  end
+                %>
+
                 <select name="template_field[<%= field.id %>][instance_field_id]" 
                         data-action="change->overlay#updateDropdown"
                         class="block w-full rounded-t-lg border border-gray-100 bg-gray-50 px-4 py-4 pr-10 text-base transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
-                  <option value="">-- Select a value --</option>
+                  <option value="">
+                    <%= (valid_options.empty? && ["dropdown", "radio"].include?(field.field_type.downcase)) ? "-- No Valid Option --" : "-- Keep Empty --" %>
+                  </option>
 
                   <% fields.each do |instance_field| %>
                     <% 
