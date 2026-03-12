@@ -316,7 +316,9 @@ class CoursesController < ApplicationController
     @course = Course.find(params[:id])
     @course.generate_coursecode!
     flash.now[:notice] = 'Course join code successfully generated'
-
+  rescue StandardError => e
+    flash.now[:alert] = e.message
+  ensure
     render turbo_stream: [
       turbo_stream.update('flash', partial: 'courses/flash'),
       turbo_stream.replace('course_code_form', partial: 'courses/course_code_form', locals: { course: @course })

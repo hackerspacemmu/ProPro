@@ -44,6 +44,8 @@ class Course < ApplicationRecord
   before_validation :null_number_of_updates_if_not_used
 
   def generate_coursecode!
+    raise StandardError, 'Course join code can\'t be used for grouped course' if grouped
+
     sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
     self.coursecode = sqids.encode([id, Time.now.to_i])
     save!
