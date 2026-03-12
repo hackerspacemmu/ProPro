@@ -6,44 +6,50 @@ export default class extends Controller {
   static targets = ["preview", "label", "value", "menu", "container", "content"]
 
   connect() {
-    this.courseList= null;
+    this.initialContent = this.containerTarget.innerHTML;
+  }
+
+  disconnect() {
+    document.body.style.overflow = '';
   }
 
   // Open the overlay
   open(e) {
-    e.preventDefault();
-    if (!this.courseList) {
-      this.courseList = this.containerTarget.innerHTML;
-    }
+    if (e) e.preventDefault();
 
-    this.menuTarget.classList.remove("opacity-0", "pointer-events-none");
-    this.contentTarget.classList.remove("translate-y-full");
-    document.body.classList.add("overflow-hidden");
+    if (this.hasMenuTarget) { this.menuTarget.classList.remove("opacity-0", "pointer-events-none"); }
+    if (this.hasContentTarget) { this.contentTarget.classList.remove("translate-y-full"); }
+    document.body.style.overflow = 'hidden';
   }
 
   // Close the overlay
   close(e) {
     if (e) e.preventDefault();
-    this.menuTarget.classList.add("opacity-0", "pointer-events-none");
-    this.contentTarget.classList.add("translate-y-full");
-    document.body.classList.remove("overflow-hidden");
+
+    document.body.style.overflow = '';
+    if (this.hasMenuTarget) { this.menuTarget.classList.add("opacity-0", "pointer-events-none"); }
+    if (this.hasContentTarget) { this.contentTarget.classList.add("translate-y-full"); }
 
     setTimeout(() => {
-      if (this.courseList) this.containerTarget.innerHTML = this.courseList;
+      this.returnToList();
     }, 200);
   }
 
   // Close when clicking outsite of the ovelay
   closeOnBackdrop(e) {
     if (e.target === this.menuTarget) {
-      this.close();
+      this.close(e);
     }
   }
 
-  goBack(event) {
-    if (event) event.preventDefault();
-    if (this.courseList) {
-      this.containerTarget.innerHTML = this.courseList;
+  returnToList() {
+    this.containerTarget.removeAttribute('src');
+    this.containerTarget.removeAttribute('complete');
+
+    if (this.initialContent) {
+      this.containerTarget.innerHTML = this.initialContent;
+    } else {
+      this.containerTarget.innerHTML = ""; 
     }
   }
 
@@ -84,7 +90,7 @@ export default class extends Controller {
     if (preview) preview.classList.remove('hidden');
   }
 
-  copyTopicsDetails() {
+  copyTopicsDetails(event) {
     const selects = this.element.querySelectorAll('select[data-target-field-id]')
 
     selects.forEach(select => {
@@ -113,6 +119,6 @@ export default class extends Controller {
       }
     })
 
-    this.close();
+    this.close(event);
   }
 }
