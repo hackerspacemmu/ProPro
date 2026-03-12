@@ -3,12 +3,6 @@ require 'securerandom'
 
 class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile]
-  before_action :authorize_create, only: %i[new create]
-  before_action :authorize_destroy, only: [:destroy]
-  before_action :authorize_update, only: %i[settings handle_settings]
-  before_action :authorize_manage_students, only: %i[add_students handle_add_students]
-  before_action :authorize_manage_lecturers, only: %i[add_lecturers handle_add_lecturers]
-  before_action :authorize_export_csv, only: [:export_csv]
 
   def show
     authorize @course
@@ -81,11 +75,17 @@ class CoursesController < ApplicationController
     nil
   end
 
-  def add_students; end
+  def add_students
+    authorize @course, :manage_students?
+  end
 
-  def add_lecturers; end
+  def add_lecturers
+    authorize @course, :manage_lecturers?
+  end
 
   def handle_add_lecturers
+    authorize @course, :manage_lecturers?
+
     unregistered_lecturers = Set[]
     registered_lecturers = []
 
@@ -112,6 +112,8 @@ class CoursesController < ApplicationController
   end
 
   def handle_add_students
+    authorize @course, :manage_students?
+
     unregistered_students = Set[]
     registered_students = []
 
@@ -168,10 +170,12 @@ class CoursesController < ApplicationController
   end
 
   def new
+    authorize Course.new, :create?
     @new_course = Course.new
   end
 
   def create
+    authorize Course.new, :create?
     response = params.require(:course).permit(:course_name, :grouped)
 
     @new_course = Course.new(
@@ -209,11 +213,15 @@ class CoursesController < ApplicationController
   end
 
   def settings
+    authorize @course, :update?
+
     @course = Course.find(params[:id])
     @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators)
   end
 
   def handle_settings
+    authorize @course, :update?
+
     @course.update(
       course_name: params[:course][:course_name],
       course_description: params[:course][:course_description],
@@ -236,6 +244,8 @@ class CoursesController < ApplicationController
   end
 
   def destroy
+    authorize @course, :destroy?
+
     @course.destroy
     redirect_to '/'
   end
@@ -259,6 +269,8 @@ class CoursesController < ApplicationController
   end
 
   def export_csv
+    authorize @course, :export_csv?
+
     @student_list = @course.enrolments.where(role: :student).includes(:user).map(&:user)
     @group_list = @course.grouped? ? @course.project_groups.includes(project_group_members: :user).to_a : []
 
@@ -320,30 +332,6 @@ class CoursesController < ApplicationController
 
   def students_with_projects
     @course.projects.not_lecturer_owned.approved.where(owner_type: 'User').pluck('owner_id')
-  end
-
-  def authorize_create
-    authorize Course.new, :create?
-  end
-
-  def authorize_destroy
-    authorize @course, :destroy?
-  end
-
-  def authorize_update
-    authorize @course, :update?
-  end
-
-  def authorize_manage_students
-    authorize @course, :manage_students?
-  end
-
-  def authorize_manage_lecturers
-    authorize @course, :manage_lecturers?
-  end
-
-  def authorize_export_csv
-    authorize @course, :export_csv?
   end
 
   def parse_csv_grouped(csv_obj, columns_to_check)
