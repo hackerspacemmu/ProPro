@@ -1,5 +1,5 @@
 <div class="topbar">
-  <a href="<%= course_path(@course) %>"><%= current_user.username %>'s Course View</a>
+  <a href="<%= course_path(@course) %>"><%= current_user.name %>'s Course View</a>
 
   <% if policy(@course).update? %>
     <div class="topbar-actions">

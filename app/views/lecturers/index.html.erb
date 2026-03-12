@@ -5,7 +5,7 @@
 <ul>
   <% @lecturers.each do |lecturer| %>
     <li>
-      <p><strong>Name: </strong><%= link_to lecturer.username, course_lecturer_path(@course, lecturer) %></p>
+      <p><strong>Name: </strong><%= link_to lecturer.name, course_lecturer_path(@course, lecturer) %></p>
     </li>
   <% end %>
 </ul>

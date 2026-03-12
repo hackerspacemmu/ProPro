@@ -3,7 +3,7 @@
 <% end %>
 <% content_for :body_class, "bg-gray-50" %>
 <% participant_name =
-  @participant_type == "group" ? @group.group_name : @student.username %>
+  @participant_type == "group" ? @group.group_name : @student.name %>
 
 <%# --- Breadcrumbs --- %>
 <% breadcrumb :course, @course %>
@@ -14,7 +14,7 @@
     <%= @group.group_name %>
     - Group Profile | ProPro
   <% else %>
-    <%= @student.username %>
+    <%= @student.name %>
     - Student Profile | ProPro
   <% end %>
 <% end %>
@@ -94,9 +94,9 @@
               justify-center text-3xl font-bold shrink-0 uppercase shadow-sm
             "
           >
-            <%= @student.username[0].upcase %>
+            <%= @student.name[0].upcase %>
           </div>
-          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.username %></h1>
+          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.name %></h1>
         <% else %>
           <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @group.group_name %></h1>
         <% end %>
@@ -141,14 +141,14 @@
                         justify-center text-sm font-bold text-gray-700 shrink-0 shadow-sm
                       "
                     >
-                      <%= member.user.username.first.upcase %>
+                      <%= member.user.name.first.upcase %>
                     </div>
 
                     <div class="flex flex-col">
-                      <strong class="text-base font-semibold text-gray-900"><%= member.user.username %></strong>
-                      <% if member.user.student_id.present? %>
+                      <strong class="text-base font-semibold text-gray-900"><%= member.user.name %></strong>
+                      <% if member.user.instid.present? %>
                         <span class="text-gray-700 text-sm font-mono mt-0.5">STUDENT ID:
-                          <%= member.user.student_id %></span>
+                          <%= member.user.instid %></span>
                       <% end %>
                       <p class="text-sm text-gray-900">
                         <%= member.user.email_address %>
@@ -165,13 +165,13 @@
             <%# Name %>
             <div class="flex flex-col items-start gap-2">
               <span class="font-medium text-gray-500 text-sm">Name</span>
-              <span class="text-gray-900 text-base font-medium"><%= @student.username %></span>
+              <span class="text-gray-900 text-base font-medium"><%= @student.name %></span>
             </div>
 
             <%# ID %>
             <div class="flex flex-col items-start gap-2">
               <span class="font-medium text-gray-500 text-sm">Student ID</span>
-              <span class="text-gray-900 text-base font-mono"><%= @student.student_id || "-" %></span>
+              <span class="text-gray-900 text-base font-mono"><%= @student.instid || "-" %></span>
             </div>
 
             <%# Email %>
@@ -239,9 +239,9 @@
                       justify-center text-xs font-bold text-gray-700 shrink-0
                     "
                   >
-                    <%= @supervisor.username.first.upcase %>
+                    <%= @supervisor.name.first.upcase %>
                   </div>
-                  <span class="text-gray-900 text-base font-medium"><%= @supervisor.username %></span>
+                  <span class="text-gray-900 text-base font-medium"><%= @supervisor.name %></span>
                 </div>
               </div>
             <% end %>

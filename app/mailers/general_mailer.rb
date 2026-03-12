@@ -10,14 +10,14 @@ class GeneralMailer < ApplicationMailer
   def Project_Status_Updated
     @course = params[:course]
     @project = params[:project]
-    @supervisor_username = params[:supervisor_username]
+    @supervisor_name = params[:supervisor_name]
 
     if @course.grouped?
       emails = @project.owner.project_group_members.joins(:user).pluck('user.email_address')
       @recipient = @project.owner.group_name
       mail(to: emails, Subject: 'Status Updated')
     else
-      @recipient = @project.owner.username
+      @recipient = @project.owner.name
       mail(to: @project.owner.email_address, Subject: 'Status Updated')
     end
   end
@@ -25,14 +25,14 @@ class GeneralMailer < ApplicationMailer
   def Topic_Status_Updated
     @course = params[:course]
     @topic = params[:topic]
-    @supervisor_username = params[:supervisor_username]
+    @supervisor_name = params[:supervisor_name]
 
-    @recipient = @topic.owner.username
+    @recipient = @topic.owner.name
     mail(to: @topic.owner.email_address, Subject: 'Status Updated')
   end
 
   def New_Student_Submission
-    @supervisor_username = params[:supervisor_username]
+    @supervisor_name = params[:supervisor_name]
     @owner_name = params[:owner_name]
     @course = params[:course]
     @project = params[:project]

@@ -6,14 +6,14 @@
         w-10 h-10 bg-[#d9d9d9] rounded-full shrink-0 flex justify-center items-center
         text-[20px] text-gray-700 font-medium
       ">
-      <%= lecturer.username.first.upcase %>
+      <%= lecturer.name.first.upcase %>
     </div>
 
     <div class="flex-1 min-w-0">
 
       <div class="flex items-center gap-[30px] mb-1 text-sm font-bold">
         <div class="text-[#454343] text-base truncate">
-          <%= lecturer.username %>
+          <%= lecturer.name %>
         </div>
 
         <% capacity_info = @lecturer_capacity_info[lecturer.id] %>
@@ -36,11 +36,11 @@
       </div>
 
       <div class="flex flex-col">
-        <div class="text-xs text-[#7e7e7e]/80 my-0.5 leading-[0.7]">
-          Statistics coming soon...
-        </div>
-        <div class="text-xs text-[#7e7e7e]/80 my-0.5 leading-[0.7]">
-        </div>
+        <% if @course.coordinators.include?(lecturer) %>
+          <div class="text-xs text-[#7e7e7e]/80 my-0.5 leading-[0.7]">
+            Coordinator
+          </div>
+        <% end %>
       </div>
 
     </div>

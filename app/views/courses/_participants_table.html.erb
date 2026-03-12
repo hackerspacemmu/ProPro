@@ -108,9 +108,9 @@
                               text-[10px] font-bold text-gray-600 align-middle mr-1
                               group-hover/member:bg-gray-300 transition-colors
                             ">
-                            <%= member.user.username.first.upcase %>
+                            <%= member.user.name.first.upcase %>
                           </div>
-                          <span class="text-xs text-gray-700 align-middle group-hover/member:underline"><%= member.user.username || "-" %></span>
+                          <span class="text-xs text-gray-700 align-middle group-hover/member:underline"><%= member.user.name || "-" %></span>
                         <% end %>
 
                         <%# Pending Badge (Inline, flows after name) %>
@@ -207,14 +207,14 @@
                           font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
                           group-hover/sup:text-gray-700 transition-colors
                         ">
-                        <%= supervisor.username.first.upcase %>
+                        <%= supervisor.name.first.upcase %>
                       </div>
                       <span
                         class="
                           truncate max-w-[150px] group-hover/sup:text-gray-700
                         "
-                        title="<%= supervisor.username %>">
-                        <%= supervisor.username %>
+                        title="<%= supervisor.name %>">
+                        <%= supervisor.name %>
                       </span>
                     <% end %>
                   <% else %>
@@ -257,9 +257,9 @@
                           inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200
                           text-[10px] font-bold text-gray-600 align-middle mr-1
                         ">
-                        <%= student.username.first.upcase %>
+                        <%= student.name.first.upcase %>
                       </div>
-                      <span class="align-middle group-hover/member:underline"><%= student.username || "-" %></span>
+                      <span class="align-middle group-hover/member:underline"><%= student.name || "-" %></span>
                     <% end %>
 
                     <% unless student.has_registered %>
@@ -287,7 +287,7 @@
                 <%# 2. Student ID %>
                 <td class="px-4 py-4 text-sm text-gray-500 align-top text-left">
                   <%= link_to participant_profile_course_path(@course, student.id, 'student'), class: "hover:text-gray-700" do %>
-                    <%= student.student_id || "-" %>
+                    <%= student.instid || "-" %>
                   <% end %>
                 </td>
 
@@ -360,14 +360,14 @@
                           font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
                           group-hover/sup:text-gray-700 transition-colors
                         ">
-                        <%= supervisor.username.first.upcase %>
+                        <%= supervisor.name.first.upcase %>
                       </div>
                       <span
                         class="
                           truncate max-w-[150px] group-hover/sup:text-gray-700
                         "
-                        title="<%= supervisor.username %>">
-                        <%= supervisor.username %>
+                        title="<%= supervisor.name %>">
+                        <%= supervisor.name %>
                       </span>
                     <% end %>
                   <% else %>

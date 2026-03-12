@@ -59,7 +59,7 @@ class ProjectsController < ApplicationController
     GeneralMailer.with(
       course: @course,
       project: @project,
-      supervisor_username: Current.user.username
+      supervisor_name: Current.user.name
     ).Project_Status_Updated.deliver_later
 
     redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
@@ -192,8 +192,8 @@ class ProjectsController < ApplicationController
 
     GeneralMailer.with(
       email_address: @project.supervisor.email_address,
-      supervisor_username: @project.supervisor.username,
-      owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
+      supervisor_name: @project.supervisor.name,
+      owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.name,
       course: @course,
       project: @project
     ).New_Student_Submission.deliver_later
@@ -295,8 +295,8 @@ class ProjectsController < ApplicationController
 
     if previous_supervisor_id != @project.supervisor.id || new_instance_created
       GeneralMailer.with(
-        supervisor_username: @project.supervisor.username,
-        owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
+        supervisor_name: @project.supervisor.name,
+        owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.name,
         course: @course,
         project: @project
       ).New_Student_Submission.deliver_later

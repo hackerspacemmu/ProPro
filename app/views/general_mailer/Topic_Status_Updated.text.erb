@@ -6,7 +6,7 @@ Hi, <%= @recipient %>
 <%= @course.course_name %>
 <%= @topic.topic_instances.last.title %>
 
-Your proposal has received a response from <%= @supervisor_username %>.
+Your proposal has received a response from <%= @supervisor_name %>.
 To view it, visit this link:
 
     <%= course_topic_url(@course, @topic) %>

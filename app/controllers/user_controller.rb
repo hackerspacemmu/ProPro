@@ -39,8 +39,8 @@ class UserController < ApplicationController
       return
     end
 
-    if params[:user][:username].blank?
-      redirect_back_or_to '/', alert: 'Username cannot be empty'
+    if params[:user][:name].blank?
+      redirect_back_or_to '/', alert: 'name cannot be empty'
       return
     end
 
@@ -56,7 +56,7 @@ class UserController < ApplicationController
 
     begin
       Current.user.update!(
-        username: params[:user][:username],
+        name: params[:user][:name],
         web_link: params[:user][:web_link],
         description: params[:user][:description]
       )
@@ -71,7 +71,7 @@ class UserController < ApplicationController
   end
 
   def create
-    response = params.permit(:password, :password_confirmation, :username, :token, :otp)
+    response = params.permit(:password, :password_confirmation, :name, :token, :otp)
     return if response[:token].blank?
 
     if response[:otp].blank?
@@ -108,7 +108,7 @@ class UserController < ApplicationController
 
     user = otp_instance.user
 
-    if response[:username].blank? && user.is_staff
+    if response[:name].blank? && user.is_staff
       redirect_back_or_to '/', alert: 'Name cannot be empty'
       return
     end
@@ -120,7 +120,7 @@ class UserController < ApplicationController
       else
         redirect_back_or_to '/', alert: 'Something went wrong'
       end
-    elsif user.update(has_registered: true, password: response[:password], username: response[:username].strip)
+    elsif user.update(has_registered: true, password: response[:password], name: response[:name].strip)
       redirect_to '/session/new', notice: 'Account successfully claimed'
     else
       redirect_back_or_to '/', alert: 'Something went wrong'

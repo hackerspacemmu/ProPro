@@ -1,9 +1,9 @@
 # Create Users
 lecturer1 = User.create!(
   email_address: 'lecturer1@test.com',
-  username: 'lecturer1',
+  name: 'lecturer1',
   has_registered: true,
-  student_id: nil,
+  instid: nil,
   web_link: 'test.com',
   is_staff: true,
   password: 'password123'
@@ -11,9 +11,9 @@ lecturer1 = User.create!(
 
 lecturer2 = User.create!(
   email_address: 'lecturer2@test.com',
-  username: 'lecturer2',
+  name: 'lecturer2',
   has_registered: true,
-  student_id: nil,
+  instid: nil,
   web_link: 'test.com',
   is_staff: true,
   password: 'password123'
@@ -21,9 +21,9 @@ lecturer2 = User.create!(
 
 lecturer3 = User.create!(
   email_address: 'lecturer3@test.com',
-  username: 'lecturer3',
+  name: 'lecturer3',
   has_registered: true,
-  student_id: nil,
+  instid: nil,
   web_link: 'test.com',
   is_staff: true,
   password: 'password123'
@@ -31,135 +31,135 @@ lecturer3 = User.create!(
 
 student1 = User.create!(
   email_address: 'student1@test.com',
-  username: 'student1',
+  name: 'student1',
   has_registered: true,
-  student_id: '1191202123',
+  instid: '1191202123',
   is_staff: false,
   password: 'password123'
 )
 
 student2 = User.create!(
   email_address: 'student2@test.com',
-  username: 'student2',
+  name: 'student2',
   has_registered: true,
-  student_id: '1191202124',
+  instid: '1191202124',
   is_staff: false,
   password: 'password123'
 )
 
 student3 = User.create!(
   email_address: 'student3@test.com',
-  username: 'student3',
+  name: 'student3',
   has_registered: true,
-  student_id: '1191202125',
+  instid: '1191202125',
   is_staff: false,
   password: 'password123'
 )
 
 student4 = User.create!(
   email_address: 'student4@test.com',
-  username: 'student4',
+  name: 'student4',
   has_registered: true,
-  student_id: '1191202126',
+  instid: '1191202126',
   is_staff: false,
   password: 'password123'
 )
 
 student5 = User.create!(
   email_address: 'student5@test.com',
-  username: 'student5',
+  name: 'student5',
   has_registered: true,
-  student_id: '1191202126',
+  instid: '1191202126',
   is_staff: false,
   password: 'password123'
 )
 
 student6 = User.create!(
   email_address: 'student6@test.com',
-  username: 'student6',
+  name: 'student6',
   has_registered: true,
-  student_id: '1191202127',
+  instid: '1191202127',
   is_staff: false,
   password: 'password123'
 )
 
 student7 = User.create!(
   email_address: 'student7@test.com',
-  username: 'student7',
+  name: 'student7',
   has_registered: true,
-  student_id: '1191202128',
+  instid: '1191202128',
   is_staff: false,
   password: 'password123'
 )
 
 student8 = User.create!(
   email_address: 'student8@test.com',
-  username: 'student8',
+  name: 'student8',
   has_registered: true,
-  student_id: '1191202129',
+  instid: '1191202129',
   is_staff: false,
   password: 'password123'
 )
 
 student9 = User.create!(
   email_address: 'student9@test.com',
-  username: 'student9',
+  name: 'student9',
   has_registered: true,
-  student_id: '1191202130',
+  instid: '1191202130',
   is_staff: false,
   password: 'password123'
 )
 
 student10 = User.create!(
   email_address: 'student10@test.com',
-  username: 'student10',
+  name: 'student10',
   has_registered: true,
-  student_id: '1191202131',
+  instid: '1191202131',
   is_staff: false,
   password: 'password123'
 )
 
 student11 = User.create!(
   email_address: 'student11@test.com',
-  username: 'student11',
+  name: 'student11',
   has_registered: true,
-  student_id: '1191202132',
+  instid: '1191202132',
   is_staff: false,
   password: 'password123'
 )
 
 student12 = User.create!(
   email_address: 'student12@test.com',
-  username: 'student12',
+  name: 'student12',
   has_registered: true,
-  student_id: '1191202133',
+  instid: '1191202133',
   is_staff: false,
   password: 'password123'
 )
 
 student13 = User.create!(
   email_address: 'student13@test.com',
-  username: 'student13',
+  name: 'student13',
   has_registered: true,
-  student_id: '1191202133',
+  instid: '1191202133',
   is_staff: false,
   password: 'password123'
 )
 
 student14 = User.create!(
   email_address: 'student14@test.com',
-  username: 'student14',
+  name: 'student14',
   has_registered: true,
-  student_id: '1191202134',
+  instid: '1191202134',
   is_staff: false,
   password: 'password123'
 )
 
 student15 = User.create!(
   email_address: 'student15@test.com',
-  username: 'student15',
+  name: 'student15',
   has_registered: true,
-  student_id: '1191202135',
+  instid: '1191202135',
   is_staff: false,
   password: 'password123'
 )

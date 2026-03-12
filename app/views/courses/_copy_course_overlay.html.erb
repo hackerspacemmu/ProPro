@@ -34,11 +34,11 @@
 
                 <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
                   <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                    <%= course.coordinators.first&.username&.first&.upcase || "?" %>
+                    <%= course.coordinators.first&.name&.first&.upcase || "?" %>
                   </div>
                   <span class="text-xs font-medium text-gray-400">
                     Coordinator:
-                    <span class="text-gray-600"><%= course.coordinators.first&.username || "None" %></span>
+                    <span class="text-gray-600"><%= course.coordinators.first&.name || "None" %></span>
                   </span>
                 </div>
               </div>

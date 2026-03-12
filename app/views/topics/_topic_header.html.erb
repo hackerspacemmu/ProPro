@@ -57,9 +57,9 @@
                   text-white text-xs font-bold uppercase shrink-0
                 "
               >
-                <%= owner.username[0].upcase %>
+                <%= owner.name[0].upcase %>
               </span>
-              <span class="break-words"><%= owner.username %></span>
+              <span class="break-words"><%= owner.name %></span>
             </p>
           <% else %>
             <% topic.owner.users.each do |user| %>
@@ -70,9 +70,9 @@
                     text-white text-xs font-bold uppercase shrink-0
                   "
                 >
-                  <%= user.username[0].upcase %>
+                  <%= user.name[0].upcase %>
                 </span>
-                <span class="break-words"><%= user.username %></span>
+                <span class="break-words"><%= user.name %></span>
               </p>
             <% end %>
           <% end %>
@@ -202,7 +202,7 @@
                   "bg-gray-400"
                 end %>
               <span class="w-2.5 h-2.5 rounded-full <%= dot_color %> shrink-0"></span>
-              <span class="truncate"><%= username(current_instance.last_status_change_by) || "Not changed" %></span>
+              <span class="truncate"><%= name(current_instance.last_status_change_by) || "Not changed" %></span>
             <% else %>
               <div class="flex items-center gap-1 truncate">
                 <%= image_tag("pending.svg", class: "w-4 h-4 opacity-50 shrink-0") %>
@@ -280,7 +280,7 @@
           <div class="flex items-center gap-2 min-w-0">
             <% editor_id = current_instance.last_edit_by || current_instance.created_by_id %>
             <%= image_tag("edit.svg", class: "w-4 h-4 opacity-50 shrink-0") %>
-            <span class="truncate"><%= username(editor_id) || "Not changed" %></span>
+            <span class="truncate"><%= name(editor_id) || "Not changed" %></span>
           </div>
         </div>
 

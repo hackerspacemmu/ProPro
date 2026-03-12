@@ -360,9 +360,9 @@ class CoursesController < ApplicationController
       group = row['Group'].strip
 
       if ret.key?(group)
-        ret[group].add({ name: row['Last name'].strip, student_id: row['ID number'].strip, email_address: row['Email address'].strip })
+        ret[group].add({ name: row['Last name'].strip, instid: row['ID number'].strip, email_address: row['Email address'].strip })
       else
-        ret[group] = Set[{ name: row['Last name'].strip, student_id: row['ID number'].strip, email_address: row['Email address'].strip }]
+        ret[group] = Set[{ name: row['Last name'].strip, instid: row['ID number'].strip, email_address: row['Email address'].strip }]
       end
     end
 
@@ -377,16 +377,16 @@ class CoursesController < ApplicationController
         new_user = User.find_by(email_address: group_member[:email_address], is_staff: false)
 
         if new_user
-          new_user.update!(student_id: group_member[:student_id])
+          new_user.update!(instid: group_member[:instid])
 
           registered_students.push(group_member[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
         else
           new_user = User.create!(
             email_address: group_member[:email_address],
-            username: group_member[:name],
+            name: group_member[:name],
             password: SecureRandom.base64(24),
             has_registered: false,
-            student_id: group_member[:student_id],
+            instid: group_member[:instid],
             is_staff: false
           )
 
@@ -456,7 +456,7 @@ class CoursesController < ApplicationController
         raise StandardError, 'Invalid CSV file' if column.nil?
       end
 
-      ret.add({ name: row['Last name'].strip, student_id: row['ID number'].strip, email_address: row['Email address'].strip })
+      ret.add({ name: row['Last name'].strip, instid: row['ID number'].strip, email_address: row['Email address'].strip })
     end
 
     ret
@@ -467,16 +467,16 @@ class CoursesController < ApplicationController
       new_user = User.find_by(email_address: student[:email_address], is_staff: false)
 
       if new_user
-        new_user.update!(student_id: student[:student_id])
+        new_user.update!(instid: student[:instid])
 
         registered_students.push(student[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
       else
         new_user = User.create!(
           email_address: student[:email_address],
-          username: student[:name],
+          name: student[:name],
           password: SecureRandom.base64(24),
           has_registered: false,
-          student_id: student[:student_id],
+          instid: student[:instid],
           is_staff: false
         )
 
@@ -516,7 +516,7 @@ class CoursesController < ApplicationController
           password: SecureRandom.base64(24),
           has_registered: false,
           is_staff: true,
-          username: "Lecturer-#{SecureRandom.hex(2)}"
+          name: "Lecturer-#{SecureRandom.hex(2)}"
         )
 
         new_otp_instance = Otp.create!(
@@ -591,11 +591,11 @@ class CoursesController < ApplicationController
     group.project_group_members.each do |member|
       user = member.user
       row = [
-        user.username || '',
-        user.student_id || '',
+        user.name || '',
+        user.instid || '',
         user.email_address || '',
         group.group_name || '',
-        supervisor&.username || '',
+        supervisor&.name || '',
         supervisor&.email_address || '',
         project&.current_title || '',
         project_status.humanize
@@ -614,10 +614,10 @@ class CoursesController < ApplicationController
     field_values = get_project_details_values(current_instance, template_fields)
 
     row = [
-      student.username || '',
-      student.student_id || '',
+      student.name || '',
+      student.instid || '',
       student.email_address || '',
-      supervisor&.username || '',
+      supervisor&.name || '',
       supervisor&.email_address || '',
       project&.current_title || '',
       project_status.humanize

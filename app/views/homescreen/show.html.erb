@@ -40,7 +40,7 @@
 >
 
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-1"><%= Current.user.username %>'s Dashboard</h1>
+    <h1 class="text-3xl font-bold text-gray-900 mb-1"><%= Current.user.name %>'s Dashboard</h1>
     <h3 class="text-base text-gray-500 font-normal">Your Courses</h3>
   </div>
 
@@ -94,11 +94,11 @@
                   font-bold text-gray-500
                 "
               >
-                <%= course.coordinators.first&.username&.first&.upcase || "?" %>
+                <%= course.coordinators.first&.name&.first&.upcase || "?" %>
               </div>
               <span class="text-xs font-medium text-gray-400">
                 Coordinator:
-                <span class="text-gray-600"><%= course.coordinators.first&.username || "None" %></span>
+                <span class="text-gray-600"><%= course.coordinators.first&.name || "None" %></span>
               </span>
             </div>
           </div>

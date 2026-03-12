@@ -170,11 +170,11 @@ class TopicsController < ApplicationController
     end
 
     GeneralMailer.with(
-      username: @topic.owner.username,
+      name: @topic.owner.name,
       email_address: @topic.owner.email_address,
       course: @course,
       topic: @topic,
-      supervisor_username: Current.user.username
+      supervisor_name: Current.user.name
     ).Topic_Status_Updated.deliver_later
 
     redirect_to course_topic_path(@course, @topic), notice: 'Status updated.'

@@ -103,7 +103,7 @@
                 <% end %>
                 <% @lecturer_options.each do |lecturer_enrolment| %>
                   <% lecturer = lecturer_enrolment.user %>
-                  <optgroup label="<%= lecturer.username %>" class="font-bold text-gray-900">
+                  <optgroup label="<%= lecturer.name %>" class="font-bold text-gray-900">
                     <% approved_topics =
                       Topic.where(
                         status: :approved,
@@ -118,7 +118,7 @@
                         value="<%= topic.id %>"
                         <%= 'selected' if topic.id == @selected_topic_id %>
                       >
-                        <%= "#{lecturer.username} - #{current_instance&.title || "Untitled Topic"}" %>
+                        <%= "#{lecturer.name} - #{current_instance&.title || "Untitled Topic"}" %>
                       </option>
                     <% end %>
 
@@ -127,7 +127,7 @@
                       <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>
                       class="text-blue-600 font-medium"
                     >
-                      <%= "#{lecturer.username} - Own Proposal" %>
+                      <%= "#{lecturer.name} - Own Proposal" %>
                     </option>
                   </optgroup>
                 <% end %>
