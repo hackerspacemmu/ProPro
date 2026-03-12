@@ -2,7 +2,7 @@ require 'csv'
 require 'securerandom'
 
 class CoursesController < ApplicationController
-  before_action :set_course, only: [:show, :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv, :profile]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile]
   def show
     authorize @course
 
