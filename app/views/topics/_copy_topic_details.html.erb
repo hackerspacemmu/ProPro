@@ -79,7 +79,7 @@
                     <% if is_valid_choice %>
                       <option value="<%= instance_field.id %>"
                               data-label="<%= instance_field.project_template_field.label %>"
-                              data-value="<%= source_value %>"
+                              data-value="<%= instance_field.value %>" 
                               <%= "selected" if instance_field == initial_field %>>
                         <%= instance_field.project_template_field.label %>
                       </option>
