@@ -59,6 +59,7 @@
 
                 <select name="template_field[<%= field.id %>][instance_field_id]" 
                         data-action="change->overlay#updateDropdown"
+                        data-target-field-id="fields_<%= field.id %>"
                         class="block w-full rounded-t-lg border border-gray-100 bg-gray-50 px-4 py-4 pr-10 text-base transition-all focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   <option value="">
@@ -100,7 +101,10 @@
     </div>
 
     <div class="flex-none mt-6 pt-4 flex justify-end">
-      <%= f.submit "Copy Details", class: "px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm transition" %>
+      <button type="button" data-action="click->overlay#copyTopicsDetails" 
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm transition">
+        Copy Details
+      </button>
     </div>
   <% end %>
 <% end %>
