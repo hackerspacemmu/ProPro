@@ -43,16 +43,17 @@ class Course < ApplicationRecord
 
   before_validation :null_number_of_updates_if_not_used
 
+  def generate_coursecode!
+    sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
+    self.coursecode = sqids.encode([id, Time.now.to_i])
+    save!
+  end
+
   private
 
   def null_number_of_updates_if_not_used
     return if use_progress_updates
 
     self.number_of_updates = nil
-  end
-
-  def generate_coursecode
-    sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
-    self.coursecode = sqids.encode([id, Time.now.to_i])
   end
 end

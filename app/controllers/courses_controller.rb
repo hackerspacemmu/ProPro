@@ -312,6 +312,13 @@ class CoursesController < ApplicationController
     end
   end
 
+  def update_coursecode
+    @course = Course.find(params[:id])
+    @course.generate_coursecode!
+
+    render partial: 'courses/course_code_form', locals: { course: @course }
+  end
+
   private
 
   def set_course

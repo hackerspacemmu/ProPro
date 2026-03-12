@@ -1,0 +1,20 @@
+<%= turbo_frame_tag "course_code_field" do %>
+  <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6">
+    <%= form_with url: update_coursecode_course_path(@course), model: @course, method: :post  do |form| %>
+      <%= form.label :coursecode,
+        'Course Join Code & Invite Link',
+        class: "block text-sm font-medium text-gray-700" %>
+      <div class="mt-1 flex gap-6" >
+        <%= form.text_field :coursecode,
+          required: true,
+          readonly: true,
+          disabled: true,
+          class: "appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+        <button
+                class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+                Re-Generate Join Code for Course
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>
