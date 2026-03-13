@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 /* Force EasyMDE Preview Headings to restore their size */
+.editor-preview {
+  padding: 0 !important;
+}
+
 .editor-preview h1 {
   font-size: 2em !important;
   font-weight: 700 !important;
