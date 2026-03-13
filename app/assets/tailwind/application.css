@@ -64,3 +64,43 @@
   padding-left: 1.5em !important;
   margin-bottom: 1em !important;
 }
+
+.card-markdown h1 {
+  font-size: 1em !important;
+  font-weight: 700 !important;
+  margin-top: 0.25em !important;
+  margin-bottom: 0.25em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h2 {
+  font-size: 0.75em !important;
+  font-weight: 700 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h3 {
+  font-size: 0.5em !important;
+  font-weight: 700 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h4 {
+  font-size: 0.4em !important;
+  font-weight: 700 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h5 {
+  font-size: 0.35em !important;
+  font-weight: 700 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}

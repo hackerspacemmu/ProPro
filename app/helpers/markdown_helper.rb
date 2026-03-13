@@ -23,4 +23,15 @@ module MarkdownHelper
     markdown = Redcarpet::Markdown.new(renderer, extensions)
     markdown.render(text).html_safe
   end
+
+  def plaintext_markdown_preview(markdown_text, length: 200)
+    html = render_markdown(markdown_text)
+    text = strip_tags(html)
+    text = text.gsub(/^[#>\-\*\+]+\s+/, '')
+               .gsub(/[*_~`]/, '')
+               .strip
+    truncated_text = truncate(text, length: length)
+
+    truncated_text.gsub("\n", '<br>').html_safe
+  end
 end
