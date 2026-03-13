@@ -62,6 +62,9 @@
               rescue JSON::ParserError
                 display_text = field.value
               end
+            elsif field.project_template_field.textarea?
+              display_text = field.value
+              is_markdown = true
             else
               display_text = field.value
             end
@@ -71,16 +74,19 @@
           <%# Field value container %>
           <div
             class="
-              p-4 md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
-              md:text-lg font-medium whitespace-pre-wrap leading-relaxed min-w-0
+              !p-4 !md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
+              md:text-lg font-medium leading-relaxed min-w-0 !bg-white
+              <%= is_markdown ? 'editor-preview' : 'whitespace-pre-wrap' %>
             "
-          ><% if display_text.present? %><%= display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
+          ><% if display_text.present? %><%= is_markdown ? render_markdown(display_text) : display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
 
         </div>
       <% end %>
       <% if @is_student %>
-        <%= link_to "Propose Based on this Topic", new_course_project_path(@course, topic_id: topic.id), 
-        class: "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+        <%= link_to "Propose Based on this Topic",
+        new_course_project_path(@course, topic_id: topic.id),
+        class:
+          "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
       <% end %>
     </div>
   </div>
