@@ -1,6 +1,7 @@
 require 'csv'
 require 'securerandom'
 
+# Handles CRUD for courses
 class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile]
   before_action :authorize_create, only: %i[new create]
@@ -94,7 +95,7 @@ class CoursesController < ApplicationController
       return
     end
 
-    lecturer_emails = params[:invited_lecturers].split(';').map { |email| email.strip }
+    lecturer_emails = params[:invited_lecturers].split(';').map(&:strip)
 
     begin
       ActiveRecord::Base.transaction do
