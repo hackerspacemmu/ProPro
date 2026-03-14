@@ -91,3 +91,5 @@ gem 'erb-formatter', '~> 0.7.3'
 
 # Parse markdown to HTML
 gem 'redcarpet', '~> 3.6.1'
+
+gem 'htmldiff'

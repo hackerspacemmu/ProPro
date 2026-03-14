@@ -125,3 +125,18 @@
   margin-bottom: 0.2em !important;
   line-height: 0.5 !important;
 }
+/* Style the Rich Diff Output */
+.rich-diff-viewer del {
+  background-color: #fecaca; /* Tailwind red-200 */
+  color: #7f1d1d; /* Tailwind red-900 */
+  text-decoration: line-through;
+  text-decoration-color: #f87171; /* Tailwind red-400 */
+  text-decoration-thickness: 2px;
+}
+
+.rich-diff-viewer ins {
+  background-color: #bbf7d0; /* Tailwind green-200 */
+  color: #14532d; /* Tailwind green-900 */
+  text-decoration: none;
+  font-weight: 500;
+}

@@ -139,6 +139,7 @@ GEM
     gretel (5.0.1)
       actionview (>= 6.1)
       railties (>= 6.1)
+    htmldiff (0.0.1)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.1.0)
@@ -381,11 +382,12 @@ DEPENDENCIES
   csv
   debug
   diff-lcs
-  factory_bot_rails
-  faker
   erb-formatter (~> 0.7.3)
   erb_lint
+  factory_bot_rails
+  faker
   gretel
+  htmldiff
   importmap-rails
   jbuilder
   propshaft
