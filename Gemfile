@@ -6,13 +6,10 @@ gem 'csv', require: false
 gem "rails", ">= 8.0.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
-<<<<<<< HEAD
+
 # Use postgres as the database for Active Record
 gem "pg"
-=======
-# Use sqlite3 as the database for Active Record
-gem "sqlite3", ">= 2.1"
->>>>>>> 44d76bb28e326ad72a0790e88e246de55e4998d9
+
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -48,24 +45,9 @@ gem "solid_queue"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-<<<<<<< HEAD
-=======
-# Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
-#gem "kamal", require: false
-
->>>>>>> 44d76bb28e326ad72a0790e88e246de55e4998d9
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
 
-<<<<<<< HEAD
-=======
-# Formatting and linting for Ruby code
-gem "rubocop", require: false
-
-# Linting for ERB and HTML Files
-gem 'erb_lint', require: false
-
->>>>>>> 44d76bb28e326ad72a0790e88e246de55e4998d9
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 
