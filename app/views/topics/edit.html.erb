@@ -1,63 +1,196 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "projects" %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
+
+<% content_for :hide_toggler, true %>
+
 <% breadcrumb :edit_topic, @topic %>
+<% content_for :title,
+"Edit Topic - #{@topic.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-<% content_for :title, "Edit Topic - #{@topic.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
-<main class="project-edit">
-  <header class="edit-header">
-    <div class="edit-header-row">
-      <h1 class="edit-title">Edit Topic <%= image_tag("edit.svg") %></h1>
+<main
+  class="
+    min-h-screen bg-gray-50 w-full pt-2 pb-12 px-4 sm:px-6 md:px-8 transition-all
+    duration-300
+  "
+>
+  <div
+    class="
+      mx-auto w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:w-10/12 2xl:w-8/12
+    "
+  >
+
+    <%# --- Header Section --- %>
+    <div class="mb-8">
+      <%= link_to course_topic_path(@course, @topic), class: "group inline-flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
+        <div
+          class="
+            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
+            justify-center group-hover:border-green-300 shadow-sm transition-all
+          "
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            /></svg>
+        </div>
+        Back to Topic
+      <% end %>
+
+      <h1
+        class="
+          text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
+          justify-center
+        "
+      >
+        Edit Topic
+        <%= image_tag(
+          "edit.svg",
+          class: "w-5 h-5 sm:w-6 sm:h-6 opacity-60 hidden sm:inline-block mt-1",
+        ) %>
+      </h1>
+
+      <p class="text-gray-500 mt-3 text-sm sm:text-base text-center">
+        Update your topic details and information below.
+      </p>
     </div>
-    <p class="edit-description">Update your project details and information below.</p>
-  </header>
 
-  <%= form_with(model: [@course, @topic], url: course_topic_path(@course, @topic), method: :patch, local: true, class: "edit-form") do |form| %>
+    <%# --- Form Card --- %>
+    <div
+      class="
+        bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100
+        overflow-hidden
+      "
+    >
+      <div class="p-5 sm:p-8 md:p-10">
 
-    <div class="fields-container">
-      <% @template_fields.each do |field| %>
-        <div class="field-row">
-          <%= label_tag "fields_#{field.id}", field.label, class: "field-label", title: field.hint %>
+        <%= form_with(model: [@course, @topic], url: course_topic_path(@course, @topic), method: :patch, local: true, class: "space-y-8") do |form| %>
 
-          <% if field.hint.present? %>
-            <p class="field-hint"><%= field.hint %></p>
-          <% end %>
+          <%# Shared Input Classes %>
+          <% input_classes =
+            "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
+          <% label_classes =
+            "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2" %>
 
-          <% existing_value = @existing_values[field.id] %>
+          <div class="flex flex-col gap-8">
+            <% @template_fields.each do |field| %>
+              <div class="flex flex-col group">
 
-          <% case field.field_type %>
-          <% when "shorttext" %>
-            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true, autocomplete: "off" %>
-          <% when "textarea" %>
-            <%= text_area_tag "fields[#{field.id}]", existing_value, class: "form-control", placeholder: field.hint, required: true %>
-          <% when "dropdown" %>
-            <% options = field.option_list %>
-            <%= select_tag "fields[#{field.id}]",
-                          options_for_select(options, existing_value),
-                          prompt: "Select an option",
-                          class: "form-control",
-                          required: true %>
-          <% when "radio" %>
-            <div class="radio-group">
-            <% options = field.option_list %>
-            <% options.each_with_index do |option, idx| %>
-              <div class="radio-option">
-                <%= radio_button_tag "fields[#{field.id}]", option, (option.to_s == existing_value.to_s), id: "field_#{field.id}_#{idx}", required: true %>
-                <%= label_tag "field_#{field.id}_#{idx}", option %>
+                <%# Label %>
+                <%= label_tag "fields_#{field.id}",
+                field.label,
+                class: label_classes,
+                title: field.hint %>
+
+                <%# Hint %>
+                <% if field.hint.present? %>
+                  <p class="text-[11px] sm:text-xs text-gray-500 mb-3 -mt-1"><%= field.hint %></p>
+                <% end %>
+
+                <% existing_value = @existing_values[field.id] %>
+
+                <%# Input Logic %>
+                <% case field.field_type %>
+                <% when "shorttext" %>
+                  <%= text_field_tag "fields[#{field.id}]",
+                  existing_value,
+                  class: input_classes,
+                  placeholder: field.hint,
+                  required: true,
+                  autocomplete: "off" %>
+
+                <% when "textarea" %>
+                  <%= text_area_tag "fields[#{field.id}]",
+                  existing_value,
+                  class: "#{input_classes} resize-none overflow-hidden",
+                  data: {
+                    controller: "textarea-resize",
+                    action: "input->textarea-resize#resize",
+                  },
+                  placeholder: field.hint,
+                  rows: 2,
+                  required: true %>
+
+                <% when "dropdown" %>
+                  <div class="relative">
+                    <% options = field.option_list %>
+                    <%= select_tag "fields[#{field.id}]",
+                    options_for_select(options, existing_value),
+                    prompt: "Select an option",
+                    class: "#{input_classes} appearance-none pr-10 cursor-pointer",
+                    required: true %>
+                    <div
+                      class="
+                        absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
+                        text-gray-500
+                      "
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 9l-7 7-7-7"
+                        /></svg>
+                    </div>
+                  </div>
+
+                <% when "radio" %>
+                  <div class="flex flex-col gap-3 mt-1">
+                    <% options = field.option_list %>
+                    <% options.each_with_index do |option, idx| %>
+                      <label class="flex items-center gap-3 cursor-pointer group/radio">
+                        <%= radio_button_tag "fields[#{field.id}]",
+                        option,
+                        (option.to_s == existing_value.to_s),
+                        id: "field_#{field.id}_#{idx}",
+                        required: true,
+                        class:
+                          "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer" %>
+                        <span
+                          class="
+                            text-sm sm:text-base text-gray-700 font-medium group-hover/radio:text-gray-900
+                          "
+                        ><%= option %></span>
+                      </label>
+                    <% end %>
+                  </div>
+
+                <% else %>
+                  <%= text_field_tag "fields[#{field.id}]",
+                  existing_value,
+                  class: input_classes,
+                  required: true,
+                  autocomplete: "off" %>
+                <% end %>
+
               </div>
             <% end %>
-            </div>
-          <% else %>
-            <%= text_field_tag "fields[#{field.id}]", existing_value, class: "form-control", required: true, autocomplete: "off" %>
-          <% end %>
-        </div>
-      <% end %>
+          </div>
+
+          <%# --- Form Actions --- %>
+          <div
+            class="
+              pt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center
+              sm:justify-end gap-3 sm:gap-4 mt-8
+            "
+          >
+
+            <%= link_to "Cancel",
+            course_topic_path(@course, @topic),
+            class:
+              "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
+
+            <%= submit_tag "Update Topic",
+            class:
+              "w-full sm:w-auto cursor-pointer bg-slate-600 hover:bg-slate-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
+
+          </div>
+
+        <% end %>
+      </div>
     </div>
 
-    <div class="form-actions">
-      <%= link_to "← Back to Topic", course_path(@course), class: "btn btn-secondary" %>
-      <%= submit_tag "Submit", class: "btn btn-primary" %>
-    </div>
-  <% end %>
+  </div>
 </main>

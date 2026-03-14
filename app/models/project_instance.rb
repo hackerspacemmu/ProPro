@@ -19,17 +19,17 @@ class ProjectInstance < ApplicationRecord
   before_validation :set_project_type
   after_save :update_parent_project
 
-  def supervisor
-    return nil unless enrolment_id.present?
+  validates :version, presence: true, numericality: { only_integer: true, greater_than: 0 }
+  validates :title, presence: true
 
-    enrolment = Enrolment.find_by(id: enrolment_id)
+  def supervisor
     enrolment&.user
   end
 
   private
 
   def update_parent_project
-    return unless project.project_instances.order(created_at: :asc).last == self
+    return unless project.project_instances.order(version: :desc, created_at: :desc).first == self
 
     project.update(
       status: status,

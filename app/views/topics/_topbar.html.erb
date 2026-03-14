@@ -1,7 +1,7 @@
 <div class="topbar">
   <a href="<%= course_path(@course) %>"><%= current_user.username %>'s Course View</a>
 
-  <% if @current_user_enrolment&.coordinator? %>
+  <% if policy(@course).update? %>
     <div class="topbar-actions">
       <a href="<%= settings_course_path(@course) %>" class="topbar-icon" title="Edit Course Settings">
         <%= image_tag "settings.svg" %>

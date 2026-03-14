@@ -26,10 +26,9 @@
 
   card_classes =
     "group block relative w-full h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
+  %>
 
-  is_my_topic = topic.owner == current_user
-  can_view = is_my_topic || topic_viewable_by_current_user?(@course, topic) %>
-  <% if can_view %>
+  <% if policy(topic).show? %>
     <%= link_to path, class: card_classes do %>
       <%= render "courses/topic_card_contents",
       topic: topic,

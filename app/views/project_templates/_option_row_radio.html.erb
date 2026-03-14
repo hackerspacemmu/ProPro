@@ -1,13 +1,17 @@
-<div class="radio-option-cell"
-     data-field-index="<%= field_index %>"
-     data-option-index="<%= option_index %>">
-  <input type="radio"
-         name="preview_field_<%= field_index %>"
-         disabled>
-  <input type="text"
-         name="project_template[project_template_fields_attributes][<%= field_index %>][options][]"
-         value="<%= option_value %>"
-         placeholder="Option <%= option_index + 1 %>"
-         autocomplete="radio-option">
+<div
+  class="
+    flex items-center gap-[0.5em] py-[0.25em] rounded-sm transition-bg ease
+  "
+  data-field-index="<%= field_index %>"
+  data-option-index="<%= option_index %>"
+>
+  <input type="radio" name="preview_field_<%= field_index %>" disabled>
+  <input
+    type="text"
+    name="project_template[project_template_fields_attributes][<%= field_index %>][options][]"
+    value="<%= option_value %>"
+    placeholder="Option <%= option_index + 1 %>"
+    autocomplete="radio-option"
+  >
   <button type="button" class="remove-option">×</button>
 </div>

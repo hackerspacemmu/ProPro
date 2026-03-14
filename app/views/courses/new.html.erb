@@ -1,44 +1,151 @@
 <% content_for :stylesheets do %>
-    <%= stylesheet_link_tag "courses" %>
-    <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
+<% breadcrumb :new_course %>
+<% content_for :hide_toggler, true %>
 <% content_for :title, "Create Course | ProPro" %>
+<% content_for :body_class, "bg-gray-100" %>
 
-<body>
-    <div class="main">
-        <h1>Create Course</h1>
-        <br>
+<div
+  class="
+    flex-1 bg-gray-100 flex flex-col items-center py-0 mb-12 mt-8 px-4 sm:px-6
+    lg:px-8
+  "
+>
 
-        <div class="container">
-            <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-            <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-            <br>
+  <div class="mx-auto w-[95%] mb-8 px-4">
+    <h1 class="text-center text-3xl font-extrabold text-gray-900">
+      Create Course
+    </h1>
+  </div>
 
-            <%= form_with url: courses_path, model:@new_course, method: :post do |form| %>
-            <% if @new_course.errors.any? %>
-            <div id="error_explanation">
-                <h2><%= pluralize(@new_course.errors.count, "error") %> prohibited this course from being saved:</h2>
-                <ul>
-                    <% @new_course.errors.full_messages.each do |message| %>
-                    <li><%= message %></li>
-                    <% end %>
-                </ul>
-            </div>
-            <% end %>
+  <div class="sm:mx-auto sm:w-full sm:max-w-3xl">
+    <div
+      class="
+        bg-gray-50 py-10 px-6 shadow-md rounded-2xl sm:px-12 border border-gray-100
+      "
+    >
 
-            <p><%= form.label :course_name, "Course Name:" %></p>
-            <%= form.text_field :course_name, required: true, autofocus: true, placeholder: "Enter Course Name" %>
-            <br>
-
-            <p>Students would work?</p>
-            <%= form.radio_button :grouped, "true", required: true %>
-            <%= form.label :grouped, "In groups", value: true %>
-            <%= form.radio_button :grouped, "false", required: true %>
-            <%= form.label :grouped, "By themselves", value: false %>
-            <br>
-
-            <%= form.submit "Create Course" %>
-            <% end %>
+      <% if flash[:alert] %>
+        <div
+          class="
+            mb-6 p-4 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200 flex
+            items-center
+          "
+        >
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            /></svg>
+          <%= flash[:alert] %>
         </div>
+      <% end %>
+
+      <% if flash[:notice] %>
+        <div
+          class="
+            mb-6 p-4 text-sm text-green-700 bg-green-50 rounded-lg border border-green-200
+            flex items-center
+          "
+        >
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            /></svg>
+          <%= flash[:notice] %>
+        </div>
+      <% end %>
+
+      <%= form_with url: courses_path, model: @new_course, method: :post do |form| %>
+
+        <% if @new_course.errors.any? %>
+          <div class="mb-6 p-4 rounded-lg bg-red-50 border-l-4 border-red-500">
+            <div class="flex">
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  There were errors with your submission
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc pl-5 space-y-1">
+                    <% @new_course.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="space-y-8">
+
+          <div>
+            <%= form.label :course_name,
+                       "Course Name",
+                       class: "block text-sm font-bold text-gray-700 mb-2" %>
+            <div class="relative rounded-md">
+              <%= form.text_field :course_name,
+                              id: "course_name",
+                              required: true,
+                              autofocus: true,
+                              placeholder: "Enter Course Name",
+                              class:
+                                "block w-full bg-zinc-50 rounded-lg border-gray-400 py-3 px-4 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm shadow-sm transition duration-150 ease-in-out" %>
+            </div>
+          </div>
+
+          <p class="text-base font-semibold text-gray-900 mb-4">How will students work?</p>
+          <fieldset class="bg-zinc-50 rounded-xl p-6 border border-gray-100">
+
+            <div class="space-y-4">
+
+              <div class="flex items-start">
+                <div class="flex h-6 items-center">
+                  <%= form.radio_button :grouped,
+                                    "true",
+                                    required: true,
+                                    class:
+                                      "h-5 w-5 border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer" %>
+                </div>
+                <div class="ml-3 text-sm leading-6">
+                  <%= form.label :grouped,
+                             "In groups",
+                             value: true,
+                             class: "font-medium text-gray-900 cursor-pointer" %>
+                  <p class="text-gray-500">Students will be assigned to groups.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="flex h-6 items-center">
+                  <%= form.radio_button :grouped,
+                                    "false",
+                                    required: true,
+                                    class:
+                                      "h-5 w-5 border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer" %>
+                </div>
+                <div class="ml-3 text-sm leading-6">
+                  <%= form.label :grouped,
+                             "By themselves",
+                             value: false,
+                             class: "font-medium text-gray-900 cursor-pointer" %>
+                  <p class="text-gray-500">Students work individually.</p>
+                </div>
+              </div>
+
+            </div>
+          </fieldset>
+
+          <div>
+            <%= form.submit "Create Course",
+                        class:
+                          "w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200 cursor-pointer" %>
+          </div>
+
+        </div>
+      <% end %>
     </div>
-</body>
+  </div>
+</div>

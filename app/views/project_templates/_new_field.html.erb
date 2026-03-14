@@ -1,47 +1,136 @@
-<div class="field-row" data-field-index="<%= index %>">
-  <button type="button" class="remove-field">
-    <%= image_tag("delete.svg") %>
+<div
+  class="
+    group relative w-full border-b border-slate-300 pl-[40px] transition-colors
+    duration-150 ease-out hover:bg-[#f8f9fa] focus-within:bg-[#f8f9fa]
+  "
+  data-field-index="<%= index %>"
+>
+
+  <%# --- Delete Button --- %>
+  <%# Positioned absolute, hidden by default, flex on group hover %>
+  <button
+    type="button"
+    class="
+      remove-field hidden group-hover:flex absolute left-[6px] lg:left-2 top-1/2
+      -translate-y-1/2 w-[18px] h-[18px] lg:w-5 lg:h-5 items-center justify-center
+      cursor-pointer border-none bg-transparent z-10 text-gray-400 hover:text-red-600
+      transition-colors
+    "
+  >
+    <%= image_tag("delete.svg", class: "pointer-events-none") %>
   </button>
 
-  <div class="row">
-    <div class="column">
-      <input type="text"
-             name="project_template[project_template_fields_attributes][<%= index %>][label]"
-             placeholder="Field Label"
-             autocomplete="field-label">
+  <%# --- Main Grid Row --- %>
+  <div class="grid grid-cols-1 lg:grid-cols-5 min-h-[48px]">
+
+    <%# --- Column 1: Input --- %>
+    <div
+      class="
+        relative flex flex-col justify-center items-start gap-2 p-3 border-b
+        border-slate-300 lg:border-b-0 lg:border-r focus-within:bg-[#f8f9fa]
+      "
+    >
+      <input
+        type="text"
+        name="project_template[project_template_fields_attributes][<%= index %>][label]"
+        placeholder="Field Label"
+        autocomplete="field-label"
+        class="
+          w-full border-none bg-transparent p-0 text-sm text-gray-900
+          placeholder:text-gray-400 placeholder:italic focus:ring-0 focus:outline-none
+        "
+        data-controller="textarea-resize"
+        data-action="input->textarea-resize#resize"
+      >
     </div>
-    <div class="hint-row">
-      <textarea name="project_template[project_template_fields_attributes][<%= index %>][hint]"
-                placeholder="Hint Text"></textarea>
+
+    <%# --- Column 2: Hint (Textarea) --- %>
+    <div
+      class="
+        relative flex flex-col justify-center items-start gap-2 p-3 border-b
+        border-slate-300 lg:border-b-0 lg:border-r focus-within:bg-[#f8f9fa]
+      "
+    >
+      <textarea
+        name="project_template[project_template_fields_attributes][<%= index %>][hint]"
+        placeholder="Hint Text"
+        rows="1"
+        class="
+          w-full min-h-[32px] resize-none overflow-hidden border-none bg-transparent p-0
+          text-[0.8125rem] text-gray-900 placeholder:text-gray-400 placeholder:italic
+          focus:ring-0 focus:outline-none
+        "
+        data-controller="textarea-resize"
+        data-action="input->textarea-resize#resize"
+      ></textarea>
     </div>
-    <div class="column">
-      <select name="project_template[project_template_fields_attributes][<%= index %>][field_type]"
-              class="field-type-select">
+
+    <%# --- Column 3: Field Type Select --- %>
+    <div
+      class="
+        relative flex flex-col justify-center items-start gap-2 p-3 border-b
+        border-slate-300 lg:border-b-0 lg:border-r focus-within:bg-[#f8f9fa]
+      "
+    >
+      <select
+        name="project_template[project_template_fields_attributes][<%= index %>][field_type]"
+        class="
+          field-type-select w-full border-none bg-transparent p-0 pr-8 text-sm
+          text-gray-900 focus:ring-0 focus:outline-none cursor-pointer
+        "
+      >
         <option value="">Select field type</option>
         <% ProjectTemplateField.field_types.keys.each do |key| %>
           <option value="<%= key %>"><%= key.humanize %></option>
         <% end %>
       </select>
     </div>
-    <div class="column">
-      <select name="project_template[project_template_fields_attributes][<%= index %>][applicable_to]">
+
+    <%# --- Column 4: Applicable To Select --- %>
+    <div
+      class="
+        relative flex flex-col justify-center items-start gap-2 p-3 border-b
+        border-slate-300 lg:border-b-0 lg:border-r focus-within:bg-[#f8f9fa]
+      "
+    >
+      <select
+        name="project_template[project_template_fields_attributes][<%= index %>][applicable_to]"
+        class="
+          w-full border-none bg-transparent p-0 pr-8 text-sm text-gray-900 focus:ring-0
+          focus:outline-none cursor-pointer
+        "
+      >
         <option value="">Select applicability</option>
         <% ProjectTemplateField.applicable_tos.keys.each do |key| %>
           <option value="<%= key %>"><%= key.humanize %></option>
         <% end %>
       </select>
     </div>
-    <div class="column options-column">
-      <div class="options-section hidden">
-        <!-- Options will be added dynamically -->
-        <button type="button"
-                class="add-option-btn"
-                data-field-index="<%= index %>"
-                data-field-type="dropdown"
-                data-option-index="0">
+
+    <%# --- Column 5: Options --- %>
+    <div
+      class="
+        relative flex flex-col justify-center items-start gap-2 p-3 border-b
+        border-slate-300 lg:border-b-0 last:border-b-0 focus-within:bg-[#f8f9fa]
+      "
+    >
+      <div class="options-section hidden w-full">
+        <button
+          type="button"
+          class="
+            add-option-btn text-[0.8125rem] text-gray-500 bg-transparent border
+            border-dashed border-gray-300 rounded py-2 px-3 cursor-pointer transition-all
+            duration-150 ease-in-out w-fit hover:text-blue-600 hover:border-blue-500
+            hover:bg-[#f8f9fa]
+          "
+          data-field-index="<%= index %>"
+          data-field-type="dropdown"
+          data-option-index="0"
+        >
           + Add Option
         </button>
       </div>
     </div>
+
   </div>
 </div>

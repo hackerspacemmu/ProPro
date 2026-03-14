@@ -18,7 +18,7 @@ crumb :terms_of_service do
 end
 
 crumb :user_profile do
-  link 'Profile', user_profile_path
+  link 'Edit Profile', user_profile_path
   parent :root
 end
 

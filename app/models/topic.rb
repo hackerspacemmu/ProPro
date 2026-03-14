@@ -53,6 +53,18 @@ class Topic < ApplicationRecord
     current_instance&.title || title
   end
 
+  def instance_to_edit(created_by:, has_coordinator_comment:, status:)
+    if rejected? || redo? || (pending? && has_coordinator_comment)
+      topic_instances.build(
+        version: topic_instances.count + 1,
+        created_by: created_by,
+        status: status
+      )
+    else
+      topic_instances.last
+    end
+  end
+
   private
 
   def set_ownership_type

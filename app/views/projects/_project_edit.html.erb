@@ -1,4 +1,7 @@
-<div id="template-fields-edit-container" class="grid grid-cols-1 gap-6 sm:gap-8">
+<div
+  id="template-fields-edit-container"
+  class="grid grid-cols-1 gap-6 sm:gap-8"
+>
   <% @template_fields.each do |field| %>
     <div class="flex flex-col group">
 
@@ -26,8 +29,12 @@
       <% when "textarea" %>
         <%= text_area_tag "fields[#{field.id}]",
         existing_value,
-        class:
-          "#{input_classes} min-h-[120px] sm:min-h-[150px] resize-y leading-relaxed",
+        class: "#{input_classes} resize-none overflow-hidden leading-relaxed",
+        data: {
+          controller: "textarea-resize",
+          action: "input->textarea-resize#resize",
+        },
+        rows: 2,
         placeholder: field.hint,
         required: true %>
 
@@ -43,12 +50,14 @@
             class="
               absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
               text-gray-500
-            ">
+            "
+          >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M19 9l-7 7-7-7" /></svg>
+                d="M19 9l-7 7-7-7"
+              /></svg>
           </div>
         </div>
 

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -e
+
+echo "[ bin/ci ] Running tests"
+bin/rails test
+
+echo "[ bin/ci ] Running system tests"
+bin/rails test:system
