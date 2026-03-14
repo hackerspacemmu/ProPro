@@ -23,7 +23,7 @@
         existing_value,
         class: input_classes,
         placeholder: field.hint,
-        required: true,
+        required: field.required,
         autocomplete: "off" %>
 
       <% when "textarea" %>
@@ -36,7 +36,7 @@
         },
         rows: 2,
         placeholder: field.hint,
-        required: true %>
+        required: field.required %>
 
       <% when "dropdown" %>
         <div class="relative">
@@ -45,7 +45,7 @@
           options_for_select(options, existing_value),
           prompt: "Select an option",
           class: "#{input_classes} appearance-none pr-10 cursor-pointer",
-          required: true %>
+          required: field.required %>
           <div
             class="
               absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
@@ -70,7 +70,7 @@
               option,
               (option.to_s == existing_value.to_s),
               id: "field_#{field.id}_#{idx}",
-              required: true,
+              required: field.required,
               class:
                 "w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" %>
               <%= label_tag "field_#{field.id}_#{idx}",
@@ -85,7 +85,7 @@
         <%= text_field_tag "fields[#{field.id}]",
         existing_value,
         class: input_classes,
-        required: true,
+        required: field.required,
         autocomplete: "off" %>
       <% end %>
     </div>

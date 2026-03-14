@@ -110,6 +110,17 @@ document.addEventListener("turbo:load", function () {
             Remove Field
           </button>
         </td>
+
+        <td class="block lg:table-cell px-6 py-5 align-top">
+          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Required</span>
+          <input type="hidden"
+                name="project_template[project_template_fields_attributes][${index}][required]"
+                value="false">
+          <input type="checkbox"
+                name="project_template[project_template_fields_attributes][${index}][required]"
+                value="true"
+                class="block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer">
+        </td>
       </tr>
     `;
   }
@@ -313,6 +324,15 @@ document.addEventListener("turbo:load", function () {
         btn.disabled = true;
         btn.title = "Cannot remove title";
         btn.classList.add("opacity-50", "cursor-not-allowed");
+      }
+      const requiredCheckbox = row.querySelector(
+        'input[type="checkbox"][name*="[required]"]',
+      );
+      if (requiredCheckbox) {
+        requiredCheckbox.checked = true;
+        requiredCheckbox.disabled = true;
+        requiredCheckbox.required = true;
+        requiredCheckbox.title = "Title is Required";
       }
     }
   });
