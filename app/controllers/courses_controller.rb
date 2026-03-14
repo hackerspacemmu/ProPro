@@ -1,6 +1,7 @@
 require 'csv'
 require 'securerandom'
 
+# Handles CRUD for courses
 class CoursesController < ApplicationController
   before_action :set_course, only: [:show, :add_students, :handle_add_students, :add_lecturers, :handle_add_lecturers, :settings, :handle_settings, :destroy, :export_csv, :profile]
   def show
@@ -92,7 +93,7 @@ class CoursesController < ApplicationController
       return
     end
 
-    lecturer_emails = params[:invited_lecturers].split(';').map { |email| email.strip }
+    lecturer_emails = params[:invited_lecturers].split(';').map(&:strip)
 
     begin
       ActiveRecord::Base.transaction do
@@ -317,6 +318,19 @@ class CoursesController < ApplicationController
     elsif params[:mode] == 'template'
       redirect_to edit_course_project_template_path(@target_course)
     end
+  end
+
+  def update_coursecode
+    @course = Course.find(params[:id])
+    @course.generate_coursecode!
+    flash.now[:notice] = 'Course join code successfully generated'
+  rescue StandardError => e
+    flash.now[:alert] = e.message
+  ensure
+    render turbo_stream: [
+      turbo_stream.update('flash', partial: 'courses/flash'),
+      turbo_stream.replace('course_code_form', partial: 'courses/course_code_form', locals: { course: @course })
+    ]
   end
 
   private
