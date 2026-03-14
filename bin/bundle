@@ -8,9 +8,7 @@
 # this file is here to facilitate running it.
 #
 
-
 require 'rubygems'
-
 
 m = Module.new do
   module_function
@@ -34,7 +32,6 @@ m = Module.new do
       next unless a =~ /\A--bundler(?:[= ](#{Gem::Version::VERSION_PATTERN}))?\z/
 
       bundler_version = Regexp.last_match(1)
-
       update_index = i
     end
     bundler_version
@@ -58,6 +55,7 @@ m = Module.new do
 
   def lockfile_version
     return unless File.file?(lockfile)
+
     lockfile_contents = File.read(lockfile)
     return unless lockfile_contents =~ /\n\nBUNDLED WITH\n\s{2,}(#{Gem::Version::VERSION_PATTERN})\n/
 
