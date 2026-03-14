@@ -82,9 +82,9 @@
 
         </div>
       <% end %>
-      <% if @is_student %>
+      <% if is_student %>
         <%= link_to "Propose Based on this Topic",
-        new_course_project_path(@course, topic_id: topic.id),
+        new_course_project_path(course, topic_id: topic.id),
         class:
           "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
       <% end %>
@@ -92,7 +92,7 @@
   </div>
 
   <%# ---DIFF TOOL--- %>
-  <% if @index < @instances.size %>
+  <% if index < instances.size %>
 
     <div
       class="
@@ -227,13 +227,21 @@
 
                   <td class="w-1/2 break-words align-top border border-gray-200 p-3">
                     <ul class="list-none p-0 m-0 font-mono text-xs">
-                      <%= aligned_left.join.gsub("[[EMPTYLINE]]", "<br>").html_safe %>
+                      <% safe_aligned_left =
+                        aligned_left.map do |line|
+                          safe_join(line.to_s.split("[[EMPTYLINE]]", -1), tag.br)
+                        end %>
+                      <%= safe_join(safe_aligned_left) %>
                     </ul>
                   </td>
 
                   <td class="w-1/2 break-words align-top border border-gray-200 p-3">
                     <ul class="list-none p-0 m-0 font-mono text-xs">
-                      <%= aligned_right.join.gsub("[[EMPTYLINE]]", "<br>").html_safe %>
+                      <% safe_aligned_right =
+                        aligned_right.map do |line|
+                          safe_join(line.to_s.split("[[EMPTYLINE]]", -1), tag.br)
+                        end %>
+                      <%= safe_join(safe_aligned_right) %>
                     </ul>
                   </td>
 

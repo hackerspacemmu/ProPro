@@ -57,10 +57,17 @@
           <div>
             <%= render "project_fields",
             project: @project,
+            progress: @progress,
             fields: @current_fields,
             next_fields: @next_fields,
             based_on_topic_name:
               @current_instance&.source_topic&.topic_instances&.last&.title || nil,
+            index: @index,
+            instances: @instances,
+            progress_updates: @progress_updates,
+            current_version: @current_version,
+            latest_version: @latest_version,
+            weeks: @weeks,
             course: @course %>
           </div>
         </section>

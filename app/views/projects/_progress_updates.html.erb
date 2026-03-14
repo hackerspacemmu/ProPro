@@ -1,7 +1,7 @@
 <div class="w-full space-y-6">
 
-  <% total = @progress.size %>
-  <% @progress.each_with_index do |progress_update, i| %>
+  <% total = progress.size %>
+  <% progress.each_with_index do |progress_update, i| %>
 
     <div
       class="
@@ -18,9 +18,9 @@
 
         <div>
           <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <% if (total - i) > @weeks %>
+            <% if (total - i) > weeks %>
               <span class="text-blue-600">Extra
-                <%= (total - @weeks - i) %></span>
+                <%= (total - weeks - i) %></span>
             <% else %>
               <span>Progress
                 <%= (total - i) %></span>
@@ -76,15 +76,15 @@
           <%= progress_update.updated_at.strftime("%d-%m-%Y") %>
         </p>
 
-        <% if policy(@project).can_record_progress_update? && @current_version == @latest_version %>
+        <% if policy(project).can_record_progress_update? && current_version == latest_version %>
           <div class="flex items-center gap-3">
-            <%= button_to edit_course_project_progress_update_path(@course, @project, progress_update),
+            <%= button_to edit_course_project_progress_update_path(course, project, progress_update),
                 method: :get,
                 class: "text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer" do %>
               Edit
             <% end %>
 
-            <%= button_to course_project_progress_update_path(@course, @project, progress_update),
+            <%= button_to course_project_progress_update_path(course, project, progress_update),
                 method: :delete,
                 form: { data: { turbo_confirm: "Are you sure?" } },
                 class: "text-sm font-medium text-red-500 hover:text-red-700 transition-colors hover:cursor-pointer cursor:pointer" do %>
@@ -97,7 +97,7 @@
     </div>
   <% end %>
 
-  <% if @progress.empty? %>
+  <% if progress.empty? %>
     <div
       class="
         text-center py-12 border-2 border-dashed border-gray-200 rounded-xl

@@ -2,7 +2,7 @@
   id="template-fields-edit-container"
   class="grid grid-cols-1 gap-6 sm:gap-8"
 >
-  <% @template_fields.each do |field| %>
+  <% template_fields.each do |field| %>
     <div class="flex flex-col group">
 
       <%= label_tag "fields_#{field.id}",
@@ -15,7 +15,7 @@
         <p class="text-xs text-gray-400 mb-2 leading-normal whitespace-pre-line"><%= field.hint %></p>
       <% end %>
 
-      <% existing_value = @existing_values[field.id] %>
+      <% existing_value = existing_values[field.id] %>
 
       <% case field.field_type %>
       <% when "shorttext" %>
