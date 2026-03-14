@@ -28,9 +28,20 @@
               %>
 
               <%= link_to path, data: { overlay_target: "card", action: "click->overlay#selectTopic", overlay_course_id_param: topic.id },
-                  class: "group block h-full min-h-[240px] bg-white rounded-xl border border-gray-200 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col overflow-hidden no-underline" do %>
+                  class: "group block h-full bg-white rounded-xl border border-gray-200 transition-all duration-200 ease-in-out hover:border-emerald-400 hover:shadow-lg flex flex-col overflow-hidden no-underline" do %>
                 
-                <%= render "courses/topic_card_contents", topic: topic, topic_instance: topic_instance, header_bg: header_bg, status_key: status_key %>
+                <div class="flex-none">
+                  <%= render "courses/topic_card_contents", topic: topic, topic_instance: topic_instance, header_bg: header_bg, status_key: status_key %>
+                </div>
+
+                <div class="mt-auto border-t border-gray-100 bg-gray-50/40 px-5 py-4">
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 whitespace-nowrap">Course</span>
+                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md truncate">
+                      <%= topic.course.course_name %>
+                    </span>
+                  </div>
+                </div>
               <% end %>
             <% end %>
           </div>
