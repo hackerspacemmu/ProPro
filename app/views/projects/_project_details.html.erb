@@ -58,7 +58,7 @@
           class="
             !p-4 !md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
             md:text-lg font-medium leading-relaxed min-w-0 !bg-white
-            <%= is_markdown ? 'editor-preview' : 'whitespace-pre-wrap' %>
+            <%= is_markdown ? 'render-markdown' : 'whitespace-pre-wrap' %>
           "
         ><% if display_text.present? %><%= is_markdown ? render_markdown(display_text) : display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
       </div>
