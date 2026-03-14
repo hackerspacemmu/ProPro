@@ -72,7 +72,14 @@
 
         <section>
           <div>
-            <%= render "topic_fields", fields: @fields, next_fields: @next_fields, topic: @topic %>
+            <%= render "topic_fields",
+            fields: @fields,
+            next_fields: @next_fields,
+            topic: @topic,
+            course: @course,
+            index: @index,
+            instances: @instances,
+            is_student: @is_student %>
           </div>
         </section>
 
