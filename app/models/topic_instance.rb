@@ -19,10 +19,13 @@ class TopicInstance < ApplicationRecord
   before_validation :set_project_instance_type
   after_save :update_parent_topic
 
+  validates :version, presence: true, numericality: { only_integer: true, greater_than: 0 }
+  validates :title, presence: true
+
   private
 
   def update_parent_topic
-    return unless topic.topic_instances.order(created_at: :asc).last == self
+    return unless topic.topic_instances.order(version: :desc, created_at: :desc).first == self
 
     topic.update_column(:status, status)
   end

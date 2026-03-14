@@ -66,6 +66,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem 'rubocop-rails-omakase', require: false
+
+  # Use Factory Bot in place of fixtures to generate realistic test data
+  gem 'factory_bot_rails'
+
+  # Use Faker to generate values for attributes in each factory
+  gem 'faker'
 end
 
 group :development do
