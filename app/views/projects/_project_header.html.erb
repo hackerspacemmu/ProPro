@@ -5,6 +5,7 @@
 >
   <% if flash[:notice] %>
     <div
+      data-testid="flash-notice"
       class="
         w-full p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm
         font-bold flex items-center justify-center gap-3 shadow-sm -mb-2
@@ -22,6 +23,7 @@
 
   <% if flash[:alert] %>
     <div
+      data-testid="flash-alert"
       class="
         w-full p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm
         font-bold flex items-center justify-center gap-3 shadow-sm -mb-2
@@ -187,11 +189,12 @@
                              current_instance.status,
                            ),
                            {},
+                           data: { testid: "status-select" },
                            class:
                              "min-w-0 w-auto px-2 py-1 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none truncate " +
                                "max-[324px]:max-w-[80px] " + status_color_class %>
 
-                  <%= f.button type: "submit", class: "shrink-0 cursor-pointer hover:scale-110 transition-transform p-1", title: "Save status" do %>
+                  <%= f.button type: "submit", data: { testid: "change-status-submit" }, class: "shrink-0 cursor-pointer hover:scale-110 transition-transform p-1", title: "Save status" do %>
                     <%= image_tag("check.svg", class: "w-4 h-4 shrink-0") %>
                   <% end %>
                 <% end %>
@@ -210,6 +213,7 @@
                   "bg-gray-500"
                 end %>
               <span
+                data-testid="project-status"
                 class="
                   px-3 py-1 rounded-md text-white text-sm font-medium capitalize
                   <%= badge_color %> truncate shrink-0
@@ -282,8 +286,12 @@
           <div class="flex items-center gap-2 sm:gap-3 shrink-0">
             <%# Back arrow %>
             <% if current_version > 1 %>
-              <%= link_to course_project_path(@course, project, version: current_version - 1), class: "hover:bg-gray-100 rounded-full p-1 transition-colors" do %>
+              <%= link_to course_project_path(@course, project, version: current_version - 1), 
+                data: { testid: "version-back" },
+                class: "hover:bg-gray-100 rounded-full p-1 transition-colors" do %>
+
                 <%= image_tag("arrow_back.svg", class: "w-3 h-3 shrink-0") %>
+                
               <% end %>
             <% else %>
               <span class="opacity-30 p-1 cursor-not-allowed">
@@ -291,16 +299,18 @@
               </span>
             <% end %>
 
-            <span class="text-sm font-bold text-gray-800 whitespace-nowrap">
-              <%= current_version %>
-              of
-              <%= instances.size %>
+            <span data-testid="current-version" class="text-sm font-bold text-gray-800 whitespace-nowrap">
+              <%= current_version %> of <%= instances.size %>
             </span>
 
             <%# Next arrow %>
             <% if current_version < instances.size %>
-              <%= link_to course_project_path(@course, project, version: current_version + 1), class: "hover:bg-gray-100 rounded-full p-1 transition-colors" do %>
+              <%= link_to course_project_path(@course, project, version: current_version + 1), 
+                data: { testid: "version-next" },
+                class: "hover:bg-gray-100 rounded-full p-1 transition-colors" do %>
+
                 <%= image_tag("arrow_forward.svg", class: "w-3 h-3 shrink-0") %>
+
               <% end %>
             <% else %>
               <span class="opacity-30 p-1 cursor-not-allowed">

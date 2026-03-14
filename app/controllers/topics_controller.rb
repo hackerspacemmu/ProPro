@@ -1,9 +1,6 @@
 class TopicsController < ApplicationController
   before_action :set_course
-  before_action :set_topic, only: %i[show edit update destroy change_status]
-  before_action :authorize_topic, only: %i[show edit update]
-  before_action :authorize_change_status, only: :change_status
-  before_action :authorize_new, only: %i[new create]
+  before_action :set_topic, only: [:show, :edit, :update, :destroy, :change_status]
 
   def index
     @topics = policy_scope(@course.topics)
@@ -23,6 +20,8 @@ class TopicsController < ApplicationController
   end
 
   def show
+    authorize @topic
+
     @instances = @topic.topic_instances.order(version: :asc)
     @owner = @topic.owner
     @status = @topic.current_instance&.status
@@ -70,6 +69,8 @@ class TopicsController < ApplicationController
   end
 
   def edit
+    authorize @topic
+
     @instance = @topic.topic_instances.last || @topic.topic_instances.build
     @existing_values = @instance.project_instance_fields.each_with_object({}) do |f, h|
       h[f.project_template_field_id] = f.value
@@ -113,41 +114,47 @@ class TopicsController < ApplicationController
   end
 
   def update
+    authorize @topic
+
+    status = @course.require_coordinator_approval? ? :pending : :approved
+    
     has_coordinator_comment = @topic.topic_instances.last.comments.any? do |comment|
       @course.coordinators.pluck(:id).include?(comment.user_id)
     end
 
     begin
       ActiveRecord::Base.transaction do
-        status = @course.require_coordinator_approval ? :pending : :approved
-        current_status = @topic.current_instance&.status&.to_sym
-
-        @instance = if current_status == :rejected || current_status == :redo ||
-                       (current_status == :pending && has_coordinator_comment)
-                      @topic.topic_instances.build(
-                        version: @topic.topic_instances.count + 1,
-                        created_by: current_user,
-                        status: status
-                      )
-                    else
-                      @topic.topic_instances.last
-                    end
+        @instance = @topic.instance_to_edit(
+          created_by: current_user,
+          has_coordinator_comment: has_coordinator_comment,
+          status: status
+        )
 
         raise StandardError unless params[:fields].present?
 
+        # Set Title
         title_field_id = params[:fields].keys.first
         @instance.title = params[:fields][title_field_id] if title_field_id.present?
+
+        # Timestamps
         @instance.last_edit_time = Time.current
         @instance.last_edit_by = current_user.id
 
         raise StandardError unless @instance.save
 
         params[:fields].each do |field_id, value|
-          existing = ProjectInstanceField.find_by(project_template_field_id: field_id, instance: @instance)
+          existing = ProjectInstanceField.find_by(
+              project_template_field_id: field_id, 
+              instance: @instance
+            )
+
           if existing
             existing.update!(value: value)
           else
-            @instance.project_instance_fields.create!(project_template_field_id: field_id, value: value)
+            @instance.project_instance_fields.create!(
+                project_template_field_id: field_id, 
+                value: value
+              )
           end
         end
       end
@@ -195,23 +202,5 @@ class TopicsController < ApplicationController
   def set_topic
     @topic = @course.topics.find_by(id: params[:id])
     redirect_to course_path(@course), alert: 'Topic not found.' if @topic.nil?
-  end
-
-  def authorize_topic
-    authorize @topic
-  rescue Pundit::NotAuthorizedError
-    redirect_to course_path(@course), alert: 'You are not authorized to view this topic.'
-  end
-
-  def authorize_change_status
-    authorize @topic, :change_status?
-  rescue Pundit::NotAuthorizedError
-    redirect_to course_topic_path(@course, @topic), alert: 'You are not authorized.'
-  end
-
-  def authorize_new
-    authorize Topic.new(course: @course), :new?
-  rescue Pundit::NotAuthorizedError
-    redirect_to course_path(@course), alert: 'You are not authorized.'
   end
 end

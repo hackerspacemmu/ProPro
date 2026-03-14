@@ -63,6 +63,23 @@ class Project < ApplicationRecord
     current_instance&.title || title
   end
 
+  def editable?
+    !approved?
+  end
+
+  def instance_to_edit(created_by:, has_supervisor_comment:)
+    if rejected? || redo? || (pending? && has_supervisor_comment)
+      project_instances.build(
+        version: project_instances.count + 1,
+        created_by: created_by,
+        enrolment: enrolment
+      )
+    else
+      # If approved and pending (no supervisor comment) dont create new instance
+      project_instances.last
+    end
+  end
+
   private
 
   def set_ownership_type

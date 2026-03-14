@@ -1,11 +1,10 @@
 class ProjectsController < ApplicationController
   before_action :set_course
-  before_action :set_project, only: %i[show edit update change_status]
-  before_action :authorize_project, only: %i[show edit update]
-  before_action :authorize_change_status, only: [:change_status]
-  before_action :authorize_create, only: %i[new create]
-
+  before_action :set_project, only: [:show, :edit, :update, :change_status]
+  
   def show
+    authorize @project || Project.new(course: @course)
+
     @instances = @project.project_instances.order(version: :asc)
     @owner = @project.owner
     @status = @project.status
@@ -49,6 +48,8 @@ class ProjectsController < ApplicationController
   end
 
   def change_status
+    authorize @project, :change_status?
+
     new_status = params[:status]
     @project.project_instances.last.update!(
       status: new_status,
@@ -96,6 +97,8 @@ class ProjectsController < ApplicationController
   end
 
   def edit
+    authorize @project || Project.new(course: @course)
+
     @instance = @project.project_instances.last || @project.project_instances.build
     # Exclude lecturer-only fields
     @template_fields = @course.project_template.project_template_fields.where.not(applicable_to: :topics)
@@ -115,6 +118,8 @@ class ProjectsController < ApplicationController
   end
 
   def create
+    authorize Project.new(course: @course), :create?
+
     @course = Course.find(params[:course_id])
     begin
       ActiveRecord::Base.transaction do
@@ -202,6 +207,8 @@ class ProjectsController < ApplicationController
   end
 
   def update
+    authorize @project || Project.new(course: @course)
+    
     has_supervisor_comment = false
     @project.project_instances.last.comments.each do |comment|
       if comment.user_id == @project.supervisor.id
@@ -215,24 +222,19 @@ class ProjectsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        if @project.status == 'approved'
-          return
-        elsif @project.status == 'rejected' || @project.status == 'redo' || (@project.status == 'pending' && has_supervisor_comment)
-          version = @project.project_instances.count + 1
-          @instance = @project.project_instances.build(
-            version: version,
-            created_by: current_user,
-            enrolment: @project.enrolment
-          )
-          new_instance_created = true
-        else
-          @instance = @project.project_instances.last
-        end
+        return unless @project.editable?
+
+        @instance = @project.instance_to_edit(
+          created_by: current_user,
+          has_supervisor_comment: has_supervisor_comment
+        )
+        new_instance_created = @instance.new_record?
 
         # Set title
         title_field_id = params[:fields].keys.first if params[:fields].present?
         @instance.title = params[:fields][title_field_id] if title_field_id.present?
 
+        # Timestamps
         @instance.last_edit_time = Time.current
         @instance.last_edit_by = current_user.id
 
@@ -364,19 +366,5 @@ class ProjectsController < ApplicationController
 
   def set_project
     @project = @course.projects.find_by(id: params[:id])
-  end
-
-  def authorize_project
-    authorize @project || Project.new(course: @course)
-  rescue Pundit::NotAuthorizedError
-    redirect_to course_path(@course), alert: 'Project not found or access denied.'
-  end
-
-  def authorize_change_status
-    authorize @project, :change_status?
-  end
-
-  def authorize_create
-    authorize Project.new(course: @course), :create?
   end
 end
