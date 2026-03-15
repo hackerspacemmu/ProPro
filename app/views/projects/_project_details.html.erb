@@ -59,7 +59,7 @@
           class="
             !p-4 !md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
             md:text-lg font-medium leading-relaxed min-w-0 !bg-white
-            <%= is_markdown ? 'render-markdown' : 'whitespace-pre-wrap' %>
+            <%= is_markdown ? 'prose prose-sm max-w-none' : 'whitespace-pre-wrap' %>
           "
         ><% if display_text.present? %><%= is_markdown ? render_markdown(display_text) : display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
       </div>
@@ -154,8 +154,25 @@
                       <%= field_name %>
                     </td>
 
-                    <% old_html = render_markdown(current_field&.value.to_s)
-                    new_html = render_markdown(next_field&.value.to_s)
+                    <% raw_old = render_markdown(current_field&.value.to_s)
+                    raw_new = render_markdown(next_field&.value.to_s)
+
+                    # 2. Identity Branding: Brand the <li> tags before Nokogiri destroys the wrappers
+                    brand_lists = ->(html) do
+                      html =
+                        html
+                          .to_s
+                          .gsub(%r{<ol[^>]*>.*?</ol>}m) do |m|
+                            m.gsub(/<li\b[^>]*>/i, '<li class="diff-ol-item">')
+                          end
+                      html.gsub(%r{<ul[^>]*>.*?</ul>}m) do |m|
+                        m.gsub(/<li\b[^>]*>/i, '<li class="diff-ul-item">')
+                      end
+                    end
+
+                    old_html = brand_lists.call(raw_old)
+                    new_html = brand_lists.call(raw_new)
+
                     html_differ = Object.new.extend(HTMLDiff)
                     rich_diff = html_differ.diff(old_html, new_html)
 
@@ -163,12 +180,12 @@
                     left_html =
                       rich_diff
                         .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
-                        .gsub(%r{<li>\s*</li>}m, "")
+                        .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
                         .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
                         .gsub(%r{<p>\s*</p>}m, "")
                         .gsub(
-                          %r{<li>(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
-                          '<li class="marker:text-red-700 marker:font-bold mx-4">\1</li>',
+                          %r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
+                          '\1\2</li>', # Preserves the branded li tag
                         )
                         .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
                         .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
@@ -179,41 +196,111 @@
                     right_html =
                       rich_diff
                         .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
-                        .gsub(%r{<li>\s*</li>}m, "")
+                        .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
                         .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
                         .gsub(%r{<p>\s*</p>}m, "")
                         .gsub(
-                          %r{<li>(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
-                          '<li class="marker:text-green-700 marker:font-bold mx-4">\1</li>',
+                          %r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
+                          '\1\2</li>', # Preserves the branded li tag
                         )
                         .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
                         .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
                         .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
                         .gsub(%r{<table[^>]*>\s*</table>}m, "") %>
 
+                    <%# LEFT SIDE: Deletions (Old) %>
                     <td
                       class="
-                        p-4 align-top border-r border-gray-200 bg-red-50/10 w-2/5 break-words
+                        p-4 align-top bg-red-50/10 w-2/5 border-r border-gray-200 break-words
                       "
                     >
                       <div
                         class="
-                          w-full render-markdown text-base [&_del]:bg-red-200 [&_del]:text-red-900
-                          [&_del]:line-through [&_del]:decoration-red-400 [&_del]:decoration-2
+                          w-full prose prose-sm max-w-none text-base [&_del]:bg-red-200
+                          [&_del]:text-red-900 [&_del]:line-through [&_del]:decoration-red-400
+                          [&_del]:decoration-2 [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6
+                          [&_li.diff-ol-item::marker]:text-red-700 [&_li.diff-ol-item::marker]:font-bold
+                          [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6
+                          [&_li.diff-ul-item::marker]:text-red-700 [&_li.diff-ul-item::marker]:font-bold
                         "
                       >
-                        <%= left_html.html_safe %>
+                        <%= sanitize left_html,
+                        tags: %w[
+                          h1
+                          h2
+                          h3
+                          h4
+                          h5
+                          h6
+                          p
+                          br
+                          ul
+                          ol
+                          li
+                          strong
+                          em
+                          del
+                          ins
+                          table
+                          thead
+                          tbody
+                          tr
+                          th
+                          td
+                          blockquote
+                          pre
+                          code
+                          a
+                          img
+                          hr
+                        ],
+                        attributes: %w[href src class alt title] %>
                       </div>
                     </td>
 
+                    <%# RIGHT SIDE: Additions (New) %>
                     <td class="p-4 align-top bg-green-50/10 w-2/5 break-words">
                       <div
                         class="
-                          w-full render-markdown text-base [&_ins]:bg-green-200 [&_ins]:text-green-900
-                          [&_ins]:font-medium [&_ins]:no-underline
+                          w-full prose prose-sm max-w-none text-base [&_ins]:bg-green-200
+                          [&_ins]:text-green-900 [&_ins]:font-medium [&_ins]:no-underline
+                          [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6
+                          [&_li.diff-ol-item::marker]:text-green-700 [&_li.diff-ol-item::marker]:font-bold
+                          [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6
+                          [&_li.diff-ul-item::marker]:text-green-700 [&_li.diff-ul-item::marker]:font-bold
                         "
                       >
-                        <%= right_html.html_safe %>
+                        <%= sanitize right_html,
+                        tags: %w[
+                          h1
+                          h2
+                          h3
+                          h4
+                          h5
+                          h6
+                          p
+                          br
+                          ul
+                          ol
+                          li
+                          strong
+                          em
+                          del
+                          ins
+                          table
+                          thead
+                          tbody
+                          tr
+                          th
+                          td
+                          blockquote
+                          pre
+                          code
+                          a
+                          img
+                          hr
+                        ],
+                        attributes: %w[href src class alt title] %>
                       </div>
                     </td>
                   </tr>

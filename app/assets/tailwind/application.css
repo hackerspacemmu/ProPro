@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Force EasyMDE Preview Headings to restore their size */
 .editor-preview h1,
