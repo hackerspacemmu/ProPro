@@ -2,8 +2,7 @@
 @plugin "@tailwindcss/typography";
 
 /* Force EasyMDE Preview Headings to restore their size */
-.editor-preview h1,
-.render-markdown h1 {
+.editor-preview h1 {
   font-size: 2em !important;
   font-weight: 700 !important;
   margin-top: 1em !important;
@@ -11,8 +10,7 @@
   line-height: 1.2 !important;
 }
 
-.editor-preview h2,
-.render-markdown h2 {
+.editor-preview h2 {
   font-size: 1.5em !important;
   font-weight: 700 !important;
   margin-top: 1em !important;
@@ -20,8 +18,7 @@
   line-height: 1.3 !important;
 }
 
-.editor-preview h3,
-.render-markdown h3 {
+.editor-preview h3 {
   font-size: 1.17em !important;
   font-weight: 600 !important;
   margin-top: 1em !important;
@@ -29,8 +26,7 @@
   line-height: 1.4 !important;
 }
 
-.editor-preview h4,
-.render-markdown h4 {
+.editor-preview h4 {
   font-size: 1em !important;
   font-weight: 600 !important;
   margin-top: 1em !important;
@@ -38,8 +34,7 @@
   line-height: 1.4 !important;
 }
 
-.editor-preview h5,
-.render-markdown h5 {
+.editor-preview h5 {
   font-size: 0.83em !important;
   font-weight: 500 !important;
   margin-top: 1em !important;
@@ -47,8 +42,7 @@
   line-height: 1.4 !important;
 }
 
-.editor-preview h6,
-.render-markdown h6 {
+.editor-preview h6 {
   font-size: 0.67em !important;
   font-weight: 500 !important;
   margin-top: 1em !important;
@@ -56,27 +50,20 @@
   line-height: 1.4 !important;
 }
 
-.editor-preview ul,
-.render-markdown ul {
+.editor-preview ul {
   list-style-type: disc !important;
   padding-left: 1.5em !important;
   margin-bottom: 1em !important;
 }
 
-.editor-preview ol,
-.render-markdown ol {
+.editor-preview ol {
   list-style-type: decimal !important;
   padding-left: 1.5em !important;
   margin-bottom: 1em !important;
 }
 
-.editor-preview > *:first-child,
-.render-markdown > *:first-child {
+.editor-preview > *:first-child {
   margin-top: 0 !important;
-}
-
-.render-markdown {
-  padding: 0 !important;
 }
 
 .card-markdown h1 {
@@ -140,24 +127,4 @@
   color: #14532d; /* Tailwind green-900 */
   text-decoration: none;
   font-weight: 500;
-}
-
-/* Table styling for rendered markdown */
-.render-markdown table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.render-markdown th,
-.render-markdown td {
-  border: 1px solid #d1d5db; /* Tailwind gray-300 */
-  padding: 0.5rem;
-}
-
-.render-markdown th {
-  background-color: #f3f4f6; /* Tailwind gray-100 */
-  font-weight: bold;
-  text-align: left;
 }

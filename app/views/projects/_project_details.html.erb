@@ -191,6 +191,8 @@
                         .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
                         .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
                         .gsub(%r{<table[^>]*>\s*</table>}m, "")
+                        .gsub(%r{<code[^>]*>\s*</code>}m, "")
+                        .gsub(%r{<pre[^>]*>\s*</pre>}m, "")
 
                     #  RIGHT SIDE: Erase deletions, sweep up empty wrappers, color added markers
                     right_html =
@@ -206,7 +208,9 @@
                         .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
                         .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
                         .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
-                        .gsub(%r{<table[^>]*>\s*</table>}m, "") %>
+                        .gsub(%r{<table[^>]*>\s*</table>}m, "")
+                        .gsub(%r{<code[^>]*>\s*</code>}m, "")
+                        .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
 
                     <%# LEFT SIDE: Deletions (Old) %>
                     <td
