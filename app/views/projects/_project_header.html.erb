@@ -92,7 +92,11 @@
               >
                 <%= owner.username[0].upcase %>
               </span>
-              <span class="break-words"><%= owner.username %></span>
+              <span class="break-words">
+                <%= link_to participant_profile_course_path(course, owner.id, 'student'), class: "inline group/member hover:text-gray-700 underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
+                  <%= owner.username %>
+                <% end %>
+              </span>
             </p>
           <% else %>
             <% project.owner.users.each do |user| %>
@@ -105,7 +109,11 @@
                 >
                   <%= user.username[0].upcase %>
                 </span>
-                <span class="break-words"><%= user.username %></span>
+                <span class="break-words">
+                  <%= link_to participant_profile_course_path(course, user.id, 'student'), class: "inline group/member hover:text-gray-900 underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
+                    <%= user.username %>
+                  <% end %>
+                </span>
               </p>
             <% end %>
           <% end %>
@@ -123,7 +131,11 @@
           <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70 shrink-0") %>
           Supervisor
         </span>
-        <span class="text-gray-900 break-words min-w-0"><%= current_instance.supervisor.username %></span>
+        <span class="text-gray-900 break-words min-w-0">
+          <%= link_to course_lecturer_path(course, current_instance.supervisor), class: "flex items-center justify-start gap-2 group/sup underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
+            <%= current_instance.supervisor.username %>
+          <% end %>
+        </span>
       </div>
 
       <%# Group Name (If Applicable) %>
@@ -138,7 +150,11 @@
             <%= image_tag("group.svg", class: "w-4 h-4 object-contain opacity-70 shrink-0") %>
             Group Name
           </span>
-          <span class="text-gray-900 break-words min-w-0"><%= project.owner.group_name %></span>
+          <span class="text-gray-900 break-words min-w-0">
+            <%= link_to participant_profile_course_path(course, project.owner.id, 'group'), class: "hover:text-gray-700 underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
+              <%= project.owner.group_name %>
+            <% end %>
+          </span>
         </div>
       <% end %>
 
