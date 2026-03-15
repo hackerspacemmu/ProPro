@@ -128,25 +128,32 @@
         "
       >
         <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
-        <% if @course.coordinators.include? Current.user %>
-          <div class="text-sm">
+        <div class="text-sm">
+          <% if @course.coordinators.pluck(:id).include?(@lecturer.id) %>
             <% if policy(@course).demote_to_lecturer? %>
               <%= link_to "Demote to Lecturer",
               demote_to_lecturer_course_lecturer_path(@course, @lecturer),
               data: {
                 turbo_method: :patch,
+                turbo_confirm: "Demote this coordinator?",
               },
               class: "text-red-600 hover:text-red-800 font-medium hover:underline" %>
-            <% elsif policy(@course).promote_to_coordinator? %>
+            <% else %>
+              <span class="text-gray-400 italic">Cannot be demoted</span>
+            <% end %>
+
+          <% else %>
+            <% if policy(@course).promote_to_coordinator? %>
               <%= link_to "Promote To Coordinator",
               promote_to_coordinator_course_lecturer_path(@course, @lecturer),
               data: {
                 turbo_method: :patch,
+                turbo_confirm: "Promote to coordinator?",
               },
               class: "text-emerald-600 hover:text-emerald-800 font-medium hover:underline" %>
             <% end %>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
 
       <div class="px-4 md:px-8 py-6">
@@ -245,12 +252,18 @@
         class="
           bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
         "
-        id="proposals">
+        id="proposals"
+      >
         <div class="px-4 md:px-8 pt-6 flex items-center justify-between">
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
           <% if @is_student %>
-            <%= link_to "Propose Own Topic to Lecturer", new_course_project_path(@course, based_on_topic: "own_proposal_#{@lecturer.id}"), 
-              class: "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+            <%= link_to "Propose Own Topic to Lecturer",
+            new_course_project_path(
+              @course,
+              based_on_topic: "own_proposal_#{@lecturer.id}",
+            ),
+            class:
+              "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
           <% end %>
         </div>
         <div class="px-4 md:px-8 py-6">
