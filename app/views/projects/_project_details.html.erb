@@ -168,8 +168,12 @@
                         .gsub(%r{<p>\s*</p>}m, "")
                         .gsub(
                           %r{<li>(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
-                          '<li class="marker:text-red-700 marker:font-bold">\1</li>',
+                          '<li class="marker:text-red-700 marker:font-bold mx-4">\1</li>',
                         )
+                        .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+                        .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<table[^>]*>\s*</table>}m, "")
 
                     #  RIGHT SIDE: Erase deletions, sweep up empty wrappers, color added markers
                     right_html =
@@ -180,8 +184,12 @@
                         .gsub(%r{<p>\s*</p>}m, "")
                         .gsub(
                           %r{<li>(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
-                          '<li class="marker:text-green-700 marker:font-bold">\1</li>',
-                        ) %>
+                          '<li class="marker:text-green-700 marker:font-bold mx-4">\1</li>',
+                        )
+                        .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+                        .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<table[^>]*>\s*</table>}m, "") %>
 
                     <td
                       class="

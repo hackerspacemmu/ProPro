@@ -140,3 +140,23 @@
   text-decoration: none;
   font-weight: 500;
 }
+
+/* Table styling for rendered markdown */
+.render-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.render-markdown th,
+.render-markdown td {
+  border: 1px solid #d1d5db; /* Tailwind gray-300 */
+  padding: 0.5rem;
+}
+
+.render-markdown th {
+  background-color: #f3f4f6; /* Tailwind gray-100 */
+  font-weight: bold;
+  text-align: left;
+}

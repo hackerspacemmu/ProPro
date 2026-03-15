@@ -8,6 +8,7 @@ export default class extends Controller {
       forceSync: true,
       status: false,
       spellChecker: false,
+      unorderedListStyle: "-",
       toolbar: [
         "bold",
         "italic",
