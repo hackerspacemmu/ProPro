@@ -1,15 +1,16 @@
 class LecturersController < ApplicationController
   before_action :set_course
-  before_action :set_lecturer, only: %i[show promote_to_coordinator demote_to_lecturer]
 
   def index; end
 
   def show
     @lecturers = @course.lecturers
-    coordinator_enrolment = @course.enrolments.find_by(user_id: @lecturer.id, role: :coordinator)
-    @lecturer_enrolment = @course.enrolments.find_by(user_id: @lecturer.id, role: :lecturer)
+    coordinator_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :coordinator)
+    @lecturer_enrolment = @course.enrolments.find_by(user_id: params[:id], role: :lecturer)
 
     @enrolment = coordinator_enrolment || @lecturer_enrolment
+
+    @lecturer = @enrolment.user
 
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
     @is_coordinator = @current_user_enrolment&.coordinator?
@@ -28,39 +29,31 @@ class LecturersController < ApplicationController
   def promote_to_coordinator
     authorize @course, :promote_to_coordinator?
 
-    enrolment = Enrolment.find_by(user: @lecturer, course: @course)
+    Enrolment.find_or_create_by!(
+      user: new_coordinator,
+      course: @course,
+      role: :coordinator
+    )
 
-    if enrolment
-      enrolment.update!(role: :coordinator)
-    else
-      Enrolment.create!(user: @lecturer, course: @course, role: :coordinator)
-    end
-
-    redirect_to course_lecturer_path(@course, @lecturer), status: :see_other
+    redirect_to course_lecturer_path(@course, new_coordinator)
   end
 
   def demote_to_lecturer
     authorize @course, :demote_to_lecturer?
 
-    enrolment = Enrolment.find_by(user: @lecturer, course: @course)
+    Enrolment.find_by(
+      user: new_coordinator,
+      course: @course,
+      role: :coordinator
+    )
 
-    if enrolment
-      enrolment.update!(role: :lecturer)
-    else
-      Enrolment.create!(user: @lecturer, course: @course, role: :lecturer)
-    end
-
-    redirect_to course_lecturer_path(@course, @lecturer), status: :see_other
+    redirect_to course_lecturer_path(@course, new_coordinator)
   end
 
   private
 
   def set_course
     @course = Course.find(params[:course_id])
-  end
-
-  def set_lecturer
-    @lecturer = User.find(params[:id])
   end
 
   def set_supervised_projects
