@@ -64,9 +64,39 @@
       </div>
 
       <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-4">
-        <strong class=" block text-md font-bold uppercase tracking-wide mb-2 ">Feedback</strong>
-        <div class="render-markdown text-gray-700 text-sm">
-          <%= render_markdown(progress_update.feedback) %>
+        <strong class="block text-md font-bold uppercase tracking-wide mb-2">Feedback</strong>
+        <div class="prose prose-sm max-w-none text-gray-700">
+          <%= sanitize render_markdown(progress_update.feedback),
+          tags: %w[
+            h1
+            h2
+            h3
+            h4
+            h5
+            h6
+            p
+            br
+            ul
+            ol
+            li
+            strong
+            em
+            del
+            ins
+            table
+            thead
+            tbody
+            tr
+            th
+            td
+            blockquote
+            pre
+            code
+            a
+            img
+            hr
+          ],
+          attributes: %w[href src class alt title] %>
         </div>
       </div>
 

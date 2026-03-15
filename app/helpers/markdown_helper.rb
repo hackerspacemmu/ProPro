@@ -6,7 +6,7 @@ module MarkdownHelper
       filter_html: true,
       safe_links_only: true,
       hard_wrap: true,
-      link_atributes: { target: '_blank', rel: 'noopener noreferrer' }
+      link_attributes: { target: '_blank', rel: 'noopener noreferrer' }
     }
 
     renderer = Redcarpet::Render::HTML.new(options)
