@@ -125,7 +125,7 @@
   margin-bottom: 0.2em !important;
   line-height: 0.5 !important;
 }
-/* Style the Rich Diff Output */
+
 .rich-diff-viewer del {
   background-color: #fecaca; /* Tailwind red-200 */
   color: #7f1d1d; /* Tailwind red-900 */

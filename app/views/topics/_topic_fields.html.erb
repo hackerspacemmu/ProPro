@@ -127,7 +127,8 @@
               >Additions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-gray-100">
+
             <% fields.zip(next_fields).each do |current_field, next_field| %>
               <% field_name = (current_field || next_field).project_template_field.label %>
 
@@ -135,125 +136,84 @@
                 text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]")
               end %>
 
+              <% clean_display = ->(text) do
+                if text.to_s.strip == "[[EMPTYLINE]]"
+                  "&nbsp;".html_safe
+                else
+                  text.to_s.gsub("[[EMPTYLINE]]", "")
+                end
+              end %>
+
               <% old_val = normalize.call(current_field&.value) %>
               <% new_val = normalize.call(next_field&.value) %>
 
-              <tr class="border border-gray-200">
-                <td class="border border-gray-200 p-3 align-top font-medium text-gray-900"><%= field_name %></td>
-
-                <% if old_val != new_val %>
-                  <% old_lines = old_val.split("\n") %>
-                  <% new_lines = new_val.split("\n") %>
-
-                  <%# Use Diff::LCS to align line changes properly %>
-                  <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
-
-                  <% aligned_left = [] %>
-                  <% aligned_right = [] %>
-
-                  <%# Base Tailwind classes for all diff list items to keep strings clean %>
-                  <% base_li = "list-none border border-dashed border-black/10 mb-[2px] min-h-[1em]" %>
-
-                  <% diffs.each do |change| %>
-                    <% case change.action %>
-                    <% when '=' %>
-                      <% line = h(change.old_element) %>
-                      <% aligned_left << "<li class='#{base_li}'>#{line}</li>" %>
-                      <% aligned_right << "<li class='#{base_li}'>#{line}</li>" %>
-
-                    <% when '-' %>
-                      <% line = change.old_element.to_s %>
-                      <% if line.strip.empty? || line == "[[EMPTYLINE]]" %>
-                        <% aligned_left << "<li class='#{base_li} bg-[#f4d4d4]'><span class='bg-[#FF6961] line-through'><br></span></li>" %>
-                        <% aligned_right << "<li class='#{base_li} bg-gray-100 text-transparent select-none'><br></li>" %>
-                      <% else %>
-                        <% safe_line = h(change.old_element) %>
-                        <% aligned_left << "<li class='#{base_li} bg-[#f4d4d4]'><span class='bg-[#FF6961] line-through'>#{safe_line}</span></li>" %>
-                        <% aligned_right << "<li class='#{base_li} bg-gray-100 text-transparent select-none'>#{safe_line}</li>" %>
-                      <% end %>
-
-                    <% when '+' %>
-                      <% line = change.new_element.to_s %>
-                      <% if line.strip.empty? || line == "[[EMPTYLINE]]" %>
-                        <% aligned_left << "<li class='#{base_li} bg-gray-100 text-transparent select-none'><br></li>" %>
-                        <% aligned_right << "<li class='#{base_li} bg-[#d4f4dd]'><span class='bg-[#77DD77]'><br></span></li>" %>
-                      <% else %>
-                        <% safe_line = h(change.new_element) %>
-                        <% aligned_left << "<li class='#{base_li} bg-gray-100 text-transparent select-none'>#{safe_line}</li>" %>
-                        <% aligned_right << "<li class='#{base_li} bg-[#d4f4dd]'><span class='bg-[#77DD77]'>#{safe_line}</span></li>" %>
-                      <% end %>
-
-                    <% when '!' %>
-                      <% old_line = change.old_element.to_s %>
-                      <% new_line = change.new_element.to_s %>
-
-                      <%# Do word-level diff inside this line %>
-                      <% old_words = old_line.split(/(\s+)/) %>
-                      <% new_words = new_line.split(/(\s+)/) %>
-                      <% word_diffs = Diff::LCS.sdiff(old_words, new_words) %>
-
-                      <% old_html =
-                        word_diffs
-                          .map do |w|
-                            case w.action
-                            when "="
-                              h(w.old_element)
-                            when "-", "!"
-                              "<span class='bg-[#FF6961] line-through'>#{h(w.old_element)}</span>"
-                            else
-                              ""
-                            end
-                          end
-                          .join %>
-
-                      <% new_html =
-                        word_diffs
-                          .map do |w|
-                            case w.action
-                            when "="
-                              h(w.new_element)
-                            when "+", "!"
-                              "<span class='bg-[#77DD77]'>#{h(w.new_element)}</span>"
-                            else
-                              ""
-                            end
-                          end
-                          .join %>
-
-                      <% aligned_left << "<li class='#{base_li} bg-[#f4d4d4]'>#{old_html}</li>" %>
-                      <% aligned_right << "<li class='#{base_li} bg-[#d4f4dd]'>#{new_html}</li>" %>
-                    <% end %>
-                  <% end %>
-
-                  <td class="w-1/2 break-words align-top border border-gray-200 p-3">
-                    <ul class="list-none p-0 m-0 font-mono text-xs">
-                      <% safe_aligned_left =
-                        aligned_left.map do |line|
-                          safe_join(line.to_s.split("[[EMPTYLINE]]", -1), tag.br)
-                        end %>
-                      <%= safe_join(safe_aligned_left) %>
-                    </ul>
-                  </td>
-
-                  <td class="w-1/2 break-words align-top border border-gray-200 p-3">
-                    <ul class="list-none p-0 m-0 font-mono text-xs">
-                      <% safe_aligned_right =
-                        aligned_right.map do |line|
-                          safe_join(line.to_s.split("[[EMPTYLINE]]", -1), tag.br)
-                        end %>
-                      <%= safe_join(safe_aligned_right) %>
-                    </ul>
-                  </td>
-
-                <% else %>
+              <% if old_val != new_val %>
+                <tr class="bg-white group hover:bg-gray-50/20 transition-colors">
                   <td
-                    colspan="2"
                     class="
-                      border border-gray-200 p-3 align-top text-center text-gray-500 italic bg-gray-50
+                      p-3 text-lg font-bold text-gray-700 align-top border-r border-gray-200
+                      bg-gray-50/30
                     "
-                  >No changes</td>
-                <% end %>
-              </tr>
+                  >
+                    <%= field_name %>
+                  </td>
+
+                  <% old_html = render_markdown(current_field&.value.to_s)
+                  new_html = render_markdown(next_field&.value.to_s)
+                  html_differ = Object.new.extend(HTMLDiff)
+                  rich_diff = html_differ.diff(old_html, new_html)
+
+                  #  LEFT SIDE: Erase additions, sweep up empty wrappers, color deleted markers
+                  left_html =
+                    rich_diff
+                      .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
+                      .gsub(%r{<li>\s*</li>}m, "")
+                      .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                      .gsub(%r{<p>\s*</p>}m, "")
+                      .gsub(
+                        %r{<li>(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
+                        '<li class="marker:text-red-700 marker:font-bold">\1</li>',
+                      )
+
+                  #  RIGHT SIDE: Erase deletions, sweep up empty wrappers, color added markers
+                  right_html =
+                    rich_diff
+                      .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
+                      .gsub(%r{<li>\s*</li>}m, "")
+                      .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                      .gsub(%r{<p>\s*</p>}m, "")
+                      .gsub(
+                        %r{<li>(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
+                        '<li class="marker:text-green-700 marker:font-bold">\1</li>',
+                      ) %>
+
+                  <td
+                    class="
+                      p-4 align-top border-r border-gray-200 bg-red-50/10 w-1/2 break-words
+                    "
+                  >
+                    <div
+                      class="
+                        w-full render-markdown text-base [&_del]:bg-red-200 [&_del]:text-red-900
+                        [&_del]:line-through [&_del]:decoration-red-400 [&_del]:decoration-2
+                      "
+                    >
+                      <%= left_html.html_safe %>
+                    </div>
+                  </td>
+
+                  <td class="p-4 align-top bg-green-50/10 w-1/2 break-words">
+                    <div
+                      class="
+                        w-full render-markdown text-base [&_ins]:bg-green-200 [&_ins]:text-green-900
+                        [&_ins]:font-medium [&_ins]:no-underline
+                      "
+                    >
+                      <%= right_html.html_safe %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
             <% end %>
           </tbody>
         </table>

@@ -157,9 +157,32 @@
                     <% old_html = render_markdown(current_field&.value.to_s)
                     new_html = render_markdown(next_field&.value.to_s)
                     html_differ = Object.new.extend(HTMLDiff)
-                    rich_diff = html_differ.diff(old_html, new_html) %>
+                    rich_diff = html_differ.diff(old_html, new_html)
 
-                    <%# 2. LEFT COLUMN (Old): Hide the <ins> tags, style the <del> tags %>
+                    #  LEFT SIDE: Erase additions, sweep up empty wrappers, color deleted markers
+                    left_html =
+                      rich_diff
+                        .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
+                        .gsub(%r{<li>\s*</li>}m, "")
+                        .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                        .gsub(%r{<p>\s*</p>}m, "")
+                        .gsub(
+                          %r{<li>(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
+                          '<li class="marker:text-red-700 marker:font-bold">\1</li>',
+                        )
+
+                    #  RIGHT SIDE: Erase deletions, sweep up empty wrappers, color added markers
+                    right_html =
+                      rich_diff
+                        .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
+                        .gsub(%r{<li>\s*</li>}m, "")
+                        .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                        .gsub(%r{<p>\s*</p>}m, "")
+                        .gsub(
+                          %r{<li>(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
+                          '<li class="marker:text-green-700 marker:font-bold">\1</li>',
+                        ) %>
+
                     <td
                       class="
                         p-4 align-top border-r border-gray-200 bg-red-50/10 w-1/2 break-words
@@ -167,23 +190,22 @@
                     >
                       <div
                         class="
-                          w-full prose prose-sm max-w-none [&_ins]:hidden [&_del]:bg-red-200
-                          [&_del]:text-red-900 [&_del]:line-through [&_del]:decoration-red-400
-                          [&_del]:decoration-2
+                          w-full render-markdown text-base [&_del]:bg-red-200 [&_del]:text-red-900
+                          [&_del]:line-through [&_del]:decoration-red-400 [&_del]:decoration-2
                         "
                       >
-                        <%= rich_diff.html_safe %>
+                        <%= left_html.html_safe %>
                       </div>
                     </td>
 
                     <td class="p-4 align-top bg-green-50/10 w-1/2 break-words">
                       <div
                         class="
-                          w-full prose prose-sm max-w-none [&_del]:hidden [&_ins]:bg-green-200
-                          [&_ins]:text-green-900 [&_ins]:font-medium [&_ins]:no-underline
+                          w-full render-markdown text-base [&_ins]:bg-green-200 [&_ins]:text-green-900
+                          [&_ins]:font-medium [&_ins]:no-underline
                         "
                       >
-                        <%= rich_diff.html_safe %>
+                        <%= right_html.html_safe %>
                       </div>
                     </td>
                   </tr>
