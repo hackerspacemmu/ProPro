@@ -98,11 +98,11 @@
         <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Feedback</h3>
         <div
           class="
-            prose prose-slate max-w-none text-gray-800 bg-gray-50/50 p-5 rounded-xl border
+            editor-preview max-w-none text-gray-800 bg-gray-50/50 !p-5 rounded-xl border
             border-gray-100 leading-relaxed text-[15px]
           "
         >
-          <%= h(@progress_update.feedback).gsub("\n", "<br/>").html_safe %>
+          <%= render_markdown(@progress_update.feedback) %>
         </div>
       </div>
 

@@ -1,1 +1,130 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Force EasyMDE Preview Headings to restore their size */
+.editor-preview h1 {
+  font-size: 2em !important;
+  font-weight: 700 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+  line-height: 1.2 !important;
+}
+
+.editor-preview h2 {
+  font-size: 1.5em !important;
+  font-weight: 700 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+  line-height: 1.3 !important;
+}
+
+.editor-preview h3 {
+  font-size: 1.17em !important;
+  font-weight: 600 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+  line-height: 1.4 !important;
+}
+
+.editor-preview h4 {
+  font-size: 1em !important;
+  font-weight: 600 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+  line-height: 1.4 !important;
+}
+
+.editor-preview h5 {
+  font-size: 0.83em !important;
+  font-weight: 500 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+  line-height: 1.4 !important;
+}
+
+.editor-preview h6 {
+  font-size: 0.67em !important;
+  font-weight: 500 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+  line-height: 1.4 !important;
+}
+
+.editor-preview ul {
+  list-style-type: disc !important;
+  padding-left: 1.5em !important;
+  margin-bottom: 1em !important;
+}
+
+.editor-preview ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5em !important;
+  margin-bottom: 1em !important;
+}
+
+.editor-preview > *:first-child {
+  margin-top: 0 !important;
+}
+
+.card-markdown h1 {
+  font-size: 1em !important;
+  font-weight: 700 !important;
+  margin-top: 0.25em !important;
+  margin-bottom: 0.25em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h2 {
+  font-size: 0.75em !important;
+  font-weight: 700 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h3 {
+  font-size: 0.5em !important;
+  font-weight: 700 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h4 {
+  font-size: 0.4em !important;
+  font-weight: 500 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h5 {
+  font-size: 0.35em !important;
+  font-weight: 500 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.card-markdown h6 {
+  font-size: 0.33em !important;
+  font-weight: 500 !important;
+  margin-top: 0.2em !important;
+  margin-bottom: 0.2em !important;
+  line-height: 0.5 !important;
+}
+
+.rich-diff-viewer del {
+  background-color: #fecaca; /* Tailwind red-200 */
+  color: #7f1d1d; /* Tailwind red-900 */
+  text-decoration: line-through;
+  text-decoration-color: #f87171; /* Tailwind red-400 */
+  text-decoration-thickness: 2px;
+}
+
+.rich-diff-viewer ins {
+  background-color: #bbf7d0; /* Tailwind green-200 */
+  color: #14532d; /* Tailwind green-900 */
+  text-decoration: none;
+  font-weight: 500;
+}

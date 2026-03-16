@@ -139,6 +139,7 @@ GEM
     gretel (5.0.1)
       actionview (>= 6.1)
       railties (>= 6.1)
+    htmldiff (0.0.1)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.1.0)
@@ -260,6 +261,7 @@ GEM
     rdoc (6.14.2)
       erb
       psych (>= 4.0.0)
+    redcarpet (3.6.1)
     regexp_parser (2.10.0)
     reline (0.6.1)
       io-console (~> 0.5)
@@ -386,12 +388,14 @@ DEPENDENCIES
   factory_bot_rails
   faker
   gretel
+  htmldiff
   importmap-rails
   jbuilder
   propshaft
   puma (>= 5.0)
   pundit (~> 2.5)
   rails (>= 8.0.2)
+  redcarpet (~> 3.6.1)
   rubocop
   rubocop-rails-omakase
   selenium-webdriver
