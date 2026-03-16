@@ -27,10 +27,8 @@ class LecturersController < ApplicationController
   end
 
   def promote_to_coordinator
-    unless @course.coordinators.include?(Current.user)
-      return
-    end
-    
+    return unless @course.coordinators.include?(Current.user)
+
     new_coordinator = User.find(params[:id])
     Enrolment.find_or_create_by!(
       user: new_coordinator,
@@ -41,9 +39,7 @@ class LecturersController < ApplicationController
   end
 
   def demote_to_lecturer
-    unless @course.coordinators.include?(Current.user)
-      return
-    end
+    return unless @course.coordinators.include?(Current.user)
 
     new_coordinator = User.find(params[:id])
     coordinator_enrolment = Enrolment.find_by(
@@ -54,7 +50,7 @@ class LecturersController < ApplicationController
     coordinator_enrolment&.destroy
     redirect_to course_lecturer_path(@course, new_coordinator)
   end
-  
+
   private
 
   def set_course
