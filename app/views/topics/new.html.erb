@@ -65,6 +65,9 @@
       <div class="p-5 sm:p-8 md:p-10">
 
         <%= form_with url: course_topics_path(@course), method: :post, class: "space-y-8" do |form| %>
+          <div class="mt-0 mb-0 contents">
+            <%= render "copy_topic_overlay" %>
+          </div>
 
           <%# Shared Input Classes %>
           <% input_classes =
