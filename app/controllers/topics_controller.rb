@@ -1,6 +1,6 @@
 class TopicsController < ApplicationController
   before_action :set_course
-  before_action :set_topic, only: [:show, :edit, :update, :destroy, :change_status]
+  before_action :set_topic, only: %i[show edit update destroy change_status]
 
   def index
     @topics = policy_scope(@course.topics)
@@ -117,7 +117,7 @@ class TopicsController < ApplicationController
     authorize @topic
 
     status = @course.require_coordinator_approval? ? :pending : :approved
-    
+
     has_coordinator_comment = @topic.topic_instances.last.comments.any? do |comment|
       @course.coordinators.pluck(:id).include?(comment.user_id)
     end
@@ -144,17 +144,17 @@ class TopicsController < ApplicationController
 
         params[:fields].each do |field_id, value|
           existing = ProjectInstanceField.find_by(
-              project_template_field_id: field_id, 
-              instance: @instance
-            )
+            project_template_field_id: field_id,
+            instance: @instance
+          )
 
           if existing
             existing.update!(value: value)
           else
             @instance.project_instance_fields.create!(
-                project_template_field_id: field_id, 
-                value: value
-              )
+              project_template_field_id: field_id,
+              value: value
+            )
           end
         end
       end

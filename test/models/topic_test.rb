@@ -1,4 +1,4 @@
-require "test_helper"
+require 'test_helper'
 
 class TopicTest < ActiveSupport::TestCase
   setup do
@@ -10,7 +10,7 @@ class TopicTest < ActiveSupport::TestCase
     @instance = create(:topic_instance, topic: @topic, created_by: @lecturer, version: 1, status: :pending)
   end
 
-  test "instance_to_edit returns new instance when topic is rejected" do
+  test 'instance_to_edit returns new instance when topic is rejected' do
     @topic.update_column(:status, :rejected)
 
     result = @topic.instance_to_edit(created_by: @lecturer, has_coordinator_comment: false, status: :pending)
@@ -19,7 +19,7 @@ class TopicTest < ActiveSupport::TestCase
     assert_equal 2, result.version
   end
 
-  test "instance_to_edit returns new instance when topic is redo" do
+  test 'instance_to_edit returns new instance when topic is redo' do
     @topic.update_column(:status, :redo)
 
     result = @topic.instance_to_edit(created_by: @lecturer, has_coordinator_comment: false, status: :pending)
@@ -28,7 +28,7 @@ class TopicTest < ActiveSupport::TestCase
     assert_equal 2, result.version
   end
 
-  test "instance_to_edit returns new instance when pending with coordinator comment" do
+  test 'instance_to_edit returns new instance when pending with coordinator comment' do
     @topic.update_column(:status, :pending)
 
     result = @topic.instance_to_edit(created_by: @lecturer, has_coordinator_comment: true, status: :pending)
@@ -37,7 +37,7 @@ class TopicTest < ActiveSupport::TestCase
     assert_equal 2, result.version
   end
 
-  test "instance_to_edit returns existing instance when pending with no coordinator comment" do
+  test 'instance_to_edit returns existing instance when pending with no coordinator comment' do
     @topic.update_column(:status, :pending)
 
     result = @topic.instance_to_edit(created_by: @lecturer, has_coordinator_comment: false, status: :pending)
@@ -46,7 +46,7 @@ class TopicTest < ActiveSupport::TestCase
     assert_equal @instance, result
   end
 
-  test "topic ownership_type is always lecturer" do
-    assert_equal "lecturer", @topic.ownership_type
+  test 'topic ownership_type is always lecturer' do
+    assert_equal 'lecturer', @topic.ownership_type
   end
 end
