@@ -1,7 +1,7 @@
 class ProjectsController < ApplicationController
   before_action :set_course
-  before_action :set_project, only: [:show, :edit, :update, :change_status]
-  
+  before_action :set_project, only: %i[show edit update change_status]
+
   def show
     authorize @project || Project.new(course: @course)
 
@@ -208,7 +208,7 @@ class ProjectsController < ApplicationController
 
   def update
     authorize @project || Project.new(course: @course)
-    
+
     has_supervisor_comment = false
     @project.project_instances.last.comments.each do |comment|
       if comment.user_id == @project.supervisor.id

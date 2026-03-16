@@ -6,10 +6,13 @@
     <div class="flex flex-col group">
 
       <%= label_tag "fields_#{field.id}",
-      field.label,
-      class:
-        "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2",
-      title: field.hint %>
+        class: "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2",
+        title: field.hint do %>
+        <%= field.label %>
+        <% if field.required %>
+          <span class="ml-1 text-red-600">*</span>
+        <% end %>
+      <% end %>
 
       <% if field.hint.present? %>
         <p class="text-xs text-gray-400 mb-2 leading-normal whitespace-pre-line"><%= field.hint %></p>
@@ -23,7 +26,7 @@
         existing_value,
         class: input_classes,
         placeholder: field.hint,
-        required: true,
+        required: field.required,
         autocomplete: "off" %>
 
       <% when "textarea" %>
@@ -35,7 +38,7 @@
         },
         rows: 2,
         placeholder: field.hint,
-        required: true %>
+        required: field.required %>
 
       <% when "dropdown" %>
         <div class="relative">
@@ -44,7 +47,7 @@
           options_for_select(options, existing_value),
           prompt: "Select an option",
           class: "#{input_classes} appearance-none pr-10 cursor-pointer",
-          required: true %>
+          required: field.required %>
           <div
             class="
               absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
@@ -69,7 +72,7 @@
               option,
               (option.to_s == existing_value.to_s),
               id: "field_#{field.id}_#{idx}",
-              required: true,
+              required: field.required,
               class:
                 "w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" %>
               <%= label_tag "field_#{field.id}_#{idx}",
@@ -84,7 +87,7 @@
         <%= text_field_tag "fields[#{field.id}]",
         existing_value,
         class: input_classes,
-        required: true,
+        required: field.required,
         autocomplete: "off" %>
       <% end %>
     </div>
