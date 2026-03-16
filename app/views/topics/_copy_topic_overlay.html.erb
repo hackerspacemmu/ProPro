@@ -1,0 +1,65 @@
+<div data-controller="overlay" data-overlay-target-course-id-value="<%= @course.id %>" class="relative">
+  <div class="flex justify-end">
+    <button type="button" data-action="click->overlay#open" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+      Reuse details from another topic
+    </button>
+  </div>
+
+  <div data-overlay-target="menu" data-action="click->overlay#closeOnBackdrop"
+      class="fixed inset-0 z-[60] flex items-start justify-center pt-20 bg-black/50 transition-opacity duration-150 opacity-0 pointer-events-none">
+    
+    <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
+        data: { overlay_target: "container" } do %>
+      
+      <div class="mb-6">
+        <h3 class="text-2xl font-bold text-gray-600">Select a Topic to Copy</h3>
+      </div><br>
+
+      <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+        <% if @approved_topics.present? %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <% @approved_topics.each do |topic| %>
+              <% 
+                topic_instance = topic.topic_instances.order(:version).last
+                status_key = "approved"
+                header_bg = "bg-emerald-600"
+                
+                path = new_course_topic_path(@course, source_topic_id: topic.id)
+              %>
+
+              <%= link_to path, data: { overlay_target: "card", action: "click->overlay#selectTopic", overlay_course_id_param: topic.id },
+                  class: "group block h-full bg-white rounded-xl border border-gray-200 transition-all duration-200 ease-in-out hover:border-emerald-400 hover:shadow-lg flex flex-col overflow-hidden no-underline" do %>
+                
+                <div class="flex-none">
+                  <%= render "courses/topic_card_contents", topic: topic, topic_instance: topic_instance, header_bg: header_bg, status_key: status_key %>
+                </div>
+
+                <div class="mt-auto border-t border-gray-100 bg-gray-50/40 px-5 py-4">
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 whitespace-nowrap">Course</span>
+                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md truncate">
+                      <%= topic.course.course_name %>
+                    </span>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
+            <%= image_tag "info.svg", class: "w-6 h-6" %>
+            <h5 class="text-sm text-gray-600 font-medium m-0">
+              You don't have any approved topics yet.
+            </h5>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button type="button" data-action="click->overlay#close" class="text-red-600 hover:text-red-800 text-sm font-medium">
+          Cancel
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
