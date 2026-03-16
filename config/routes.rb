@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       post 'handle_add_lecturers'
       get 'settings'
       post 'handle_settings'
+      post 'update_coursecode'
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
       get 'details', to: 'courses#details'

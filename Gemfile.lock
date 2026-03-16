@@ -309,6 +309,7 @@ GEM
       fugit (~> 1.11)
       railties (>= 7.1)
       thor (>= 1.3.1)
+    sqids (0.2.2)
     sqlite3 (2.7.2-aarch64-linux-gnu)
     sqlite3 (2.7.2-aarch64-linux-musl)
     sqlite3 (2.7.2-arm-linux-gnu)
@@ -380,10 +381,10 @@ DEPENDENCIES
   csv
   debug
   diff-lcs
-  factory_bot_rails
-  faker
   erb-formatter (~> 0.7.3)
   erb_lint
+  factory_bot_rails
+  faker
   gretel
   importmap-rails
   jbuilder
@@ -395,6 +396,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   selenium-webdriver
   solid_queue
+  sqids (~> 0.2.2)
   sqlite3 (>= 2.1)
   stimulus-rails
   tailwindcss-rails (~> 4.3)
