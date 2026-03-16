@@ -52,9 +52,18 @@
       <%= render "project_details",
       fields: fields,
       next_fields: next_fields,
-      based_on_topic_name: based_on_topic_name %>
+      based_on_topic_name: based_on_topic_name,
+      index: index,
+      instances: instances %>
     <% elsif current_tab == 'progress' %>
-      <%= render "progress_updates", progress_updates: @progress_updates %>
+      <%= render "progress_updates",
+      progress_updates: progress_updates,
+      progress: progress,
+      project: project,
+      current_version: current_version,
+      latest_version: latest_version,
+      course: course,
+      weeks: weeks %>
     <% end %>
   </div>
 

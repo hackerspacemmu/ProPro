@@ -1,24 +1,26 @@
 <div class="w-full space-y-6">
 
-  <% total = @progress.size %>
-  <% @progress.each_with_index do |progress_update, i| %>
+  <% total = progress.size %>
+  <% progress.each_with_index do |progress_update, i| %>
 
     <div
       class="
         bg-white rounded-xl border border-gray-100 shadow-sm p-6 hover:shadow-md
-      ">
+      "
+    >
 
       <div
         class="
           flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4 border-b
           border-gray-50 pb-4
-        ">
+        "
+      >
 
         <div>
           <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <% if (total - i) > @weeks %>
+            <% if (total - i) > weeks %>
               <span class="text-blue-600">Extra
-                <%= (total - @weeks - i) %></span>
+                <%= (total - weeks - i) %></span>
             <% else %>
               <span>Progress
                 <%= (total - i) %></span>
@@ -29,11 +31,13 @@
               class="w-4 h-4 text-gray-400"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"><path
+              viewBox="0 0 24 24"
+            ><path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              /></svg>
             <%= progress_update.date %>
           </p>
         </div>
@@ -53,15 +57,46 @@
           class="
             self-start px-3 py-1 rounded-lg text-xs font-bold border
             <%= rating_color %> capitalize shadow-sm
-          ">
+          "
+        >
           <%= progress_update.rating.gsub("_", " ").titleize %>
         </span>
       </div>
 
       <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-4">
-        <strong class=" block text-md font-bold uppercase tracking-wide mb-2 ">Feedback</strong>
-        <div class=" text-gray-700 text-sm leading-relaxed">
-          <%= h(progress_update.feedback).gsub("\n", "<br/>").html_safe %>
+        <strong class="block text-md font-bold uppercase tracking-wide mb-2">Feedback</strong>
+        <div class="prose prose-sm max-w-none text-gray-700">
+          <%= sanitize render_markdown(progress_update.feedback),
+          tags: %w[
+            h1
+            h2
+            h3
+            h4
+            h5
+            h6
+            p
+            br
+            ul
+            ol
+            li
+            strong
+            em
+            del
+            ins
+            table
+            thead
+            tbody
+            tr
+            th
+            td
+            blockquote
+            pre
+            code
+            a
+            img
+            hr
+          ],
+          attributes: %w[href src class alt title] %>
         </div>
       </div>
 
@@ -71,15 +106,15 @@
           <%= progress_update.updated_at.strftime("%d-%m-%Y") %>
         </p>
 
-        <% if policy(@project).can_record_progress_update? && @current_version == @latest_version %>
+        <% if policy(project).can_record_progress_update? && current_version == latest_version %>
           <div class="flex items-center gap-3">
-            <%= button_to edit_course_project_progress_update_path(@course, @project, progress_update),
+            <%= button_to edit_course_project_progress_update_path(course, project, progress_update),
                 method: :get,
                 class: "text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer" do %>
               Edit
             <% end %>
 
-            <%= button_to course_project_progress_update_path(@course, @project, progress_update),
+            <%= button_to course_project_progress_update_path(course, project, progress_update),
                 method: :delete,
                 form: { data: { turbo_confirm: "Are you sure?" } },
                 class: "text-sm font-medium text-red-500 hover:text-red-700 transition-colors hover:cursor-pointer cursor:pointer" do %>
@@ -92,12 +127,13 @@
     </div>
   <% end %>
 
-  <% if @progress.empty? %>
+  <% if progress.empty? %>
     <div
       class="
         text-center py-12 border-2 border-dashed border-gray-200 rounded-xl
         bg-gray-50/50
-      ">
+      "
+    >
       <p class="text-gray-500 text-sm">No progress updates recorded.</p>
     </div>
   <% end %>

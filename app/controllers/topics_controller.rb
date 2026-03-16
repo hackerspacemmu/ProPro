@@ -63,6 +63,16 @@ class TopicsController < ApplicationController
     @template_fields = @course.project_template.project_template_fields
                               .where(applicable_to: %i[topics both])
 
+    if params[:source_topic_id].present?
+      @source_topic = Topic.find(params[:source_topic_id])
+      return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
+    end
+
+    @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+                            .where(course_id: Course.managed_by(current_user).select(:id))
+                            .select { |t| t.current_status == 'approved' }
+                            .sort_by(&:created_at).reverse
+
     return if @template_fields.present?
 
     redirect_to course_path(@course), alert: 'Project template is missing or incomplete.'

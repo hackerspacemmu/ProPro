@@ -63,13 +63,12 @@ owner_name =
 <div class="px-5 py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
 
   <div class="flex-1 min-h-0 mt-0">
-    <p
+    <div
       class="
-        text-sm text-gray-600 line-clamp-4 leading-relaxed whitespace-pre-line
-        font-semibold overflow-hidden
+        text-sm text-gray-600 font-semibold leading-relaxed line-clamp-4 overflow-hidden
       "
-    ><%= description_text %>
-    </p>
+    ><%= plaintext_markdown_preview(description_text) %>
+    </div>
   </div>
 
   <%# Footer Metadata %>
