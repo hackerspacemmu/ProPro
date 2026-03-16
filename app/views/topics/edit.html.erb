@@ -79,10 +79,12 @@
               <div class="flex flex-col group">
 
                 <%# Label %>
-                <%= label_tag "fields_#{field.id}",
-                field.label,
-                class: label_classes,
-                title: field.hint %>
+                <%= label_tag "fields_#{field.id}", class: label_classes, title: field.hint do %>
+                  <%= field.label %>
+                  <% if field.required %>
+                    <span class="ml-1 text-[11px] sm:text-xs font-bold text-red-600">*</span>
+                  <% end %>
+                <% end %>
 
                 <%# Hint %>
                 <% if field.hint.present? %>

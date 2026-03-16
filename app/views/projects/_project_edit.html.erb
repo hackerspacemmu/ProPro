@@ -6,10 +6,13 @@
     <div class="flex flex-col group">
 
       <%= label_tag "fields_#{field.id}",
-      field.label,
-      class:
-        "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2",
-      title: field.hint %>
+        class: "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2",
+        title: field.hint do %>
+        <%= field.label %>
+        <% if field.required %>
+          <span class="ml-1 text-red-600">*</span>
+        <% end %>
+      <% end %>
 
       <% if field.hint.present? %>
         <p class="text-xs text-gray-400 mb-2 leading-normal whitespace-pre-line"><%= field.hint %></p>
