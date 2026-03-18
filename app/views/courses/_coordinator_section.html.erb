@@ -43,15 +43,38 @@
       <% %w[pending redo rejected].each do |stat| %>
         <% group = incoming_proposals.select { |p| p.status.to_s == stat } %>
         <% if group.any? %>
+          <% is_collapsible = %w[redo rejected].include?(stat) %>
+
           <div class="mb-3 mt-2">
-            <div class="flex items-center justify-start gap-2 pb-2 pt-2">
-              <%= image_tag "#{stat}.svg", class: "inline-block w-5 h-5" %>
-              <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
-              </h5>
+            <%# justify-between to push the button to the far right %>
+            <div class="flex items-center justify-between pb-2 pt-2">
+
+              <div class="flex items-center justify-start gap-2">
+                <%= image_tag "#{stat}.svg", class: "inline-block w-5 h-5" %>
+                <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block">
+                  <%= stat.titleize %>
+                </h5>
+              </div>
+
+              <% if is_collapsible %>
+                <button
+                  type="button"
+                  class="
+                    text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors
+                    cursor-pointer
+                  "
+                  onclick="const grid = this.parentElement.nextElementSibling; grid.classList.toggle('hidden'); this.innerText = grid.classList.contains('hidden') ? 'Show More' : 'Show Less';"
+                >
+                  Show More
+                </button>
+              <% end %>
+
             </div>
+            <%# Add the 'hidden' class conditionally if this group is collapsible %>
             <div
               class="
                 grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
+                <%= 'hidden' if is_collapsible %>
               "
             >
               <%= render partial: "project_card", collection: group, as: :project %>
@@ -131,7 +154,8 @@
       <p class="text-gray-500 mb-3">Lecturer-proposed topics awaiting your approval</p>
     </header>
 
-    <% incoming_topics = topic_list.select do |project|
+    <% incoming_topics =
+      topic_list.select do |project|
         project.lecturer? && project.owner != current_user &&
           %w[pending redo rejected].include?(project.status.to_s)
       end %>
