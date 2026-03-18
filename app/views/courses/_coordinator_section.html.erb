@@ -53,6 +53,8 @@
                 <%= image_tag "#{stat}.svg", class: "inline-block w-5 h-5" %>
                 <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block">
                   <%= stat.titleize %>
+                  -
+                  <%= group.size %>
                 </h5>
               </div>
 
@@ -113,6 +115,8 @@
             <div class="flex items-center justify-start gap-2 pb-2 pt-2">
               <%= image_tag "#{stat}.svg", class: "inline-block w-5 h-5" %>
               <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
+                -
+                <%= group.size %>
               </h5>
             </div>
             <div
@@ -170,6 +174,8 @@
             <div class="flex items-center justify-start gap-2 pb-2 pt-2">
               <%= image_tag "#{stat}.svg", class: "inline-block w-5 h-5" %>
               <h5 class="text-[#7e7e7e] whitespace-no-wrap text-lg inline-block"><%= stat.titleize %>
+                -
+                <%= group.size %>
               </h5>
             </div>
             <div
