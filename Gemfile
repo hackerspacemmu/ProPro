@@ -93,6 +93,5 @@ gem 'erb-formatter', '~> 0.7.3'
 gem 'redcarpet', '~> 3.6.1'
 
 gem 'htmldiff'
-gem "erb-formatter", "~> 0.7.3"
 
 gem "sqids", "~> 0.2.2"

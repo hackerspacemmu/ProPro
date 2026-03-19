@@ -302,11 +302,16 @@ document.addEventListener("turbo:load", function () {
     }
 
     // Remove option
-    if (e.target.classList.contains("remove-option")) {
+    const removeOptionBtn = e.target.closest(".remove-option");
+
+    if (removeOptionBtn) {
       e.preventDefault();
-      const optionRow = e.target.closest(
+
+      // Find the wrapper (whether it's dropdown or radio)
+      const optionRow = removeOptionBtn.closest(
         ".dropdown-option-row, .radio-option-cell",
       );
+
       if (optionRow) {
         optionRow.remove();
       }
