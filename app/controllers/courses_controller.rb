@@ -334,6 +334,19 @@ class CoursesController < ApplicationController
   end
 
   def enroll_via_coursecode
+    code = params[:coursecode]
+    @course = Course.by_coursecode(code)
+
+    if @course
+      Enrolment.find_or_create_by!(
+        user: current_user,
+        course: @course,
+        role: :student
+      )
+      redirect_back_or_to '/', notice: 'Successfully joined the course.'
+    else
+      redirect_back_or_to '/', alert: 'Invalid course code.'
+    end
   end
 
   private
