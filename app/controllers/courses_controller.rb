@@ -333,6 +333,9 @@ class CoursesController < ApplicationController
     ]
   end
 
+  def enroll_via_coursecode
+  end
+
   private
 
   def set_course
