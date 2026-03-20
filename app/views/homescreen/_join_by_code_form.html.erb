@@ -1,20 +1,18 @@
-<%= turbo_frame_tag "join_by_code_form" do %>
-  <div class="bg-white py-6 px-4 shadow sm:rounded-lg sm:px-6 w-fit border border-gray-100 mb-6">
-    <%= form_with url: invite_path, method: :post do |form| %>
-      <%= form.label :coursecode,
-        'Join a Course',
-        class: "block text-sm font-medium text-gray-700" %>
-      <div class="mt-1 flex gap-4" >
-        <%= form.text_field :coursecode,
-          required: true,
-          placeholder: "Code",
-          class: "appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
-        <button
-          type="submit"
-          class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
-          Join
-        </button>
-      </div>
-    <% end %>
-  </div>
-<% end %>
+<div class="bg-white py-6 px-4 shadow sm:rounded-lg sm:px-6 w-fit border border-gray-100 mb-6">
+  <%= form_with url: invite_path, method: :post do |form| %>
+    <%= form.label :coursecode,
+      'Join a Course',
+      class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1 flex gap-4" >
+      <%= form.text_field :coursecode,
+        required: true,
+        placeholder: "Code",
+        class: "appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+        Join
+      </button>
+    </div>
+  <% end %>
+</div>
