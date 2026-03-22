@@ -387,14 +387,7 @@ class CoursesController < ApplicationController
         )
 
         user_project_group_ids = ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
-        new_group_member = nil
-
-        user_project_group_ids.each do |id|
-          if ProjectGroup.find(id).course_id == parent_course.id
-            new_group_member = ProjectGroupMember.find_by(user: new_user, project_group_id: id)
-            break
-          end
-        end
+        new_group_member = ProjectGroupMember.joins(:project_group).find_by(user: new_user, project_groups: { course: parent_course } )
 
         if new_group_member
           new_group_member.update!(project_group: new_group)
