@@ -22,10 +22,12 @@
 
 <section id="incoming-proposals">
   <div class="<%= container_classes %>">
+
     <header>
       <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Incoming Proposals</h4>
       <p class="text-gray-500">Student proposals awaiting approval</p>
     </header>
+
     <% if incoming_proposals.empty? %>
       <p class="mt-3 text-gray-500 break-word whitespace-pre-line">No student proposals are pending approval.</p>
     <% else %>
@@ -33,21 +35,23 @@
         <% group = incoming_proposals.select { |p| p.status.to_s == stat } %>
         <% if group.any? %>
           <% is_collapsible = %w[redo rejected].include?(stat) %>
+
           <div class="mb-3 mt-2">
-            <div class="flex items-center justify-start gap-2 pb-2 pt-2">
-              <% if is_collapsible %>
-                <button
-                  type="button"
-                  class="flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
-                  onclick="
-                    const grid = this.closest('.mb-3').querySelector('.grid');
-                    const arrow = this.querySelector('.arrow');
-                    grid.classList.toggle('hidden');
-                    arrow.classList.toggle('rotate-90');"
-                >
-                  <%= image_tag "collapsable_arrow.svg", class: "arrow w-6 h-6 transition-transform duration-200" %>
-                </button>
-              <% end %>
+
+            <div class="flex items-center justify-start gap-2 pb-2 pt-2 sm:pl-3">
+              <button
+                type="button"
+                class="flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
+                onclick="
+                  const grid = this.closest('.mb-3').querySelector('.grid');
+                  const arrow = this.querySelector('.arrow');
+                  grid.classList.toggle('hidden');
+                  arrow.classList.toggle('rotate-90');"
+              >
+                <% arrow_class = is_collapsible ? 'arrow w-6 h-6 transition-transform duration-200' : 'arrow w-6 h-6 transition-transform duration-200 rotate-90' %>
+                <%= image_tag "collapsable_arrow.svg", class: arrow_class %>
+              </button>
+
               <div class="flex items-center gap-3">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-white <%= status_badge_classes(stat) %>">
                   <div class="bg-white rounded-full p-0.5 flex items-center justify-center">
@@ -58,10 +62,12 @@
                 <span class="text-sm text-gray-500"><%= group.size %></span>
               </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full <%= 'hidden' if is_collapsible %>">
+
+            <div class="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full sm:pl-8 <%= 'hidden' if is_collapsible %>">
               <%= render partial: "project_card", collection: group, as: :project %>
             </div>
           </div>
+
         <% end %>
       <% end %>
     <% end %>
@@ -90,29 +96,28 @@
 
 <section id="my-topics">
   <div class="<%= container_classes %>">
-    <header>
-      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">My Topics</h4>
-      <div>
-        <% if course.require_coordinator_approval? %>
-          <p class="text-gray-500 mb-3">Draft topics here. Approved topics appear in your Lecturer View
-            (visible to students)</p>
-        <% else %>
-          <p class="text-gray-500 mb-3">Your submitted topics. Only approved topics are visible to students
-            in your Lecturer View.</p>
-        <% end %>
 
-        <div class="flex flex-wrap items-center gap-2 mt-2">
+    <header class="mb-3">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h4 class="text-xl text-black font-normal break-word whitespace-pre-line">My Topics</h4>
+        <div class="flex items-center gap-2 pl-5">
           <%= link_to "View All Topics",
           course_topics_path(course),
-          class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors" %>
-
+          class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" %>
           <% if policy(Topic.new(course: course)).create? %>
             <%= link_to "Create Topic",
             new_course_topic_path(course),
-            class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors" %>
+            class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors" %>
           <% end %>
         </div>
       </div>
+      <% if course.require_coordinator_approval? %>
+        <p class="text-gray-500 mt-1">Draft topics here. Approved topics appear in your Lecturer View
+          (visible to students)</p>
+      <% else %>
+        <p class="text-gray-500 mt-1">Your submitted topics. Only approved topics are visible to students
+          in your Lecturer View.</p>
+      <% end %>
     </header>
 
     <% if my_topics.empty? %>
@@ -123,20 +128,19 @@
         <% if group.any? %>
           <% is_collapsible = stat != "approved" %>
           <div class="mb-3 mt-2">
-            <div class="flex items-center justify-start gap-2 pb-2 pt-2">
-              <% if is_collapsible %>
-                <button
-                  type="button"
-                  class="flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
-                  onclick="
-                    const grid = this.closest('.mb-3').querySelector('.grid');
-                    const arrow = this.querySelector('.arrow');
-                    grid.classList.toggle('hidden');
-                    arrow.classList.toggle('rotate-90');"
-                >
-                  <%= image_tag "collapsable_arrow.svg", class: "arrow w-6 h-6 transition-transform duration-200" %>
-                </button>
-              <% end %>
+            <div class="flex items-center justify-start gap-2 pb-2 pt-2 sm:pl-3">
+              <button
+                type="button"
+                class="flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
+                onclick="
+                  const grid = this.closest('.mb-3').querySelector('.grid');
+                  const arrow = this.querySelector('.arrow');
+                  grid.classList.toggle('hidden');
+                  arrow.classList.toggle('rotate-90');"
+              >
+                <% arrow_class = is_collapsible ? 'arrow w-6 h-6 transition-transform duration-200' : 'arrow w-6 h-6 transition-transform duration-200 rotate-90' %>
+                <%= image_tag "collapsable_arrow.svg", class: arrow_class %>
+              </button>
               <div class="flex items-center gap-3">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-white <%= status_badge_classes(stat) %>">
                   <div class="bg-white rounded-full p-0.5 flex items-center justify-center">
@@ -147,7 +151,7 @@
                 <span class="text-sm text-gray-500"><%= group.size %></span>
               </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full <%= 'hidden' if is_collapsible %>">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full sm:pl-8 <%= 'hidden' if is_collapsible %>">
               <%= render partial: "topic_card", collection: group, as: :topic %>
             </div>
           </div>
