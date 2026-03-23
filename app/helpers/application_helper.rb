@@ -26,4 +26,14 @@ module ApplicationHelper
 
     link_to label, path, class: css_class
   end
+
+  def status_badge_classes(status)
+    case status
+    when "pending"  then "bg-sky-700"
+    when "redo"     then "bg-amber-600"
+    when "rejected" then "bg-red-700"
+    when "approved" then "bg-emerald-600"
+    else "bg-gray-600"
+    end
+  end
 end
