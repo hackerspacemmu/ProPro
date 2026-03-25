@@ -6,7 +6,7 @@ class TopicInstance < ApplicationRecord
   default_scope { where(project_instance_type: :topic) }
   belongs_to :topic, foreign_key: 'project_id'
 
-  has_many :comments, as: :location
+  has_many :comments, as: :location, dependent: :destroy
 
   belongs_to :created_by, class_name: 'User'
   belongs_to :source_topic, class_name: 'Project', optional: true
