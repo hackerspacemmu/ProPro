@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   post 'user/edit'
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
 
+  resources :enrolments, only: [:destroy]
+
   root 'homescreen#show'
 
   get 'login', to: 'sessions#new'

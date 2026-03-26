@@ -6,7 +6,7 @@ class ProjectInstance < ApplicationRecord
   belongs_to :project
   belongs_to :enrolment
 
-  has_many :comments, as: :location
+  has_many :comments, as: :location, dependent: :destroy
 
   belongs_to :created_by, class_name: 'User'
   belongs_to :source_topic, class_name: 'Topic', optional: true

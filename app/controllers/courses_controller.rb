@@ -258,6 +258,7 @@ class CoursesController < ApplicationController
       @members = @group.project_group_members.includes(:user)
     else
       @student = User.find(@participant_id)
+      @student_enrolment = Enrolment.find_by(user: @student, course: @course)
     end
 
     @current_instance = @project&.project_instances&.order(:version)&.last
