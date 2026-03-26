@@ -1,4 +1,4 @@
-require "application_system_test_case"
+require 'application_system_test_case'
 
 class ProjectVersioningTest < ApplicationSystemTestCase
   setup do
@@ -14,14 +14,14 @@ class ProjectVersioningTest < ApplicationSystemTestCase
     @instance_2 = create(:project_instance, project: @project, enrolment: @lecturer_enrolment, created_by: @student, version: 2, status: :pending)
   end
 
-  test "defaults to latest version on page load" do
+  test 'defaults to latest version on page load' do
     login_as(@student)
     visit course_project_path(@course, @project)
 
     assert_selector '[data-testid="current-version"]', text: /2 of 2/i
   end
 
-  test "clicking back navigates to previous version" do
+  test 'clicking back navigates to previous version' do
     login_as(@student)
     visit course_project_path(@course, @project)
 
@@ -30,7 +30,7 @@ class ProjectVersioningTest < ApplicationSystemTestCase
     assert_selector '[data-testid="current-version"]', text: /1 of 2/i
   end
 
-  test "clicking next navigates to next version" do
+  test 'clicking next navigates to next version' do
     login_as(@student)
     visit course_project_path(@course, @project, version: 1)
 
@@ -39,14 +39,14 @@ class ProjectVersioningTest < ApplicationSystemTestCase
     assert_selector '[data-testid="current-version"]', text: /2 of 2/i
   end
 
-  test "back button is disabled on version 1" do
+  test 'back button is disabled on version 1' do
     login_as(@student)
     visit course_project_path(@course, @project, version: 1)
 
     assert_no_selector '[data-testid="version-back"]'
   end
 
-  test "next button is disabled on latest version" do
+  test 'next button is disabled on latest version' do
     login_as(@student)
     visit course_project_path(@course, @project)
 

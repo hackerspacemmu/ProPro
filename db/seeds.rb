@@ -483,7 +483,7 @@ title_field_individual = ProjectTemplateField.create!(
 project_description_field = ProjectTemplateField.create!(
   project_template: individual_template,
   field_type: 1,
-  applicable_to: 1,
+  applicable_to: :both,
   label: 'Project Description',
   hint: 'Describe your project objectives and scope'
 )
@@ -506,7 +506,7 @@ title_field_group = ProjectTemplateField.create!(
 group_description_field = ProjectTemplateField.create!(
   project_template: group_template,
   field_type: 1, # textarea
-  applicable_to: 1, # student
+  applicable_to: :both,
   label: 'Group Project Description',
   hint: 'Describe the group project scope and member responsibilities'
 )

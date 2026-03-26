@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   post 'user/edit'
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
 
+  resources :enrolments, only: [:destroy]
+
   root 'homescreen#show'
 
   get 'login', to: 'sessions#new'
@@ -32,6 +34,7 @@ Rails.application.routes.draw do
       post 'handle_add_lecturers'
       get 'settings'
       post 'handle_settings'
+      post 'update_coursecode'
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
       get 'details', to: 'courses#details'

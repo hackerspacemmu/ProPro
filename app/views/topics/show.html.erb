@@ -15,14 +15,6 @@
 
   <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 xl:px-16">
 
-    <%# --- Flash Messages --- %>
-    <% if flash[:alert] %>
-      <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-4 text-sm font-medium"><%= flash[:alert] %></div>
-    <% end %>
-    <% if flash[:notice] %>
-      <div class="bg-green-50 text-green-700 p-4 rounded-lg mb-4 text-sm font-medium"><%= flash[:notice] %></div>
-    <% end %>
-
     <%# --- Top Back Button --- %>
     <div class="flex items-center justify-start mb-2">
       <%= link_to course_path(@course), class: "group flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
@@ -65,11 +57,21 @@
         current_version: current_version,
         latest_version: latest_version,
         oldest_version: oldest_version,
+        is_student: @is_student,
+        course: @course,
+        index: @index,
         instances: @instances %>
 
         <section>
           <div>
-            <%= render "topic_fields", fields: @fields, next_fields: @next_fields, topic: @topic %>
+            <%= render "topic_fields",
+            fields: @fields,
+            next_fields: @next_fields,
+            topic: @topic,
+            course: @course,
+            index: @index,
+            instances: @instances,
+            is_student: @is_student %>
           </div>
         </section>
 

@@ -1,3 +1,6 @@
+require 'sqids'
+
+# Represents courses
 class Course < ApplicationRecord
   has_many :enrolments, dependent: :destroy
   has_many :users, through: :enrolments
@@ -39,6 +42,14 @@ class Course < ApplicationRecord
   validates :supervisor_projects_limit, presence: { message: 'cannot be empty' }, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }
 
   before_validation :null_number_of_updates_if_not_used
+
+  def generate_coursecode!
+    raise StandardError, 'Course join code can\'t be used for grouped course' if grouped
+
+    sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
+    self.coursecode = sqids.encode([id, SecureRandom.random_number(1_000_000_000)])
+    save!
+  end
 
   STUDENT_CSV_COLUMNS = ['Last name', 'ID number', 'Email address'].freeze
 

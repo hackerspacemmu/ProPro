@@ -1,3 +1,4 @@
+<% require "htmldiff" %>
 <div class="w-full space-y-8">
   <div
     class="
@@ -17,7 +18,7 @@
         <%# Field Label %>
         <div
           class="
-            px-4 py-3 sm:p-4 md:p-6 sm:col-span-1 bg-gray-50/30 border-b sm:border-b-0
+            px-4 py-3 sm:p-4 md:p-6 sm:col-span-1 !bg-gray-50/30 border-b sm:border-b-0
             sm:border-r border-gray-100 flex items-center sm:items-start
           "
         >
@@ -33,6 +34,8 @@
 
         <%# Field value calculation (pre-calculated to prevent whitespace issues) %>
         <% display_text = nil
+        is_markdown = false
+
         if field.value.present?
           if field.project_template_field.dropdown? ||
                field.project_template_field.radio?
@@ -42,6 +45,9 @@
             rescue JSON::ParserError
               display_text = field.value
             end
+          elsif field.project_template_field.textarea?
+            display_text = field.value
+            is_markdown = true
           else
             display_text = field.value
           end
@@ -51,10 +57,11 @@
         <%# Field value container %>
         <div
           class="
-            p-4 md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
-            md:text-lg font-medium whitespace-pre-wrap leading-relaxed min-w-0
+            !p-4 !md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
+            md:text-lg font-medium leading-relaxed min-w-0 !bg-white
+            <%= is_markdown ? 'prose prose-sm max-w-none' : 'whitespace-pre-wrap' %>
           "
-        ><% if display_text.present? %><%= display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
+        ><% if display_text.present? %><%= is_markdown ? render_markdown(display_text) : display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
       </div>
     <% end %>
 
@@ -81,7 +88,7 @@
   </div>
 
   <%# --- VERSION DIFF COMPARISON --- %>
-  <% if @index < @instances.size %>
+  <% if index < instances.size %>
     <div class="mt-8">
 
       <div class="flex items-center gap-3 mb-4">
@@ -92,8 +99,8 @@
             border border-orange-200
           "
         >
-          Comparing v<%= @index %>
-          vs v<%= @index + 1 %>
+          Comparing v<%= index %>
+          vs v<%= index + 1 %>
         </span>
       </div>
 
@@ -103,7 +110,7 @@
         "
       >
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="w-full min-w-[800px] text-left border-collapse table-fixed">
             <thead>
               <tr
                 class="
@@ -111,7 +118,7 @@
                   text-gray-500 font-semibold
                 "
               >
-                <th class="p-3 w-48 border-r border-gray-200">Field</th>
+                <th class="p-3 w-35 border-r border-gray-200">Field</th>
                 <th class="p-3 w-1/2 border-r border-gray-200 bg-red-50/30 text-red-800">Deletions (Old)</th>
                 <th class="p-3 w-1/2 bg-green-50/30 text-green-800">Additions (New)</th>
               </tr>
@@ -141,93 +148,163 @@
                     <td
                       class="
                         p-3 text-lg font-bold text-gray-700 align-top border-r border-gray-200
-                        bg-gray-50/30
+                        bg-gray-50/30 w-1/5
                       "
                     >
                       <%= field_name %>
                     </td>
 
-                    <td colspan="2" class="p-0 align-top">
-                      <div class="w-full font-mono text-lg leading-snug">
-                        <% old_lines = old_val.split("\n") %>
-                        <% new_lines = new_val.split("\n") %>
-                        <% diffs = Diff::LCS.sdiff(old_lines, new_lines) %>
+                    <% raw_old = render_markdown(current_field&.value.to_s)
+                    raw_new = render_markdown(next_field&.value.to_s)
 
-                        <% diffs.each do |change| %>
-                          <div
-                            class="
-                              grid grid-cols-2 border-b border-gray-100 last:border-0 min-h-[1.5em]
-                            "
-                          >
+                    # 2. Identity Branding: Brand the <li> tags before Nokogiri destroys the wrappers
+                    brand_lists = ->(html) do
+                      html =
+                        html
+                          .to_s
+                          .gsub(%r{<ol[^>]*>.*?</ol>}m) do |m|
+                            m.gsub(/<li\b[^>]*>/i, '<li class="diff-ol-item">')
+                          end
+                      html.gsub(%r{<ul[^>]*>.*?</ul>}m) do |m|
+                        m.gsub(/<li\b[^>]*>/i, '<li class="diff-ul-item">')
+                      end
+                    end
 
-                            <% case change.action %>
-                            <% when '=' %>
-                              <div
-                                class="
-                                  px-3 py-1 border-r border-gray-100 text-gray-400 select-none bg-white
-                                "
-                              >
-                                <%= clean_display.call(change.old_element) %>
-                              </div>
-                              <div class="px-3 py-1 text-gray-800 bg-white">
-                                <%= clean_display.call(change.new_element) %>
-                              </div>
+                    old_html = brand_lists.call(raw_old)
+                    new_html = brand_lists.call(raw_new)
 
-                            <% when '-' %>
-                              <div class="px-3 py-1 border-r border-red-200 bg-red-50 text-red-900 break-all">
-                                <span class="bg-red-200 line-through decoration-red-400 decoration-2">
-                                  <%= clean_display.call(change.old_element) %>
-                                </span>
-                              </div>
-                              <div class="px-3 py-1 bg-gray-50/50"></div>
+                    html_differ = Object.new.extend(HTMLDiff)
+                    rich_diff = html_differ.diff(old_html, new_html)
 
-                            <% when '+' %>
-                              <div class="px-3 py-1 border-r border-gray-100 bg-gray-50/50"></div>
-                              <div class="px-3 py-1 bg-green-50 text-green-900 break-all">
-                                <span class="bg-green-200 font-medium">
-                                  <%= clean_display.call(change.new_element) %>
-                                </span>
-                              </div>
+                    #  LEFT SIDE: Erase additions, sweep up empty wrappers, color deleted markers
+                    left_html =
+                      rich_diff
+                        .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
+                        .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
+                        .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                        .gsub(%r{<p>\s*</p>}m, "")
+                        .gsub(
+                          %r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
+                          '\1\2</li>', # Preserves the branded li tag
+                        )
+                        .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+                        .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<table[^>]*>\s*</table>}m, "")
+                        .gsub(%r{<code[^>]*>\s*</code>}m, "")
+                        .gsub(%r{<pre[^>]*>\s*</pre>}m, "")
 
-                            <% when '!' %>
-                              <% old_words = change.old_element.split(/(\s+)/)
-                              new_words = change.new_element.split(/(\s+)/)
-                              word_diffs = Diff::LCS.sdiff(old_words, new_words)
-                              is_empty_marker = ->(w) { w.to_s.strip == "[[EMPTYLINE]]" }
+                    #  RIGHT SIDE: Erase deletions, sweep up empty wrappers, color added markers
+                    right_html =
+                      rich_diff
+                        .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
+                        .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
+                        .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                        .gsub(%r{<p>\s*</p>}m, "")
+                        .gsub(
+                          %r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
+                          '\1\2</li>', # Preserves the branded li tag
+                        )
+                        .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+                        .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+                        .gsub(%r{<table[^>]*>\s*</table>}m, "")
+                        .gsub(%r{<code[^>]*>\s*</code>}m, "")
+                        .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
 
-                              left_html =
-                                word_diffs
-                                  .map do |w|
-                                    text = is_empty_marker.call(w.old_element) ? "&nbsp;" : h(w.old_element)
-                                    if w.action == "-" || w.action == "!"
-                                      "<span class='bg-red-200 text-red-900 line-through decoration-red-400 decoration-2'>#{text}</span>"
-                                    else
-                                      "<span class='text-gray-500'>#{text}</span>"
-                                    end
-                                  end
-                                  .join
+                    <%# LEFT SIDE: Deletions (Old) %>
+                    <td
+                      class="
+                        p-4 align-top bg-red-50/10 w-2/5 border-r border-gray-200 break-words
+                      "
+                    >
+                      <div
+                        class="
+                          w-full prose prose-sm max-w-none text-base [&_del]:bg-red-200
+                          [&_del]:text-red-900 [&_del]:line-through [&_del]:decoration-red-400
+                          [&_del]:decoration-2 [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6
+                          [&_li.diff-ol-item::marker]:text-red-700 [&_li.diff-ol-item::marker]:font-bold
+                          [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6
+                          [&_li.diff-ul-item::marker]:text-red-700 [&_li.diff-ul-item::marker]:font-bold
+                        "
+                      >
+                        <%= sanitize left_html,
+                        tags: %w[
+                          h1
+                          h2
+                          h3
+                          h4
+                          h5
+                          h6
+                          p
+                          br
+                          ul
+                          ol
+                          li
+                          strong
+                          em
+                          del
+                          ins
+                          table
+                          thead
+                          tbody
+                          tr
+                          th
+                          td
+                          blockquote
+                          pre
+                          code
+                          a
+                          img
+                          hr
+                        ],
+                        attributes: %w[href src class alt title] %>
+                      </div>
+                    </td>
 
-                              right_html =
-                                word_diffs
-                                  .map do |w|
-                                    text = is_empty_marker.call(w.new_element) ? "&nbsp;" : h(w.new_element)
-                                    if w.action == "+" || w.action == "!"
-                                      "<span class='bg-green-200 text-green-900 font-medium'>#{text}</span>"
-                                    else
-                                      "<span class='text-gray-800'>#{text}</span>"
-                                    end
-                                  end
-                                  .join %>
-                              <div class="px-3 py-1 border-r border-red-200 bg-red-50 break-all">
-                                <%= left_html.html_safe %>
-                              </div>
-                              <div class="px-3 py-1 bg-green-50 break-all">
-                                <%= right_html.html_safe %>
-                              </div>
-                            <% end %>
-
-                          </div>
-                        <% end %>
+                    <%# RIGHT SIDE: Additions (New) %>
+                    <td class="p-4 align-top bg-green-50/10 w-2/5 break-words">
+                      <div
+                        class="
+                          w-full prose prose-sm max-w-none text-base [&_ins]:bg-green-200
+                          [&_ins]:text-green-900 [&_ins]:font-medium [&_ins]:no-underline
+                          [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6
+                          [&_li.diff-ol-item::marker]:text-green-700 [&_li.diff-ol-item::marker]:font-bold
+                          [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6
+                          [&_li.diff-ul-item::marker]:text-green-700 [&_li.diff-ul-item::marker]:font-bold
+                        "
+                      >
+                        <%= sanitize right_html,
+                        tags: %w[
+                          h1
+                          h2
+                          h3
+                          h4
+                          h5
+                          h6
+                          p
+                          br
+                          ul
+                          ol
+                          li
+                          strong
+                          em
+                          del
+                          ins
+                          table
+                          thead
+                          tbody
+                          tr
+                          th
+                          td
+                          blockquote
+                          pre
+                          code
+                          a
+                          img
+                          hr
+                        ],
+                        attributes: %w[href src class alt title] %>
                       </div>
                     </td>
                   </tr>

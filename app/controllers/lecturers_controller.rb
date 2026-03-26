@@ -27,26 +27,27 @@ class LecturersController < ApplicationController
   end
 
   def promote_to_coordinator
-    authorize @course, :promote_to_coordinator?
+    return unless @course.coordinators.include?(Current.user)
 
+    new_coordinator = User.find(params[:id])
     Enrolment.find_or_create_by!(
       user: new_coordinator,
       course: @course,
       role: :coordinator
     )
-
     redirect_to course_lecturer_path(@course, new_coordinator)
   end
 
   def demote_to_lecturer
-    authorize @course, :demote_to_lecturer?
+    return unless @course.coordinators.include?(Current.user)
 
-    Enrolment.find_by(
+    new_coordinator = User.find(params[:id])
+    coordinator_enrolment = Enrolment.find_by(
       user: new_coordinator,
       course: @course,
       role: :coordinator
     )
-
+    coordinator_enrolment&.destroy
     redirect_to course_lecturer_path(@course, new_coordinator)
   end
 

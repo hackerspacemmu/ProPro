@@ -26,29 +26,11 @@
     <p class="mt-2 text-md text-gray-600">Update your course configuration below.</p>
   </div>
 
-  <div class="max-w-3xl mx-auto space-y-4 mb-6">
-    <% if flash[:alert] %>
-      <div class="rounded-md bg-red-50 p-4 border-l-4 border-red-500">
-        <div class="flex">
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Alert</h3>
-            <div class="mt-2 text-sm text-red-700"><%= flash[:alert] %></div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-
-    <% if flash[:notice] %>
-      <div class="rounded-md bg-green-50 p-4 border-l-4 border-green-500">
-        <div class="flex">
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-green-800">Success</h3>
-            <div class="mt-2 text-sm text-green-700"><%= flash[:notice] %></div>
-          </div>
-        </div>
-      </div>
-    <% end %>
+  <div id="flash" class="max-w-3xl mx-auto space-y-4 mb-6">
+    <%= render "courses/flash" %>
   </div>
+
+  <%= render "course_code_form", course: @course %>
 
   <div
     class="

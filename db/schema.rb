@@ -10,10 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_02_125437) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_105744) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-
   create_table "comments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "deleted", default: false, null: false
@@ -136,6 +135,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_02_125437) do
     t.json "options"
     t.integer "project_template_id", null: false
     t.datetime "updated_at", null: false
+    t.boolean "required", default: true
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end
 
