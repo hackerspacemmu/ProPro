@@ -34,7 +34,7 @@
 
   # --- 3. Base Classes (Card Wrapper) ---
   card_classes =
-    "group block relative w-full h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
+    "group block relative w-full min-h-48 sm:h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
   %>
 
   <% if policy(project).show? %>
@@ -43,7 +43,8 @@
       project: project,
       project_instance: project_instance,
       header_bg: header_bg,
-      status_key: status_key %>
+      status_key: status_key,
+      show_progress: local_assigns[:course].present? && course.use_progress_updates %>
     <% end %>
   <% else %>
     <div class="<%= card_classes %> opacity-75 cursor-not-allowed">
@@ -51,7 +52,8 @@
       project: project,
       project_instance: project_instance,
       header_bg: header_bg,
-      status_key: status_key %>
+      status_key: status_key,
+      show_progress: local_assigns[:course].present? && course.use_progress_updates %>
     </div>
   <% end %>
 <% end %>

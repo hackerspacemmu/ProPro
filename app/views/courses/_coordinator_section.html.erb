@@ -95,14 +95,17 @@
       <div>
         <p class="text-gray-500 mb-3">Your submitted topics. Only approved topics are visible to students
           in your Lecturer View.</p>
-        <%= link_to "View All Lecturer Topics",
-        course_topics_path(course),
-        class: "mx-3 italic text-base" %>
-        <% if policy(Topic.new(course: course)).create? %>
-          <%= link_to "Create Topics",
-          new_course_topic_path(course),
-          class: "mx-3 italic text-base" %>
-        <% end %>
+        <div class="flex flex-wrap items-center gap-2 mt-2">
+          <%= link_to "View All Topics",
+          course_topics_path(course),
+          class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors" %>
+
+          <% if policy(Topic.new(course: course)).create? %>
+            <%= link_to "Create Topic",
+            new_course_topic_path(course),
+            class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors" %>
+          <% end %>
+        </div>
       </div>
     </header>
     <% if my_topics.empty? %>
