@@ -146,6 +146,7 @@
 
                     <div class="flex flex-col">
                       <strong class="text-base font-semibold text-gray-900"><%= member.user.username %></strong>
+
                       <% if member.user.student_id.present? %>
                         <span class="text-gray-700 text-sm font-mono mt-0.5">STUDENT ID:
                           <%= member.user.student_id %></span>
@@ -180,6 +181,16 @@
               <%= @student.email_address %>
             </div>
 
+            <% if @course.coordinators.include?(Current.user) %>
+              <%= link_to "Remove From Course",
+                enrolment_path(
+                coordinator_id: Current.user, course_id: @course, id: @student_enrolment
+                ),
+                data: { turbo_method: :delete, turbo_confirm: "Are you sure?\n"\
+                "The user will be removed from the COURSE.\n"\
+                "Their associated PROJECT HISTORY and COMMENTS will be DELETED if they're the last member." },
+                class: "text-base font-semibold text-red-600 hover:text-red-900" %>
+            <% end %>
           <% end %>
 
           <%# --- Shared Logic (Status & Supervisor) --- %>
