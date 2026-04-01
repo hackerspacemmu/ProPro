@@ -25,7 +25,7 @@ class ParticipantsController < ApplicationController
   def filtered_group_list
     return @group_list unless params[:status_filter].present? && params[:status_filter] != 'all'
 
-    @course.groups_with_status(params[:status_filter], @group_list, @course)
+    @course.groups_with_status(params[:status_filter], @group_list)
   end
 
   def filtered_student_list
