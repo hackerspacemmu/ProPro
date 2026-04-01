@@ -7,42 +7,40 @@ class CoursesController < ApplicationController
   def show
     authorize @course
 
+    # query for all projects_instances, owner_type and owner_id for participants table
+    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
+
     @student_list = @course.students
     @description = @course.course_description
     @lecturers = @course.lecturers
-    @group_list = @course.grouped? ? @course.project_groups.to_a : []
     @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
     @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
     @my_topics = @topic_list.where(owner: current_user)
 
-    # SET STUDENT PROJECTS
-    projects_ownerships = @course.projects.approved
-                                 .where(owner_type: 'User')
-                                 .pluck('owner_id')
+    # set students projects
+    projects_ownerships = @course.projects.approved.where(owner_type: 'User').pluck('owner_id')
 
-    @students_with_projects = @student_list.select do |student|
-      projects_ownerships.include?(student.id)
+    @students_with_projects = @student_list.select { |s| projects_ownerships.include?(s.id) }
+    @students_without_projects = @student_list.reject { |s| projects_ownerships.include?(s.id) }
+
+    if @course.grouped?
+      @group = current_user.project_groups.find_by(course: @course)
+      @project = @projects_by_owner[['ProjectGroup', @group.id]] if @group
+      @group_list = @course.project_groups.includes(project_group_members: :user).to_a
+    else
+      @group = nil
+      @project = @course.projects.find_by(owner_type: 'User', owner_id: current_user.id)
+      @group_list = []
     end
 
-    @students_without_projects = @student_list.reject do |student|
-      projects_ownerships.include?(student.id)
-    end
 
     @filtered_group_list   = filtered_group_list
     @filtered_student_list = filtered_student_list
     @my_student_projects = []
     @incoming_proposals = []
-
-    if @course.grouped?
-      @group = current_user.project_groups.find_by(course: @course)
-
-      @project = (@course.projects.find_by(owner_type: 'ProjectGroup', owner_id: @group.id) if @group)
-    else
-      @group = nil
-      @project = @course.projects.find_by(owner_type: 'User', owner_id: current_user.id)
-    end
 
     @current_status = @project&.current_status || 'not_submitted'
 

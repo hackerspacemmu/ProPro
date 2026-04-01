@@ -98,7 +98,7 @@
                 <%# 2. Members List %>
                 <td class="px-4 py-4 text-sm text-gray-500 align-top text-left">
                   <ul class="space-y-2">
-                    <% group.project_group_members.includes(:user).each do |member| %>
+                    <% group.project_group_members.each do |member| %>
                       <li class="block leading-snug">
 
                         <%= link_to participant_profile_course_path(@course, member.user.id, 'student'), class: "inline group/member hover:text-gray-900" do %>
