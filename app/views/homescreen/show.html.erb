@@ -44,6 +44,10 @@
     <h3 class="text-base text-gray-500 font-normal">Your Courses</h3>
   </div>
 
+  <div class="mb-4 max-w-fit">
+    <%= render "courses/flash" %>
+  </div>
+
   <%= render "join_by_code_form", course: @course %>
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
