@@ -61,8 +61,7 @@ owner_name =
 <%# --- CARD HEADER (Colored) --- %>
 <div
   class="
-    <%= header_bg %> px-5 py-4 flex justify-between
-    items-start shrink-0 max-h-[120px]
+    <%= header_bg %> px-4 py-2 sm:px-5 sm:py-4 flex justify-between items-start shrink-0 max-h-[120px]
   "
 >
   <div class="text-white overflow-hidden">
@@ -102,12 +101,12 @@ owner_name =
 </div>
 
 <%# --- CARD BODY (White) --- %>
-<div class="px-5 py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
+<div class="px-4 py-3 sm:px-5 sm:py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
 
   <div class="flex-1 min-h-0 mt-0">
     <div
       class="
-        text-sm text-gray-600 font-semibold leading-relaxed line-clamp-4 overflow-hidden
+        text-sm text-gray-600 font-semibold leading-relaxed line-clamp-2 sm:line-clamp-4 overflow-hidden
       "
     ><%= plaintext_markdown_preview(description_text) %>
     </div>

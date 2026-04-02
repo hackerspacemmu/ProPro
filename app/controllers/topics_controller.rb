@@ -45,6 +45,7 @@ class TopicsController < ApplicationController
                                        .includes(:project_template_field)
                                        .order(project_template_field_id: :asc)
     @latest_version = @instances.size
+    @current_version = @index
     @next_fields = nil
 
     if @index < @instances.size

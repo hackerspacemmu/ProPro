@@ -366,5 +366,8 @@ class ProjectsController < ApplicationController
 
   def set_project
     @project = @course.projects.find_by(id: params[:id])
+    unless @project
+      redirect_to course_path(@course), alert: 'Project not found.' and return
+    end
   end
 end
