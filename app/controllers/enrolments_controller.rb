@@ -1,16 +1,16 @@
 class EnrolmentsController < ApplicationController
   def destroy
-    params.require([:coordinator_id, :course_id, :id])
+    params.require(%i[coordinator_id course_id id])
 
     current_course = Course.find(params[:course_id])
     course_coordinators = current_course.coordinators.pluck(:id)
 
     unless course_coordinators.include?(params[:coordinator_id].to_i)
-      redirect_back_or_to "/"
+      redirect_back_or_to '/'
       return
     end
 
-    enrolment = Enrolment.find_by!(id: params[:id])
+    enrolment = Enrolment.find(params[:id])
     user_id = enrolment.user_id
 
     begin
@@ -26,7 +26,7 @@ class EnrolmentsController < ApplicationController
 
           if project_group.project_group_members.count <= 0
             project_group.destroy!
-            group_deleted = true
+            true
           end
         end
 
