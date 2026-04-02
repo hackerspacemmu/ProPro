@@ -701,7 +701,7 @@ class CoursesController < ApplicationController
 
   def filtered_group_list
     group_list = if params[:status_filter].present? && params[:status_filter] != 'all'
-                   @course.groups_with_status(params[:status_filter], @group_list, @course)
+                   @course.groups_with_status(params[:status_filter], @group_list)
                  else
                    @group_list
                  end

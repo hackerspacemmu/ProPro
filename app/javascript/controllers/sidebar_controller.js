@@ -55,7 +55,7 @@ export default class extends Controller {
     }
 
     this.containerTarget.classList.remove("lg:w-64", "lg:opacity-100");
-    this.containerTarget.classList.remove("w-64");
+    this.containerTarget.classList.remove("w-64", "w-48");
     this.containerTarget.classList.add("w-0");
     this.containerTarget.classList.add("overflow-hidden", "opacity-0");
 
@@ -69,19 +69,15 @@ export default class extends Controller {
 
     this.containerTarget.classList.add("transition-all", "duration-300");
 
-    this.containerTarget.classList.remove(
-      "w-0",
-      "overflow-hidden",
-      "opacity-0",
-    );
-    this.containerTarget.classList.add("w-64", "opacity-100");
+    this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0");
+    this.containerTarget.classList.add("opacity-100");
 
     if (window.innerWidth >= 1024) {
-      this.containerTarget.classList.add("lg:w-64", "lg:opacity-100");
+      this.containerTarget.classList.add("w-64", "lg:w-64", "lg:opacity-100");
     } else {
+      this.containerTarget.classList.add("w-48");
       this.showBackdrop();
     }
-
     localStorage.setItem("sidebar-collapsed", "false");
   }
 
