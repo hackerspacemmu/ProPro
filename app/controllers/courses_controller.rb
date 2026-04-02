@@ -258,6 +258,7 @@ class CoursesController < ApplicationController
       @members = @group.project_group_members.includes(:user)
     else
       @student = User.find(@participant_id)
+      @student_enrolment = Enrolment.find_by(user: @student, course: @course)
     end
 
     @current_instance = @project&.project_instances&.order(:version)&.last
@@ -718,7 +719,7 @@ class CoursesController < ApplicationController
 
   def filtered_group_list
     group_list = if params[:status_filter].present? && params[:status_filter] != 'all'
-                   @course.groups_with_status(params[:status_filter], @group_list, @course)
+                   @course.groups_with_status(params[:status_filter], @group_list)
                  else
                    @group_list
                  end

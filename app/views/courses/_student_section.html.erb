@@ -35,6 +35,12 @@
     <header>
       <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Available Topics</h4>
       <p class="text-gray-500">Topics available for selection</p>
+
+      <div class="flex flex-wrap items-center gap-2 mt-2">
+          <%= link_to "View All Topics",
+          course_topics_path(course),
+          class: "inline-flex items-center px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors" %>
+      </div>
     </header>
 
     <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-3">

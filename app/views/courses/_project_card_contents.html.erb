@@ -26,7 +26,7 @@ owner_name =
 
 <div
   class="
-    <%= header_bg %> px-5 py-4 flex justify-between
+    <%= header_bg %> px-4 py-2 sm:px-5 sm:py-4 flex justify-between
     items-start shrink-0 max-h-[120px]
   "
 >
@@ -60,12 +60,12 @@ owner_name =
 </div>
 
 <%# --- CARD BODY (White) --- %>
-<div class="px-5 py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
+<div class="px-4 py-3 sm:px-5 sm:py-5 flex-1 flex flex-col bg-gray-50/50 min-h-0">
 
   <div class="flex-1 min-h-0 mt-0">
     <div
       class="
-        text-sm text-gray-600 font-semibold leading-relaxed line-clamp-4 overflow-hidden
+        text-sm text-gray-600 font-semibold leading-relaxed line-clamp-2 sm:line-clamp-4 overflow-hidden
       "
     ><%= plaintext_markdown_preview(description_text) %>
     </div>
@@ -90,6 +90,13 @@ owner_name =
         <%= time_ago_in_words(project.updated_at) %>
         ago</span>
     </div>
-    <span class="font-mono">v<%= project_instance.version %></span>
+
+    <div class="flex items-center gap-3">
+      <% if local_assigns[:show_progress] && status_key == "approved" %>
+        <span><%= project.progress_updates.count %> updates</span>
+      <% end %>
+      <span class="font-mono">v<%= project_instance.version %></span>
+    </div>
+    
   </div>
 </div>
