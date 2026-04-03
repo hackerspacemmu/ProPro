@@ -27,18 +27,42 @@ class ParticipantsController < ApplicationController
 
   private
 
+  def lecturer_enrolment_filter
+    return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
+
+    @course.enrolments.find_by(user_id: params[:lecturer_filter], role: :lecturer)
+  end
+
+  def supervised_owner_ids(owner_type)
+    enrolment = lecturer_enrolment_filter
+    return nil unless enrolment
+
+    @course.projects.supervised_by(enrolment).where(owner_type: owner_type).pluck(:owner_id)
+  end
+
   def filtered_group_list
-    group_list = if params[:status_filter].present? && params[:status_filter] != 'all'
-                   @course.groups_with_status(params[:status_filter], @group_list)
-                 else
-                   @group_list
-                 end
-    group_list.sort_by(&:group_name)
+    group_list = @group_list
+
+    if (ids = supervised_owner_ids('ProjectGroup'))
+      group_list = group_list.select { |g| ids.include?(g.id) }
+    end
+
+    if params[:status_filter].present? && params[:status_filter] != 'all'
+      group_list = @course.groups_with_status(params[:status_filter], group_list)
+    end
+
+    return group_list.sort_by(&:group_name)
   end
 
   def filtered_student_list
-    return @student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+    student_list = @student_list
 
-    @course.students_with_status(params[:status_filter], @student_list)
+    if (ids = supervised_owner_ids('User'))
+      student_list = student_list.select { |s| ids.include?(s.id) }
+    end
+
+    return student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+
+    @course.students_with_status(params[:status_filter], student_list)
   end
 end

@@ -22,16 +22,57 @@
         <div
           class="
             flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full md:w-auto
-          ">
+          " id="filter-controls">
+
           <label
-            for="status-filter"
             class="
               text-xs uppercase font-bold text-gray-500 tracking-wider whitespace-nowrap
             ">
-            Filter by Status:
+            Filters:
           </label>
 
           <div class="relative flex items-center justify-center gap-3 w-full sm:w-auto">
+
+            <%# Lecturer Filter %>
+            <div class="relative flex items-center justify-center w-full sm:w-[200px]">
+              <select
+                id="lecturer-filter"
+                name="lecturer_filter"
+                class="
+                  bg-white border border-gray-300 text-gray-700 text-sm rounded-lg
+                  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 shadow-sm
+                  transition-colors cursor-pointer appearance-none justify-center items-center
+                "
+                hx-get="<%= course_url(@course) %>"
+                hx-target="#participants-table-container"
+                hx-trigger="change"
+                hx-include="#filter-controls"
+                hx-indicator="#loading-spinner">
+                <option
+                  value="all"
+                  <%= 'selected' if params[:lecturer_filter].blank? || params[:lecturer_filter] == 'all' %>
+                >All Supervisors</option>
+                <% @lecturers.each do |lecturer| %>
+                  <option
+                    value="<%= lecturer.id %>"
+                    <%= 'selected' if params[:lecturer_filter] == lecturer.id.to_s %>
+                  ><%= lecturer.username %></option>
+                <% end %>
+              </select>
+              <div
+                class="
+                  pointer-events-none inset-y-0 right-0 flex justify-start items-center px-2
+                  text-gray-500 -ml-[2em] -mt-[0.5em]
+                ">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+
+            <%# Status Filter %>
             <div class="relative flex items-center justify-center w-full sm:w-[200px]">
               <select
                 id="status-filter"
@@ -44,7 +85,7 @@
                 hx-get="<%= course_url(@course) %>"
                 hx-target="#participants-table-container"
                 hx-trigger="change"
-                hx-include="this"
+                hx-include="#filter-controls"
                 hx-indicator="#loading-spinner">
                 <option
                   value="all"
@@ -58,7 +99,10 @@
                   value="pending"
                   <%= 'selected' if params[:status_filter] == 'pending' %>
                 >Pending</option>
-                <option value="redo" <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
+                <option
+                  value="redo"
+                  <%= 'selected' if params[:status_filter] == 'redo' %>
+                >Redo</option>
                 <option
                   value="rejected"
                   <%= 'selected' if params[:status_filter] == 'rejected' %>
@@ -68,7 +112,6 @@
                   <%= 'selected' if params[:status_filter] == 'not_submitted' %>
                 >Not Submitted</option>
               </select>
-
               <div
                 class="
                   pointer-events-none inset-y-0 right-0 flex justify-start items-center px-2
@@ -108,6 +151,7 @@
               </svg>
               Loading...
             </div>
+
           </div>
         </div>
       <% end %>

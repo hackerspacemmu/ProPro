@@ -1,3 +1,41 @@
+<%# sort column helper %>
+<% sort_column = ->(column, label, icon, align: :left, width: nil) do %>
+  <% is_active = params[:sort_by] == column %>
+  <% next_dir = (is_active && params[:sort_dir] == 'asc') ? 'desc' : 'asc' %>
+  <th
+    scope="col"
+    class="
+      <%= width %> px-4 py-3 text-<%= align %> text-xs font-bold text-gray-500 uppercase
+      tracking-wider hover:bg-gray-100 cursor-pointer transition-colors duration-150
+    "
+    hx-get="<%= course_url(@course) %>"
+    hx-target="#participants-table-container"
+    hx-trigger="click"
+    hx-include="#filter-controls"
+    hx-vals='{"sort_by": "<%= column %>", "sort_dir": "<%= next_dir %>"}'
+    hx-indicator="#loading-spinner">
+    <div class="flex items-center justify-<%= align %> gap-1">
+      <%= image_tag icon, class: "w-5 h-5 opacity-70" %>
+      <%= label %>
+      <% if is_active %>
+        <% if params[:sort_dir] == 'desc' %>
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        <% else %>
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        <% end %>
+      <% else %>
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      <% end %>
+    </div>
+  </th>
+<% end %>
+
 <div class="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 table-fixed">
@@ -5,68 +43,39 @@
       <%# --- Table Header --- %>
       <thead class="bg-gray-50">
         <tr>
-          <th
-            scope="col"
-            class="
-              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              <%= @course.grouped? ? 'w-[14.28%]' : 'w-1/3' %>
-            ">
-            <div class="flex items-center justify-start gap-2">
-              <%= image_tag "alphabet.svg", class: "w-5 h-5 opacity-70" %>
-              <%= @course.grouped? ? "Group Name" : "Student Name" %>
-            </div>
-          </th>
 
-          <th
-            scope="col"
-            class="
-              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              <%= @course.grouped? ? 'w-1/3' : 'w-[14.28%]' %>
-            ">
-            <div class="flex items-center justify-start gap-2">
-              <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
-              <%= @course.grouped? ? "Members" : "Student ID" %>
-            </div>
-          </th>
+          <%# 1. Group Name / Student Name %>
+          <% if @course.grouped? %>
+            <% sort_column.call('group_name', 'Group Name', 'alphabet.svg', width: 'w-[14.28%]') %>
+          <% else %>
+            <% sort_column.call('student_name', 'Student Name', 'alphabet.svg', width: 'w-1/3') %>
+          <% end %>
+
+          <%# 2. Members / Student ID %>
+          <% if @course.grouped? %>
+            <th
+              scope="col"
+              class="
+                w-1/3 px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
+              ">
+              <div class="flex items-center justify-start gap-2">
+                <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
+                Members
+              </div>
+            </th>
+          <% else %>
+            <% sort_column.call('student_id', 'Student ID', 'person_grey.svg', width: 'w-[14.28%]') %>
+          <% end %>
 
           <%# 3. Project Title %>
-          <th
-            scope="col"
-            class="
-              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              w-1/5
-            ">
-            <div class="flex items-center justify-start gap-2">
-              <%= image_tag "project.svg", class: "w-5 h-5 opacity-70" %>
-              Project Title
-            </div>
-          </th>
+          <% sort_column.call('project_title', 'Project Title', 'project.svg', width: 'w-1/5') %>
 
           <%# 4. Status %>
-          <th
-            scope="col"
-            class="
-              px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider
-              w-1/8
-            ">
-            <div class="flex items-center justify-center gap-2">
-              <%= image_tag "status_grey.svg", class: "w-5 h-5 opacity-70" %>
-              Status
-            </div>
-          </th>
+          <% sort_column.call('status', 'Status', 'status_grey.svg', align: :center, width: 'w-1/8') %>
 
           <%# 5. Supervisor %>
-          <th
-            scope="col"
-            class="
-              px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-              w-1/4
-            ">
-            <div class="flex items-center justify-start gap-2">
-              <%= image_tag "person_grey.svg", class: "w-5 h-5 opacity-70" %>
-              Supervisor
-            </div>
-          </th>
+          <% sort_column.call('supervisor', 'Supervisor', 'person_grey.svg', width: 'w-1/4') %>
+
         </tr>
       </thead>
 
@@ -100,7 +109,6 @@
                   <ul class="space-y-2">
                     <% group.project_group_members.each do |member| %>
                       <li class="block leading-snug">
-
                         <%= link_to participant_profile_course_path(@course, member.user.id, 'student'), class: "inline group/member hover:text-gray-900" do %>
                           <div
                             class="
@@ -113,7 +121,6 @@
                           <span class="text-xs text-gray-700 align-middle group-hover/member:underline"><%= member.user.username || "-" %></span>
                         <% end %>
 
-                        <%# Pending Badge (Inline, flows after name) %>
                         <% unless member.user.has_registered %>
                           <span
                             class="
@@ -152,53 +159,38 @@
                 <%# 4. Status (Group) %>
                 <td class="px-4 py-4 whitespace-nowrap align-top text-center">
                   <div class="flex flex-col items-center gap-1">
-                    <%# --- STATUS BADGE --- %>
                     <% project_status = status.to_s.downcase %>
                     <% badge_classes, dot_class =
                       case project_status
-                      when "approved"
-                        ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
-                      when "pending"
-                        ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
-                      when "redo"
-                        ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
-                      when "rejected"
-                        ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
-                      else
-                        ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
+                      when "approved"  then ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
+                      when "pending"   then ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
+                      when "redo"      then ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
+                      when "rejected"  then ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
+                      else                  ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
                       end %>
-
-                    <% link_target =
-                      group_project.present? ? course_project_path(@course, group_project) : "#" %>
-
+                    <% link_target = group_project.present? ? course_project_path(@course, group_project) : "#" %>
+                    
                     <a
                       href="<%= link_target %>"
                       class="
                         inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
                         <%= badge_classes %> capitalize hover:opacity-80
-                      "
-                    >
+                      ">
                       <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                       <%= status.humanize %>
                     </a>
 
-                    <%# --- PROGRESS INDICATOR (Below Badge) --- %>
                     <% if use_progress_updates && group_project.present? && project_status == "approved" %>
                       <% count = group_project.progress_updates.count %>
                       <span class="text-sm text-gray-600 font-normal flex items-center pt-1 gap-1">
-                        <%= count %>
-                        updates
+                        <%= count %> updates
                       </span>
                     <% end %>
-
                   </div>
                 </td>
 
                 <%# 5. Supervisor %>
-                <td
-                  class="
-                    px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
-                  ">
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left">
                   <% if supervisor.present? %>
                     <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
                       <div
@@ -210,9 +202,7 @@
                         <%= supervisor.username.first.upcase %>
                       </div>
                       <span
-                        class="
-                          truncate max-w-[150px] group-hover/sup:text-gray-700
-                        "
+                        class="truncate max-w-[150px] group-hover/sup:text-gray-700"
                         title="<%= supervisor.username %>">
                         <%= supervisor.username %>
                       </span>
@@ -305,53 +295,38 @@
                 <%# 4. Status (Student) %>
                 <td class="px-4 py-3 whitespace-nowrap align-top text-center">
                   <div class="flex flex-col items-center gap-1">
-                    <%# --- STATUS BADGE --- %>
-
                     <% project_status = status.to_s.downcase %>
                     <% badge_classes, dot_class =
                       case project_status
-                      when "approved"
-                        ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
-                      when "pending"
-                        ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
-                      when "redo"
-                        ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
-                      when "rejected"
-                        ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
-                      else
-                        ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
+                      when "approved"  then ["bg-emerald-100 text-emerald-800 border-emerald-200", "bg-emerald-600"]
+                      when "pending"   then ["bg-blue-100 text-blue-800 border-blue-200", "bg-blue-600"]
+                      when "redo"      then ["bg-orange-100 text-orange-800 border-orange-200", "bg-orange-600"]
+                      when "rejected"  then ["bg-rose-100 text-rose-800 border-rose-200", "bg-rose-600"]
+                      else                  ["bg-gray-100 text-gray-600 border-gray-200", "bg-gray-500"]
                       end %>
+                    <% link_target = student_project.present? ? course_project_path(@course, student_project) : "#" %>
 
-                    <% link_target =
-                      student_project.present? ? course_project_path(@course, student_project) : "#" %>
-
-                    <a
+                    <a                    
                       href="<%= link_target %>"
                       class="
                         inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
                         <%= badge_classes %> capitalize hover:opacity-80
-                      "
-                    >
+                      ">
                       <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= dot_class %>"></span>
                       <%= status.humanize %>
                     </a>
 
-                    <%# --- PROGRESS INDICATOR (Below Badge) --- %>
                     <% if use_progress_updates && student_project.present? && project_status == "approved" %>
                       <% count = student_project.progress_updates.count %>
                       <span class="text-sm text-gray-400 font-medium flex items-center gap-1">
-                        <%= count %>
-                        updates
+                        <%= count %> updates
                       </span>
                     <% end %>
-
                   </div>
                 </td>
+
                 <%# 5. Supervisor %>
-                <td
-                  class="
-                    px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left
-                  ">
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left">
                   <% if supervisor.present? %>
                     <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
                       <div
@@ -363,9 +338,7 @@
                         <%= supervisor.username.first.upcase %>
                       </div>
                       <span
-                        class="
-                          truncate max-w-[150px] group-hover/sup:text-gray-700
-                        "
+                        class="truncate max-w-[150px] group-hover/sup:text-gray-700"
                         title="<%= supervisor.username %>">
                         <%= supervisor.username %>
                       </span>

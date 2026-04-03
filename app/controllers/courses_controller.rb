@@ -510,6 +510,8 @@ class CoursesController < ApplicationController
     end
   end
 
+  # CSV_export helpers
+
   def generate_csv_export
     template_fields = @course.project_template&.project_template_fields&.order(:id) || []
 
@@ -622,6 +624,8 @@ class CoursesController < ApplicationController
     end
   end
 
+  # Lecturer count/capcity helpers
+
   def lecturer_approved_proposals_count(lecturer, course)
     lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
     return 0 unless lecturer_enrolment
@@ -650,6 +654,8 @@ class CoursesController < ApplicationController
       is_at_capacity: approved_count >= max_capacity
     }
   end
+
+  # Filter Project by status helpers
 
   def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
     return [] unless student_list.present?
@@ -697,18 +703,83 @@ class CoursesController < ApplicationController
     end
   end
 
+  # Participants Table Filters helpers
+
+  def sort_descending?
+    params[:sort_dir] == 'desc'
+  end
+
+  def participant_project(item, owner_type)
+    @projects_by_owner[[owner_type, item.id]]
+  end
+
+  def sort_value_for_group(group)
+    project = participant_project(group, 'ProjectGroup')
+    case params[:sort_by]
+    when 'status'
+      Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
+    when 'project_title'
+      project&.current_title&.downcase || ''
+    when 'supervisor'
+      project&.supervisor&.username&.downcase || ''
+    else
+      group.group_name.downcase
+    end
+  end
+
+  def sort_value_for_student(student)
+    project = participant_project(student, 'User')
+    case params[:sort_by]
+    when 'status'
+      Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
+    when 'project_title'
+      project&.current_title&.downcase || ''
+    when 'supervisor'
+      project&.supervisor&.username&.downcase || ''
+    else
+      student.username.downcase
+    end
+  end
+
+  def lecturer_enrolment_filter
+    return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
+
+    @course.enrolments.find_by(user_id: params[:lecturer_filter], role: :lecturer)
+  end
+
+  def supervised_owner_ids(owner_type)
+    enrolment = lecturer_enrolment_filter
+    return nil unless enrolment
+
+    @course.projects.supervised_by(enrolment).where(owner_type: owner_type).pluck(:owner_id)
+  end
+
   def filtered_group_list
-    group_list = if params[:status_filter].present? && params[:status_filter] != 'all'
-                   @course.groups_with_status(params[:status_filter], @group_list)
-                 else
-                   @group_list
-                 end
-    group_list.sort_by(&:group_name)
+    group_list = @group_list
+
+    if (ids = supervised_owner_ids('ProjectGroup'))
+      group_list = group_list.select { |g| ids.include?(g.id) }
+    end
+
+    if params[:status_filter].present? && params[:status_filter] != 'all'
+      group_list = @course.groups_with_status(params[:status_filter], group_list)
+    end
+
+
+    sorted_list = group_list.sort_by { |group| sort_value_for_group(group) }
+    sort_descending? ? sorted_list.reverse : sorted_list
   end
 
   def filtered_student_list
-    return @student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+    student_list = @student_list
 
-    @course.students_with_status(params[:status_filter], @student_list)
+    if (ids = supervised_owner_ids('User'))
+      student_list = student_list.select { |s| ids.include?(s.id) }
+    end
+
+    return student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+
+    sorted_list = student_list.sort_by { |student| sort_value_for_student(student) }
+    sort_descending? ? sorted_list.reverse : sorted_list
   end
 end
