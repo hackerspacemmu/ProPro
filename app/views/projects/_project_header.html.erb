@@ -133,7 +133,7 @@
         </span>
         <span class="text-gray-900 break-words min-w-0">
           <%= link_to course_lecturer_path(course, current_instance.supervisor), class: "flex items-center justify-start gap-2 group/sup underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
-            <%= current_instance.supervisor.username %>
+            <%= current_instance.supervisor.user.username %>
           <% end %>
         </span>
       </div>
@@ -183,7 +183,7 @@
 
           <div class="flex-1 flex justify-end min-w-0 ml-2">
             <%# Coordinator Approval Form %>
-            <% if current_user == project.supervisor && current_version == latest_version %>
+            <% if current_user == project.supervisor.user && current_version == latest_version %>
               <div class="flex items-center gap-1 sm:gap-2 min-w-0 justify-end">
                 <%= form_with url: change_status_course_project_path(course, project), method: :patch, local: true, class: "flex items-center gap-1 sm:gap-2 min-w-0 justify-end" do |f| %>
                   <% statuses = Project.statuses.keys.without("not_submitted") %>
