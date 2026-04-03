@@ -48,7 +48,9 @@
     <%= render "courses/flash" %>
   </div>
 
-  <%= render "join_by_code_form", course: @course %>
+  <% if !Current.user.is_staff %>
+    <%= render "join_by_code_form", course: @course %>
+  <% end %>
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
     <% if @courses.present? %>
