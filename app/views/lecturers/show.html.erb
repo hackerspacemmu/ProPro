@@ -249,14 +249,14 @@
       >
         <div class="px-4 md:px-8 pt-6 flex items-center justify-between">
           <h2 class="text-xl font-semibold text-gray-900">Proposals</h2>
-          <% if @is_student %>
+          <% if policy(@course).propose_own_topic? %>
             <%= link_to "Propose Own Topic to Lecturer",
             new_course_project_path(
               @course,
               based_on_topic: "own_proposal_#{@lecturer.id}",
             ),
             class:
-              "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+              "inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors duration-200 whitespace-nowrap" %>
           <% end %>
         </div>
         <div class="px-4 md:px-8 py-6">
