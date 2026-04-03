@@ -338,7 +338,7 @@ class CoursesController < ApplicationController
 
   def enroll_via_coursecode
     code = params[:coursecode]
-    @course = Course.by_coursecode(code)
+    @course = Course.by_coursecode(code).first
 
     if @course
       Enrolment.find_or_create_by!(
