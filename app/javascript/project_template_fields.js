@@ -14,6 +14,7 @@ document.addEventListener("turbo:load", function () {
     { value: "textarea", label: "Textarea" },
     { value: "dropdown", label: "Dropdown" },
     { value: "radio", label: "Radio" },
+    { value: "free_edit", label: "Free edit" },
   ];
 
   const applicableToOptions = [
