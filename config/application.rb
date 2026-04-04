@@ -28,6 +28,8 @@ module Propro
     # view constants thresholds
     config.participants_threshold = 500
     config.supervisors_threshold = 100
+    
+    config.participants_pagination_threshold = 25
 
     # redirect error routes to use custom design
     config.exceptions_app = routes
