@@ -131,7 +131,7 @@
               </button>
 
               <div class="flex items-center gap-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-white <%=  status_badge_classes(stat) %>">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-white <%= status_badge_classes(stat) %>">
                   <div class="bg-white rounded-full p-0.5 flex items-center justify-center">
                     <%= image_tag "#{stat}.svg", class: "inline-block w-4 h-4" %>
                   </div>
@@ -206,7 +206,7 @@
               </button>
 
               <div class="flex items-center gap-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-white <%=  status_badge_classes(stat) %>">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md text-white <%= status_badge_classes(stat) %>">
                   <div class="bg-white rounded-full p-0.5 flex items-center justify-center">
                     <%= image_tag "#{stat}.svg", class: "inline-block w-4 h-4" %>
                   </div>

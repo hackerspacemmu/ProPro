@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
 
   resources :enrolments, only: [:destroy]
+  post 'invite', to: 'courses#enroll_via_coursecode', as: 'invite'
 
   root 'homescreen#show'
 
