@@ -3,7 +3,7 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile]
   def show
     authorize @course
 
@@ -322,8 +322,6 @@ class CoursesController < ApplicationController
   end
 
   def update_coursecode
-    authorize @course, :update?
-
     @course = Course.find(params[:id])
     @course.generate_coursecode!
     flash.now[:notice] = 'Course join code successfully generated'
