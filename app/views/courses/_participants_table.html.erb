@@ -11,7 +11,7 @@
     hx-get="<%= course_url(@course) %>"
     hx-target="#participants-table-container"
     hx-trigger="click"
-    hx-include="#filter-controls"
+    hx-include="#filter-controls, #search-query"
     hx-vals='{"sort_by": "<%= column %>", "sort_dir": "<%= next_dir %>"}'
     hx-indicator="#loading-spinner">
     <div class="flex items-center justify-<%= align %> gap-1">
@@ -20,11 +20,11 @@
       <% if is_active %>
         <% if params[:sort_dir] == 'desc' %>
           <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5M5 12l7-7 7 7" />
           </svg>
         <% else %>
           <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12l7 7 7-7" />
           </svg>
         <% end %>
       <% else %>
@@ -366,4 +366,32 @@
       </tbody>
     </table>
   </div>
+
+  <%# --- Pagination Bar --- %>
+  <% if @total_count > 0 %>
+    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white rounded-b-lg">
+      <span class="text-sm text-gray-500">
+        Showing <span class="font-semibold text-gray-700"><%= @displayed_count %></span>
+        of <span class="font-semibold text-gray-700"><%= @total_count %></span>
+        <%= @course.grouped? ? 'groups' : 'students' %>
+      </span>
+
+      <% if !@show_all && @total_count > @displayed_count %>
+        <button
+          class="
+            text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline
+            transition-colors cursor-pointer
+          "
+          hx-get="<%= course_url(@course) %>"
+          hx-target="#participants-table-container"
+          hx-trigger="click"
+          hx-include="#filter-controls, #search-query"
+          hx-vals='{"show_all": "true"}'
+          hx-indicator="#loading-spinner">
+          Show all <%= @total_count %>
+        </button>
+      <% end %>
+    </div>
+  <% end %>
 </div>
+

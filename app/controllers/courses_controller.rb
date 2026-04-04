@@ -36,14 +36,10 @@ class CoursesController < ApplicationController
       @group_list = []
     end
 
-
-    @filtered_group_list   = filtered_group_list
-    @filtered_student_list = filtered_student_list
+    # view instances for incoming topics and my_student_projects
+    @current_status = @project&.current_status || 'not_submitted'
     @my_student_projects = []
     @incoming_proposals = []
-
-    @current_status = @project&.current_status || 'not_submitted'
-
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
       @my_student_projects = @course.projects.supervised_by(supervisor_enrolment).approved
@@ -53,13 +49,29 @@ class CoursesController < ApplicationController
       @incoming_proposals = @course.projects.where(enrolment: @current_user_enrolment).proposals
     end
 
-    # SET LECTURER CAPACITY
+    # view instances for participants_table
+    @filtered_group_list   = filtered_group_list
+    @filtered_student_list = filtered_student_list
+
+    @show_all = params[:show_all] == 'true'
+    @total_group_count   = @filtered_group_list.count
+    @total_student_count = @filtered_student_list.count
+    @total_count = @course.grouped? ? @total_group_count : @total_student_count
+    @total_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
+
+    unless @show_all
+      @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold)
+      @filtered_student_list = @filtered_student_list.first(Rails.application.config.participants_pagination_threshold)
+    end
+
+    @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
+
     @lecturer_capacity_info = {}
     @lecturers.each do |lecturer|
       @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
     end
 
-    return unless request.headers['HX-Request'] && params[:status_filter].present?
+    return unless request.headers['HX-Request']
 
     render partial: 'participants_table',
            locals: {
@@ -248,8 +260,10 @@ class CoursesController < ApplicationController
     @participant_type = params[:participant_type]
     @participant_id = params[:participant_id]
     @course = Course.find(params[:id])
-
     @grouped = @course.grouped
+
+    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     if @participant_type == 'group'
       @group = @course.project_groups.find(@participant_id)
@@ -624,7 +638,7 @@ class CoursesController < ApplicationController
     end
   end
 
-  # Lecturer count/capcity helpers
+  # Lecturer capcity helpers
 
   def lecturer_approved_proposals_count(lecturer, course)
     lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
@@ -705,6 +719,36 @@ class CoursesController < ApplicationController
 
   # Participants Table Filters helpers
 
+  def search_groups(group_list, query)
+    downcased_query = query.downcase
+
+    group_list.select do |group|
+      project = participant_project(group, 'ProjectGroup')
+
+      group_name_match = group.group_name.downcase.include?(downcased_query)
+      member_match = group.project_group_members.any? do |member|
+        member.user.username.downcase.include?(downcased_query)
+      end
+      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
+
+      group_name_match || member_match || title_match
+    end
+  end
+
+  def search_students(student_list, query)
+    downcased_query = query.downcase
+
+    student_list.select do |student|
+      project = participant_project(student, 'User')
+
+      name_match  = student.username.downcase.include?(downcased_query)
+      id_match    = student.student_id&.downcase&.include?(downcased_query) || false
+      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
+
+      name_match || id_match || title_match
+    end
+  end
+
   def sort_descending?
     params[:sort_dir] == 'desc'
   end
@@ -765,6 +809,9 @@ class CoursesController < ApplicationController
       group_list = @course.groups_with_status(params[:status_filter], group_list)
     end
 
+    if params[:search_query].present?
+      group_list = search_groups(group_list, params[:search_query])
+    end
 
     sorted_list = group_list.sort_by { |group| sort_value_for_group(group) }
     sort_descending? ? sorted_list.reverse : sorted_list
@@ -777,7 +824,13 @@ class CoursesController < ApplicationController
       student_list = student_list.select { |s| ids.include?(s.id) }
     end
 
-    return student_list unless params[:status_filter].present? && params[:status_filter] != 'all'
+    if params[:status_filter].present? && params[:status_filter] != 'all'
+      student_list = @course.students_with_status(params[:status_filter], student_list)
+    end
+
+    if params[:search_query].present?
+      student_list = search_students(student_list, params[:search_query])
+    end
 
     sorted_list = student_list.sort_by { |student| sort_value_for_student(student) }
     sort_descending? ? sorted_list.reverse : sorted_list

@@ -22,6 +22,16 @@ class ParticipantsController < ApplicationController
 
     @students_with_projects = @student_list.select { |s| projects_ownerships.include?(s.id) }
     @students_without_projects = @student_list.reject { |s| projects_ownerships.include?(s.id) }
+
+    @show_all = params[:show_all] == 'true'
+    @total_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
+
+    unless @show_all
+      @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold)
+      @filtered_student_list = @filtered_student_list.first(Rails.application.config.participants_pagination_threshold)
+    end
+
+    @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
     end
   end
 

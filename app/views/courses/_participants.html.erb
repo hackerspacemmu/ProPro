@@ -6,12 +6,41 @@
       w-full bg-[#f8f9fa] rounded-[10px] p-5 shadow-sm border border-gray-100
     ">
 
-    <%# --- Header & Filter Controls --- %>
+    <%# --- Header, Search Bar and Filters --- %>
     <header
       class="
         mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4
       ">
-      <h4 class="text-xl text-black font-normal m-0">Participants</h4>
+      <div class="flex items-center gap-3 shrink-0">
+        <h4 class="text-xl text-black font-normal m-0">Participants</h4>
+
+        <%# Search Bar %>
+        <% unless participants_exceed?(@course) && !local_assigns[:fullpage] %>
+          <div class="relative flex items-center w-[220px] ">
+            <svg
+              class="absolute left-2.5 w-4 h-4 text-gray-400 pointer-events-none"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+            <input
+              type="text"
+              id="search-query"
+              name="search_query"
+              value="<%= params[:search_query] %>"
+              class="
+                bg-white border border-gray-300 text-gray-700 text-sm rounded-lg
+                focus:ring-blue-500 focus:border-blue-500 block w-full pl-8 pr-3 py-2 shadow-sm
+                transition-colors
+              "
+              hx-get="<%= course_url(@course) %>"
+              hx-target="#participants-table-container"
+              hx-trigger="input changed delay:300ms"
+              hx-include="#filter-controls, #search-query"
+              hx-indicator="#loading-spinner">
+          </div>
+        <% end %>
+      </div>
 
       <% if participants_exceed?(@course) && !local_assigns[:fullpage] %>
         <%= link_to "Show all participants",
@@ -35,6 +64,7 @@
 
             <%# Lecturer Filter %>
             <div class="relative flex items-center justify-center w-full sm:w-[200px]">
+
               <select
                 id="lecturer-filter"
                 name="lecturer_filter"
@@ -59,6 +89,7 @@
                   ><%= lecturer.username %></option>
                 <% end %>
               </select>
+              
               <div
                 class="
                   pointer-events-none inset-y-0 right-0 flex justify-start items-center px-2
@@ -91,26 +122,11 @@
                   value="all"
                   <%= 'selected' if params[:status_filter] == 'all' || params[:status_filter].blank? %>
                 >All Statuses</option>
-                <option
-                  value="approved"
-                  <%= 'selected' if params[:status_filter] == 'approved' %>
-                >Approved</option>
-                <option
-                  value="pending"
-                  <%= 'selected' if params[:status_filter] == 'pending' %>
-                >Pending</option>
-                <option
-                  value="redo"
-                  <%= 'selected' if params[:status_filter] == 'redo' %>
-                >Redo</option>
-                <option
-                  value="rejected"
-                  <%= 'selected' if params[:status_filter] == 'rejected' %>
-                >Rejected</option>
-                <option
-                  value="not_submitted"
-                  <%= 'selected' if params[:status_filter] == 'not_submitted' %>
-                >Not Submitted</option>
+                <option value="approved"      <%= 'selected' if params[:status_filter] == 'approved' %>>Approved</option>
+                <option value="pending"       <%= 'selected' if params[:status_filter] == 'pending' %>>Pending</option>
+                <option value="redo"          <%= 'selected' if params[:status_filter] == 'redo' %>>Redo</option>
+                <option value="rejected"      <%= 'selected' if params[:status_filter] == 'rejected' %>>Rejected</option>
+                <option value="not_submitted" <%= 'selected' if params[:status_filter] == 'not_submitted' %>>Not Submitted</option>
               </select>
               <div
                 class="
@@ -137,17 +153,8 @@
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24">
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Loading...
             </div>
@@ -180,19 +187,19 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-1">
               <span class="text-gray-700 text-md font-semibold">Total Groups:</span>
-              <%= @filtered_group_list&.count || 0 %>
+              <%= @total_group_count || 0 %>
             </div>
 
             <div class="flex items-center gap-1">
               <span class="text-gray-700 text-md font-semibold">Total Students:</span>
-              <%= @filtered_student_list&.count || 0 %>
+              <%= @total_student_count || 0 %>
             </div>
           </div>
         <% else %>
           <div class="flex items-center gap-1">
             <span class="text-gray-700 text-md font-semibold">Total Students:
             </span>
-            <%= @filtered_student_list&.count || 0 %>
+            <%= @total_student_count || 0 %>
           </div>
         <% end %>
       </div>
