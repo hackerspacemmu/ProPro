@@ -198,6 +198,20 @@ document.addEventListener("turbo:load", function () {
     const optionsSection = fieldRow.querySelector(".options-section");
     const addOptionBtn = optionsSection.querySelector(".add-option-btn");
     const fieldType = e.target.value;
+    const requiredCheckbox = fieldRow.querySelector('input[type="checkbox"][name*="[required]"]');
+
+    if (requiredCheckbox) {
+      if (fieldType === "free_edit") {
+        requiredCheckbox.checked = false;
+        requiredCheckbox.disabled = true;
+        requiredCheckbox.style.cursor = "not-allowed";
+        requiredCheckbox.title = "Free edit fields cannot be marked as required.";
+      } else {
+        requiredCheckbox.disabled = false;
+        requiredCheckbox.style.cursor = "pointer";
+        requiredCheckbox.title = "";
+      }
+    }
 
     if (optionsSection) {
       if (fieldType === "dropdown" || fieldType === "radio") {
@@ -319,11 +333,12 @@ document.addEventListener("turbo:load", function () {
     }
   });
 
-  // Initial check to disable remove button on Project Title
+  // Initial check to disable remove button on Project Title and handle free edit
   templateFields.querySelectorAll(".field-row").forEach((row) => {
-    const labelInput = row.querySelector(
-      'textarea[name*="[label]"], input[name*="[label]"]',
-    );
+    const labelInput = row.querySelector('textarea[name*="[label]"], input[name*="[label]"]');
+    const typeSelect = row.querySelector(".field-type-select");
+    const requiredCheckbox = row.querySelector('input[type="checkbox"][name*="[required]"]');
+
     if (labelInput && labelInput.value.trim() === "Project Title") {
       const btn = row.querySelector(".remove-field");
       if (btn) {
@@ -331,15 +346,19 @@ document.addEventListener("turbo:load", function () {
         btn.title = "Cannot remove title";
         btn.classList.add("opacity-50", "cursor-not-allowed");
       }
-      const requiredCheckbox = row.querySelector(
-        'input[type="checkbox"][name*="[required]"]',
-      );
       if (requiredCheckbox) {
         requiredCheckbox.checked = true;
         requiredCheckbox.disabled = true;
         requiredCheckbox.required = true;
         requiredCheckbox.title = "Title is Required";
       }
+    }
+
+    if (typeSelect && typeSelect.value === "free_edit" && requiredCheckbox) {
+      requiredCheckbox.checked = false;
+      requiredCheckbox.disabled = true;
+      requiredCheckbox.style.cursor = "not-allowed";
+      requiredCheckbox.title = "Free edit fields cannot be marked as required.";
     }
   });
 
