@@ -347,7 +347,7 @@ document.addEventListener("turbo:load", function () {
     }
   });
 
-  // Initial check to disable remove and free edit button on Project Title
+  // Initial check to disable remove button on Project Title
   templateFields.querySelectorAll(".field-row").forEach((row) => {
     const labelInput = row.querySelector(
       'textarea[name*="[label]"], input[name*="[label]"]',
@@ -367,14 +367,6 @@ document.addEventListener("turbo:load", function () {
         requiredCheckbox.disabled = true;
         requiredCheckbox.required = true;
         requiredCheckbox.title = "Title is Required";
-      }
-      const freeEditCheckbox = row.querySelector(
-        'input[type="checkbox"][name*="[free_edit]"]'
-      );
-      if (freeEditCheckbox) {
-        freeEditCheckbox.checked = false; 
-        freeEditCheckbox.disabled = true;
-        freeEditCheckbox.title = "Title cannot be changed after approval";
       }
     }
   });
