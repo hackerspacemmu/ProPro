@@ -209,6 +209,8 @@ class ProjectsController < ApplicationController
   def update
     authorize @project || Project.new(course: @course)
 
+    is_approved = @project.status == 'approved' || @project.approved?
+
     has_supervisor_comment = false
     @project.project_instances.last.comments.each do |comment|
       if comment.user_id == @project.supervisor.id
@@ -222,7 +224,7 @@ class ProjectsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        return unless @project.editable?
+        raise StandardError, 'This project is locked and cannot be edited.' unless @project.editable? || is_approved
 
         @instance = @project.instance_to_edit(
           created_by: current_user,
@@ -230,68 +232,53 @@ class ProjectsController < ApplicationController
         )
         new_instance_created = @instance.new_record?
 
-        # Set title
-        title_field_id = params[:fields].keys.first if params[:fields].present?
-        @instance.title = params[:fields][title_field_id] if title_field_id.present?
+        if !is_approved && params[:fields].present?
+          title_field_id = params[:fields].keys.first
+          @instance.title = params[:fields][title_field_id] if title_field_id.present?
+        end
 
-        # Timestamps
         @instance.last_edit_time = Time.current
         @instance.last_edit_by = current_user.id
+        @instance.save!
 
-        raise StandardError unless @instance.save
-
-        raise StandardError unless params[:fields].present?
+        raise StandardError, 'No field data provided.' if params[:fields].blank?
 
         params[:fields].each do |field_id, value|
-          existing_field = ProjectInstanceField.find_by(
+          template_field = ProjectTemplateField.find(field_id)
+
+          next if is_approved && !template_field.free_edit
+
+          existing_field = ProjectInstanceField.find_or_initialize_by(
             project_template_field_id: field_id,
             instance: @instance
           )
+          existing_field.update!(value: value)
+        end
 
-          if existing_field
-            existing_field.update!(value: value)
+        unless is_approved
+          raise StandardError, 'Please choose a lecturer and topic' if params[:based_on_topic].blank?
+
+          if params[:based_on_topic].start_with?('own_proposal_')
+            lecturer_id = params[:based_on_topic].split('_').last.to_i
+            supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
+            raise StandardError, 'Lecturer not found' unless supervisor_enrolment
+
+            @instance.update!(source_topic_id: nil)
           else
-            @instance.project_instance_fields.create!(
-              project_template_field_id: field_id,
-              value: value
-            )
+            topic = Topic.find_by(id: params[:based_on_topic], course: @course)
+            raise StandardError, 'Topic not found' unless topic && topic.owner.is_a?(User)
+
+            supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
+            raise StandardError, 'Supervisor enrolment missing' unless supervisor_enrolment
+
+            @instance.update!(source_topic: topic)
           end
+
+          @project.update!(enrolment: supervisor_enrolment)
         end
-
-        raise StandardError, 'Please choose a lecturer and topic' if params[:based_on_topic].blank?
-
-        # 2 formats, PROJECT_ID or own_proposal_LECTURER_ID
-        if params[:based_on_topic].start_with?('own_proposal_')
-          # Extract lecturer ID from value
-          lecturer_id = params[:based_on_topic].split('_').last.to_i
-
-          # Find lecturer enrolment for course
-          supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
-
-          raise StandardError unless supervisor_enrolment
-
-          @instance.update!(source_topic_id: nil)
-        else
-          # Treat as topic_id
-          topic = Topic.find_by(id: params[:based_on_topic], course: @course)
-
-          raise StandardError unless topic
-
-          raise StandardError unless topic.owner.is_a?(User)
-
-          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
-
-          raise StandardError unless supervisor_enrolment
-
-          @instance.update!(source_topic: topic)
-        end
-
-        @project.project_instances.last.update!(
-          enrolment: supervisor_enrolment
-        )
       end
-    rescue StandardError
-      redirect_to course_project_path(@course, @project), alert: 'Project update failed'
+    rescue StandardError => e
+      redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
       return
     end
 
