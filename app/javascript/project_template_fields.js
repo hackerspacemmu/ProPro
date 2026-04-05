@@ -46,39 +46,50 @@ document.addEventListener("turbo:load", function () {
       <tr
         class="field-row group relative flex flex-col bg-white transition-colors hover:bg-gray-50/50 border-b border-gray-600 last-of-type:border-b-0 lg:table-row lg:border-none"
         data-field-index="${index}"
+        data-controller="project-template-fields"
       >
         <td class="block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
           <div class="relative">
             <textarea
-                   name="project_template[project_template_fields_attributes][${index}][label]"
-                   placeholder="e.g. Project Title"
-                   rows="1"
-                   class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
-                   data-controller="textarea-resize"
-                   data-action="input->textarea-resize#resize"
+              name="project_template[project_template_fields_attributes][${index}][label]"
+              placeholder="e.g. Project Title"
+              rows="1"
+              class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
+              data-controller="textarea-resize"
+              data-action="input->textarea-resize#resize"
             ></textarea>
 
-            <button type="button" class="remove-field hidden lg:flex items-center justify-center absolute -left-10 top-1/2 -translate-y-1/2 w-8 h-8 text-gray-400 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-600 rounded-md transition-all" title="Remove Field">
-              <svg class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <button
+              type="button"
+              class="remove-field hidden lg:flex items-center justify-center absolute -left-10 top-1/2 -translate-y-1/2 w-8 h-8 text-gray-400 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-600 rounded-md transition-all"
+              title="Remove Field"
+            >
+              <svg class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
             </button>
           </div>
         </td>
 
         <td class="block lg:table-cell px-6 py-5 align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Hint Text</span>
-          <textarea name="project_template[project_template_fields_attributes][${index}][hint]"
-                    placeholder="Instructions..."
-                    rows="1"
-                    class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
-                    data-controller="textarea-resize"
-                    data-action="input->textarea-resize#resize"
+          <textarea
+            name="project_template[project_template_fields_attributes][${index}][hint]"
+            placeholder="Instructions..."
+            rows="1"
+            class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
+            data-controller="textarea-resize"
+            data-action="input->textarea-resize#resize"
           ></textarea>
         </td>
 
         <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Type</span>
-          <select name="project_template[project_template_fields_attributes][${index}][field_type]" class="field-type-select block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer">
+          <select 
+            name="project_template[project_template_fields_attributes][${index}][field_type]" 
+            class="field-type-select block w-full py-2.5 pl-3 pr-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer"
+          >
             <option value="">Select field type</option>
             ${generateFieldTypeOptions()}
           </select>
@@ -86,15 +97,17 @@ document.addEventListener("turbo:load", function () {
 
         <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Applicable To</span>
-          <select name="project_template[project_template_fields_attributes][${index}][applicable_to]"
-                  class="block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer">
+          <select 
+            name="project_template[project_template_fields_attributes][${index}][applicable_to]"
+            class="block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer"
+          >
             ${generateApplicableToOptions()}
           </select>
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 align-top">
+        <td class="block lg:table-cell px-6 py-5 align-top" data-project-template-fields-target="optionsContainer">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Options</span>
-
+          
           <div class="options-section hidden w-full">
             <button type="button"
                     class="add-option-btn text-[0.8125rem] text-gray-500 bg-transparent border border-dashed border-gray-300 rounded py-2 px-3 cursor-pointer transition-all duration-150 ease-in-out w-fit hover:text-blue-600 hover:border-blue-500 hover:bg-[#f8f9fa] mt-2"
@@ -106,20 +119,36 @@ document.addEventListener("turbo:load", function () {
           </div>
 
           <button type="button" class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-red-500 hover:text-red-700 font-medium bg-red-50 px-3 py-2 rounded-md">
-            <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
             Remove Field
           </button>
+          <input type="hidden" name="project_template[project_template_fields_attributes][${index}][_destroy]" value="0" class="destroy-flag">
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 align-top">
+        <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Required</span>
-          <input type="hidden"
-                name="project_template[project_template_fields_attributes][${index}][required]"
-                value="false">
-          <input type="checkbox"
-                name="project_template[project_template_fields_attributes][${index}][required]"
-                value="true"
-                class="block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer">
+          <div class="flex items-center h-10">
+            <input type="hidden" name="project_template[project_template_fields_attributes][${index}][required]" value="0">
+            <input type="checkbox"
+                  name="project_template[project_template_fields_attributes][${index}][required]"
+                  value="1"
+                  class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            <label class="ml-2 text-sm text-gray-600 lg:hidden">Field is required</label>
+          </div>
+        </td>
+
+        <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Free Edit</span>
+          <div class="flex items-center h-10" title="Allow editing after approval">
+            <input type="hidden" name="project_template[project_template_fields_attributes][${index}][free_edit]" value="0">
+            <input type="checkbox"
+                  name="project_template[project_template_fields_attributes][${index}][free_edit]"
+                  value="1"
+                  class="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer">
+            <label class="ml-2 text-sm text-gray-600 lg:hidden">Editable after approval</label>
+          </div>
         </td>
       </tr>
     `;
