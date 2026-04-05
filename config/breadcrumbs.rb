@@ -88,7 +88,7 @@ crumb :project do |project|
     participant_name = if params[:participant_type] == 'group'
                          ProjectGroup.find(params[:from_participant]).group_name
                        else
-                         User.find(params[:from_participant]).username
+                         User.find(params[:from_participant]).name
                        end
     parent :course_participant_profile, project.course, participant_name
   else
@@ -124,7 +124,7 @@ crumb :edit_progress_update do |progress_update|
 end
 
 crumb :lecturer do |course, lecturer|
-  link lecturer.username, course_lecturer_path(course, lecturer)
+  link lecturer.name, course_lecturer_path(course, lecturer)
   parent :course, course
 end
 
