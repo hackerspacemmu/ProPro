@@ -2,17 +2,15 @@ class ProjectTemplateField < ApplicationRecord
   belongs_to :project_template
   has_many   :project_instance_fields, dependent: :destroy
 
-  enum :field_type, { shorttext: 0, textarea: 1, dropdown: 2, radio: 3, free_edit: 4 }
+  enum :field_type, { shorttext: 0, textarea: 1, dropdown: 2, radio: 3 }
   enum :applicable_to, { topics: 0, proposals: 1, both: 2 }
 
   validates :label, presence: true
   validates :field_type, presence: true
   validates :applicable_to, presence: true
   validates :options, presence: true, if: -> { field_type.in?(%w[dropdown radio]) }
-  validates :required, inclusion: { in: [false] }, if: :free_edit?
 
   before_validation :force_title_required
-  before_validation :force_free_edit_unrequired
   before_destroy :cannot_delete_if_in_use
 
   def option_list
@@ -30,9 +28,5 @@ class ProjectTemplateField < ApplicationRecord
 
   def force_title_required
     self.required = true if label == 'Project Title'
-  end
-
-  def force_free_edit_unrequired
-    self.required = false if free_edit?
   end
 end
