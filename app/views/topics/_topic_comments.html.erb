@@ -33,6 +33,7 @@
       "
       data-controller="scroll-to-bottom"
       data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
+      data-scroll-to-bottom-target-version-value="<%= current_version %>"
     >
 
       <% if comments&.any? %>
@@ -40,7 +41,7 @@
 
           <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
 
-            <div class="pt-2 pb-1">
+            <div class="pt-2 pb-1" id="version-<%= version %>-comments">
               <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Comments for v<%= version %>
               </h3>
