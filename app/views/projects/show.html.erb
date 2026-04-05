@@ -48,7 +48,7 @@
 
           <div class="flex flex-col md:flex-row xl:flex-col gap-6">
 
-            <% if policy(@project).update? || @current_version != @latest_version %>
+            <% if (policy(@project).update? && !current_user.is_staff) || @current_version != @latest_version %>
               <section
                 class="
                   hidden xl:block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
