@@ -8,6 +8,7 @@ class Project < ApplicationRecord
 
   has_many :project_instances, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
+  has_many :comments, through: :project_instances
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead

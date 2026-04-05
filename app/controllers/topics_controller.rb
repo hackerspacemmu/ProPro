@@ -55,7 +55,7 @@ class TopicsController < ApplicationController
                                    .order(project_template_field_id: :asc)
     end
 
-    @comments = @current_instance.comments.order(created_at: :asc)
+    @comments = @topic.comments.order(created_at: :asc)
     @new_comment = Comment.new
     @fields = @current_fields
   end
