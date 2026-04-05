@@ -7,7 +7,7 @@
 "Edit Project Template - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
 <main id="course" class="bg-gray-50 font-sans min-h-screen">
-  <section class="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto">
+  <section class="flex flex-col gap-6 p-4 md:p-8 max-w-[90rem] mx-auto">
 
     <%# --- Page Header --- %>
     <header>
@@ -48,54 +48,32 @@
       <%= render "courses/copy_course_overlay", course: @course, mode: "template" %>
 
       <div class="overflow-x-auto pb-4">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 table-fixed">
 
           <%# --- Table Header --- %>
           <thead class="bg-gray-50 hidden lg:table-header-group">
             <tr>
-              <th
-                scope="col"
-                class="
-                  pl-12 pl-6 py-4 text-left text-xs font-bold text-gray-500 uppercase
-                  tracking-wider w-[20%]
-                "
-              >Field Label</th>
-              <th
-                scope="col"
-                class="
-                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-                  w-[25%]
-                "
-              >Hint Text</th>
-              <th
-                scope="col"
-                class="
-                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-                  w-[15%]
-                "
-              >Type</th>
-              <th
-                scope="col"
-                class="
-                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-                  w-[15%]
-                "
-              >Applicable To</th>
-              <th
-                scope="col"
-                class="
-                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-                  w-[15%]
-                "
-              >Options</th>
-
-              <th
-                scope="col"
-                class="
-                  px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider
-                  w-[10%]
-                "
-            >Required</th>
+              <th scope="col" class="pl-16 pr-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[22%]">
+                Field Label
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[20%]">
+                Hint Text
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[13%]">
+                Type
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%]">
+                Applicable To
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-[15%]">
+                Options
+              </th>
+              <th scope="col" class="px-2 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-[7%]">
+                Req.
+              </th>
+              <th scope="col" class="px-2 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-[8%]">
+                Free Edit
+              </th>
             </tr>
           </thead>
 
