@@ -7,9 +7,9 @@ module ProjectsHelper
     @course.use_progress_updates && @current_instance.status == 'approved'
   end
 
-  def username(user_id)
+  def name(user_id)
     return nil unless user_id.present?
 
-    User.find_by(id: user_id)&.username
+    User.find_by(id: user_id)&.name
   end
 end

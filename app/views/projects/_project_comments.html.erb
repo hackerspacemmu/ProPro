@@ -41,7 +41,7 @@
                   text-xs font-bold ring-4 ring-gray-50/30
                 "
               >
-                <%= comment.user.username[0].upcase %>
+                <%= comment.user.name[0].upcase %>
               </div>
             </div>
 
@@ -52,9 +52,9 @@
 
                 <div class="flex items-baseline gap-2 min-w-0 flex-1">
                   <% if Current.user == comment.user %>
-                    <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.username %></h4>
+                    <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.name %></h4>
                   <% else %>
-                    <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.username %></h4>
+                    <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.name %></h4>
                   <% end %>
 
                   <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
