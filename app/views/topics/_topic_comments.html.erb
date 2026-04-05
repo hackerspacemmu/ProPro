@@ -27,7 +27,13 @@
     </div>
 
     <%# --- Comments Body --- %>
-    <div class="flex-1 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative">
+    <div
+      class="
+        flex-1 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative
+      "
+      data-controller="scroll-to-bottom"
+      data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
+    >
 
       <% if comments&.any? %>
         <div class="space-y-6 relative pl-2 sm:pl-4">

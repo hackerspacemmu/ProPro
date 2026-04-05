@@ -26,6 +26,8 @@
     class="
       flex-1 min-h-0 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative
     "
+    data-controller="scroll-to-bottom"
+    data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
   >
 
     <% if comments.any? %>
