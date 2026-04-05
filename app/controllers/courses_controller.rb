@@ -156,8 +156,8 @@ class CoursesController < ApplicationController
       ActiveRecord::Base.transaction do
         # Remove the leading 'S-' from student IDs if present
         csv_obj.each do |row|
-          student_id = row['ID number']
-          row['ID number'] = student_id&.replace(student_id[2..]) if student_id&.start_with?('S-')
+          instid = row['ID number']
+          row['ID number'] = instid&.replace(instid[2..]) if instid&.start_with?('S-')
         end
 
         if @course.grouped
@@ -381,16 +381,16 @@ class CoursesController < ApplicationController
         new_user = User.find_by(email_address: group_member[:email_address], is_staff: false)
 
         if new_user
-          new_user.update!(student_id: group_member[:student_id])
+          new_user.update!(instid: group_member[:instid])
 
           registered_students.push(group_member[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
         else
           new_user = User.create!(
             email_address: group_member[:email_address],
-            username: group_member[:name],
+            name: group_member[:name],
             password: SecureRandom.base64(24),
             has_registered: false,
-            student_id: group_member[:student_id],
+            instid: group_member[:instid],
             is_staff: false
           )
 
@@ -463,16 +463,16 @@ class CoursesController < ApplicationController
       new_user = User.find_by(email_address: student[:email_address], is_staff: false)
 
       if new_user
-        new_user.update!(student_id: student[:student_id])
+        new_user.update!(instid: student[:instid])
 
         registered_students.push(student[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
       else
         new_user = User.create!(
           email_address: student[:email_address],
-          username: student[:name],
+          name: student[:name],
           password: SecureRandom.base64(24),
           has_registered: false,
-          student_id: student[:student_id],
+          instid: student[:instid],
           is_staff: false
         )
 
@@ -512,7 +512,7 @@ class CoursesController < ApplicationController
           password: SecureRandom.base64(24),
           has_registered: false,
           is_staff: true,
-          username: "Lecturer-#{SecureRandom.hex(2)}"
+          name: "Lecturer-#{SecureRandom.hex(2)}"
         )
 
         new_otp_instance = Otp.create!(
@@ -562,7 +562,7 @@ class CoursesController < ApplicationController
   end
 
   def build_csv_headers(template_fields)
-    headers = %w[Student_Name Student_ID Email_Address]
+    headers = %w[Student_Name instid Email_Address]
     headers << 'Student Group' if @course.grouped?
     headers += %w[Supervisor_Name Supervisor_Email_Address Project_Title Project_Status]
 
@@ -589,11 +589,11 @@ class CoursesController < ApplicationController
     group.project_group_members.each do |member|
       user = member.user
       row = [
-        user.username || '',
-        user.student_id || '',
+        user.name || '',
+        user.instid || '',
         user.email_address || '',
         group.group_name || '',
-        supervisor&.username || '',
+        supervisor&.name || '',
         supervisor&.email_address || '',
         project&.current_title || '',
         project_status.humanize
@@ -612,10 +612,10 @@ class CoursesController < ApplicationController
     field_values = get_project_details_values(current_instance, template_fields)
 
     row = [
-      student.username || '',
-      student.student_id || '',
+      student.name || '',
+      student.instid || '',
       student.email_address || '',
-      supervisor&.username || '',
+      supervisor&.name || '',
       supervisor&.email_address || '',
       project&.current_title || '',
       project_status.humanize
@@ -744,7 +744,7 @@ class CoursesController < ApplicationController
 
       group_name_match = group.group_name.downcase.include?(downcased_query)
       member_match = group.project_group_members.any? do |member|
-        member.user.username.downcase.include?(downcased_query)
+        member.user.name.downcase.include?(downcased_query)
       end
       title_match = project&.current_title&.downcase&.include?(downcased_query) || false
 
@@ -758,8 +758,8 @@ class CoursesController < ApplicationController
     student_list.select do |student|
       project = participant_project(student, 'User')
 
-      name_match  = student.username.downcase.include?(downcased_query)
-      id_match    = student.student_id&.downcase&.include?(downcased_query) || false
+      name_match  = student.name.downcase.include?(downcased_query)
+      id_match    = student.instid&.downcase&.include?(downcased_query) || false
       title_match = project&.current_title&.downcase&.include?(downcased_query) || false
 
       name_match || id_match || title_match
@@ -782,7 +782,7 @@ class CoursesController < ApplicationController
     when 'project_title'
       project&.current_title&.downcase || ''
     when 'supervisor'
-      project&.supervisor&.username&.downcase || ''
+      project&.supervisor&.name&.downcase || ''
     else
       group.group_name.downcase
     end
@@ -796,9 +796,9 @@ class CoursesController < ApplicationController
     when 'project_title'
       project&.current_title&.downcase || ''
     when 'supervisor'
-      project&.supervisor&.username&.downcase || ''
+      project&.supervisor&.name&.downcase || ''
     else
-      student.username.downcase
+      student.name.downcase
     end
   end
 
