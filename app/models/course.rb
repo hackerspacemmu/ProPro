@@ -70,7 +70,7 @@ class Course < ApplicationRecord
       ret[group] ||= Set[]
       ret[group].add({
                        name: row['Last name'].strip,
-                       student_id: row['ID number'].strip,
+                       instid: row['ID number'].strip,
                        email_address: row['Email address'].strip
                      })
     end
@@ -87,7 +87,7 @@ class Course < ApplicationRecord
 
       ret.add({
                 name: row['Last name'].strip,
-                student_id: row['ID number'].strip,
+                instid: row['ID number'].strip,
                 email_address: row['Email address'].strip
               })
     end

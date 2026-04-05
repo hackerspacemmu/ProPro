@@ -16,8 +16,8 @@ description_text = found_text if found_text.present?
 
 # --- Determine Owner Name ---
 owner_name =
-  if project.owner.respond_to?(:username)
-    project.owner.username
+  if project.owner.respond_to?(:name)
+    project.owner.name
   elsif project.owner.respond_to?(:group_name)
     project.owner.group_name
   else
