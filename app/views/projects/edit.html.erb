@@ -68,29 +68,32 @@
           <%# reusable input class definition %>
           <% input_classes =
             "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
+          
+          <% is_project_approved = @project.approved? %>
+          <% is_topic_readonly = is_project_approved %>
 
           <div class="flex flex-col group">
-            <label
-              class="
-                block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2
-              "
-            >
+            <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
               Based on Topic
+              <% if is_topic_readonly %>
+                <span class="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-tighter">
+                  Locked after Approval
+                </span>
+              <% end %>
             </label>
-            <% red_warning = "text-[11px] sm:text-xs font-bold text-red-600 tracking-normal mb-2" %>
-            <% grey_warning = "text-[11px] sm:text-xs text-gray-700 tracking-normal mb-2" %>
-            <p>
-              <span class="<%= red_warning %>"> Warning:</span>
-              <span class="<%= grey_warning %>">Switching to a lecturer's topic will autofill that topic's details. (You will lose any existing details in the fields!)</span>
-            </p>
+
+            <% unless is_topic_readonly %>
+              <p class="mb-3">
+                <span class="text-[11px] sm:text-xs font-bold text-red-600">Warning:</span>
+                <span class="text-[11px] sm:text-xs text-gray-700">Switching topics will overwrite existing field data.</span>
+              </p>
+            <% end %>
 
             <div class="relative">
               <select
                 name="based_on_topic"
-                class="
-                  <%= input_classes %> appearance-none pr-10 cursor-pointer
-                "
-                required
+                class="<%= input_classes %> appearance-none pr-10 <%= 'opacity-60 bg-gray-100 cursor-not-allowed shadow-none' if is_topic_readonly %>"
+                <%= is_topic_readonly ? 'disabled' : 'required' %>
                 hx-get="<%= selected_topic_edit_course_projects_path(@course) %>"
                 hx-trigger="change"
                 hx-target="#template-fields-edit-container"
@@ -132,18 +135,16 @@
                   </optgroup>
                 <% end %>
               </select>
-              <div
-                class="
-                  absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
-                  text-gray-500
-                "
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  /></svg>
+
+              <% if is_topic_readonly %>
+                <% hidden_val = @selected_topic_id.present? ? @selected_topic_id : "own_proposal_#{@selected_own_proposal_lecturer_id}" %>
+                <%= hidden_field_tag :based_on_topic, hidden_val %>
+              <% end %>
+
+              <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
             </div>
           </div>

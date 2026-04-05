@@ -2,15 +2,30 @@
   id="template-fields-edit-container"
   class="grid grid-cols-1 gap-6 sm:gap-8"
 >
+  <% is_project_approved = @project.approved? %>
+
   <% template_fields.each do |field| %>
+    <% 
+      is_readonly = is_project_approved && !field.free_edit 
+
+      disabled_classes = is_readonly ? "opacity-60 bg-gray-100 cursor-not-allowed border-gray-200 shadow-none" : ""
+      current_input_classes = "#{input_classes} #{disabled_classes}"
+    %>
+
     <div class="flex flex-col group">
 
       <%= label_tag "fields_#{field.id}",
         class: "block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2",
         title: field.hint do %>
         <%= field.label %>
-        <% if field.required %>
+        <% if field.required && !is_readonly %>
           <span class="ml-1 text-red-600">*</span>
+        <% end %>
+        
+        <% if is_readonly %>
+          <span class="ml-2 text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-tighter">
+            Locked (Approved)
+          </span>
         <% end %>
       <% end %>
 
@@ -20,25 +35,31 @@
 
       <% existing_value = existing_values[field.id] %>
 
+      <% if is_readonly %>
+        <%= hidden_field_tag "fields[#{field.id}]", existing_value %>
+      <% end %>
+
       <% case field.field_type %>
       <% when "shorttext" %>
         <%= text_field_tag "fields[#{field.id}]",
         existing_value,
-        class: input_classes,
+        class: current_input_classes,
         placeholder: field.hint,
-        required: field.required,
+        required: (field.required && !is_readonly),
+        disabled: is_readonly,
         autocomplete: "off" %>
 
       <% when "textarea" %>
         <%= text_area_tag "fields[#{field.id}]",
         existing_value,
-        class: "#{input_classes} resize-none overflow-hidden leading-relaxed",
+        class: "#{current_input_classes} resize-none overflow-hidden leading-relaxed",
         data: {
-          controller: "markdown-editor",
+          controller: is_readonly ? "" : "markdown-editor",
         },
         rows: 2,
         placeholder: field.hint,
-        required: field.required %>
+        required: (field.required && !is_readonly),
+        disabled: is_readonly %>
 
       <% when "dropdown" %>
         <div class="relative">
@@ -46,20 +67,11 @@
           <%= select_tag "fields[#{field.id}]",
           options_for_select(options, existing_value),
           prompt: "Select an option",
-          class: "#{input_classes} appearance-none pr-10 cursor-pointer",
-          required: field.required %>
-          <div
-            class="
-              absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none
-              text-gray-500
-            "
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              /></svg>
+          class: "#{current_input_classes} appearance-none pr-10",
+          required: (field.required && !is_readonly),
+          disabled: is_readonly %>
+          <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
           </div>
         </div>
 
@@ -72,13 +84,12 @@
               option,
               (option.to_s == existing_value.to_s),
               id: "field_#{field.id}_#{idx}",
-              required: field.required,
-              class:
-                "w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+              required: (field.required && !is_readonly),
+              disabled: is_readonly,
+              class: "w-4 h-4 sm:w-5 sm:h-5 text-blue-600 border-gray-300 focus:ring-blue-500 #{is_readonly ? 'cursor-not-allowed' : 'cursor-pointer'}" %>
               <%= label_tag "field_#{field.id}_#{idx}",
               option,
-              class:
-                "ml-3 block text-sm sm:text-base font-medium text-gray-700 cursor-pointer hover:text-gray-900" %>
+              class: "ml-3 block text-sm sm:text-base font-medium text-gray-700 #{is_readonly ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer hover:text-gray-900'}" %>
             </div>
           <% end %>
         </div>
@@ -86,8 +97,9 @@
       <% else %>
         <%= text_field_tag "fields[#{field.id}]",
         existing_value,
-        class: input_classes,
-        required: field.required,
+        class: current_input_classes,
+        required: (field.required && !is_readonly),
+        disabled: is_readonly,
         autocomplete: "off" %>
       <% end %>
     </div>
