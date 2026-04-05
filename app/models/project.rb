@@ -70,11 +70,13 @@ class Project < ApplicationRecord
   end
 
   def instance_to_edit(created_by:, has_supervisor_comment:)
-    if rejected? || redo? || (pending? && has_supervisor_comment)
+    if approved? || rejected? || redo? || (pending? && has_supervisor_comment)
       project_instances.build(
-        version: project_instances.count + 1,
+        version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
-        enrolment: enrolment
+        enrolment: enrolment,
+        title: current_title,
+        status: (status if approved?)
       )
     else
       # If approved and pending (no supervisor comment) dont create new instance

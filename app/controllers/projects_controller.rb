@@ -208,16 +208,10 @@ class ProjectsController < ApplicationController
 
   def update
     authorize @project || Project.new(course: @course)
+    is_approved = @project.approved?
 
-    is_approved = @project.status == 'approved' || @project.approved?
-
-    has_supervisor_comment = false
-    @project.project_instances.last.comments.each do |comment|
-      if comment.user_id == @project.supervisor.id
-        has_supervisor_comment = true
-        break
-      end
-    end
+    last_instance = @project.project_instances.last
+    has_supervisor_comment = last_instance.comments.exists?(user_id: @project.supervisor.id)
 
     previous_supervisor_id = @project.supervisor.id
     new_instance_created = false
@@ -232,14 +226,16 @@ class ProjectsController < ApplicationController
         )
         new_instance_created = @instance.new_record?
 
-        if !is_approved && params[:fields].present?
-          title_field_id = params[:fields].keys.first
-          @instance.title = params[:fields][title_field_id] if title_field_id.present?
-        end
+        if new_instance_created
+          previous_instance = @project.project_instances.where.not(id: nil).order(version: :desc).first
 
-        @instance.last_edit_time = Time.current
-        @instance.last_edit_by = current_user.id
-        @instance.save!
+          previous_instance&.project_instance_fields&.each do |old_field|
+            @instance.project_instance_fields.build(
+              project_template_field_id: old_field.project_template_field_id,
+              value: old_field.value
+            )
+          end
+        end
 
         raise StandardError, 'No field data provided.' if params[:fields].blank?
 
@@ -248,12 +244,23 @@ class ProjectsController < ApplicationController
 
           next if is_approved && !template_field.free_edit
 
-          existing_field = ProjectInstanceField.find_or_initialize_by(
-            project_template_field_id: field_id,
-            instance: @instance
-          )
-          existing_field.update!(value: value)
+          field = @instance.project_instance_fields.find { |f| f.project_template_field_id == field_id.to_i }
+
+          if field
+            field.value = value
+          else
+            @instance.project_instance_fields.build(
+              project_template_field_id: field_id,
+              value: value
+            )
+          end
         end
+
+        @instance.title = params[:fields].values.first if !is_approved && params[:fields].present? && @instance.title.blank?
+
+        @instance.last_edit_time = Time.current
+        @instance.last_edit_by = current_user.id
+        @instance.save!
 
         unless is_approved
           raise StandardError, 'Please choose a lecturer and topic' if params[:based_on_topic].blank?
