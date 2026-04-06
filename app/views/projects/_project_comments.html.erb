@@ -26,72 +26,88 @@
     class="
       flex-1 min-h-0 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative
     "
+    data-controller="scroll-to-bottom"
+    data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
+    data-scroll-to-bottom-target-version-value="<%= current_version %>"
   >
 
     <% if comments.any? %>
       <div class="space-y-6 relative pl-4">
 
-        <% comments.each do |comment| %>
-          <article class="relative flex gap-4 z-10 group">
+        <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
+          <div class="pt-2 pb-1" id="version-<%= version %>-comments">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide">
+              Comments for v<%= version %>
+            </h3>
+          </div>
+          <% version_comments.each do |comment| %>
+            <% is_current_version = comment.location_id == current_instance_id %>
 
-            <div class="flex-shrink-0 relative">
-              <div
-                class="
-                  w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center
-                  text-xs font-bold ring-4 ring-gray-50/30
-                "
-              >
-                <%= comment.user.name[0].upcase %>
-              </div>
-            </div>
+            <article
+              class="
+                relative flex gap-4 z-10 group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>
+              "
+            >
 
-            <div class="flex-1 min-w-0">
-
-              <%# --- FIXED HEADER LAYOUT --- %>
-              <header class="flex items-center justify-between gap-2 mb-1">
-
-                <div class="flex items-baseline gap-2 min-w-0 flex-1">
-                  <% if Current.user == comment.user %>
-                    <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.name %></h4>
-                  <% else %>
-                    <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.name %></h4>
-                  <% end %>
-
-                  <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                    <% if comment.created_at > 3.days.ago %>
-                      <%= time_ago_in_words(comment.created_at) %>
-                      ago
-                    <% else %>
-                      <%= format_timestamp(comment.created_at) %>
-                    <% end %>
-                  </span>
+              <div class="flex-shrink-0 relative">
+                <div
+                  class="
+                    w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center
+                    text-xs font-bold ring-4 ring-gray-50/30
+                  "
+                >
+                  <%= comment.user.name[0].upcase %>
                 </div>
-
-                <%# delete button %>
-                <% if Current.user == comment.user && !comment.deleted %>
-                  <%= link_to soft_delete_comment_path(comment),
-                      data: { turbo_method: :patch, confirm: "Delete this comment?" },
-                      class: "flex-shrink-0 text-red-400 hover:text-red-600 transition-colors p-1 -mr-1",
-                      title: "Delete comment" do %>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      /></svg>
-                  <% end %>
-                <% end %>
-              </header>
-
-              <div class="text-sm text-gray-600 leading-relaxed break-words">
-                <% if !comment.deleted %>
-                  <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
-                <% else %>
-                  <span class="text-gray-400 italic text-xs bg-gray-100 px-2 py-0.5 rounded">This comment was deleted</span>
-                <% end %>
               </div>
-            </div>
-          </article>
+
+              <div class="flex-1 min-w-0">
+
+                <%# --- FIXED HEADER LAYOUT --- %>
+                <header class="flex items-center justify-between gap-2 mb-1">
+
+                  <div class="flex items-baseline gap-2 min-w-0 flex-1">
+                    <% if Current.user == comment.user %>
+                      <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.name %></h4>
+                    <% else %>
+                      <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.name %></h4>
+                    <% end %>
+
+                    <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                      <% if comment.created_at > 3.days.ago %>
+                        <%= time_ago_in_words(comment.created_at) %>
+                        ago
+                      <% else %>
+                        <%= format_timestamp(comment.created_at) %>
+                      <% end %>
+                    </span>
+                  </div>
+
+                  <%# delete button %>
+                  <% if Current.user == comment.user && !comment.deleted %>
+                    <%= link_to soft_delete_comment_path(comment),
+                        data: { turbo_method: :patch, confirm: "Delete this comment?" },
+                        class: "flex-shrink-0 text-red-400 hover:text-red-600 transition-colors p-1 -mr-1",
+                        title: "Delete comment" do %>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        /></svg>
+                    <% end %>
+                  <% end %>
+                </header>
+
+                <div class="text-sm text-gray-600 leading-relaxed break-words">
+                  <% if !comment.deleted %>
+                    <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
+                  <% else %>
+                    <span class="text-gray-400 italic text-xs bg-gray-100 px-2 py-0.5 rounded">This comment was deleted</span>
+                  <% end %>
+                </div>
+              </div>
+            </article>
+          <% end %>
         <% end %>
       </div>
 

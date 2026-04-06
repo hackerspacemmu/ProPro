@@ -38,7 +38,7 @@ class ProjectsController < ApplicationController
       @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
     end
 
-    @comments = @current_instance.comments.order(created_at: :asc)
+    @comments = @project.comments.order(created_at: :asc)
     @new_comment = Comment.new(user: current_user, location: @current_instance)
 
     return unless @course.use_progress_updates
