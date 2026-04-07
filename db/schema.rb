@@ -38,7 +38,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_172051) do
     t.string "course_description"
     t.string "file_link"
     t.string "coursecode"
-    t.boolean "coursecode_enabled"
+    t.boolean "coursecode_enabled", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
