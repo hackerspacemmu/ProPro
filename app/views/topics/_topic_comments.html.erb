@@ -161,7 +161,8 @@
                            rows: 1,
                            data: {
                              controller: "textarea-resize",
-                             action: "input->textarea-resize#resize",
+                             action:
+                               "input->textarea-resize#commentResize turbo:submit-end@window->textarea-resize#resetComment",
                            },
                            placeholder: "Write a comment..." %>
 
