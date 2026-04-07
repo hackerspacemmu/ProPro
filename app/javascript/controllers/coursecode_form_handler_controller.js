@@ -1,16 +1,16 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 // Connects to data-controller="coursecode-form-handler"
 export default class extends Controller {
-  static targets = ["generateFlag"]
+  static targets = ["generateFlag"];
 
   submitForm() {
-    this.element.requestSubmit()
+    this.element.requestSubmit();
   }
 
   generateCode(event) {
-    event.preventDefault()
-    this.generateFlagTarget.value = "true"
-    this.element.requestSubmit()
+    event.preventDefault();
+    this.generateFlagTarget.value = "true";
+    this.element.requestSubmit();
   }
 }

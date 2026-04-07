@@ -829,13 +829,9 @@ class CoursesController < ApplicationController
       group_list = group_list.select { |g| ids.include?(g.id) }
     end
 
-    if params[:status_filter].present? && params[:status_filter] != 'all'
-      group_list = @course.groups_with_status(params[:status_filter], group_list)
-    end
+    group_list = @course.groups_with_status(params[:status_filter], group_list) if params[:status_filter].present? && params[:status_filter] != 'all'
 
-    if params[:search_query].present?
-      group_list = search_groups(group_list, params[:search_query])
-    end
+    group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
 
     sorted_list = group_list.sort_by { |group| sort_value_for_group(group) }
     sort_descending? ? sorted_list.reverse : sorted_list
@@ -848,13 +844,9 @@ class CoursesController < ApplicationController
       student_list = student_list.select { |s| ids.include?(s.id) }
     end
 
-    if params[:status_filter].present? && params[:status_filter] != 'all'
-      student_list = @course.students_with_status(params[:status_filter], student_list)
-    end
+    student_list = @course.students_with_status(params[:status_filter], student_list) if params[:status_filter].present? && params[:status_filter] != 'all'
 
-    if params[:search_query].present?
-      student_list = search_students(student_list, params[:search_query])
-    end
+    student_list = search_students(student_list, params[:search_query]) if params[:search_query].present?
 
     sorted_list = student_list.sort_by { |student| sort_value_for_student(student) }
     sort_descending? ? sorted_list.reverse : sorted_list
