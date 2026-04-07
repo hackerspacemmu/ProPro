@@ -336,8 +336,15 @@ class CoursesController < ApplicationController
   def update_coursecode
     authorize @course, :update?
 
-    @course.generate_coursecode!
-    flash.now[:notice] = 'Course join code successfully generated'
+    if params[:generate] == 'true'
+      @course.generate_coursecode!
+      flash.now[:notice] = 'Course join code successfully generated'
+    end
+
+    if params[:course]&.key?(:coursecode_enabled)
+      @course.update!(coursecode_enabled: params[:course][:coursecode_enabled])
+      flash.now[:notice] ||= 'Course join code settings updated'
+    end
   rescue StandardError => e
     flash.now[:alert] = e.message
   ensure
