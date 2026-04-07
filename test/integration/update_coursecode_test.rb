@@ -37,7 +37,7 @@ class UpdateCoursecodeTest < ActionDispatch::IntegrationTest
     assert_nil @course.coursecode
     assert_equal @course.coursecode_enabled, false
 
-    post update_coursecode_course_path(@course), params: { course: { coursecode_enabled: true }}, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+    post update_coursecode_course_path(@course), params: { course: { coursecode_enabled: true } }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
 
     # The request should succeed and return turbo stream content
     assert_response :success
