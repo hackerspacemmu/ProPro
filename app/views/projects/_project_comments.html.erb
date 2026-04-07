@@ -148,11 +148,12 @@
         >
           <%= form.text_area :user_comment,
                          class:
-                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 py-2 px-2 focus:outline-none resize-none overflow-y-auto max-h-[120px]",
+                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 py-2 px-2 focus:outline-none resize-none overflow-y-auto max-h-[200px]",
                          rows: 1,
                          data: {
                            controller: "textarea-resize",
-                           action: "input->textarea-resize#resize",
+                           action:
+                             "input->textarea-resize#commentResize turbo:submit-end@window->textarea-resize#resetComment",
                          },
                          placeholder: "Write a comment..." %>
 
