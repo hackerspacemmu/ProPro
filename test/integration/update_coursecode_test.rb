@@ -12,11 +12,9 @@ class UpdateCoursecodeTest < ActionDispatch::IntegrationTest
     post session_path, params: { email_address: @lecturer.email_address, password: 'password' }
     assert_redirected_to root_path
 
-    # Initial state
     assert_nil @course.coursecode
 
-    # Call the API explicitly
-    post update_coursecode_course_path(@course), headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+    post update_coursecode_course_path(@course), params: { generate: true }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
 
     # The request should succeed and return turbo stream content
     assert_response :success
@@ -29,5 +27,24 @@ class UpdateCoursecodeTest < ActionDispatch::IntegrationTest
     # Check if there's a generated course code on the UI via the turbo stream response
     # It replaces the 'course_code_form' which contains the new course code string.
     assert_match @course.coursecode, response.body
+  end
+
+  test 'should toggle the coursecode_enabled field in courses' do
+    # Sign in the lecturer (coordinator)
+    post session_path, params: { email_address: @lecturer.email_address, password: 'password' }
+    assert_redirected_to root_path
+
+    assert_nil @course.coursecode
+    assert_equal @course.coursecode_enabled, false
+
+    post update_coursecode_course_path(@course), params: { course: { coursecode_enabled: true }}, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+
+    # The request should succeed and return turbo stream content
+    assert_response :success
+    assert_equal 'text/vnd.turbo-stream.html', response.media_type
+
+    # The coursecode_enabled must be set to true
+    @course.reload
+    assert_equal @course.coursecode_enabled, true
   end
 end
