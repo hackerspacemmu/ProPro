@@ -49,7 +49,7 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def create?
-    student || coordinator
+    student && !has_existing_project?
   end
 
   def update?
@@ -97,5 +97,9 @@ class ProjectPolicy < ApplicationPolicy
 
   def approved
     record.status.to_s == 'approved'
+  end
+
+  def has_existing_project?
+    course.projects.owned_by_user(user).exists?
   end
 end

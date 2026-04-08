@@ -81,7 +81,8 @@
           <div class="flex flex-col md:flex-row xl:flex-col gap-6">
 
             <% has_actions =
-              @members.include?(current_user) || @current_version != @latest_version %>
+              @members.include?(current_user) || @current_version != @latest_version || 
+              policy(Project.new(course: @course)).create? %>
 
             <% if has_actions %>
               <section

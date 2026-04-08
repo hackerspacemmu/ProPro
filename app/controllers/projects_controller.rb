@@ -82,17 +82,18 @@ class ProjectsController < ApplicationController
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
+    # Choose Supervisor
+    @lecturers = @course.lecturers
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    end
+
     @field_values = {}
 
-    # Optionally preselect topic or own proposal
-    topic_id = params[:topic_id].presence || params[:based_on_topic]
-
-    return unless topic_id.present?
-
-    if topic_id.to_s.start_with?('own_proposal_')
-      @selected_topic_id = topic_id
-    elsif @course.topics.exists?(id: topic_id)
-      @selected_topic_id = topic_id
+    # Based on Topic
+    if params[:topic_id].present?
+      @selected_topic = @course.topics.find_by(id: params[:topic_id])
     end
   end
 
