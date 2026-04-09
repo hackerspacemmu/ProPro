@@ -604,56 +604,56 @@ lecturer_3_topic_2_no_groups = Topic.create!(
 
 group_1_project = Project.create!(
   course: course_with_groups,
-  supervisor: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_1,
   ownership_type: :project_group
 )
 
 group_2_project = Project.create!(
   course: course_with_groups,
-  supervisor: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_2,
   ownership_type: :project_group
 )
 
 group_3_project = Project.create!(
   course: course_with_groups,
-  supervisor: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_3,
   ownership_type: :project_group
 )
 
 group_4_project = Project.create!(
   course: course_with_groups,
-  supervisor: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_4,
   ownership_type: :project_group
 )
 
 student_1_project = Project.create!(
   course: course_no_groups,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student1,
   ownership_type: :student
 )
 
 student_2_project = Project.create!(
   course: course_no_groups,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student2,
   ownership_type: :student
 )
 
 student_3_project = Project.create!(
   course: course_no_groups,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student3,
   ownership_type: :student
 )
 
 student_4_project = Project.create!(
   course: course_no_groups,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student4,
   ownership_type: :student
 )
@@ -809,7 +809,7 @@ group_1_instance_1 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 1',
   status: :pending,
-  supervisor: lecturer_2_lecturer_enrolment
+  supervisor_enrolment: lecturer_2_lecturer_enrolment
 )
 
 group_1_instance_2 = ProjectInstance.create!(
@@ -818,7 +818,7 @@ group_1_instance_2 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 2',
   status: :redo,
-  supervisor: lecturer_2_lecturer_enrolment
+  supervisor_enrolment: lecturer_2_lecturer_enrolment
 )
 
 group_1_instance_3 = ProjectInstance.create!(
@@ -827,7 +827,7 @@ group_1_instance_3 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 3',
   status: :rejected,
-  supervisor: lecturer_3_lecturer_enrolment
+  supervisor_enrolment: lecturer_3_lecturer_enrolment
 )
 
 group_1_instance_4 = ProjectInstance.create!(
@@ -836,7 +836,7 @@ group_1_instance_4 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 4',
   status: :approved,
-  supervisor: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 group_2_instance_1 = ProjectInstance.create!(
@@ -845,7 +845,7 @@ group_2_instance_1 = ProjectInstance.create!(
   created_by: student4,
   title: 'Difficult Group Project Group 2',
   status: :rejected,
-  supervisor: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 group_3_instance_1 = ProjectInstance.create!(
@@ -854,7 +854,7 @@ group_3_instance_1 = ProjectInstance.create!(
   created_by: student7,
   title: 'Difficult Group Project Group 3',
   status: :redo,
-  supervisor: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 group_4_instance_1 = ProjectInstance.create!(
@@ -863,7 +863,7 @@ group_4_instance_1 = ProjectInstance.create!(
   created_by: student10,
   title: 'Difficult Group Project Group 4',
   status: :pending,
-  supervisor: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 student_1_project_instance_1 = ProjectInstance.create!(
@@ -872,7 +872,7 @@ student_1_project_instance_1 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project',
   status: :pending,
-  supervisor: lecturer_3_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_3_lecturer_enrolment_no_groups
 )
 
 student_1_project_instance_2 = ProjectInstance.create!(
@@ -881,7 +881,7 @@ student_1_project_instance_2 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project 2',
   status: :rejected,
-  supervisor: lecturer_3_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_3_lecturer_enrolment_no_groups
 )
 
 student_1_project_instance_3 = ProjectInstance.create!(
@@ -890,7 +890,7 @@ student_1_project_instance_3 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project 3',
   status: :redo,
-  supervisor: lecturer_2_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_2_lecturer_enrolment_no_groups
 )
 
 student_1_project_instance_4 = ProjectInstance.create!(
@@ -899,7 +899,7 @@ student_1_project_instance_4 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project 4',
   status: :approved,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 student_2_project_instance_1 = ProjectInstance.create!(
@@ -908,7 +908,7 @@ student_2_project_instance_1 = ProjectInstance.create!(
   created_by: student2,
   title: 'Student 2 Project',
   status: :pending,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 student_3_project_instance_1 = ProjectInstance.create!(
@@ -917,7 +917,7 @@ student_3_project_instance_1 = ProjectInstance.create!(
   created_by: student3,
   title: 'Student 3 Project',
   status: :redo,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 student_4_project_instance_1 = ProjectInstance.create!(
@@ -926,7 +926,7 @@ student_4_project_instance_1 = ProjectInstance.create!(
   created_by: student4,
   title: 'Student 4 Project',
   status: :rejected,
-  supervisor: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 # Create Project Instance Fields

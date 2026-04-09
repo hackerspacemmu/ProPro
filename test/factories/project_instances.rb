@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :project_instance do
     association :project
-    association :supervisor, factory: :enrolment
+    association :supervisor_enrolment, factory: :enrolment
     association :created_by, factory: :user
     version { 1 }
     status { :pending }
