@@ -74,7 +74,7 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def assigned_supervisor
-    record.supervisor.user == user
+    record.supervisor == user
   end
 
   def has_unrestricted_student_access

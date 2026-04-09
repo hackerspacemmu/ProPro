@@ -163,7 +163,7 @@ class ProjectsController < ApplicationController
         @project = Project.create!(
           course: @course,
           owner: @course.grouped? ? group : current_user,
-          supervisor: supervisor_enrolment
+          supervisor_enrolment: supervisor_enrolment
         )
 
         # Get title
@@ -176,7 +176,7 @@ class ProjectsController < ApplicationController
           version: 1,
           title: title_value,
           created_by: current_user,
-          supervisor: supervisor_enrolment,
+          supervisor_enrolment: supervisor_enrolment,
           source_topic: topic || nil,
           last_edit_time: Time.current,
           last_edit_by: current_user.id
@@ -196,8 +196,8 @@ class ProjectsController < ApplicationController
     end
 
     GeneralMailer.with(
-      email_address: @project.supervisor.user.email_address,
-      supervisor_username: @project.supervisor.user.username,
+      email_address: @project.supervisor.email_address,
+      supervisor_username: @project.supervisor.username,
       owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
       course: @course,
       project: @project
@@ -211,13 +211,13 @@ class ProjectsController < ApplicationController
 
     has_supervisor_comment = false
     @project.project_instances.last.comments.each do |comment|
-      if comment.user_id == @project.supervisor.user.id
+      if comment.user_id == @project.supervisor.id
         has_supervisor_comment = true
         break
       end
     end
 
-    previous_supervisor_id = @project.supervisor.user.id
+    previous_supervisor_id = @project.supervisor.id
     new_instance_created = false
 
     begin
@@ -287,7 +287,7 @@ class ProjectsController < ApplicationController
         end
 
         @project.project_instances.last.update!(
-          supervisor: supervisor_enrolment
+          supervisor_enrolment: supervisor_enrolment
         )
       end
     rescue StandardError
@@ -295,9 +295,9 @@ class ProjectsController < ApplicationController
       return
     end
 
-    if previous_supervisor_id != @project.supervisor.user.id || new_instance_created
+    if previous_supervisor_id != @project.supervisor.id || new_instance_created
       GeneralMailer.with(
-        supervisor_username: @project.supervisor.user.username,
+        supervisor_username: @project.supervisor.username,
         owner_name: @course.grouped? ? @project.owner.group_name : @project.owner.username,
         course: @course,
         project: @project

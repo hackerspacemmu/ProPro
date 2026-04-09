@@ -2,7 +2,7 @@ class Project < ApplicationRecord
   enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
   default_scope { where(ownership_type: %i[student project_group]) }
 
-  belongs_to :supervisor, class_name: 'Enrolment', foreign_key: 'enrolment_id'
+  belongs_to :supervisor_enrolment, class_name: 'Enrolment', foreign_key: 'enrolment_id'
   belongs_to :course
   belongs_to :owner, polymorphic: true
 
@@ -22,7 +22,7 @@ class Project < ApplicationRecord
   scope :proposals, -> { where(status: %i[pending redo rejected]) }
 
   # Enrolment (supervisor) filters
-  scope :supervised_by, ->(supervisor) { where(supervisor: supervisor) }
+  scope :supervised_by, ->(supervisor_enrolment) { where(supervisor_enrolment: supervisor_enrolment) }
 
   scope :owned_by_user_or_groups, lambda { |user, groups|
     where(owner: [user] + groups.to_a)
@@ -31,6 +31,10 @@ class Project < ApplicationRecord
   scope :owned_by_groups, ->(groups) { where(owner: groups) }
 
   before_validation :set_ownership_type
+
+  def supervisor
+    self.supervisor_enrolment.user
+  end
 
   def member
     if ownership.owner.is_a?(ProjectGroup)
@@ -65,7 +69,7 @@ class Project < ApplicationRecord
       project_instances.build(
         version: project_instances.count + 1,
         created_by: created_by,
-        supervisor: supervisor
+        supervisor_enrolment: supervisor_enrolment
       )
     else
       # If approved and pending (no supervisor comment) dont create new instance

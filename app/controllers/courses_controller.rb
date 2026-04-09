@@ -49,10 +49,10 @@ class CoursesController < ApplicationController
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
       @my_student_projects = @course.projects.supervised_by(supervisor_enrolment).approved
-      @incoming_proposals = @course.projects.where(supervisor: supervisor_enrolment).proposals
+      @incoming_proposals = @course.projects.where(supervisor_enrolment: supervisor_enrolment).proposals
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
-      @incoming_proposals = @course.projects.where(supervisor: @current_user_enrolment).proposals
+      @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
 
     # SET LECTURER CAPACITY

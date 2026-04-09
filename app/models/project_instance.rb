@@ -4,7 +4,7 @@ class ProjectInstance < ApplicationRecord
   default_scope { where(project_instance_type: :project) }
 
   belongs_to :project
-  belongs_to :supervisor, class_name: 'Enrolment', foreign_key: 'enrolment_id'
+  belongs_to :supervisor_enrolment, class_name: 'Enrolment', foreign_key: 'enrolment_id'
 
   has_many :comments, as: :location, dependent: :destroy
 
@@ -22,6 +22,10 @@ class ProjectInstance < ApplicationRecord
   validates :version, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :title, presence: true
 
+  def supervisor
+    self.supervisor_enrolment.user
+  end
+
   private
 
   def update_parent_project
@@ -29,7 +33,7 @@ class ProjectInstance < ApplicationRecord
 
     project.update(
       status: status,
-      supervisor: supervisor
+      supervisor_enrolment: supervisor_enrolment
     )
   end
 
