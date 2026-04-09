@@ -50,8 +50,8 @@ description_text =
 
 # --- Determine Owner Name ---
 owner_name =
-  if topic.owner.respond_to?(:username)
-    topic.owner.username
+  if topic.owner.respond_to?(:name)
+    topic.owner.name
   elsif topic.owner.respond_to?(:group_name)
     topic.owner.group_name
   else

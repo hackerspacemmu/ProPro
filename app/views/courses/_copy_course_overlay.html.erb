@@ -18,7 +18,7 @@
         <% if @courses.present? %>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <% @courses.each do |course_item| %>
-              <div data-overlay-target="card" data-action="click->overlay#selectSetting" data-overlay-course-id-param="<%= course.id %>"
+              <div data-overlay-target="card" data-action="click->overlay#selectSetting" data-overlay-source-id-param="<%= course_item.id %>"
                   class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between cursor-pointer">
                 <div>
                   <div class="flex items-start justify-between mb-2">
@@ -34,11 +34,11 @@
 
                 <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
                   <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                    <%= course_item.coordinators.first&.username&.first&.upcase || "?" %>
+                    <%= course_item.coordinators.first&.name&.first&.upcase || "?" %>
                   </div>
                   <span class="text-xs font-medium text-gray-400">
                     Coordinator:
-                    <span class="text-gray-600"><%= course_item.coordinators.first&.username || "None" %></span>
+                    <span class="text-gray-600"><%= course_item.coordinators.first&.name || "None" %></span>
                   </span>
                 </div>
               </div>

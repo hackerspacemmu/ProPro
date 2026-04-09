@@ -68,7 +68,7 @@ export default class extends Controller {
   }
 
   selectSetting(event) {
-    const sourceCourseId = event.params.courseId;
+    const sourceCourseId = event.params.sourceId; 
     const targetCourseId = this.targetCourseIdValue;
     const mode = this.modeValue;
 
@@ -136,5 +136,21 @@ export default class extends Controller {
     });
 
     this.close(event);
+  }
+
+  goBack(event) {
+    if (event) event.preventDefault();
+    this.returnToList();
+  }
+
+  returnToList() {
+    this.containerTarget.removeAttribute("src");
+    this.containerTarget.removeAttribute("complete");
+    
+    if (this.initialContent) {
+      this.containerTarget.innerHTML = this.initialContent;
+    } else {
+      this.containerTarget.innerHTML = "";
+    }
   }
 }

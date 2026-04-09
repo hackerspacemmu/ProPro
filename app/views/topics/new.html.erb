@@ -85,6 +85,11 @@
                   <% if field.required %>
                     <span class="ml-1 text-[11px] sm:text-xs font-bold text-red-600">*</span>
                   <% end %>
+                  <% if field.free_edit %>
+                    <span class="ml-2 text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-tighter">
+                      Editable Post-Approval
+                    </span>
+                  <% end %>
                 <% end %>
 
 

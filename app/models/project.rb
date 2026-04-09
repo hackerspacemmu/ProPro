@@ -8,6 +8,7 @@ class Project < ApplicationRecord
 
   has_many :project_instances, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
+  has_many :comments, through: :project_instances
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
@@ -31,6 +32,8 @@ class Project < ApplicationRecord
   scope :owned_by_groups, ->(groups) { where(owner: groups) }
 
   before_validation :set_ownership_type
+
+  STATUS_SORT_ORDER = { 'rejected' => 0, 'redo' => 1, 'pending' => 2, 'not_submitted' => 3, 'approved' => 4 }.freeze
 
   def supervisor
     self.supervisor_enrolment.user
@@ -65,11 +68,13 @@ class Project < ApplicationRecord
   end
 
   def instance_to_edit(created_by:, has_supervisor_comment:)
-    if rejected? || redo? || (pending? && has_supervisor_comment)
+    if approved? || rejected? || redo? || (pending? && has_supervisor_comment)
       project_instances.build(
-        version: project_instances.count + 1,
+        version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
-        supervisor_enrolment: supervisor_enrolment
+        supervisor_enrolment: supervisor_enrolment,
+        title: current_title,
+        status: (status if approved?)
       )
     else
       # If approved and pending (no supervisor comment) dont create new instance
