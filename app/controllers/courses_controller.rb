@@ -8,7 +8,7 @@ class CoursesController < ApplicationController
     authorize @course
 
     # query for all projects_instances, owner_type and owner_id for participants table
-    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     @student_list = @course.students
