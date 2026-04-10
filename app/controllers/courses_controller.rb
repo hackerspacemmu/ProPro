@@ -262,7 +262,7 @@ class CoursesController < ApplicationController
     @course = Course.find(params[:id])
     @grouped = @course.grouped
 
-    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     if @participant_type == 'group'
