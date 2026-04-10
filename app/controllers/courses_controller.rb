@@ -416,15 +416,8 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        user_project_group_ids = ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
-        new_group_member = nil
-
-        user_project_group_ids.each do |id|
-          if ProjectGroup.find(id).course_id == parent_course.id
-            new_group_member = ProjectGroupMember.find_by(user: new_user, project_group_id: id)
-            break
-          end
-        end
+        ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
+        new_group_member = ProjectGroupMember.joins(:project_group).find_by(user: new_user, project_groups: { course: parent_course })
 
         if new_group_member
           new_group_member.update!(project_group: new_group)
@@ -575,6 +568,13 @@ class CoursesController < ApplicationController
     project_fields.each do |field|
       headers << field.label
     end
+
+    if @course.use_progress_updates?
+      (1..@course.number_of_updates.to_i).each do |num|
+        headers << "Update #{num}"
+      end
+    end
+
     headers
   end
 
@@ -584,6 +584,7 @@ class CoursesController < ApplicationController
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
     field_values = get_project_details_values(current_instance, template_fields)
+    progress_updates_values = get_progress_updates_values(project)
     rows = []
 
     group.project_group_members.each do |member|
@@ -598,7 +599,9 @@ class CoursesController < ApplicationController
         project&.current_title || '',
         project_status.humanize
       ]
+
       row.concat(field_values)
+      row.concat(progress_updates_values)
       rows << row
     end
     rows
@@ -610,6 +613,7 @@ class CoursesController < ApplicationController
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
     field_values = get_project_details_values(current_instance, template_fields)
+    progress_updates_values = get_progress_updates_values(project)
 
     row = [
       student.name || '',
@@ -622,6 +626,7 @@ class CoursesController < ApplicationController
     ]
 
     row.concat(field_values)
+    row.concat(progress_updates_values)
     [row]
   end
 
@@ -652,6 +657,19 @@ class CoursesController < ApplicationController
       else
         ''
       end
+    end
+  end
+
+  def get_progress_updates_values(project)
+    return [] unless @course.use_progress_updates?
+
+    total_num = @course.number_of_updates.to_i
+    return Array.new(total_num, '') unless project
+
+    progress_updates = project.progress_updates.order(:created_at).to_a
+
+    (0..total_num).map do |index|
+      progress_updates[index]&.rating&.titleize || ''
     end
   end
 
@@ -822,13 +840,9 @@ class CoursesController < ApplicationController
       group_list = group_list.select { |g| ids.include?(g.id) }
     end
 
-    if params[:status_filter].present? && params[:status_filter] != 'all'
-      group_list = @course.groups_with_status(params[:status_filter], group_list)
-    end
+    group_list = @course.groups_with_status(params[:status_filter], group_list) if params[:status_filter].present? && params[:status_filter] != 'all'
 
-    if params[:search_query].present?
-      group_list = search_groups(group_list, params[:search_query])
-    end
+    group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
 
     sorted_list = group_list.sort_by { |group| sort_value_for_group(group) }
     sort_descending? ? sorted_list.reverse : sorted_list
@@ -841,13 +855,9 @@ class CoursesController < ApplicationController
       student_list = student_list.select { |s| ids.include?(s.id) }
     end
 
-    if params[:status_filter].present? && params[:status_filter] != 'all'
-      student_list = @course.students_with_status(params[:status_filter], student_list)
-    end
+    student_list = @course.students_with_status(params[:status_filter], student_list) if params[:status_filter].present? && params[:status_filter] != 'all'
 
-    if params[:search_query].present?
-      student_list = search_students(student_list, params[:search_query])
-    end
+    student_list = search_students(student_list, params[:search_query]) if params[:search_query].present?
 
     sorted_list = student_list.sort_by { |student| sort_value_for_student(student) }
     sort_descending? ? sorted_list.reverse : sorted_list
