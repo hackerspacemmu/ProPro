@@ -473,12 +473,6 @@ group_template = ProjectTemplate.create!(
 )
 
 # Create Project Template Fields
-title_field_individual = ProjectTemplateField.create!(
-  project_template: individual_template,
-  field_type: :shorttext,
-  applicable_to: :both,
-  label: 'Project Title'
-)
 
 project_description_field = ProjectTemplateField.create!(
   project_template: individual_template,
@@ -496,13 +490,6 @@ lecturer_feedback_field = ProjectTemplateField.create!(
   hint: 'Provide feedback on the proposal'
 )
 
-title_field_group = ProjectTemplateField.create!(
-  project_template: group_template,
-  field_type: :shorttext,
-  applicable_to: :both,
-  label: 'Project Title'
-)
-
 group_description_field = ProjectTemplateField.create!(
   project_template: group_template,
   field_type: 1, # textarea
@@ -510,6 +497,10 @@ group_description_field = ProjectTemplateField.create!(
   label: 'Group Project Description',
   hint: 'Describe the group project scope and member responsibilities'
 )
+
+# Title fields are auto created via validation callback
+title_field_individual = individual_template.project_template_fields.find_by(label: 'Project Title')
+title_field_group = group_template.project_template_fields.find_by(label: 'Project Title')
 
 # Create Projects
 lecturer_1_topic_1 = Topic.create!(
@@ -1014,145 +1005,147 @@ ProjectInstanceField.create!(
   value: 'Praesent ultrices ipsum nec ante lobortis feugiat. Vivamus auctor ex eget lobortis cursus'
 )
 
-ProjectInstanceField.create!(instance: lecturer_1_topic_1_instance_1,
-                             project_template_field: title_field_individual,
-                             value: 'Difficult Topic 1')
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_1_instance_1,
+  project_template_field: title_field_group,
+  value: 'Difficult Topic 1'
+)
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_1_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Sed ut vulputate neque'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_2_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_2_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Donec luctus sem tellus, ac sagittis urna suscipit non.'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_3_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_3_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Etiam mollis risus nec dolor faucibus, lacinia consectetur quam semper'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_4_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 4'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_4_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Duis quis sagittis libero'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_1_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 1 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_1_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Etiam eleifend sodales tincidunt'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_2_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 2 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_2_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'In in auctor ante.'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_3_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 3 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_3_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Donec mattis sed ex eget aliquet'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_4_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 4 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_4_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Vivamus tempor lacus consectetur magna laoreet dictum'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_1_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 1 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_1_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Aenean accumsan vehicula ex eget aliquam.'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_2_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 2 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_2_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Ut tincidunt cursus nisi eget semper'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_3_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 3 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_3_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Nullam vitae ornare ex'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_4_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 4 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_4_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Quisque efficitur magna nec eros luctus, at vestibulum ipsum rutrum.'
 )
 
@@ -1295,7 +1288,7 @@ ProjectInstanceField.create!(
 )
 
 ProjectInstanceField.create!(
-  instance: lecturer_3_topic_1_instance_1,
+  instance: lecturer_3_topic_1_no_groups_instance_1,
   project_template_field: lecturer_feedback_field,
   value: 'Donec a cursus purus'
 )
