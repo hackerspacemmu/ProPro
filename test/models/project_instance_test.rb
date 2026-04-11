@@ -5,13 +5,13 @@ class ProjectInstanceTest < ActiveSupport::TestCase
     @course    = FactoryBot.create(:course)
     @user      = FactoryBot.create(:user, is_staff: false)
     @enrolment = FactoryBot.create(:enrolment, user: @user, course: @course, role: :student)
-    @project   = FactoryBot.create(:project, course: @course, owner: @user, enrolment: @enrolment)
+    @project   = FactoryBot.create(:project, course: @course, owner: @user, supervisor_enrolment: @enrolment)
   end
 
   test 'project instance created with happy paths' do
     instance = ProjectInstance.create!(
       project: @project,
-      enrolment: @enrolment,
+      supervisor_enrolment: @enrolment,
       created_by: @user,
       version: 1,
       title: 'Test Project Title'
@@ -25,7 +25,7 @@ class ProjectInstanceTest < ActiveSupport::TestCase
   test 'saving project instance updates the parent project status happy path' do
     ProjectInstance.create!(
       project: @project,
-      enrolment: @enrolment,
+      supervisor_enrolment: @enrolment,
       created_by: @user,
       version: 1,
       title: 'Test Project Title'
@@ -36,12 +36,12 @@ class ProjectInstanceTest < ActiveSupport::TestCase
 
   test 'saving an older instance does not overwrite parent project status sad path' do
     instance_v1 = ProjectInstance.create!(
-      project: @project, enrolment: @enrolment,
+      project: @project, supervisor_enrolment: @enrolment,
       created_by: @user, version: 1,
       title: 'Test Project Title', status: :pending
     )
     ProjectInstance.create!(
-      project: @project, enrolment: @enrolment,
+      project: @project, supervisor_enrolment: @enrolment,
       created_by: @user, version: 2,
       title: 'Test Project Title 2', status: :approved
     )
@@ -53,12 +53,12 @@ class ProjectInstanceTest < ActiveSupport::TestCase
 
   test 'current_instance returns the instance with the highest version' do
     ProjectInstance.create!(
-      project: @project, enrolment: @enrolment,
+      project: @project, supervisor_enrolment: @enrolment,
       created_by: @user, version: 1,
       title: 'Test Project Title'
     )
     instance_v2 = ProjectInstance.create!(
-      project: @project, enrolment: @enrolment,
+      project: @project, supervisor_enrolment: @enrolment,
       created_by: @user, version: 2,
       title: 'Test Project Title 2'
     )
@@ -82,13 +82,13 @@ class ProjectInstanceTest < ActiveSupport::TestCase
 
   test 'cannot create two instances with the same version for the same project' do
     ProjectInstance.create!(
-      project: @project, enrolment: @enrolment,
+      project: @project, supervisor_enrolment: @enrolment,
       created_by: @user, version: 1, title: 'First'
     )
 
     assert_raises ActiveRecord::RecordNotUnique do
       ProjectInstance.create!(
-        project: @project, enrolment: @enrolment,
+        project: @project, supervisor_enrolment: @enrolment,
         created_by: @user, version: 1, title: 'Duplicate'
       )
     end

@@ -8,7 +8,7 @@ class CoursesController < ApplicationController
     authorize @course
 
     # query for all projects_instances, owner_type and owner_id for participants table
-    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     @student_list = @course.students
@@ -43,10 +43,10 @@ class CoursesController < ApplicationController
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
       @my_student_projects = @course.projects.supervised_by(supervisor_enrolment).approved
-      @incoming_proposals = @course.projects.where(enrolment: supervisor_enrolment).proposals
+      @incoming_proposals = @course.projects.where(supervisor_enrolment: supervisor_enrolment).proposals
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
-      @incoming_proposals = @course.projects.where(enrolment: @current_user_enrolment).proposals
+      @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
 
     # view instances for participants_table
@@ -262,7 +262,7 @@ class CoursesController < ApplicationController
     @course = Course.find(params[:id])
     @grouped = @course.grouped
 
-    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     if @participant_type == 'group'

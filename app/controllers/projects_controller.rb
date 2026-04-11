@@ -163,7 +163,7 @@ class ProjectsController < ApplicationController
         @project = Project.create!(
           course: @course,
           owner: @course.grouped? ? group : current_user,
-          enrolment: supervisor_enrolment
+          supervisor_enrolment: supervisor_enrolment
         )
 
         # Get title
@@ -176,7 +176,7 @@ class ProjectsController < ApplicationController
           version: 1,
           title: title_value,
           created_by: current_user,
-          enrolment: supervisor_enrolment,
+          supervisor_enrolment: supervisor_enrolment,
           source_topic: topic || nil,
           last_edit_time: Time.current,
           last_edit_by: current_user.id

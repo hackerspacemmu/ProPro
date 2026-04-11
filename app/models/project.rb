@@ -2,7 +2,7 @@ class Project < ApplicationRecord
   enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
   default_scope { where(ownership_type: %i[student project_group]) }
 
-  belongs_to :enrolment
+  belongs_to :supervisor_enrolment, class_name: 'Enrolment', foreign_key: 'enrolment_id'
   belongs_to :course
   belongs_to :owner, polymorphic: true
 
@@ -23,7 +23,7 @@ class Project < ApplicationRecord
   scope :proposals, -> { where(status: %i[pending redo rejected]) }
 
   # Enrolment (supervisor) filters
-  scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
+  scope :supervised_by, ->(supervisor_enrolment) { where(supervisor_enrolment: supervisor_enrolment) }
 
   scope :owned_by_user_or_groups, lambda { |user, groups|
     where(owner: [user] + groups.to_a)
@@ -36,10 +36,7 @@ class Project < ApplicationRecord
   STATUS_SORT_ORDER = { 'rejected' => 0, 'redo' => 1, 'pending' => 2, 'not_submitted' => 3, 'approved' => 4 }.freeze
 
   def supervisor
-    return nil unless enrolment_id.present?
-
-    enrolment = Enrolment.find_by(id: enrolment_id)
-    enrolment&.user
+    self.supervisor_enrolment.user
   end
 
   def member
@@ -75,7 +72,7 @@ class Project < ApplicationRecord
       project_instances.build(
         version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
-        enrolment: enrolment,
+        supervisor_enrolment: supervisor_enrolment,
         title: current_title,
         status: (status if approved?)
       )
