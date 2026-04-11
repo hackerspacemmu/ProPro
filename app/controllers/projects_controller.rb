@@ -274,7 +274,6 @@ class ProjectsController < ApplicationController
 
           @project.update!(enrolment: supervisor_enrolment)
         end
-      end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
       return
