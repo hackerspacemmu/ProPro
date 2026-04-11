@@ -10,4 +10,19 @@ export default class extends Controller {
     this.element.style.height = "auto";
     this.element.style.height = `${this.element.scrollHeight + 2}px`;
   }
+
+  commentResize() {
+    this.element.style.height = "auto";
+    this.element.style.height = `${this.element.scrollHeight + 2}px`;
+  }
+
+  resetComment(event) {
+    if (event.target === this.element.form) {
+      requestAnimationFrame(() => {
+        this.element.value = "";
+        this.element.style.height = "auto";
+        this.element.style.height = `${this.element.scrollHeight + 2}px`;
+      });
+    }
+  }
 }

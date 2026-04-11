@@ -8,6 +8,7 @@ class Project < ApplicationRecord
 
   has_many :project_instances, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
+  has_many :comments, through: :project_instances
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
@@ -70,11 +71,13 @@ class Project < ApplicationRecord
   end
 
   def instance_to_edit(created_by:, has_supervisor_comment:)
-    if rejected? || redo? || (pending? && has_supervisor_comment)
+    if approved? || rejected? || redo? || (pending? && has_supervisor_comment)
       project_instances.build(
-        version: project_instances.count + 1,
+        version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
-        enrolment: enrolment
+        enrolment: enrolment,
+        title: current_title,
+        status: (status if approved?)
       )
     else
       # If approved and pending (no supervisor comment) dont create new instance

@@ -155,14 +155,22 @@
   </td>
 
   <%# --- Required --- %>
-  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-center">
-    <span
-      class="
-        lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block
-      "
-    >Required</span>
-    <%= field_form.check_box :required,
-                         class:
-                           "block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer" %>
+  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+    <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Required</span>
+    <div class="flex items-center h-10">
+      <%= field_form.check_box :required, 
+          class: "h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" %>
+      <label class="ml-2 text-sm text-gray-600 lg:hidden">Field is required</label>
+    </div>
+  </td>
+
+  <%# --- Free Edit --- %>
+  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+    <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Free Edit</span>
+    <div class="flex items-center h-10" title="Allow editing after approval">
+      <%= field_form.check_box :free_edit, 
+          class: "h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer" %>
+      <label class="ml-2 text-sm text-gray-600 lg:hidden">Editable after approval</label>
+    </div>
   </td>
 </tr>

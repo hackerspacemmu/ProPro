@@ -38,7 +38,7 @@ class ProjectsController < ApplicationController
       @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
     end
 
-    @comments = @current_instance.comments.order(created_at: :asc)
+    @comments = @project.comments.order(created_at: :asc)
     @new_comment = Comment.new(user: current_user, location: @current_instance)
 
     return unless @course.use_progress_updates
@@ -207,21 +207,17 @@ class ProjectsController < ApplicationController
 
   def update
     authorize @project || Project.new(course: @course)
+    is_approved = @project.approved?
 
-    has_supervisor_comment = false
-    @project.project_instances.last.comments.each do |comment|
-      if comment.user_id == @project.supervisor.id
-        has_supervisor_comment = true
-        break
-      end
-    end
+    last_instance = @project.project_instances.last
+    has_supervisor_comment = last_instance.comments.exists?(user_id: @project.supervisor.id)
 
     previous_supervisor_id = @project.supervisor.id
     new_instance_created = false
 
     begin
       ActiveRecord::Base.transaction do
-        return unless @project.editable?
+        raise StandardError, 'This project is locked and cannot be edited.' unless @project.editable? || is_approved
 
         @instance = @project.instance_to_edit(
           created_by: current_user,
@@ -229,28 +225,30 @@ class ProjectsController < ApplicationController
         )
         new_instance_created = @instance.new_record?
 
-        # Set title
-        title_field_id = params[:fields].keys.first if params[:fields].present?
-        @instance.title = params[:fields][title_field_id] if title_field_id.present?
+        if new_instance_created
+          previous_instance = @project.project_instances.where.not(id: nil).order(version: :desc).first
 
-        # Timestamps
-        @instance.last_edit_time = Time.current
-        @instance.last_edit_by = current_user.id
+          previous_instance&.project_instance_fields&.each do |old_field|
+            @instance.project_instance_fields.build(
+              project_template_field_id: old_field.project_template_field_id,
+              value: old_field.value
+            )
+          end
+        end
 
-        raise StandardError unless @instance.save
-
-        raise StandardError unless params[:fields].present?
+        raise StandardError, 'No field data provided.' if params[:fields].blank?
 
         params[:fields].each do |field_id, value|
-          existing_field = ProjectInstanceField.find_by(
-            project_template_field_id: field_id,
-            instance: @instance
-          )
+          template_field = ProjectTemplateField.find(field_id)
 
-          if existing_field
-            existing_field.update!(value: value)
+          next if is_approved && !template_field.free_edit
+
+          field = @instance.project_instance_fields.find { |f| f.project_template_field_id == field_id.to_i }
+
+          if field
+            field.value = value
           else
-            @instance.project_instance_fields.create!(
+            @instance.project_instance_fields.build(
               project_template_field_id: field_id,
               value: value
             )
@@ -274,12 +272,11 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic_id: nil)
         end
 
-        @project.project_instances.last.update!(
-          enrolment: supervisor_enrolment
-        )
+          @project.update!(enrolment: supervisor_enrolment)
+        end
       end
-    rescue StandardError
-      redirect_to course_project_path(@course, @project), alert: 'Project update failed'
+    rescue StandardError => e
+      redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
       return
     end
 
