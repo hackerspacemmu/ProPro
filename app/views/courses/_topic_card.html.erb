@@ -21,7 +21,7 @@
     if local_assigns[:lecturer].present?
       course_lecturer_topic_path(course, lecturer, topic)
     else
-      course_topic_path(@course, topic)
+      course_topic_path(@course, topic, from_new_project: params[:from_new_project])
     end
 
   card_classes =
