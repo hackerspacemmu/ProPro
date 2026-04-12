@@ -355,15 +355,14 @@ class CoursesController < ApplicationController
   end
 
   def enroll_via_coursecode
-      new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
-      if new_enrolment
-        redirect_back_or_to '/', notice: 'Successfully joined the course'
-      else
-        redirect_back_or_to '/', notice: 'You already joined the course'
-      end
-    rescue StandardError => e
-      redirect_back_or_to '/', alert: e.message
+    new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
+    if new_enrolment
+      redirect_back_or_to '/', notice: 'Successfully joined the course'
+    else
+      redirect_back_or_to '/', notice: 'You already joined the course'
     end
+  rescue StandardError => e
+    redirect_back_or_to '/', alert: e.message
   end
 
   private
