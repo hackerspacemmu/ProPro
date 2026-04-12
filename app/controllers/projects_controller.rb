@@ -82,17 +82,25 @@ class ProjectsController < ApplicationController
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
+    # Choose Supervisor
+    @lecturers = @course.lecturers
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    end
+
     @field_values = {}
 
-    # Optionally preselect topic or own proposal
-    topic_id = params[:topic_id].presence || params[:based_on_topic]
-
-    return unless topic_id.present?
-
-    if topic_id.to_s.start_with?('own_proposal_')
-      @selected_topic_id = topic_id
-    elsif @course.topics.exists?(id: topic_id)
-      @selected_topic_id = topic_id
+    if params[:topic_id].present?
+      @selected_topic = @course.topics.find_by(id: params[:topic_id])
+      if @selected_topic
+        latest_instance = @selected_topic.current_instance
+          @field_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+            h[f.project_template_field_id.to_i] = f.value
+          end
+      end
+    elsif params[:lecturer_id].present?
+      @selected_lecturer = @course.lecturers.find_by(id: params[:lecturer_id])
     end
   end
 
@@ -135,35 +143,26 @@ class ProjectsController < ApplicationController
           raise StandardError, 'You already have a project' if has_project
         end
 
-        raise StandardError, 'Please choose a lecturer and topic' if params[:based_on_topic].blank?
+        topic = Topic.find_by(id: params[:based_on_topic], course: @course) if params[:based_on_topic].present?
+        lecturer_id = params[:lecturer_id].presence
 
-        if params[:based_on_topic].start_with?('own_proposal_')
-          # Extract lecturer ID from value
-          lecturer_id = params[:based_on_topic].split('_').last.to_i
+        raise StandardError, 'Please choose a lecturer or topic' if topic.nil? && lecturer_id.nil?
 
-          # Find lecturer enrolment for course
-          supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
-
-          raise StandardError unless supervisor_enrolment
-        else
-          # Treat as topic_id
-          topic = Topic.find_by(id: params[:based_on_topic], course: @course)
-
-          raise StandardError unless topic
-
-          # Set supervisor enrolment to the owner of the topic (assuming you want this)
-          topic_owner = topic&.owner
-          raise StandardError unless topic_owner.is_a?(User)
+        if topic
+          topic_owner = topic.owner
+          raise StandardError, 'Topic has no valid owner' unless topic_owner.is_a?(User)
 
           supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
-
-          raise StandardError unless supervisor_enrolment
+          raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
+        else
+          supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
+          raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
         end
 
         @project = Project.create!(
           course: @course,
           owner: @course.grouped? ? group : current_user,
-          enrolment: supervisor_enrolment
+          supervisor_enrolment: supervisor_enrolment
         )
 
         # Get title
@@ -176,7 +175,7 @@ class ProjectsController < ApplicationController
           version: 1,
           title: title_value,
           created_by: current_user,
-          enrolment: supervisor_enrolment,
+          supervisor_enrolment: supervisor_enrolment,
           source_topic: topic || nil,
           last_edit_time: Time.current,
           last_edit_by: current_user.id
@@ -256,34 +255,25 @@ class ProjectsController < ApplicationController
           end
         end
 
-        @instance.title = params[:fields].values.first if !is_approved && params[:fields].present? && @instance.title.blank?
+        topic = Topic.find_by(id: params[:based_on_topic], course: @course) if params[:based_on_topic].present?
+        lecturer_id = params[:lecturer_id].presence
 
-        @instance.last_edit_time = Time.current
-        @instance.last_edit_by = current_user.id
-        @instance.save!
+        raise StandardError, 'Please choose a lecturer or topic' if topic.nil? && lecturer_id.nil?
 
-        unless is_approved
-          raise StandardError, 'Please choose a lecturer and topic' if params[:based_on_topic].blank?
-
-          if params[:based_on_topic].start_with?('own_proposal_')
-            lecturer_id = params[:based_on_topic].split('_').last.to_i
-            supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
-            raise StandardError, 'Lecturer not found' unless supervisor_enrolment
-
-            @instance.update!(source_topic_id: nil)
-          else
-            topic = Topic.find_by(id: params[:based_on_topic], course: @course)
-            raise StandardError, 'Topic not found' unless topic && topic.owner.is_a?(User)
-
-            supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
-            raise StandardError, 'Supervisor enrolment missing' unless supervisor_enrolment
-
-            @instance.update!(source_topic: topic)
-          end
+        if topic
+          raise StandardError, 'Topic has no valid owner' unless topic.owner.is_a?(User)
+          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
+          
+          raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
+          @instance.update!(source_topic: topic)
+        else
+          supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
+          raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
+          @instance.update!(source_topic_id: nil)
+        end
 
           @project.update!(enrolment: supervisor_enrolment)
         end
-      end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
       return

@@ -8,7 +8,7 @@ class CoursesController < ApplicationController
     authorize @course
 
     # query for all projects_instances, owner_type and owner_id for participants table
-    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     @student_list = @course.students
@@ -43,10 +43,10 @@ class CoursesController < ApplicationController
     if @current_user_enrolment&.coordinator?
       supervisor_enrolment = @lecturer_enrolment || @current_user_enrolment
       @my_student_projects = @course.projects.supervised_by(supervisor_enrolment).approved
-      @incoming_proposals = @course.projects.where(enrolment: supervisor_enrolment).proposals
+      @incoming_proposals = @course.projects.where(supervisor_enrolment: supervisor_enrolment).proposals
     elsif @current_user_enrolment&.lecturer?
       @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
-      @incoming_proposals = @course.projects.where(enrolment: @current_user_enrolment).proposals
+      @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
 
     # view instances for participants_table
@@ -262,7 +262,7 @@ class CoursesController < ApplicationController
     @course = Course.find(params[:id])
     @grouped = @course.grouped
 
-    @course.projects.includes(project_instances: { enrolment: :user }).load
+    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     if @participant_type == 'group'
@@ -434,15 +434,8 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        user_project_group_ids = ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
-        new_group_member = nil
-
-        user_project_group_ids.each do |id|
-          if ProjectGroup.find(id).course_id == parent_course.id
-            new_group_member = ProjectGroupMember.find_by(user: new_user, project_group_id: id)
-            break
-          end
-        end
+        ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
+        new_group_member = ProjectGroupMember.joins(:project_group).find_by(user: new_user, project_groups: { course: parent_course })
 
         if new_group_member
           new_group_member.update!(project_group: new_group)
@@ -593,6 +586,13 @@ class CoursesController < ApplicationController
     project_fields.each do |field|
       headers << field.label
     end
+
+    if @course.use_progress_updates?
+      (1..@course.number_of_updates.to_i).each do |num|
+        headers << "Update #{num}"
+      end
+    end
+
     headers
   end
 
@@ -602,6 +602,7 @@ class CoursesController < ApplicationController
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
     field_values = get_project_details_values(current_instance, template_fields)
+    progress_updates_values = get_progress_updates_values(project)
     rows = []
 
     group.project_group_members.each do |member|
@@ -616,7 +617,9 @@ class CoursesController < ApplicationController
         project&.current_title || '',
         project_status.humanize
       ]
+
       row.concat(field_values)
+      row.concat(progress_updates_values)
       rows << row
     end
     rows
@@ -628,6 +631,7 @@ class CoursesController < ApplicationController
     supervisor = project&.supervisor
     project_status = project&.current_status || 'not_submitted'
     field_values = get_project_details_values(current_instance, template_fields)
+    progress_updates_values = get_progress_updates_values(project)
 
     row = [
       student.name || '',
@@ -640,6 +644,7 @@ class CoursesController < ApplicationController
     ]
 
     row.concat(field_values)
+    row.concat(progress_updates_values)
     [row]
   end
 
@@ -670,6 +675,19 @@ class CoursesController < ApplicationController
       else
         ''
       end
+    end
+  end
+
+  def get_progress_updates_values(project)
+    return [] unless @course.use_progress_updates?
+
+    total_num = @course.number_of_updates.to_i
+    return Array.new(total_num, '') unless project
+
+    progress_updates = project.progress_updates.order(:created_at).to_a
+
+    (0..total_num).map do |index|
+      progress_updates[index]&.rating&.titleize || ''
     end
   end
 

@@ -81,7 +81,8 @@
           <div class="flex flex-col md:flex-row xl:flex-col gap-6">
 
             <% has_actions =
-              @members.include?(current_user) || @current_version != @latest_version %>
+              @members.include?(current_user) || @current_version != @latest_version || 
+              policy(Project.new(course: @course)).create? %>
 
             <% if has_actions %>
               <section
@@ -119,7 +120,7 @@
           <%# --- Comments Section --- %>
           <section
             class="
-              bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[600px]
+              bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[700px]
               max-h-[calc(100vh-200px)]
             "
           >

@@ -7,8 +7,8 @@ class ProjectTest < ActiveSupport::TestCase
     @lecturer         = create(:user, is_staff: true)
     @student_enrolment  = create(:enrolment, :student, user: @student, course: @course)
     @lecturer_enrolment = create(:enrolment, :lecturer, user: @lecturer, course: @course)
-    @project          = create(:project, course: @course, owner: @student, enrolment: @lecturer_enrolment)
-    @instance         = create(:project_instance, project: @project, enrolment: @lecturer_enrolment, created_by: @student, version: 1)
+    @project          = create(:project, course: @course, owner: @student, supervisor_enrolment: @lecturer_enrolment)
+    @instance         = create(:project_instance, project: @project, supervisor_enrolment: @lecturer_enrolment, created_by: @student, version: 1)
   end
 
   test 'instance_to_edit returns new instance when project is rejected' do
