@@ -358,15 +358,26 @@ class CoursesController < ApplicationController
     code = params[:coursecode]
     @course = Course.by_coursecode(code).first
 
-    if @course
-      Enrolment.find_or_create_by!(
-        user: current_user,
-        course: @course,
-        role: :student
-      )
-      redirect_back_or_to '/', notice: 'Successfully joined the course.'
+    unless @course
+      redirect_back_or_to '/', alert: 'Invalid course code'
+      return
+    end
+
+    unless @course.coursecode_enabled
+      redirect_back_or_to '/', alert: 'Joining via course code is disabled for this course'
+      return
+    end
+
+    enrolment = Enrolment.find_or_create_by!(
+      user: current_user,
+      course: @course,
+      role: :student
+    )
+
+    if enrolment.previously_new_record?
+      redirect_back_or_to '/', notice: 'Successfully joined the course'
     else
-      redirect_back_or_to '/', alert: 'Invalid course code.'
+      redirect_back_or_to '/', notice: 'You already joined the course'
     end
   end
 
