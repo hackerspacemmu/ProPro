@@ -355,29 +355,14 @@ class CoursesController < ApplicationController
   end
 
   def enroll_via_coursecode
-    code = params[:coursecode]
-    @course = Course.by_coursecode(code).first
-
-    unless @course
-      redirect_back_or_to '/', alert: 'Invalid course code'
-      return
-    end
-
-    unless @course.coursecode_enabled
-      redirect_back_or_to '/', alert: 'Joining via course code is disabled for this course'
-      return
-    end
-
-    enrolment = Enrolment.find_or_create_by!(
-      user: current_user,
-      course: @course,
-      role: :student
-    )
-
-    if enrolment.previously_new_record?
-      redirect_back_or_to '/', notice: 'Successfully joined the course'
-    else
-      redirect_back_or_to '/', notice: 'You already joined the course'
+      new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
+      if new_enrolment
+        redirect_back_or_to '/', notice: 'Successfully joined the course'
+      else
+        redirect_back_or_to '/', notice: 'You already joined the course'
+      end
+    rescue StandardError => e
+      redirect_back_or_to '/', alert: e.message
     end
   end
 
