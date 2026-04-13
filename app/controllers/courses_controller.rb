@@ -336,8 +336,15 @@ class CoursesController < ApplicationController
   def update_coursecode
     authorize @course, :update?
 
-    @course.generate_coursecode!
-    flash.now[:notice] = 'Course join code successfully generated'
+    if params[:generate] == 'true'
+      @course.generate_coursecode!
+      flash.now[:notice] = 'Course join code successfully generated'
+    end
+
+    if params[:course]&.key?(:coursecode_enabled)
+      @course.update!(coursecode_enabled: params[:course][:coursecode_enabled])
+      flash.now[:notice] ||= 'Course join code settings updated'
+    end
   rescue StandardError => e
     flash.now[:alert] = e.message
   ensure
@@ -348,19 +355,14 @@ class CoursesController < ApplicationController
   end
 
   def enroll_via_coursecode
-    code = params[:coursecode]
-    @course = Course.by_coursecode(code).first
-
-    if @course
-      Enrolment.find_or_create_by!(
-        user: current_user,
-        course: @course,
-        role: :student
-      )
-      redirect_back_or_to '/', notice: 'Successfully joined the course.'
+    new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
+    if new_enrolment
+      redirect_back_or_to '/', notice: 'Successfully joined the course'
     else
-      redirect_back_or_to '/', alert: 'Invalid course code.'
+      redirect_back_or_to '/', notice: 'You already joined the course'
     end
+  rescue StandardError => e
+    redirect_back_or_to '/', alert: e.message
   end
 
   private

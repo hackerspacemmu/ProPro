@@ -9,6 +9,8 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
   end
 
   test 'should successfully enroll in course with valid coursecode' do
+    @course.update!(coursecode_enabled: true)
+
     # Sign in the student
     post session_path, params: { email_address: @student.email_address, password: 'password' }
     assert_redirected_to root_path
@@ -21,10 +23,26 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
 
     # The student is redirected to '/' and sees a success message
     assert_redirected_to '/'
-    assert_equal 'Successfully joined the course.', flash[:notice]
+    assert_equal 'Successfully joined the course', flash[:notice]
 
     # Verify that an enrolment was created
     assert @course.students.include?(@student)
+  end
+
+  test 'should notify students that they are already enrolled in the course' do
+    @course.update!(coursecode_enabled: true)
+
+    # Sign in the student
+    post session_path, params: { email_address: @student.email_address, password: 'password' }
+    assert_redirected_to root_path
+
+    # Submit valid coursecode (and again)
+    post invite_path, params: { coursecode: @course.coursecode }
+    post invite_path, params: { coursecode: @course.coursecode }
+
+    # The student is redirected to '/' and sees a success message
+    assert_redirected_to '/'
+    assert_equal 'You already joined the course', flash[:notice]
   end
 
   test 'should display error for invalid coursecode' do
@@ -37,7 +55,7 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
 
     # Student cannot join, is redirected with an error alert
     assert_redirected_to '/'
-    assert_equal 'Invalid course code.', flash[:alert]
+    assert_equal 'Invalid course code', flash[:alert]
 
     # Check that they did not join the course
     assert_not @course.students.include?(@student)
