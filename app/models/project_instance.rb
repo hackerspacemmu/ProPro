@@ -12,7 +12,7 @@ class ProjectInstance < ApplicationRecord
   belongs_to :source_topic, class_name: 'Topic', optional: true
 
   attribute :status, :integer, default: :pending
-  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
+  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }, default: :pending
 
   has_many :project_instance_fields, dependent: :destroy, as: :instance
 

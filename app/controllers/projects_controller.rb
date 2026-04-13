@@ -281,7 +281,7 @@ class ProjectsController < ApplicationController
             @instance.update!(source_topic: topic)
           end
 
-          @project.update!(enrolment: supervisor_enrolment)
+          @project.update!(supervisor_enrolment: supervisor_enrolment)
         end
       end
     rescue StandardError => e
