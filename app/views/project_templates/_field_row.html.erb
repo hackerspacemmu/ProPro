@@ -84,7 +84,7 @@
     <%= field_form.select :field_type,
                       options_for_select(
                         ProjectTemplateField.field_types.keys.map do |k|
-                          [k.humanize, k]
+                          [ProjectTemplateField::FIELD_TYPE_LABELS[k], k]
                         end,
                         field_form.object.field_type,
                       ),
