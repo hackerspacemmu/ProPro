@@ -49,7 +49,7 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def create?
-    student || coordinator
+    student && !has_existing_project?
   end
 
   def update?
@@ -109,5 +109,9 @@ class ProjectPolicy < ApplicationPolicy
     record.course.project_template
           &.project_template_fields
           &.exists?(free_edit: true) || false
+  end
+
+  def has_existing_project?
+    course.projects.owned_by_user(user).exists?
   end
 end

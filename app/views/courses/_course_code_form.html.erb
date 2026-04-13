@@ -1,6 +1,6 @@
 <%= turbo_frame_tag "course_code_form" do %>
   <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6">
-    <%= form_with url: update_coursecode_course_path(@course), model: @course, method: :post  do |form| %>
+    <%= form_with url: update_coursecode_course_path(@course), model: @course, method: :post, data: { controller: "coursecode-form-handler" } do |form| %>
       <%= form.label :coursecode,
         'Course Join Code & Invite Link',
         class: "block text-sm font-medium text-gray-700" %>
@@ -10,11 +10,16 @@
           readonly: true,
           disabled: true,
           class: "appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
-        <button
-                class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+        <button id="regenerate-code-btn" type="button" data-action="click->coursecode-form-handler#generateCode" class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
           <%= @course.coursecode.present? ? 'Re-Generate Join Code' : 'Generate Join code' %>
         </button>
       </div>
+      <input type="hidden" name="generate" value="false" data-coursecode-form-handler-target="generateFlag">
+      <label class="inline-flex items-center cursor-pointer mt-4">
+        <%= form.check_box :coursecode_enabled, class: "sr-only peer", role: "switch", data: { action: "change->coursecode-form-handler#submitForm" } %>
+        <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500"></div>
+        <span class="ml-3 text-sm font-medium text-gray-700">Allow joining via course code</span>
+      </label>
     <% end %>
   </div>
 <% end %>
