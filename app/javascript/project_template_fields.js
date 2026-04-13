@@ -10,10 +10,10 @@ document.addEventListener("turbo:load", function () {
 
   // Field type options from Rails enum
   const fieldTypeOptions = [
-    { value: "shorttext", label: "Shorttext" },
-    { value: "textarea", label: "Textarea" },
-    { value: "dropdown", label: "Dropdown" },
-    { value: "radio", label: "Radio" },
+    { value: "shorttext", label: "Short Text" },
+    { value: "textarea", label: "Paragraph" },
+    { value: "dropdown", label: "Dropdown Selection" },
+    { value: "radio", label: "Selection" },
   ];
 
   const applicableToOptions = [

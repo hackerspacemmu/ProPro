@@ -20,6 +20,10 @@ class ProjectTemplateField < ApplicationRecord
     'radio' => 'Selection'
   }.freeze
 
+  def field_type_label
+    FIELD_TYPE_LABELS[field_type] || field_type.to_s.humanize
+  end
+
   def option_list
     options.to_s.gsub(/[\[\]"]/, '').split(',').map(&:strip)
   end
