@@ -272,7 +272,7 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic_id: nil)
         end
 
-          @project.update!(enrolment: supervisor_enrolment)
+          @project.update!(supervisor_enrolment: supervisor_enrolment)
         end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
