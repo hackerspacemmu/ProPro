@@ -226,9 +226,9 @@ class ProjectsController < ApplicationController
         new_instance_created = @instance.new_record?
 
         if new_instance_created
-          previous_instance = @project.project_instances.where.not(id: nil).order(version: :desc).first
+          previous_instance = @project.project_instances.order(version: :desc).first
 
-          previous_instance&.project_instance_fields&.each do |old_field|
+          previous_instance.project_instance_fields.each do |old_field|
             @instance.project_instance_fields.build(
               project_template_field_id: old_field.project_template_field_id,
               value: old_field.value
@@ -245,14 +245,8 @@ class ProjectsController < ApplicationController
 
           field = @instance.project_instance_fields.find { |f| f.project_template_field_id == field_id.to_i }
 
-          if field
-            field.value = value
-          else
-            @instance.project_instance_fields.build(
-              project_template_field_id: field_id,
-              value: value
-            )
-          end
+          field.value = value
+          field.save!
         end
 
         unless params[:based_on_topic].present?
