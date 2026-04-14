@@ -73,11 +73,17 @@
           <% is_topic_readonly = is_project_approved %>
 
           <div class="flex flex-col group">
-            <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-              Based on Topic
-            </label>
+            <% if @course.toggle_topics %>
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
+                Based on Topic
+              </label>
+            <% else %>
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
+                Chosen Supervisor
+              </label>
+            <% end %>
 
-            <% unless is_topic_readonly %>
+            <% if !is_topic_readonly && @course.toggle_topics %>
               <p class="mb-3">
                 <span class="text-[11px] sm:text-xs font-bold text-red-600">Warning:</span>
                 <span class="text-[11px] sm:text-xs text-gray-700">Switching topics will overwrite existing field data.</span>
@@ -109,15 +115,17 @@
                         owner_type: "User",
                         owner_id: lecturer.id,
                       ) %>
-
-                    <% approved_topics.each do |topic| %>
-                      <% current_instance = topic.topic_instances.order(version: :desc).first %>
-                      <option
-                        value="<%= topic.id %>"
-                        <%= 'selected' if topic.id == @selected_topic_id %>
-                      >
-                        <%= "#{lecturer.name} - #{current_instance&.title || "Untitled Topic"}" %>
-                      </option>
+                      
+                    <% if @course.toggle_topics %>  
+                      <% approved_topics.each do |topic| %>
+                        <% current_instance = topic.topic_instances.order(version: :desc).first %>
+                        <option
+                          value="<%= topic.id %>"
+                          <%= 'selected' if topic.id == @selected_topic_id %>
+                        >
+                          <%= "#{lecturer.name} - #{current_instance&.title || "Untitled Topic"}" %>
+                        </option>
+                      <% end %>
                     <% end %>
 
                     <option
@@ -125,7 +133,12 @@
                       <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>
                       class="text-blue-600 font-medium"
                     >
-                      <%= "#{lecturer.name} - Own Proposal" %>
+                      <% if @course.toggle_topics %>
+                        <%= "#{lecturer.name} - Own Proposal" %>
+                      <% else %>
+                        <%= "#{lecturer.name}" %>
+                      <% end %>
+
                     </option>
                   </optgroup>
                 <% end %>

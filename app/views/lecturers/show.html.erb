@@ -43,31 +43,33 @@
         "
       >Proposals</a>
 
-      <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
-        <a
-          href="#full-released-topics"
-          class="
-            block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-            transition-colors
-          "
-        >Released Topics</a>
-      <% else %>
-        <a
-          href="#released-topics"
-          class="
-            block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-            transition-colors
-          "
-        >Released Topics</a>
-      <% end %>
+      <% if @course.toggle_topics %>
+        <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
+          <a
+            href="#full-released-topics"
+            class="
+              block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+              transition-colors
+            "
+          >Released Topics</a>
+        <% else %>
+          <a
+            href="#released-topics"
+            class="
+              block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+              transition-colors
+            "
+          >Released Topics</a>
+        <% end %>
 
-      <a
-        href="#pending-topics"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-          transition-colors
-        "
-      >Pending Topics</a>
+        <a
+          href="#pending-topics"
+          class="
+            block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+            transition-colors
+          "
+        >Pending Topics</a>
+      <% end %>
     </div>
   <% end %>
 <% end %>
@@ -321,107 +323,109 @@
     <% end %>
 
     <%# --- SECTION 4: TOPICS --- %>
-    <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="full-released-topics"
-      >
-        <div class="px-4 md:px-8 pt-4">
-          <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
-        </div>
-        <div class="px-4 md:px-8 py-6">
-          <% if @approved_topics.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              "
-            >
-              <p class="text-gray-500 italic">No Released Topics Available</p>
-            </div>
-          <% else %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <%= render partial: "courses/topic_card",
-              collection: @approved_topics,
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
+    <% if @course.toggle_topics %>
+      <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
+        <section
+          class="
+            bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
+          "
+          id="full-released-topics"
+        >
+          <div class="px-4 md:px-8 pt-4">
+            <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
+          </div>
+          <div class="px-4 md:px-8 py-6">
+            <% if @approved_topics.empty? %>
+              <div
+                class="
+                  py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
+                "
+              >
+                <p class="text-gray-500 italic">No Released Topics Available</p>
+              </div>
+            <% else %>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <%= render partial: "courses/topic_card",
+                collection: @approved_topics,
+                as: :topic,
+                locals: {
+                  course: @course,
+                  lecturer: @lecturer,
+                } %>
+              </div>
+            <% end %>
+          </div>
+        </section>
 
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="pending-topics"
-      >
-        <div class="px-4 md:px-8 pt-4">
-          <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
-        </div>
-        <div class="px-4 md:px-8 py-6">
-          <% if @pending_topics.blank? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              "
-            >
-              <p class="text-gray-500 italic">No Pending Topics Available</p>
-            </div>
-          <% else %>
-            <div
-              class="
-                grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
-              "
-            >
-              <%= render partial: "courses/topic_card",
-              collection: @pending_topics,
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
+        <section
+          class="
+            bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
+          "
+          id="pending-topics"
+        >
+          <div class="px-4 md:px-8 pt-4">
+            <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
+          </div>
+          <div class="px-4 md:px-8 py-6">
+            <% if @pending_topics.blank? %>
+              <div
+                class="
+                  py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
+                "
+              >
+                <p class="text-gray-500 italic">No Pending Topics Available</p>
+              </div>
+            <% else %>
+              <div
+                class="
+                  grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
+                "
+              >
+                <%= render partial: "courses/topic_card",
+                collection: @pending_topics,
+                as: :topic,
+                locals: {
+                  course: @course,
+                  lecturer: @lecturer,
+                } %>
+              </div>
+            <% end %>
+          </div>
+        </section>
 
-    <% else %>
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="released-topics"
-      >
-        <div class="px-4 md:px-8 pt-4">
-          <h2 class="text-xl font-semibold text-gray-900">Available Topics</h2>
-        </div>
-        <div class="px-4 md:px-8 py-6">
-          <% if @approved_topics.blank? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-              "
-            >
-              <p class="text-gray-500 italic">This lecturer has no available topics yet.</p>
-            </div>
-          <% else %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <%= render partial: "courses/topic_card",
-              collection: @approved_topics,
-              as: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
+      <% else %>
+        <section
+          class="
+            bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
+          "
+          id="released-topics"
+        >
+          <div class="px-4 md:px-8 pt-4">
+            <h2 class="text-xl font-semibold text-gray-900">Available Topics</h2>
+          </div>
+          <div class="px-4 md:px-8 py-6">
+            <% if @approved_topics.blank? %>
+              <div
+                class="
+                  py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
+                "
+              >
+                <p class="text-gray-500 italic">This lecturer has no available topics yet.</p>
+              </div>
+            <% else %>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <%= render partial: "courses/topic_card",
+                collection: @approved_topics,
+                as: :topic,
+                locals: {
+                  course: @course,
+                  lecturer: @lecturer,
+                } %>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
     <% end %>
 
     <footer class="pt-2 pb-2 flex justify-start">
