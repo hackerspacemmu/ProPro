@@ -73,7 +73,6 @@ class Project < ApplicationRecord
         version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
         supervisor_enrolment: supervisor_enrolment,
-        title: current_title,
         status: approved? ? :approved : :pending
       )
     else
