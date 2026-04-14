@@ -226,9 +226,9 @@ class ProjectsController < ApplicationController
         new_instance_created = @instance.new_record?
 
         if new_instance_created
-          previous_instance = @project.project_instances.where.not(id: nil).order(version: :desc).first
+          previous_instance = @project.project_instances.order(version: :desc).first
 
-          previous_instance&.project_instance_fields&.each do |old_field|
+          previous_instance.project_instance_fields.each do |old_field|
             @instance.project_instance_fields.build(
               project_template_field_id: old_field.project_template_field_id,
               value: old_field.value
@@ -245,34 +245,33 @@ class ProjectsController < ApplicationController
 
           field = @instance.project_instance_fields.find { |f| f.project_template_field_id == field_id.to_i }
 
-          if field
-            field.value = value
-          else
-            @instance.project_instance_fields.build(
-              project_template_field_id: field_id,
-              value: value
-            )
-          end
+          field.value = value
+          field.save!
         end
 
-        topic = Topic.find_by(id: params[:based_on_topic], course: @course) if params[:based_on_topic].present?
-        lecturer_id = params[:lecturer_id].presence
+        unless params[:based_on_topic].present?
+          raise StandardError, 'Please choose a lecturer or topic'
+        end
 
-        raise StandardError, 'Please choose a lecturer or topic' if topic.nil? && lecturer_id.nil?
+        if params[:based_on_topic].include? "own_proposal_"
+          lecturer_id = params[:based_on_topic][13...]
+        else
+          topic = Topic.find_by(id: params[:based_on_topic], course: @course)
+        end
 
         if topic
           raise StandardError, 'Topic has no valid owner' unless topic.owner.is_a?(User)
           supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
           
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
-          @instance.update!(source_topic: topic)
+          @instance.update!(source_topic: topic, supervisor_enrolment: supervisor_enrolment)
         else
-          supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
+          supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
+
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
-          @instance.update!(source_topic_id: nil)
+          @instance.update!(source_topic_id: nil, supervisor_enrolment: supervisor_enrolment)
         end
 
-          @project.update!(supervisor_enrolment: supervisor_enrolment)
         end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
