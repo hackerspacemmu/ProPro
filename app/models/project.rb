@@ -13,7 +13,6 @@ class Project < ApplicationRecord
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
   enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }, default: :pending
-  #attribute :status, :integer, default: :pending
 
   # Status filters
   scope :pending, -> { where(status: :pending) }
@@ -48,11 +47,7 @@ class Project < ApplicationRecord
   end
 
   def current_instance
-    if project_instances.column_names.include?('version')
-      project_instances.order(version: :desc, created_at: :desc).first
-    else
-      project_instances.order(created_at: :desc).first
-    end
+    project_instances.order(version: :desc).first
   end
 
   def current_status
