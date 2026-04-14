@@ -17,7 +17,7 @@ class ProjectInstance < ApplicationRecord
   has_many :project_instance_fields, dependent: :destroy, as: :instance
 
   before_validation :set_project_type
-  before_save :sync_title_from_fields
+  before_validation :sync_title_from_fields
   after_save :update_parent_project
 
   validates :version, presence: true, numericality: { only_integer: true, greater_than: 0 }
