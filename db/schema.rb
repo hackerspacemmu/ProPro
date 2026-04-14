@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_07_105744) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_172051) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
   create_table "comments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "deleted", default: false, null: false
@@ -29,6 +30,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_105744) do
     t.string "course_description"
     t.string "course_name", null: false
     t.string "coursecode"
+    t.boolean "coursecode_enabled", default: false, null: false
     t.datetime "created_at", null: false
     t.string "file_link"
     t.boolean "grouped", null: false
@@ -40,7 +42,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_105744) do
     t.integer "supervisor_projects_limit", null: false
     t.datetime "updated_at", null: false
     t.boolean "use_progress_updates", null: false
-    t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
   create_table "enrolments", force: :cascade do |t|
@@ -130,12 +131,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_105744) do
     t.integer "applicable_to", null: false
     t.datetime "created_at", null: false
     t.integer "field_type", null: false
+    t.boolean "free_edit", default: false, null: false
     t.text "hint"
     t.string "label", null: false
     t.json "options"
     t.integer "project_template_id", null: false
-    t.datetime "updated_at", null: false
     t.boolean "required", default: true
+    t.datetime "updated_at", null: false
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end
 
@@ -296,11 +298,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_07_105744) do
     t.string "description"
     t.string "email_address", null: false
     t.boolean "has_registered", null: false
+    t.string "instid"
     t.boolean "is_staff", null: false
+    t.string "name", null: false
     t.string "password_digest", null: false
-    t.string "student_id"
     t.datetime "updated_at", null: false
-    t.string "username", null: false
     t.string "web_link"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end

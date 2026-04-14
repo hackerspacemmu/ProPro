@@ -1,0 +1,37 @@
+<% content_for :hide_breadcrumbs, true %>
+<% content_for :hide_toggler, true %>
+
+<main
+  class="
+    flex-grow flex items-center justify-center bg-gray-50 px-6 py-10 sm:py-20
+    lg:px-8 transition-all duration-300 w-full
+  "
+>
+  <div class="text-center">
+
+    <p
+      class="
+        text-8xl sm:text-9xl font-extrabold text-gray-200 tracking-widest mb-2 sm:mb-4
+      "
+    >
+      500
+    </p>
+
+    <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+      Internal Server Error
+    </h1>
+
+    <p class="mt-6 text-base leading-7 text-gray-500 max-w-md mx-auto">
+      Sorry, an unexpected error occurred. Please try again later.
+    </p>
+
+    <div class="mt-10 flex items-center justify-center gap-x-6">
+
+      <%= link_to "Return to Dashboard",
+      root_path,
+      class:
+        "cursor-pointer bg-slate-600 hover:bg-slate-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base inline-flex justify-center items-center" %>
+
+    </div>
+  </div>
+</main>

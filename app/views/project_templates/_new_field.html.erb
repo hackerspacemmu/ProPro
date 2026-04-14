@@ -81,7 +81,9 @@
       >
         <option value="">Select field type</option>
         <% ProjectTemplateField.field_types.keys.each do |key| %>
-          <option value="<%= key %>"><%= key.humanize %></option>
+          <option value="<%= key %>">
+            <%= field.field_type_label %>
+          </option>
         <% end %>
       </select>
     </div>

@@ -69,7 +69,11 @@ export default class extends Controller {
 
     this.containerTarget.classList.add("transition-all", "duration-300");
 
-    this.containerTarget.classList.remove("w-0", "overflow-hidden", "opacity-0");
+    this.containerTarget.classList.remove(
+      "w-0",
+      "overflow-hidden",
+      "opacity-0",
+    );
     this.containerTarget.classList.add("opacity-100");
 
     if (window.innerWidth >= 1024) {

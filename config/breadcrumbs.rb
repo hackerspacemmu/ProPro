@@ -59,14 +59,24 @@ end
 
 crumb :topics do |course|
   link 'Topics', course_topics_path(course)
-  parent :course, course
+  if params[:from_new_project]
+    parent :new_project, course
+  else
+    parent :course, course
+  end
 end
 
 crumb :topic do |topic|
   link topic.topic_instances.last&.title
-  parent :topics, topic.course
+  if params[:lecturer_id]
+    lecturer = User.find(params[:lecturer_id])
+    parent :lecturer, topic.course, lecturer
+  elsif params[:from_new_project]
+    parent :topics, topic.course
+  else
+    parent :topics, topic.course
+  end
 end
-
 crumb :new_topic do |course|
   link 'New Topic', new_course_topic_path(course)
   parent :topics, course
@@ -88,7 +98,7 @@ crumb :project do |project|
     participant_name = if params[:participant_type] == 'group'
                          ProjectGroup.find(params[:from_participant]).group_name
                        else
-                         User.find(params[:from_participant]).username
+                         User.find(params[:from_participant]).name
                        end
     parent :course_participant_profile, project.course, participant_name
   else
@@ -124,7 +134,7 @@ crumb :edit_progress_update do |progress_update|
 end
 
 crumb :lecturer do |course, lecturer|
-  link lecturer.username, course_lecturer_path(course, lecturer)
+  link lecturer.name, course_lecturer_path(course, lecturer)
   parent :course, course
 end
 

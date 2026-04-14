@@ -8,3 +8,7 @@ import "htmx.org";
 document.addEventListener("turbo:load", function () {
   window.htmx.process(document.body);
 });
+
+Turbo.config.drive.confirmationMethod = (message, element, submitter) => {
+  return Promise.resolve(window.confirm(message));
+};

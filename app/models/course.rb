@@ -28,6 +28,7 @@ class Course < ApplicationRecord
   enum :student_access, { owner_only: 0, own_lecturer_only: 1, no_restriction: 2 }
 
   scope :managed_by, ->(user) { joins(:enrolments).where(enrolments: { user_id: user.id, role: %i[lecturer coordinator] }).distinct }
+  scope :by_coursecode, ->(code) { where(coursecode: code) }
 
   validates :course_name, presence: { message: 'cannot be empty' }
   validates :require_coordinator_approval, inclusion: { in: [true, false], message: 'must be true or false' }
@@ -40,6 +41,7 @@ class Course < ApplicationRecord
   validates :lecturer_access, inclusion: { in: [true, false], message: 'must be true or false' }
   validates :student_access, presence: { message: 'cannot be empty' }, inclusion: { in: Course.student_accesses.keys.map, message: 'is invalid' }
   validates :supervisor_projects_limit, presence: { message: 'cannot be empty' }, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }
+  validates :coursecode, uniqueness: { message: 'has already been taken' }, allow_nil: true
 
   before_validation :null_number_of_updates_if_not_used
 
@@ -68,7 +70,7 @@ class Course < ApplicationRecord
       ret[group] ||= Set[]
       ret[group].add({
                        name: row['Last name'].strip,
-                       student_id: row['ID number'].strip,
+                       instid: row['ID number'].strip,
                        email_address: row['Email address'].strip
                      })
     end
@@ -85,7 +87,7 @@ class Course < ApplicationRecord
 
       ret.add({
                 name: row['Last name'].strip,
-                student_id: row['ID number'].strip,
+                instid: row['ID number'].strip,
                 email_address: row['Email address'].strip
               })
     end

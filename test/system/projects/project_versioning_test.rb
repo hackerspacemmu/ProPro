@@ -9,9 +9,9 @@ class ProjectVersioningTest < ApplicationSystemTestCase
     @student_enrolment  = create(:enrolment, :student, user: @student, course: @course)
     @lecturer_enrolment = create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
-    @project    = create(:project, course: @course, owner: @student, enrolment: @lecturer_enrolment)
-    @instance_1 = create(:project_instance, project: @project, enrolment: @lecturer_enrolment, created_by: @student, version: 1, status: :pending)
-    @instance_2 = create(:project_instance, project: @project, enrolment: @lecturer_enrolment, created_by: @student, version: 2, status: :pending)
+    @project    = create(:project, course: @course, owner: @student, supervisor_enrolment: @lecturer_enrolment)
+    @instance_1 = create(:project_instance, project: @project, supervisor_enrolment: @lecturer_enrolment, created_by: @student, version: 1, status: :pending)
+    @instance_2 = create(:project_instance, project: @project, supervisor_enrolment: @lecturer_enrolment, created_by: @student, version: 2, status: :pending)
   end
 
   test 'defaults to latest version on page load' do

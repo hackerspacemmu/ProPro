@@ -6,7 +6,7 @@
     <div class="flex-none mb-6 flex items-center justify-between">
       <h3 class="text-2xl font-bold text-gray-600">Select Fields to Copy: <%= source.course_name %></h3>
       <button type="button" 
-              data-action="click->overlay#goBack" 
+              data-action="click->overlay#returnToList" 
               class="text-sm text-blue-600 hover:underline">
         ← Back
       </button>
@@ -133,7 +133,7 @@
                     <%= field.label %>
                   </span>
                   <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-                    <%= field.field_type.humanize %>
+                    <%= field.field_type_label %>
                   </span>
                 </div>
 

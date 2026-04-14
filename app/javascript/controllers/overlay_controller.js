@@ -68,7 +68,7 @@ export default class extends Controller {
   }
 
   selectSetting(event) {
-    const sourceCourseId = event.params.courseId;
+    const sourceCourseId = event.params.sourceId; 
     const targetCourseId = this.targetCourseIdValue;
     const mode = this.modeValue;
 

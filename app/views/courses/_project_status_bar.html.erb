@@ -12,12 +12,22 @@
       <ol class="relative border-s border-gray-200">
         <% statuses.each do |status| %>
           <% is_active = @current_status.to_s == status %>
-          <li class="mb-8 ms-7 step" data-status="<%= status %>">
-            <span class="absolute flex items-center justify-center w-8 h-8 rounded-full -start-4 ring-4 ring-white
-              <%= is_active ? 'bg-gray-300' : 'bg-gray-100' %>">
-              <%= image_tag "#{status}.svg", class: "w-4 h-4 #{is_active ? 'opacity-100' : 'opacity-30'}" %>
+          <li class="mb-8 ms-7 step flex items-center" data-status="<%= status %>">
+            <span
+              class="
+                absolute flex items-center justify-center w-8 h-8 rounded-full -start-4 ring-4
+                ring-white <%= is_active ? 'bg-gray-300' : 'bg-gray-100' %>
+              "
+            >
+              <%= image_tag "#{status}.svg",
+              class: "w-4 h-4 #{is_active ? "opacity-100" : "opacity-30"}" %>
             </span>
-            <h3 class="font-medium leading-tight <%= is_active ? 'text-black' : 'text-gray-400' %>">
+            <h3
+              class="
+                font-medium leading-tight items-self-center
+                <%= is_active ? 'text-black' : 'text-gray-400' %>
+              "
+            >
               <%= status.humanize %>
             </h3>
           </li>
@@ -36,7 +46,8 @@
           <p class="text-sm text-gray-500 mb-4">No proposal submitted yet.</p>
           <%= link_to "Submit Proposal",
           new_course_project_path(@course),
-          class: "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+          class:
+            "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
         </div>
       <% end %>
     </div>

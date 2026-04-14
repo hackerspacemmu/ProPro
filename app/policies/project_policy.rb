@@ -49,11 +49,17 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def create?
-    student || coordinator
+    student && !has_existing_project?
   end
 
   def update?
-    project_owner && !approved
+    return true if project_owner && !approved
+
+    return true if project_owner && approved && any_free_edit_fields?
+
+    return true if coordinator
+
+    false
   end
 
   def change_status?
@@ -97,5 +103,15 @@ class ProjectPolicy < ApplicationPolicy
 
   def approved
     record.status.to_s == 'approved'
+  end
+
+  def any_free_edit_fields?
+    record.course.project_template
+          &.project_template_fields
+          &.exists?(free_edit: true) || false
+  end
+
+  def has_existing_project?
+    course.projects.owned_by_user(user).exists?
   end
 end

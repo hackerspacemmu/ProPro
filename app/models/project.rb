@@ -2,17 +2,17 @@ class Project < ApplicationRecord
   enum :ownership_type, { student: 0, project_group: 1, lecturer: 2 }
   default_scope { where(ownership_type: %i[student project_group]) }
 
-  belongs_to :enrolment
+  belongs_to :supervisor_enrolment, class_name: 'Enrolment', foreign_key: 'enrolment_id'
   belongs_to :course
   belongs_to :owner, polymorphic: true
 
   has_many :project_instances, dependent: :destroy
   has_many :progress_updates, dependent: :destroy
+  has_many :comments, through: :project_instances
 
   # DO NOT WRITE TO STATUS IN PROJECTS, IT'S ONLY MEANT TO KEEP TRACK OF THE STATUS OF THE LATEST PROJECT INSTANCE
   # write to the latest project instance instead
-  attribute :status, :integer, default: :pending
-  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }
+  enum :status, { pending: 0, approved: 1, rejected: 2, redo: 3, not_submitted: 4 }, default: :pending
 
   # Status filters
   scope :pending, -> { where(status: :pending) }
@@ -22,7 +22,7 @@ class Project < ApplicationRecord
   scope :proposals, -> { where(status: %i[pending redo rejected]) }
 
   # Enrolment (supervisor) filters
-  scope :supervised_by, ->(enrolment) { where(enrolment: enrolment) }
+  scope :supervised_by, ->(supervisor_enrolment) { where(supervisor_enrolment: supervisor_enrolment) }
 
   scope :owned_by_user_or_groups, lambda { |user, groups|
     where(owner: [user] + groups.to_a)
@@ -32,11 +32,10 @@ class Project < ApplicationRecord
 
   before_validation :set_ownership_type
 
-  def supervisor
-    return nil unless enrolment_id.present?
+  STATUS_SORT_ORDER = { 'rejected' => 0, 'redo' => 1, 'pending' => 2, 'not_submitted' => 3, 'approved' => 4 }.freeze
 
-    enrolment = Enrolment.find_by(id: enrolment_id)
-    enrolment&.user
+  def supervisor
+    self.supervisor_enrolment.user
   end
 
   def member
@@ -48,11 +47,7 @@ class Project < ApplicationRecord
   end
 
   def current_instance
-    if project_instances.column_names.include?('version')
-      project_instances.order(version: :desc, created_at: :desc).first
-    else
-      project_instances.order(created_at: :desc).first
-    end
+    project_instances.order(version: :desc).first
   end
 
   def current_status
@@ -68,11 +63,12 @@ class Project < ApplicationRecord
   end
 
   def instance_to_edit(created_by:, has_supervisor_comment:)
-    if rejected? || redo? || (pending? && has_supervisor_comment)
+    if approved? || rejected? || redo? || (pending? && has_supervisor_comment)
       project_instances.build(
-        version: project_instances.count + 1,
+        version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
-        enrolment: enrolment
+        supervisor_enrolment: supervisor_enrolment,
+        status: approved? ? :approved : :pending
       )
     else
       # If approved and pending (no supervisor comment) dont create new instance

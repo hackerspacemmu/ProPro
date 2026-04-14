@@ -11,8 +11,8 @@ class ChangeStatusTest < ApplicationSystemTestCase
     @lecturer_enrolment = create(:enrolment, user: @lecturer, course: @course, role: :lecturer)
     @other_student_enrolment = create(:enrolment, user: @other_student, course: @course, role: :student)
 
-    @project = create(:project, course: @course, owner: @student, enrolment: @lecturer_enrolment)
-    @instance = create(:project_instance, project: @project, enrolment: @lecturer_enrolment, created_by: @student, version: 1, status: :pending)
+    @project = create(:project, course: @course, owner: @student, supervisor_enrolment: @lecturer_enrolment)
+    @instance = create(:project_instance, project: @project, supervisor_enrolment: @lecturer_enrolment, created_by: @student, version: 1, status: :pending)
   end
 
   test 'supervisor can change project status happy path' do

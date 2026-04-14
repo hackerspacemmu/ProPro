@@ -1,9 +1,9 @@
 # Create Users
 lecturer1 = User.create!(
   email_address: 'lecturer1@test.com',
-  username: 'lecturer1',
+  name: 'lecturer1',
   has_registered: true,
-  student_id: nil,
+  instid: nil,
   web_link: 'test.com',
   is_staff: true,
   password: 'password123'
@@ -11,9 +11,9 @@ lecturer1 = User.create!(
 
 lecturer2 = User.create!(
   email_address: 'lecturer2@test.com',
-  username: 'lecturer2',
+  name: 'lecturer2',
   has_registered: true,
-  student_id: nil,
+  instid: nil,
   web_link: 'test.com',
   is_staff: true,
   password: 'password123'
@@ -21,9 +21,9 @@ lecturer2 = User.create!(
 
 lecturer3 = User.create!(
   email_address: 'lecturer3@test.com',
-  username: 'lecturer3',
+  name: 'lecturer3',
   has_registered: true,
-  student_id: nil,
+  instid: nil,
   web_link: 'test.com',
   is_staff: true,
   password: 'password123'
@@ -31,135 +31,135 @@ lecturer3 = User.create!(
 
 student1 = User.create!(
   email_address: 'student1@test.com',
-  username: 'student1',
+  name: 'student1',
   has_registered: true,
-  student_id: '1191202123',
+  instid: '1191202123',
   is_staff: false,
   password: 'password123'
 )
 
 student2 = User.create!(
   email_address: 'student2@test.com',
-  username: 'student2',
+  name: 'student2',
   has_registered: true,
-  student_id: '1191202124',
+  instid: '1191202124',
   is_staff: false,
   password: 'password123'
 )
 
 student3 = User.create!(
   email_address: 'student3@test.com',
-  username: 'student3',
+  name: 'student3',
   has_registered: true,
-  student_id: '1191202125',
+  instid: '1191202125',
   is_staff: false,
   password: 'password123'
 )
 
 student4 = User.create!(
   email_address: 'student4@test.com',
-  username: 'student4',
+  name: 'student4',
   has_registered: true,
-  student_id: '1191202126',
+  instid: '1191202126',
   is_staff: false,
   password: 'password123'
 )
 
 student5 = User.create!(
   email_address: 'student5@test.com',
-  username: 'student5',
+  name: 'student5',
   has_registered: true,
-  student_id: '1191202126',
+  instid: '1191202126',
   is_staff: false,
   password: 'password123'
 )
 
 student6 = User.create!(
   email_address: 'student6@test.com',
-  username: 'student6',
+  name: 'student6',
   has_registered: true,
-  student_id: '1191202127',
+  instid: '1191202127',
   is_staff: false,
   password: 'password123'
 )
 
 student7 = User.create!(
   email_address: 'student7@test.com',
-  username: 'student7',
+  name: 'student7',
   has_registered: true,
-  student_id: '1191202128',
+  instid: '1191202128',
   is_staff: false,
   password: 'password123'
 )
 
 student8 = User.create!(
   email_address: 'student8@test.com',
-  username: 'student8',
+  name: 'student8',
   has_registered: true,
-  student_id: '1191202129',
+  instid: '1191202129',
   is_staff: false,
   password: 'password123'
 )
 
 student9 = User.create!(
   email_address: 'student9@test.com',
-  username: 'student9',
+  name: 'student9',
   has_registered: true,
-  student_id: '1191202130',
+  instid: '1191202130',
   is_staff: false,
   password: 'password123'
 )
 
 student10 = User.create!(
   email_address: 'student10@test.com',
-  username: 'student10',
+  name: 'student10',
   has_registered: true,
-  student_id: '1191202131',
+  instid: '1191202131',
   is_staff: false,
   password: 'password123'
 )
 
 student11 = User.create!(
   email_address: 'student11@test.com',
-  username: 'student11',
+  name: 'student11',
   has_registered: true,
-  student_id: '1191202132',
+  instid: '1191202132',
   is_staff: false,
   password: 'password123'
 )
 
 student12 = User.create!(
   email_address: 'student12@test.com',
-  username: 'student12',
+  name: 'student12',
   has_registered: true,
-  student_id: '1191202133',
+  instid: '1191202133',
   is_staff: false,
   password: 'password123'
 )
 
 student13 = User.create!(
   email_address: 'student13@test.com',
-  username: 'student13',
+  name: 'student13',
   has_registered: true,
-  student_id: '1191202133',
+  instid: '1191202133',
   is_staff: false,
   password: 'password123'
 )
 
 student14 = User.create!(
   email_address: 'student14@test.com',
-  username: 'student14',
+  name: 'student14',
   has_registered: true,
-  student_id: '1191202134',
+  instid: '1191202134',
   is_staff: false,
   password: 'password123'
 )
 
 student15 = User.create!(
   email_address: 'student15@test.com',
-  username: 'student15',
+  name: 'student15',
   has_registered: true,
-  student_id: '1191202135',
+  instid: '1191202135',
   is_staff: false,
   password: 'password123'
 )
@@ -473,12 +473,6 @@ group_template = ProjectTemplate.create!(
 )
 
 # Create Project Template Fields
-title_field_individual = ProjectTemplateField.create!(
-  project_template: individual_template,
-  field_type: :shorttext,
-  applicable_to: :both,
-  label: 'Project Title'
-)
 
 project_description_field = ProjectTemplateField.create!(
   project_template: individual_template,
@@ -496,13 +490,6 @@ lecturer_feedback_field = ProjectTemplateField.create!(
   hint: 'Provide feedback on the proposal'
 )
 
-title_field_group = ProjectTemplateField.create!(
-  project_template: group_template,
-  field_type: :shorttext,
-  applicable_to: :both,
-  label: 'Project Title'
-)
-
 group_description_field = ProjectTemplateField.create!(
   project_template: group_template,
   field_type: 1, # textarea
@@ -510,6 +497,10 @@ group_description_field = ProjectTemplateField.create!(
   label: 'Group Project Description',
   hint: 'Describe the group project scope and member responsibilities'
 )
+
+# Title fields are auto created via validation callback
+title_field_individual = individual_template.project_template_fields.find_by(label: 'Project Title')
+title_field_group = group_template.project_template_fields.find_by(label: 'Project Title')
 
 # Create Projects
 lecturer_1_topic_1 = Topic.create!(
@@ -604,56 +595,56 @@ lecturer_3_topic_2_no_groups = Topic.create!(
 
 group_1_project = Project.create!(
   course: course_with_groups,
-  enrolment: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_1,
   ownership_type: :project_group
 )
 
 group_2_project = Project.create!(
   course: course_with_groups,
-  enrolment: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_2,
   ownership_type: :project_group
 )
 
 group_3_project = Project.create!(
   course: course_with_groups,
-  enrolment: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_3,
   ownership_type: :project_group
 )
 
 group_4_project = Project.create!(
   course: course_with_groups,
-  enrolment: lecturer_1_lecturer_enrolment,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment,
   owner: group_4,
   ownership_type: :project_group
 )
 
 student_1_project = Project.create!(
   course: course_no_groups,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student1,
   ownership_type: :student
 )
 
 student_2_project = Project.create!(
   course: course_no_groups,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student2,
   ownership_type: :student
 )
 
 student_3_project = Project.create!(
   course: course_no_groups,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student3,
   ownership_type: :student
 )
 
 student_4_project = Project.create!(
   course: course_no_groups,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups,
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups,
   owner: student4,
   ownership_type: :student
 )
@@ -809,7 +800,7 @@ group_1_instance_1 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 1',
   status: :pending,
-  enrolment: lecturer_2_lecturer_enrolment
+  supervisor_enrolment: lecturer_2_lecturer_enrolment
 )
 
 group_1_instance_2 = ProjectInstance.create!(
@@ -818,7 +809,7 @@ group_1_instance_2 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 2',
   status: :redo,
-  enrolment: lecturer_2_lecturer_enrolment
+  supervisor_enrolment: lecturer_2_lecturer_enrolment
 )
 
 group_1_instance_3 = ProjectInstance.create!(
@@ -827,7 +818,7 @@ group_1_instance_3 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 3',
   status: :rejected,
-  enrolment: lecturer_3_lecturer_enrolment
+  supervisor_enrolment: lecturer_3_lecturer_enrolment
 )
 
 group_1_instance_4 = ProjectInstance.create!(
@@ -836,7 +827,7 @@ group_1_instance_4 = ProjectInstance.create!(
   created_by: student1,
   title: 'Difficult Group Project 4',
   status: :approved,
-  enrolment: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 group_2_instance_1 = ProjectInstance.create!(
@@ -845,7 +836,7 @@ group_2_instance_1 = ProjectInstance.create!(
   created_by: student4,
   title: 'Difficult Group Project Group 2',
   status: :rejected,
-  enrolment: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 group_3_instance_1 = ProjectInstance.create!(
@@ -854,7 +845,7 @@ group_3_instance_1 = ProjectInstance.create!(
   created_by: student7,
   title: 'Difficult Group Project Group 3',
   status: :redo,
-  enrolment: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 group_4_instance_1 = ProjectInstance.create!(
@@ -863,7 +854,7 @@ group_4_instance_1 = ProjectInstance.create!(
   created_by: student10,
   title: 'Difficult Group Project Group 4',
   status: :pending,
-  enrolment: lecturer_1_lecturer_enrolment
+  supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
 
 student_1_project_instance_1 = ProjectInstance.create!(
@@ -872,7 +863,7 @@ student_1_project_instance_1 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project',
   status: :pending,
-  enrolment: lecturer_3_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_3_lecturer_enrolment_no_groups
 )
 
 student_1_project_instance_2 = ProjectInstance.create!(
@@ -881,7 +872,7 @@ student_1_project_instance_2 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project 2',
   status: :rejected,
-  enrolment: lecturer_3_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_3_lecturer_enrolment_no_groups
 )
 
 student_1_project_instance_3 = ProjectInstance.create!(
@@ -890,7 +881,7 @@ student_1_project_instance_3 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project 3',
   status: :redo,
-  enrolment: lecturer_2_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_2_lecturer_enrolment_no_groups
 )
 
 student_1_project_instance_4 = ProjectInstance.create!(
@@ -899,7 +890,7 @@ student_1_project_instance_4 = ProjectInstance.create!(
   created_by: student1,
   title: 'Student 1 Project 4',
   status: :approved,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 student_2_project_instance_1 = ProjectInstance.create!(
@@ -908,7 +899,7 @@ student_2_project_instance_1 = ProjectInstance.create!(
   created_by: student2,
   title: 'Student 2 Project',
   status: :pending,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 student_3_project_instance_1 = ProjectInstance.create!(
@@ -917,7 +908,7 @@ student_3_project_instance_1 = ProjectInstance.create!(
   created_by: student3,
   title: 'Student 3 Project',
   status: :redo,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 student_4_project_instance_1 = ProjectInstance.create!(
@@ -926,7 +917,7 @@ student_4_project_instance_1 = ProjectInstance.create!(
   created_by: student4,
   title: 'Student 4 Project',
   status: :rejected,
-  enrolment: lecturer_1_lecturer_enrolment_no_groups
+  supervisor_enrolment: lecturer_1_lecturer_enrolment_no_groups
 )
 
 # Create Project Instance Fields
@@ -1014,145 +1005,147 @@ ProjectInstanceField.create!(
   value: 'Praesent ultrices ipsum nec ante lobortis feugiat. Vivamus auctor ex eget lobortis cursus'
 )
 
-ProjectInstanceField.create!(instance: lecturer_1_topic_1_instance_1,
-                             project_template_field: title_field_individual,
-                             value: 'Difficult Topic 1')
+ProjectInstanceField.create!(
+  instance: lecturer_1_topic_1_instance_1,
+  project_template_field: title_field_group,
+  value: 'Difficult Topic 1'
+)
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_1_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Sed ut vulputate neque'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_2_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_2_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Donec luctus sem tellus, ac sagittis urna suscipit non.'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_3_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_3_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Etiam mollis risus nec dolor faucibus, lacinia consectetur quam semper'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_4_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 4'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_1_topic_4_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Duis quis sagittis libero'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_1_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 1 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_1_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Etiam eleifend sodales tincidunt'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_2_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 2 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_2_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'In in auctor ante.'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_3_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 3 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_3_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Donec mattis sed ex eget aliquet'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_4_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 4 Lecturer 2'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_2_topic_4_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Vivamus tempor lacus consectetur magna laoreet dictum'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_1_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 1 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_1_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Aenean accumsan vehicula ex eget aliquam.'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_2_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 2 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_2_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Ut tincidunt cursus nisi eget semper'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_3_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 3 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_3_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Nullam vitae ornare ex'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_4_instance_1,
-  project_template_field: title_field_individual,
+  project_template_field: title_field_group,
   value: 'Difficult Topic 4 Lecturer 3'
 )
 
 ProjectInstanceField.create!(
   instance: lecturer_3_topic_4_instance_1,
-  project_template_field: project_description_field,
+  project_template_field: group_description_field,
   value: 'Quisque efficitur magna nec eros luctus, at vestibulum ipsum rutrum.'
 )
 
@@ -1295,7 +1288,7 @@ ProjectInstanceField.create!(
 )
 
 ProjectInstanceField.create!(
-  instance: lecturer_3_topic_1_instance_1,
+  instance: lecturer_3_topic_1_no_groups_instance_1,
   project_template_field: lecturer_feedback_field,
   value: 'Donec a cursus purus'
 )

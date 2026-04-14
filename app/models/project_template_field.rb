@@ -13,6 +13,17 @@ class ProjectTemplateField < ApplicationRecord
   before_validation :force_title_required
   before_destroy :cannot_delete_if_in_use
 
+  FIELD_TYPE_LABELS = {
+    'shorttext' => 'Short Text',
+    'textarea' => 'Paragraph',
+    'dropdown' => 'Dropdown Selection',
+    'radio' => 'Selection'
+  }.freeze
+
+  def field_type_label
+    FIELD_TYPE_LABELS[field_type] || field_type.to_s.humanize
+  end
+
   def option_list
     options.to_s.gsub(/[\[\]"]/, '').split(',').map(&:strip)
   end
