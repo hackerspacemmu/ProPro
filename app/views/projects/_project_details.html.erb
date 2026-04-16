@@ -125,8 +125,14 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
 
-              <% fields.zip(next_fields).each do |current_field, next_field| %>
-                <% field_name = (current_field || next_field).project_template_field.label %>
+              <% all_field_ids =
+                (fields.to_a + next_fields.to_a).map(&:project_template_field_id).uniq.sort %>
+
+              <% all_field_ids.each do |field_id| %>
+                <% current_field = fields.find { |f| f.project_template_field_id == field_id }
+                next_field = next_fields.find { |f| f.project_template_field_id == field_id }
+
+                field_name = (current_field || next_field).project_template_field.label %>
 
                 <% normalize = ->(text) do
                   text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]")
@@ -157,7 +163,6 @@
                     <% raw_old = render_markdown(current_field&.value.to_s)
                     raw_new = render_markdown(next_field&.value.to_s)
 
-                    # 2. Identity Branding: Brand the <li> tags before Nokogiri destroys the wrappers
                     brand_lists = ->(html) do
                       html =
                         html
