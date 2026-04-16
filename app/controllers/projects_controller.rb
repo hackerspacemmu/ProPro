@@ -89,6 +89,8 @@ class ProjectsController < ApplicationController
       @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
     end
 
+    @use_lecturer_index = @lecturers.count > Rails.application.config.supervisors_threshold
+
     @field_values = {}
 
     if params[:topic_id].present?
@@ -99,7 +101,7 @@ class ProjectsController < ApplicationController
             h[f.project_template_field_id.to_i] = f.value
           end
       end
-    elsif params[:lecturer_id].present?
+    elsif params[:lecturer_id].present? && @use_lecturer_index
       @selected_lecturer = @course.lecturers.find_by(id: params[:lecturer_id])
     end
   end
@@ -143,21 +145,20 @@ class ProjectsController < ApplicationController
           raise StandardError, 'You already have a project' if has_project
         end
 
-        topic = Topic.find_by(id: params[:based_on_topic], course: @course) if params[:based_on_topic].present?
-        lecturer_id = params[:lecturer_id].presence
-
-        raise StandardError, 'Please choose a lecturer or topic' if topic.nil? && lecturer_id.nil?
-
-        if topic
-          topic_owner = topic.owner
-          raise StandardError, 'Topic has no valid owner' unless topic_owner.is_a?(User)
-
-          supervisor_enrolment = Enrolment.find_by(user_id: topic_owner.id, course_id: @course.id, role: :lecturer)
-          raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
-        else
-          supervisor_enrolment = Enrolment.find_by(user_id: lecturer_id, course_id: @course.id, role: :lecturer)
-          raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
-        end
+           raise StandardError, 'Please choose a lecturer or topic' if params[:based_on_topic].blank?
+          
+          if params[:based_on_topic].start_with?('own_proposal_')
+            enrolment_id = params[:based_on_topic][13...]
+            supervisor_enrolment = Enrolment.find_by(id: enrolment_id, course_id: @course.id, role: :lecturer)
+            raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
+            topic = nil
+          else
+            topic = Topic.find_by(id: params[:based_on_topic], course: @course)
+            raise StandardError, 'Topic not found' unless topic
+            raise StandardError, 'Topic has no valid owner' unless topic.owner.is_a?(User)
+            supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
+            raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
+          end
 
         @project = Project.create!(
           course: @course,
@@ -249,11 +250,9 @@ class ProjectsController < ApplicationController
           field.save!
         end
 
-        unless params[:based_on_topic].present?
-          raise StandardError, 'Please choose a lecturer or topic'
-        end
+        raise StandardError, 'Please choose a lecturer or topic' if params[:based_on_topic].blank?
 
-        if params[:based_on_topic].include? "own_proposal_"
+        if params[:based_on_topic].start_with?('own_proposal_')
           lecturer_id = params[:based_on_topic][13...]
         else
           topic = Topic.find_by(id: params[:based_on_topic], course: @course)

@@ -66,17 +66,15 @@
         <%= form_with url: course_projects_path(@course), method: :post, class: "space-y-8",
             data: { controller: "proposal-selection" } do |form| %>
 
-          <%= form.hidden_field :lecturer_id,
-              value: @selected_lecturer&.id,
-              id: "hidden_lecturer_id",
-              data: { proposal_selection_target: "hiddenLecturerId" } %>
+            <%= form.hidden_field :based_on_topic,
+                value: if @selected_topic.present?
+                          @selected_topic.id
+                        elsif @selected_lecturer_enrolment.present?
+                          "own_proposal_#{@selected_lecturer_enrolment.id}"
+                        end,
+                id: "hidden_based_on_topic",
+                data: { proposal_selection_target: "hiddenBasedOnTopic" } %>
 
-          <%= form.hidden_field :based_on_topic,
-              value: @selected_topic&.id,
-              id: "hidden_topic_id",
-              data: { proposal_selection_target: "hiddenTopicId" } %>
-
-          <%# Reusable input class definition %>
           <% input_classes =
             "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
 
@@ -84,97 +82,192 @@
           <div class="border border-gray-200 rounded-2xl bg-white p-6 space-y-6">
 
             <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-3">
-              Start your proposal
+              PROPOSAL METHOD
             </label>
             <p class="text-xs text-gray-500 mb-3">
               Choose <span class="font-semibold">one</span> option below to start your proposal.
             </p>
 
             <%# Based on lecturer %>
-            <div id="lecturer-panel" 
-                 data-proposal-selection-target="lecturerPanel"
-                 class="border border-gray-200 rounded-xl bg-gray-50 p-5">
-                 
-              <div class="flex items-center justify-between gap-3 mb-4">
+            <% if @use_lecturer_index %>
+              <div
+                id="lecturer-panel"
+                data-proposal-selection-target="lecturerPanel"
+                class="
+                  border border-gray-200 rounded-xl bg-gray-50 p-5 space-y-4
+                "
+              >
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div class="flex items-start gap-3 min-w-0">
+                    <div class="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
 
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <div class="min-w-0">
+                      <p class="text-sm font-bold text-gray-800">Lecturer</p>
+
+                      <% if @selected_lecturer %>
+                        <p class="text-xs text-gray-500">
+                          This lecturer has been pre-selected below.
+                        </p>
+                      <% else %>
+                        <p class="text-xs text-gray-500">
+                          <span class="font-bold text-red-600">Warning:</span>
+                          Selecting a lecturer will overwrite any details already filled in.
+                        </p>
+                      <% end %>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-bold text-gray-800">Choose a Lecturer</p>
-                    <p class="text-xs text-gray-500">Submit your proposal directly to a lecturer.</p>
-                  </div>
+
+                  <% if @selected_lecturer %>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <%= link_to new_course_project_path(@course),
+                          class: "inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm" do %>
+                        Unselect lecturer
+                      <% end %>
+
+                      <%= link_to course_lecturers_path(@course, from_new_project: true),
+                          onclick: "return confirm('You\\'ll lose your current form data. Continue?');",
+                          class: "inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm" do %>
+                        Change lecturer
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <%= link_to course_lecturers_path(@course, from_new_project: true),
+                        class: "inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm" do %>
+                      View all lecturers
+                    <% end %>
+                  <% end %>
                 </div>
 
                 <% if @selected_lecturer %>
-                  <button
-                    type="button"
-                    data-action="proposal-selection#clearLecturer"
-                    class="shrink-0 text-xs text-gray-500 hover:text-red-600 hover:underline transition-colors"
-                  >
-                    Clear
-                  </button>
-                <% end %>
-              </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
+                    
+                    <div class="border border-gray-200 rounded-xl bg-white p-5 shadow-sm">
+                      
+                      <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-[#d9d9d9] rounded-full flex items-center justify-center text-base font-semibold text-gray-700 shrink-0">
+                          <%= @selected_lecturer.name.first.upcase %>
+                        </div>
 
-              <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 list-none p-0 m-0">
-                <% @lecturers.each do |lecturer| %>
-                  <% capacity_info = @lecturer_capacity_info[lecturer.id] %>
-                  <% is_full = capacity_info[:is_at_capacity] %>
-                  <% is_selected = @selected_lecturer&.id == lecturer.id %>
-                  <li>
-                    <% if is_full %>
-                      <div class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
-                        <div class="w-9 h-9 bg-[#d9d9d9] rounded-full shrink-0 flex items-center justify-center text-sm font-medium text-gray-700">
-                          <%= lecturer.name.first.upcase %>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <p class="text-sm font-semibold text-gray-800 truncate"><%= lecturer.name %></p>
-                          <p class="text-xs text-gray-500">
-                            <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %> approved
-                            <span class="text-red-500 font-medium ml-1">· full</span>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-base font-semibold text-gray-900 truncate">
+                            <%= @selected_lecturer.name %>
                           </p>
-                        </div>
-                      </div>
-                    <% else %>
-                      <button
-                        type="button"
-                        class="w-full text-left flex items-center gap-3 p-3 bg-white border rounded-lg transition-colors <%= is_selected ? 'border-blue-400 ring-2 ring-blue-100' : 'border-gray-200 hover:border-gray-400' %>"
-                        data-lecturer-id="<%= lecturer.id %>"
-                        data-action="proposal-selection#selectLecturer"
-                        data-selected="<%= is_selected %>"
-                      >
-                        <div class="w-9 h-9 bg-[#d9d9d9] rounded-full shrink-0 flex items-center justify-center text-sm font-medium text-gray-700">
-                          <%= lecturer.name.first.upcase %>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <p class="text-sm font-semibold text-gray-800 truncate"><%= lecturer.name %></p>
-                          <p class="text-xs text-gray-500">
+
+                          <% capacity_info = @lecturer_capacity_info[@selected_lecturer.id] %>
+
+                          <p class="text-sm text-gray-500">
                             <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %> approved
+
                             <% if capacity_info[:pending_proposals] > 0 %>
-                              <span class="text-amber-600 ml-1">· <%= capacity_info[:pending_proposals] %> pending</span>
+                              <span class="text-amber-600 ml-1">
+                                · <%= capacity_info[:pending_proposals] %> pending
+                              </span>
                             <% end %>
                           </p>
                         </div>
-                        <svg
-                          class="w-4 h-4 text-blue-500 shrink-0 <%= is_selected ? '' : 'hidden' %>"
-                          data-selected-check
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                    <% end %>
-                  </li>
-                <% end %>
-              </ul>
+                      </div>
 
-            </div>
+                    </div>
+
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div
+                id="lecturer-panel"
+                data-proposal-selection-target="lecturerPanel"
+                class="
+                  border border-gray-200 rounded-xl bg-gray-50 p-5 space-y-4
+                "
+              >
+                  
+                <div class="flex items-center justify-between gap-3 mb-4">
+
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
+                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-gray-800">Choose a Lecturer</p>
+                      <p class="text-xs text-gray-500">Submit your proposal directly to a lecturer.</p>
+                    </div>
+                  </div>
+
+                  <% if @selected_lecturer %>
+                    <button
+                      type="button"
+                      data-action="proposal-selection#clearLecturer"
+                      class="shrink-0 text-xs text-gray-500 hover:text-red-600 hover:underline transition-colors"
+                    >
+                      Clear
+                    </button>
+                  <% end %>
+                </div>
+
+                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 list-none p-0 m-0">
+                  <%# MOVE BUSINESS LOGIC TO MODELS/CONTROLLER LATER%>
+                  <% @course.enrolments.where(role: :lecturer).includes(:user).each do |lecturer_enrolment| %>
+                    <% lecturer = lecturer_enrolment.user %>
+                    <% capacity_info = @lecturer_capacity_info[lecturer.id] %>
+                    <% is_full = capacity_info[:is_at_capacity] %>
+                    <% is_selected = @selected_lecturer&.id == lecturer.id %>
+                    <li>
+                      <% if is_full %>
+                        <div class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
+                          <div class="w-9 h-9 bg-[#d9d9d9] rounded-full shrink-0 flex items-center justify-center text-sm font-medium text-gray-700">
+                            <%= lecturer.name.first.upcase %>
+                          </div>
+                          <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-gray-800 truncate"><%= lecturer.name %></p>
+                            <p class="text-xs text-gray-500">
+                              <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %> approved
+                              <span class="text-red-500 font-medium ml-1">· full</span>
+                            </p>
+                          </div>
+                        </div>
+                      <% else %>
+                        <button
+                          type="button"
+                          class="w-full text-left flex items-center gap-3 p-3 bg-white border rounded-lg transition-colors <%= is_selected ? 'border-blue-400 ring-2 ring-blue-100' : 'border-gray-200 hover:border-gray-400' %>"
+                          data-enrolment-id="<%= lecturer_enrolment.id %>"
+                          data-action="proposal-selection#selectLecturer"
+                          data-selected="<%= is_selected %>"
+                        >
+                          <div class="w-9 h-9 bg-[#d9d9d9] rounded-full shrink-0 flex items-center justify-center text-sm font-medium text-gray-700">
+                            <%= lecturer.name.first.upcase %>
+                          </div>
+                          <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-gray-800 truncate"><%= lecturer.name %></p>
+                            <p class="text-xs text-gray-500">
+                              <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %> approved
+                              <% if capacity_info[:pending_proposals] > 0 %>
+                                <span class="text-amber-600 ml-1">· <%= capacity_info[:pending_proposals] %> pending</span>
+                              <% end %>
+                            </p>
+                          </div>
+                          <svg
+                            class="w-4 h-4 text-blue-500 shrink-0 <%= is_selected ? '' : 'hidden' %>"
+                            data-selected-check
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+
+              </div>
+            <% end %>
 
             <%# OR divider %>
             <div class="flex items-center justify-center my-4">
@@ -188,60 +281,59 @@
                  data-proposal-selection-target="topicPanel"
                  class="border border-gray-200 rounded-xl bg-gray-50 p-5 space-y-4">
                  
-              <div class="border border-gray-200 rounded-xl bg-gray-50 p-5 space-y-4">
-                <div class="flex items-start justify-between gap-4">
-                  <div class="flex items-start gap-3 min-w-0">
-                    <div class="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
-                      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-
-                    <div class="min-w-0">
-                      <p class="text-sm font-bold text-gray-800">Topic</p>
-
-                      <% if @selected_topic %>
-                        <p class="text-xs text-gray-500">
-                          This topic and its details have been pre-filled below.
-                        </p>
-                      <% else %>
-                        <p class="text-xs text-gray-500">
-                          <span class="font-bold text-red-600">Warning:</span>
-                          Selecting a topic will overwrite any details already filled in.
-                        </p>
-                      <% end %>
-                    </div>
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-start gap-3 min-w-0">
+                  <div class="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
                   </div>
 
-                  <% if @selected_topic %>
-                    <div class="flex items-center gap-2">
-                      <%= link_to new_course_project_path(@course),
-                          class: "inline-flex shrink-0 items-center gap-1.5 px-4 py-2 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm" do %>
-                        Unselect topic
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      <% end %>
-                      
-                      <%= link_to course_topics_path(@course, from_new_project: true),
-                          onclick: "return confirm('You\\'ll lose your current form data. Continue?');",
-                          class: "inline-flex shrink-0 items-center gap-1.5 px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm" do %>
-                        Change topic
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                      <% end %>
+                  <div class="min-w-0">
+                    <p class="text-sm font-bold text-gray-800">Topic</p>
 
-                    </div>
-                  <% else %>
+                    <% if @selected_topic %>
+                      <p class="text-xs text-gray-500">
+                        This topic and its details have been pre-filled below.
+                      </p>
+                    <% else %>
+                      <p class="text-xs text-gray-500">
+                        <span class="font-bold text-red-600">Warning:</span>
+                        Selecting a topic will overwrite any details already filled in.
+                      </p>
+                    <% end %>
+                  </div>
+                </div>
+
+                <% if @selected_topic %>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <%= link_to new_course_project_path(@course),
+                        class: "inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm" do %>
+                      Unselect topic
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    <% end %>
+                    
                     <%= link_to course_topics_path(@course, from_new_project: true),
-                        class: "inline-flex shrink-0 items-center gap-1.5 px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm" do %>
-                      View all topics
+                        onclick: "return confirm('You\\'ll lose your current form data. Continue?');",
+                        class: "inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm" do %>
+                      Change topic
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                       </svg>
                     <% end %>
+
+                  </div>
+                <% else %>
+                  <%= link_to course_topics_path(@course, from_new_project: true),
+                      class: "inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm" do %>
+                    View all topics
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
                   <% end %>
+                <% end %>
                 </div>
 
                 <%# Selected topic card %>
@@ -251,7 +343,6 @@
                     </div>
 
                 <% end %>
-              </div>
             </div>
 
           </div>

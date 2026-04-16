@@ -1,38 +1,35 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["lecturerPanel", "topicPanel", "hiddenLecturerId", "hiddenTopicId"]
+  static targets = ["lecturerPanel", "topicPanel", "hiddenBasedOnTopic"]
 
   connect() {
     // Restore initial state from server-rendered hidden fields on page load
-    const lecturerId = this.hiddenLecturerIdTarget.value
-    const topicId = this.hiddenTopicIdTarget.value
-
-    if (lecturerId) {
+    const basedOnTopic = this.hiddenBasedOnTopicTarget.value
+    if (basedOnTopic.startsWith('own_proposal_')) {
       this.#disablePanel(this.topicPanelTarget)
-    } else if (topicId) {
+    } else if (basedOnTopic) {
       this.#disablePanel(this.lecturerPanelTarget)
     }
   }
 
   selectLecturer(event) {
     const button = event.currentTarget
-    const lecturerId = button.dataset.lecturerId
-    const isAlreadySelected = this.hiddenLecturerIdTarget.value === lecturerId
+    const enrolmentId = button.dataset.enrolmentId
+    const isAlreadySelected = this.hiddenBasedOnTopicTarget.value === `own_proposal_${enrolmentId}`
 
     if (isAlreadySelected) {
       // Deselect
-      this.hiddenLecturerIdTarget.value = ""
+      this.hiddenBasedOnTopicTarget.value = ""
       this.#markSelected(button, false)
       this.#enablePanel(this.topicPanelTarget)
     } else {
       // Warn if topic is already selected
-      if (this.hiddenTopicIdTarget.value) {
+      if (this.hiddenBasedOnTopicTarget.value && !this.hiddenBasedOnTopicTarget.value.startsWith('own_proposal_')) {
         if (!confirm("You'll lose your selected topic. Continue?")) return
-        this.hiddenTopicIdTarget.value = ""
       }
 
-      this.hiddenLecturerIdTarget.value = lecturerId
+      this.hiddenBasedOnTopicTarget.value = `own_proposal_${enrolmentId}`
       this.#clearAllLecturerSelections()
       this.#markSelected(button, true)
       this.#disablePanel(this.topicPanelTarget)
@@ -43,7 +40,7 @@ export default class extends Controller {
   // Called by the "Clear" link next to the lecturer heading
   clearLecturer(event) {
     event.preventDefault()
-    this.hiddenLecturerIdTarget.value = ""
+    this.hiddenBasedOnTopicTarget.value = ""
     this.#clearAllLecturerSelections()
     this.#enablePanel(this.topicPanelTarget)
   }
@@ -52,7 +49,7 @@ export default class extends Controller {
 
   #clearAllLecturerSelections() {
     this.lecturerPanelTarget
-      .querySelectorAll("button[data-lecturer-id]")
+      .querySelectorAll("button[data-enrolment-id]")
       .forEach(btn => this.#markSelected(btn, false))
   }
 

@@ -135,7 +135,21 @@ end
 
 crumb :lecturer do |course, lecturer|
   link lecturer.name, course_lecturer_path(course, lecturer)
-  parent :course, course
+
+  if params[:from_new_project]
+    parent :lecturers, course
+  else
+    parent :course, course
+  end
+end
+
+crumb :lecturers do |course|
+  link 'Lecturers', course_lecturers_path(course)
+  if params[:from_new_project]
+    parent :new_project, course
+  else
+    parent :course, course
+  end
 end
 
 crumb :topic do |topic|

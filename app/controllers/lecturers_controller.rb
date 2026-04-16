@@ -1,7 +1,14 @@
 class LecturersController < ApplicationController
   before_action :set_course
 
-  def index; end
+  def index
+    @lecturers = @course.lecturers
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    end
+    @from_new_project = params[:from_new_project].present?
+  end
 
   def show
     @lecturers = @course.lecturers
