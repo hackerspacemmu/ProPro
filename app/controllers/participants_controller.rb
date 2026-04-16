@@ -5,13 +5,13 @@ class ParticipantsController < ApplicationController
 
     # query for all projects_instances, owner_type and owner_id for participants table
     @course.projects.includes(project_instances: { enrolment: :user }).load
-    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id]
+    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     @student_list = @course.students
 
     if @course.grouped?
       @group_list = @course.project_groups.includes(project_group_members: :user).to_a
-    else 
+    else
       @group_list = []
     end
 
@@ -32,7 +32,6 @@ class ParticipantsController < ApplicationController
     end
 
     @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
-    end
   end
 
   private
