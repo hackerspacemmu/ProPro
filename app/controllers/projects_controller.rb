@@ -205,7 +205,7 @@ class ProjectsController < ApplicationController
     redirect_to course_project_path(@course, @project), notice: 'Project created!'
   end
 
-  def update
+def update
     authorize @project || Project.new(course: @course)
     is_approved = @project.approved?
 
@@ -245,6 +245,10 @@ class ProjectsController < ApplicationController
 
           field = @instance.project_instance_fields.find { |f| f.project_template_field_id == field_id.to_i }
 
+          if field.nil?
+            field = @instance.project_instance_fields.build(project_template_field_id: field_id.to_i)
+          end
+
           field.value = value
           field.save!
         end
@@ -262,7 +266,7 @@ class ProjectsController < ApplicationController
         if topic
           raise StandardError, 'Topic has no valid owner' unless topic.owner.is_a?(User)
           supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
-          
+
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
           @instance.update!(source_topic: topic, supervisor_enrolment: supervisor_enrolment)
         else
@@ -272,7 +276,7 @@ class ProjectsController < ApplicationController
           @instance.update!(source_topic_id: nil, supervisor_enrolment: supervisor_enrolment)
         end
 
-        end
+      end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
       return
