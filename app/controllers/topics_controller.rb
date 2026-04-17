@@ -1,6 +1,7 @@
 class TopicsController < ApplicationController
   before_action :set_course
   before_action :set_topic, only: %i[show edit update destroy change_status]
+  before_action :toggle_topics
 
   def index
     @topics = policy_scope(@course.topics)
@@ -215,6 +216,13 @@ class TopicsController < ApplicationController
 
   def set_course
     @course = Course.find(params[:course_id])
+  end
+
+  def toggle_topics
+
+    unless @course.toggle_topics
+      redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
+    end
   end
 
   def set_topic

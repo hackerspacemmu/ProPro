@@ -12,9 +12,16 @@
     <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
     <%= sidebar_link "My Student Projects", "#my-student-projects" %>
     <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
-    <%= sidebar_link "My Topics", "#my-topics" %>
+
+    <% if @course.toggle_topics %>
+      <%= sidebar_link "My Topics", "#my-topics" %>
+    <% end %>
+
     <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
-    <%= sidebar_link "Incoming Topics", "#incoming-topics" %>
+
+    <% if @course.toggle_topics %>
+      <%= sidebar_link "Incoming Topics", "#incoming-topics" %>
+    <% end %>
     <%= sidebar_link "Participants", "#participants" %>
 
     <div class="py-2">
@@ -34,7 +41,10 @@
     <%= sidebar_link "My Student Projects", "#my-student-projects" %>
     <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
     <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
-    <%= sidebar_link "My Topics", "#my-topics" %>
+
+    <% if @course.toggle_topics %>
+      <%= sidebar_link "My Topics", "#my-topics" %>
+    <% end %>
     <%= sidebar_link "Participants", "#participants" %>
   <% end %>
 
