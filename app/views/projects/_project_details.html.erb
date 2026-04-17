@@ -6,7 +6,8 @@
       overflow-hidden
     "
   >
-    <% fields.each do |field| %>
+    <% sorted_fields = fields.sort_by { |f| f.project_template_field&.position || 0 } %>
+    <% sorted_fields.each do |field| %>
 
       <div
         class="
