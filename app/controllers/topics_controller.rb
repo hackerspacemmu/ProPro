@@ -28,6 +28,13 @@ class TopicsController < ApplicationController
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
     @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
+    @project = if @course.grouped?
+      group = current_user.project_groups.find_by(course: @course)
+      @course.projects.find_by(owner: group) if group
+    else
+      @course.projects.find_by(owner: current_user)
+    end
+
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
 

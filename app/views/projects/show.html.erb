@@ -126,7 +126,7 @@
         course: @course,
         instances: @instances %>
 
-        <%# -- MOBILE-ONLY-PROJECT-ACTION, hidden on xl and up -- %>
+        <%# -- MOBILE-ONLY-PROJECT-ACTION, (to push project-actions before projects on mobile xl and below) -- %>
         <% if policy(@project).update? || @current_version != @latest_version %>
           <section
             class="

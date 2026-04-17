@@ -36,10 +36,6 @@ class CoursePolicy < ApplicationPolicy
     coordinator && record.coordinators.count > 1
   end
 
-  def propose_own_topic?
-    student && !student_has_project?
-  end
-
   # LECTURER PROFILE ACCESS
   def unrestricted_lecturer_access?(lecturer)
     coordinator ||

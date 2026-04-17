@@ -28,6 +28,14 @@ class LecturersController < ApplicationController
       redirect_to course_lecturers_path(@course), alert: 'Not a lecturer.'
       return
     end
+    
+    # set current user's projects for Propose to Lecturer 
+    @project = if @course.grouped?
+      group = current_user.project_groups.find_by(course: @course)
+      @course.projects.find_by(owner: group) if group
+    else
+      @course.projects.find_by(owner: current_user)
+    end
 
     set_supervised_projects
     set_lecturer_topics

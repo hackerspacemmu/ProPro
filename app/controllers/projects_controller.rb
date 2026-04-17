@@ -82,17 +82,16 @@ class ProjectsController < ApplicationController
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
-    # Choose Supervisor
+    # Show Supervisors
     @lecturers = @course.lecturers
     @lecturer_capacity_info = {}
     @lecturers.each do |lecturer|
       @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
     end
 
-    @use_lecturer_index = @lecturers.count > Rails.application.config.supervisors_threshold
-
     @field_values = {}
 
+    # Autofill selected topic's field values
     if params[:topic_id].present?
       @selected_topic = @course.topics.find_by(id: params[:topic_id])
       if @selected_topic
@@ -101,8 +100,13 @@ class ProjectsController < ApplicationController
             h[f.project_template_field_id.to_i] = f.value
           end
       end
-    elsif params[:lecturer_id].present? && @use_lecturer_index
+    elsif params[:lecturer_id].present?
       @selected_lecturer = @course.lecturers.find_by(id: params[:lecturer_id])
+      if @selected_lecturer
+        @selected_lecturer_enrolment = @course.enrolments.find_by(
+          user: @selected_lecturer, role: :lecturer
+        )
+      end
     end
   end
 
@@ -118,12 +122,55 @@ class ProjectsController < ApplicationController
     end
 
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
+    
+    # Show Supervisors
+    @lecturers = @course.lecturers
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    end
 
-    # Optionally preselect topic or own proposal
+    # Load existing selected Topic_id or lecturer
     if @instance.source_topic_id.nil?
       @selected_own_proposal_lecturer_id = @instance.enrolment_id
+      enrolment = Enrolment.find_by(id: @selected_own_proposal_lecturer_id)
+      @selected_lecturer = enrolment&.user
     else
       @selected_topic_id = @instance.source_topic_id
+      @selected_topic = @course.topics.find_by(id: @selected_topic_id)
+    end
+  
+    # Propose to Lecturer (Own Proposal or Topic Id)
+    if params[:lecturer_id].present?
+      @selected_lecturer = @course.lecturers.find_by(id: params[:lecturer_id])
+      if @selected_lecturer
+        @selected_own_proposal_lecturer_id = @course.enrolments
+          .find_by(user: @selected_lecturer, role: :lecturer)&.id
+        @selected_topic_id = nil
+        @selected_topic = nil
+        @existing_values = {}
+      end
+    elsif params[:topic_id].present?
+      @selected_topic = @course.topics.find_by(id: params[:topic_id])
+      if @selected_topic
+        latest_instance = @selected_topic.current_instance
+        @existing_values = latest_instance.project_instance_fields.each_with_object({}) do |f, h|
+          h[f.project_template_field_id.to_i] = f.value
+        end
+        @selected_topic_id = @selected_topic.id
+        @selected_own_proposal_lecturer_id = nil
+        @selected_lecturer = nil
+      end
+
+    elsif params[:clear_topic].present?
+      @selected_topic_id = nil
+      @selected_topic = nil
+      @selected_own_proposal_lecturer_id = nil
+      @selected_lecturer = nil
+
+    elsif params[:clear_lecturer].present?
+      @selected_lecturer = nil
+      @selected_own_proposal_lecturer_id = nil
     end
   end
 
