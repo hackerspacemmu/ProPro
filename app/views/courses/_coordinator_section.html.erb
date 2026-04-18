@@ -1,31 +1,34 @@
 <% container_classes =
   "border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5" %>
-<section id="my-student-projects">
-  <div class="<%= container_classes %>">
-    <header>
-      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">My Student Projects</h4>
-      <p class="text-gray-500">Student projects currently under supervision</p>
-    </header>
-    <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-1">
-      <div
-        class="
-          grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
-        "
-      >
-        <% if my_student_projects.any? %>
-          <%= render partial: "project_card",
-          collection: my_student_projects,
-          as: :project,
-          locals: {
-            course: @course,
-          } %>
-        <% else %>
-          <p class="mt-1 col-span-full text-left">No approved student projects yet.</p>
-        <% end %>
+ 
+<% unless @course.solo_supervisor? %>
+  <section id="my-student-projects">
+    <div class="<%= container_classes %>">
+      <header>
+        <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">My Student Projects</h4>
+        <p class="text-gray-500">Student projects currently under supervision</p>
+      </header>
+      <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-1">
+        <div
+          class="
+            grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
+          "
+        >
+          <% if my_student_projects.any? %>
+            <%= render partial: "project_card",
+            collection: my_student_projects,
+            as: :project,
+            locals: {
+              course: @course,
+            } %>
+          <% else %>
+            <p class="mt-1 col-span-full text-left">No approved student projects yet.</p>
+          <% end %>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+<% end %>
 
 <section id="incoming-proposals">
   <div class="<%= container_classes %>">
@@ -156,7 +159,11 @@
 
 <section id="supervisors-available">
   <div class="<%= container_classes %>">
+  <% unless @course.solo_supervisor? %>
     <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Supervisors Available</h4>
+  <% else %>
+    <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Instructor:</h4>
+  <% end %>
     <ul
       class="
         list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5

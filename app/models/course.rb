@@ -143,6 +143,10 @@ class Course < ApplicationRecord
     end
   end
 
+  def solo_supervisor?
+    enrolments.where(role: [:lecturer, :coordinator] ).count < 3
+  end
+
   private
 
   def null_number_of_updates_if_not_used

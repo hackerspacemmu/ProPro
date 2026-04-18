@@ -13,7 +13,11 @@
 <section id="supervisors-available">
   <div class="<%= container_classes %>">
     <header>
+    <% unless @course.solo_supervisor? %>
       <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Supervisors Available</h4>
+    <% else %>
+      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Instructor:</h4>
+    <% end %>
     </header>
     <ul
       class="

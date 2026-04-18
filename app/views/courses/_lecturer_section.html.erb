@@ -1,24 +1,26 @@
 <% container_classes =
   "border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5" %>
 
-<section id="my-student-projects">
-  <div class="<%= container_classes %>">
-    <header>
-      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">My Student Projects</h4>
-      <p class="text-gray-500">Approved student projects currently under your supervision</p>
-    </header>
+<% unless @course.solo_supervisor? %>
+  <section id="my-student-projects">
+    <div class="<%= container_classes %>">
+      <header>
+        <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">My Student Projects</h4>
+        <p class="text-gray-500">Approved student projects currently under your supervision</p>
+      </header>
 
-    <div class="mt-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        <% if my_student_projects.any? %>
-          <%= render partial: "project_card", collection: my_student_projects, as: :project %>
-        <% else %>
-          <p class="col-span-full text-left text-gray-500">No approved student projects yet.</p>
-        <% end %>
+      <div class="mt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          <% if my_student_projects.any? %>
+            <%= render partial: "project_card", collection: my_student_projects, as: :project %>
+          <% else %>
+            <p class="col-span-full text-left text-gray-500">No approved student projects yet.</p>
+          <% end %>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+<% end %>
 
 <section id="incoming-proposals">
   <div class="<%= container_classes %>">

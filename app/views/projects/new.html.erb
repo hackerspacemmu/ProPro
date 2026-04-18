@@ -67,12 +67,14 @@
           <% input_classes =
             "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
 
-          <%= render "proposal_method",
+          <% if @course.toggle_topics && !@course.solo_supervisor? %>
+            <%= render "proposal_method",
               course: @course,
               selected_lecturer: @selected_lecturer,
               selected_topic: @selected_topic,
               selected_own_proposal_lecturer_id: @selected_lecturer_enrolment&.id,
               lecturer_capacity_info: @lecturer_capacity_info %>
+            <% end %>
 
           <%= render 'project_new',
               template_fields: @template_fields,
