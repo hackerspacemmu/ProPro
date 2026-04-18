@@ -61,6 +61,8 @@ crumb :topics do |course|
   link 'Topics', course_topics_path(course)
   if params[:from_new_project]
     parent :new_project, course
+  elsif params[:from_edit_project]
+    parent :edit_project, Course.find(params[:course_id]).projects.find(params[:project_id])
   else
     parent :course, course
   end
@@ -135,7 +137,23 @@ end
 
 crumb :lecturer do |course, lecturer|
   link lecturer.name, course_lecturer_path(course, lecturer)
-  parent :course, course
+
+  if params[:from_new_project]
+    parent :lecturers, course
+  else
+    parent :course, course
+  end
+end
+
+crumb :lecturers do |course|
+  link 'Lecturers', course_lecturers_path(course)
+  if params[:from_new_project]
+    parent :new_project, course
+  elsif params[:from_edit_project]
+    parent :edit_project, Course.find(params[:course_id]).projects.find(params[:project_id])
+  else
+    parent :course, course
+  end
 end
 
 crumb :topic do |topic|

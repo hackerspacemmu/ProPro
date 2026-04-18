@@ -2,7 +2,6 @@
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 <% content_for :hide_toggler, true %>
-
 <% breadcrumb :edit_project, @project %>
 <% content_for :title,
 "Edit Proposal - #{@project.current_title.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
@@ -65,102 +64,22 @@
       <div class="p-5 sm:p-8 md:p-10">
         <%= form_with(model: [@course, @project], url: course_project_path(@course, @project), method: :patch, local: true, class: "space-y-8") do |form| %>
 
-          <%# reusable input class definition %>
           <% input_classes =
             "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
-          
-          <% is_project_approved = @project.approved? %>
-          <% is_topic_readonly = is_project_approved %>
 
-          <div class="flex flex-col group">
-            <% if @course.toggle_topics %>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-                Based on Topic
-              </label>
-            <% else %>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-                Chosen Supervisor
-              </label>
-            <% end %>
+          <%= render "proposal_method",
+              course: @course,
+              selected_lecturer: @selected_lecturer,
+              selected_topic: @selected_topic,
+              selected_own_proposal_lecturer_id: @selected_own_proposal_lecturer_id,
+              lecturer_capacity_info: @lecturer_capacity_info,
+              project: @project,
+              readonly: @project.approved? %>
 
-            <% if !is_topic_readonly && @course.toggle_topics %>
-              <p class="mb-3">
-                <span class="text-[11px] sm:text-xs font-bold text-red-600">Warning:</span>
-                <span class="text-[11px] sm:text-xs text-gray-700">Switching topics will overwrite existing field data.</span>
-              </p>
-            <% end %>
-
-            <div class="relative">
-              <select
-                name="based_on_topic"
-                class="<%= input_classes %> appearance-none pr-10 <%= 'opacity-60 bg-gray-100 cursor-not-allowed shadow-none' if is_topic_readonly %>"
-                <%= is_topic_readonly ? 'disabled' : 'required' %>
-                hx-get="<%= selected_topic_edit_course_projects_path(@course) %>"
-                hx-trigger="change"
-                hx-target="#template-fields-edit-container"
-                hx-swap="outerHTML"
-                hx-include="[name='based_on_topic']"
-                >
-                
-                <% if @selected_topic_id.nil? && @selected_own_proposal_lecturer_id.nil? %>
-                  <option value="" selected disabled>-- Select a Topic --</option>
-                <% end %>
-                <% @lecturer_options.each do |lecturer_enrolment| %>
-                  <% lecturer = lecturer_enrolment.user %>
-                  <optgroup label="<%= lecturer.name %>" class="font-bold text-gray-900">
-                    <% approved_topics =
-                      Topic.where(
-                        status: :approved,
-                        course: @course,
-                        owner_type: "User",
-                        owner_id: lecturer.id,
-                      ) %>
-                      
-                    <% if @course.toggle_topics %>  
-                      <% approved_topics.each do |topic| %>
-                        <% current_instance = topic.topic_instances.order(version: :desc).first %>
-                        <option
-                          value="<%= topic.id %>"
-                          <%= 'selected' if topic.id == @selected_topic_id %>
-                        >
-                          <%= "#{lecturer.name} - #{current_instance&.title || "Untitled Topic"}" %>
-                        </option>
-                      <% end %>
-                    <% end %>
-
-                    <option
-                      value="own_proposal_<%= lecturer_enrolment.id %>"
-                      <%= 'selected' if @selected_own_proposal_lecturer_id == lecturer_enrolment.id %>
-                      class="text-blue-600 font-medium"
-                    >
-                      <% if @course.toggle_topics %>
-                        <%= "#{lecturer.name} - Own Proposal" %>
-                      <% else %>
-                        <%= "#{lecturer.name}" %>
-                      <% end %>
-
-                    </option>
-                  </optgroup>
-                <% end %>
-              </select>
-
-              <% if is_topic_readonly %>
-                <% hidden_val = @selected_topic_id.present? ? @selected_topic_id : "own_proposal_#{@selected_own_proposal_lecturer_id}" %>
-                <%= hidden_field_tag :based_on_topic, hidden_val %>
-              <% end %>
-
-              <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <%= render 'project_edit', 
-          template_fields: @template_fields,
-          existing_values: @existing_values,
-          input_classes: input_classes %>
+          <%= render 'project_edit',
+              template_fields: @template_fields,
+              existing_values: @existing_values,
+              input_classes: input_classes %>
 
           <div
             class="
@@ -169,13 +88,13 @@
             "
           >
             <%= link_to "Cancel",
-            course_project_path(@course, @project),
-            class:
-              "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
+                course_project_path(@course, @project),
+                class:
+                  "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
 
             <%= submit_tag "Update Proposal",
-            class:
-              "w-full sm:w-auto cursor-pointer bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
+                class:
+                  "w-full sm:w-auto cursor-pointer bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
           </div>
 
         <% end %>

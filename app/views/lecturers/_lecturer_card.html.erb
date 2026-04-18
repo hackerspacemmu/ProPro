@@ -24,13 +24,12 @@
 
         <li>
           <%= link_to(
-                course_lecturer_path(
-                  @course, lecturer,
-                  from_new_project: params[:from_new_project],
-                  from_edit_project: params[:from_edit_project],
-                  project_id: params[:project_id]
-                ),
-                class: "flex flex-col gap-3 p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all"
+                course_lecturer_path(@course, lecturer, from_new_project: params[:from_new_project]),
+                class: "
+                  flex flex-col gap-3 p-5 bg-white border border-gray-200 rounded-xl
+                  hover:border-gray-300 hover:shadow-sm
+                  transition-all
+                "
               ) do %>
 
             <div
