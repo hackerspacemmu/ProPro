@@ -112,6 +112,10 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def has_existing_project?
-    course.projects.owned_by_user(user).exists?
+    user_groups = user.project_groups.where(course: course)
+
+    course.projects
+          .owned_by_user_or_groups(user, user_groups)
+          .exists?
   end
 end
