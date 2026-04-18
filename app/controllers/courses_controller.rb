@@ -239,7 +239,8 @@ class CoursesController < ApplicationController
       number_of_updates: params[:course][:number_of_updates],
       lecturer_access: params[:course][:lecturer_access],
       student_access: params[:course][:student_access],
-      file_link: params[:course][:file_link]
+      file_link: params[:course][:file_link],
+      toggle_topics: params[:course][:toggle_topics]
     )
 
     unless @course.save

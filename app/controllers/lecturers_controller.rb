@@ -1,7 +1,14 @@
 class LecturersController < ApplicationController
   before_action :set_course
 
-  def index; end
+  def index
+    @lecturers = @course.lecturers
+    @lecturer_capacity_info = {}
+    @lecturers.each do |lecturer|
+      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    end
+    @from_new_project = params[:from_new_project].present?
+  end
 
   def show
     @lecturers = @course.lecturers
@@ -20,6 +27,14 @@ class LecturersController < ApplicationController
     unless @enrolment&.role.in?(%w[lecturer coordinator])
       redirect_to course_lecturers_path(@course), alert: 'Not a lecturer.'
       return
+    end
+    
+    # set current user's projects for Propose to Lecturer 
+    @project = if @course.grouped?
+      group = current_user.project_groups.find_by(course: @course)
+      @course.projects.find_by(owner: group) if group
+    else
+      @course.projects.find_by(owner: current_user)
     end
 
     set_supervised_projects

@@ -1,6 +1,7 @@
 class TopicsController < ApplicationController
   before_action :set_course
   before_action :set_topic, only: %i[show edit update destroy change_status]
+  before_action :toggle_topics
 
   def index
     @topics = policy_scope(@course.topics)
@@ -27,6 +28,13 @@ class TopicsController < ApplicationController
     @status = @topic.current_instance&.status
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
     @is_student = @course.enrolments.exists?(user: current_user, role: :student)
+
+    @project = if @course.grouped?
+      group = current_user.project_groups.find_by(course: @course)
+      @course.projects.find_by(owner: group) if group
+    else
+      @course.projects.find_by(owner: current_user)
+    end
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
@@ -208,6 +216,13 @@ class TopicsController < ApplicationController
 
   def set_course
     @course = Course.find(params[:course_id])
+  end
+
+  def toggle_topics
+
+    unless @course.toggle_topics
+      redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
+    end
   end
 
   def set_topic
