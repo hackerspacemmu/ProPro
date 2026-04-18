@@ -6,36 +6,24 @@ export default class extends Controller {
 
   connect() {
     this.sortable = Sortable.create(this.element, {
+      draggable: ".field-row",
       handle: ".cursor-grab",
       animation: 150,
       ghostClass: "bg-blue-50",
-      onEnd: this.onEnd.bind(this)
+      onEnd: this.updatePositions.bind(this)
     })
   }
 
-  onEnd(event) {
-    const id = event.item.dataset.id
-    const newPosition = event.newIndex + 1 // acts_as_list uses 1-based indexing
+    updatePositions() {
+    const rows = this.element.querySelectorAll(".field-row")
+    
+    rows.forEach((row, index) => {
+        const positionInput = row.querySelector(".position-input")
+        if (positionInput) {
+        positionInput.value = index + 1
 
-    // If there's no ID (e.g., a newly added row not yet saved), skip
-    if (!id) return 
-
-    fetch(`/project_template_fields/${id}/move`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
-      },
-      body: JSON.stringify({
-        project_template_field: { position: newPosition }
-      })
+        positionInput.dispatchEvent(new Event("change", { bubbles: true }))
+        }
     })
-    .then(response => {
-      if (!response.ok) {
-        console.error("Failed to save new position")
-        // Optionally revert the UI if the server rejects the change
-        // window.location.reload()
-      }
-    })
-  }
+    }
 }

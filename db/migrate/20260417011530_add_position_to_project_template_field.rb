@@ -15,7 +15,7 @@ class AddPositionToProjectTemplateField < ActiveRecord::Migration[8.0]
     # Add constraints after population
     change_column_null :project_template_fields, :position, false
 
-    add_index :project_template_fields, [:project_template_id, :position], unique: true
+    add_index :project_template_fields, [:project_template_id, :position]
   end
 
   def down

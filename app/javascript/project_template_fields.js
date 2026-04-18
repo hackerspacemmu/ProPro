@@ -48,6 +48,11 @@ document.addEventListener("turbo:load", function () {
         data-field-index="${index}"
         data-controller="project-template-fields"
       >
+        <input type="hidden" 
+              name="project_template[project_template_fields_attributes][${index}][position]" 
+              value="${index+1}" 
+              class="position-input">
+
         <td class="block lg:table-cell px-6 lg:pl-16 lg:pr-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
           <div class="relative">
@@ -130,7 +135,6 @@ document.addEventListener("turbo:load", function () {
             <button
               type="button"
               class="minline-flex items-center text-xs text-gray-600 hover:text-gray-800 font-medium bg-gray-100 px-3 py-2 rounded-md transition-all flex-1 justify-center"
-              data-action="click->project-template-fields#moveUp"
             >
               <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
@@ -141,7 +145,6 @@ document.addEventListener("turbo:load", function () {
             <button
               type="button"
               class="inline-flex items-center text-xs text-gray-600 hover:text-gray-800 font-medium bg-gray-100 px-3 py-2 rounded-md transition-all flex-1 justify-center"
-              data-action="click->project-template-fields#moveDown"
             >
               <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
