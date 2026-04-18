@@ -74,9 +74,12 @@ class LecturersController < ApplicationController
 
   def set_supervised_projects
     if @lecturer_enrolment
-      projects = Pundit.policy_scope!(current_user, Project.where(course: @course))
-      @my_student_projects = projects.supervised_by(@lecturer_enrolment).approved
-      @incoming_proposals = projects.supervised_by(@lecturer_enrolment).proposals
+      @my_student_projects = Project.where(course: @course)
+                                    .supervised_by(@lecturer_enrolment)
+                                    .approved
+      @incoming_proposals = Project.where(course: @course)
+                                  .supervised_by(@lecturer_enrolment)
+                                  .proposals
     else
       @my_student_projects = []
       @incoming_proposals = []
@@ -86,8 +89,8 @@ class LecturersController < ApplicationController
   def set_lecturer_topics
     if @lecturer_enrolment
       topics = @course.topics.where(owner: @lecturer)
-      @approved_topics = policy_scope(topics).approved
-      @pending_topics = policy_scope(topics).proposals
+      @approved_topics = topics.approved
+      @pending_topics = topics.proposals
     else
       @approved_topics = []
       @pending_topics = []
