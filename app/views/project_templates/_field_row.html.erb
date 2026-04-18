@@ -5,6 +5,7 @@
     lg:table-row lg:border-none select-none
   "
   data-controller="project-template-fields"
+  data-is-project-title="<%= field_form.object.is_project_title? %>"
 >
   <%= field_form.hidden_field :position, class: "position-input" %>
 

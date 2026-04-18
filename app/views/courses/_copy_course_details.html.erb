@@ -119,7 +119,7 @@
       <% elsif mode == "template" %>
         <ul class="divide-y divide-gray-200">
           <% source.project_template.project_template_fields.each do |field| %>
-            <% next if field.label == "Project Title" %>
+            <% next if field.is_project_title? %>
 
             <li class="py-5 flex items-start gap-6">
               <div class="flex-shrink-0 mt-1">
