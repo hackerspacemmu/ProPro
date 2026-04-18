@@ -76,25 +76,27 @@
   </div>
 </section>
 
-<section id="supervisors-available">
-  <div class="<%= container_classes %>">
-    <header>
-      <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Supervisors Available</h4>
-    </header>
-    <ul
-      class="
-        list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5
-      "
-    >
-      <%= render partial: "lecturers",
-      collection: lecturers,
-      as: :lecturer,
-      locals: {
-        course: course,
-      } %>
-    </ul>
-  </div>
-</section>
+<% unless @course.solo_supervisor? %>
+  <section id="supervisors-available">
+    <div class="<%= container_classes %>">
+      <header>
+        <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Supervisors Available</h4>
+      </header>
+      <ul
+        class="
+          list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5
+        "
+      >
+        <%= render partial: "lecturers",
+        collection: lecturers,
+        as: :lecturer,
+        locals: {
+          course: course,
+        } %>
+      </ul>
+    </div>
+  </section>
+<% end %>
 
 <% if @course.toggle_topics %>
   <section id="my-topics">

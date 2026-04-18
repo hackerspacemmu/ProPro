@@ -27,12 +27,10 @@ class ProjectPolicy < ApplicationPolicy
     end
 
     def coordinator
-      return false if course.nil?
       course.enrolments.exists?(user: user, role: :coordinator)
     end
 
     def student
-      return false if course.nil?
       course.enrolments.exists?(user: user, role: :student)
     end
 
