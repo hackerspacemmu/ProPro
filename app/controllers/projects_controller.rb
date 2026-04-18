@@ -216,7 +216,7 @@ class ProjectsController < ApplicationController
         # Get title
         title_value = nil
         params[:fields]&.each do |field_id, value|
-          title_value = value if ProjectTemplateField.find(field_id).label.strip.downcase.include?('title')
+          title_value = value if ProjectTemplateField.find(field_id).is_project_title?
         end
 
         @instance = @project.project_instances.create!(

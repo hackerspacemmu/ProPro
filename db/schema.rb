@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_13_114848) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -137,6 +137,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_13_114848) do
     t.datetime "updated_at", null: false
     t.boolean "required", default: true
     t.boolean "free_edit", default: false, null: false
+    t.boolean "is_project_title", default: false, null: false
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end
 

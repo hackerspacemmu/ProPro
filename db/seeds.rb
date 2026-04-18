@@ -499,8 +499,8 @@ group_description_field = ProjectTemplateField.create!(
 )
 
 # Title fields are auto created via validation callback
-title_field_individual = individual_template.project_template_fields.find_by(label: 'Project Title')
-title_field_group = group_template.project_template_fields.find_by(label: 'Project Title')
+title_field_individual = individual_template.project_template_fields.find_by(is_project_title: true)
+title_field_group = group_template.project_template_fields.find_by(is_project_title: true)
 
 # Create Projects
 lecturer_1_topic_1 = Topic.create!(

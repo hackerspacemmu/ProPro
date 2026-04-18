@@ -44,9 +44,10 @@ document.addEventListener("turbo:load", function () {
   function createNewFieldHTML(index) {
     return `
       <tr
-        class="field-row group relative flex flex-col bg-white transition-colors hover:bg-gray-50/50 border-b border-gray-600 last-of-type:border-b-0 lg:table-row lg:border-none"
+        class="field-row group relative ..."
         data-field-index="${index}"
         data-controller="project-template-fields"
+        data-is-project-title="false"
       >
         <td class="block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
@@ -215,11 +216,7 @@ document.addEventListener("turbo:load", function () {
     if (!e.target.classList.contains("field-type-select")) return;
 
     const fieldRow = e.target.closest(".field-row");
-    const labelInput = fieldRow.querySelector(
-      'textarea[name*="[label]"], input[name*="[label]"]',
-    );
-    const isProjectTitle =
-      labelInput && labelInput.value.trim() === "Project Title";
+    const isProjectTitle = fieldRow.dataset.isProjectTitle === "true";
 
     if (isProjectTitle) return;
 
@@ -272,11 +269,7 @@ document.addEventListener("turbo:load", function () {
 
       const btn = e.target.closest(".remove-field");
       const fieldRow = btn.closest(".field-row");
-      const labelInput = fieldRow.querySelector(
-        'textarea[name*="[label]"], input[name*="[label]"]',
-      );
-      const isProjectTitle =
-        labelInput && labelInput.value.trim() === "Project Title";
+      const isProjectTitle = fieldRow.dataset.isProjectTitle === "true";
 
       if (isProjectTitle) {
         console.log("Cannot delete Project Title field");
@@ -349,10 +342,7 @@ document.addEventListener("turbo:load", function () {
 
   // Initial check to disable remove button on Project Title
   templateFields.querySelectorAll(".field-row").forEach((row) => {
-    const labelInput = row.querySelector(
-      'textarea[name*="[label]"], input[name*="[label]"]',
-    );
-    if (labelInput && labelInput.value.trim() === "Project Title") {
+    if (row.dataset.isProjectTitle === "true") {
       const btn = row.querySelector(".remove-field");
       if (btn) {
         btn.disabled = true;

@@ -7,13 +7,14 @@ class ProjectTemplate < ApplicationRecord
 
   private
 
+  # move the building to controllers, and just check if theres project_title and catch error
   def ensure_title_field
-    return if project_template_fields.any? { |f| f.label == 'Project Title' }
-
+    return if project_template_fields.any?(&:is_project_title?)
     project_template_fields.build(
       label: 'Project Title',
       field_type: 'shorttext',
-      applicable_to: 'both'
+      applicable_to: 'both',
+      is_project_title: true
     )
   end
 
