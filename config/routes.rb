@@ -77,7 +77,13 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :project_template, only: %i[edit update show]
+    resource :project_template, only: %i[edit update show] do
+      resources :project_template_fields, only: [] do
+        member do
+          patch :move
+        end
+      end
+    end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
