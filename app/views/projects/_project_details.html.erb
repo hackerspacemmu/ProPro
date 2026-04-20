@@ -128,8 +128,9 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
 
-              <% all_field_ids =
-                (fields.to_a + next_fields.to_a).map(&:project_template_field_id).uniq.sort %>
+              <% combined_fields = (fields.to_a + next_fields.to_a) %>
+              <% sorted_fields = combined_fields.uniq(&:project_template_field_id).sort_by { |f| f.project_template_field&.position || 0 } %>
+              <% all_field_ids = sorted_fields.map(&:project_template_field_id) %>
 
               <% all_field_ids.each do |field_id| %>
                 <% current_field = fields.find { |f| f.project_template_field_id == field_id }
