@@ -128,3 +128,19 @@
   text-decoration: none;
   font-weight: 500;
 }
+
+.sortable-chosen:not(.sortable-ghost) {
+  opacity: 0 !important;
+}
+
+.sortable-drag {
+  @apply !bg-white !shadow-2xl !ring-2 !ring-blue-500/50 !cursor-grabbing;
+  display: table !important; 
+  width: 100% !important;
+  opacity: 1 !important;
+  z-index: 9999;
+}
+
+.sortable-ghost {
+  @apply !bg-blue-50 !border-2 !border-dashed !border-blue-300;
+}

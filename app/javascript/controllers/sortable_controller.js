@@ -9,7 +9,10 @@ export default class extends Controller {
       draggable: ".field-row",
       handle: ".cursor-grab",
       animation: 150,
-      ghostClass: "bg-blue-50",
+      ghostClass: "opacity-25",
+      chosenClass: "sortable-chosen",
+      dragClass: "sortable-drag",
+      forceFallback: true,
       onEnd: this.updatePositions.bind(this)
     })
   }
