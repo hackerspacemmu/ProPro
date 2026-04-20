@@ -7,17 +7,24 @@ export default class extends Controller {
   connect() {
     this.sortable = Sortable.create(this.element, {
       draggable: ".field-row",
-      handle: ".cursor-grab",
+      handle: ".drag-handle",
       animation: 150,
       ghostClass: "opacity-25",
       chosenClass: "sortable-chosen",
       dragClass: "sortable-drag",
+      delay: 100,
+      delayOnTouchOnly: false,
+      touchStartThreshold: 3,
+      scroll: true,
+      forceAutoScroll: true,
+      scrollSensitivity: 100,
+      scrollSpeed: 20,
       forceFallback: true,
       onEnd: this.updatePositions.bind(this)
     })
   }
 
-    updatePositions() {
+  updatePositions() {
     const rows = this.element.querySelectorAll(".field-row")
     
     rows.forEach((row, index) => {
@@ -28,5 +35,5 @@ export default class extends Controller {
         positionInput.dispatchEvent(new Event("change", { bubbles: true }))
         }
     })
-    }
+  }
 }

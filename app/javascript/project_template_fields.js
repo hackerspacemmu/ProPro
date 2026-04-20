@@ -57,7 +57,8 @@ document.addEventListener("turbo:load", function () {
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
           <div class="relative">
             <div class="hidden lg:flex items-center justify-end absolute -left-12 top-1/2 -translate-y-1/2 w-11 h-8">
-              <div class="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 flex-shrink-0" title="Drag to reorder">          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <div class="drag-handle opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 flex-shrink-0" title="Drag to reorder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
                 </svg>
               </div>
@@ -131,26 +132,13 @@ document.addEventListener("turbo:load", function () {
             </button>
           </div>
 
-          <div class="lg:hidden mt-3 flex flex-col gap-2">
-            <button
-              type="button"
-              class="minline-flex items-center text-xs text-gray-600 hover:text-gray-800 font-medium bg-gray-100 px-3 py-2 rounded-md transition-all flex-1 justify-center"
-            >
-              <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          <div class="lg:hidden mt-3">
+            <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 bg-gray-50 active:bg-blue-50 active:border-blue-300 transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+              <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
               </svg>
-              Move Up
-            </button>
-
-            <button
-              type="button"
-              class="inline-flex items-center text-xs text-gray-600 hover:text-gray-800 font-medium bg-gray-100 px-3 py-2 rounded-md transition-all flex-1 justify-center"
-            >
-              <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-              Move Down
-            </button>
+              <span class="text-xs font-bold uppercase tracking-wider">Hold & Drag to Reorder</span>
+            </div>
           </div>
 
           <button type="button" class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-red-500 hover:text-red-700 font-medium bg-red-50 px-3 py-2 rounded-md">
