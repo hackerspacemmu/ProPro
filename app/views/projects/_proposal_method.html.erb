@@ -9,6 +9,7 @@
   <%if @course.solo_supervisor? %>  
     <% solo_id = course.enrolments.find_by(role: [:lecturer, :coordinator])&.id %>
   <% end %>
+
   <%= hidden_field_tag :based_on_topic,
   (selected_topic&.id || 
   (selected_own_proposal_lecturer_id.present? ? "own_proposal_#{selected_own_proposal_lecturer_id}" : 
@@ -103,7 +104,7 @@
   </div>
 
   
-  <% if @course.toggle_topics && !@course.solo_supervisor? %>
+  <% if @course.toggle_topics %>
     <%# OR divider %>
     <div class="flex items-center justify-center my-4">
       <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
