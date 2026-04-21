@@ -67,4 +67,12 @@ export default class extends Controller {
       this.editor = null;
     }
   }
+
+  setValue(event) {
+    const value = event.detail?.value || this.element.value;
+  
+    if (this.editor) {
+      this.editor.value(value);
+    }
+  }
 }

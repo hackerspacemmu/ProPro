@@ -78,7 +78,7 @@
           </thead>
 
           <%# --- Table Body --- %>
-          <tbody id="template-fields" class="bg-white divide-y divide-gray-100">
+          <tbody id="template-fields" class="bg-white divide-y divide-gray-100" data-controller="sortable">
             <%= form.fields_for :project_template_fields do |field_form| %>
               <%= render "field_row", field_form: field_form %>
             <% end %>

@@ -114,6 +114,7 @@
                   class: "#{input_classes} resize-none overflow-hidden",
                   data: {
                     controller: "markdown-editor",
+                    action: "text-editor:update->markdown-editor#setValue",
                   },
                   placeholder: field.hint,
                   required: field.required,
