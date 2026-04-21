@@ -209,6 +209,13 @@ class CoursesController < ApplicationController
         )
 
         default_template = @new_course.build_project_template
+        default_template.project_template_fields.build(
+          label: 'Project Title',
+          field_type: 'shorttext',
+          applicable_to: 'both',
+          is_project_title: true
+        )
+        raise StandardError, 'Template creation failed' unless default_template.save
 
         raise StandardError, 'Template creation failed' unless default_template.save
       end
