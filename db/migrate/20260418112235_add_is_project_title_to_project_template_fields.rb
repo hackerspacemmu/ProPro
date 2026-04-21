@@ -1,6 +1,8 @@
 class AddIsProjectTitleToProjectTemplateFields < ActiveRecord::Migration[8.0]
   def up
-    add_column :project_template_fields, :is_project_title, :boolean, default: false, null: false
+    unless column_exists?(:project_template_fields, :is_project_title)
+      add_column :project_template_fields, :is_project_title, :boolean, default: false, null: false
+    end
 
     ProjectTemplateField.unscoped
       .where(label: 'Project Title')

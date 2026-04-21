@@ -462,15 +462,25 @@ ProjectGroupMember.create!(
 )
 
 # Create Project Templates
-individual_template = ProjectTemplate.create!(
-  course: course_no_groups,
-  description: 'Individual project proposal template'
+individual_template = course_no_groups.build_project_template
+individual_template.project_template_fields.build(
+  label: 'Project Title',
+  field_type: 'shorttext',
+  applicable_to: 'both',
+  is_project_title: true
 )
+individual_template.save!
+title_field_individual = individual_template.project_template_fields.find_by(is_project_title: true)
 
-group_template = ProjectTemplate.create!(
-  course: course_with_groups,
-  description: 'Group project proposal template'
+group_template = course_with_groups.build_project_template
+group_template.project_template_fields.build(
+  label: 'Project Title',
+  field_type: 'shorttext',
+  applicable_to: 'both',
+  is_project_title: true
 )
+group_template.save!
+title_field_group = group_template.project_template_fields.find_by(is_project_title: true)
 
 # Create Project Template Fields
 
@@ -497,10 +507,6 @@ group_description_field = ProjectTemplateField.create!(
   label: 'Group Project Description',
   hint: 'Describe the group project scope and member responsibilities'
 )
-
-# Title fields are auto created via validation callback
-title_field_individual = individual_template.project_template_fields.find_by(is_project_title: true)
-title_field_group = group_template.project_template_fields.find_by(is_project_title: true)
 
 # Create Projects
 lecturer_1_topic_1 = Topic.create!(
