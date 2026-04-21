@@ -105,9 +105,7 @@ export default class extends Controller {
   }
 
   copyTopicsDetails(event) {
-    const selects = this.element.querySelectorAll(
-      "select[data-target-field-id]",
-    );
+    const selects = this.element.querySelectorAll("select[data-target-field-id]");
 
     selects.forEach((select) => {
       const targetId = select.dataset.targetFieldId;
@@ -131,6 +129,7 @@ export default class extends Controller {
         } else {
           mainInput.value = newValue;
           mainInput.dispatchEvent(new Event("input", { bubbles: true }));
+          mainInput.dispatchEvent(new CustomEvent("text-editor:update", { detail: { value: newValue }}));
         }
       }
     });

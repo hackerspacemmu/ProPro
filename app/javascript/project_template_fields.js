@@ -48,9 +48,33 @@ document.addEventListener("turbo:load", function () {
         data-field-index="${index}"
         data-controller="project-template-fields"
       >
-        <td class="block lg:table-cell px-6 lg:pl-12 lg:pr-6 py-5 whitespace-nowrap align-top">
+        <input type="hidden" 
+              name="project_template[project_template_fields_attributes][${index}][position]" 
+              value="${index+1}" 
+              class="position-input">
+
+        <td class="block lg:table-cell px-6 lg:pl-16 lg:pr-6 py-5 whitespace-nowrap align-top">
           <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
           <div class="relative">
+            <div class="hidden lg:flex items-center justify-end absolute -left-12 top-1/2 -translate-y-1/2 w-11 h-8">
+              <div class="drag-handle opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 flex-shrink-0" title="Drag to reorder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
+                </svg>
+              </div>
+
+              <button
+                type="button"
+                class="remove-field flex items-center justify-center w-8 h-8 text-gray-400 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-600 rounded-md transition-all flex-shrink-0"
+                title="Remove Field"
+                data-action="click->project-template-fields#remove"
+              >
+                <svg class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+
             <textarea
               name="project_template[project_template_fields_attributes][${index}][label]"
               placeholder="e.g. Project Title"
@@ -59,16 +83,6 @@ document.addEventListener("turbo:load", function () {
               data-controller="textarea-resize"
               data-action="input->textarea-resize#resize"
             ></textarea>
-
-            <button
-              type="button"
-              class="remove-field hidden lg:flex items-center justify-center absolute -left-10 top-1/2 -translate-y-1/2 w-8 h-8 text-gray-400 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-600 rounded-md transition-all"
-              title="Remove Field"
-            >
-              <svg class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
           </div>
         </td>
 
@@ -116,6 +130,15 @@ document.addEventListener("turbo:load", function () {
                     data-option-index="0">
               + Add Option
             </button>
+          </div>
+
+          <div class="lg:hidden mt-3">
+            <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 bg-gray-50 active:bg-blue-50 active:border-blue-300 transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+              <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+              </svg>
+              <span class="text-xs font-bold uppercase tracking-wider">Hold & Drag to Reorder</span>
+            </div>
           </div>
 
           <button type="button" class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-red-500 hover:text-red-700 font-medium bg-red-50 px-3 py-2 rounded-md">

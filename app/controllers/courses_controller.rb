@@ -319,9 +319,8 @@ class CoursesController < ApplicationController
         source_fields = @source_course.project_template.project_template_fields.where(id: field_ids)
 
         source_fields.each do |field|
-          new_field = field.dup
-          new_field.project_template_id = @target_course.project_template.id
-          new_field.save!
+          attrs = field.attributes.except('id', 'position', 'project_template_id', 'created_at', 'updated_at')
+          @target_course.project_template.project_template_fields.create!(attrs)
         end
         redirect_to edit_course_project_template_path(@target_course)
       end
