@@ -1,27 +1,27 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Connects to data-controller="textarea-resize"
 export default class extends Controller {
   connect() {
     this.resize();
   }
 
   resize() {
-    this.element.style.height = "auto";
-    this.element.style.height = `${this.element.scrollHeight + 2}px`;
+    // 1. Force the textarea to collapse completely
+    this.element.style.height = "0px";
+
+    // 2. The browser is now forced to calculate the EXACT height of the text content
+    this.element.style.height = `${this.element.scrollHeight}px`;
   }
 
   commentResize() {
-    this.element.style.height = "auto";
-    this.element.style.height = `${this.element.scrollHeight + 2}px`;
+    this.resize();
   }
 
   resetComment(event) {
     if (event.target === this.element.form) {
       requestAnimationFrame(() => {
         this.element.value = "";
-        this.element.style.height = "auto";
-        this.element.style.height = `${this.element.scrollHeight + 2}px`;
+        this.resize();
       });
     }
   }
