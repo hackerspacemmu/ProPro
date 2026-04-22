@@ -2,14 +2,15 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   connect() {
-    this.resize();
+    requestAnimationFrame(() => {
+      this.resize();
+    });
   }
 
   resize() {
-    // 1. Force the textarea to collapse completely
-    this.element.style.height = "0px";
+    if (this.element.offsetParent === null) return;
 
-    // 2. The browser is now forced to calculate the EXACT height of the text content
+    this.element.style.height = "auto";
     this.element.style.height = `${this.element.scrollHeight}px`;
   }
 
@@ -21,7 +22,7 @@ export default class extends Controller {
     if (event.target === this.element.form) {
       requestAnimationFrame(() => {
         this.element.value = "";
-        this.resize();
+        this.element.style.height = "auto";
       });
     }
   }
