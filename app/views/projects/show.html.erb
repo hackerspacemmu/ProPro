@@ -68,7 +68,7 @@
                 shadow-sm transition-all
               "
             >
-              Details & Progress
+              Details<%= " & Progress" if policy(@project).can_record_progress_update? %>
             </button>
             <button
               data-mobile-tabs-target="btn"
