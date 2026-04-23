@@ -1,19 +1,21 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Connects to data-controller="textarea-resize"
 export default class extends Controller {
   connect() {
-    this.resize();
+    requestAnimationFrame(() => {
+      this.resize();
+    });
   }
 
   resize() {
+    if (this.element.offsetParent === null) return;
+
     this.element.style.height = "auto";
-    this.element.style.height = `${this.element.scrollHeight + 2}px`;
+    this.element.style.height = `${this.element.scrollHeight}px`;
   }
 
   commentResize() {
-    this.element.style.height = "auto";
-    this.element.style.height = `${this.element.scrollHeight + 2}px`;
+    this.resize();
   }
 
   resetComment(event) {
@@ -21,7 +23,6 @@ export default class extends Controller {
       requestAnimationFrame(() => {
         this.element.value = "";
         this.element.style.height = "auto";
-        this.element.style.height = `${this.element.scrollHeight + 2}px`;
       });
     }
   }

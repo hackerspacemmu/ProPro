@@ -11,12 +11,13 @@
   - View Topic | ProPro
 <% end %>
 
-<% has_actions = @members.include?(current_user) || @current_version != @latest_version || 
-  policy(Project.new(course: @course)).create? || (@project.present? && policy(@project).update?)%>
+<% has_actions =
+  @members.include?(current_user) || @current_version != @latest_version ||
+    policy(Project.new(course: @course)).create? ||
+    (@project.present? && policy(@project).update?) %>
 
-<main class="bg-gray-50 w-full pt-[1em] pb-6">
-
-  <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 xl:px-16">
+<main class="min-h-screen bg-gray-50 w-full pt-[1em] pb-6">
+  <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 min-[1245px]:px-16">
 
     <%# --- Top Back Button --- %>
     <div class="flex items-center justify-start mb-2">
@@ -38,141 +39,216 @@
       <% end %>
     </div>
 
-    <%# --- Main Two-Column Layout --- %>
-    <div
-      class="
-        flex flex-col xl:flex-row gap-0 md:gap-4 lg:gap-8 items-start justify-center
-      "
-    >
+    <%# --- STIMULUS WRAPPER --- %>
+    <div data-controller="mobile-tabs" class="w-full">
+      <div
+        class="
+          flex flex-col min-[1245px]:flex-row gap-0 md:gap-4 min-[1245px]:gap-8
+          items-start justify-center
+        "
+      >
 
-      <%# --- LEFT COLUMN: Content --- %>
-      <div class="flex-1 w-full min-w-0 space-y-8">
+        <%# LEFT COLUMN (Header + Tabs + Details) %>
+        <div
+          class="
+            flex-1 w-full min-w-0 space-y-6 min-[1245px]:space-y-8 order-1
+            min-[1245px]:order-1
+          "
+        >
 
-        <%= render "topic_header",
-        current_instance: @current_instance,
-        owner: @owner,
-        topic: @topic,
-        members: @members,
-        current_version: @current_version,
-        latest_version: @latest_version,
-        oldest_version: @oldest_version,
-        is_student: @is_student,
-        course: @course,
-        index: @index,
-        instances: @instances %>
+          <%# 1. PERSISTENT HEADER %>
+          <%= render "topic_header",
+          current_instance: @current_instance,
+          owner: @owner,
+          topic: @topic,
+          members: @members,
+          current_version: @current_version,
+          latest_version: @latest_version,
+          oldest_version: @oldest_version,
+          is_student: @is_student,
+          course: @course,
+          index: @index,
+          instances: @instances %>
 
-        <% if has_actions %>
-          <section
-            class="
-              xl:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5
-            "
-          >
-            <h4
+          <%# -- MOBILE/TABLET ACTIONS (Above tabs, max width restricted) -- %>
+          <% if has_actions %>
+            <section
               class="
-                text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
-                gap-2
+                min-[1245px]:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5
+                w-full sm:max-w-[450px] sm:mx-auto min-[1245px]:mx-0
               "
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                /></svg>
-              Actions
-            </h4>
-
-            <%= render "topic_actions",
-            members: @members,
-            current_user: current_user,
-            topic: @topic,
-            current_version: @current_version,
-            latest_version: @latest_version,
-            course: @course %>
-          </section>
-        <% end %>
-
-        <section>
-          <div>
-            <%= render "topic_fields",
-            fields: @fields,
-            next_fields: @next_fields,
-            topic: @topic,
-            course: @course,
-            index: @index,
-            instances: @instances,
-            is_student: @is_student %>
-          </div>
-        </section>
-
-      </div>
-
-      <%# --- RIGHT COLUMN: Actions & Comments --- %>
-      <div class="w-full xl:w-[450px] flex-shrink-0 space-y-6">
-
-        <div class="space-y-6 flex flex-col gap-6">
-
-          <div class="flex flex-col md:flex-row xl:flex-col gap-6">
-
-            <% if has_actions %>
-              <section
+              <h4
                 class="
-                  hidden xl:block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
+                  text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
+                  gap-2
                 "
               >
-                <h4
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  /></svg>
+                Actions
+              </h4>
+              <%= render "topic_actions",
+              members: @members,
+              current_user: current_user,
+              topic: @topic,
+              current_version: @current_version,
+              latest_version: @latest_version,
+              course: @course %>
+            </section>
+          <% end %>
+
+          <%# 2. MOBILE TAB NAVIGATION (Hidden on Desktop) %>
+          <div
+            class="
+              min-[1245px]:hidden flex bg-white rounded-xl shadow-sm border border-gray-100
+              p-1
+            "
+          >
+            <button
+              data-mobile-tabs-target="btn"
+              data-action="click->mobile-tabs#switchTab"
+              data-panel="details"
+              class="
+                flex-1 py-2.5 text-sm font-bold text-center rounded-lg bg-slate-700 text-white
+                shadow-sm transition-all
+              "
+            >
+              Details
+            </button>
+            <button
+              data-mobile-tabs-target="btn"
+              data-action="click->mobile-tabs#switchTab"
+              data-panel="comments"
+              class="
+                flex-1 py-2.5 text-sm font-bold text-center rounded-lg text-gray-500
+                hover:text-slate-700 transition-all
+              "
+            >
+              Comments (<%= @comments&.count || 0 %>)
+            </button>
+          </div>
+
+          <%# 3. DETAILS PANEL (Toggled on Mobile, Always visible on Desktop) %>
+          <div
+            data-mobile-tabs-target="detailsPanel"
+            class="block min-[1245px]:block space-y-8"
+          >
+            <section>
+              <div>
+                <%= render "topic_fields",
+                fields: @fields,
+                next_fields: @next_fields,
+                topic: @topic,
+                course: @course,
+                index: @index,
+                instances: @instances,
+                is_student: @is_student %>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <%# RIGHT COLUMN (Comments & Desktop Actions) %>
+        <div
+          data-mobile-tabs-target="commentsPanel"
+          class="
+            w-full min-[1245px]:w-[450px] flex-shrink-0 space-y-6 order-2 hidden
+            min-[1245px]:block
+          "
+        >
+          <div class="md:space-y-6 flex flex-col gap-6">
+
+            <div class="flex flex-col md:flex-row min-[1245px]:flex-col gap-6">
+              <% if has_actions %>
+                <section
                   class="
-                    text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
-                    gap-2
+                    hidden min-[1245px]:block bg-white rounded-2xl shadow-sm border border-gray-100
+                    p-5 flex-1
                   "
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                  <h4
+                    class="
+                      text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
+                      gap-2
+                    "
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      /></svg>
+                    Actions
+                  </h4>
+                  <%= render "topic_actions",
+                  members: @members,
+                  current_user: current_user,
+                  topic: @topic,
+                  current_version: @current_version,
+                  latest_version: @latest_version,
+                  course: @course %>
+                </section>
+              <% end %>
+            </div>
+
+            <div
+              class="
+                h-[600px] min-[1245px]:h-[700px] min-[1245px]:max-h-[calc(100vh-200px)]
+              "
+            >
+              <% if !@is_student %>
+                <%= render "topic_comments",
+                comments: @comments,
+                new_comment: @new_comment,
+                course: @course,
+                topic: @topic,
+                current_instance_id: @current_instance.id,
+                current_version: @current_version,
+                latest_version: @latest_version %>
+              <% else %>
+                <section
+                  class="
+                    w-full flex flex-col items-center justify-center h-full min-h-[300px] bg-white
+                    rounded-2xl shadow-sm border border-gray-100 p-8 text-center opacity-80
+                  "
+                >
+                  <svg
+                    class="w-12 h-12 text-gray-300 mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    /></svg>
-                  Actions
-                </h4>
-
-                <%= render "topic_actions",
-                members: @members,
-                current_user: current_user,
-                topic: @topic,
-                current_version: @current_version,
-                latest_version: @latest_version,
-                course: @course %>
-              </section>
-            <% end %>
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                  <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">
+                    Comments Restricted
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    Comments cannot be viewed
+                  </p>
+                </section>
+              <% end %>
+            </div>
 
           </div>
-
-          <%# --- Comments Section --- %>
-          <section
-            class="
-              bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[700px]
-              max-h-[calc(100vh-200px)]
-            "
-          >
-            <div class="flex-grow overflow-y-auto p-0 bg-gray-50/30 custom-scrollbar">
-              <%= render "topic_comments",
-              comments: @comments,
-              new_comment: @new_comment,
-              course: @course,
-              topic: @topic,
-              current_instance_id: @current_instance.id,
-              current_version: @current_version,
-              latest_version: @latest_version %>
-            </div>
-          </section>
-
         </div>
-      </div>
 
+      </div>
     </div>
+    <%# END STIMULUS WRAPPER %>
 
     <%# --- Bottom Back Button --- %>
-    <div class="flex items-center justify-center pt-4 mb-2">
+    <div class="flex items-center justify-center sm:pt-4 mb-2 mt-4">
       <%= link_to course_path(@course), class: "group flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-green-600 transition-colors" do %>
         <div
           class="

@@ -1,4 +1,4 @@
-<section class="w-full scroll-mt-32" id="topic-fields">
+<section class="w-[98%] scroll-mt-32" id="topic-fields">
 
   <%# --- Header --- %>
   <div class="border-b border-gray-200 mb-6">
@@ -20,7 +20,7 @@
   <%# --- Main Fields Container --- %>
   <div
     class="
-      bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8
+      bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-2
     "
   >
     <div class="flex flex-col divide-y divide-gray-100">
@@ -132,8 +132,18 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
 
-            <% fields.zip(next_fields).each do |current_field, next_field| %>
-              <% field_name = (current_field || next_field).project_template_field.label %>
+            <% combined_fields = (fields.to_a + next_fields.to_a) %>
+            <% sorted_fields =
+              combined_fields
+                .uniq(&:project_template_field_id)
+                .sort_by { |f| f.project_template_field&.position || 0 } %>
+            <% all_field_ids = sorted_fields.map(&:project_template_field_id) %>
+
+            <% all_field_ids.each do |field_id| %>
+              <% current_field = fields.find { |f| f.project_template_field_id == field_id }
+              next_field = next_fields.find { |f| f.project_template_field_id == field_id }
+
+              field_name = (current_field || next_field).project_template_field.label %>
 
               <% normalize = ->(text) do
                 text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]")
@@ -189,7 +199,10 @@
                       .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
                       .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
                       .gsub(%r{<p>\s*</p>}m, "")
-                      .gsub(%r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m, '\1\2</li>')
+                      .gsub(
+                        %r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m,
+                        '\1\2</li>', # Preserves the branded li tag
+                      )
                       .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
                       .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
                       .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
@@ -204,7 +217,10 @@
                       .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
                       .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
                       .gsub(%r{<p>\s*</p>}m, "")
-                      .gsub(%r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m, '\1\2</li>')
+                      .gsub(
+                        %r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m,
+                        '\1\2</li>', # Preserves the branded li tag
+                      )
                       .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
                       .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
                       .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
@@ -212,14 +228,15 @@
                       .gsub(%r{<code[^>]*>\s*</code>}m, "")
                       .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
 
+                  <%# LEFT SIDE: Deletions (Old) %>
                   <td
                     class="
-                      p-4 align-top border-r border-gray-200 bg-red-50/10 w-2/5 break-words
+                      p-4 align-top bg-red-50/10 w-2/5 border-r border-gray-200 break-words
                     "
                   >
                     <div
                       class="
-                        w-full render-markdown prose prose-sm max-w-none text-base [&_del]:bg-red-200
+                        w-full prose prose-sm max-w-none text-base [&_del]:bg-red-200
                         [&_del]:text-red-900 [&_del]:line-through [&_del]:decoration-red-400
                         [&_del]:decoration-2 [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6
                         [&_li.diff-ol-item::marker]:text-red-700 [&_li.diff-ol-item::marker]:font-bold
@@ -261,10 +278,11 @@
                     </div>
                   </td>
 
+                  <%# RIGHT SIDE: Additions (New) %>
                   <td class="p-4 align-top bg-green-50/10 w-2/5 break-words">
                     <div
                       class="
-                        w-full render-markdown prose prose-sm max-w-none text-base [&_ins]:bg-green-200
+                        w-full prose prose-sm max-w-none text-base [&_ins]:bg-green-200
                         [&_ins]:text-green-900 [&_ins]:font-medium [&_ins]:no-underline
                         [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6
                         [&_li.diff-ol-item::marker]:text-green-700 [&_li.diff-ol-item::marker]:font-bold
