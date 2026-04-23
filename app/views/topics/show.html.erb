@@ -17,7 +17,7 @@
     (@project.present? && policy(@project).update?) %>
 
 <main class="min-h-screen bg-gray-50 w-full pt-[1em] pb-6">
-  <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 xl:px-16">
+  <div class="max-w-[1920px] mx-auto w-full px-4 md:px-12 min-[1245px]:px-16">
 
     <%# --- Top Back Button --- %>
     <div class="flex items-center justify-start mb-2">
@@ -43,12 +43,18 @@
     <div data-controller="mobile-tabs" class="w-full">
       <div
         class="
-          flex flex-col xl:flex-row gap-0 md:gap-4 lg:gap-8 items-start justify-center
+          flex flex-col min-[1245px]:flex-row gap-0 md:gap-4 min-[1245px]:gap-8
+          items-start justify-center
         "
       >
 
         <%# LEFT COLUMN (Header + Tabs + Details) %>
-        <div class="flex-1 w-full min-w-0 space-y-6 xl:space-y-8 order-1 xl:order-1">
+        <div
+          class="
+            flex-1 w-full min-w-0 space-y-6 min-[1245px]:space-y-8 order-1
+            min-[1245px]:order-1
+          "
+        >
 
           <%# 1. PERSISTENT HEADER %>
           <%= render "topic_header",
@@ -64,10 +70,43 @@
           index: @index,
           instances: @instances %>
 
+          <%# -- MOBILE/TABLET ACTIONS (Above tabs, max width restricted) -- %>
+          <% if has_actions %>
+            <section
+              class="
+                min-[1245px]:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5
+                w-full sm:max-w-[450px] sm:mx-auto min-[1245px]:mx-0
+              "
+            >
+              <h4
+                class="
+                  text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
+                  gap-2
+                "
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  /></svg>
+                Actions
+              </h4>
+              <%= render "topic_actions",
+              members: @members,
+              current_user: current_user,
+              topic: @topic,
+              current_version: @current_version,
+              latest_version: @latest_version,
+              course: @course %>
+            </section>
+          <% end %>
+
           <%# 2. MOBILE TAB NAVIGATION (Hidden on Desktop) %>
           <div
             class="
-              xl:hidden flex bg-white rounded-xl shadow-sm border border-gray-100 p-1
+              min-[1245px]:hidden flex bg-white rounded-xl shadow-sm border border-gray-100
+              p-1
             "
           >
             <button
@@ -95,38 +134,10 @@
           </div>
 
           <%# 3. DETAILS PANEL (Toggled on Mobile, Always visible on Desktop) %>
-          <div data-mobile-tabs-target="detailsPanel" class="block xl:block space-y-8">
-
-            <% if has_actions %>
-              <section
-                class="
-                  xl:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
-                "
-              >
-                <h4
-                  class="
-                    text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
-                    gap-2
-                  "
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    /></svg>
-                  Actions
-                </h4>
-                <%= render "topic_actions",
-                members: @members,
-                current_user: current_user,
-                topic: @topic,
-                current_version: @current_version,
-                latest_version: @latest_version,
-                course: @course %>
-              </section>
-            <% end %>
-
+          <div
+            data-mobile-tabs-target="detailsPanel"
+            class="block min-[1245px]:block space-y-8"
+          >
             <section>
               <div>
                 <%= render "topic_fields",
@@ -146,16 +157,18 @@
         <div
           data-mobile-tabs-target="commentsPanel"
           class="
-            w-full xl:w-[450px] flex-shrink-0 space-y-6 order-2 hidden xl:block
+            w-full min-[1245px]:w-[450px] flex-shrink-0 space-y-6 order-2 hidden
+            min-[1245px]:block
           "
         >
-          <div class="space-y-6 flex flex-col gap-6">
+          <div class="md:space-y-6 flex flex-col gap-6">
 
-            <div class="flex flex-col md:flex-row xl:flex-col gap-6">
+            <div class="flex flex-col md:flex-row min-[1245px]:flex-col gap-6">
               <% if has_actions %>
                 <section
                   class="
-                    hidden xl:block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
+                    hidden min-[1245px]:block bg-white rounded-2xl shadow-sm border border-gray-100
+                    p-5 flex-1
                   "
                 >
                   <h4
@@ -183,8 +196,11 @@
               <% end %>
             </div>
 
-            <%# --- Comments Section (With Keyboard Crush Fix applied) --- %>
-            <div class="h-[600px] xl:h-[700px] xl:max-h-[calc(100vh-200px)]">
+            <div
+              class="
+                h-[600px] min-[1245px]:h-[700px] min-[1245px]:max-h-[calc(100vh-200px)]
+              "
+            >
               <% if !@is_student %>
                 <%= render "topic_comments",
                 comments: @comments,
