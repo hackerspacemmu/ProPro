@@ -55,11 +55,11 @@
           instances: @instances %>
 
           <%# -- MOBILE/TABLET PROJECT ACTIONS -- %>
-          <% if policy(@project).update? || @current_version != @latest_version %>
+          <% if policy(@project).update? && !current_user.is_staff || @current_version != @latest_version %>
             <section
               class="
                 xl:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 w-full
-                sm:max-w-[550px] sm:mx-auto xl:mx-0
+                sm:max-w-[500px] sm:mx-auto xl:mx-0
               "
             >
               <h4
