@@ -54,9 +54,41 @@
           course: @course,
           instances: @instances %>
 
+          <%# -- MOBILE/TABLET PROJECT ACTIONS -- %>
+          <% if policy(@project).update? || @current_version != @latest_version %>
+            <section
+              class="
+                xl:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 w-full
+                sm:max-w-[550px] sm:mx-auto xl:mx-0
+              "
+            >
+              <h4
+                class="
+                  text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
+                  gap-2
+                "
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  /></svg>
+                Actions
+              </h4>
+              <%= render "project_actions",
+              members: @members,
+              current_user: current_user,
+              project: @project,
+              current_version: @current_version,
+              latest_version: @latest_version,
+              course: @course %>
+            </section>
+          <% end %>
+
           <div
             class="
-              xl:hidden flex bg-white rounded-xl shadow-sm border border-gray-100 p-1
+              flex bg-white rounded-xl xl:hidden shadow-sm border border-gray-100 p-1
             "
           >
             <button
@@ -84,37 +116,6 @@
           </div>
 
           <div data-mobile-tabs-target="detailsPanel" class="block xl:block space-y-8">
-
-            <%# -- MOBILE-ONLY-PROJECT-ACTION -- %>
-            <% if policy(@project).update? || @current_version != @latest_version %>
-              <section
-                class="
-                  hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-1
-                "
-              >
-                <h4
-                  class="
-                    text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center
-                    gap-2
-                  "
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    /></svg>
-                  Actions
-                </h4>
-                <%= render "project_actions",
-                members: @members,
-                current_user: current_user,
-                project: @project,
-                current_version: @current_version,
-                latest_version: @latest_version,
-                course: @course %>
-              </section>
-            <% end %>
 
             <%# -- MOBILE-ONLY PROGRESS UPDATE CARD (Hidden on desktop) -- %>
             <% if policy(@project).can_record_progress_update? && @current_version == @latest_version %>
