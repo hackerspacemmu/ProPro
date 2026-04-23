@@ -73,8 +73,11 @@
           <%# 4. Status %>
           <% sort_column.call('status', 'Status', 'status_grey.svg', align: :center, width: 'w-1/8') %>
 
+          
           <%# 5. Supervisor %>
+          <% unless @course.solo_supervisor? %>
           <% sort_column.call('supervisor', 'Supervisor', 'person_grey.svg', width: 'w-1/4') %>
+          <% end %>
 
         </tr>
       </thead>
@@ -188,9 +191,11 @@
                     <% end %>
                   </div>
                 </td>
-
+                
+                
                 <%# 5. Supervisor %>
-                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left">
+                <% unless @course.solo_supervisor? %>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left">
                   <% if supervisor.present? %>
                     <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
                       <div
@@ -210,7 +215,8 @@
                   <% else %>
                     <span class="text-gray-400">-</span>
                   <% end %>
-                </td>
+                  </td>
+                <% end %>
 
               </tr>
             <% end %>
@@ -326,27 +332,29 @@
                 </td>
 
                 <%# 5. Supervisor %>
-                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left">
-                  <% if supervisor.present? %>
-                    <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
-                      <div
-                        class="
-                          w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
-                          font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
-                          group-hover/sup:text-gray-700 transition-colors
-                        ">
-                        <%= supervisor.name.first.upcase %>
-                      </div>
-                      <span
-                        class="truncate max-w-[150px] group-hover/sup:text-gray-700"
-                        title="<%= supervisor.name %>">
-                        <%= supervisor.name %>
-                      </span>
+                <% unless @course.solo_supervisor? %>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 align-top text-left">
+                    <% if supervisor.present? %>
+                      <%= link_to course_lecturer_path(@course, supervisor), class: "flex items-center justify-start gap-2 group/sup" do %>
+                        <div
+                          class="
+                            w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px]
+                            font-bold text-gray-600 shrink-0 group-hover/sup:bg-blue-100
+                            group-hover/sup:text-gray-700 transition-colors
+                          ">
+                          <%= supervisor.name.first.upcase %>
+                        </div>
+                        <span
+                          class="truncate max-w-[150px] group-hover/sup:text-gray-700"
+                          title="<%= supervisor.name %>">
+                          <%= supervisor.name %>
+                        </span>
+                      <% end %>
+                    <% else %>
+                      <span class="text-gray-400">-</span>
                     <% end %>
-                  <% else %>
-                    <span class="text-gray-400">-</span>
-                  <% end %>
-                </td>
+                  </td>
+                <% end %>
 
               </tr>
             <% end %>
