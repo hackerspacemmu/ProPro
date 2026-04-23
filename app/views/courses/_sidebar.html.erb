@@ -3,7 +3,13 @@
   <% if @current_user_enrolment&.student? %>
     <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
     <%= sidebar_link "Proposal Status", "#proposal-status" %>
-    <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+
+    <% if @course.solo_supervisor? %>
+      <%= sidebar_link "Instructor", "#supervisors-available" %>
+    <% else %>
+      <%= sidebar_link "Supervisor Avaible", "#supervisors-available" %>
+    <% end %>
+
     <%= sidebar_link "Participants", "#participants" %>
   <% end %>
 
@@ -17,7 +23,11 @@
       <%= sidebar_link "My Topics", "#my-topics" %>
     <% end %>
 
-    <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+    <% if @course.solo_supervisor? %>
+      <%= sidebar_link "Instructor", "#supervisors-available" %>
+    <% else %>
+      <%= sidebar_link "Supervisor Avaible", "#supervisors-available" %>
+    <% end %>
 
     <% if @course.toggle_topics %>
       <%= sidebar_link "Incoming Topics", "#incoming-topics" %>
@@ -40,7 +50,13 @@
     <%= sidebar_link "Proposal Description", "#proposal-guidelines" %>
     <%= sidebar_link "My Student Projects", "#my-student-projects" %>
     <%= sidebar_link "Incoming Proposals", "#incoming-proposals" %>
-    <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+
+    <% if @course.solo_supervisor? %>
+      <%= sidebar_link "Instructor", "#supervisors-available" %>
+    <% else %>
+      <%= sidebar_link "Supervisors Available", "#supervisors-available" %>
+    <% end %>
+
 
     <% if @course.toggle_topics %>
       <%= sidebar_link "My Topics", "#my-topics" %>
