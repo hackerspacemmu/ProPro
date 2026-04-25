@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_17_011530) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -138,6 +138,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_17_011530) do
     t.boolean "required", default: true
     t.boolean "free_edit", default: false, null: false
     t.integer "position", null: false
+    t.boolean "is_project_title", default: false, null: false
     t.index ["project_template_id", "position"], name: "idx_on_project_template_id_position_8020fb7a17"
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end

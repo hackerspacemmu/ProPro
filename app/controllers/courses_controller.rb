@@ -209,6 +209,13 @@ class CoursesController < ApplicationController
         )
 
         default_template = @new_course.build_project_template
+        default_template.project_template_fields.build(
+          label: 'Project Title',
+          field_type: 'shorttext',
+          applicable_to: 'both',
+          is_project_title: true
+        )
+        raise StandardError, 'Template creation failed' unless default_template.save
 
         raise StandardError, 'Template creation failed' unless default_template.save
       end
@@ -318,7 +325,7 @@ class CoursesController < ApplicationController
         field_ids = params[:template_field_ids] || []
         source_fields = @source_course.project_template.project_template_fields.where(id: field_ids)
 
-        source_fields.each do |field|
+        source_fields.reject(&:is_project_title?).each do |field|
           attrs = field.attributes.except('id', 'position', 'project_template_id', 'created_at', 'updated_at')
           @target_course.project_template.project_template_fields.create!(attrs)
         end
@@ -562,7 +569,7 @@ class CoursesController < ApplicationController
     headers += %w[Supervisor_Name Supervisor_Email_Address Project_Title Project_Status]
 
     # Project Title is handled by validation in Project.rb
-    template_fields = template_fields.reject { |field| field.label == 'Project Title' }
+    template_fields = template_fields.reject(&:is_project_title?)
     project_fields = template_fields.select do |field|
       field.proposals? || field.both?
     end
@@ -637,7 +644,7 @@ class CoursesController < ApplicationController
 
     project_fields = template_fields.select do |field|
       %w[proposals both].include?(field.applicable_to)
-    end.reject { |field| field.label == 'Project Title' }
+    end.reject(&:is_project_title?)
 
     return Array.new(project_fields.count, '') if project_fields.empty?
 

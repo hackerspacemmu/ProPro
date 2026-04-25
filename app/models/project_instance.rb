@@ -44,12 +44,9 @@ class ProjectInstance < ApplicationRecord
 
   def sync_title_from_fields
     title_field = project_instance_fields.detect do |f|
-      label = f.project_template_field&.label
-      label&.downcase&.include?('title')
+      f.project_template_field&.is_project_title?
     end
-
     return if title_field.blank?
-
     self.title = title_field.value
   end
 end

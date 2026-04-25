@@ -15,6 +15,7 @@ class ProjectTemplateField < ApplicationRecord
 
   before_validation :force_title_required
   before_destroy :cannot_delete_if_in_use
+  before_destroy :cannot_delete_title_field
 
   FIELD_TYPE_LABELS = {
     'shorttext' => 'Short Text',
@@ -32,6 +33,14 @@ class ProjectTemplateField < ApplicationRecord
   end
 
   private
+
+
+  def cannot_delete_title_field
+    return unless is_project_title?
+
+    errors.add(:base, "Cannot delete the Project Title field")
+    throw :abort
+  end
 
   def cannot_delete_if_in_use
     return unless project_instance_fields.exists?
