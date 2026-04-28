@@ -59,6 +59,29 @@ current_user_enrolment: @current_user_enrolment %>
     </div>
   </section>
 
+  <% if @course.solo_supervisor? %>
+    <section id="supervisors-available">
+      <div class="border border-gray-200 shadow-xs rounded-[10px] w-full p-4 bg-[#f8f9fa] mb-5">
+        <header>
+          <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Instructor: <%= @lecturers.first&.name %></h4>
+        </header>
+        <ul
+          class="
+            list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5
+          "
+        >
+          <%= render partial: "lecturers",
+          collection: @lecturers,
+          as: :lecturer,
+          locals: {
+            course: @course,
+          } %>
+        </ul>
+      </div>
+    </section>
+  <% end %>
+
+
   <% if @current_user_enrolment&.coordinator? %>
     <!-- Coordinator View: My Topics, Pending Topics, Pending Proposals -->
     <%= render "coordinator_section",

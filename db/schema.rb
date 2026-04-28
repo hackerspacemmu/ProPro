@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_13_114848) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_112235) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -134,11 +134,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_114848) do
     t.integer "field_type", null: false
     t.boolean "free_edit", default: false, null: false
     t.text "hint"
+    t.boolean "is_project_title", default: false, null: false
     t.string "label", null: false
     t.json "options"
+    t.integer "position", null: false
     t.integer "project_template_id", null: false
     t.boolean "required", default: true
     t.datetime "updated_at", null: false
+    t.index ["project_template_id", "position"], name: "idx_on_project_template_id_position_8020fb7a17"
     t.index ["project_template_id"], name: "index_project_template_fields_on_project_template_id"
   end
 

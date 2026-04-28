@@ -8,9 +8,20 @@ FactoryBot.define do
     lecturer_access { true }
     use_progress_updates { false }
     require_coordinator_approval { false }
-  end
 
-  trait :grouped do
-    grouped { true }
+    after(:create) do |course|
+      template = course.build_project_template
+      template.project_template_fields.build(
+        label: 'Project Title',
+        field_type: 'shorttext',
+        applicable_to: 'both',
+        is_project_title: true
+      )
+      template.save!
+    end
+
+    trait :grouped do
+      grouped { true }
+    end
   end
 end

@@ -7,7 +7,30 @@ export default class extends Controller {
   };
 
   connect() {
-    // Wait for the browser to finish painting the DOM before calculating heights
+    // Wait until the container actually becomes visible (handles mobile tab switching)
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // The element is now visible. Execute the scroll.
+          this.performScroll();
+
+          // Disconnect the observer so it only auto-scrolls the first time the tab is opened
+          this.observer.disconnect();
+        }
+      });
+    });
+
+    this.observer.observe(this.element);
+  }
+
+  disconnect() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  performScroll() {
+    // Give the browser a tiny split-second to finish rendering the text heights
     requestAnimationFrame(() => {
       setTimeout(() => {
         if (this.enabledValue) {
@@ -29,7 +52,6 @@ export default class extends Controller {
 
     if (targetElement) {
       const containerRect = this.element.getBoundingClientRect();
-
       const targetRect = targetElement.getBoundingClientRect();
 
       const scrollPosition =

@@ -85,4 +85,7 @@ gem 'redcarpet', '~> 3.6.1'
 
 gem 'htmldiff'
 
-gem "sqids", "~> 0.2.2"
+gem 'sqids', '~> 0.2.2'
+
+# For sortable template field
+gem 'acts_as_list'

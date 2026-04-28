@@ -20,19 +20,21 @@
         <% capacity_text_color =
           capacity_info[:is_at_capacity] ? "text-red-500" : "text-black" %>
 
-        <span
-          class="
-            text-base ml-auto pr-5 whitespace-nowrap <%= capacity_text_color %>
-          ">
-          <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %>
+        <% unless @course.solo_supervisor? %>
+          <span
+            class="
+              text-base ml-auto pr-5 whitespace-nowrap <%= capacity_text_color %>
+            ">
+            <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %>
 
-          <% if capacity_info[:pending_proposals] > 0 %>
-            <span class="text-xs font-normal text-amber-600 ml-1">
-              (<%= capacity_info[:pending_proposals] %>
-              pending)
-            </span>
-          <% end %>
-        </span>
+            <% if capacity_info[:pending_proposals] > 0 %>
+              <span class="text-xs font-normal text-amber-600 ml-1">
+                (<%= capacity_info[:pending_proposals] %>
+                pending)
+              </span>
+            <% end %>
+          </span>
+        <% end %>
       </div>
 
       <div class="flex flex-col">

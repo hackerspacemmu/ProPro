@@ -1,4 +1,5 @@
 require 'test_helper'
+
 class TopicInstanceTest < ActiveSupport::TestCase
   setup do
     @course  = FactoryBot.create(:course)

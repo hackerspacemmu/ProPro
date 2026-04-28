@@ -2,6 +2,8 @@ class ProjectTemplateField < ApplicationRecord
   belongs_to :project_template
   has_many   :project_instance_fields, dependent: :destroy
 
+  acts_as_list scope: :project_template, add_new_at: :bottom
+
   enum :field_type, { shorttext: 0, textarea: 1, dropdown: 2, radio: 3 }
   enum :applicable_to, { topics: 0, proposals: 1, both: 2 }
 
@@ -9,9 +11,11 @@ class ProjectTemplateField < ApplicationRecord
   validates :field_type, presence: true
   validates :applicable_to, presence: true
   validates :options, presence: true, if: -> { field_type.in?(%w[dropdown radio]) }
+  validates :position, numericality: { only_integer: true }, allow_nil: true
 
   before_validation :force_title_required
   before_destroy :cannot_delete_if_in_use
+  before_destroy :cannot_delete_title_field
 
   FIELD_TYPE_LABELS = {
     'shorttext' => 'Short Text',
@@ -29,6 +33,14 @@ class ProjectTemplateField < ApplicationRecord
   end
 
   private
+
+
+  def cannot_delete_title_field
+    return unless is_project_title?
+
+    errors.add(:base, "Cannot delete the Project Title field")
+    throw :abort
+  end
 
   def cannot_delete_if_in_use
     return unless project_instance_fields.exists?
