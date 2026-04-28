@@ -3,7 +3,7 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview generate_group_slots]
   def show
     authorize @course
 
@@ -237,17 +237,23 @@ class CoursesController < ApplicationController
   def handle_settings
     authorize @course, :update?
     @course.update(
-      course_name: params[:course][:course_name],
-      course_description: params[:course][:course_description],
-      supervisor_projects_limit: params[:course][:supervisor_projects_limit],
-      require_coordinator_approval: params[:course][:require_coordinator_approval],
-      starting_week: params[:course][:starting_week],
-      use_progress_updates: params[:course][:use_progress_updates],
-      number_of_updates: params[:course][:number_of_updates],
-      lecturer_access: params[:course][:lecturer_access],
-      student_access: params[:course][:student_access],
-      file_link: params[:course][:file_link],
-      toggle_topics: params[:course][:toggle_topics]
+      course_name:                    params[:course][:course_name],
+      course_description:             params[:course][:course_description],
+      supervisor_projects_limit:      params[:course][:supervisor_projects_limit],
+      require_coordinator_approval:   params[:course][:require_coordinator_approval],
+      starting_week:                  params[:course][:starting_week],
+      use_progress_updates:           params[:course][:use_progress_updates],
+      number_of_updates:              params[:course][:number_of_updates],
+      lecturer_access:                params[:course][:lecturer_access],
+      student_access:                 params[:course][:student_access],
+      file_link:                      params[:course][:file_link],
+      toggle_topics:                  params[:course][:toggle_topics],
+      grouping_enabled:               params[:course][:grouping_enabled],
+      student_list_finalised:         params[:course][:student_list_finalised],
+      group_min:                      params[:course][:group_min].presence,
+      group_max:                      params[:course][:group_max].presence,
+      grouping_opens_at:              params[:course][:grouping_opens_at].presence,
+      grouping_closes_at:             params[:course][:grouping_closes_at].presence
     )
 
     unless @course.save
@@ -370,6 +376,30 @@ class CoursesController < ApplicationController
     end
   rescue StandardError => e
     redirect_back_or_to '/', alert: e.message
+  end
+
+  def grouping_preview
+    authorize @course, :update?
+  
+    student_count = params[:student_count].to_i
+    @preview = @course.preview_group_combination(student_count)
+  
+    render partial: 'courses/grouping_preview_result', locals: { preview: @preview, course: @course }
+  end
+
+  def generate_group_slots
+    authorize @course, :update?
+
+    begin
+      ActiveRecord::Base.transaction do
+        @course.generate_group_slots!
+      end
+    rescue StandardError => e
+      redirect_to settings_course_path(@course), alert: e.message
+      return
+    end
+
+    redirect_to settings_course_path(@course), notice: 'Group slots successfully generated from enrolled students'
   end
 
   private

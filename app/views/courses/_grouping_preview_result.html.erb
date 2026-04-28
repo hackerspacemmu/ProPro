@@ -1,0 +1,28 @@
+<% if preview[:error] %>
+  <p class="text-red-600 text-xs mt-1"><%= preview[:error] %></p>
+<% else %>
+  <div class="mt-2 space-y-1">
+    <p class="text-xs font-medium text-gray-700">
+      <%= preview[:total_groups] %> group<%= preview[:total_groups] == 1 ? '' : 's' %> would form:
+    </p>
+    <ul class="space-y-0.5">
+      <% preview[:groups].each do |entry| %>
+        <li class="text-xs text-gray-600">
+          <span class="font-medium text-gray-800"><%= entry[:count] %></span>
+          group<%= entry[:count] == 1 ? '' : 's' %> of
+          <span class="font-medium text-gray-800"><%= entry[:size] %></span>
+        </li>
+      <% end %>
+    </ul>
+    <p class="text-xs text-gray-400 mt-1 italic">
+      Actual distribution uses enrolled student count.
+    </p>
+
+    <%= button_to "Lock in group slots from enrolled students",
+          generate_group_slots_course_path(course),
+          method: :post,
+          data: { turbo_confirm: "This will generate slots based on the #{course.students.count} currently enrolled students. Existing unclaimed slots will be replaced. Continue?" },
+          class: "mt-3 w-full inline-flex justify-center px-3 py-2 border border-transparent text-xs font-medium rounded-md text-white bg-green-700 hover:bg-green-800 focus:outline-none 
+                  focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer" %>
+  </div>
+<% end %>

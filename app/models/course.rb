@@ -43,7 +43,22 @@ class Course < ApplicationRecord
   validates :supervisor_projects_limit, presence: { message: 'cannot be empty' }, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }
   validates :coursecode, uniqueness: { message: 'has already been taken' }, allow_nil: true
 
+  # group_min and group_max are required whenever grouping is enabled
+  validates :group_min, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
+  validates :group_max, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
+  validates :group_min, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }, allow_nil: true
+ 
+  validates :group_max,
+            numericality: { only_integer: true, greater_than_or_equal_to: :group_min_for_validation, message: 'must be greater than or equal to minimum' },
+            allow_nil: true,
+            if: -> { group_min.present? && group_max.present? }
+ 
+  # student_list_finalised cannot be true if grouping_enabled is false.
+  validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
+  validate :grouping_window_dates_valid, if: -> { grouping_opens_at.present? && grouping_closes_at.present? }
+
   before_validation :null_number_of_updates_if_not_used
+  before_validation :clear_grouping_fields_if_disabled
 
   def generate_coursecode!
     raise StandardError, 'Course join code can\'t be used for grouped course' if grouped
@@ -51,6 +66,84 @@ class Course < ApplicationRecord
     sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
     self.coursecode = sqids.encode([id, SecureRandom.random_number(1_000_000_000)])
     save!
+  end
+
+  def generate_group_slots!
+    raise StandardError, 'Grouping is not enabled' unless grouping_enabled?
+    raise StandardError, 'Deterministic legal groups is not enabled' unless student_list_finalised?
+    raise StandardError, 'Group limits are not set' if group_min.blank? || group_max.blank?
+
+    enrolled_count = students.count
+    raise StandardError, 'No students are enrolled' if enrolled_count == 0
+
+    group_combination = preview_group_combination(enrolled_count)
+    raise StandardError, group_combination[:error] if group_combination[:error].present?
+
+    # Destroy only unclaimed slots — claimed slots belong to confirmed groups
+    project_group_slots.where(claimed: false).destroy_all
+
+    group_combination[:groups].each do |entry|
+      entry[:count].times do
+        project_group_slots.create!(member_slots: entry[:size], claimed: false)
+      end
+    end
+  end
+
+  def grouping_window_open?
+    return false unless grouping_enabled?
+    return true if grouping_opens_at.nil? && grouping_closes_at.nil?
+ 
+    opens_ok = grouping_opens_at.nil? || Time.current >= grouping_opens_at
+    closes_ok = grouping_closes_at.nil? || Time.current <= grouping_closes_at
+    opens_ok && closes_ok
+  end
+
+  # Note: Finds the Largest legal group size combination
+  def preview_group_combination(student_count)
+    return { error: 'Group limits are not set' } if group_min.blank? || group_max.blank?
+    return { error: 'Student count must be greater than 0' } if student_count <= 0
+
+    cache = {}
+    group_size_chosen = find_group_size_for(student_count, group_max.downto(group_min).to_a, cache)
+
+    if group_size_chosen.nil?
+      return {
+        error: "No legal combination can be found."
+      }
+    end
+
+    size_counts = []
+    remaining_students = student_count
+    while remaining_students > 0
+      chosen_size = cache[remaining_students]
+      size_counts << chosen_size
+      remaining_students = remaining_students - chosen_size
+    end
+
+    breakdown = size_counts.tally.map { |size, count| { size: size, count: count } }.sort_by { |entry| -entry[:size] }
+    { groups: breakdown, total_groups: size_counts.length }
+  end
+
+  private
+
+  def find_group_size_for(ungrouped_students, allowed_sizes, cache)
+    return 0 if ungrouped_students == 0
+    return cache[ungrouped_students] if cache.key?(ungrouped_students)
+
+    allowed_sizes.each do |size|
+      next if size > ungrouped_students
+
+      remaining_students = ungrouped_students - size
+      result = find_group_size_for(remaining_students, allowed_sizes, cache)
+
+      unless result.nil?
+        cache[ungrouped_students] = size
+        return size
+      end
+    end
+
+    cache[ungrouped_students] = nil
+    nil
   end
 
   STUDENT_CSV_COLUMNS = ['Last name', 'ID number', 'Email address'].freeze
@@ -154,6 +247,27 @@ class Course < ApplicationRecord
 
     self.number_of_updates = nil
   end
+
+  def clear_grouping_fields_if_disabled
+    return if grouping_enabled?
+ 
+    self.student_list_finalised = false
+    self.group_min              = nil
+    self.group_max              = nil
+    self.grouping_opens_at      = nil
+    self.grouping_closes_at     = nil
+  end
+ 
+  def grouping_window_dates_valid
+    return unless grouping_closes_at <= grouping_opens_at
+ 
+    errors.add(:grouping_closes_at, 'must be after the grouping open time')
+  end
+ 
+  def group_min_for_validation
+    group_min || 0
+  end
+
 
   def empty_capacity
     { approved_proposals: 0, pending_proposals: 0, total_proposals: 0,

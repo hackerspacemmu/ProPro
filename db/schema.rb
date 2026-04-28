@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_26_065457) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -40,6 +40,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
     t.string "coursecode"
     t.boolean "coursecode_enabled", default: false, null: false
     t.boolean "toggle_topics", default: true
+    t.boolean "grouping_enabled", default: false, null: false
+    t.boolean "student_list_finalised", default: false, null: false
+    t.integer "group_min"
+    t.integer "group_max"
+    t.datetime "grouping_opens_at"
+    t.datetime "grouping_closes_at"
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
