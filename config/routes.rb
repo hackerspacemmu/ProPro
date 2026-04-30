@@ -36,7 +36,6 @@ Rails.application.routes.draw do
       get 'settings'
       post 'handle_settings'
       get  'grouping_preview'
-      post 'generate_group_slots'
       post 'update_coursecode'
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'

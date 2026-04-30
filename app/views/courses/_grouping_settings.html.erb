@@ -46,7 +46,7 @@
 
       <div class="space-y-3">
 
-        <%# Default mode %>
+        <%# Default mode — always rendered %>
         <label class="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:border-green-400 transition-colors
                       <%= @course.student_list_finalised? ? 'border-gray-200 bg-white' : 'border-green-500 bg-green-50' %>">
           <%= form.radio_button :student_list_finalised, false,
@@ -61,20 +61,32 @@
           </div>
         </label>
 
-        <%# Deterministic / student_list_finalised mode %>
-        <label class="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:border-green-400 transition-colors
-                      <%= @course.student_list_finalised? ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white' %>">
-          <%= form.radio_button :student_list_finalised, true,
-                class: "mt-0.5 focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 shrink-0",
-                data: { action: "change->grouping-settings#toggleMode" } %>
-          <div>
-            <span class="block text-sm font-medium text-gray-800">Final student list</span>
-            <span class="block text-xs text-gray-500 mt-0.5">
-              I will import students and the student list is final — no new students will be added.
-              The system can automatically determine legal group sizes for every student.
-            </span>
+        <%# Fixed list mode — locked out once default mode has been saved %>
+        <% if @course.persisted? && @course.grouping_enabled? && !@course.student_list_finalised? %>
+          <div class="flex items-start gap-3 p-3 border border-gray-200 rounded-md bg-gray-50 opacity-60">
+            <div class="mt-0.5 h-4 w-4 shrink-0"></div>
+            <div>
+              <span class="block text-sm font-medium text-gray-400">Final student list</span>
+              <span class="block text-xs text-gray-400 mt-0.5">
+                Fixed list mode cannot be enabled once default mode has been saved.
+              </span>
+            </div>
           </div>
-        </label>
+        <% else %>
+          <label class="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:border-green-400 transition-colors
+                        <%= @course.student_list_finalised? ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white' %>">
+            <%= form.radio_button :student_list_finalised, true,
+                  class: "mt-0.5 focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 shrink-0",
+                  data: { action: "change->grouping-settings#toggleMode" } %>
+            <div>
+              <span class="block text-sm font-medium text-gray-800">Final student list</span>
+              <span class="block text-xs text-gray-500 mt-0.5">
+                I will import students and the student list is final — no new students will be added.
+                The system can automatically determine legal group sizes for every student.
+              </span>
+            </div>
+          </label>
+        <% end %>
 
       </div>
     </div>

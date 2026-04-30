@@ -68,27 +68,6 @@ class Course < ApplicationRecord
     save!
   end
 
-  def generate_group_slots!
-    raise StandardError, 'Grouping is not enabled' unless grouping_enabled?
-    raise StandardError, 'Deterministic legal groups is not enabled' unless student_list_finalised?
-    raise StandardError, 'Group limits are not set' if group_min.blank? || group_max.blank?
-
-    enrolled_count = students.count
-    raise StandardError, 'No students are enrolled' if enrolled_count == 0
-
-    group_combination = preview_group_combination(enrolled_count)
-    raise StandardError, group_combination[:error] if group_combination[:error].present?
-
-    # Destroy only unclaimed slots — claimed slots belong to confirmed groups
-    project_group_slots.where(claimed: false).destroy_all
-
-    group_combination[:groups].each do |entry|
-      entry[:count].times do
-        project_group_slots.create!(member_slots: entry[:size], claimed: false)
-      end
-    end
-  end
-
   def grouping_window_open?
     return false unless grouping_enabled?
     return true if grouping_opens_at.nil? && grouping_closes_at.nil?
@@ -98,8 +77,24 @@ class Course < ApplicationRecord
     opens_ok && closes_ok
   end
 
+  def disable_grouping!
+    transaction do
+      project_groups.where(confirmed: false).destroy_all
+      update!(grouping_enabled: false, student_list_finalised: false)
+    end
+  end
+
+  # Note: Called when coordinator switches from student_list_finalised mode back to default mode.
+  # Confirmed groups stay. Draft groups are destroyed.
+  def revert_to_default_mode!
+    transaction do
+      project_groups.where(confirmed: false).destroy_all
+      update!(student_list_finalised: false)
+    end
+  end
+
   # Note: Finds the Largest legal group size combination
-  def preview_group_combination(student_count)
+  def group_size_distribution(student_count = students.count)
     return { error: 'Group limits are not set' } if group_min.blank? || group_max.blank?
     return { error: 'Student count must be greater than 0' } if student_count <= 0
 
@@ -123,8 +118,6 @@ class Course < ApplicationRecord
     breakdown = size_counts.tally.map { |size, count| { size: size, count: count } }.sort_by { |entry| -entry[:size] }
     { groups: breakdown, total_groups: size_counts.length }
   end
-
-  private
 
   def find_group_size_for(ungrouped_students, allowed_sizes, cache)
     return 0 if ungrouped_students == 0
