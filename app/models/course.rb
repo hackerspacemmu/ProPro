@@ -70,7 +70,7 @@ class Course < ApplicationRecord
 
   def grouping_window_open?
     return false unless grouping_enabled?
-    return true if grouping_opens_at.nil? && grouping_closes_at.nil?
+    return false unless grouping_open?
  
     opens_ok = grouping_opens_at.nil? || Time.current >= grouping_opens_at
     closes_ok = grouping_closes_at.nil? || Time.current <= grouping_closes_at
@@ -80,7 +80,7 @@ class Course < ApplicationRecord
   def disable_grouping!
     transaction do
       project_groups.where(confirmed: false).destroy_all
-      update!(grouping_enabled: false, student_list_finalised: false)
+      update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
     end
   end
 
@@ -243,7 +243,8 @@ class Course < ApplicationRecord
 
   def clear_grouping_fields_if_disabled
     return if grouping_enabled?
- 
+
+    self.grouping_open          = false
     self.student_list_finalised = false
     self.group_min              = nil
     self.group_max              = nil

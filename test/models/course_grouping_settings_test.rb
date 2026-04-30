@@ -98,13 +98,14 @@ class CourseGroupingTest < ActiveSupport::TestCase
   end
 
   test "grouping_window_open? returns true when grouping is enabled and no window is set" do
-    course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
+    course = create(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
     assert course.grouping_window_open?
   end
 
   test "grouping_window_open? returns true when current time is within the window" do
     course = create(:course,
       grouping_enabled: true,
+      grouping_open: true,
       group_min: 2,
       group_max: 4,
       grouping_opens_at: 1.hour.ago,
@@ -116,6 +117,7 @@ class CourseGroupingTest < ActiveSupport::TestCase
   test "grouping_window_open? returns false when window has closed" do
     course = create(:course,
       grouping_enabled: true,
+      grouping_open: true,
       group_min: 2,
       group_max: 4,
       grouping_opens_at: 2.hours.ago,
@@ -127,6 +129,7 @@ class CourseGroupingTest < ActiveSupport::TestCase
   test "grouping_window_open? returns false when window has not opened yet" do
     course = create(:course,
       grouping_enabled: true,
+      grouping_open: true,
       group_min: 2,
       group_max: 4,
       grouping_opens_at: 1.hour.from_now,
@@ -184,11 +187,27 @@ class CourseGroupingTest < ActiveSupport::TestCase
     assert_not ProjectGroup.exists?(draft.id)
   end
 
-  test "revert_to_default_mode! preserves confirmed project_groups" do
+  test "revert_to_default_mode! does not destroy confirmed project_groups" do
     course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
     confirmed = create(:project_group, course: course, confirmed: true)
     course.revert_to_default_mode!
     assert ProjectGroup.exists?(confirmed.id)
   end
 
+  test "grouping_window_open? returns false when grouping_open is false" do
+    course = build(:course, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 4)
+    assert_not course.grouping_window_open?
+  end
+
+  test "grouping_window_open? returns true when grouping_enabled and grouping_open with no dates" do
+    course = build(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4,
+                            grouping_opens_at: nil, grouping_closes_at: nil)
+    assert course.grouping_window_open?
+  end
+
+  test "disable_grouping! sets grouping_open to false" do
+    course = create(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+    course.disable_grouping!
+    assert_not course.reload.grouping_open?
+  end
 end
