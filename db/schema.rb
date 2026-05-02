@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_29_092127) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_02_113207) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -95,17 +95,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_29_092127) do
     t.datetime "updated_at", null: false
     t.index ["project_group_id"], name: "index_project_group_members_on_project_group_id"
     t.index ["user_id"], name: "index_project_group_members_on_user_id"
-  end
-
-  create_table "project_group_slots", force: :cascade do |t|
-    t.integer "course_id", null: false
-    t.integer "group_slots", null: false
-    t.boolean "claimed", default: false, null: false
-    t.integer "project_group_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["course_id"], name: "index_project_group_slots_on_course_id"
-    t.index ["project_group_id"], name: "index_project_group_slots_on_project_group_id"
   end
 
   create_table "project_groups", force: :cascade do |t|
@@ -355,8 +344,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_29_092127) do
   add_foreign_key "progress_updates", "projects"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
-  add_foreign_key "project_group_slots", "courses"
-  add_foreign_key "project_group_slots", "project_groups"
   add_foreign_key "project_groups", "courses"
   add_foreign_key "project_groups", "users", column: "leader_id"
   add_foreign_key "project_instance_fields", "project_instances"
