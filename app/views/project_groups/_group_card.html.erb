@@ -1,0 +1,65 @@
+<article>
+  <header>
+    <h3>
+      <% if group.group_name.present? %>
+        <%= group.group_name %>
+      <% else %>
+        Unnamed group
+      <% end %>
+    </h3>
+
+    <% if group.confirmed? %>
+      <span>Confirmed</span>
+    <% else %>
+      <span>Draft</span>
+    <% end %>
+
+    <% if group.locked? %>
+      <span>Locked</span>
+    <% end %>
+  </header>
+
+  <p>Members: <%= group.project_group_members.count %></p>
+
+  <ul>
+    <% group.project_group_members.each do |membership| %>
+      <li>
+        <%= membership.user.name %>
+        <% if membership.user_id == group.leader_id %>
+          <span>(Leader)</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+
+  <%# Student join / request actions %>
+  <% if !@current_user_enrolment&.coordinator? && @course.grouping_window_open? && @my_group.nil? %>
+    <% if group.confirmed? %>
+      <p>This group is confirmed and cannot be joined.</p>
+    <% elsif group.locked? %>
+      <%# TODO Person 3: POST project_group_invites (kind: request) %>
+      <button type="button" disabled>Request to join</button>
+    <% else %>
+      <%# TODO Person 2: joining an unlocked draft group %>
+      <button type="button" disabled>Join</button>
+    <% end %>
+  <% end %>
+
+  <%# Coordinator actions %>
+  <% if @current_user_enrolment&.coordinator? %>
+    <section>
+      <h4>Coordinator Actions</h4>
+
+      <%# TODO Person 1: form to add a student to this group %>
+      <button type="button" disabled>Add student</button>
+
+      <% if !group.confirmed? %>
+        <%# TODO Person 1: PATCH confirm_course_project_group_path %>
+        <button type="button" disabled>Confirm group</button>
+      <% else %>
+        <%# TODO Person 1: PATCH revert_course_project_group_path %>
+        <button type="button" disabled>Revert to draft</button>
+      <% end %>
+    </section>
+  <% end %>
+</article>

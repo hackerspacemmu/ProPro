@@ -1,0 +1,7 @@
+<% if groups.empty? %>
+  <p>No groups yet.</p>
+<% else %>
+  <% groups.each do |group| %>
+    <%= render "group_card", group: group %>
+  <% end %>
+<% end %>

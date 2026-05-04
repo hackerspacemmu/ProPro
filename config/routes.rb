@@ -79,7 +79,22 @@ Rails.application.routes.draw do
     end
 
     resource :project_template, only: %i[edit update show]
+
+    resources :project_groups, only: %i[index create destroy] do
+      member do
+        patch :confirm
+        patch :revert
+      end
+      resources :project_group_invites, only: %i[create] do
+        member do
+          patch :accept
+          patch :decline
+        end
+      end
+      resources :members, only: %i[create destroy], controller: 'project_group_members'
+    end
   end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

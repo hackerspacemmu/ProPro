@@ -15,7 +15,8 @@ class Course < ApplicationRecord
   has_one :project_template, dependent: :destroy
 
   has_many :topics, dependent: :destroy
-
+  has_many :project_group_members, through: :project_groups
+  
   attribute :student_access, :integer, default: :no_restriction
   attribute :lecturer_access, :boolean, default: true
   attribute :use_progress_updates, :boolean, default: false
