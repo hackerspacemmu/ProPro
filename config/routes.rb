@@ -84,6 +84,7 @@ Rails.application.routes.draw do
       member do
         patch :confirm
         patch :revert
+        patch :force_confirm
       end
       resources :project_group_invites, only: %i[create] do
         member do
@@ -92,6 +93,13 @@ Rails.application.routes.draw do
         end
       end
       resources :members, only: %i[create destroy], controller: 'project_group_members'
+      resources :project_groups_coordinator_actions, only: [] do
+        collection do
+          post :add
+          delete :remove
+          post :move
+        end
+      end
     end
   end
 
