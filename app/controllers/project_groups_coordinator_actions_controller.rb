@@ -1,13 +1,16 @@
 class ProjectGroupsCoordinatorActionsController < ApplicationController
+  before_action :set_course
+  before_action :set_group, only: %i[add remove move]
+  before_action :authorize_coordinator!
+
   def add
     user = User.find(params[:user_id])
 
     begin
       @group.add_member!(user, is_coordinator: true)
-      redirect_to course_project_groups_path(@course), notice: "#{user.name} added to group."
+      redirect_to coordinator_actions_course_project_groups_path(@course), notice: "#{user.name} added to group."
     rescue StandardError => e
-      # handle error for when the user is already in another group
-      redirect_to course_project_groups_path(@course), alert: e.message
+      redirect_to coordinator_actions_course_project_groups_path(@course), alert: e.message
     end
   end
 
@@ -15,9 +18,9 @@ class ProjectGroupsCoordinatorActionsController < ApplicationController
     user = User.find(params[:user_id])
 
     if @group.remove_member!(user)
-      redirect_to course_project_groups_path(@course), notice: "#{user.name} removed from group."
+      redirect_to coordinator_actions_course_project_groups_path(@course), notice: "#{user.name} removed from group."
     else
-      redirect_to course_project_groups_path(@course), alert: 'Failed to remove user.'
+      redirect_to coordinator_actions_course_project_groups_path(@course), alert: 'Failed to remove user.'
     end
   end
 
@@ -26,13 +29,14 @@ class ProjectGroupsCoordinatorActionsController < ApplicationController
     target_group = @course.project_groups.find(params[:target_group_id])
 
     begin
-      transaction do
+      ActiveRecord::Base.transaction do
         @group.remove_member!(user)
-        target_group.add_member(user, is_coordinator: true)
+        target_group.add_member!(user, is_coordinator: true)
       end
-      redirect_to course_project_groups_path(@course), notice: "#{user.name} moved successfully."
+
+      redirect_to coordinator_actions_course_project_groups_path(@course), notice: "#{user.name} moved successfully."
     rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
+      redirect_to coordinator_actions_course_project_groups_path(@course), alert: e.message
     end
   end
 
@@ -46,7 +50,6 @@ class ProjectGroupsCoordinatorActionsController < ApplicationController
     @group = @course.project_groups.find(params[:project_group_id])
   end
 
-  # for ensuring the user is actually the coordinator
   def authorize_coordinator!
     authorize @course, :grouping_coordinator?
   end

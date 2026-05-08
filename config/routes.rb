@@ -86,6 +86,11 @@ Rails.application.routes.draw do
         patch :revert
         patch :force_confirm
       end
+
+      collection do
+        get :coordinator_actions
+      end
+
       resources :project_group_invites, only: %i[create] do
         member do
           patch :accept
