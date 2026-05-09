@@ -93,6 +93,14 @@ class ProjectGroupsController < ApplicationController
   def coordinator_actions
     authorize @course, :grouping_coordinator?
     @groups = @course.project_groups.includes(project_group_members: :user)
+
+    enrolled_student_ids = @course.enrolments.where(role: :student).pluck(:user_id)
+    grouped_student_ids  = ProjectGroupMember.joins(:project_group)
+                                             .where(project_groups: { course_id: @course.id })
+                                             .pluck(:user_id)
+    ungrouped_ids        = enrolled_student_ids - grouped_student_ids
+
+    @ungrouped_students = User.where(id: ungrouped_ids).order(:name)
   end
 
   private
