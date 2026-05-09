@@ -7,7 +7,9 @@
   data-grouping-settings-finalised-value="<%= @course.student_list_finalised? %>"
 >
   <div class="space-y-1">
-    <h3 class="text-lg font-medium leading-6 text-gray-900"> Student Self-Grouping (Beta) </h3>
+    <h3 class="text-lg font-medium leading-6 text-gray-900">
+      Student Self-Grouping (Beta)
+    </h3>
 
     <p class="text-xs text-amber-600">
       Group formation in ProPro is still in progress!
@@ -21,306 +23,307 @@
     </span>
     <div class="flex items-center space-x-4">
       <div class="flex items-center">
-        <%= form.radio_button :grouping_enabled, true,
-              class: "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300",
-              data: { action: "change->grouping-settings#toggleEnabled" } %>
-        <%= form.label :grouping_enabled, "Yes", value: true,
-              class: "ml-2 block text-sm text-gray-700" %>
+        <%= form.radio_button :grouping_enabled,
+                          true,
+                          class:
+                            "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300",
+                          data: {
+                            action: "change->grouping-settings#toggleEnabled",
+                          } %>
+        <%= form.label :grouping_enabled,
+                   "Yes",
+                   value: true,
+                   class: "ml-2 block text-sm text-gray-700" %>
       </div>
       <div class="flex items-center">
-        <%= form.radio_button :grouping_enabled, false,
-              class: "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300",
-              data: { action: "change->grouping-settings#toggleEnabled" } %>
-        <%= form.label :grouping_enabled, "No", value: false,
-              class: "ml-2 block text-sm text-gray-700" %>
+        <%= form.radio_button :grouping_enabled,
+                          false,
+                          class:
+                            "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300",
+                          data: {
+                            action: "change->grouping-settings#toggleEnabled",
+                          } %>
+        <%= form.label :grouping_enabled,
+                   "No",
+                   value: false,
+                   class: "ml-2 block text-sm text-gray-700" %>
 
       </div>
     </div>
   </div>
 
-    <%# Options section — hidden until student fixed list mode %>
-    <div
-      data-grouping-settings-target="groupingOptions"
-      class="
-        space-y-8
-        pl-4
-        border-l-2
-        border-green-200
-      "
-    >
+  <%# Options section — hidden until student fixed list mode %>
+  <div
+    data-grouping-settings-target="groupingOptions"
+    class="space-y-8 pl-4 border-l-2 border-green-200"
+  >
 
-      <%# Section: Group configuration %>
-      <div class="space-y-6">
-        <div>
-          <span
-            class="
-              block
-              text-xs
-              font-semibold
-              uppercase
-              tracking-wide
-              text-gray-400
-              mb-4
-            "
-          >
-            Group configuration
-          </span>
-
-          <%# Mode selection %>
-          <div class="mb-6">
-            <span class="block text-sm font-medium text-gray-700 mb-1">Student list mode</span>
-            <p class="text-xs text-gray-500 mb-3">
-              Choose whether the coordinator knows the exact final count of students.
-            </p>
-
-            <div class="space-y-3">
-              <%# Default mode — always rendered %>
-              <label
-                class="
-                  flex
-                  items-start
-                  gap-3
-                  p-3
-                  border
-                  rounded-md
-                  cursor-pointer
-                  hover:border-green-400
-                  transition-colors
-                  <%= @course.student_list_finalised? ? 'border-gray-200 bg-white' : 'border-green-500 bg-green-50' %>
-                "
-              >
-                <%= form.radio_button :student_list_finalised, false,
-                      class: "mt-0.5 focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 shrink-0",
-                      data: { action: "change->grouping-settings#toggleMode" } %>
-                <div>
-                  <span class="block text-sm font-medium text-gray-800">Default</span>
-                  <span class="block text-xs text-gray-500 mt-0.5">
-                    Students join by code, or the student list may still change. Students form groups
-                    within the min/max limits — any leftover students will need lecturer intervention.
-                  </span>
-                </div>
-              </label>
-
-              <%# Fixed list mode — locked out once default mode has been saved %>
-              <% if @course.persisted? && @course.grouping_enabled? && !@course.student_list_finalised? %>
-                <div
-                  class="
-                    flex
-                    items-start
-                    gap-3
-                    p-3
-                    border
-                    border-gray-200
-                    rounded-md
-                    bg-gray-50
-                    opacity-60
-                  "
-                >
-                  <div class="mt-0.5 h-4 w-4 shrink-0"></div>
-                  <div>
-                    <span class="block text-sm font-medium text-gray-400">Final student list</span>
-                    <span class="block text-xs text-gray-400 mt-0.5">
-                      Fixed list mode cannot be enabled once default mode has been saved.
-                    </span>
-                  </div>
-                </div>
-              <% else %>
-                <label
-                  class="
-                    flex
-                    items-start
-                    gap-3
-                    p-3
-                    border
-                    rounded-md
-                    cursor-pointer
-                    hover:border-green-400
-                    transition-colors
-                    <%= @course.student_list_finalised? ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white' %>
-                  "
-                >
-                  <%= form.radio_button :student_list_finalised, true,
-                        class: "mt-0.5 focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 shrink-0",
-                        data: { action: "change->grouping-settings#toggleMode" } %>
-                  <div>
-                    <span class="block text-sm font-medium text-gray-800">Final student list</span>
-                    <span class="block text-xs text-gray-500 mt-0.5">
-                      I will import students and the student list is final — no new students will be added.
-                      The system can automatically determine legal group sizes for every student.
-                    </span>
-                  </div>
-                </label>
-              <% end %>
-            </div>
-          </div>
-
-          <%# Min / Max group size %>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <%= form.label :group_min, "Minimum group size",
-                    class: "block text-sm font-medium text-gray-700" %>
-              <div class="mt-1">
-                <%= form.number_field :group_min,
-                      min: 1,
-                      placeholder: "e.g. 3",
-                      class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
-                      data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
-              </div>
-            </div>
-            <div>
-              <%= form.label :group_max, "Maximum group size",
-                    class: "block text-sm font-medium text-gray-700" %>
-              <div class="mt-1">
-                <%= form.number_field :group_max,
-                      min: 1,
-                      placeholder: "e.g. 4",
-                      class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
-                      data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
-              </div>
-            </div>
-          </div>
-
-          <%# Preview section %>
-          <div
-            data-grouping-settings-target="previewSection"
-            class="
-              mt-6
-              bg-gray-50
-              border
-              border-gray-200
-              rounded-md
-              p-4
-              space-y-3
-            "
-          >
-            <div>
-              <p class="text-sm font-medium text-gray-700">Preview group distribution</p>
-              <p class="text-xs text-gray-500 mt-0.5">
-                Enter an expected student count to see how legal groups would form.
-                Actual numbers will come from enrolled students.
-              </p>
-            </div>
-            <div class="flex items-center gap-3">
-              <input
-                type="number"
-                id="grouping_preview_count"
-                name="student_count"
-                min="1"
-                placeholder="e.g. 30"
-                class="appearance-none w-36 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                hx-get="<%= grouping_preview_course_path(@course) %>"
-                hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
-                hx-params="student_count,course[group_min],course[group_max]"
-                hx-target="#grouping_preview_result"
-                hx-trigger="input changed delay:400ms"
-                data-grouping-settings-target="previewInput"
-              >
-              <span class="text-sm text-gray-500">students</span>
-            </div>
-            <div id="grouping_preview_result" class="text-sm"></div>
-          </div>
-        </div>
-      </div>
-
-      <%# Section: Student access %>
+    <%# Section: Group configuration %>
+    <div class="space-y-6">
       <div>
         <span
           class="
-            block
-            text-xs
-            font-semibold
-            uppercase
-            tracking-wide
-            text-gray-400
-            mb-4
+            block text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4
           "
         >
-          Student access
+          Group configuration
         </span>
 
-        <%# Manual open/close toggle %>
-        <div
-          class="
-            flex
-            items-center
-            justify-between
-            p-3
-            border
-            border-gray-200
-            rounded-md
-            bg-white
-            mb-4
-          "
-        >
-          <div>
-            <span class="block text-sm font-medium text-gray-800">Allow student grouping now</span>
-            <span class="block text-xs text-gray-500 mt-0.5">
-              Students can join, leave, and form groups only when this is on.
-            </span>
+        <%# Mode selection %>
+        <div class="mb-6">
+          <span class="block text-sm font-medium text-gray-700 mb-1">Student list mode</span>
+          <p class="text-xs text-gray-500 mb-3">
+            Choose whether the coordinator knows the exact final count of
+            students.
+          </p>
+
+          <div class="space-y-3">
+            <%# Default mode — always rendered %>
+            <label
+              class="
+                flex items-start gap-3 p-3 border rounded-md cursor-pointer
+                hover:border-green-400 transition-colors <%= @course.student_list_finalised? ? 'border-gray-200 bg-white' : 'border-green-500 bg-green-50' %>
+              "
+            >
+              <%= form.radio_button :student_list_finalised,
+                                false,
+                                class:
+                                  "mt-0.5 focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 shrink-0",
+                                data: {
+                                  action: "change->grouping-settings#toggleMode",
+                                } %>
+              <div>
+                <span class="block text-sm font-medium text-gray-800">Default</span>
+                <span class="block text-xs text-gray-500 mt-0.5">
+                  Students join by code, or the student list may still change.
+                  Students form groups within the min/max limits — any leftover
+                  students will need lecturer intervention.
+                </span>
+              </div>
+            </label>
+
+            <%# Fixed list mode — locked out once default mode has been saved %>
+            <% if @course.persisted? && @course.grouping_enabled? && !@course.student_list_finalised? %>
+              <div
+                class="
+                  flex items-start gap-3 p-3 border border-gray-200 rounded-md bg-gray-50
+                  opacity-60
+                "
+              >
+                <div class="mt-0.5 h-4 w-4 shrink-0"></div>
+                <div>
+                  <span class="block text-sm font-medium text-gray-400">Final student list</span>
+                  <span class="block text-xs text-gray-400 mt-0.5">
+                    Fixed list mode cannot be enabled once default mode has
+                    been saved.
+                  </span>
+                </div>
+              </div>
+            <% else %>
+              <label
+                class="
+                  flex items-start gap-3 p-3 border rounded-md cursor-pointer
+                  hover:border-green-400 transition-colors <%= @course.student_list_finalised? ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white' %>
+                "
+              >
+                <%= form.radio_button :student_list_finalised,
+                                  true,
+                                  class:
+                                    "mt-0.5 focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 shrink-0",
+                                  data: {
+                                    action: "change->grouping-settings#toggleMode",
+                                  } %>
+                <div>
+                  <span class="block text-sm font-medium text-gray-800">Final student list</span>
+                  <span class="block text-xs text-gray-500 mt-0.5">
+                    I will import students and the student list is final — no
+                    new students will be added. The system can automatically
+                    determine legal group sizes for every student.
+                  </span>
+                </div>
+              </label>
+            <% end %>
           </div>
-          <div
-            class="
-              flex
-              items-center
-              gap-3
-              shrink-0
-              ml-4
-            "
-          >
-            <div class="flex items-center">
-              <%= form.radio_button :grouping_open, true,
-                    class: "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
-              <%= form.label :grouping_open, "Open", value: true,
-                    class: "ml-1 text-sm text-gray-700" %>
+        </div>
+
+        <%# Min / Max group size %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :group_min,
+                       "Minimum group size",
+                       class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.number_field :group_min,
+                                min: 1,
+                                placeholder: "e.g. 3",
+                                class:
+                                  "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
+                                data: {
+                                  grouping_settings_target: "minMax",
+                                  action: "input->grouping-settings#clearPreview",
+                                } %>
             </div>
-            <div class="flex items-center">
-              <%= form.radio_button :grouping_open, false,
-                    class: "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
-              <%= form.label :grouping_open, "Closed", value: false,
-                    class: "ml-1 text-sm text-gray-700" %>
+          </div>
+          <div>
+            <%= form.label :group_max,
+                       "Maximum group size",
+                       class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.number_field :group_max,
+                                min: 1,
+                                placeholder: "e.g. 4",
+                                class:
+                                  "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
+                                data: {
+                                  grouping_settings_target: "minMax",
+                                  action: "input->grouping-settings#clearPreview",
+                                } %>
             </div>
           </div>
         </div>
 
-        <%# Optional datetime window %>
-        <div class="flex items-center justify-between mb-2">
-          <span class="block text-sm font-medium text-gray-700">Auto-close window (optional)</span>
-          <button
-            type="button"
-            class="text-xs text-green-700 hover:underline"
-            data-action="click->grouping-settings#toggleWindow"
-            data-grouping-settings-target="windowToggleBtn"
-          >
-            <%= (@course.grouping_opens_at.present? || @course.grouping_closes_at.present?) ? 'Remove window' : 'Set a window' %>
-          </button>
-        </div>
-        <p class="text-xs text-gray-500 mb-3">
-          Optionally set specific dates to open and close student access automatically.
-        </p>
+        <%# Preview section %>
         <div
-          data-grouping-settings-target="windowFields"
-          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+          data-grouping-settings-target="previewSection"
+          class="
+            mt-6 bg-gray-50 border border-gray-200 rounded-md p-4 space-y-3
+          "
         >
           <div>
-            <%= form.label :grouping_opens_at, "Open from",
-                  class: "block text-sm font-medium text-gray-700" %>
-            <div class="mt-1">
-              <%= form.datetime_local_field :grouping_opens_at,
-                    class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
-                    value: @course.grouping_opens_at&.strftime('%Y-%m-%dT%H:%M') %>
-            </div>
+            <p class="text-sm font-medium text-gray-700">Preview group distribution</p>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Enter an expected student count to see how legal groups would
+              form. Actual numbers will come from enrolled students.
+            </p>
           </div>
-          <div>
-            <%= form.label :grouping_closes_at, "Close at",
-                  class: "block text-sm font-medium text-gray-700" %>
-            <div class="mt-1">
-              <%= form.datetime_local_field :grouping_closes_at,
-                    class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
-                    value: @course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M') %>
-            </div>
+          <div class="flex items-center gap-3">
+            <input
+              type="number"
+              id="grouping_preview_count"
+              name="student_count"
+              min="1"
+              autocomplete="off"
+              placeholder="e.g. 30"
+              class="
+                appearance-none w-36 px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                placeholder-gray-400 focus:outline-none focus:ring-green-500
+                focus:border-green-500 sm:text-sm
+              "
+              hx-get="<%= grouping_preview_course_path(@course) %>"
+              hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
+              hx-params="student_count,course[group_min],course[group_max]"
+              hx-target="#grouping_preview_result"
+              hx-trigger="input changed delay:400ms"
+              data-grouping-settings-target="previewInput"
+            >
+            <span class="text-sm text-gray-500">students</span>
+          </div>
+          <div id="grouping_preview_result" class="text-sm"></div>
+        </div>
+      </div>
+    </div>
+
+    <%# Section: Student access %>
+    <div>
+      <span
+        class="
+          block text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4
+        "
+      >
+        Student access
+      </span>
+
+      <%# Manual open/close toggle %>
+      <div
+        class="
+          flex items-center justify-between p-3 border border-gray-200 rounded-md bg-white
+          mb-4
+        "
+      >
+        <div>
+          <span class="block text-sm font-medium text-gray-800">Allow student grouping now</span>
+          <span class="block text-xs text-gray-500 mt-0.5">
+            Students can join, leave, and form groups only when this is on.
+          </span>
+        </div>
+        <div class=" flex items-center gap-3 shrink-0 ml-4 ">
+          <div class="flex items-center">
+            <%= form.radio_button :grouping_open,
+                              true,
+                              class:
+                                "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+            <%= form.label :grouping_open,
+                       "Open",
+                       value: true,
+                       class: "ml-1 text-sm text-gray-700" %>
+          </div>
+          <div class="flex items-center">
+            <%= form.radio_button :grouping_open,
+                              false,
+                              class:
+                                "focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300" %>
+            <%= form.label :grouping_open,
+                       "Closed",
+                       value: false,
+                       class: "ml-1 text-sm text-gray-700" %>
           </div>
         </div>
       </div>
 
-    </div><%# /groupingOptions %>
+      <%# Optional datetime window %>
+      <div class="flex items-center justify-between mb-2">
+        <span class="block text-sm font-medium text-gray-700">Auto-close window (optional)</span>
+        <button
+          type="button"
+          class="text-xs text-green-700 hover:underline"
+          data-action="click->grouping-settings#toggleWindow"
+          data-grouping-settings-target="windowToggleBtn"
+        >
+          <%= if (@course.grouping_opens_at.present? || @course.grouping_closes_at.present?)
+            "Remove window"
+          else
+            "Set a window"
+          end %>
+        </button>
+      </div>
+      <p class="text-xs text-gray-500 mb-3">
+        Optionally set specific dates to open and close student access
+        automatically.
+      </p>
+      <div
+        data-grouping-settings-target="windowFields"
+        class="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        <div>
+          <%= form.label :grouping_opens_at,
+                     "Open from",
+                     class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.datetime_local_field :grouping_opens_at,
+                                      class:
+                                        "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
+                                      value:
+                                        @course.grouping_opens_at&.strftime(
+                                          "%Y-%m-%dT%H:%M",
+                                        ) %>
+          </div>
+        </div>
+        <div>
+          <%= form.label :grouping_closes_at,
+                     "Close at",
+                     class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.datetime_local_field :grouping_closes_at,
+                                      class:
+                                        "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm",
+                                      value:
+                                        @course.grouping_closes_at&.strftime(
+                                          "%Y-%m-%dT%H:%M",
+                                        ) %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><%# /groupingOptions %>
 </div><%# /data-controller %>

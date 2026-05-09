@@ -15,7 +15,8 @@
       <span class="border border-gray-300 rounded px-2 py-0.5">
         <%= @course.student_list_finalised? ? "Fixed list mode" : "Default mode" %>
       </span>
-      <span>Group size: <%= @course.group_min %>–<%= @course.group_max %></span>
+      <span>Group size:
+        <%= @course.group_min %>–<%= @course.group_max %></span>
     </div>
   </div>
 
@@ -24,14 +25,28 @@
     <div class="p-3">
 
       <%# ── Group header %>
-      <div class="flex items-center justify-between border border-gray-200 rounded-[3px] px-3 py-2 mb-3">
+      <div
+        class="
+          flex items-center justify-between border border-gray-200 rounded-[3px] px-3 py-2
+          mb-3
+        "
+      >
         <div class="flex items-center gap-3">
           <h2 class="text-base font-semibold leading-tight">G021</h2>
           <span class="border border-gray-300 rounded px-2 py-0.5 text-xs">Draft</span>
-          <span class="border border-amber-300 rounded px-2 py-0.5 text-xs text-amber-600">Locked</span>
+          <span
+            class="
+              border border-amber-300 rounded px-2 py-0.5 text-xs text-amber-600
+            "
+          >Locked</span>
           <span class="text-xs text-gray-400">3 / 4 members</span>
         </div>
-        <button class="text-sm font-medium text-white bg-red-500 rounded px-3 py-1 hover:bg-red-600 transition-colors">
+        <button
+          class="
+            text-sm font-medium text-white bg-red-500 rounded px-3 py-1 hover:bg-red-600
+            transition-colors
+          "
+        >
           Dissolve
         </button>
       </div>
@@ -40,7 +55,11 @@
       <div class="block md:flex gap-3 mb-3">
 
         <%# Members container %>
-        <div class="flex-1 min-w-0 border border-gray-200 rounded-[3px] p-2.5 mb-3 md:mb-0">
+        <div
+          class="
+            flex-1 min-w-0 border border-gray-200 rounded-[3px] p-2.5 mb-3 md:mb-0
+          "
+        >
           <p class="text-xs font-medium tracking-[1px] uppercase text-gray-400 mb-2">Members</p>
           <ul class="divide-y divide-gray-100">
 
@@ -58,7 +77,11 @@
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <button class="text-xs text-red-400 hover:text-red-600">Kick</button>
-                <button class="text-xs font-medium text-white bg-[#1F78D1] rounded px-2 py-1 hover:opacity-90">
+                <button
+                  class="
+                    text-xs font-medium text-white bg-[#1F78D1] rounded px-2 py-1 hover:opacity-90
+                  "
+                >
                   Promote
                 </button>
               </div>
@@ -71,7 +94,11 @@
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <button class="text-xs text-red-400 hover:text-red-600">Kick</button>
-                <button class="text-xs font-medium text-white bg-[#1F78D1] rounded px-2 py-1 hover:opacity-90">
+                <button
+                  class="
+                    text-xs font-medium text-white bg-[#1F78D1] rounded px-2 py-1 hover:opacity-90
+                  "
+                >
                   Promote
                 </button>
               </div>
@@ -88,7 +115,12 @@
         <div class="w-full md:w-64 shrink-0 border border-gray-200 rounded-[3px] p-2.5">
           <p class="text-xs font-medium tracking-[1px] uppercase text-gray-400 mb-2">
             Join Requests
-            <span class="ml-1 bg-[#1F78D1] text-white text-xs rounded-full px-1.5 py-0.5 leading-none normal-case tracking-normal">1</span>
+            <span
+              class="
+                ml-1 bg-[#1F78D1] text-white text-xs rounded-full px-1.5 py-0.5 leading-none
+                normal-case tracking-normal
+              "
+            >1</span>
           </p>
           <ul id="requests-badge" class="divide-y divide-gray-100">
 
@@ -114,17 +146,37 @@
         <p class="text-xs font-medium tracking-[1px] uppercase text-gray-400 mb-2">Group Settings</p>
         <div class="flex flex-wrap gap-2">
           <%# confirm OR revert — based on @my_group.confirmed? %>
-          <button class="px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90 transition-opacity">
+          <button
+            class="
+              px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90
+              transition-opacity
+            "
+          >
             Confirm Group
           </button>
-          <button class="px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90 transition-opacity">
+          <button
+            class="
+              px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90
+              transition-opacity
+            "
+          >
             Revert to Draft
           </button>
           <%# lock OR unlock — based on @my_group.locked? %>
-          <button class="px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90 transition-opacity">
+          <button
+            class="
+              px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90
+              transition-opacity
+            "
+          >
             Lock Group
           </button>
-          <button class="px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90 transition-opacity">
+          <button
+            class="
+              px-3 py-1 text-sm font-medium text-white bg-[#1F78D1] rounded hover:opacity-90
+              transition-opacity
+            "
+          >
             Unlock Group
           </button>
         </div>
@@ -136,53 +188,88 @@
   <%# ── Browse section: filters + result pane %>
   <div class="block md:flex">
 
-  <%# Filter sidebar %>
-  <div class="w-full md:w-48 md:shrink-0 md:mr-6 mb-4 md:mb-0 md:flex md:flex-col">
-    <div class="h-10 flex items-center mb-4">
-      <h4 class="text-[0.9375em] font-medium tracking-[1px] uppercase text-[#192325] leading-none">
-        Filters
-      </h4>
-    </div>
+    <%# Filter sidebar %>
+    <div
+      class="
+        w-full md:w-48 md:shrink-0 md:mr-6 mb-4 md:mb-0 md:flex md:flex-col
+      "
+    >
+      <div class="h-10 flex items-center mb-4">
+        <h4
+          class="
+            text-[0.9375em] font-medium tracking-[1px] uppercase text-[#192325] leading-none
+          "
+        >
+          Filters
+        </h4>
+      </div>
 
-    <ul class="list-none space-y-2">
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="looking_for_people" checked>
-            Draft — looking for people
-          </span>
-          <span class="text-xs text-gray-400">8</span>
-        </label>
-      </li>
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="all_draft">
-            All draft groups
-          </span>
-          <span class="text-xs text-gray-400">12</span>
-        </label>
-      </li>
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="no_group">
-            Students without a group
-          </span>
-          <span class="text-xs text-gray-400">23</span>
-        </label>
-      </li>
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="confirmed">
-            Confirmed groups
-          </span>
-          <span class="text-xs text-gray-400">4</span>
-        </label>
-      </li>
-    </ul>
-  </div>
+      <ul class="list-none space-y-2">
+        <li>
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
+            <span class="flex items-center gap-2">
+              <input
+                type="checkbox"
+                class="rounded"
+                autocomplete="off"
+                name="filter[]"
+                value="looking_for_people"
+                checked
+              >
+              Draft — looking for people
+            </span>
+            <span class="text-xs text-gray-400">8</span>
+          </label>
+        </li>
+        <li>
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="all_draft">
+              All draft groups
+            </span>
+            <span class="text-xs text-gray-400">12</span>
+          </label>
+        </li>
+        <li>
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="no_group">
+              Students without a group
+            </span>
+            <span class="text-xs text-gray-400">23</span>
+          </label>
+        </li>
+        <li>
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="confirmed">
+              Confirmed groups
+            </span>
+            <span class="text-xs text-gray-400">4</span>
+          </label>
+        </li>
+      </ul>
+    </div>
 
     <%# Result pane %>
     <div id="result-pane" class="flex-1 min-w-0">
@@ -192,10 +279,21 @@
 
         <%# Search input + button %>
         <div class="flex flex-1">
-          <input type="text"
-                placeholder="Search groups or members…"
-                class="flex-1 h-10 px-3 text-[1em] bg-white border-2 border-[#EDF1F2] border-r-0 rounded-none text-black/75 transition-all duration-150 focus:outline-none focus:border-gray-400">
-          <button class="h-10 px-4 text-sm text-white bg-[#1F78D1] border-2 border-[#1F78D1] rounded-none shadow-none font-medium hover:opacity-90 transition-opacity">
+          <input
+            type="text"
+            placeholder="Search groups or members…"
+            class="
+              flex-1 h-10 px-3 text-[1em] bg-white border-2 border-[#EDF1F2] border-r-0
+              rounded-none text-black/75 transition-all duration-150 focus:outline-none
+              focus:border-gray-400
+            "
+          >
+          <button
+            class="
+              h-10 px-4 text-sm text-white bg-[#1F78D1] border-2 border-[#1F78D1] rounded-none
+              shadow-none font-medium hover:opacity-90 transition-opacity
+            "
+          >
             Search
           </button>
         </div>
@@ -203,7 +301,12 @@
         <%# Sort %>
         <div class="flex items-center gap-2 shrink-0">
           <label class="text-sm text-gray-500 whitespace-nowrap">Sort by</label>
-          <select class="h-10 px-3 text-sm border-2 border-[#EDF1F2] rounded-none bg-white text-black/75 focus:outline-none">
+          <select
+            class="
+              h-10 px-3 text-sm border-2 border-[#EDF1F2] rounded-none bg-white text-black/75
+              focus:outline-none
+            "
+          >
             <option>Newest</option>
             <option>Member count</option>
             <option>Name</option>
@@ -213,7 +316,8 @@
       </div>
 
       <%# Result count %>
-      <p class="text-sm text-gray-600 mb-3">1 entries matching your query </p>
+      <p class="text-sm text-gray-600 mb-3">1 entries matching your query
+      </p>
 
       <%# Cards go here %>
       <%# Group / student cards go here %>
@@ -230,7 +334,8 @@
         </div>
         <ul class="space-y-1">
           <%# member rows %>
-          <li class="text-sm text-gray-600">Willie Poh Kaw Lik <span class="text-xs text-gray-400">(leader)</span></li>
+          <li class="text-sm text-gray-600">Willie Poh Kaw Lik
+            <span class="text-xs text-gray-400">(leader)</span></li>
           <li class="text-sm text-gray-600">Alex Chiam Juin Hoong</li>
           <li class="text-sm text-gray-600">Chow Ying Tong</li>
         </ul>
