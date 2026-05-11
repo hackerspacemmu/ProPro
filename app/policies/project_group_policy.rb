@@ -1,7 +1,4 @@
 class ProjectGroupPolicy < ApplicationPolicy
-  # record = ProjectGroup instance
-  # user   = current_user
-
   def enrolment
     @enrolment ||= record.course.enrolments.find_by(user:)
   end
@@ -28,16 +25,38 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def confirm?
     return true if coordinator?
-    grouping_window_open? && record.leader_id == user.id
+    grouping_window_open? &&
+      record.leader_id == user.id &&
+      !record.confirmed?
   end
 
   def revert?
     return true if coordinator?
-    grouping_window_open? && record.leader_id == user.id
+    grouping_window_open? &&
+      record.leader_id == user.id &&
+      record.confirmed?
   end
 
   def destroy?
-    return true if coordinator?
+    return coordinator? if record.confirmed?
     grouping_window_open? && record.leader_id == user.id
+  end
+
+  def lock?
+    return true if coordinator?
+    grouping_window_open? &&
+      record.leader_id == user.id && !record.confirmed?
+  end
+
+  def unlock?
+    return true if coordinator?
+    grouping_window_open? &&
+      record.leader_id == user.id && !record.confirmed?
+  end
+
+  def promote_leader?
+    return true if coordinator?
+    grouping_window_open? &&
+      record.leader_id == user.id && !record.confirmed?
   end
 end
