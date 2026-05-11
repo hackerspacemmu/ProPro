@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       post 'handle_add_lecturers'
       get 'settings'
       post 'handle_settings'
+      get  'grouping_preview'
       post 'update_coursecode'
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
@@ -78,7 +79,25 @@ Rails.application.routes.draw do
     end
 
     resource :project_template, only: %i[edit update show]
+
+    resources :project_groups, only: %i[index create destroy] do
+      member do
+        patch :confirm
+        patch :revert
+        patch :lock
+        patch :unlock
+        patch :promote_leader
+      end
+      resources :project_group_invites, only: %i[create] do
+        member do
+          patch :accept
+          patch :decline
+        end
+      end
+      resources :members, only: %i[create destroy], controller: 'project_group_members'
+    end
   end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

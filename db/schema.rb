@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_07_104009) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -40,6 +40,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
     t.string "coursecode"
     t.boolean "coursecode_enabled", default: false, null: false
     t.boolean "toggle_topics", default: true
+    t.boolean "grouping_enabled", default: false, null: false
+    t.boolean "student_list_finalised", default: false, null: false
+    t.integer "group_min"
+    t.integer "group_max"
+    t.boolean "grouping_open", default: false, null: false
+    t.datetime "grouping_opens_at"
+    t.datetime "grouping_closes_at"
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
@@ -60,6 +67,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
     t.string "token", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_otps_on_user_id"
+  end
+
+  create_table "ownerships", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.integer "owner_id", null: false
+    t.integer "ownership_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_ownerships_on_owner"
   end
 
   create_table "progress_updates", force: :cascade do |t|
@@ -86,6 +102,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
     t.string "group_name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "confirmed", default: false, null: false
+    t.boolean "locked", default: false, null: false
+    t.integer "leader_id"
+    t.integer "course_group_sequence"
+    t.index ["course_id", "course_group_sequence"], name: "index_project_groups_on_course_id_and_course_group_sequence", unique: true
     t.index ["course_id"], name: "index_project_groups_on_course_id"
   end
 
@@ -295,6 +316,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "topic_responses", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "project_instance_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_topic_responses_on_project_id"
+    t.index ["project_instance_id"], name: "index_topic_responses_on_project_instance_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -317,6 +347,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_groups", "courses"
+  add_foreign_key "project_groups", "users", column: "leader_id"
   add_foreign_key "project_instance_fields", "project_instances"
   add_foreign_key "project_instance_fields", "project_template_fields"
   add_foreign_key "project_instances", "enrolments"
@@ -333,4 +364,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_112235) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "topic_responses", "project_instances"
+  add_foreign_key "topic_responses", "projects"
 end
