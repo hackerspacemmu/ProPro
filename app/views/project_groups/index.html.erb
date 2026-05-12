@@ -20,72 +20,71 @@
   </div>
 
   <%# ── Current Group panel %>
-  <%# <div class="border-2 border-[#1F78D1] rounded-[3px] bg-white mb-6"> %>
   <%= render 'my_group_panel' %>
 
   <%# ── Browse section: filters + result pane %>
-  <div class="block md:flex">
+  <div class="flex flex-col md:flex-row md:gap-6">
 
-  <%# Filter sidebar %>
-  <div class="w-full md:w-48 md:shrink-0 md:mr-6 mb-4 md:mb-0 md:flex md:flex-col">
-    <div class="h-10 flex items-center mb-4">
-      <h4 class="text-[0.9375em] font-medium tracking-[1px] uppercase text-[#192325] leading-none">
-        Filters
-      </h4>
+    <%# Filter sidebar %>
+    <div class="w-full md:w-48 md:shrink-0 mb-4 md:mb-0">
+      <div class="h-10 flex items-center mb-4">
+        <h4 class="text-[0.9375em] font-medium tracking-[1px] uppercase text-[#192325] leading-none">
+          Filters
+        </h4>
+      </div>
+
+      <ul class="list-none space-y-2">
+        <li>
+          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="looking_for_people" checked />
+              Draft — looking for people
+            </span>
+            <span class="text-xs text-gray-400">8</span>
+          </label>
+        </li>
+        <li>
+          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="all_draft" />
+              All draft groups
+            </span>
+            <span class="text-xs text-gray-400">12</span>
+          </label>
+        </li>
+        <li>
+          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="no_group" />
+              Students without a group
+            </span>
+            <span class="text-xs text-gray-400">23</span>
+          </label>
+        </li>
+        <li>
+          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+            <span class="flex items-center gap-2">
+              <input type="checkbox" class="rounded" name="filter[]" value="confirmed" />
+              Confirmed groups
+            </span>
+            <span class="text-xs text-gray-400">4</span>
+          </label>
+        </li>
+      </ul>
     </div>
-
-    <ul class="list-none space-y-2">
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="looking_for_people" checked />
-            Draft — looking for people
-          </span>
-          <span class="text-xs text-gray-400">8</span>
-        </label>
-      </li>
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="all_draft" />
-            All draft groups
-          </span>
-          <span class="text-xs text-gray-400">12</span>
-        </label>
-      </li>
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="no_group" />
-            Students without a group
-          </span>
-          <span class="text-xs text-gray-400">23</span>
-        </label>
-      </li>
-      <li>
-        <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-          <span class="flex items-center gap-2">
-            <input type="checkbox" class="rounded" name="filter[]" value="confirmed" />
-            Confirmed groups
-          </span>
-          <span class="text-xs text-gray-400">4</span>
-        </label>
-      </li>
-    </ul>
-  </div>
 
     <%# Result pane %>
     <div id="result-pane" class="flex-1 min-w-0">
 
       <%# Search + sort bar %>
-      <div class="flex items-center gap-3 mb-4">
+      <div class="flex flex-col sm:flex-row gap-2 mb-4">
 
         <%# Search input + button %>
         <div class="flex flex-1">
           <input type="text"
                 placeholder="Search groups or members…"
-                class="flex-1 h-10 px-3 text-[1em] bg-white border-2 border-[#EDF1F2] border-r-0 rounded-none text-black/75 transition-all duration-150 focus:outline-none focus:border-gray-400" />
-          <button class="h-10 px-4 text-sm text-white bg-[#1F78D1] border-2 border-[#1F78D1] rounded-none shadow-none font-medium hover:opacity-90 transition-opacity">
+                class="flex-1 min-w-0 h-10 px-3 text-[1em] bg-white border-2 border-[#EDF1F2] border-r-0 rounded-none text-black/75 transition-all duration-150 focus:outline-none focus:border-gray-400" />
+          <button class="h-10 px-4 text-sm text-white bg-[#1F78D1] border-2 border-[#1F78D1] rounded-none shadow-none font-medium hover:opacity-90 transition-opacity shrink-0">
             Search
           </button>
         </div>
@@ -110,11 +109,11 @@
         <% end %>
       </p>
 
-      <%# ── Two-column sections: Groups | Ungrouped Students %>
-      <div class="flex gap-6 items-start">
+      <%# ── Two-column sections: Groups | Ungrouped Students — stack on mobile %>
+      <div class="flex flex-col md:flex-row gap-6 items-start">
 
         <%# ── Groups %>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 w-full">
           <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
             Groups <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @groups.size %></span>
           </p>
@@ -123,8 +122,8 @@
               <div class="border border-gray-200 rounded-[3px] p-4 bg-white mb-3">
 
                 <%# Badge row %>
-                <div class="flex items-start justify-between mb-1">
-                  <div class="flex items-center gap-1.5">
+                <div class="flex items-start justify-between mb-1 gap-2">
+                  <div class="flex items-center gap-1.5 flex-wrap">
                     <% if group.confirmed? %>
                       <span class="inline-block bg-[#1F78D1] text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Confirmed</span>
                     <% else %>
@@ -136,9 +135,8 @@
                   </div>
                   <div class="flex items-center gap-2 shrink-0">
                     <span class="text-xs text-gray-400">
-                      <%= group.project_group_members.size %> / <%= @course.group_max %>
+                      <%= group.project_group_members.size %> / <%= @course.group_max.presence || "?" %>
                     </span>
-                    <%# Join / Request — TODO: wire when Person 3 (requests) and Person 4 (free join) ship %>
                     <% if @my_group.nil? && !group.confirmed? && @course.grouping_window_open? %>
                       <% if group.locked? %>
                         <button disabled class="border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed">Request to join</button>
@@ -149,7 +147,7 @@
                   </div>
                 </div>
 
-                <%# Group name — below badges, bigger %>
+                <%# Group name %>
                 <p class="font-semibold text-base text-gray-900 mb-3">
                   <%= group.group_name.presence || "Unnamed group" %>
                 </p>
@@ -158,15 +156,13 @@
                 <ul class="space-y-1.5">
                   <% group.project_group_members.each do |membership| %>
                     <li class="flex items-center gap-2">
-                      <div class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200
-                                  text-[10px] font-bold text-gray-600 shrink-0">
+                      <div class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 shrink-0">
                         <%= membership.user.name.first.upcase %>
                       </div>
-                      <span class="text-sm text-gray-600"><%= membership.user.name %></span>
+                      <span class="text-sm text-gray-600 truncate"><%= membership.user.name %></span>
                       <% if membership.user_id == group.leader_id %>
-                        <span class="text-xs text-gray-400">(leader)</span>
+                        <span class="text-xs text-gray-400 shrink-0">(leader)</span>
                       <% end %>
-                      <%# Kick boilerplate — TODO: wire when Person 2 ships %>
                       <button disabled class="ml-auto text-xs text-red-400 opacity-40 cursor-not-allowed shrink-0">Kick</button>
                     </li>
                   <% end %>
@@ -180,7 +176,7 @@
         </div>
 
         <%# ── Ungrouped Students %>
-        <div class="w-72 shrink-0">
+        <div class="w-full md:w-72 md:shrink-0">
           <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
             Ungrouped Students <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @ungrouped_students.size %></span>
           </p>
@@ -188,8 +184,7 @@
             <div class="flex flex-col gap-2">
               <% @ungrouped_students.each do |student| %>
                 <div class="flex items-center gap-2 border border-gray-200 rounded-[3px] px-3 py-2 bg-white">
-                  <div class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200
-                              text-[10px] font-bold text-gray-600 shrink-0">
+                  <div class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 shrink-0">
                     <%= student.name.first.upcase %>
                   </div>
                   <div class="leading-tight min-w-0">
@@ -198,7 +193,6 @@
                       <span class="text-xs text-gray-400"><%= student.instid %></span>
                     <% end %>
                   </div>
-                  <%# Invite — TODO: wire when Person 3 ships invite action %>
                   <% if @my_group && current_user.id == @my_group.leader_id && @course.grouping_window_open? %>
                     <button disabled class="text-xs text-[#1F78D1] opacity-40 cursor-not-allowed ml-auto shrink-0">Invite</button>
                   <% end %>
@@ -211,6 +205,6 @@
         </div>
 
       </div>
-
+    </div>
   </div>
 </div>
