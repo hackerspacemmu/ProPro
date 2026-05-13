@@ -9,7 +9,9 @@
           /></svg>
       </li>
       <li class="flex items-center">
-        <span class="text-gray-700">SE101 - Software Engineering</span>
+        <span class="text-gray-700"><%= @course.coursecode %>
+          -
+          <%= @course.course_name %></span>
         <svg class="w-3 h-3 mx-3 fill-current text-gray-500" viewBox="0 0 320 512"><path
             d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"
           /></svg>
@@ -18,64 +20,25 @@
     </ol>
   </nav>
 
-  <div
-    class="
-      bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-md flex
-      justify-between items-start
-    "
-  >
-    <div class="flex">
-      <div class="flex-shrink-0">
-        <span class="text-yellow-400 text-xl">⚠️</span>
-      </div>
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-yellow-800">Default Mode Active</h3>
-        <p class="text-sm text-yellow-700 mt-1">Students cannot self-group. All draft groups must be manually
-          confirmed by a coordinator.</p>
-      </div>
-    </div>
-    <button class="text-yellow-500 hover:text-yellow-600 font-bold px-2">&times;</button>
-  </div>
-
-  <details
-    class="bg-white shadow-sm border border-gray-200 rounded-lg mb-8 group"
-  >
-    <summary
-      class="
-        px-6 py-4 cursor-pointer font-semibold text-gray-800 flex items-center
-        justify-between hover:bg-gray-50 transition-colors
-      "
-    >
-      <div class="flex items-center gap-2">
-        <span>⚙️ Grouping Settings & Preview</span>
-      </div>
-      <span class="text-sm text-gray-500 group-open:hidden">Show</span>
-      <span class="text-sm text-gray-500 hidden group-open:block">Hide</span>
-    </summary>
+  <% unless @course.student_list_finalised? %>
     <div
       class="
-        px-6 py-4 border-t border-gray-100 bg-gray-50 text-sm text-gray-600
+        bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-md flex
+        justify-between items-start
       "
     >
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <div><strong>Status:</strong>
-          <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">ON</span></div>
-        <div><strong>Mode:</strong>
-          Default (Manual)</div>
-        <div><strong>Limits:</strong>
-          Min: 3 | Max: 4</div>
-      </div>
-      <div class="bg-white p-4 rounded border border-gray-200">
-        <p class="font-semibold mb-2">Preview Calculator</p>
-        <p>If
-          <strong>105</strong>
-          students enroll, the DP algorithm generates:
-          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono">26 groups of 4</span>
-          and
-          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono">0 groups of 3</span>.</p>
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <span class="text-yellow-400 text-xl">⚠️</span>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-yellow-800">Default Mode Active</h3>
+          <p class="text-sm text-yellow-700 mt-1">Students cannot self-group. All draft groups must be manually
+            confirmed by a coordinator.</p>
+        </div>
       </div>
     </div>
-  </details>
+  <% end %>
 
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -96,14 +59,13 @@
             class="
               bg-gray-200 text-gray-700 py-0.5 px-2 rounded-full text-xs font-bold
             "
-          >14</span>
+          ><%= @ungrouped_students.count %></span>
         </div>
 
         <div class="p-3 border-b border-gray-100">
           <input
             type="text"
             placeholder="Search by name..."
-            autocomplete="off"
             class="
               w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500
               focus:border-blue-500
@@ -112,51 +74,49 @@
         </div>
 
         <div class="overflow-y-auto flex-1 p-2">
-          <div
-            class="
-              flex justify-between items-center p-2 hover:bg-blue-50 rounded-md group
-              transition-colors border-b border-gray-50 last:border-0
-            "
-          >
-            <span class="text-sm font-medium text-gray-700">Alice Chen</span>
-            <button
+          <% if @ungrouped_students.empty? %>
+            <p class="text-sm text-gray-500 p-4 text-center">All students are currently in a group!</p>
+          <% end %>
+
+          <% @ungrouped_students.each do |student| %>
+            <div
               class="
-                text-blue-600 hover:text-blue-800 text-xs font-bold px-2 py-1 border
-                border-blue-200 rounded bg-white shadow-sm opacity-0 group-hover:opacity-100
-                transition-opacity
+                flex justify-between items-center p-2 hover:bg-blue-50 rounded-md group
+                transition-colors border-b border-gray-50 last:border-0
               "
-            >Add ➕</button>
-          </div>
-          <div
-            class="
-              flex justify-between items-center p-2 hover:bg-blue-50 rounded-md group
-              transition-colors border-b border-gray-50 last:border-0
-            "
-          >
-            <span class="text-sm font-medium text-gray-700">Bob Smith</span>
-            <button
-              class="
-                text-blue-600 hover:text-blue-800 text-xs font-bold px-2 py-1 border
-                border-blue-200 rounded bg-white shadow-sm opacity-0 group-hover:opacity-100
-                transition-opacity
-              "
-            >Add ➕</button>
-          </div>
-          <div
-            class="
-              flex justify-between items-center p-2 hover:bg-blue-50 rounded-md group
-              transition-colors border-b border-gray-50 last:border-0
-            "
-          >
-            <span class="text-sm font-medium text-gray-700">Charlie Davis</span>
-            <button
-              class="
-                text-blue-600 hover:text-blue-800 text-xs font-bold px-2 py-1 border
-                border-blue-200 rounded bg-white shadow-sm opacity-0 group-hover:opacity-100
-                transition-opacity
-              "
-            >Add ➕</button>
-          </div>
+            >
+              <span class="text-sm font-medium text-gray-700"><%= student.name.presence || student.email %></span>
+
+              <%= form_with url: "#", method: :post,
+                    data: {
+                      controller: "dynamic-form-action",
+                      dynamic_form_action_base_url_value: "/courses/#{@course.id}/project_groups",
+                      dynamic_form_action_endpoint_value: "project_groups_coordinator_actions/add"
+                    },
+                    class: "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" do |f| %>
+
+                <%= f.hidden_field :user_id, value: student.id %>
+
+                <select
+                  class="
+                    text-xs border-gray-300 rounded py-1 pl-2 pr-6 cursor-pointer
+                  "
+                  data-action="change->dynamic-form-action#update"
+                  required
+                >
+                  <option value="" disabled selected>Select Group</option>
+                  <% @groups.each do |g| %>
+                    <option value="<%= g.id %>"><%= g.group_name.presence || "Group #{g.id}" %>
+                      (<%= g.project_group_members.size %>)</option>
+                  <% end %>
+                </select>
+
+                <%= f.submit "➕",
+                         class:
+                           "cursor-pointer text-blue-600 hover:text-blue-800 text-xs font-bold px-2 py-1 border border-blue-200 rounded bg-white shadow-sm" %>
+              <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
@@ -164,21 +124,7 @@
     <div class="lg:col-span-3">
 
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-gray-800">Course Groups (25)</h2>
-        <div class="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search groups..."
-            class="text-sm border-gray-300 rounded-md shadow-sm"
-            autocomplete="off"
-          >
-          <select class="text-sm border-gray-300 rounded-md shadow-sm text-gray-600">
-            <option>All Groups</option>
-            <option>Draft Only</option>
-            <option>Confirmed Only</option>
-            <option>⚠️ Illegal Only</option>
-          </select>
-        </div>
+        <h2 class="text-xl font-bold text-gray-800">Course Groups (<%= @groups.size %>)</h2>
       </div>
 
       <h3
@@ -189,98 +135,101 @@
       >Draft Groups (Needs Attention)</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+        <% @groups.reject(&:confirmed?).each do |group| %>
+          <% is_over_limit = group.project_group_members.size > @course.group_max.to_i %>
 
-        <div
-          class="
-            bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex
-            flex-col
-          "
-        >
           <div
             class="
-              px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center
+              <%= is_over_limit ? 'bg-red-50 border-red-300' : 'bg-white border-gray-200' %> border rounded-lg shadow-sm
+              overflow-hidden flex flex-col
             "
           >
-            <div>
-              <h4 class="font-bold text-gray-800">Team Rocket</h4>
-              <span class="text-xs text-gray-500">🔒 Locked</span>
-            </div>
-            <span class="bg-blue-100 text-blue-800 py-1 px-2 rounded font-bold text-xs">2/4</span>
-          </div>
-          <div class="p-4 flex-1">
-            <ul class="text-sm text-gray-600 space-y-2 mb-4">
-              <li class="flex justify-between items-center group">
-                <span>👑 Dave M.</span>
-                <div class="opacity-0 group-hover:opacity-100 flex gap-1">
-                  <button class="text-gray-400 hover:text-blue-600">↔️</button>
-                  <button class="text-gray-400 hover:text-red-600">🗑️</button>
-                </div>
-              </li>
-              <li class="flex justify-between items-center group">
-                <span>Eve A.</span>
-                <div class="opacity-0 group-hover:opacity-100 flex gap-1">
-                  <button class="text-gray-400 hover:text-blue-600">↔️</button>
-                  <button class="text-gray-400 hover:text-red-600">🗑️</button>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 text-center">
-            <button
+            <div
               class="
-                w-full bg-orange-100 hover:bg-orange-200 text-orange-800 text-sm font-bold py-2
-                rounded transition-colors
+                px-4 py-3 border-b <%= is_over_limit ? 'border-red-200 bg-red-100' : 'border-gray-100 bg-gray-50' %> flex justify-between
+                items-center
               "
-            >⚡ Force Confirm</button>
-          </div>
-        </div>
+            >
+              <div>
+                <h4 class="font-bold <%= is_over_limit ? 'text-red-900' : 'text-gray-800' %>"><%= group.group_name.presence || "Draft Group ##{group.id}" %></h4>
+              </div>
+              <span
+                class="
+                  <%= is_over_limit ? 'bg-red-200 text-red-900' : 'bg-blue-100 text-blue-800' %> py-1 px-2 rounded font-bold text-xs
+                "
+              >
+                <%= is_over_limit ? "⚠️ " : "" %><%= group.project_group_members.size %>
+                /
+                <%= @course.group_max %>
+              </span>
+            </div>
 
-        <div
-          class="
-            bg-red-50 border border-red-300 rounded-lg shadow-sm overflow-hidden flex
-            flex-col
-          "
-        >
-          <div
-            class="
-              px-4 py-3 border-b border-red-200 bg-red-100 flex justify-between items-center
-            "
-          >
-            <div>
-              <h4 class="font-bold text-red-900">The Coders</h4>
-              <span class="text-xs text-red-700">🔓 Unlocked</span>
+            <div class="p-4 flex-1">
+              <ul
+                class="
+                  text-sm <%= is_over_limit ? 'text-red-800' : 'text-gray-600' %> space-y-2 mb-4
+                "
+              >
+                <% group.project_group_members.each do |member| %>
+                  <li class="flex justify-between items-center group/member">
+                    <span>
+                      <%= member.user_id == group.leader_id ? "👑 " : "" %>
+                      <%= member.user.name.presence || member.user.email %>
+                    </span>
+
+                    <div class="opacity-0 group-hover/member:opacity-100 flex gap-1 items-center">
+                      <%= form_with url: move_course_project_group_project_groups_coordinator_actions_path(@course, group),
+                            method: :post,
+                            data: { controller: "auto-submit" },
+                            class: "inline" do |f| %>
+
+                        <%= f.hidden_field :user_id, value: member.user_id %>
+
+                        <select
+                          name="target_group_id"
+                          class="
+                            text-xs py-0 pl-1 pr-4 rounded border-gray-300 cursor-pointer
+                          "
+                          data-action="change->auto-submit#submit"
+                        >
+                          <option value="" disabled selected>↔️ Move</option>
+                          <% (@groups - [group]).each do |target_group| %>
+                            <option value="<%= target_group.id %>"><%= target_group.group_name.presence || "Grp #{target_group.id}" %></option>
+                          <% end %>
+                        </select>
+                      <% end %>
+
+                      <%= button_to "🗑️",
+                      remove_course_project_group_project_groups_coordinator_actions_path(
+                        @course,
+                        group,
+                        user_id: member.user_id,
+                      ),
+                      method: :delete,
+                      form_class: "inline",
+                      class: "text-gray-400 hover:text-red-600 ml-1 px-1",
+                      data: {
+                        turbo_confirm: "Remove #{member.user.name.presence || "user"} from group?",
+                      } %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
             </div>
-            <span
+
+            <div
               class="
-                bg-red-200 text-red-900 py-1 px-2 rounded font-bold text-xs flex items-center
-                gap-1
+                px-4 py-3 <%= is_over_limit ? 'bg-red-100 border-t border-red-200' : 'bg-gray-50 border-t border-gray-100' %> text-center
               "
-            >⚠️ 5/4</span>
+            >
+              <%= button_to "⚡ Force Confirm",
+              force_confirm_course_project_group_path(@course, group),
+              method: :patch,
+              class:
+                "w-full bg-orange-100 hover:bg-orange-200 text-orange-800 text-sm font-bold py-2 rounded transition-colors" %>
+            </div>
           </div>
-          <div class="p-4 flex-1">
-            <ul class="text-sm text-red-800 space-y-2 mb-4">
-              <li class="flex justify-between items-center group">
-                <span>👑 Fiona L.</span>
-                <div class="opacity-0 group-hover:opacity-100 flex gap-1">
-                  <button class="text-red-400 hover:text-blue-600">↔️</button>
-                  <button class="text-red-400 hover:text-red-800">🗑️</button>
-                </div>
-              </li>
-              <li class="flex justify-between items-center group"><span>George P.</span><div class="opacity-0 group-hover:opacity-100 flex gap-1"><button class="text-red-400 hover:text-blue-600">↔️</button><button class="text-red-400 hover:text-red-800">🗑️</button></div></li>
-              <li class="text-xs italic text-red-600 mt-2">+ 3 more members</li>
-            </ul>
-          </div>
-          <div class="px-4 py-3 bg-red-100 border-t border-red-200 text-center">
-            <button
-              class="
-                w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold py-2
-                rounded transition-colors opacity-50 cursor-not-allowed
-              "
-              title="Group must be legal to force confirm"
-              disabled
-            >⚡ Force Confirm</button>
-          </div>
-        </div>
+        <% end %>
       </div>
 
       <h3
@@ -291,39 +240,84 @@
       >Confirmed Groups (Locked In)</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <div
-          class="
-            bg-white border-2 border-green-200 rounded-lg shadow-sm overflow-hidden flex
-            flex-col
-          "
-        >
+        <% @groups.select(&:confirmed?).each do |group| %>
           <div
             class="
-              px-4 py-3 border-b border-green-100 bg-green-50 flex justify-between
-              items-center
+              bg-white border-2 border-green-200 rounded-lg shadow-sm overflow-hidden flex
+              flex-col
             "
           >
-            <h4 class="font-bold text-green-900 text-lg">G001</h4>
-            <span class="bg-green-200 text-green-900 py-1 px-2 rounded font-bold text-xs">4/4</span>
-          </div>
-          <div class="p-4 flex-1">
-            <ul class="text-sm text-gray-600 space-y-2 mb-4">
-              <li class="flex justify-between items-center group"><span>Ian S.</span><div class="opacity-0 group-hover:opacity-100 flex gap-1"><button class="text-gray-400 hover:text-blue-600">↔️</button><button class="text-gray-400 hover:text-red-600">🗑️</button></div></li>
-              <li class="flex justify-between items-center group"><span>Jack W.</span><div class="opacity-0 group-hover:opacity-100 flex gap-1"><button class="text-gray-400 hover:text-blue-600">↔️</button><button class="text-gray-400 hover:text-red-600">🗑️</button></div></li>
-              <li class="flex justify-between items-center group"><span>Kelly O.</span><div class="opacity-0 group-hover:opacity-100 flex gap-1"><button class="text-gray-400 hover:text-blue-600">↔️</button><button class="text-gray-400 hover:text-red-600">🗑️</button></div></li>
-              <li class="flex justify-between items-center group"><span>Leo P.</span><div class="opacity-0 group-hover:opacity-100 flex gap-1"><button class="text-gray-400 hover:text-blue-600">↔️</button><button class="text-gray-400 hover:text-red-600">🗑️</button></div></li>
-            </ul>
-          </div>
-          <div class="px-4 py-2 border-t border-gray-100 text-center">
-            <button
+            <div
               class="
-                text-gray-500 hover:text-gray-800 text-xs font-medium py-1 transition-colors
+                px-4 py-3 border-b border-green-100 bg-green-50 flex justify-between
+                items-center
               "
-            >↩️ Revert to Draft</button>
-          </div>
-        </div>
+            >
+              <h4 class="font-bold text-green-900 text-lg"><%= group.group_name.presence || "Group ##{group.id}" %></h4>
+              <span class="bg-green-200 text-green-900 py-1 px-2 rounded font-bold text-xs"><%= group.project_group_members.size %>
+                /
+                <%= @course.group_max %></span>
+            </div>
 
+            <div class="p-4 flex-1">
+              <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                <% group.project_group_members.each do |member| %>
+                  <li class="flex justify-between items-center group/member">
+                    <span>
+                      <%= member.user_id == group.leader_id ? "👑 " : "" %>
+                      <%= member.user.name.presence || member.user.email %>
+                    </span>
+
+                    <div class="opacity-0 group-hover/member:opacity-100 flex gap-1 items-center">
+                      <%= form_with url: move_course_project_group_project_groups_coordinator_actions_path(@course, group),
+                            method: :post,
+                            data: { controller: "auto-submit" },
+                            class: "inline" do |f| %>
+
+                        <%= f.hidden_field :user_id, value: member.user_id %>
+
+                        <select
+                          name="target_group_id"
+                          class="
+                            text-xs py-0 pl-1 pr-4 rounded border-gray-300 cursor-pointer
+                          "
+                          data-action="change->auto-submit#submit"
+                        >
+                          <option value="" disabled selected>↔️ Move</option>
+                          <% (@groups - [group]).each do |target_group| %>
+                            <option value="<%= target_group.id %>"><%= target_group.group_name.presence || "Grp #{target_group.id}" %></option>
+                          <% end %>
+                        </select>
+                      <% end %>
+
+                      <%= button_to "🗑️",
+                      remove_course_project_group_project_groups_coordinator_actions_path(
+                        @course,
+                        group,
+                        user_id: member.user_id,
+                      ),
+                      method: :delete,
+                      form_class: "inline",
+                      class: "text-gray-400 hover:text-red-600 ml-1 px-1",
+                      data: {
+                        turbo_confirm:
+                          "Remove #{member.user.name.presence || "user"} from confirmed group?",
+                      } %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+
+            <div class="px-4 py-2 border-t border-gray-100 text-center bg-gray-50">
+              <%= button_to "↩️ Revert to Draft",
+              revert_course_project_group_path(@course, group),
+              method: :patch,
+              class:
+                "text-gray-500 hover:text-gray-800 text-xs font-medium py-1 transition-colors" %>
+            </div>
+          </div>
+        <% end %>
       </div>
 
     </div>
