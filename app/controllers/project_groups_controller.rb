@@ -9,7 +9,7 @@ class ProjectGroupsController < ApplicationController
                        .includes(project_group_members: :user)
                        .joins(:project_group_members)
                        .find_by(project_group_members: { user_id: current_user.id })
-                       
+
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
                      .order(:created_at)
@@ -30,7 +30,7 @@ class ProjectGroupsController < ApplicationController
         @course.with_lock do
           next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
           @group.course_group_sequence = next_seq
-          @group.group_name = format("G%03d", next_seq)
+          @group.group_name = format('G%03d', next_seq)
           @group.save!
         end
         ProjectGroupMember.create!(user: current_user, project_group: @group)

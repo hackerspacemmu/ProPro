@@ -78,7 +78,7 @@ class Course < ApplicationRecord
     opens_ok && closes_ok
   end
 
-  def disable_grouping! 
+  def disable_grouping!
     transaction do
       project_groups.where(confirmed: false).destroy_all
       update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
