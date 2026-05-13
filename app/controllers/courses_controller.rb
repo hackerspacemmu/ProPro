@@ -266,11 +266,11 @@ class CoursesController < ApplicationController
           @course.update!(
             grouping_enabled: grouping_enabled_param,
             student_list_finalised: student_list_param,
-            group_min:              params[:course][:group_min].presence,
-            group_max:              params[:course][:group_max].presence,
-            grouping_open:          params[:course][:grouping_open] == "true",
-            grouping_opens_at:      params[:course][:grouping_opens_at].presence,
-            grouping_closes_at:     params[:course][:grouping_closes_at].presence
+            group_min: params[:course][:group_min].presence,
+            group_max: params[:course][:group_max].presence,
+            grouping_open: params[:course][:grouping_open] == 'true',
+            grouping_opens_at: params[:course][:grouping_opens_at].presence,
+            grouping_closes_at: params[:course][:grouping_closes_at].presence
           )
         end
       end
