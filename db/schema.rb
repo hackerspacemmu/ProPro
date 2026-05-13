@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_02_113207) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_07_104009) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -105,6 +105,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_02_113207) do
     t.boolean "confirmed", default: false, null: false
     t.boolean "locked", default: false, null: false
     t.integer "leader_id"
+    t.integer "course_group_sequence"
+    t.index ["course_id", "course_group_sequence"], name: "index_project_groups_on_course_id_and_course_group_sequence", unique: true
     t.index ["course_id"], name: "index_project_groups_on_course_id"
   end
 

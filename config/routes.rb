@@ -85,6 +85,9 @@ Rails.application.routes.draw do
         patch :confirm
         patch :revert
         patch :force_confirm
+        patch :lock
+        patch :unlock
+        patch :promote_leader
       end
 
       collection do
