@@ -18,6 +18,22 @@
     </div>
   </div>
 
+  <%# ── Warning Banner For ProPro's Incomplete Grouping Feature %>
+  <div
+    class="
+      border border-red-300 bg-red-50 rounded-[3px] p-4 flex items-start gap-3 mb-6
+    "
+  >
+    <span class="text-red-500 text-lg leading-none mt-0.5">⚠️</span>
+    <div>
+      <h3 class="text-[0.8rem] font-bold text-red-800 tracking-widest uppercase">Grouping in ProPro is Still In Development!</h3>
+      <p class="text-sm text-red-700 mt-1">
+        The Grouping Features that you see here are still Work In Progress. Do
+        not use them for your classes yet.
+      </p>
+    </div>
+  </div>
+
   <%# ── Warning Banner %>
   <% unless @course.student_list_finalised? %>
     <div
@@ -26,7 +42,6 @@
         mb-6
       "
     >
-      <span class="text-amber-500 text-lg leading-none mt-0.5">⚠️</span>
       <div>
         <h3 class="text-[0.8rem] font-bold text-amber-800 tracking-widest uppercase">Default Mode Active</h3>
         <p class="text-sm text-amber-700 mt-1">Students cannot self-group. All draft groups must be manually
