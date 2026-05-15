@@ -168,3 +168,13 @@ crumb :topic do |topic|
     parent :topics, topic.course
   end
 end
+
+crumb :project_groups do |course|
+  link 'Project Groups', course_project_groups_path(course)
+  parent :course, course
+end
+
+crumb :coordinator_actions do |course|
+  link 'Coordinator Actions', coordinator_actions_course_project_groups_path(course)
+  parent :project_groups, course
+end

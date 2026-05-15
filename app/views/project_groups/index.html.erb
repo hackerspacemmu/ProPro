@@ -4,12 +4,12 @@
 
 <%# --- Disables footer --- %>
 <% content_for :no_footer, true %>
-<% breadcrumb :course, @course %>
+<% breadcrumb :project_groups, @course %>
 
 <div class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5">
 
   <%# ── Page header %>
-  <div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3 text-sm text-gray-500">
       <span class="border border-gray-300 rounded px-2 py-0.5">
         <%= @course.student_list_finalised? ? "Fixed list mode" : "Default mode" %>
@@ -17,6 +17,14 @@
       <span>Group size:
         <%= @course.group_min %>–<%= @course.group_max %></span>
     </div>
+
+    <%# ── Coordinator Management Button ── %>
+    <% if policy(@course).grouping_coordinator? %>
+      <%= link_to "Manage Groups (Coordinator)",
+      coordinator_actions_course_project_groups_path(@course),
+      class:
+        "px-4 py-2 text-sm font-medium text-white bg-[#1F78D1] rounded-[3px] hover:opacity-90 transition-opacity leading-none shadow-sm" %>
+    <% end %>
   </div>
 
   <%# ── Current Group panel %>
@@ -154,7 +162,8 @@
         <%= "group".pluralize(@groups.size) %>
         <% if @ungrouped_students.any? %>
           ·
-          <%= @ungrouped_students.size %><%= "student".pluralize(@ungrouped_students.size) %>thout a group
+          <%= @ungrouped_students.size %><%= "student".pluralize(@ungrouped_students.size) %>
+          without a group
         <% end %>
       </p>
 
