@@ -7,15 +7,19 @@
 <% content_for :no_footer, true %>
 <% breadcrumb :course, @course %>
 
+<%#
+  data-controller on the outermost div so both modal targets (top)
+  and slot buttons (inside groups loop) are descendants of the same controller.
+%>
 <div class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5"
-     data-controller="add-member-popup"
-     data-course-id="<%= @course.id %>">
+     <%= "data-controller='add-member-modal' data-course-id='#{@course.id}'".html_safe if @current_user_enrolment&.coordinator? %>>
 
-  <%# ── Add-member modals (coordinator only) — inside controller so targets are reachable %>
+  <%# ── Add-member modals (coordinator only) %>
   <% if @current_user_enrolment&.coordinator? %>
+
     <%# Main modal %>
-    <div data-add-member-popup-target="overlay"
-         data-action="click->add-member-popup#closeOnBackdrop"
+    <div data-add-member-modal-target="overlay"
+         data-action="click->add-member-modal#closeOnBackdrop"
          class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
          role="dialog" aria-modal="true" aria-labelledby="add-member-modal-title">
       <div class="bg-white rounded-[4px] border border-gray-200 w-[420px] max-w-[calc(100vw-2rem)] overflow-hidden shadow-lg">
@@ -23,9 +27,9 @@
         <%# Header %>
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
           <p class="text-sm font-semibold text-gray-900" id="add-member-modal-title">
-            Add student to <span data-add-member-popup-target="groupName" class="text-[#1F78D1]"></span>
+            Add student to <span data-add-member-modal-target="groupName" class="text-[#1F78D1]"></span>
           </p>
-          <button data-action="click->add-member-popup#close"
+          <button data-action="click->add-member-modal#close"
                   class="text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label="Close">
             <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
@@ -35,24 +39,26 @@
         <%# Search %>
         <div class="px-5 py-3 border-b border-gray-200">
           <input type="text"
-                 data-add-member-popup-target="search"
-                 data-action="input->add-member-popup#filter"
+                 data-add-member-modal-target="search"
+                 data-action="input->add-member-modal#filter"
                  placeholder="Search students…"
                  class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400" />
         </div>
 
-        <%# Student list %>
-        <div data-add-member-popup-target="studentList"
-             class="max-h-64 overflow-y-auto px-3 py-2"></div>
+        <%# Student list — server-rendered, Stimulus filters by toggling hidden %>
+        <div data-add-member-modal-target="studentList"
+             class="max-h-64 overflow-y-auto px-3 py-2">
+          <%= render "modal_ungrouped_students", ungrouped_students: @ungrouped_students %>
+        </div>
 
         <%# Footer %>
         <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-200">
-          <button data-action="click->add-member-popup#close"
+          <button data-action="click->add-member-modal#close"
                   class="text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors">
             Cancel
           </button>
-          <button data-add-member-popup-target="confirmBtn"
-                  data-action="click->add-member-popup#showConfirm"
+          <button data-add-member-modal-target="confirmBtn"
+                  data-action="click->add-member-modal#showConfirm"
                   disabled
                   class="text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-medium">
             Add student
@@ -62,27 +68,28 @@
     </div>
 
     <%# Confirm dialog %>
-    <div data-add-member-popup-target="confirmOverlay"
-         data-action="click->add-member-popup#closeConfirmOnBackdrop"
+    <div data-add-member-modal-target="confirmOverlay"
+         data-action="click->add-member-modal#closeConfirmOnBackdrop"
          class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center">
       <div class="bg-white rounded-[4px] border border-gray-200 w-[360px] max-w-[calc(100vw-2rem)] px-6 py-5 shadow-lg">
-        <p data-add-member-popup-target="confirmTitle"
+        <p data-add-member-modal-target="confirmTitle"
            class="text-sm font-semibold text-gray-900 mb-2"></p>
-        <p data-add-member-popup-target="confirmBody"
+        <p data-add-member-modal-target="confirmBody"
            class="text-xs text-gray-500 mb-5 leading-relaxed"></p>
         <div class="flex justify-end gap-2">
-          <button data-action="click->add-member-popup#closeConfirm"
+          <button data-action="click->add-member-modal#closeConfirm"
                   class="text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600 hover:border-gray-400 transition-colors">
             Cancel
           </button>
-          <button data-add-member-popup-target="submitBtn"
-                  data-action="click->add-member-popup#submit"
+          <button data-add-member-modal-target="submitBtn"
+                  data-action="click->add-member-modal#submit"
                   class="text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors font-medium">
             Confirm
           </button>
         </div>
       </div>
     </div>
+
   <% end %>
 
   <%# ── Page header %>
@@ -196,9 +203,9 @@
           <% if @groups.any? %>
             <% @groups.each do |group| %>
               <% is_coordinator = @current_user_enrolment&.coordinator? %>
-              <% member_count = group.project_group_members.size %>
-              <% is_full = @course.group_max.present? && member_count >= @course.group_max %>
-              <% empty_slots = is_coordinator && @course.group_max.present? ? (@course.group_max - member_count) : 0 %>
+              <% member_count   = group.project_group_members.size %>
+              <% is_full        = @course.group_max.present? && member_count >= @course.group_max %>
+              <% empty_slots    = is_coordinator && @course.group_max.present? ? (@course.group_max - member_count) : 0 %>
 
               <div class="border border-gray-300 rounded-[3px] p-4 bg-white mb-3">
 
@@ -269,7 +276,7 @@
                     <% empty_slots.times do %>
                       <button
                         type="button"
-                        data-action="click->add-member-popup#open"
+                        data-action="click->add-member-modal#open"
                         data-group-id="<%= group.id %>"
                         data-group-name="<%= j group.group_name %>"
                         class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-[3px] border border-dashed border-gray-300 bg-transparent text-gray-400 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all min-h-[62px] cursor-pointer"
