@@ -1,8 +1,3 @@
-// app/javascript/controllers/grouping_settings_controller.js
-//
-// Controls show/hide behaviour for the grouping settings section in
-// courses/settings.html.erb. No business logic lives here — only UI state.
-
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
