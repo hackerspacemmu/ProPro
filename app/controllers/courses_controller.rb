@@ -865,7 +865,7 @@ class CoursesController < ApplicationController
 
   def lecturer_enrolment_filter
     return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
-    @course.enrolments.where(user_id: params[:lecturer_filter])
+    @course.enrolments.where(user_id: params[:lecturer_filter], role: :lecturer)
   end
 
   def supervised_owner_ids(owner_type)
