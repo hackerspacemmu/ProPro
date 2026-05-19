@@ -198,7 +198,7 @@ class ProjectsController < ApplicationController
 
         if params[:based_on_topic].start_with?('own_proposal_')
           enrolment_id = params[:based_on_topic][13...]
-          supervisor_enrolment = Enrolment.find_by(id: enrolment_id, course_id: @course.id, role: %i[lecturer coordinator])
+          supervisor_enrolment = Enrolment.find_by(id: enrolment_id, course_id: @course.id, role: :lecturer)
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
 
           topic = nil
@@ -207,7 +207,7 @@ class ProjectsController < ApplicationController
           raise StandardError, 'Topic not found' unless topic
           raise StandardError, 'Topic has no valid owner' unless topic.owner.is_a?(User)
 
-          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: %i[lecturer coordinator])
+          supervisor_enrolment = Enrolment.find_by(user_id: topic.owner.id, course_id: @course.id, role: :lecturer)
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
         end
 
