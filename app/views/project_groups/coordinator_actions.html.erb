@@ -4,18 +4,161 @@
 
 <% content_for :no_footer, true %>
 <% breadcrumb :coordinator_actions, @course %>
-
+<div id="flash">
+  <%= render "courses/flash" %>
+</div>
 <div class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5">
 
-  <%# ── Page header %>
-  <div>
-    <div class="flex items-center gap-3 text-sm text-gray-500">
-      <span class="border border-gray-300 rounded px-2 py-0.5">
-        Coordinator Management
-      </span>
-      <span>Group size:
-        <%= @course.group_min %>–<%= @course.group_max %></span>
+  <div
+    class="
+      bg-white border border-gray-200 rounded-[3px] p-5 mb-8 shadow-sm flex flex-col
+      gap-4
+    "
+  >
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <h3 class="text-sm font-bold text-[#192325] uppercase tracking-wide">Grouping System</h3>
+
+        <%= form_with url: update_settings_course_project_groups_path(@course), method: :patch, data: { controller: "auto-submit" }, class: "flex items-center gap-2" do |f| %>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="hidden" name="grouping_enabled" value="0">
+            <input
+              type="checkbox"
+              name="grouping_enabled"
+              value="1"
+              class="sr-only peer"
+              data-action="change->auto-submit#submit"
+              <%= "checked" if @course.grouping_enabled? %>
+            >
+            <div
+              class="
+                w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                peer-checked:after:translate-x-full peer-checked:after:border-white
+                after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5
+                after:w-5 after:transition-all peer-checked:bg-green-500
+              "
+            ></div>
+          </label>
+          <span
+            class="
+              text-sm font-black tracking-widest <%= @course.grouping_enabled? ? 'text-green-600' : 'text-gray-400' %> w-8
+            "
+          >
+            <%= @course.grouping_enabled? ? "ON" : "OFF" %>
+          </span>
+        <% end %>
+      </div>
+
+      <%# Grouping Window Toggle (Only visible if Grouping is ON) %>
+      <% if @course.grouping_enabled? %>
+        <div class="flex items-center gap-3 border-l border-gray-200 pl-4">
+          <span class="text-sm font-medium text-gray-600">Student Window:</span>
+          <%= form_with url: update_settings_course_project_groups_path(@course), method: :patch, data: { controller: "auto-submit" }, class: "flex items-center gap-2" do |f| %>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="hidden" name="grouping_open" value="0">
+              <input
+                type="checkbox"
+                name="grouping_open"
+                value="1"
+                class="sr-only peer"
+                data-action="change->auto-submit#submit"
+                <%= "checked" if @course.grouping_window_open? %>
+              >
+              <div
+                class="
+                  w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer
+                  peer-checked:after:translate-x-full peer-checked:after:border-white
+                  after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                  after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4
+                  after:w-4 after:transition-all peer-checked:bg-[#1F78D1]
+                "
+              ></div>
+            </label>
+            <span
+              class="
+                text-xs font-bold <%= @course.grouping_window_open? ? 'text-[#1F78D1]' : 'text-gray-400' %> w-12
+              "
+            >
+              <%= @course.grouping_window_open? ? "OPEN" : "CLOSED" %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
     </div>
+
+    <%# Mode Selector (Only visible if Grouping is ON) %>
+    <% if @course.grouping_enabled? %>
+      <div class="border-t border-gray-100 pt-4 mt-1">
+        <%= form_with url: update_settings_course_project_groups_path(@course), method: :patch, data: { controller: "auto-submit" } do |f| %>
+          <div class="flex flex-col md:flex-row gap-4">
+
+            <%# Default Mode Card %>
+            <label
+              class="
+                flex-1 border <%= !@course.student_list_finalised? ? 'border-[#1F78D1] bg-blue-50/30 shadow-sm' : 'border-gray-200 bg-gray-50/50 opacity-60' %> rounded-[3px] p-3
+                cursor-pointer hover:border-[#1F78D1] hover:opacity-100 transition-all
+              "
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1">
+                  <input
+                    type="radio"
+                    name="student_list_finalised"
+                    value="0"
+                    class="w-4 h-4 text-[#1F78D1] focus:ring-[#1F78D1]"
+                    data-action="change->auto-submit#submit"
+                    <%= "checked" unless @course.student_list_finalised? %>
+                  >
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-gray-900">Default Mode</h4>
+                  <p class="text-xs text-gray-500 mt-1 leading-relaxed">Student list is
+                    <span class="font-semibold">not final</span>. No student self-grouping. Coordinator manages all groups
+                    manually via CRUD. Students can only view their assigned
+                    group.</p>
+                </div>
+              </div>
+            </label>
+
+            <%# Fixed List Mode Card %>
+            <label
+              class="
+                flex-1 border <%= @course.student_list_finalised? ? 'border-[#1F78D1] bg-blue-50/30 shadow-sm' : 'border-gray-200 bg-gray-50/50 opacity-60' %> rounded-[3px] p-3
+                cursor-pointer hover:border-[#1F78D1] hover:opacity-100 transition-all
+              "
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1">
+                  <input
+                    type="radio"
+                    name="student_list_finalised"
+                    value="1"
+                    class="w-4 h-4 text-[#1F78D1] focus:ring-[#1F78D1]"
+                    data-action="change->auto-submit#submit"
+                    <%= "checked" if @course.student_list_finalised? %>
+                  >
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-gray-900">Fixed List Mode</h4>
+                  <p class="text-xs text-gray-500 mt-1 leading-relaxed">Student list is
+                    <span class="font-semibold">final</span>. Students can self-group and send invites. Coordinators
+                    oversee draft groups and manually confirm them.</p>
+                </div>
+              </div>
+            </label>
+
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%# State when grouping is OFF %>
+      <div class="border-t border-gray-100 pt-4 mt-1">
+        <p class="text-sm text-gray-400 italic">Grouping is currently disabled for this course. Turn it ON to
+          configure modes.</p>
+      </div>
+    <% end %>
   </div>
 
   <%# ── Warning Banner For ProPro's Incomplete Grouping Feature %>

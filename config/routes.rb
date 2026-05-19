@@ -92,6 +92,7 @@ Rails.application.routes.draw do
 
       collection do
         get :coordinator_actions
+        patch :update_settings
       end
 
       resources :project_group_invites, only: %i[create] do
