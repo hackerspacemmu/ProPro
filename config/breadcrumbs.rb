@@ -168,3 +168,8 @@ crumb :topic do |topic|
     parent :topics, topic.course
   end
 end
+
+crumb :project_groups do |course|
+  link 'Project Groups', course_project_groups_path(course)
+  parent :course, course
+end

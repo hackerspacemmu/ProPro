@@ -84,6 +84,7 @@ Rails.application.routes.draw do
       member do
         patch :confirm
         patch :revert
+        patch :force_confirm
         patch :lock
         patch :unlock
         patch :promote_leader
@@ -100,6 +101,13 @@ Rails.application.routes.draw do
         end
       end
       resources :members, only: %i[create destroy], controller: 'project_group_members'
+      resources :project_groups_coordinator_actions, only: [] do
+        collection do
+          post :add
+          delete :remove
+          post :move
+        end
+      end
     end
   end
 

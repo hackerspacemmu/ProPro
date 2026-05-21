@@ -9,7 +9,7 @@ class ProjectGroupsController < ApplicationController
                        .includes(project_group_members: :user)
                        .joins(:project_group_members)
                        .find_by(project_group_members: { user_id: current_user.id })
-                       
+
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
                      .order(:created_at)
@@ -30,7 +30,7 @@ class ProjectGroupsController < ApplicationController
         @course.with_lock do
           next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
           @group.course_group_sequence = next_seq
-          @group.group_name = format("G%03d", next_seq)
+          @group.group_name = format('G%03d', next_seq)
           @group.save!
         end
         ProjectGroupMember.create!(user: current_user, project_group: @group)
@@ -114,6 +114,52 @@ class ProjectGroupsController < ApplicationController
       return
     end
     redirect_to course_project_groups_path(@course), notice: "#{target_member.user.name} is now the group leader."
+  end
+
+  def update_settings
+    authorize @course, :grouping_coordinator?
+
+    begin
+      ActiveRecord::Base.transaction do
+        if params.key?(:grouping_enabled)
+          if params[:grouping_enabled] == '1'
+            raise StandardError, "Cannot enable grouping: #{@course.errors.full_messages.to_sentence}" unless @course.update(grouping_enabled: true)
+          else
+            @course.disable_grouping!
+          end
+        end
+
+        if params.key?(:student_list_finalised)
+          if params[:student_list_finalised] == '1'
+            raise StandardError, "Cannot change mode: #{@course.errors.full_messages.to_sentence}" unless @course.update(student_list_finalised: true)
+          else
+            @course.revert_to_default_mode!
+          end
+        end
+
+        if params.key?(:grouping_open)
+          is_open = params[:grouping_open] == '1'
+          raise StandardError, "Cannot update window: #{@course.errors.full_messages.to_sentence}" unless @course.update(grouping_open: is_open, grouping_opens_at: nil, grouping_closes_at: nil)
+        end
+      end
+      flash.now[:notice] = 'Settings updated.'
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.update('flash', partial: 'courses/flash'),
+            turbo_stream.replace('configuration_panel', partial: 'project_groups/configuration_panel')
+          ]
+        end
+        format.html { redirect_to coordinator_actions_course_project_groups_path(@course), notice: 'Settings updated.' }
+      end
+    rescue StandardError => e
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update('flash', partial: 'courses/flash')
+        end
+        format.html { redirect_to coordinator_actions_course_project_groups_path(@course), alert: e.message }
+      end
+    end
   end
 
   private

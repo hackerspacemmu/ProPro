@@ -13,11 +13,13 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def index?
     return true if coordinator?
+
     enrolment.present? && record.course.grouping_enabled?
   end
 
   def create?
     return false if coordinator?
+
     enrolment.present? &&
       grouping_window_open? &&
       !record.course.project_group_members.exists?(user:)
@@ -25,6 +27,7 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def confirm?
     return true if coordinator?
+
     grouping_window_open? &&
       record.leader_id == user.id &&
       !record.confirmed?
@@ -32,6 +35,7 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def revert?
     return true if coordinator?
+
     grouping_window_open? &&
       record.leader_id == user.id &&
       record.confirmed?
@@ -39,23 +43,27 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def destroy?
     return coordinator? if record.confirmed?
+
     grouping_window_open? && record.leader_id == user.id
   end
 
   def lock?
     return true if coordinator?
+
     grouping_window_open? &&
       record.leader_id == user.id && !record.confirmed?
   end
 
   def unlock?
     return true if coordinator?
+
     grouping_window_open? &&
       record.leader_id == user.id && !record.confirmed?
   end
 
   def promote_leader?
     return true if coordinator?
+
     grouping_window_open? &&
       record.leader_id == user.id && !record.confirmed?
   end
