@@ -134,6 +134,8 @@ class ProjectGroupsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
+        raise StandardError, "Cannot update size limits: #{@course.errors.full_messages.to_sentence}" if (params.key?(:group_min) || params.key?(:group_max)) && !@course.update(group_min: params[:group_min].presence, group_max: params[:group_max].presence)
+
         if params.key?(:grouping_enabled)
           if params[:grouping_enabled] == '1'
             raise StandardError, "Cannot enable grouping: #{@course.errors.full_messages.to_sentence}" unless @course.update(grouping_enabled: true)
@@ -155,23 +157,20 @@ class ProjectGroupsController < ApplicationController
           raise StandardError, "Cannot update window: #{@course.errors.full_messages.to_sentence}" unless @course.update(grouping_open: is_open, grouping_opens_at: nil, grouping_closes_at: nil)
         end
       end
+
       flash.now[:notice] = 'Settings updated.'
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.update('flash', partial: 'courses/flash'),
-            turbo_stream.replace('configuration_panel', partial: 'project_groups/configuration_panel')
-          ]
-        end
-        format.html { redirect_to coordinator_actions_course_project_groups_path(@course), notice: 'Settings updated.' }
-      end
     rescue StandardError => e
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.update('flash', partial: 'courses/flash')
-        end
-        format.html { redirect_to coordinator_actions_course_project_groups_path(@course), alert: e.message }
+      flash.now[:alert] = e.message
+    end
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('flash', partial: 'courses/flash'),
+          turbo_stream.replace('configuration_panel', partial: 'project_groups/configuration_panel')
+        ]
       end
+      format.html { redirect_to coordinator_actions_course_project_groups_path(@course) }
     end
   end
 

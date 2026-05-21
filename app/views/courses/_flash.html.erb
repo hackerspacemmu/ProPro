@@ -1,22 +1,31 @@
-<% if flash[:alert] %>
-  <div class="mb-6 rounded-md bg-red-50 p-4 border-l-4 border-red-500">
-    <div class="flex">
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">Alert</h3>
-        <div class="mt-2 text-sm text-red-700"><%= flash[:alert] %></div>
+<% flash.each do |type, message| %>
+  <% if type.to_s == 'alert' %>
+    <div
+      class="
+        mb-6 rounded-md bg-red-50 p-4 border-l-4 border-red-500 shadow-sm animate-in
+        fade-in slide-in-from-top-2
+      "
+    >
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">Alert</h3>
+          <div class="mt-2 text-sm text-red-700"><%= message %></div>
+        </div>
       </div>
     </div>
-  </div>
-<% end %>
-
-<% if flash[:notice] %>
-  <div class="mb-6 rounded-md bg-green-50 p-4 border-l-4 border-green-500">
-    <div class="flex">
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-green-800">Success</h3>
-        <div class="mt-2 text-sm text-green-700"><%= flash[:notice] %></div>
+  <% elsif type.to_s == 'notice' %>
+    <div
+      class="
+        mb-6 rounded-md bg-green-50 p-4 border-l-4 border-green-500 shadow-sm animate-in
+        fade-in slide-in-from-top-2
+      "
+    >
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-green-800">Success</h3>
+          <div class="mt-2 text-sm text-green-700"><%= message %></div>
+        </div>
       </div>
     </div>
-  </div>
+  <% end %>
 <% end %>
-
