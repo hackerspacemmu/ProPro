@@ -88,6 +88,11 @@ Rails.application.routes.draw do
         patch :unlock
         patch :promote_leader
       end
+
+      collection do
+        patch :update_settings
+      end
+      
       resources :project_group_invites, only: %i[create] do
         member do
           patch :accept
