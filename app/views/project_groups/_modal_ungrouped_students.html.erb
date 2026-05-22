@@ -1,31 +1,17 @@
-<%# 
-  Rendered once on page load inside the add-member modal's studentList target.
-  Stimulus filters by toggling `hidden`, no JS-constructed HTML.
+<%#
+  _modal_ungrouped_select.html.erb
   locals: ungrouped_students
+  Wrapped in #modal-ungrouped-select in the parent so Turbo Stream can replace
+  just this select after each add, keeping the rest of the modal intact.
 %>
-<% if ungrouped_students.any? %>
+<select data-add-member-modal-target="select"
+        name="user_id"
+        required
+        class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400">
+  <option value="" disabled selected>Select a student…</option>
   <% ungrouped_students.each do |student| %>
-    <div class="modal-student-row flex items-center gap-2.5 px-2 py-2 rounded-[3px] cursor-pointer transition-colors hover:bg-gray-50"
-         data-student-id="<%= student.id %>"
-         data-student-name="<%= student.name %>"
-         data-student-instid="<%= student.instid %>"
-         data-action="click->add-member-modal#select">
-      <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-200 text-[11px] font-bold text-gray-600 shrink-0">
-        <%= student.name.first.upcase %>
-      </div>
-      <div class="leading-tight min-w-0">
-        <span class="text-sm text-gray-800 block truncate"><%= student.name %></span>
-        <% if student.instid.present? %>
-          <span class="text-xs text-gray-400 font-mono"><%= student.instid %></span>
-        <% end %>
-      </div>
-      <%# Checkmark — shown only when row is selected %>
-      <svg class="modal-student-check ml-auto shrink-0 text-[#1F78D1] hidden"
-           xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
-        <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/>
-      </svg>
-    </div>
+    <option value="<%= student.id %>">
+      <%= student.name %><%= student.instid.present? ? " (#{student.instid})" : "" %>
+    </option>
   <% end %>
-<% else %>
-  <p class="text-xs text-gray-400 px-2 py-3">No ungrouped students.</p>
-<% end %>
+</select>

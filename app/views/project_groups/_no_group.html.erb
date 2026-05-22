@@ -1,9 +1,0 @@
-<article>
-  <h2>You are not in a group</h2>
-  <p>Create a draft group to get started, or browse the groups below to join one.</p>
-
-  <% if @course.grouping_window_open? %>
-    <%# Person 2 — POST course_project_groups_path(@course) %>
-    <%= button_to "Create a draft group", course_project_groups_path(@course), method: :post %>
-  <% end %>
-</article>

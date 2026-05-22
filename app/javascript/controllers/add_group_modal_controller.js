@@ -1,9 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="add-member-modal"
+// Connects to data-controller="add-group-modal"
 export default class extends Controller {
   static targets = ["overlay", "form", "search", "select"]
-  static values  = { baseUrl: String }
 
   connect() {
     this.boundHandleSubmitEnd = this.handleSubmitEnd.bind(this)
@@ -16,9 +15,7 @@ export default class extends Controller {
 
   // ── Open / close ────────────────────────────────────────────────────────
 
-  open(event) {
-    const btn = event.currentTarget
-    this.formTarget.action = `${this.baseUrlValue}/${btn.dataset.groupId}/members`
+  open() {
     this.searchTarget.value = ""
     this.selectTarget.value = ""
     this._filterOptions("")
@@ -41,7 +38,6 @@ export default class extends Controller {
   }
 
   // ── Turbo Stream response handler ────────────────────────────────────────
-  // Closes the modal automatically after a successful form submission.
 
   handleSubmitEnd(event) {
     if (event.detail.success) this.close()
@@ -52,7 +48,6 @@ export default class extends Controller {
   _filterOptions(query) {
     const q = query.toLowerCase()
     Array.from(this.selectTarget.options).forEach(opt => {
-      // Never hide the placeholder option (value === "")
       opt.hidden = opt.value !== "" && !opt.text.toLowerCase().includes(q)
     })
   }

@@ -18,7 +18,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def create?
-    return false if coordinator?
+    return true if coordinator?
 
     enrolment.present? &&
       grouping_window_open? &&
