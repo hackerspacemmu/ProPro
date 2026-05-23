@@ -2,6 +2,22 @@ class ProjectGroupMembersController < ApplicationController
   before_action :set_course
   before_action :set_group
 
+  def create
+    authorize @course, :grouping_coordinator?
+
+    user = User.find(params[:user_id])
+    @group = @course.project_groups.find(params[:project_group_id])
+
+    begin
+      ProjectGroupMember.create!(user: user, project_group: @group)
+      flash[:notice] = "#{user.name} added to #{@group.group_name}."
+    rescue StandardError => e
+      flash[:alert] = e.message
+    end
+
+    redirect_to course_project_groups_path(@course), status: :see_other
+  end
+
   def destroy
     begin
       authorize @course, :grouping_coordinator?
