@@ -72,7 +72,8 @@
               w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px]
               text-black/75 focus:outline-none focus:border-gray-400
             "
-          />
+            autocomplete="off"
+          >
         </div>
 
         <%= form_with url: "#",
@@ -381,7 +382,7 @@
         <%= "group".pluralize(@groups.size) %>
         <% if @ungrouped_students.any? %>
           ·
-          <%= @ungrouped_students.size %><%= "student".pluralize(@ungrouped_students.size) %>without a group
+          <%= @ungrouped_students.size %><%= "student".pluralize(@ungrouped_students.size) %>ithout a group
         <% end %>
       </p>
 
@@ -521,4 +522,3 @@
     </div>
   </div>
 </div>
-
