@@ -2,109 +2,188 @@
   locals: group, course, is_coordinator
   Rendered as a collection from index via:
     render partial: "group_card", collection: @groups,
-           locals: { course: @course, is_coordinator: policy(@course).grouping_coordinator? }
-%>
-<% member_count  = group.project_group_members.size %>
-<% is_over_limit = course.group_max.present? && member_count > course.group_max.to_i %>
+           locals: { course: @course, is_coordinator: policy(@course).grouping_coordinator? } %>
+  <% member_count = group.project_group_members.size %>
+  <% is_over_limit =
+    course.group_max.present? && member_count > course.group_max.to_i %>
 
-<div class="border <%= group.confirmed? ? 'border-[#1F78D1] shadow-sm' : (is_over_limit ? 'border-red-300 bg-[#fffafa]' : 'border-gray-200') %> bg-white rounded-[3px] flex flex-col mb-3">
-  <div class="p-4 flex-1">
+  <div
+    class="
+      border <%= group.confirmed? ? 'border-[#1F78D1] shadow-sm' : (is_over_limit ? 'border-red-300 bg-[#fffafa]' : 'border-gray-200') %> bg-white rounded-[3px] flex
+      flex-col mb-3
+    "
+  >
+    <div class="p-4 flex-1">
 
-    <%# Badge row %>
-    <div class="flex items-start justify-between mb-1 gap-2">
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <% if group.confirmed? %>
-          <span class="inline-block bg-[#1F78D1] rounded text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Confirmed</span>
-        <% else %>
-          <span class="inline-block bg-[#475D65] rounded text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Draft</span>
-        <% end %>
-        <% if group.locked? %>
-          <span class="inline-block bg-amber-500 rounded text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Locked</span>
-        <% end %>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <span class="text-xs <%= is_over_limit ? 'text-red-600 font-bold' : (group.confirmed? ? 'text-gray-500' : 'text-gray-400') %>">
-          <%= is_over_limit ? "⚠️ " : "" %><%= member_count %> / <%= course.group_max.presence || "?" %>
-        </span>
-        <% unless is_coordinator %>
-          <% if @my_group.nil? && !group.confirmed? && course.grouping_window_open? %>
-            <% if group.locked? %>
-              <button disabled class="border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed">Request to join</button>
-            <% else %>
-              <button disabled class="border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed">Join</button>
-            <% end %>
+      <%# Badge row %>
+      <div class="flex items-start justify-between mb-1 gap-2">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <% if group.confirmed? %>
+            <span
+              class="
+                inline-block bg-[#1F78D1] rounded text-white text-[0.6875rem] font-normal
+                tracking-[1px] leading-none px-[0.625em] py-[0.4375em]
+              "
+            >Confirmed</span>
+          <% else %>
+            <span
+              class="
+                inline-block bg-[#475D65] rounded text-white text-[0.6875rem] font-normal
+                tracking-[1px] leading-none px-[0.625em] py-[0.4375em]
+              "
+            >Draft</span>
           <% end %>
-        <% end %>
-      </div>
-    </div>
-
-    <%# Group name %>
-    <p class="font-semibold text-base <%= is_over_limit ? 'text-red-800' : (group.confirmed? ? 'text-[#192325]' : 'text-gray-900') %> mb-3">
-      <%= group.group_name.presence || "Unnamed group" %>
-    </p>
-
-    <%# Member grid %>
-    <div class="grid grid-cols-2 gap-2">
-      <% group.project_group_members.each do |membership| %>
-        <div class="flex items-center gap-2.5 p-2.5 rounded-[3px] <%= group.confirmed? ? 'bg-[#1F78D1]/5 border border-[#1F78D1]/20' : 'bg-gray-50 border border-gray-200' %> group/member">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full <%= group.confirmed? ? 'bg-[#1F78D1]/10' : 'bg-gray-200' %> text-[11px] font-bold <%= group.confirmed? ? 'text-[#1F78D1]' : 'text-gray-600' %> shrink-0">
-            <%= membership.user.name.presence&.first&.upcase || "?" %>
-          </div>
-          <div class="flex flex-col min-w-0 flex-1">
-            <span class="text-sm font-medium text-gray-900 truncate"><%= membership.user.name.presence || membership.user.email_address %></span>
-            <% if membership.user.instid.present? %>
-              <span class="text-[11px] text-gray-400 font-mono"><%= membership.user.instid %></span>
-            <% end %>
-            <% if membership.user_id == group.leader_id %>
-              <span class="text-[10px] text-[#1F78D1] mt-0.5">leader</span>
-            <% end %>
-          </div>
-          <% if is_coordinator %>
-            <div class="opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0 self-start pt-0.5">
-              <%= button_to course_project_group_member_path(course, group, membership.user),
-                    method: :delete,
-                    class: "text-[11px] text-red-400 hover:text-red-600 transition-colors",
-                    form: { data: { turbo_confirm: "Remove #{membership.user.name} from #{group.group_name}? They will become ungrouped." } } do %>
-                Remove
-              <% end %>
-            </div>
+          <% if group.locked? %>
+            <span
+              class="
+                inline-block bg-amber-500 rounded text-white text-[0.6875rem] font-normal
+                tracking-[1px] leading-none px-[0.625em] py-[0.4375em]
+              "
+            >Locked</span>
           <% end %>
         </div>
-      <% end %>
+        <div class="flex items-center gap-2 shrink-0">
+          <span
+            class="text-xs <%= is_over_limit ? 'text-red-600 font-bold' : (group.confirmed? ? 'text-gray-500' : 'text-gray-400') %>"
+          >
+            <%= is_over_limit ? "⚠️ " : "" %><%= member_count %>
+            /
+            <%= course.group_max.presence || "?" %>
+          </span>
+          <% unless is_coordinator %>
+            <% if @my_group.nil? && !group.confirmed? && course.grouping_window_open? %>
+              <% if group.locked? %>
+                <button
+                  disabled
+                  class="
+                    border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed
+                  "
+                >Request to join</button>
+              <% else %>
+                <button
+                  disabled
+                  class="
+                    border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed
+                  "
+                >Join</button>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
 
-      <% if is_coordinator %>
-        <button type="button"
-                data-action="click->add-member-modal#open"
-                data-group-id="<%= group.id %>"
-                data-group-name="<%= j group.group_name %>"
-                class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-[3px] border border-dashed border-gray-300 bg-transparent text-gray-400 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all min-h-[62px] cursor-pointer">
-          <div class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor">
-              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
-            </svg>
+      <%# Group name %>
+      <p
+        class="
+          font-semibold text-base <%= is_over_limit ? 'text-red-800' : (group.confirmed? ? 'text-[#192325]' : 'text-gray-900') %> mb-3
+        "
+      >
+        <%= group.group_name.presence || "Unnamed group" %>
+      </p>
+
+      <%# Member grid %>
+      <div class="grid grid-cols-2 gap-2">
+        <% group.project_group_members.each do |membership| %>
+          <div
+            class="
+              flex items-center gap-2.5 p-2.5 rounded-[3px]
+              <%= group.confirmed? ? 'bg-[#1F78D1]/5 border border-[#1F78D1]/20' : 'bg-gray-50 border border-gray-200' %> group/member
+            "
+          >
+            <div
+              class="
+                inline-flex items-center justify-center w-8 h-8 rounded-full
+                <%= group.confirmed? ? 'bg-[#1F78D1]/10' : 'bg-gray-200' %> text-[11px] font-bold
+                <%= group.confirmed? ? 'text-[#1F78D1]' : 'text-gray-600' %> shrink-0
+              "
+            >
+              <%= membership.user.name.presence&.first&.upcase || "?" %>
+            </div>
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="text-sm font-medium text-gray-900 truncate"><%= membership.user.name.presence || membership.user.email_address %></span>
+              <% if membership.user.instid.present? %>
+                <span class="text-[11px] text-gray-400 font-mono"><%= membership.user.instid %></span>
+              <% end %>
+              <% if membership.user_id == group.leader_id %>
+                <span class="text-[10px] text-[#1F78D1] mt-0.5">leader</span>
+              <% end %>
+            </div>
+            <% if is_coordinator %>
+              <div
+                class="
+                  opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0 self-start
+                  pt-0.5
+                "
+              >
+                <%= button_to course_project_group_member_path(course, group, membership.user),
+                    method: :delete,
+                    class: "text-[11px] text-red-400 hover:text-red-600 transition-colors",
+                    form: { data: { turbo_confirm: "Remove #{membership.user.name} from #{group.group_name}? They will become ungrouped.",
+turbo_frame: "_top"
+                    } } do %>
+                  Remove
+                <% end %>
+              </div>
+            <% end %>
           </div>
-          <span class="text-[10px] tracking-wide">Add student</span>
-        </button>
-      <% end %>
+        <% end %>
+
+        <% if is_coordinator %>
+          <button
+            type="button"
+            data-action="click->add-member-modal#open"
+            data-group-id="<%= group.id %>"
+            data-group-name="<%= j group.group_name %>"
+            class="
+              flex flex-col items-center justify-center gap-1 p-2.5 rounded-[3px] border
+              border-dashed border-gray-300 bg-transparent text-gray-400 hover:border-gray-400
+              hover:bg-gray-50 hover:text-gray-600 transition-all min-h-[62px] cursor-pointer
+            "
+          >
+            <div
+              class="
+                w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="14px"
+                viewBox="0 -960 960 960"
+                width="14px"
+                fill="currentColor"
+              >
+                <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+              </svg>
+            </div>
+            <span class="text-[10px] tracking-wide">Add student</span>
+          </button>
+        <% end %>
+      </div>
+
     </div>
+
+    <%# Footer — coordinator only %>
+    <% if is_coordinator %>
+      <div
+        class="
+          px-4 py-2 bg-[#fdfdfd] border-t <%= is_over_limit ? 'border-red-200' : 'border-gray-100' %> flex
+          justify-center
+        "
+      >
+        <% if group.confirmed? %>
+          <%= button_to "Revert to Draft",
+          revert_course_project_group_path(course, group),
+          method: :patch,
+          class:
+            "text-[10px] font-semibold tracking-widest uppercase text-gray-400 hover:text-[#1F78D1] transition-colors py-1" %>
+        <% else %>
+          <%= button_to "Force Confirm",
+          confirm_course_project_group_path(course, group),
+          method: :patch,
+          class:
+            "text-[10px] font-semibold tracking-widest uppercase text-orange-500 hover:text-orange-700 transition-colors py-1" %>
+        <% end %>
+      </div>
+    <% end %>
 
   </div>
-
-  <%# Footer — coordinator only %>
-  <% if is_coordinator %>
-    <div class="px-4 py-2 bg-[#fdfdfd] border-t <%= is_over_limit ? 'border-red-200' : 'border-gray-100' %> flex justify-center">
-      <% if group.confirmed? %>
-        <%= button_to "Revert to Draft",
-              revert_course_project_group_path(course, group),
-              method: :patch,
-              class: "text-[10px] font-semibold tracking-widest uppercase text-gray-400 hover:text-[#1F78D1] transition-colors py-1" %>
-      <% else %>
-        <%= button_to "Force Confirm",
-              confirm_course_project_group_path(course, group),
-              method: :patch,
-              class: "text-[10px] font-semibold tracking-widest uppercase text-orange-500 hover:text-orange-700 transition-colors py-1" %>
-      <% end %>
-    </div>
-  <% end %>
-
-</div>
