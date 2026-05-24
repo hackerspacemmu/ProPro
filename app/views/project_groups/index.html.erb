@@ -11,7 +11,12 @@
 </div>
 
 <div
-  class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5" <% if policy(@course).grouping_coordinator? %> data-controller="add-member-modal add-group-modal" data-add-member-modal-base-url-value="<%= course_project_groups_path(@course) %>" <% end %> >
+  class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5"
+  <% if policy(@course).grouping_coordinator? %>
+  data-controller="add-member-modal add-group-modal"
+  data-add-member-modal-base-url-value="<%= course_project_groups_path(@course) %>"
+  <% end %>
+>
 
   <%# ── Add-member modal (coordinator only) %>
   <% if policy(@course).grouping_coordinator? %>

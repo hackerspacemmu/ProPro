@@ -2,111 +2,69 @@
   _modal_new_group.html.erb
   Coordinator-only modal for creating a new draft group.
   Requires a first student (who becomes the leader) — no empty groups.
-  Form POSTs to course_project_groups_path(@course) with user_id param. %>
-  <div
-    data-add-group-modal-target="overlay"
-    data-action="click->add-group-modal#closeOnBackdrop"
-    class="
-      hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center
-    "
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="add-group-modal-title"
-  >
-    <div
-      class="
-        bg-white rounded-[4px] border border-gray-200 w-[420px] max-w-[calc(100vw-2rem)]
-        overflow-hidden shadow-lg
-      "
-    >
+  Form POSTs to course_project_groups_path(@course) with user_id param.
+%>
+<div data-add-group-modal-target="overlay"
+     data-action="click->add-group-modal#closeOnBackdrop"
+     class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+     role="dialog" aria-modal="true" aria-labelledby="add-group-modal-title">
+  <div class="bg-white rounded-[4px] border border-gray-200 w-[420px] max-w-[calc(100vw-2rem)] overflow-hidden shadow-lg">
 
-      <div
-        class="
-          flex items-center justify-between px-5 py-4 border-b border-gray-200
-        "
-      >
-        <p class="text-sm font-semibold text-gray-900" id="add-group-modal-title">Create new group</p>
-        <button
-          data-action="click->add-group-modal#close"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
-          aria-label="Close"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="18px"
-            viewBox="0 -960 960 960"
-            width="18px"
-            fill="currentColor"
-          >
-            <path
-              d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
-            />
-          </svg>
-        </button>
-      </div>
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+      <p class="text-sm font-semibold text-gray-900" id="add-group-modal-title">Create new group</p>
+      <button data-action="click->add-group-modal#close"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">
+          <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+        </svg>
+      </button>
+    </div>
 
-      <div class="px-5 py-3 border-b border-gray-200 bg-amber-50/60">
-        <p class="text-xs text-amber-700 leading-relaxed">
-          A first student must be selected — they will become the group leader.
-          Students can be added after creation.
-        </p>
-      </div>
+    <div class="px-5 py-3 border-b border-gray-200 bg-amber-50/60">
+      <p class="text-xs text-amber-700 leading-relaxed">
+        A first student must be selected — they will become the group leader. Students can be added after creation.
+      </p>
+    </div>
 
-      <div class="px-5 py-3 border-b border-gray-200">
-        <input
-          type="text"
-          data-add-group-modal-target="search"
-          data-action="input->add-group-modal#filter"
-          placeholder="Search students…"
-          autocomplete="off"
-          class="
-            w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px]
-            text-black/75 focus:outline-none focus:border-gray-400
-          "
-        >
-      </div>
+    <div class="px-5 py-3 border-b border-gray-200">
+      <input type="text"
+             data-add-group-modal-target="search"
+             data-action="input->add-group-modal#filter"
+             placeholder="Search students…"
+             class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400" />
+    </div>
 
-      <%= form_with url: course_project_groups_path(@course),
+    <%= form_with url: course_project_groups_path(@course),
           method: :post,
           data: { turbo_stream: true },
           class: "px-5 py-4" do |f| %>
 
-        <%= f.hidden_field :coordinator_create, value: "1" %>
+      <%= f.hidden_field :coordinator_create, value: "1" %>
 
-        <%# Inline select — must use add-group-modal target, NOT the shared partial %>
-        <select
-          data-add-group-modal-target="select"
-          name="user_id"
-          required
-          class="
-            w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px]
-            text-black/75 focus:outline-none focus:border-gray-400
-          "
-        >
-          <option value="" disabled selected>Select a student…</option>
-          <% @ungrouped_students.each do |student| %>
-            <option value="<%= student.id %>">
-              <%= student.name %><%= student.instid.present? ? " (#{student.instid})" : "" %>
-            </option>
-          <% end %>
-        </select>
+      <%# Inline select — must use add-group-modal target, NOT the shared partial %>
+      <select data-add-group-modal-target="select"
+              name="user_id"
+              required
+              class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400">
+        <option value="" disabled selected>Select a student…</option>
+        <% @ungrouped_students.each do |student| %>
+          <option value="<%= student.id %>">
+            <%= student.name %><%= student.instid.present? ? " (#{student.instid})" : "" %>
+          </option>
+        <% end %>
+      </select>
 
-        <div class="flex justify-end gap-2 mt-4">
-          <button
-            type="button"
-            data-action="click->add-group-modal#close"
-            class="
-              text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600
-              hover:border-gray-400 hover:text-gray-800 transition-colors
-            "
-          >
-            Cancel
-          </button>
-          <%= f.submit "Create group",
-                   class:
-                     "text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors font-medium cursor-pointer" %>
-        </div>
-      <% end %>
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="button"
+                data-action="click->add-group-modal#close"
+                class="text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors">
+          Cancel
+        </button>
+        <%= f.submit "Create group",
+              class: "text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors font-medium cursor-pointer" %>
+      </div>
+    <% end %>
 
-    </div>
   </div>
+</div>
