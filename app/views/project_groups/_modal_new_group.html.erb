@@ -29,10 +29,11 @@
 
     <div class="px-5 py-3 border-b border-gray-200">
       <input type="text"
-             data-add-group-modal-target="search"
-             data-action="input->add-group-modal#filter"
-             placeholder="Search students…"
-             class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400" />
+            data-add-group-modal-target="search"
+            data-action="input->add-group-modal#filter"
+            placeholder="Search students…"
+            autocomplete="off"
+            class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400">
     </div>
 
     <%= form_with url: course_project_groups_path(@course),
