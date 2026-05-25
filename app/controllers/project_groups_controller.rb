@@ -121,25 +121,27 @@ class ProjectGroupsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        grouping_enabled = params[:grouping_enabled] == '1'
+        # Extract boolean values from the flat form parameters
+        grouping_enabled_param = params[:grouping_enabled] == '1' || params[:grouping_enabled] == 'true'
+        student_list_param     = params[:student_list_finalised] == '1' || params[:student_list_finalised] == 'true'
 
-        if grouping_enabled
-          @course.update!(grouping_enabled: true)
-
-          if params.key?(:student_list_finalised)
-            if params[:student_list_finalised] == '1'
-              @course.update!(student_list_finalised: true)
-            else
-              @course.revert_to_default_mode!
-            end
-          end
-
-          if params.key?(:grouping_open)
-            is_open = params[:grouping_open] == '1'
-            @course.update!(grouping_open: is_open, grouping_opens_at: nil, grouping_closes_at: nil)
-          end
-        else
+        if @course.grouping_enabled? && !grouping_enabled_param
           @course.disable_grouping!
+
+        elsif @course.grouping_enabled? && @course.student_list_finalised? && !student_list_param
+          @course.revert_to_default_mode!
+
+        else
+          # Update all attributes in a single call to pass model validations
+          @course.update!(
+            grouping_enabled: grouping_enabled_param,
+            student_list_finalised: student_list_param,
+            group_min: params[:group_min].presence,
+            group_max: params[:group_max].presence,
+            grouping_open: params[:grouping_open] == '1' || params[:grouping_open] == 'true',
+            grouping_opens_at: params[:grouping_opens_at].presence,
+            grouping_closes_at: params[:grouping_closes_at].presence
+          )
         end
       end
 

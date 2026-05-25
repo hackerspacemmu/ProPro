@@ -23,7 +23,23 @@ export default class extends Controller {
 
   // Called when the grouping_enabled radio buttons change.
   toggleEnabled(event) {
-    const enabled = event.target.value === "true";
+    const checkbox = event.target;
+    const enabled = checkbox.checked;
+
+    // If the user is trying to turn it OFF (checked becomes false)
+    if (!enabled) {
+      const message =
+        "Are you sure you want to disable the grouping system? This action will delete all draft groups.";
+
+      if (!confirm(message)) {
+        // User cancelled: revert the checkbox state
+        checkbox.checked = true;
+        event.preventDefault();
+        return; // Stop execution
+      }
+    }
+
+    // If user confirmed (or is turning it ON), proceed with existing logic
     this.applyEnabledState(enabled);
   }
 
