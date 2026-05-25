@@ -303,8 +303,8 @@
             <div class="flex flex-col md:flex-row gap-4">
               <label
                 class="
-                  flex-1 border <%= !@course.student_list_finalised? ? 'border-[#1F78D1] bg-blue-50/30 shadow-sm' : 'border-gray-200 bg-gray-50/50 opacity-60' %> rounded-[3px] p-3
-                  cursor-pointer hover:border-[#1F78D1] hover:opacity-100 transition-all
+                  flex-1 border rounded-[3px] p-3 transition-all
+                  <%= !@course.student_list_finalised? ? 'border-[#1F78D1] bg-blue-50/30 shadow-sm hover:border-[#1F78D1] hover:opacity-100 cursor-pointer' : 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed' %>
                 "
               >
                 <div class="flex items-start gap-3">
@@ -313,16 +313,24 @@
                       type="radio"
                       name="student_list_finalised"
                       value="0"
-                      class="w-4 h-4 text-[#1F78D1] focus:ring-[#1F78D1]"
+                      class="
+                        w-4 h-4 text-[#1F78D1] focus:ring-[#1F78D1] disabled:cursor-not-allowed
+                      "
                       <%= "checked" unless @course.student_list_finalised? %>
+                      <%= "disabled" if @course.student_list_finalised? %>
                     >
                   </div>
                   <div>
                     <h4 class="text-sm font-bold text-gray-900">Default Mode</h4>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Student list is
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                      Student list is
                       <span class="font-semibold">not final</span>. No student self-grouping. Coordinator manages all
                       groups manually via CRUD. Students can only view their
-                      assigned group.</p>
+                      assigned group.
+                    </p>
+                    <% if @course.student_list_finalised? %>
+                      <p class="text-[10px] text-red-500 font-semibold mt-2">🔒 Locked: Student list is already finalised.</p>
+                    <% end %>
                   </div>
                 </div>
               </label>

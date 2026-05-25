@@ -58,6 +58,9 @@ class Course < ApplicationRecord
   validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
   validate :grouping_window_dates_valid, if: -> { grouping_opens_at.present? && grouping_closes_at.present? }
 
+  # enforce student_list_finalised to only toggle from false to true once
+  validate :student_list_cannot_be_unfinalised, on: :update
+
   before_validation :null_number_of_updates_if_not_used
   before_validation :clear_grouping_fields_if_disabled
 
@@ -267,5 +270,12 @@ class Course < ApplicationRecord
     { approved_proposals: 0, pending_proposals: 0, total_proposals: 0,
       max_capacity: supervisor_projects_limit, remaining_capacity: supervisor_projects_limit,
       is_at_capacity: false }
+  end
+
+  # enforce student_list_finalised to only toggle from false to true once
+  def student_list_cannot_be_unfinalised
+    return unless student_list_finalised_was == true && student_list_finalised == false
+
+    errors.add('You cannot revert to Default Mode once you have selected Fixed List Mode.')
   end
 end
