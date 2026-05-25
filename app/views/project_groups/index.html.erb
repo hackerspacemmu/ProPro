@@ -123,6 +123,7 @@
     >
 
       <%= form_with url: update_settings_course_project_groups_path(@course), method: :patch,
+            data: {action: "submit->grouping-settings#confirmSave"},
             class: "bg-white border border-gray-200 rounded-[3px] p-5 mb-8 shadow-sm flex flex-col gap-4" do |f| %>
 
         <%# ── TOP TOGGLE (Always visible) ── %>

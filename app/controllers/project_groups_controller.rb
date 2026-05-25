@@ -122,8 +122,8 @@ class ProjectGroupsController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         # Extract boolean values from the flat form parameters
-        grouping_enabled_param = params[:grouping_enabled] == '1' || params[:grouping_enabled] == 'true'
-        student_list_param     = params[:student_list_finalised] == '1' || params[:student_list_finalised] == 'true'
+        grouping_enabled_param = %w[1 true].include?(params[:grouping_enabled])
+        student_list_param     = %w[1 true].include?(params[:student_list_finalised])
 
         if @course.grouping_enabled? && !grouping_enabled_param
           @course.disable_grouping!
@@ -138,7 +138,7 @@ class ProjectGroupsController < ApplicationController
             student_list_finalised: student_list_param,
             group_min: params[:group_min].presence,
             group_max: params[:group_max].presence,
-            grouping_open: params[:grouping_open] == '1' || params[:grouping_open] == 'true',
+            grouping_open: %w[1 true].include?(params[:grouping_open]),
             grouping_opens_at: params[:grouping_opens_at].presence,
             grouping_closes_at: params[:grouping_closes_at].presence
           )

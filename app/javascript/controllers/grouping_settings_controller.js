@@ -8,6 +8,7 @@ export default class extends Controller {
     "windowToggleBtn", // the "Set a window / Remove window" button
     "previewInput", // the student count number input
     "minMax", // group_min and group_max inputs
+    "groupingEnabled",
   ];
 
   static values = {
@@ -23,24 +24,23 @@ export default class extends Controller {
 
   // Called when the grouping_enabled radio buttons change.
   toggleEnabled(event) {
-    const checkbox = event.target;
-    const enabled = checkbox.checked;
+    const enabled = event.target.checked;
+    this.applyEnabledState(enabled);
+  }
 
-    // If the user is trying to turn it OFF (checked becomes false)
-    if (!enabled) {
+  confirmSave(event) {
+    const wasEnabledOriginally = this.enabledValue; // The state on page load
+    const isEnabledNow = this.groupingEnabledTarget.checked; // The state right now
+
+    // If they are turning OFF a previously ON system
+    if (wasEnabledOriginally && !isEnabledNow) {
       const message =
         "Are you sure you want to disable the grouping system? This action will delete all draft groups.";
 
       if (!confirm(message)) {
-        // User cancelled: revert the checkbox state
-        checkbox.checked = true;
-        event.preventDefault();
-        return; // Stop execution
+        event.preventDefault(); // Halt the form submission
       }
     }
-
-    // If user confirmed (or is turning it ON), proceed with existing logic
-    this.applyEnabledState(enabled);
   }
 
   // Called when the student_list_finalised radio buttons change.
