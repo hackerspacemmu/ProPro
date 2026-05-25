@@ -161,6 +161,14 @@
           </div>
         </div>
 
+        <div
+          data-grouping-settings-target="destructiveWarning"
+          class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-[3px]"
+        >
+          <p class="text-xs font-semibold text-red-700">⚠️ Warning: Saving these settings will disable the grouping system
+            and permanently delete all current draft groups.</p>
+        </div>
+
         <%# ── GROUPING OPTIONS (Hidden if System is OFF) ── %>
         <div
           data-grouping-settings-target="groupingOptions"
@@ -170,7 +178,6 @@
           <%# Group Size & Manual Window Row %>
           <div class="border-t border-gray-100 pt-4 mt-1">
             <div class="flex flex-col md:flex-row gap-6 md:items-end">
-
               <div class="flex-1 grid grid-cols-2 gap-4">
                 <div>
                   <%= f.label :group_min,
@@ -180,6 +187,9 @@
                   <%= f.number_field :group_min,
                                  min: 1,
                                  value: @course.group_min,
+                                 data: {
+                                   grouping_settings_target: "minInput",
+                                 },
                                  class:
                                    "w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-[#1F78D1]" %>
                 </div>
@@ -191,6 +201,9 @@
                   <%= f.number_field :group_max,
                                  min: 1,
                                  value: @course.group_max,
+                                 data: {
+                                   grouping_settings_target: "maxInput",
+                                 },
                                  class:
                                    "w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-[#1F78D1]" %>
                 </div>

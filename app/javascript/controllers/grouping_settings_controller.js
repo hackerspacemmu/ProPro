@@ -9,6 +9,9 @@ export default class extends Controller {
     "previewInput", // the student count number input
     "minMax", // group_min and group_max inputs
     "groupingEnabled",
+    "destructiveWarning",
+    "minInput",
+    "maxInput",
   ];
 
   static values = {
@@ -26,19 +29,38 @@ export default class extends Controller {
   toggleEnabled(event) {
     const enabled = event.target.checked;
     this.applyEnabledState(enabled);
+
+    if (enabled) {
+      if (!this.minInputTarget.value) this.minInputTarget.value = "2";
+      if (!this.maxInputTarget.value) this.maxInputTarget.value = "4";
+    }
   }
 
   confirmSave(event) {
-    const wasEnabledOriginally = this.enabledValue; // The state on page load
-    const isEnabledNow = this.groupingEnabledTarget.checked; // The state right now
+    const wasEnabledOriginally = this.enabledValue;
+    const isEnabledNow = this.groupingEnabledTarget.checked;
 
-    // If they are turning OFF a previously ON system
+    // 1. Check for Destructive OFF State
     if (wasEnabledOriginally && !isEnabledNow) {
       const message =
-        "Are you sure you want to disable the grouping system? This action will delete all draft groups.";
-
+        "Are you sure you want to disable the grouping system? All draft groups will be deleted.";
       if (!confirm(message)) {
-        event.preventDefault(); // Halt the form submission
+        event.preventDefault();
+        return; // Halt execution
+      }
+    }
+
+    // 2. Validate ON State (Prevent backend errors)
+    if (isEnabledNow) {
+      if (!this.minInputTarget.value || !this.maxInputTarget.value) {
+        alert("Please set both a minimum and maximum group size.");
+        // Highlight inputs in red
+        if (!this.minInputTarget.value)
+          this.minInputTarget.classList.add("border-red-500");
+        if (!this.maxInputTarget.value)
+          this.maxInputTarget.classList.add("border-red-500");
+
+        event.preventDefault(); // Halt form submission
       }
     }
   }
@@ -79,9 +101,17 @@ export default class extends Controller {
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
-  applyEnabledState(enabled) {
+  applyEnabledState(isEnabledNow) {
     if (!this.hasGroupingOptionsTarget) return;
-    this.groupingOptionsTarget.classList.toggle("hidden", !enabled);
+
+    // Show/hide the settings panel
+    this.groupingOptionsTarget.classList.toggle("hidden", !isEnabledNow);
+
+    // Show/hide the destructive warning (Only show if it was originally ON, and is now OFF)
+    if (this.hasDestructiveWarningTarget) {
+      const showWarning = this.enabledValue && !isEnabledNow;
+      this.destructiveWarningTarget.classList.toggle("hidden", !showWarning);
+    }
   }
 
   applyFinalisedState(finalised) {
