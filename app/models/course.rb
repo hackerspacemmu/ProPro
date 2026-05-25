@@ -276,6 +276,6 @@ class Course < ApplicationRecord
   def student_list_cannot_be_unfinalised
     return unless student_list_finalised_was == true && student_list_finalised == false
 
-    raise 'You cannot revert to Default Mode once you have selected Fixed List Mode.'
+    errors.add(:base, 'cannot be reverted once it has been finalised.')
   end
 end
