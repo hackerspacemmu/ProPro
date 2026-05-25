@@ -84,7 +84,7 @@ class Course < ApplicationRecord
   def disable_grouping!
     transaction do
       project_groups.where(confirmed: false).destroy_all
-      update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
+      update_columns(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
     end
   end
 
@@ -93,7 +93,7 @@ class Course < ApplicationRecord
   def revert_to_default_mode!
     transaction do
       project_groups.where(confirmed: false).destroy_all
-      update!(student_list_finalised: false)
+      update_columns(student_list_finalised: false)
     end
   end
 
