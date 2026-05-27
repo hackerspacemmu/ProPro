@@ -8,7 +8,7 @@ class BackfillSupervisorEnrolmentsToLecturer < ActiveRecord::Migration[8.0]
         role: :lecturer
       )
       next unless lecturer_enrolment
-      project.update_columns(supervisor_enrolment_id: lecturer_enrolment.id)
+      project.update_columns(enrolment_id: lecturer_enrolment.id)
     end
 
     # Backfill ProjectInstance
@@ -21,7 +21,7 @@ class BackfillSupervisorEnrolmentsToLecturer < ActiveRecord::Migration[8.0]
         role: :lecturer
       )
       next unless lecturer_enrolment
-      instance.update_columns(supervisor_enrolment_id: lecturer_enrolment.id)
+      instance.update_columns(enrolment_id: lecturer_enrolment.id)
     end
   end
 
