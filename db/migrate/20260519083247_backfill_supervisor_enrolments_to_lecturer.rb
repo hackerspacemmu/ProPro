@@ -17,7 +17,7 @@ class BackfillSupervisorEnrolmentsToLecturer < ActiveRecord::Migration[8.0]
                    .each do |instance|
       lecturer_enrolment = Enrolment.find_by(
         user_id: instance.supervisor_enrolment.user_id,
-        course_id: instance.course_id,
+        course_id: instance.project.course_id,
         role: :lecturer
       )
       next unless lecturer_enrolment
