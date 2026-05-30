@@ -26,10 +26,10 @@ class ProjectGroupsController < ApplicationController
     authorize @group
 
     leader = if policy(@group).coordinator?
-              User.find(params[:user_id])
-            else
-              current_user
-            end
+               User.find(params[:user_id])
+             else
+               current_user
+             end
 
     @group.leader_id = leader.id
 
