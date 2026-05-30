@@ -22,8 +22,16 @@ class ProjectGroupsController < ApplicationController
   end
 
   def create
-    @group = @course.project_groups.build(leader_id: current_user.id)
+    @group = @course.project_groups.build
     authorize @group
+
+    leader = if policy(@group).coordinator?
+              User.find(params[:user_id])
+            else
+              current_user
+            end
+
+    @group.leader_id = leader.id
 
     begin
       ActiveRecord::Base.transaction do
@@ -33,7 +41,7 @@ class ProjectGroupsController < ApplicationController
           @group.group_name = format('G%03d', next_seq)
           @group.save!
         end
-        ProjectGroupMember.create!(user: current_user, project_group: @group)
+        ProjectGroupMember.create!(user: leader, project_group: @group)
       end
     rescue StandardError => e
       redirect_to course_project_groups_path(@course), alert: e.message
