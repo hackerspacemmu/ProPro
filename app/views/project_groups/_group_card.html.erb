@@ -51,22 +51,20 @@
             <%= course.group_max.presence || "?" %>
           </span>
           <% unless is_coordinator %>
-            <% if @my_group.nil? && !group.confirmed? && course.grouping_window_open? %>
-              <% if group.locked? %>
+            <% if group.locked? %>
+              <% if policy(group).request_to_join? %>
                 <button
-                  disabled
                   class="
-                    border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed
+                    border border-blue-300 rounded px-2 py-0.5 text-xs text-blue-600 hover:bg-blue-50 transition-colors
                   "
                 >Request to join</button>
-              <% else %>
-                <button
-                  disabled
-                  class="
-                    border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed
-                  "
-                >Join</button>
               <% end %>
+            <% elsif policy(group).join? %>
+              <button
+                class="
+                  border border-blue-300 rounded px-2 py-0.5 text-xs text-blue-600 hover:bg-blue-50 transition-colors
+                "
+              >Join</button>
             <% end %>
           <% end %>
         </div>

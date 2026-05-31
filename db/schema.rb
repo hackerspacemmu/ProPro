@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_31_093000) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -86,6 +86,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
     t.datetime "updated_at", null: false
     t.date "date"
     t.index ["project_id"], name: "index_progress_updates_on_project_id"
+  end
+
+  create_table "project_group_invites", force: :cascade do |t|
+    t.integer "project_group_id", null: false
+    t.integer "sender_id", null: false
+    t.integer "kind", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
+    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0"
+    t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
   end
 
   create_table "project_group_members", force: :cascade do |t|
@@ -344,6 +356,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
   add_foreign_key "enrolments", "users"
   add_foreign_key "otps", "users"
   add_foreign_key "progress_updates", "projects"
+  add_foreign_key "project_group_invites", "project_groups"
+  add_foreign_key "project_group_invites", "users", column: "sender_id"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_groups", "courses"

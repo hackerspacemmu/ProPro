@@ -67,4 +67,41 @@ class ProjectGroupPolicy < ApplicationPolicy
     grouping_window_open? &&
       record.leader_id == user.id && !record.confirmed?
   end
+
+  # Student can join an unlocked draft group if ungrouped and window is open.
+  def join?
+    grouping_window_open? &&
+      !current_user_in_any_group? &&
+      !record.confirmed? &&
+      !record.locked?
+  end
+
+  # Student can send a join request to a locked draft group.
+  def request_to_join?
+    grouping_window_open? &&
+      !current_user_in_any_group? &&
+      !record.confirmed?
+  end
+
+  # Any member can leave within the grouping window.
+  def leave?
+    grouping_window_open? &&
+      record.project_group_members.exists?(user_id: user.id)
+  end
+
+  # Leader or coordinator can kick a member.
+  def kick_member?
+    grouping_window_open? &&
+      (coordinator? || record.leader?(user))
+  end
+
+  private
+
+  # True if the current user is in ANY group in this course (not just this group).
+  def current_user_in_any_group?
+    ProjectGroupMember.joins(:project_group)
+                      .where(user_id: user.id,
+                             project_groups: { course_id: record.course_id })
+                      .exists?
+  end
 end
