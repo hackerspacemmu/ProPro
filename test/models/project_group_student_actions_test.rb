@@ -1,33 +1,33 @@
-require "test_helper"
+require 'test_helper'
 
 class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
   def setup
     @course = create(:course,
-                     grouping_enabled:       true,
+                     grouping_enabled: true,
                      student_list_finalised: false,
-                     group_min:              2,
-                     group_max:              4,
-                     grouping_open:          true)
+                     group_min: 2,
+                     group_max: 4,
+                     grouping_open: true)
     @alice = create(:user)
     @bob   = create(:user)
     @carol = create(:user)
 
     @group = create(:project_group, course: @course, leader_id: @alice.id)
     create(:project_group_member, project_group: @group, user: @alice,
-           created_at: 1.hour.ago)
+                                  created_at: 1.hour.ago)
     create(:project_group_member, project_group: @group, user: @bob,
-           created_at: 30.minutes.ago)
+                                  created_at: 30.minutes.ago)
   end
 
   # ── confirm! ──────────────────────────────────────────────────────────────
 
-  test "confirm! confirms a legal group" do
+  test 'confirm! confirms a legal group' do
     # group has alice + bob (2 members), min is 2
     assert @group.confirm!
     assert @group.reload.confirmed?
   end
 
-  test "confirm! returns false when can_confirm? is false" do
+  test 'confirm! returns false when can_confirm? is false' do
     solo = create(:project_group, course: @course, leader_id: @carol.id)
     create(:project_group_member, project_group: solo, user: @carol)
     # only 1 member, min is 2
@@ -35,7 +35,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
     assert_not solo.reload.confirmed?
   end
 
-  test "confirm! does not persist when guard fails" do
+  test 'confirm! does not persist when guard fails' do
     solo = create(:project_group, course: @course, leader_id: @carol.id)
     create(:project_group_member, project_group: solo, user: @carol)
     solo.confirm!
@@ -44,14 +44,14 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
 
   # ── assign_next_leader! ───────────────────────────────────────────────────
 
-  test "assign_next_leader! promotes earliest-joined member" do
+  test 'assign_next_leader! promotes earliest-joined member' do
     # alice joined first (1.hour.ago), bob joined second
     # if alice leaves, bob should become leader
     @group.remove_member!(@alice)
     assert_equal @bob.id, @group.reload.leader_id
   end
 
-  test "assign_next_leader! dissolves group when no members remain" do
+  test 'assign_next_leader! dissolves group when no members remain' do
     # remove everyone
     @group.project_group_members.order(created_at: :desc).each do |m|
       user = m.user
@@ -59,7 +59,11 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
       if @group.project_group_members.count == 1
         # capture id before dissolve
         gid = @group.id
-        @group.remove_member!(user) rescue nil
+        begin
+          @group.remove_member!(user)
+        rescue StandardError
+          nil
+        end
         assert_not ProjectGroup.exists?(gid)
         return
       else
@@ -70,12 +74,12 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
 
   # ── remove_member! ────────────────────────────────────────────────────────
 
-  test "remove_member! removes the member record" do
+  test 'remove_member! removes the member record' do
     @group.remove_member!(@bob)
     assert_not @group.project_group_members.exists?(user_id: @bob.id)
   end
 
-  test "remove_member! reverts confirmed group when it falls below min" do
+  test 'remove_member! reverts confirmed group when it falls below min' do
     @group.confirm!
     assert @group.reload.confirmed?
 
@@ -84,7 +88,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
     assert_not @group.reload.confirmed?
   end
 
-  test "remove_member! raises if user is not a member" do
+  test 'remove_member! raises if user is not a member' do
     stranger = create(:user)
     assert_raises(ActiveRecord::RecordNotFound) do
       @group.remove_member!(stranger)
@@ -93,13 +97,13 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
 
   # ── dissolve! ─────────────────────────────────────────────────────────────
 
-  test "dissolve! destroys the group" do
+  test 'dissolve! destroys the group' do
     gid = @group.id
     @group.dissolve!
     assert_not ProjectGroup.exists?(gid)
   end
 
-  test "dissolve! destroys pending invites" do
+  test 'dissolve! destroys pending invites' do
     invite = create(:project_group_invite, project_group: @group, sender: @carol)
     iid = invite.id
     @group.dissolve!
@@ -108,7 +112,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
 
   # ── pending_requests ──────────────────────────────────────────────────────
 
-  test "pending_requests returns only pending request invites" do
+  test 'pending_requests returns only pending request invites' do
     pending  = create(:project_group_invite, project_group: @group, sender: @carol, status: :pending)
     declined = create(:project_group_invite, project_group: @group, sender: create(:user), status: :declined)
 
@@ -118,7 +122,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
 
   # ── leader? helper ────────────────────────────────────────────────────────
 
-  test "leader? returns true for group leader" do
+  test 'leader? returns true for group leader' do
     assert @group.leader?(@alice)
     assert_not @group.leader?(@bob)
   end

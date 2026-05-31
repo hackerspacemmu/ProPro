@@ -192,7 +192,7 @@ class ProjectsController < ApplicationController
           raise StandardError, 'You already have a project' if has_project
         end
 
-        params[:based_on_topic] = "own_proposal_#{@course.enrolments.find_by(role: :lecturer).id}" if !@course.toggle_topics && @course.solo_supervisor?
+        params[:based_on_topic] = "own_proposal_#{@course.enrolments.find_by(role: :lecturer).id}" if @course.solo_supervisor? && (!@course.toggle_topics || @course.topics.empty?)
 
         raise StandardError, 'Please choose a lecturer or topic' if params[:based_on_topic].blank?
 
@@ -303,7 +303,7 @@ class ProjectsController < ApplicationController
           field.save!
         end
 
-        params[:based_on_topic] = "own_proposal_#{@course.enrolments.find_by(role: :lecturer).id}" if !@course.toggle_topics && @course.solo_supervisor?
+        params[:based_on_topic] = "own_proposal_#{@course.enrolments.find_by(role: :lecturer).id}" if @course.solo_supervisor? && (!@course.toggle_topics || @course.topics.empty?)
 
         raise StandardError, 'Please choose a lecturer or topic' if params[:based_on_topic].blank?
 

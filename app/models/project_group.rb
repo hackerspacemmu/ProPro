@@ -21,6 +21,7 @@ class ProjectGroup < ApplicationRecord
     transaction do
       with_lock do
         return false unless can_confirm?
+
         update!(confirmed: true)
       end
     end
@@ -48,7 +49,7 @@ class ProjectGroup < ApplicationRecord
       remaining = project_group_members.reload
 
       if remaining.none?
-        dissolve!    # group destroyed — caller must not use self after this
+        dissolve! # group destroyed — caller must not use self after this
         return
       end
 
