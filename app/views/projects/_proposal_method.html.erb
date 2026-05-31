@@ -6,8 +6,8 @@
 
 <div class="border border-gray-200 rounded-2xl bg-white p-6 space-y-6 <%= 'opacity-50 pointer-events-none' if readonly %>">
 
-  <%if @course.solo_supervisor? %>  
-    <% solo_id = course.enrolments.find_by(role: [:lecturer, :coordinator])&.id %>
+  <% if @course.solo_supervisor? %>  
+    <% solo_id = course.enrolments.find_by(role: :lecturer)&.id %>
   <% end %>
 
   <%= hidden_field_tag :based_on_topic,
