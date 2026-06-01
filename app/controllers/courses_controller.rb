@@ -3,7 +3,7 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview ]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview]
   def show
     authorize @course
 
@@ -237,23 +237,23 @@ class CoursesController < ApplicationController
   def handle_settings
     authorize @course, :update?
 
-    grouping_enabled_param = params[:course][:grouping_enabled] == "true"
-    student_list_param     = params[:course][:student_list_finalised] == "true"
+    grouping_enabled_param = params[:course][:grouping_enabled] == 'true'
+    student_list_param     = params[:course][:student_list_finalised] == 'true'
 
     begin
       ActiveRecord::Base.transaction do
         raise StandardError, @course.errors.full_messages.join(', ') unless @course.update(
-          course_name:                  params[:course][:course_name],
-          course_description:           params[:course][:course_description],
-          supervisor_projects_limit:    params[:course][:supervisor_projects_limit],
+          course_name: params[:course][:course_name],
+          course_description: params[:course][:course_description],
+          supervisor_projects_limit: params[:course][:supervisor_projects_limit],
           require_coordinator_approval: params[:course][:require_coordinator_approval],
-          starting_week:                params[:course][:starting_week],
-          use_progress_updates:         params[:course][:use_progress_updates],
-          number_of_updates:            params[:course][:number_of_updates],
-          lecturer_access:              params[:course][:lecturer_access],
-          student_access:               params[:course][:student_access],
-          file_link:                    params[:course][:file_link],
-          toggle_topics:                params[:course][:toggle_topics]
+          starting_week: params[:course][:starting_week],
+          use_progress_updates: params[:course][:use_progress_updates],
+          number_of_updates: params[:course][:number_of_updates],
+          lecturer_access: params[:course][:lecturer_access],
+          student_access: params[:course][:student_access],
+          file_link: params[:course][:file_link],
+          toggle_topics: params[:course][:toggle_topics]
         )
 
         if @course.grouping_enabled? && !grouping_enabled_param
@@ -264,17 +264,17 @@ class CoursesController < ApplicationController
 
         else
           @course.update!(
-            grouping_enabled:       grouping_enabled_param,
+            grouping_enabled: grouping_enabled_param,
             student_list_finalised: student_list_param,
-            group_min:              params[:course][:group_min].presence,
-            group_max:              params[:course][:group_max].presence,
-            grouping_open:          params[:course][:grouping_open] == "true",
-            grouping_opens_at:      params[:course][:grouping_opens_at].presence,
-            grouping_closes_at:     params[:course][:grouping_closes_at].presence
+            group_min: params[:course][:group_min].presence,
+            group_max: params[:course][:group_max].presence,
+            grouping_open: params[:course][:grouping_open] == 'true',
+            grouping_opens_at: params[:course][:grouping_opens_at].presence,
+            grouping_closes_at: params[:course][:grouping_closes_at].presence
           )
         end
       end
-    rescue StandardError => e
+    rescue StandardError
       @course.reload
       render :settings, status: :unprocessable_entity
       return
@@ -399,10 +399,10 @@ class CoursesController < ApplicationController
 
   def grouping_preview
     authorize @course, :update?
-  
+
     student_count = params[:student_count].to_i
     @preview = @course.group_size_distribution(student_count)
-  
+
     render partial: 'courses/grouping_preview_result', locals: { preview: @preview, course: @course }
   end
 
@@ -865,12 +865,14 @@ class CoursesController < ApplicationController
 
   def lecturer_enrolment_filter
     return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
+
     @course.enrolments.where(user_id: params[:lecturer_filter], role: :lecturer)
   end
 
   def supervised_owner_ids(owner_type)
     enrolments = lecturer_enrolment_filter
     return nil unless enrolments&.any?
+
     @course.projects.where(supervisor_enrolment: enrolments, owner_type: owner_type).pluck(:owner_id)
   end
 

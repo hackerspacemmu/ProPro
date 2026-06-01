@@ -164,6 +164,15 @@ student15 = User.create!(
   password: 'password123'
 )
 
+student16 = User.create!(
+  email_address: 'student16@test.com',
+  name: 'student16',
+  has_registered: true,
+  instid: '1191202136',
+  is_staff: false,
+  password: 'password123'
+)
+
 # Create Courses
 course_with_groups = Course.create!(
   course_name: 'Grouped TopicApprovalEnabled',

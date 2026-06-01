@@ -1,0 +1,17 @@
+<%#
+  _modal_ungrouped_select.html.erb
+  locals: ungrouped_students
+  Wrapped in #modal-ungrouped-select in the parent so Turbo Stream can replace
+  just this select after each add, keeping the rest of the modal intact.
+%>
+<select data-add-member-modal-target="select"
+        name="user_id"
+        required
+        class="w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-gray-400">
+  <option value="" disabled selected>Select a student…</option>
+  <% ungrouped_students.each do |student| %>
+    <option value="<%= student.id %>">
+      <%= student.name %><%= student.instid.present? ? " (#{student.instid})" : "" %>
+    </option>
+  <% end %>
+</select>

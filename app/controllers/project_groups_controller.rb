@@ -9,7 +9,7 @@ class ProjectGroupsController < ApplicationController
                        .includes(project_group_members: :user)
                        .joins(:project_group_members)
                        .find_by(project_group_members: { user_id: current_user.id })
-                       
+
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
                      .order(:created_at)
@@ -22,18 +22,26 @@ class ProjectGroupsController < ApplicationController
   end
 
   def create
-    @group = @course.project_groups.build(leader_id: current_user.id)
+    @group = @course.project_groups.build
     authorize @group
+
+    leader = if policy(@group).coordinator?
+               User.find(params[:user_id])
+             else
+               current_user
+             end
+
+    @group.leader_id = leader.id
 
     begin
       ActiveRecord::Base.transaction do
         @course.with_lock do
           next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
           @group.course_group_sequence = next_seq
-          @group.group_name = format("G%03d", next_seq)
+          @group.group_name = format('G%03d', next_seq)
           @group.save!
         end
-        ProjectGroupMember.create!(user: current_user, project_group: @group)
+        ProjectGroupMember.create!(user: leader, project_group: @group)
       end
     rescue StandardError => e
       redirect_to course_project_groups_path(@course), alert: e.message
@@ -114,6 +122,41 @@ class ProjectGroupsController < ApplicationController
       return
     end
     redirect_to course_project_groups_path(@course), notice: "#{target_member.user.name} is now the group leader."
+  end
+
+  def update_settings
+    authorize @course, :grouping_coordinator?
+
+    begin
+      ActiveRecord::Base.transaction do
+        # Extract boolean values from the flat form parameters
+        grouping_enabled_param = %w[1 true].include?(params[:grouping_enabled])
+        student_list_param     = %w[1 true].include?(params[:student_list_finalised])
+
+        if @course.grouping_enabled? && !grouping_enabled_param
+          @course.disable_grouping!
+
+        elsif @course.grouping_enabled? && @course.student_list_finalised? && !student_list_param
+          @course.revert_to_default_mode!
+
+        else
+          # Update all attributes in a single call to pass model validations
+          @course.update!(
+            grouping_enabled: grouping_enabled_param,
+            student_list_finalised: student_list_param,
+            group_min: params[:group_min].presence,
+            group_max: params[:group_max].presence,
+            grouping_open: %w[1 true].include?(params[:grouping_open]),
+            grouping_opens_at: params[:grouping_opens_at].presence,
+            grouping_closes_at: params[:grouping_closes_at].presence
+          )
+        end
+      end
+
+      redirect_to course_project_groups_path(@course), notice: 'Settings updated.'
+    rescue StandardError => e
+      redirect_to course_project_groups_path(@course), alert: e.message
+    end
   end
 
   private

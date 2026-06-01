@@ -1,9 +1,0 @@
-<aside>
-  <h2>Grouping is currently closed</h2>
-  <p>
-    You cannot join or leave groups at this time.
-    <% if @course.grouping_opens_at.present? %>
-      Grouping opens on <%= @course.grouping_opens_at.strftime("%d %b %Y, %H:%M") %>.
-    <% end %>
-  </p>
-</aside>

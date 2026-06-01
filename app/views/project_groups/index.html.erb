@@ -1,26 +1,390 @@
-<%# app/views/project_groups/index.html.erb %>
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
 
 <%# --- Disables footer --- %>
 <% content_for :no_footer, true %>
-<% breadcrumb :course, @course %>
+<% breadcrumb :project_groups, @course %>
 
-<div class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5">
+<div id="flash">
+  <%= render "courses/flash" %>
+</div>
 
-  <%# ── Page header %>
-  <div>
-    <div class="flex items-center gap-3 text-sm text-gray-500">
-      <span class="border border-gray-300 rounded px-2 py-0.5">
-        <%= @course.student_list_finalised? ? "Fixed list mode" : "Default mode" %>
-      </span>
-      <span>Group size: <%= @course.group_min %>–<%= @course.group_max %></span>
+<div
+  class="w-full max-w-[75rem] mx-auto px-6 py-4 space-y-5"
+  <% if policy(@course).grouping_coordinator? %>
+  data-controller="add-member-modal add-group-modal"
+  data-add-member-modal-base-url-value="<%= course_project_groups_path(@course) %>"
+  <% end %>
+>
+
+  <%# ── Add-member modal (coordinator only) %>
+  <% if policy(@course).grouping_coordinator? %>
+    <div
+      data-add-member-modal-target="overlay"
+      data-action="click->add-member-modal#closeOnBackdrop"
+      class="
+        hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center
+      "
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-member-modal-title"
+    >
+      <div
+        class="
+          bg-white rounded-[4px] border border-gray-200 w-[420px] max-w-[calc(100vw-2rem)]
+          overflow-hidden shadow-lg
+        "
+      >
+
+        <div
+          class="
+            flex items-center justify-between px-5 py-4 border-b border-gray-200
+          "
+        >
+          <p class="text-sm font-semibold text-gray-900" id="add-member-modal-title">Add student to group</p>
+          <button
+            data-action="click->add-member-modal#close"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="18px"
+              viewBox="0 -960 960 960"
+              width="18px"
+              fill="currentColor"
+            >
+              <path
+                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-5 py-3 border-b border-gray-200">
+          <input
+            type="text"
+            data-add-member-modal-target="search"
+            data-action="input->add-member-modal#filter"
+            placeholder="Search students…"
+            class="
+              w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px]
+              text-black/75 focus:outline-none focus:border-gray-400
+            "
+            autocomplete="off"
+          >
+        </div>
+
+        <%= form_with url: "#",
+              method: :post,
+              local: false,
+              data: { "add-member-modal-target": "form" },
+              class: "px-5 py-4" do |f| %>
+          <div id="modal-ungrouped-select">
+            <%= render "modal_ungrouped_students", ungrouped_students: @ungrouped_students %>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button
+              type="button"
+              data-action="click->add-member-modal#close"
+              class="
+                text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600
+                hover:border-gray-400 hover:text-gray-800 transition-colors
+              "
+            >
+              Cancel
+            </button>
+            <%= f.submit "Add student",
+                     data: {
+                       turbo_confirm: "Add this student to the group?",
+                     },
+                     class:
+                       "text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors font-medium cursor-pointer" %>
+          </div>
+        <% end %>
+
+      </div>
     </div>
-  </div>
+  <% end %>
+
+  <%# ── Add-group modal (coordinator only) — new %>
+  <% if policy(@course).grouping_coordinator? %>
+    <%= render "modal_new_group" %>
+  <% end %>
+
+  <%# ── Coordinator settings panel %>
+  <% if policy(@course).grouping_coordinator? %>
+
+    <div
+      data-controller="grouping-settings"
+      data-grouping-settings-enabled-value="<%= @course.grouping_enabled? %>"
+      data-grouping-settings-finalised-value="<%= @course.student_list_finalised? %>"
+    >
+
+      <%= form_with url: update_settings_course_project_groups_path(@course), method: :patch,
+            data: {action: "submit->grouping-settings#confirmSave"},
+            class: "bg-white border border-gray-200 rounded-[3px] p-5 mb-8 shadow-sm flex flex-col gap-4" do |f| %>
+
+        <%# ── TOP TOGGLE (Always visible) ── %>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <h3 class="text-sm font-bold text-[#192325] uppercase tracking-wide">Grouping System</h3>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="hidden" name="grouping_enabled" value="0">
+              <input
+                type="checkbox"
+                name="grouping_enabled"
+                value="1"
+                class="sr-only peer"
+                <%= "checked" if @course.grouping_enabled? %>
+                data-action="change->grouping-settings#toggleEnabled"
+                data-grouping-settings-target="groupingEnabled"
+              >
+              <div
+                class="
+                  w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                  peer-checked:after:translate-x-full peer-checked:after:border-white
+                  after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                  after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5
+                  after:w-5 after:transition-all peer-checked:bg-green-500
+                "
+              ></div>
+            </label>
+            <span
+              class="
+                text-sm font-black tracking-widest <%= @course.grouping_enabled? ? 'text-green-600' : 'text-gray-400' %> w-8
+              "
+            >
+              <%= @course.grouping_enabled? ? "ON" : "OFF" %>
+            </span>
+          </div>
+        </div>
+
+        <div
+          data-grouping-settings-target="destructiveWarning"
+          class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-[3px]"
+        >
+          <p class="text-xs font-semibold text-red-700">⚠️ Warning: Saving these settings will disable the grouping system
+            and permanently delete all current draft groups.</p>
+        </div>
+
+        <%# ── GROUPING OPTIONS (Hidden if System is OFF) ── %>
+        <div
+          data-grouping-settings-target="groupingOptions"
+          class="<%= 'hidden' unless @course.grouping_enabled? %> flex flex-col gap-4"
+        >
+
+          <%# Group Size & Manual Window Row %>
+          <div class="border-t border-gray-100 pt-4 mt-1">
+            <div class="flex flex-col md:flex-row gap-6 md:items-end">
+              <div class="flex-1 grid grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :group_min,
+                          "Min group size",
+                          class:
+                            "block text-[11px] font-bold text-[#192325] uppercase tracking-wide mb-2" %>
+                  <%= f.number_field :group_min,
+                                 min: 1,
+                                 value: @course.group_min,
+                                 data: {
+                                   grouping_settings_target: "minInput",
+                                 },
+                                 class:
+                                   "w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-[#1F78D1]" %>
+                </div>
+                <div>
+                  <%= f.label :group_max,
+                          "Max group size",
+                          class:
+                            "block text-[11px] font-bold text-[#192325] uppercase tracking-wide mb-2" %>
+                  <%= f.number_field :group_max,
+                                 min: 1,
+                                 value: @course.group_max,
+                                 data: {
+                                   grouping_settings_target: "maxInput",
+                                 },
+                                 class:
+                                   "w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-[#1F78D1]" %>
+                </div>
+              </div>
+
+              <div
+                class="
+                  flex items-center gap-3 border-l-0 md:border-l border-gray-200 pl-0 md:pl-4 mb-1
+                "
+              >
+                <span class="text-sm font-medium text-gray-600">Student Grouping Window:</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="hidden" name="grouping_open" value="0">
+                  <input
+                    type="checkbox"
+                    name="grouping_open"
+                    value="1"
+                    class="sr-only peer"
+                    <%= "checked" if @course.grouping_window_open? %>
+                  >
+                  <div
+                    class="
+                      w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer
+                      peer-checked:after:translate-x-full peer-checked:after:border-white
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                      after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4
+                      after:w-4 after:transition-all peer-checked:bg-[#1F78D1]
+                    "
+                  ></div>
+                </label>
+                <span
+                  class="
+                    text-xs font-bold <%= @course.grouping_window_open? ? 'text-[#1F78D1]' : 'text-gray-400' %> w-12
+                  "
+                >
+                  <%= @course.grouping_window_open? ? "OPEN" : "CLOSED" %>
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          <%# Auto-close Datetime Window %>
+          <div class="border-t border-gray-100 pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <span
+                class="
+                  block text-[11px] font-bold text-[#192325] uppercase tracking-wide
+                "
+              >Auto-close window (optional)</span>
+              <button
+                type="button"
+                class="
+                  text-[11px] font-medium text-[#1F78D1] hover:underline uppercase tracking-wide
+                "
+                data-action="click->grouping-settings#toggleWindow"
+                data-grouping-settings-target="windowToggleBtn"
+              >
+                <%= if (@course.grouping_opens_at.present? || @course.grouping_closes_at.present?)
+                  "Remove window"
+                else
+                  "Set a window"
+                end %>
+              </button>
+            </div>
+            <div
+              data-grouping-settings-target="windowFields"
+              class="
+                grid grid-cols-1 md:grid-cols-2 gap-4 <%= 'hidden' unless (@course.grouping_opens_at.present? || @course.grouping_closes_at.present?) %>
+              "
+            >
+              <div>
+                <%= f.label :grouping_opens_at,
+                        "Open from",
+                        class: "block text-xs text-gray-500 mb-1" %>
+                <%= f.datetime_local_field :grouping_opens_at,
+                                       value:
+                                         @course.grouping_opens_at&.strftime("%Y-%m-%dT%H:%M"),
+                                       class:
+                                         "w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-[#1F78D1]" %>
+              </div>
+              <div>
+                <%= f.label :grouping_closes_at,
+                        "Close at",
+                        class: "block text-xs text-gray-500 mb-1" %>
+                <%= f.datetime_local_field :grouping_closes_at,
+                                       value:
+                                         @course.grouping_closes_at&.strftime("%Y-%m-%dT%H:%M"),
+                                       class:
+                                         "w-full h-9 px-3 text-sm bg-white border border-gray-300 rounded-[3px] text-black/75 focus:outline-none focus:border-[#1F78D1]" %>
+              </div>
+            </div>
+          </div>
+
+          <%# Modes Configuration %>
+          <div class="border-t border-gray-100 pt-4">
+            <div class="flex flex-col md:flex-row gap-4">
+              <label
+                class="
+                  flex-1 border rounded-[3px] p-3 transition-all
+                  <%= !@course.student_list_finalised? ? 'border-[#1F78D1] bg-blue-50/30 shadow-sm hover:border-[#1F78D1] hover:opacity-100 cursor-pointer' : 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed' %>
+                "
+              >
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 mt-1">
+                    <input
+                      type="radio"
+                      name="student_list_finalised"
+                      value="0"
+                      class="
+                        w-4 h-4 text-[#1F78D1] focus:ring-[#1F78D1] disabled:cursor-not-allowed
+                      "
+                      <%= "checked" unless @course.student_list_finalised? %>
+                      <%= "disabled" if @course.student_list_finalised? %>
+                    >
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-900">Default Mode</h4>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                      Student list is
+                      <span class="font-semibold">not final</span>. No student self-grouping. Coordinator manages all
+                      groups manually via CRUD. Students can only view their
+                      assigned group.
+                    </p>
+                    <% if @course.student_list_finalised? %>
+                      <p class="text-[10px] text-red-500 font-semibold mt-2">🔒 Locked: Student list is already finalised.</p>
+                    <% end %>
+                  </div>
+                </div>
+              </label>
+
+              <label
+                class="
+                  flex-1 border <%= @course.student_list_finalised? ? 'border-[#1F78D1] bg-blue-50/30 shadow-sm' : 'border-gray-200 bg-gray-50/50 opacity-60' %> rounded-[3px] p-3
+                  cursor-pointer hover:border-[#1F78D1] hover:opacity-100 transition-all
+                "
+              >
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 mt-1">
+                    <input
+                      type="radio"
+                      name="student_list_finalised"
+                      value="1"
+                      class="w-4 h-4 text-[#1F78D1] focus:ring-[#1F78D1]"
+                      <%= "checked" if @course.student_list_finalised? %>
+                    >
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-900">Fixed List Mode</h4>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Student list is
+                      <span class="font-semibold">final</span>. Students can self-group and send invites. Coordinators
+                      oversee draft groups and manually confirm them.</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+        </div>
+        <%# /groupingOptions %>
+
+        <%# Disabled text notice (rendered on load if grouping is disabled) %>
+        <% unless @course.grouping_enabled? %>
+          <div class="border-t border-gray-100 pt-4 mt-1">
+            <p class="text-sm text-gray-400 italic">Grouping is currently disabled for this course. Turn it ON to
+              configure modes and limits.</p>
+          </div>
+        <% end %>
+
+        <div class="border-t border-gray-100 pt-3 flex justify-end">
+          <%= f.submit "Save settings",
+                   class:
+                     "text-xs px-4 py-2 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors font-medium cursor-pointer" %>
+        </div>
+
+      <% end %>
+    </div>
+  <% end %>
 
   <%# ── Current Group panel %>
-  <%= render 'my_group_panel' %>
+  <%= render "my_group_panel" %>
 
   <%# ── Browse section: filters + result pane %>
   <div class="flex flex-col md:flex-row md:gap-6">
@@ -28,43 +392,73 @@
     <%# Filter sidebar %>
     <div class="w-full md:w-48 md:shrink-0 mb-4 md:mb-0">
       <div class="h-10 flex items-center mb-4">
-        <h4 class="text-[0.9375em] font-medium tracking-[1px] uppercase text-[#192325] leading-none">
+        <h4
+          class="
+            text-[0.9375em] font-medium tracking-[1px] uppercase text-[#192325] leading-none
+          "
+        >
           Filters
         </h4>
       </div>
 
       <ul class="list-none space-y-2">
         <li>
-          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
             <span class="flex items-center gap-2">
-              <input type="checkbox" class="rounded" name="filter[]" value="looking_for_people" checked />
+              <input
+                type="checkbox"
+                class="rounded"
+                name="filter[]"
+                value="looking_for_people"
+                checked
+              >
               Draft — looking for people
             </span>
             <span class="text-xs text-gray-400">8</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
             <span class="flex items-center gap-2">
-              <input type="checkbox" class="rounded" name="filter[]" value="all_draft" />
+              <input type="checkbox" class="rounded" name="filter[]" value="all_draft">
               All draft groups
             </span>
             <span class="text-xs text-gray-400">12</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
             <span class="flex items-center gap-2">
-              <input type="checkbox" class="rounded" name="filter[]" value="no_group" />
+              <input type="checkbox" class="rounded" name="filter[]" value="no_group">
               Students without a group
             </span>
             <span class="text-xs text-gray-400">23</span>
           </label>
         </li>
         <li>
-          <label class="flex items-center justify-between text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+          <label
+            class="
+              flex items-center justify-between text-sm text-gray-700 cursor-pointer
+              hover:text-gray-900
+            "
+          >
             <span class="flex items-center gap-2">
-              <input type="checkbox" class="rounded" name="filter[]" value="confirmed" />
+              <input type="checkbox" class="rounded" name="filter[]" value="confirmed">
               Confirmed groups
             </span>
             <span class="text-xs text-gray-400">4</span>
@@ -78,34 +472,49 @@
 
       <%# Search + sort bar %>
       <div class="flex flex-col sm:flex-row gap-2 mb-4">
-
-        <%# Search input + button %>
         <div class="flex flex-1">
-          <input type="text"
-                placeholder="Search groups or members…"
-                class="flex-1 min-w-0 h-10 px-3 text-[1em] bg-white border-2 border-[#EDF1F2] border-r-0 rounded-none text-black/75 transition-all duration-150 focus:outline-none focus:border-gray-400" />
-          <button class="h-10 px-4 text-sm text-white bg-[#1F78D1] border-2 border-[#1F78D1] rounded-none shadow-none font-medium hover:opacity-90 transition-opacity shrink-0">
+          <input
+            type="text"
+            placeholder="Search groups or members…"
+            class="
+              flex-1 min-w-0 h-10 px-3 text-[1em] bg-white border-2 border-[#EDF1F2]
+              border-r-0 rounded-none text-black/75 transition-all duration-150
+              focus:outline-none focus:border-gray-400
+            "
+            autocomplete="off"
+          >
+          <button
+            class="
+              h-10 px-4 text-sm text-white bg-[#1F78D1] border-2 border-[#1F78D1] rounded-none
+              shadow-none font-medium hover:opacity-90 transition-opacity shrink-0
+            "
+          >
             Search
           </button>
         </div>
-
-        <%# Sort %>
         <div class="flex items-center gap-2 shrink-0">
           <label class="text-sm text-gray-500 whitespace-nowrap">Sort by</label>
-          <select class="h-10 px-3 text-sm border-2 border-[#EDF1F2] rounded-none bg-white text-black/75 focus:outline-none">
+          <select
+            class="
+              h-10 px-3 text-sm border-2 border-[#EDF1F2] rounded-none bg-white text-black/75
+              focus:outline-none
+            "
+          >
             <option>Newest</option>
             <option>Member count</option>
             <option>Name</option>
           </select>
         </div>
-
       </div>
 
       <%# Result counts %>
       <p class="text-sm text-gray-600 mb-3">
-        <%= @groups.size %> <%= "group".pluralize(@groups.size) %>
+        <%= @groups.size %>
+        <%= "group".pluralize(@groups.size) %>
         <% if @ungrouped_students.any? %>
-          · <%= @ungrouped_students.size %> <%= "student".pluralize(@ungrouped_students.size) %> without a group
+          ·
+          <%= @ungrouped_students.size %><%= "student".pluralize(@ungrouped_students.size) %>
+          a group
         <% end %>
       </p>
 
@@ -114,94 +523,131 @@
 
         <%# ── Groups %>
         <div class="flex-1 min-w-0 w-full">
-          <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
-            Groups <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @groups.size %></span>
-          </p>
-          <% if @groups.any? %>
-            <% @groups.each do |group| %>
-              <div class="border border-gray-200 rounded-[3px] p-4 bg-white mb-3">
-
-                <%# Badge row %>
-                <div class="flex items-start justify-between mb-1 gap-2">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <% if group.confirmed? %>
-                      <span class="inline-block bg-[#1F78D1] text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Confirmed</span>
-                    <% else %>
-                      <span class="inline-block bg-[#475D65] rounded text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Draft</span>
-                    <% end %>
-                    <% if group.locked? %>
-                      <span class="inline-block bg-amber-500 text-white text-[0.6875rem] font-normal tracking-[1px] leading-none px-[0.625em] py-[0.4375em]">Locked</span>
-                    <% end %>
-                  </div>
-                  <div class="flex items-center gap-2 shrink-0">
-                    <span class="text-xs text-gray-400">
-                      <%= group.project_group_members.size %> / <%= @course.group_max.presence || "?" %>
-                    </span>
-                    <% if @my_group.nil? && !group.confirmed? && @course.grouping_window_open? %>
-                      <% if group.locked? %>
-                        <button disabled class="border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed">Request to join</button>
-                      <% else %>
-                        <button disabled class="border border-gray-300 rounded px-2 py-0.5 text-xs opacity-40 cursor-not-allowed">Join</button>
-                      <% end %>
-                    <% end %>
-                  </div>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400">
+              Groups
+              <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @groups.size %></span>
+            </p>
+            <% if policy(@course).grouping_coordinator? %>
+              <button
+                type="button"
+                data-action="click->add-group-modal#open"
+                class="
+                  flex items-center gap-1 text-[10px] font-semibold tracking-widest uppercase
+                  text-[#1F78D1] hover:text-[#1a6abf] transition-colors
+                "
+              >
+                <div
+                  class="
+                    w-4 h-4 rounded-full border border-current flex items-center justify-center
+                  "
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="10px"
+                    viewBox="0 -960 960 960"
+                    width="10px"
+                    fill="currentColor"
+                  >
+                    <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+                  </svg>
                 </div>
-
-                <%# Group name %>
-                <p class="font-semibold text-base text-gray-900 mb-3">
-                  <%= group.group_name.presence || "Unnamed group" %>
-                </p>
-
-                <%# Member list %>
-                <ul class="space-y-1.5">
-                  <% group.project_group_members.each do |membership| %>
-                    <li class="flex items-center gap-2">
-                      <div class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 shrink-0">
-                        <%= membership.user.name.first.upcase %>
-                      </div>
-                      <span class="text-sm text-gray-600 truncate"><%= membership.user.name %></span>
-                      <% if membership.user_id == group.leader_id %>
-                        <span class="text-xs text-gray-400 shrink-0">(leader)</span>
-                      <% end %>
-                      <button disabled class="ml-auto text-xs text-red-400 opacity-40 cursor-not-allowed shrink-0">Kick</button>
-                    </li>
-                  <% end %>
-                </ul>
-
-              </div>
+                New group
+              </button>
             <% end %>
+          </div>
+
+          <% if @groups.any? %>
+            <%= render partial: "group_card",
+            collection: @groups,
+            as: :group,
+            locals: {
+              course: @course,
+              is_coordinator: policy(@course).grouping_coordinator?,
+            } %>
           <% else %>
-            <p class="text-sm text-gray-400 py-4">No groups yet.</p>
+            <div
+              class="
+                flex flex-col items-center justify-center py-12 px-6 border border-dashed
+                border-gray-200 rounded-[3px] text-center
+              "
+            >
+              <div
+                class="
+                  w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="20px"
+                  viewBox="0 -960 960 960"
+                  width="20px"
+                  fill="#9ca3af"
+                >
+                  <path
+                    d="M40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm720 0v-120q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v120H760ZM360-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm400-160q0 66-47 113t-113 47q-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113Z"
+                  />
+                </svg>
+              </div>
+              <p class="text-sm font-medium text-gray-500 mb-1">No groups yet</p>
+              <% if policy(@course).grouping_coordinator? %>
+                <button
+                  type="button"
+                  data-action="click->add-group-modal#open"
+                  class="
+                    text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] transition-colors
+                    font-medium
+                  "
+                >
+                  Create group
+                </button>
+              <% else %>
+                <p class="text-xs text-gray-400">No groups have been created for this course yet.</p>
+              <% end %>
+            </div>
           <% end %>
         </div>
 
         <%# ── Ungrouped Students %>
         <div class="w-full md:w-72 md:shrink-0">
-          <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
-            Ungrouped Students <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @ungrouped_students.size %></span>
+          <p
+            class="
+              text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3
+            "
+          >
+            Ungrouped Students
+            <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @ungrouped_students.size %></span>
           </p>
-          <% if @ungrouped_students.any? %>
-            <div class="flex flex-col gap-2">
+
+          <div id="ungrouped-students-list" class="overflow-y-auto flex-1 p-3 space-y-2">
+            <% if @ungrouped_students.empty? %>
+              <p class="text-sm text-gray-400 py-4 text-center">All students are in a group.</p>
+            <% else %>
               <% @ungrouped_students.each do |student| %>
-                <div class="flex items-center gap-2 border border-gray-200 rounded-[3px] px-3 py-2 bg-white">
-                  <div class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-[10px] font-bold text-gray-600 shrink-0">
-                    <%= student.name.first.upcase %>
+                <div
+                  class="
+                    flex items-center gap-2 border border-gray-100 rounded-[3px] p-2.5
+                    transition-colors
+                  "
+                >
+                  <div
+                    class="
+                      inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200
+                      text-[10px] font-bold text-gray-600 shrink-0
+                    "
+                  >
+                    <%= student.name.presence&.first&.upcase || "?" %>
                   </div>
                   <div class="leading-tight min-w-0">
-                    <span class="text-sm text-gray-800 block truncate"><%= student.name %></span>
+                    <span class="text-sm text-gray-800 block truncate font-medium"><%= student.name.presence || student.email_address %></span>
                     <% if student.instid.present? %>
                       <span class="text-xs text-gray-400"><%= student.instid %></span>
                     <% end %>
                   </div>
-                  <% if @my_group && current_user.id == @my_group.leader_id && @course.grouping_window_open? %>
-                    <button disabled class="text-xs text-[#1F78D1] opacity-40 cursor-not-allowed ml-auto shrink-0">Invite</button>
-                  <% end %>
                 </div>
               <% end %>
-            </div>
-          <% else %>
-            <p class="text-sm text-gray-400 py-4">All students are in a group.</p>
-          <% end %>
+            <% end %>
+          </div>
         </div>
 
       </div>
