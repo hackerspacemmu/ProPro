@@ -37,12 +37,13 @@ class ParticipantsController < ApplicationController
   private
 
   def supervised_owner_ids(owner_type)
+    # only filters by lecturer_enrolment_ids. No coordinator_enrolment_ids
     return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
 
     enrolment_ids = @course.enrolments.where(user_id: params[:lecturer_filter]).pluck(:id)
     return nil if enrolment_ids.empty?
 
-    @course.projects.where(supervisor_enrolment_id: enrolment_ids, owner_type: owner_type).pluck(:owner_id)
+    @course.projects.supervised_by(enrolment_ids).where(owner_type: owner_type).pluck(:owner_id)
   end
 
   def filtered_group_list
