@@ -863,15 +863,14 @@ class CoursesController < ApplicationController
     end
   end
 
-  def lecturer_enrolment_filter
-    return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
-    @course.enrolments.where(user_id: params[:lecturer_filter], role: :lecturer)
-  end
-
   def supervised_owner_ids(owner_type)
-    enrolments = lecturer_enrolment_filter
-    return nil unless enrolments&.any?
-    @course.projects.where(supervisor_enrolment: enrolments, owner_type: owner_type).pluck(:owner_id)
+    # only filters by lecturer_enrolment_ids. No coordinator_enrolment_ids
+    return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
+    
+    enrolment_ids = @course.enrolments.where(user_id: params[:lecturer_filter]).pluck(:id)
+    return nil if enrolment_ids.empty?
+    
+    @course.projects.where(supervisor_enrolment_id: enrolment_ids, owner_type: owner_type).pluck(:owner_id)
   end
 
   def filtered_group_list
