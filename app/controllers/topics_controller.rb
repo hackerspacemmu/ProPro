@@ -77,21 +77,28 @@ class TopicsController < ApplicationController
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
-    @approved_topics = if params[:show_all_course_topics] == 'true'
-                         @course.topics
-                                .includes(topic_instances: { project_instance_fields: :project_template_field })
-                                .select { |t| t.current_status == 'approved' }
-                                .sort_by(&:created_at).reverse
-                       else
-                         Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+    if params[:show_all_course_topics] == 'true'
+      coordinator_course_ids = current_user.enrolments.where(role: :coordinator).pluck(:course_id)
+
+      topics_scope = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+
+      @approved_topics = topics_scope.select do |t|
+        next false unless t.current_status == 'approved'
+
+        owned_by_me = t.owner_type == 'User' && t.owner_id == current_user.id
+        coordinates_course = coordinator_course_ids.include?(t.course_id)
+
+        owned_by_me || coordinates_course
+      end.sort_by(&:created_at).reverse
+    else
+      @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
                               .where(
-                                course_id: Course.managed_by(current_user).select(:id),
                                 owner_type: 'User',
                                 owner_id: current_user.id
                               )
                               .select { |t| t.current_status == 'approved' }
                               .sort_by(&:created_at).reverse
-                       end
+    end
 
     return render partial: 'copy_topic_overlay' if turbo_frame_request? && turbo_frame_request_id == 'overlay_content'
 
