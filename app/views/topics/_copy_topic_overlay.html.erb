@@ -11,8 +11,28 @@
     <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
         data: { overlay_target: "container" } do %>
       
-      <div class="mb-6">
-        <h3 class="text-2xl font-bold text-gray-600">Select a Topic to Copy</h3>
+      <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wide">
+          Select a Topic to Copy
+        </h3>
+
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-semibold text-gray-500">Show all topics</span>
+          
+          <%= form_with url: new_course_topic_path(@course), method: :get, data: { turbo_frame: "overlay_content" } do |f| %>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="show_all_course_topics" 
+                value="true"
+                class="sr-only peer"
+                <%= 'checked' if params[:show_all_course_topics] == "true" %>
+                onchange="this.form.requestSubmit()"
+              >
+              <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          <% end %>
+        </div>
       </div><br>
 
       <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
