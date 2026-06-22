@@ -77,14 +77,23 @@ class TopicsController < ApplicationController
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
-    @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
-                            .where(
-                              course_id: Course.managed_by(current_user).select(:id),
-                              owner_type: 'User',
-                              owner_id: current_user.id
-                            )
-                            .select { |t| t.current_status == 'approved' }
-                            .sort_by(&:created_at).reverse
+    @approved_topics = if params[:show_all_course_topics] == 'true'
+                         @course.topics
+                                .includes(topic_instances: { project_instance_fields: :project_template_field })
+                                .select { |t| t.current_status == 'approved' }
+                                .sort_by(&:created_at).reverse
+                       else
+                         Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+                              .where(
+                                course_id: Course.managed_by(current_user).select(:id),
+                                owner_type: 'User',
+                                owner_id: current_user.id
+                              )
+                              .select { |t| t.current_status == 'approved' }
+                              .sort_by(&:created_at).reverse
+                       end
+
+    return render partial: 'copy_topic_overlay' if turbo_frame_request? && turbo_frame_request_id == 'overlay_content'
 
     return if @template_fields.present?
 
