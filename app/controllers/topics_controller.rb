@@ -30,11 +30,11 @@ class TopicsController < ApplicationController
     @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
     @project = if @course.grouped?
-                 group = current_user.project_groups.find_by(course: @course)
-                 @course.projects.find_by(owner: group) if group
-               else
-                 @course.projects.find_by(owner: current_user)
-               end
+      group = current_user.project_groups.find_by(course: @course)
+      @course.projects.find_by(owner: group) if group
+    else
+      @course.projects.find_by(owner: current_user)
+    end
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
@@ -77,23 +77,10 @@ class TopicsController < ApplicationController
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
-    @approved_topics = if params[:show_all_course_topics] == 'true'
-                         @course.topics
-                                .includes(topic_instances: { project_instance_fields: :project_template_field })
-                                .select { |t| t.current_status == 'approved' }
-                                .sort_by(&:created_at).reverse
-                       else
-                         Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
-                              .where(
-                                course_id: Course.managed_by(current_user).select(:id),
-                                owner_type: 'User',
-                                owner_id: current_user.id
-                              )
-                              .select { |t| t.current_status == 'approved' }
-                              .sort_by(&:created_at).reverse
-                       end
-
-    return render partial: 'copy_topic_overlay' if turbo_frame_request? && turbo_frame_request_id == 'overlay_content'
+    @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+                            .where(course_id: Course.managed_by(current_user).select(:id))
+                            .select { |t| t.current_status == 'approved' }
+                            .sort_by(&:created_at).reverse
 
     return if @template_fields.present?
 
@@ -232,9 +219,10 @@ class TopicsController < ApplicationController
   end
 
   def toggle_topics
-    return if @course.toggle_topics
 
-    redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
+    unless @course.toggle_topics
+      redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
+    end
   end
 
   def set_topic
