@@ -69,6 +69,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
     t.index ["user_id"], name: "index_otps_on_user_id"
   end
 
+  create_table "ownerships", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.integer "owner_id", null: false
+    t.integer "ownership_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_ownerships_on_owner"
+  end
+
   create_table "progress_updates", force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "rating", null: false
@@ -307,6 +316,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "topic_responses", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "project_instance_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_topic_responses_on_project_id"
+    t.index ["project_instance_id"], name: "index_topic_responses_on_project_instance_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -346,4 +364,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "topic_responses", "project_instances"
+  add_foreign_key "topic_responses", "projects"
 end
