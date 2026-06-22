@@ -30,11 +30,11 @@ class TopicsController < ApplicationController
     @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
     @project = if @course.grouped?
-      group = current_user.project_groups.find_by(course: @course)
-      @course.projects.find_by(owner: group) if group
-    else
-      @course.projects.find_by(owner: current_user)
-    end
+                 group = current_user.project_groups.find_by(course: @course)
+                 @course.projects.find_by(owner: group) if group
+               else
+                 @course.projects.find_by(owner: current_user)
+               end
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
@@ -78,7 +78,11 @@ class TopicsController < ApplicationController
     end
 
     @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
-                            .where(course_id: Course.managed_by(current_user).select(:id))
+                            .where(
+                              course_id: Course.managed_by(current_user).select(:id),
+                              owner_type: 'User',
+                              owner_id: current_user.id
+                            )
                             .select { |t| t.current_status == 'approved' }
                             .sort_by(&:created_at).reverse
 
@@ -219,10 +223,9 @@ class TopicsController < ApplicationController
   end
 
   def toggle_topics
+    return if @course.toggle_topics
 
-    unless @course.toggle_topics
-      redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
-    end
+    redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
   end
 
   def set_topic
