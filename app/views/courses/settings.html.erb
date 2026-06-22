@@ -89,14 +89,29 @@
           </div>
         </div>
 
+        <div>
+          <%= form.label :file_link,
+                     "Project File Link (URL)",
+                     class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.text_field :file_link,
+                            class:
+                              "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-blue-600 underline" %>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
           <div>
             <%= form.label :supervisor_projects_limit,
-                       "Maximum Projects per Supervisor",
-                       class: "block text-sm font-medium text-gray-700" %>
+                      "Maximum Projects per Supervisor",
+                      class: "block text-sm font-medium text-gray-700" %>
             <div class="mt-1">
+              <%= form.hidden_field :supervisor_projects_limit %>
               <%= form.number_field :supervisor_projects_limit,
+                                id: "supervisor_projects_limit_visible",
                                 required: true,
+                                disabled: @course.supervisor_auto_calculate_enabled?,
                                 class:
                                   "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
             </div>
@@ -115,16 +130,8 @@
           </div>
         </div>
 
-        <div>
-          <%= form.label :file_link,
-                     "Project File Link (URL)",
-                     class: "block text-sm font-medium text-gray-700" %>
-          <div class="mt-1">
-            <%= form.text_field :file_link,
-                            class:
-                              "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm text-blue-600 underline" %>
-          </div>
-        </div>
+        <%= render "supervisor_capacity_settings", form: form %>
+
       </div>
 
       <hr class="border-gray-200">

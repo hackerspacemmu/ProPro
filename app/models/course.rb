@@ -188,14 +188,15 @@ class Course < ApplicationRecord
 
     approved = projects.supervised_by(enrolment).approved.count
     pending  = projects.supervised_by(enrolment).pending_redo.count
+    cap = max_capacity_for(enrolment)
 
     {
-      approved_proposals: approved,
-      pending_proposals: pending,
-      total_proposals: approved + pending,
-      max_capacity: supervisor_projects_limit,
-      remaining_capacity: [supervisor_projects_limit - approved, 0].max,
-      is_at_capacity: approved >= supervisor_projects_limit
+      approved_proposals:  approved,
+      pending_proposals:   pending,
+      total_proposals:     approved + pending,
+      max_capacity:        cap,
+      remaining_capacity:  [cap - approved, 0].max,
+      is_at_capacity:      approved >= cap
     }
   end
 
@@ -234,7 +235,29 @@ class Course < ApplicationRecord
     enrolments.where(role: [:lecturer, :coordinator] ).count < 3
   end
 
+  def auto_calculate_capacity
+    return nil unless supervisor_auto_calculate_enabled?
+
+    @auto_calculate_result ||= begin
+      total = grouped? ? project_groups.where(confirmed: true).count : projects.where(owner_type: 'User').count
+      # offsets can have -ve values (ignore them completely)
+      eligible_supervisors = enrolments.where(role: :lecturer).where("supervisor_capacity_offset >= 0").count
+
+      return { base: 0, remainder: 0 } if eligible_supervisors.zero?
+
+      { base: total / eligible_supervisors, remainder: total % eligible_supervisors }
+    end
+  end
+
   private
+
+  def max_capacity_for(enrolment)
+    capacity = supervisor_auto_calculate_enabled? ? auto_calculate_capacity[:base] : supervisor_projects_limit
+    return capacity unless supervisor_variable_capacity_enabled?
+
+    adjusted_capacity = capacity + enrolment.supervisor_capacity_offset
+    [adjusted_capacity, 0].max
+  end
 
   def null_number_of_updates_if_not_used
     return if use_progress_updates

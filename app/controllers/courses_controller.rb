@@ -4,6 +4,8 @@ require 'securerandom'
 # Handles CRUD for courses
 class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview]
+  before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
+  
   def show
     authorize @course
 
@@ -230,8 +232,6 @@ class CoursesController < ApplicationController
 
   def settings
     authorize @course, :update?
-    @course = Course.find(params[:id])
-    @courses = Course.managed_by(current_user).where.not(id: @course.id).includes(:coordinators).sort_by(&:created_at).reverse
   end
 
   def handle_settings
@@ -239,6 +239,8 @@ class CoursesController < ApplicationController
 
     grouping_enabled_param = params[:course][:grouping_enabled] == 'true'
     student_list_param     = params[:course][:student_list_finalised] == 'true'
+    variable_capacity_enabled_param = params[:course][:supervisor_variable_capacity_enabled] == '1'
+    supervisor_auto_calculate_enabled_param = params[:course][:supervisor_auto_calculate_enabled] == '1'
 
     begin
       ActiveRecord::Base.transaction do
@@ -253,8 +255,17 @@ class CoursesController < ApplicationController
           lecturer_access: params[:course][:lecturer_access],
           student_access: params[:course][:student_access],
           file_link: params[:course][:file_link],
-          toggle_topics: params[:course][:toggle_topics]
+          toggle_topics: params[:course][:toggle_topics],
+          supervisor_variable_capacity_enabled: variable_capacity_enabled_param,
+          supervisor_auto_calculate_enabled: supervisor_auto_calculate_enabled_param
         )
+
+        if params[:supervisor_capacity_offsets].present?
+          params[:supervisor_capacity_offsets].each do |enrolment_id, offset|
+            enrolment = @course.enrolments.find_by(id: enrolment_id, role: :lecturer)
+            enrolment&.update!(supervisor_capacity_offset: offset.to_i)
+          end
+        end
 
         if @course.grouping_enabled? && !grouping_enabled_param
           @course.disable_grouping!
@@ -410,6 +421,10 @@ class CoursesController < ApplicationController
 
   def set_course
     @course = Course.find(params[:id])
+  end
+
+  def set_lecturer_enrolments
+    @lecturer_enrolments = @course.enrolments.where(role: :lecturer).includes(:user).order("users.name ASC")
   end
 
   def students_with_projects
@@ -714,37 +729,6 @@ class CoursesController < ApplicationController
     (0..total_num).map do |index|
       progress_updates[index]&.rating&.titleize || ''
     end
-  end
-
-  # Lecturer capcity helpers
-
-  def lecturer_approved_proposals_count(lecturer, course)
-    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-    return 0 unless lecturer_enrolment
-
-    course.projects.supervised_by(lecturer_enrolment).approved.count
-  end
-
-  def lecturer_pending_proposals_count(lecturer, course)
-    lecturer_enrolment = course.enrolments.find_by(user: lecturer, role: :lecturer)
-    return 0 unless lecturer_enrolment
-
-    course.projects.supervised_by(lecturer_enrolment).pending_redo.count
-  end
-
-  def lecturer_capacity_info(lecturer, course)
-    approved_count = lecturer_approved_proposals_count(lecturer, course)
-    pending_count = lecturer_pending_proposals_count(lecturer, course)
-    max_capacity = course.supervisor_projects_limit
-
-    {
-      approved_proposals: approved_count,
-      pending_proposals: pending_count,
-      total_proposals: approved_count + pending_count,
-      max_capacity: max_capacity,
-      remaining_capacity: [max_capacity - approved_count, 0].max,
-      is_at_capacity: approved_count >= max_capacity
-    }
   end
 
   # Filter Project by status helpers
