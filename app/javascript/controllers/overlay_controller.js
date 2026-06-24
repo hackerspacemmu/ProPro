@@ -114,15 +114,17 @@ export default class extends Controller {
       if (!selectedOption || selectedOption.value === "") return; // Skip if 'Keep Empty'
 
       const newValue = selectedOption.dataset.value;
-      const mainInput = document.getElementById(targetId);
+      
+      const fieldId = targetId.replace("fields_", "");
+      const fieldName = `fields[${fieldId}]`;
 
-      if (mainInput) {
-        if (mainInput.type === "radio" || mainInput.tagName === "FIELDSET") {
-          const name = mainInput.name || `fields[${targetId.split("_")[1]}]`;
-          const radioToSelect = document.querySelector(
-            `input[name="${name}"][value="${newValue}"]`,
-          );
-          if (radioToSelect) radioToSelect.checked = true;
+      const mainInputs = document.querySelectorAll(`[name="${fieldName}"]`);
+
+      mainInputs.forEach((mainInput) => {
+        if (mainInput.type === "radio") {
+          if (mainInput.value === newValue) {
+            mainInput.checked = true;
+          }
         } else if (mainInput.tagName === "SELECT") {
           mainInput.value = newValue;
           mainInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -131,7 +133,7 @@ export default class extends Controller {
           mainInput.dispatchEvent(new Event("input", { bubbles: true }));
           mainInput.dispatchEvent(new CustomEvent("text-editor:update", { detail: { value: newValue }}));
         }
-      }
+      });
     });
 
     this.close(event);
