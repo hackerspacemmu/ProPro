@@ -111,9 +111,7 @@ export default class extends Controller {
       const targetId = select.dataset.targetFieldId;
       const selectedOption = select.options[select.selectedIndex];
 
-      if (!selectedOption || selectedOption.value === "") return; // Skip if 'Keep Empty'
-
-      const newValue = selectedOption.dataset.value;
+      const newValue = (selectedOption && selectedOption.value !== "") ? selectedOption.dataset.value : "";
       
       const fieldId = targetId.replace("fields_", "");
       const fieldName = `fields[${fieldId}]`;
@@ -122,8 +120,10 @@ export default class extends Controller {
 
       mainInputs.forEach((mainInput) => {
         if (mainInput.type === "radio") {
-          if (mainInput.value === newValue) {
-            mainInput.checked = true;
+          if (newValue === "") {
+            mainInput.checked = false;
+          } else {
+            mainInput.checked = (mainInput.value === newValue);
           }
         } else if (mainInput.tagName === "SELECT") {
           mainInput.value = newValue;
