@@ -5,7 +5,7 @@ require 'securerandom'
 class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
-  
+
   def show
     authorize @course
 
@@ -232,6 +232,7 @@ class CoursesController < ApplicationController
 
   def settings
     authorize @course, :update?
+    @auto_calculate_result = @course.auto_calculate_capacity
   end
 
   def handle_settings
@@ -424,7 +425,7 @@ class CoursesController < ApplicationController
   end
 
   def set_lecturer_enrolments
-    @lecturer_enrolments = @course.enrolments.where(role: :lecturer).includes(:user).order("users.name ASC")
+    @lecturer_enrolments = @course.enrolments.where(role: :lecturer).includes(:user).order('users.name ASC')
   end
 
   def students_with_projects

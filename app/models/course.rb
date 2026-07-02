@@ -16,7 +16,7 @@ class Course < ApplicationRecord
 
   has_many :topics, dependent: :destroy
   has_many :project_group_members, through: :project_groups
-  
+
   attribute :student_access, :integer, default: :no_restriction
   attribute :lecturer_access, :boolean, default: true
   attribute :use_progress_updates, :boolean, default: false
@@ -48,12 +48,12 @@ class Course < ApplicationRecord
   validates :group_min, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
   validates :group_max, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
   validates :group_min, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }, allow_nil: true
- 
+
   validates :group_max,
             numericality: { only_integer: true, greater_than_or_equal_to: :group_min_for_validation, message: 'must be greater than or equal to minimum' },
             allow_nil: true,
             if: -> { group_min.present? && group_max.present? }
- 
+
   # student_list_finalised cannot be true if grouping_enabled is false.
   validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
   validate :grouping_window_dates_valid, if: -> { grouping_opens_at.present? && grouping_closes_at.present? }
@@ -72,20 +72,20 @@ class Course < ApplicationRecord
   def grouping_window_open?
     return false unless grouping_enabled?
     return false unless grouping_open?
- 
+
     opens_ok = grouping_opens_at.nil? || Time.current >= grouping_opens_at
     closes_ok = grouping_closes_at.nil? || Time.current <= grouping_closes_at
     opens_ok && closes_ok
   end
 
-  def disable_grouping! 
+  def disable_grouping!
     transaction do
       project_groups.where(confirmed: false).destroy_all
       update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
     end
   end
 
-  # Note: Called when coordinator switches from student_list_finalised mode back to default mode.
+  # NOTE: Called when coordinator switches from student_list_finalised mode back to default mode.
   # Confirmed groups stay. Draft groups are destroyed.
   def revert_to_default_mode!
     transaction do
@@ -94,7 +94,7 @@ class Course < ApplicationRecord
     end
   end
 
-  # Note: Finds the Largest legal group size combination
+  # NOTE: Finds the Largest legal group size combination
   def group_size_distribution(student_count = students.count)
     return { error: 'Group limits are not set' } if group_min.blank? || group_max.blank?
     return { error: 'Student count must be greater than 0' } if student_count <= 0
@@ -104,7 +104,7 @@ class Course < ApplicationRecord
 
     if group_size_chosen.nil?
       return {
-        error: "No legal combination can be found."
+        error: 'No legal combination can be found.'
       }
     end
 
@@ -113,7 +113,7 @@ class Course < ApplicationRecord
     while remaining_students > 0
       chosen_size = cache[remaining_students]
       size_counts << chosen_size
-      remaining_students = remaining_students - chosen_size
+      remaining_students -= chosen_size
     end
 
     breakdown = size_counts.tally.map { |size, count| { size: size, count: count } }.sort_by { |entry| -entry[:size] }
@@ -185,18 +185,19 @@ class Course < ApplicationRecord
   def lecturer_capacity(lecturer)
     enrolment = enrolments.find_by(user: lecturer, role: :lecturer)
     return empty_capacity if enrolment.nil?
+    return empty_capacity if enrolment.supervisor_capacity_excluded?
 
     approved = projects.supervised_by(enrolment).approved.count
     pending  = projects.supervised_by(enrolment).pending_redo.count
     cap = max_capacity_for(enrolment)
 
     {
-      approved_proposals:  approved,
-      pending_proposals:   pending,
-      total_proposals:     approved + pending,
-      max_capacity:        cap,
-      remaining_capacity:  [cap - approved, 0].max,
-      is_at_capacity:      approved >= cap
+      approved_proposals: approved,
+      pending_proposals: pending,
+      total_proposals: approved + pending,
+      max_capacity: cap,
+      remaining_capacity: [cap - approved, 0].max,
+      is_at_capacity: approved >= cap
     }
   end
 
@@ -232,7 +233,7 @@ class Course < ApplicationRecord
   end
 
   def solo_supervisor?
-    enrolments.where(role: [:lecturer, :coordinator] ).count < 3
+    enrolments.where(role: %i[lecturer coordinator]).count < 3
   end
 
   def auto_calculate_capacity
@@ -240,23 +241,26 @@ class Course < ApplicationRecord
 
     @auto_calculate_result ||= begin
       total = grouped? ? project_groups.where(confirmed: true).count : projects.where(owner_type: 'User').count
-      # offsets can have -ve values (ignore them completely)
-      eligible_supervisors = enrolments.where(role: :lecturer).where("supervisor_capacity_offset >= 0").count
 
-      return { base: 0, remainder: 0 } if eligible_supervisors.zero?
+      eligible = enrolments.where(role: :lecturer, supervisor_capacity_excluded: false)
+      return { base: 0, remainder: 0 } if eligible.empty?
 
-      { base: total / eligible_supervisors, remainder: total % eligible_supervisors }
+      positive_offset_sum = eligible.sum { |e| [e.supervisor_capacity_offset, 0].max }
+      adjusted_total = total - positive_offset_sum
+
+      { base: adjusted_total / eligible.count, remainder: adjusted_total % eligible.count }
     end
   end
 
   private
 
+  # adds supervisor_projects_limit + offsets
   def max_capacity_for(enrolment)
-    capacity = supervisor_auto_calculate_enabled? ? auto_calculate_capacity[:base] : supervisor_projects_limit
-    return capacity unless supervisor_variable_capacity_enabled?
+    return 0 if enrolment.supervisor_capacity_excluded?
 
-    adjusted_capacity = capacity + enrolment.supervisor_capacity_offset
-    [adjusted_capacity, 0].max
+    base = supervisor_auto_calculate_enabled? ? auto_calculate_capacity[:base] : supervisor_projects_limit
+    return base unless supervisor_variable_capacity_enabled?
+    base + enrolment.supervisor_capacity_offset
   end
 
   def null_number_of_updates_if_not_used
@@ -275,17 +279,16 @@ class Course < ApplicationRecord
     self.grouping_opens_at      = nil
     self.grouping_closes_at     = nil
   end
- 
+
   def grouping_window_dates_valid
     return unless grouping_closes_at <= grouping_opens_at
- 
+
     errors.add(:grouping_closes_at, 'must be after the grouping open time')
   end
- 
+
   def group_min_for_validation
     group_min || 0
   end
-
 
   def empty_capacity
     { approved_proposals: 0, pending_proposals: 0, total_proposals: 0,
