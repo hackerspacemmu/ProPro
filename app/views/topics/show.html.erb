@@ -150,6 +150,17 @@
                 is_student: @is_student %>
               </div>
             </section>
+
+            <% if current_user.is_staff? && @topic.source_topic.present? %>
+              <% source_instance = @topic.source_topic.current_instance %>
+              <% if source_instance.present? %>
+                <section>
+                  <%= render "source_topic_diff",
+                            base_fields: source_instance.project_instance_fields,
+                            target_fields: @fields %>
+                </section>
+              <% end %>
+            <% end %>
           </div>
         </div>
 
