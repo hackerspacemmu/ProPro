@@ -144,9 +144,12 @@ class TopicsController < ApplicationController
         )
 
         params[:fields]&.each do |field_id, value|
+          source_field_id = params.dig(:source_fields, field_id.to_s).presence
+
           @instance.project_instance_fields.create!(
             project_template_field: ProjectTemplateField.find(field_id),
-            value: value
+            value: value,
+            source_field_id: source_field_id
           )
         end
       end

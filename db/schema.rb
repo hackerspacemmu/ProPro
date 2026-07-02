@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_02_072056) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -109,10 +109,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
     t.datetime "updated_at", null: false
     t.string "instance_type"
     t.integer "instance_id"
+    t.integer "source_field_id"
     t.index ["instance_type", "instance_id"], name: "index_project_instance_fields_on_instance"
     t.index ["project_instance_id", "project_template_field_id"], name: "index_project_instance_fields_on_instance_and_template_field", unique: true
     t.index ["project_instance_id"], name: "index_project_instance_fields_on_project_instance_id"
     t.index ["project_template_field_id"], name: "index_project_instance_fields_on_project_template_field_id"
+    t.index ["source_field_id"], name: "index_project_instance_fields_on_source_field_id"
   end
 
   create_table "project_instances", force: :cascade do |t|

@@ -113,16 +113,28 @@ export default class extends Controller {
     }
 
     const selects = this.element.querySelectorAll("select[data-target-field-id]");
+    const mainForm = document.querySelector("form[action*='/topics']");
 
     selects.forEach((select) => {
       const targetId = select.dataset.targetFieldId;
       const selectedOption = select.options[select.selectedIndex];
-
-      const newValue = (selectedOption && selectedOption.value !== "") ? selectedOption.dataset.value : "";
+      const sourceFieldId = selectedOption ? selectedOption.value : "";
+      const newValue = (selectedOption && sourceFieldId !== "") ? selectedOption.dataset.value : "";
       
       const fieldId = targetId.replace("fields_", "");
       const fieldName = `fields[${fieldId}]`;
 
+      const existingHidden = mainForm.querySelector(`input[name="source_fields[${fieldId}]"]`);
+      if (existingHidden) existingHidden.remove();
+
+      if (sourceFieldId !== "") {
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = `source_fields[${fieldId}]`;
+        hiddenInput.value = sourceFieldId;
+        mainForm.appendChild(hiddenInput);
+      }
+      
       const mainInputs = document.querySelectorAll(`[name="${fieldName}"]`);
 
       mainInputs.forEach((mainInput) => {
