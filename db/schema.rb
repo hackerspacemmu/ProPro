@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -172,6 +172,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_19_083247) do
     t.string "owner_type"
     t.integer "owner_id"
     t.integer "ownership_type"
+    t.integer "source_topic_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
