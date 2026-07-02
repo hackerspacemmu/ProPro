@@ -105,25 +105,44 @@ export default class extends Controller {
   }
 
   copyTopicsDetails(event) {
+    const overlaySourceInput = this.element.querySelector("#overlay_source_topic_id");
+    const mainSourceInput = document.querySelector("#main_source_topic_id");
+
+    if (overlaySourceInput && mainSourceInput) {
+      mainSourceInput.value = overlaySourceInput.value;
+    }
+
     const selects = this.element.querySelectorAll("select[data-target-field-id]");
+    const mainForm = document.querySelector("form[action*='/topics']");
 
     selects.forEach((select) => {
       const targetId = select.dataset.targetFieldId;
       const selectedOption = select.options[select.selectedIndex];
-
-      if (!selectedOption || selectedOption.value === "") return; // Skip if 'Keep Empty'
-
-      const newValue = selectedOption.dataset.value;
+      const sourceFieldId = selectedOption ? selectedOption.value : "";
+      const newValue = (selectedOption && sourceFieldId !== "") ? selectedOption.dataset.value : "";
       
       const fieldId = targetId.replace("fields_", "");
       const fieldName = `fields[${fieldId}]`;
 
+      const existingHidden = mainForm.querySelector(`input[name="source_fields[${fieldId}]"]`);
+      if (existingHidden) existingHidden.remove();
+
+      if (sourceFieldId !== "") {
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = `source_fields[${fieldId}]`;
+        hiddenInput.value = sourceFieldId;
+        mainForm.appendChild(hiddenInput);
+      }
+      
       const mainInputs = document.querySelectorAll(`[name="${fieldName}"]`);
 
       mainInputs.forEach((mainInput) => {
         if (mainInput.type === "radio") {
-          if (mainInput.value === newValue) {
-            mainInput.checked = true;
+          if (newValue === "") {
+            mainInput.checked = false;
+          } else {
+            mainInput.checked = (mainInput.value === newValue);
           }
         } else if (mainInput.tagName === "SELECT") {
           mainInput.value = newValue;
