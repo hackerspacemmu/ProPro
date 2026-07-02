@@ -123,7 +123,13 @@ class TopicsController < ApplicationController
       ActiveRecord::Base.transaction do
         status = @course.require_coordinator_approval? ? :pending : :approved
 
-        @topic = Topic.create!(course: @course, owner: current_user)
+        source_id = params[:source_topic_id].presence
+
+        @topic = Topic.create!(
+          course: @course,
+          owner: current_user,
+          source_topic_id: source_id
+        )
 
         title_value = nil
         params[:fields]&.each do |field_id, value|

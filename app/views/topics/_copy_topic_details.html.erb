@@ -1,6 +1,6 @@
 <%= turbo_frame_tag "overlay_content", class: "flex flex-col h-full" do %>
-  <%= form_with url: import_details_course_path(target), method: :post, class: "flex flex-col h-full max-h-[75vh]" do |f| %>
-    <%= f.hidden_field :source_topic_id, value: source.id %>
+  <%= form_with url: import_details_course_path(target), method: :post, class: "flex flex-col h-full max-h-[75vh]" do |f| %> 
+    <%= f.hidden_field :source_topic_id, value: source.id, id: "overlay_source_topic_id" %>
 
     <div class="flex-none mb-6 flex items-start justify-between gap-6">
       <h3 class="text-lg md:text-xl font-bold text-gray-700 leading-snug break-words max-w-[85%]">

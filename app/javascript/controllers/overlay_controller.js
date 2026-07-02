@@ -105,6 +105,13 @@ export default class extends Controller {
   }
 
   copyTopicsDetails(event) {
+    const overlaySourceInput = this.element.querySelector("#overlay_source_topic_id");
+    const mainSourceInput = document.querySelector("#main_source_topic_id");
+
+    if (overlaySourceInput && mainSourceInput) {
+      mainSourceInput.value = overlaySourceInput.value;
+    }
+
     const selects = this.element.querySelectorAll("select[data-target-field-id]");
 
     selects.forEach((select) => {

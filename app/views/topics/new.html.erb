@@ -68,6 +68,8 @@
           </div>
 
         <%= form_with url: course_topics_path(@course), method: :post, class: "space-y-8" do |form| %>
+          <%= form.hidden_field :source_topic_id, id: "main_source_topic_id" %>
+
           <%# Shared Input Classes %>
           <% input_classes =
             "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
