@@ -3,101 +3,109 @@
     <h4 class="text-base font-bold text-gray-800">Comparison with Source Topic</h4>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm min-w-[800px] text-left table-fixed border-collapse border border-gray-200">
-      <thead>
-        <tr>
-          <th class="w-35 border border-gray-200 p-3 align-top bg-gray-50 text-left font-semibold text-gray-700">Field</th>
-          <th class="w-1/2 border border-gray-200 p-3 align-top text-red-700 bg-red-50/50 font-semibold">Deletions (Source Topic Only)</th>
-          <th class="w-1/2 border border-gray-200 p-3 align-top text-green-700 bg-green-50/50 font-semibold">Additions (Your Topic Only)</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
+  <% 
+    sorted_target_fields = target_fields.to_a.sort_by { |f| f.project_template_field&.position || 0 } 
+    
+    normalize = ->(text) do
+      text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]")
+    end
 
-        <% combined_fields = (base_fields.to_a + target_fields.to_a) %>
-        <% sorted_fields = combined_fields.uniq(&:project_template_field_id).sort_by { |f| f.project_template_field&.position || 0 } %>
-        <% all_field_ids = sorted_fields.map(&:project_template_field_id) %>
+    has_changes = sorted_target_fields.any? do |next_field|
+      current_field = base_fields.find { |f| f.id == next_field.source_field_id }
+      normalize.call(current_field&.value) != normalize.call(next_field&.value)
+    end
+  %>
 
-        <% all_field_ids.each do |field_id| %>
-          <% current_field = base_fields.find { |f| f.project_template_field_id == field_id } %>
-          <% next_field = target_fields.find { |f| f.project_template_field_id == field_id } %>
+  <% if has_changes %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm min-w-[800px] text-left table-fixed border-collapse border border-gray-200">
+        <thead>
+          <tr>
+            <th class="w-35 border border-gray-200 p-3 align-top bg-gray-50 text-left font-semibold text-gray-700">Field</th>
+            <th class="w-1/2 border border-gray-200 p-3 align-top text-red-700 bg-red-50/50 font-semibold">Deletions</th>
+            <th class="w-1/2 border border-gray-200 p-3 align-top text-green-700 bg-green-50/50 font-semibold">Additions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% sorted_target_fields.each do |next_field| %>
+            <% current_field = base_fields.find { |f| f.id == next_field.source_field_id } %>
+            <% field_name = next_field.project_template_field&.label %>
 
-          <% field_name = (current_field || next_field).project_template_field.label %>
+            <% old_val = normalize.call(current_field&.value) %>
+            <% new_val = normalize.call(next_field&.value) %>
 
-          <% normalize = ->(text) do
-            text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]")
-          end %>
+            <% if old_val != new_val %>
+              <tr class="bg-white group hover:bg-gray-50/20 transition-colors">
+                <td class="p-3 text-lg font-bold text-gray-700 align-top border-r border-gray-200 bg-gray-50/30 w-1/5">
+                  <%= field_name %>
+                </td>
 
-          <% old_val = normalize.call(current_field&.value) %>
-          <% new_val = normalize.call(next_field&.value) %>
+                <% raw_old = render_markdown(current_field&.value.to_s)
+                   raw_new = render_markdown(next_field&.value.to_s)
 
-          <% if old_val != new_val %>
-            <tr class="bg-white group hover:bg-gray-50/20 transition-colors">
-              <td class="p-3 text-lg font-bold text-gray-700 align-top border-r border-gray-200 bg-gray-50/30 w-1/5">
-                <%= field_name %>
-              </td>
-
-              <% raw_old = render_markdown(current_field&.value.to_s)
-                 raw_new = render_markdown(next_field&.value.to_s)
-
-                 brand_lists = ->(html) do
-                   html = html.to_s.gsub(%r{<ol[^>]*>.*?</ol>}m) do |m|
-                     m.gsub(/<li\b[^>]*>/i, '<li class="diff-ol-item">')
+                   brand_lists = ->(html) do
+                     html = html.to_s.gsub(%r{<ol[^>]*>.*?</ol>}m) do |m|
+                       m.gsub(/<li\b[^>]*>/i, '<li class="diff-ol-item">')
+                     end
+                     html.gsub(%r{<ul[^>]*>.*?</ul>}m) do |m|
+                       m.gsub(/<li\b[^>]*>/i, '<li class="diff-ul-item">')
+                     end
                    end
-                   html.gsub(%r{<ul[^>]*>.*?</ul>}m) do |m|
-                     m.gsub(/<li\b[^>]*>/i, '<li class="diff-ul-item">')
-                   end
-                 end
 
-                 old_html = brand_lists.call(raw_old)
-                 new_html = brand_lists.call(raw_new)
+                   old_html = brand_lists.call(raw_old)
+                   new_html = brand_lists.call(raw_new)
 
-                 html_differ = Object.new.extend(HTMLDiff)
-                 rich_diff = html_differ.diff(old_html, new_html)
+                   html_differ = Object.new.extend(HTMLDiff)
+                   rich_diff = html_differ.diff(old_html, new_html)
 
-                 # Left panel styling (Deletions)
-                 left_html = rich_diff
-                   .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
-                   .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
-                   .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
-                   .gsub(%r{<p>\s*</p>}m, "")
-                   .gsub(%r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m, '\1\2</li>')
-                   .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
-                   .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
-                   .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
-                   .gsub(%r{<table[^>]*>\s*</table>}m, "")
-                   .gsub(%r{<code[^>]*>\s*</code>}m, "")
-                   .gsub(%r{<pre[^>]*>\s*</pre>}m, "")
+                   # Left panel styling (Deletions)
+                   left_html = rich_diff
+                     .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
+                     .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
+                     .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                     .gsub(%r{<p>\s*</p>}m, "")
+                     .gsub(%r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m, '\1\2</li>')
+                     .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+                     .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+                     .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+                     .gsub(%r{<table[^>]*>\s*</table>}m, "")
+                     .gsub(%r{<code[^>]*>\s*</code>}m, "")
+                     .gsub(%r{<pre[^>]*>\s*</pre>}m, "")
 
-                 # Right panel styling (Additions)
-                 right_html = rich_diff
-                   .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
-                   .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
-                   .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
-                   .gsub(%r{<p>\s*</p>}m, "")
-                   .gsub(%r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m, '\1\2</li>')
-                   .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
-                   .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
-                   .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
-                   .gsub(%r{<table[^>]*>\s*</table>}m, "")
-                   .gsub(%r{<code[^>]*>\s*</code>}m, "")
-                   .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
+                   # Right panel styling (Additions)
+                   right_html = rich_diff
+                     .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
+                     .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
+                     .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+                     .gsub(%r{<p>\s*</p>}m, "")
+                     .gsub(%r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m, '\1\2</li>')
+                     .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+                     .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+                     .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+                     .gsub(%r{<table[^>]*>\s*</table>}m, "")
+                     .gsub(%r{<code[^>]*>\s*</code>}m, "")
+                     .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
 
-              <td class="p-4 align-top bg-red-50/10 w-2/5 border-r border-gray-200 break-words">
-                <div class="w-full prose prose-sm max-w-none text-base [&_del]:bg-red-200 [&_del]:text-red-900 [&_del]:line-through [&_del]:decoration-red-400 [&_del]:decoration-2 [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6 [&_li.diff-ol-item::marker]:text-red-700 [&_li.diff-ol-item::marker]:font-bold [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6 [&_li.diff-ul-item::marker]:text-red-700 [&_li.diff-ul-item::marker]:font-bold">
-                  <%= sanitize left_html, tags: %w[h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table thead tbody tr th td blockquote pre code a img hr], attributes: %w[href src class alt title] %>
-                </div>
-              </td>
+                <td class="p-4 align-top bg-red-50/10 w-2/5 border-r border-gray-200 break-words">
+                  <div class="w-full prose prose-sm max-w-none text-base [&_del]:bg-red-200 [&_del]:text-red-900 [&_del]:line-through [&_del]:decoration-red-400 [&_del]:decoration-2 [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6 [&_li.diff-ol-item::marker]:text-red-700 [&_li.diff-ol-item::marker]:font-bold [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6 [&_li.diff-ul-item::marker]:text-red-700 [&_li.diff-ul-item::marker]:font-bold">
+                    <%= sanitize left_html, tags: %w[h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table thead tbody tr th td blockquote pre code a img hr], attributes: %w[href src class alt title] %>
+                  </div>
+                </td>
 
-              <td class="p-4 align-top bg-green-50/10 w-2/5 break-words">
-                <div class="w-full prose prose-sm max-w-none text-base [&_ins]:bg-green-200 [&_ins]:text-green-900 [&_ins]:font-medium [&_ins]:no-underline [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6 [&_li.diff-ol-item::marker]:text-green-700 [&_li.diff-ol-item::marker]:font-bold [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6 [&_li.diff-ul-item::marker]:text-green-700 [&_li.diff-ul-item::marker]:font-bold">
-                  <%= sanitize right_html, tags: %w[h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table thead tbody tr th td blockquote pre code a img hr], attributes: %w[href src class alt title] %>
-                </div>
-              </td>
-            </tr>
+                <td class="p-4 align-top bg-green-50/10 w-2/5 break-words">
+                  <div class="w-full prose prose-sm max-w-none text-base [&_ins]:bg-green-200 [&_ins]:text-green-900 [&_ins]:font-medium [&_ins]:no-underline [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6 [&_li.diff-ol-item::marker]:text-green-700 [&_li.diff-ol-item::marker]:font-bold [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6 [&_li.diff-ul-item::marker]:text-green-700 [&_li.diff-ul-item::marker]:font-bold">
+                    <%= sanitize right_html, tags: %w[h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table thead tbody tr th td blockquote pre code a img hr], attributes: %w[href src class alt title] %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
           <% end %>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="flex flex-col items-center justify-center py-6 px-4 text-center">
+      <span class="text-sm font-medium text-gray-500">No changes were made.</span>
+    </div>
+  <% end %>
 </div>

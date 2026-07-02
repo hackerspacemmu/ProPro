@@ -151,7 +151,7 @@
               </div>
             </section>
 
-            <% if current_user.is_staff? && @topic.source_topic.present? %>
+            <% if (@is_coordinator || @topic.owner == current_user) && @topic.source_topic.present? %>
               <% source_instance = @topic.source_topic.current_instance %>
               <% if source_instance.present? %>
                 <section>
