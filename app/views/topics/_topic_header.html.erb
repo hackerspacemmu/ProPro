@@ -39,14 +39,34 @@
       <%= flash[:alert] %>
     </div>
   <% end %>
-  <h1
-    class="
-      text-3xl md:text-4xl font-bold text-gray-900 mb-2 mt-2 w-full break-words
-      text-center md:text-left
-    "
-  >
-    <%= current_instance.title %>
-  </h1>
+  
+  <div class="w-full flex flex-col items-center md:items-start gap-1">
+    <h1
+      class="
+        text-3xl md:text-4xl font-bold text-gray-900 mb-2 mt-2 w-full break-words
+        text-center md:text-left
+      "
+    >
+      <%= current_instance.title %>
+    </h1>
+
+    <% if topic.source_topic.present? %>
+      <div class="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-100 rounded-xl px-3 py-1.5 shadow-sm w-fit self-center md:self-start">
+        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+        </svg>
+        <span>Copied from</span>
+        <%= link_to topic.source_topic.current_title, course_topic_path(topic.source_topic.course, topic.source_topic), class: "text-green-600 hover:text-green-700 hover:underline font-semibold transition-colors" %>
+        
+        <% if topic.source_topic.course != @course %>
+          <span class="text-gray-400 font-normal">in</span>
+          <span class="text-gray-600 font-semibold">
+            <%= topic.source_topic.course.course_name %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
   <div
     class="
