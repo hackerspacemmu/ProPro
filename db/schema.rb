@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_02_072056) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -47,6 +47,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_072056) do
     t.boolean "grouping_open", default: false, null: false
     t.datetime "grouping_opens_at"
     t.datetime "grouping_closes_at"
+    t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 

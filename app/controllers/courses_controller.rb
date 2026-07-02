@@ -247,6 +247,7 @@ class CoursesController < ApplicationController
           course_description: params[:course][:course_description],
           supervisor_projects_limit: params[:course][:supervisor_projects_limit],
           require_coordinator_approval: params[:course][:require_coordinator_approval],
+          auto_approve_copied_topics_without_changes: params[:course][:auto_approve_copied_topics_without_changes],
           starting_week: params[:course][:starting_week],
           use_progress_updates: params[:course][:use_progress_updates],
           number_of_updates: params[:course][:number_of_updates],
@@ -338,7 +339,7 @@ class CoursesController < ApplicationController
 
     ActiveRecord::Base.transaction do
       if params[:mode] == 'settings'
-        allowed_fields = %w[course_description supervisor_projects_limit file_link require_coordinator_approval starting_week use_progress_updates number_of_updates lecturer_access student_access]
+        allowed_fields = %w[course_description supervisor_projects_limit file_link require_coordinator_approval auto_approve_copied_topics_without_changes starting_week use_progress_updates number_of_updates lecturer_access student_access]
         fields_to_copy = (params[:fields_to_copy] || []) & allowed_fields
 
         if fields_to_copy.any?

@@ -16,11 +16,12 @@ class Course < ApplicationRecord
 
   has_many :topics, dependent: :destroy
   has_many :project_group_members, through: :project_groups
-  
+
   attribute :student_access, :integer, default: :no_restriction
   attribute :lecturer_access, :boolean, default: true
   attribute :use_progress_updates, :boolean, default: false
   attribute :require_coordinator_approval, :boolean, default: false
+  attribute :auto_approve_copied_topics_without_changes, :boolean, default: false
 
   attribute :supervisor_projects_limit, :integer, default: 1
   attribute :starting_week, :integer, default: 1
@@ -43,17 +44,18 @@ class Course < ApplicationRecord
   validates :student_access, presence: { message: 'cannot be empty' }, inclusion: { in: Course.student_accesses.keys.map, message: 'is invalid' }
   validates :supervisor_projects_limit, presence: { message: 'cannot be empty' }, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }
   validates :coursecode, uniqueness: { message: 'has already been taken' }, allow_nil: true
+  validates :auto_approve_copied_topics_without_changes, inclusion: { in: [true, false], message: 'must be true or false' }
 
   # group_min and group_max are required whenever grouping is enabled
   validates :group_min, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
   validates :group_max, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
   validates :group_min, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }, allow_nil: true
- 
+
   validates :group_max,
             numericality: { only_integer: true, greater_than_or_equal_to: :group_min_for_validation, message: 'must be greater than or equal to minimum' },
             allow_nil: true,
             if: -> { group_min.present? && group_max.present? }
- 
+
   # student_list_finalised cannot be true if grouping_enabled is false.
   validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
   validate :grouping_window_dates_valid, if: -> { grouping_opens_at.present? && grouping_closes_at.present? }
@@ -72,20 +74,20 @@ class Course < ApplicationRecord
   def grouping_window_open?
     return false unless grouping_enabled?
     return false unless grouping_open?
- 
+
     opens_ok = grouping_opens_at.nil? || Time.current >= grouping_opens_at
     closes_ok = grouping_closes_at.nil? || Time.current <= grouping_closes_at
     opens_ok && closes_ok
   end
 
-  def disable_grouping! 
+  def disable_grouping!
     transaction do
       project_groups.where(confirmed: false).destroy_all
       update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
     end
   end
 
-  # Note: Called when coordinator switches from student_list_finalised mode back to default mode.
+  # NOTE: Called when coordinator switches from student_list_finalised mode back to default mode.
   # Confirmed groups stay. Draft groups are destroyed.
   def revert_to_default_mode!
     transaction do
@@ -94,7 +96,7 @@ class Course < ApplicationRecord
     end
   end
 
-  # Note: Finds the Largest legal group size combination
+  # NOTE: Finds the Largest legal group size combination
   def group_size_distribution(student_count = students.count)
     return { error: 'Group limits are not set' } if group_min.blank? || group_max.blank?
     return { error: 'Student count must be greater than 0' } if student_count <= 0
@@ -104,16 +106,16 @@ class Course < ApplicationRecord
 
     if group_size_chosen.nil?
       return {
-        error: "No legal combination can be found."
+        error: 'No legal combination can be found.'
       }
     end
 
     size_counts = []
     remaining_students = student_count
-    while remaining_students > 0
+    while remaining_students.positive?
       chosen_size = cache[remaining_students]
       size_counts << chosen_size
-      remaining_students = remaining_students - chosen_size
+      remaining_students -= chosen_size
     end
 
     breakdown = size_counts.tally.map { |size, count| { size: size, count: count } }.sort_by { |entry| -entry[:size] }
@@ -121,7 +123,7 @@ class Course < ApplicationRecord
   end
 
   def find_group_size_for(ungrouped_students, allowed_sizes, cache)
-    return 0 if ungrouped_students == 0
+    return 0 if ungrouped_students.zero?
     return cache[ungrouped_students] if cache.key?(ungrouped_students)
 
     allowed_sizes.each do |size|
@@ -231,7 +233,7 @@ class Course < ApplicationRecord
   end
 
   def solo_supervisor?
-    enrolments.where(role: [:lecturer, :coordinator] ).count < 3
+    enrolments.where(role: %i[lecturer coordinator]).count < 3
   end
 
   private
@@ -252,17 +254,16 @@ class Course < ApplicationRecord
     self.grouping_opens_at      = nil
     self.grouping_closes_at     = nil
   end
- 
+
   def grouping_window_dates_valid
     return unless grouping_closes_at <= grouping_opens_at
- 
+
     errors.add(:grouping_closes_at, 'must be after the grouping open time')
   end
- 
+
   def group_min_for_validation
     group_min || 0
   end
-
 
   def empty_capacity
     { approved_proposals: 0, pending_proposals: 0, total_proposals: 0,
