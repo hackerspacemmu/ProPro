@@ -3,10 +3,8 @@ class LecturersController < ApplicationController
 
   def index
     @lecturers = @course.lecturers
-    @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
-    end
+    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
     @from_new_project = params[:from_new_project].present?
   end
 

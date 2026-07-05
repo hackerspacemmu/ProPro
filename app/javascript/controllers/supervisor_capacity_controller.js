@@ -1,37 +1,47 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["panel", "row"];
+  static targets = ["row"];
 
   connect() {
     this._onBaseInput = () => this.#updateAllRows();
     this.#baseInput()?.addEventListener("input", this._onBaseInput);
     this.#syncBaseInputState();
+    this.#updateAllRows();
   }
 
   disconnect() {
     this.#baseInput()?.removeEventListener("input", this._onBaseInput);
   }
 
-  toggle(event) {
-    this.panelTarget.classList.toggle("hidden", !event.target.checked);
-  }
-
   toggleAutoCalculate(event) {
     this.#setBaseInputDisabled(event.target.checked);
+    this.#updateAllRows();
   }
 
   updateRow(event) {
     const row = event.target.closest("[data-supervisor-capacity-target='row']");
+    if (!row) return;
+
+    const excludedCheckbox = row.querySelector("[data-excluded]");
+    const offsetInput = row.querySelector("[data-offset]");
+    const excluded = excludedCheckbox?.checked;
+
+    if (offsetInput) {
+      offsetInput.disabled = excluded;
+      offsetInput.classList.toggle("opacity-50", excluded);
+      offsetInput.classList.toggle("cursor-not-allowed", excluded);
+      offsetInput.classList.toggle("bg-gray-100", excluded);
+    }
+
+    row.classList.toggle("opacity-60", excluded);
     this.#renderRow(row);
   }
 
   // ─── Private ────────────────────────────────────────────────────────────────
 
   #syncBaseInputState() {
-    const autoCalcCheckbox = document.getElementById(
-      "course_supervisor_auto_calculate_enabled",
-    );
+    const autoCalcCheckbox = document.getElementById("course_supervisor_auto_calculate_enabled");
     if (autoCalcCheckbox) this.#setBaseInputDisabled(autoCalcCheckbox.checked);
   }
 
@@ -50,16 +60,26 @@ export default class extends Controller {
 
   #renderRow(row) {
     if (!row) return;
+
     const base = this.#baseValue();
-    const offset = parseInt(row.querySelector("[data-offset]")?.value) || 0;
-    const eff = Math.max(0, base + offset);
+    const excludedCheckbox = row.querySelector("[data-excluded]");
+    const offsetInput = row.querySelector("[data-offset]");
+    const excluded = excludedCheckbox?.checked;
+    const offset = parseInt(offsetInput?.value, 10) || 0;
+    const eff = excluded ? 0 : base + offset;
     const sign = offset >= 0 ? `+ ${offset}` : `- ${Math.abs(offset)}`;
+
     row.querySelector("[data-result]").textContent = eff;
-    row.querySelector("[data-formula]").textContent = `(${base} ${sign})`;
+    row.querySelector("[data-formula]").textContent = excluded ? "(excluded)" : `(${base} ${sign})`;
   }
 
   #baseValue() {
-    return parseInt(this.#baseInput()?.value) || 0;
+    const autoCalcCheckbox = document.getElementById("course_supervisor_auto_calculate_enabled");
+    if (autoCalcCheckbox?.checked) {
+      return parseInt(this.element.dataset.supervisorCapacityBaseValue, 10) || 0;
+    }
+
+    return parseInt(this.#baseInput()?.value, 10) || 0;
   }
 
   #baseInput() {

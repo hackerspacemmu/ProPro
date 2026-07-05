@@ -68,10 +68,8 @@ class CoursesController < ApplicationController
 
     @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
 
-    @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
-    end
+    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     return unless request.headers['HX-Request']
 
@@ -232,7 +230,7 @@ class CoursesController < ApplicationController
 
   def settings
     authorize @course, :update?
-    @auto_calculate_result = @course.auto_calculate_capacity
+    load_capacity_result
   end
 
   def handle_settings
@@ -240,7 +238,6 @@ class CoursesController < ApplicationController
 
     grouping_enabled_param = params[:course][:grouping_enabled] == 'true'
     student_list_param     = params[:course][:student_list_finalised] == 'true'
-    variable_capacity_enabled_param = params[:course][:supervisor_variable_capacity_enabled] == '1'
     supervisor_auto_calculate_enabled_param = params[:course][:supervisor_auto_calculate_enabled] == '1'
 
     begin
@@ -257,23 +254,21 @@ class CoursesController < ApplicationController
           student_access: params[:course][:student_access],
           file_link: params[:course][:file_link],
           toggle_topics: params[:course][:toggle_topics],
-          supervisor_variable_capacity_enabled: variable_capacity_enabled_param,
           supervisor_auto_calculate_enabled: supervisor_auto_calculate_enabled_param
         )
 
         if params[:supervisor_capacity_offsets].present?
-          params[:supervisor_capacity_offsets].each do |enrolment_id, offset|
-            enrolment = @course.enrolments.find_by(id: enrolment_id, role: :lecturer)
-            enrolment&.update!(supervisor_capacity_offset: offset.to_i)
-          end
+          result = SupervisorCapacityUpdater.new(@course).update_capacities(
+            offsets: params[:supervisor_capacity_offsets],
+            excluded_ids: params[:supervisor_capacity_excluded] || []
+          )
+          raise StandardError, result.errors.join('; ') unless result.updated?
         end
 
         if @course.grouping_enabled? && !grouping_enabled_param
           @course.disable_grouping!
-
         elsif @course.grouping_enabled? && @course.student_list_finalised? && !student_list_param
           @course.revert_to_default_mode!
-
         else
           @course.update!(
             grouping_enabled: grouping_enabled_param,
@@ -286,8 +281,10 @@ class CoursesController < ApplicationController
           )
         end
       end
-    rescue StandardError
+    rescue StandardError => e
+      flash.now[:alert] = e.message
       @course.reload
+      load_capacity_result
       render :settings, status: :unprocessable_entity
       return
     end
@@ -430,6 +427,10 @@ class CoursesController < ApplicationController
 
   def students_with_projects
     @course.projects.not_lecturer_owned.approved.where(owner_type: 'User').pluck('owner_id')
+  end
+
+  def load_capacity_result
+    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
   end
 
   def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)

@@ -1,12 +1,32 @@
 # app/services/supervisor_capacity_calculator.rb
-#
-# Computes per-lecturer effective capacity for a course in a single pass
-# one call handles the whole roster, since every real call site (course show,settings page)
-# needs every lecturer's numbers, not one in isolation.
 class SupervisorCapacityCalculator
-  Result = Struct.new(:base, :remainder, :manual_value, :auto_calculated, :lecturer_capacities, keyword_init: true)
+  class Result
+    attr_reader :base, :remainder, :manual_value, :auto_calculated, :lecturer_capacities
 
-  LecturerCapacity = Struct.new(:enrolment, :offset, :approved_count, :pending_count, :effective_cap, keyword_init: true) do
+    def initialize(base:, remainder:, manual_value:, auto_calculated:, lecturer_capacities:)
+      @base = base
+      @remainder = remainder
+      @manual_value = manual_value
+      @auto_calculated = auto_calculated
+      @lecturer_capacities = lecturer_capacities
+    end
+
+    def auto_calculated?
+      @auto_calculated
+    end
+  end
+
+  class LecturerCapacity
+    attr_reader :enrolment, :offset, :approved_count, :pending_count, :effective_cap
+
+    def initialize(enrolment:, offset:, approved_count:, pending_count:, effective_cap:)
+      @enrolment = enrolment
+      @offset = offset
+      @approved_count = approved_count
+      @pending_count = pending_count
+      @effective_cap = effective_cap
+    end
+
     def excluded?
       enrolment.supervisor_capacity_excluded?
     end
@@ -47,26 +67,29 @@ class SupervisorCapacityCalculator
   private
 
   def base_and_remainder
-    if @course.supervisor_auto_calculate_enabled?
-      result = @course.auto_calculate_capacity
-      [result[:base], result[:remainder]]
-    else
-      [@course.supervisor_projects_limit, 0]
-    end
+    return [@course.supervisor_projects_limit, 0] unless @course.supervisor_auto_calculate_enabled?
+
+    total =
+      if @course.grouped?
+        @course.project_groups.where(confirmed: true).count
+      else
+        @course.projects.where(owner_type: 'User').count
+      end
+
+    eligible = @course.enrolments.where(role: :lecturer, supervisor_capacity_excluded: false)
+    return [0, 0] if eligible.empty?
+
+    positive_offset_sum = eligible.sum { |e| [e.supervisor_capacity_offset, 0].max }
+    adjusted_total = total - positive_offset_sum
+
+    [adjusted_total / eligible.count, adjusted_total % eligible.count]
   end
 
   def build_lecturer_capacity(enrolment, base)
     approved = @course.projects.supervised_by(enrolment).approved.count
     pending  = @course.projects.supervised_by(enrolment).pending_redo.count
 
-    effective_cap =
-      if enrolment.supervisor_capacity_excluded?
-        0
-      elsif @course.supervisor_variable_capacity_enabled?
-        base + enrolment.supervisor_capacity_offset
-      else
-        base
-      end
+    effective_cap = enrolment.supervisor_capacity_excluded? ? 0 : base + enrolment.supervisor_capacity_offset
 
     LecturerCapacity.new(
       enrolment: enrolment,
