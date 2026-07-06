@@ -41,7 +41,9 @@ export default class extends Controller {
   // ─── Private ────────────────────────────────────────────────────────────────
 
   #syncBaseInputState() {
-    const autoCalcCheckbox = document.getElementById("course_supervisor_auto_calculate_enabled");
+    const autoCalcCheckbox = document.getElementById(
+      "course_supervisor_auto_calculate_enabled",
+    );
     if (autoCalcCheckbox) this.#setBaseInputDisabled(autoCalcCheckbox.checked);
   }
 
@@ -70,13 +72,19 @@ export default class extends Controller {
     const sign = offset >= 0 ? `+ ${offset}` : `- ${Math.abs(offset)}`;
 
     row.querySelector("[data-result]").textContent = eff;
-    row.querySelector("[data-formula]").textContent = excluded ? "(excluded)" : `(${base} ${sign})`;
+    row.querySelector("[data-formula]").textContent = excluded
+      ? "(excluded)"
+      : `(${base} ${sign})`;
   }
 
   #baseValue() {
-    const autoCalcCheckbox = document.getElementById("course_supervisor_auto_calculate_enabled");
+    const autoCalcCheckbox = document.getElementById(
+      "course_supervisor_auto_calculate_enabled",
+    );
     if (autoCalcCheckbox?.checked) {
-      return parseInt(this.element.dataset.supervisorCapacityBaseValue, 10) || 0;
+      return (
+        parseInt(this.element.dataset.supervisorCapacityBaseValue, 10) || 0
+      );
     }
 
     return parseInt(this.#baseInput()?.value, 10) || 0;

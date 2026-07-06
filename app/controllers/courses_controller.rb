@@ -262,7 +262,7 @@ class CoursesController < ApplicationController
             offsets: params[:supervisor_capacity_offsets],
             excluded_ids: params[:supervisor_capacity_excluded] || []
           )
-          raise StandardError, result.errors.join('; ') unless result.updated?
+          raise StandardError, result.errors.join("\n") unless result.updated?
         end
 
         if @course.grouping_enabled? && !grouping_enabled_param

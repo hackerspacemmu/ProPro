@@ -1,8 +1,8 @@
 # test/services/supervisor_capacity_calculator_test.rb
-require "test_helper"
+require 'test_helper'
 
 class SupervisorCapacityCalculatorTest < ActiveSupport::TestCase
-  test "calculate returns capacity info for a lecturer enrolment" do
+  test 'calculate returns capacity info for a lecturer enrolment' do
     course = FactoryBot.create(:course, supervisor_projects_limit: 10)
     lecturer = FactoryBot.create(:user)
     enrolment = FactoryBot.create(:enrolment, :lecturer, course: course, user: lecturer)

@@ -167,16 +167,17 @@
         as: :lecturer,
         locals: { course: course } %>
       </ul>
-
-      <% if @course.supervisor_auto_calculate_enabled? %>
-        <% result = @course.auto_calculate_capacity %>
-        <% if result && result[:remainder] > 0 %>
-          <p class="text-sm text-gray-500 mt-3">
-            <%= result[:remainder] %> supervisor(s) will have <%= result[:base] + 1 %> projects
-          </p>
-        <% end %>
+      <% if @course.supervisor_auto_calculate_enabled? && @capacity_result %>
+        <div class="text-sm text-gray-500 mt-3 space-y-1">
+          <p>Total Projects: <%= @capacity_result.total %></p>
+          <p>Maximum Projects per Lecturer: <%= @capacity_result.base %></p>
+          <% if @capacity_result.remainder > 0 %>
+            <p>
+              <%= @capacity_result.remainder %> supervisor(s) will have <%= @capacity_result.base + 1 %> projects instead of <%= @capacity_result.base %>
+            </p>
+          <% end %>
+        </div>
       <% end %>
-
     </div>
   </section>
 <% end %>

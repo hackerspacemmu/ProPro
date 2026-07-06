@@ -59,7 +59,7 @@ class SupervisorCapacityUpdater
     return [] if enrolment.supervisor_capacity_excluded?
     return [] if base + enrolment.supervisor_capacity_offset > 0
 
-    ["#{enrolment.user.name}: offset would result in zero or negative capacity (#{base} + #{enrolment.supervisor_capacity_offset}) — exclude this lecturer instead"]
+    ["#{enrolment.user.name}'s offset would result in negative or zero capacity."]
   end
 
   def persist(targets)
