@@ -42,7 +42,7 @@
 
           <li class="py-5 flex items-center gap-6">
             <div class="flex-shrink-0">
-              <input type="checkbox" name="fields_to_copy[]" value="file_link" <%= source.file_link.blank? ? 'disabled' : 'checked' %> 
+              <input type="checkbox" name="fields_to_copy[]" value="file_link" <%= source.file_link.blank? ? 'disabled' : 'checked' %>
                   class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 <%= source.file_link.blank? ? 'cursor-not-allowed' : 'cursor-pointer' %>">
             </div>
             <div class="flex flex-col">
@@ -60,8 +60,18 @@
               <input type="checkbox" name="fields_to_copy[]" value="require_coordinator_approval" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
             </div>
             <div class="flex flex-col">
-              <span class="block text-lg font-semibold text-gray-800 py-1">Lecturer topics require approval?</span>
+              <span class="block text-lg font-semibold text-gray-800 py-1">Lecturer topics require approval?</span> 
               <span class="text-gray-800 text-base"><%= source.require_coordinator_approval ? "True" : "False" %></span>
+            </div>
+          </li>
+
+          <li class="py-5 flex items-center gap-6">
+            <div class="flex-shrink-0">
+              <input type="checkbox" name="fields_to_copy[]" value="auto_approve_copied_topics_without_changes" checked class="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+            </div>
+            <div class="flex flex-col">
+              <span class="block text-lg font-semibold text-gray-800 py-1">Auto-approve unchanged copied topics?</span>
+              <span class="text-gray-800 text-base"><%= source.auto_approve_copied_topics_without_changes ? "True" : "False" %></span>
             </div>
           </li>
 
