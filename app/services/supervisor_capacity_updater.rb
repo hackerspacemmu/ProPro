@@ -1,20 +1,12 @@
-# Applies a coordinator's batch of lecturer capacity offset/exclusion changes
-# for a course. Validates every row against a single base-capacity snapshot
-# before persisting anything, so no row's validation depends on another row
-# already having been saved earlier in the same request.
 class SupervisorCapacityUpdater
   class Result
     attr_reader :course, :errors
-
     def initialize(updated:, course:, errors: [])
       @updated = updated
       @course = course
       @errors = errors
     end
-
-    def updated?
-      @updated
-    end
+    def updated? = @updated
   end
 
   def initialize(course)
@@ -22,14 +14,23 @@ class SupervisorCapacityUpdater
   end
 
   def update_capacities(offsets:, excluded_ids:)
-    @offsets = offsets
-    @excluded_ids = excluded_ids.map(&:to_s)
+    excluded_ids = excluded_ids.map(&:to_s)
     errors = []
 
-    base = base_capacity
-    targets = load_targets
+    all_lecturers = @course.enrolments.where(role: :lecturer).to_a
 
-    targets.each_value { |enrolment| errors.concat(check(enrolment, base)) }
+    all_lecturers.each do |enrolment|
+      id = enrolment.id.to_s
+      next unless offsets.key?(id) || excluded_ids.include?(id)
+
+      enrolment.supervisor_capacity_offset = offsets[id].to_i if offsets.key?(id)
+      enrolment.supervisor_capacity_excluded = excluded_ids.include?(id)
+    end
+
+    base = SupervisorCapacityCalculator.new(@course, lecturer_enrolments: all_lecturers).calculate.base
+
+    targets = all_lecturers.select { |e| offsets.key?(e.id.to_s) || excluded_ids.include?(e.id.to_s) }
+    targets.each { |enrolment| errors.concat(check(enrolment, base)) }
 
     if errors.any?
       Result.new(updated: false, course: @course, errors: errors)
@@ -41,30 +42,13 @@ class SupervisorCapacityUpdater
 
   private
 
-  def base_capacity
-    SupervisorCapacityCalculator.new(@course).calculate.base
-  end
-
-  def load_targets
-    ids = (@offsets.keys.map(&:to_s) + @excluded_ids).uniq
-    @course.enrolments.where(id: ids, role: :lecturer).index_by { |e| e.id.to_s }
-  end
-
   def check(enrolment, base)
-    id = enrolment.id.to_s
-
-    enrolment.supervisor_capacity_offset = @offsets[id].to_i if @offsets.key?(id)
-    enrolment.supervisor_capacity_excluded = @excluded_ids.include?(id)
-
     return [] if enrolment.supervisor_capacity_excluded?
     return [] if base + enrolment.supervisor_capacity_offset > 0
-
     ["#{enrolment.user.name}'s offset would result in negative or zero capacity."]
   end
 
   def persist(targets)
-    ActiveRecord::Base.transaction do
-      targets.each_value { |enrolment| enrolment.save!(validate: false) }
-    end
+    ActiveRecord::Base.transaction { targets.each { |e| e.save!(validate: false) } }
   end
 end

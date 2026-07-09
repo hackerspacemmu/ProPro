@@ -1,4 +1,3 @@
-# app/services/supervisor_capacity_calculator.rb
 class SupervisorCapacityCalculator
   class Result
     attr_reader :base, :remainder, :total, :manual_value, :auto_calculated, :lecturer_capacities
@@ -45,45 +44,39 @@ class SupervisorCapacityCalculator
     end
   end
 
-  def initialize(course)
+  def initialize(course, lecturer_enrolments: nil)
     @course = course
+    @lecturer_enrolments = lecturer_enrolments
   end
 
   def calculate
     base, remainder, total = base_remainder_and_total
 
-    lecturer_capacities = @course.enrolments.where(role: :lecturer).includes(:user).map do |enrolment|
-      build_lecturer_capacity(enrolment, base)
-    end
+    capacities = lecturer_enrolments.map { |enrolment| build_lecturer_capacity(enrolment, base) }
 
     Result.new(
-      base: base,
-      remainder: remainder,
-      total: total,
+      base: base, remainder: remainder, total: total,
       manual_value: @course.supervisor_projects_limit,
       auto_calculated: @course.supervisor_auto_calculate_enabled?,
-      lecturer_capacities: lecturer_capacities
+      lecturer_capacities: capacities
     )
   end
 
   private
 
+  def lecturer_enrolments
+    @lecturer_enrolments ||= @course.enrolments.where(role: :lecturer).includes(:user).to_a
+  end
+
   def base_remainder_and_total
     return [@course.supervisor_projects_limit, 0, nil] unless @course.supervisor_auto_calculate_enabled?
 
-    total =
-      if @course.grouped?
-        @course.project_groups.count
-      else
-        @course.projects.where(owner_type: 'User').count
-      end
-
-    eligible = @course.enrolments.where(role: :lecturer, supervisor_capacity_excluded: false)
+    total = @course.grouped? ? @course.project_groups.count : @course.projects.where(owner_type: 'User').count
+    eligible = lecturer_enrolments.reject(&:supervisor_capacity_excluded?)
     return [0, 0, total] if eligible.empty?
 
     positive_offset_sum = eligible.sum { |e| [e.supervisor_capacity_offset, 0].max }
     adjusted_total = total - positive_offset_sum
-
     [adjusted_total / eligible.count, adjusted_total % eligible.count, total]
   end
 
