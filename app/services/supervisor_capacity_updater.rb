@@ -1,11 +1,13 @@
 class SupervisorCapacityUpdater
   class Result
     attr_reader :course, :errors
+
     def initialize(updated:, course:, errors: [])
       @updated = updated
       @course = course
       @errors = errors
     end
+
     def updated? = @updated
   end
 
@@ -45,6 +47,7 @@ class SupervisorCapacityUpdater
   def check(enrolment, base)
     return [] if enrolment.supervisor_capacity_excluded?
     return [] if base + enrolment.supervisor_capacity_offset > 0
+
     ["#{enrolment.user.name}'s offset would result in negative or zero capacity."]
   end
 
