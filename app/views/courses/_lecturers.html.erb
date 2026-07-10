@@ -16,20 +16,19 @@
           <%= lecturer.name %>
         </div>
 
-        <% capacity_info = @lecturer_capacity_info[lecturer.id] %>
+        <% lecturer_capacity = @lecturer_capacity_info[lecturer.id] %>
         <% capacity_text_color =
-          capacity_info[:is_at_capacity] ? "text-red-500" : "text-black" %>
+          lecturer_capacity.at_capacity? ? "text-red-500" : "text-black" %>
 
         <% unless @course.solo_supervisor? %>
           <span
             class="
               text-base ml-auto pr-5 whitespace-nowrap <%= capacity_text_color %>
             ">
-            <%= capacity_info[:approved_proposals] %>/<%= capacity_info[:max_capacity] %>
-
-            <% if capacity_info[:pending_proposals] > 0 %>
+            <%= lecturer_capacity.approved_count %>/<%= lecturer_capacity.effective_cap %>
+            <% if lecturer_capacity.pending_count > 0 %>
               <span class="text-xs font-normal text-amber-600 ml-1">
-                (<%= capacity_info[:pending_proposals] %>
+                (<%= lecturer_capacity.pending_count %>
                 pending)
               </span>
             <% end %>
