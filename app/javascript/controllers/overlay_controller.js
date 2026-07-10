@@ -68,7 +68,7 @@ export default class extends Controller {
   }
 
   selectSetting(event) {
-    const sourceCourseId = event.params.sourceId; 
+    const sourceCourseId = event.params.sourceId;
     const targetCourseId = this.targetCourseIdValue;
     const mode = this.modeValue;
 
@@ -105,26 +105,35 @@ export default class extends Controller {
   }
 
   copyTopicsDetails(event) {
-    const overlaySourceInput = this.element.querySelector("#overlay_source_topic_id");
+    const overlaySourceInput = this.element.querySelector(
+      "#overlay_source_topic_id",
+    );
     const mainSourceInput = document.querySelector("#main_source_topic_id");
 
     if (overlaySourceInput && mainSourceInput) {
       mainSourceInput.value = overlaySourceInput.value;
     }
 
-    const selects = this.element.querySelectorAll("select[data-target-field-id]");
+    const selects = this.element.querySelectorAll(
+      "select[data-target-field-id]",
+    );
     const mainForm = document.querySelector("form[action*='/topics']");
 
     selects.forEach((select) => {
       const targetId = select.dataset.targetFieldId;
       const selectedOption = select.options[select.selectedIndex];
       const sourceFieldId = selectedOption ? selectedOption.value : "";
-      const newValue = (selectedOption && sourceFieldId !== "") ? selectedOption.dataset.value : "";
-      
+      const newValue =
+        selectedOption && sourceFieldId !== ""
+          ? selectedOption.dataset.value
+          : "";
+
       const fieldId = targetId.replace("fields_", "");
       const fieldName = `fields[${fieldId}]`;
 
-      const existingHidden = mainForm.querySelector(`input[name="source_fields[${fieldId}]"]`);
+      const existingHidden = mainForm.querySelector(
+        `input[name="source_fields[${fieldId}]"]`,
+      );
       if (existingHidden) existingHidden.remove();
 
       if (sourceFieldId !== "") {
@@ -134,7 +143,7 @@ export default class extends Controller {
         hiddenInput.value = sourceFieldId;
         mainForm.appendChild(hiddenInput);
       }
-      
+
       const mainInputs = document.querySelectorAll(`[name="${fieldName}"]`);
 
       mainInputs.forEach((mainInput) => {
@@ -142,7 +151,7 @@ export default class extends Controller {
           if (newValue === "") {
             mainInput.checked = false;
           } else {
-            mainInput.checked = (mainInput.value === newValue);
+            mainInput.checked = mainInput.value === newValue;
           }
         } else if (mainInput.tagName === "SELECT") {
           mainInput.value = newValue;
@@ -150,7 +159,11 @@ export default class extends Controller {
         } else {
           mainInput.value = newValue;
           mainInput.dispatchEvent(new Event("input", { bubbles: true }));
-          mainInput.dispatchEvent(new CustomEvent("text-editor:update", { detail: { value: newValue }}));
+          mainInput.dispatchEvent(
+            new CustomEvent("text-editor:update", {
+              detail: { value: newValue },
+            }),
+          );
         }
       });
     });

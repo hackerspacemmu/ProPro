@@ -184,23 +184,6 @@ class Course < ApplicationRecord
     ret
   end
 
-  def lecturer_capacity(lecturer)
-    enrolment = enrolments.find_by(user: lecturer, role: :lecturer)
-    return empty_capacity if enrolment.nil?
-
-    approved = projects.supervised_by(enrolment).approved.count
-    pending  = projects.supervised_by(enrolment).pending_redo.count
-
-    {
-      approved_proposals: approved,
-      pending_proposals: pending,
-      total_proposals: approved + pending,
-      max_capacity: supervisor_projects_limit,
-      remaining_capacity: [supervisor_projects_limit - approved, 0].max,
-      is_at_capacity: approved >= supervisor_projects_limit
-    }
-  end
-
   def students_with_status(status, student_list)
     case status
     when 'approved'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -47,6 +47,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.boolean "grouping_open", default: false, null: false
     t.datetime "grouping_opens_at"
     t.datetime "grouping_closes_at"
+    t.boolean "supervisor_variable_capacity_enabled", default: false, null: false
+    t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
     t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
@@ -57,6 +59,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.integer "role", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "supervisor_capacity_offset", default: 0, null: false
+    t.boolean "supervisor_capacity_excluded", default: false, null: false
     t.index ["course_id"], name: "index_enrolments_on_course_id"
     t.index ["user_id"], name: "index_enrolments_on_user_id"
   end
@@ -70,6 +74,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.index ["user_id"], name: "index_otps_on_user_id"
   end
 
+  create_table "ownerships", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.integer "owner_id", null: false
+    t.integer "ownership_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_ownerships_on_owner"
+  end
+
   create_table "progress_updates", force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "rating", null: false
@@ -78,6 +91,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.datetime "updated_at", null: false
     t.date "date"
     t.index ["project_id"], name: "index_progress_updates_on_project_id"
+  end
+
+  create_table "project_group_invites", force: :cascade do |t|
+    t.integer "project_group_id", null: false
+    t.integer "sender_id", null: false
+    t.integer "kind", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
+    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0"
+    t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
   end
 
   create_table "project_group_members", force: :cascade do |t|
@@ -311,6 +336,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "topic_responses", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "project_instance_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_topic_responses_on_project_id"
+    t.index ["project_instance_id"], name: "index_topic_responses_on_project_instance_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -330,6 +364,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
   add_foreign_key "enrolments", "users"
   add_foreign_key "otps", "users"
   add_foreign_key "progress_updates", "projects"
+  add_foreign_key "project_group_invites", "project_groups"
+  add_foreign_key "project_group_invites", "users", column: "sender_id"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_groups", "courses"
@@ -350,4 +386,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "topic_responses", "project_instances"
+  add_foreign_key "topic_responses", "projects"
 end

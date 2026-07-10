@@ -4,6 +4,7 @@ class Enrolment < ApplicationRecord
 
   has_many :projects, dependent: :destroy
   enum :role, { lecturer: 0, coordinator: 1, student: 2 }
+  validates :supervisor_capacity_offset, numericality: { only_integer: true }, allow_nil: true
 
   # Enrolls a user in a course using a course code.
   # Validates that the course exists and that joining via course code is enabled.
