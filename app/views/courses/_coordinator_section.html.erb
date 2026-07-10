@@ -168,12 +168,21 @@
         locals: { course: course } %>
       </ul>
       <% if @course.supervisor_auto_calculate_enabled? && @capacity_result %>
-        <div class="text-sm text-gray-500 mt-3 space-y-1">
-          <p>Total Projects: <%= @capacity_result.total %></p>
-          <p>Maximum Projects per Lecturer: <%= @capacity_result.base %></p>
+        <div class="mt-4 space-y-1.5">
+          <p class="text-sm text-gray-500">
+            Total Projects: <span class="font-semibold text-gray-900"><%= @capacity_result.total %></span>
+            <% if @capacity_result.base > 0 %>
+              <span class="mx-2 text-gray-300">|</span>
+              Maximum Projects per Lecturer: <span class="font-semibold text-gray-900"><%= @capacity_result.base %></span>
+            <% end %>
+          </p>
+
           <% if @capacity_result.remainder > 0 %>
-            <p>
-              <%= @capacity_result.remainder %> supervisor(s) will have <%= @capacity_result.base + 1 %> projects instead of <%= @capacity_result.base %>
+            <p class="flex items-center gap-1.5 text-sm text-grey-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>You will need to allocate an additional <%= @capacity_result.remainder %> project(s) to supervisors using offsets</span>
             </p>
           <% end %>
         </div>
