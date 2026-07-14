@@ -8,22 +8,16 @@ class GroupSizeLegalityCalculator
     group_min = @course.group_min
     group_max = @course.group_max
 
-    if group_min.blank? || group_max.blank?
-      return Result.new(found: false, breakdown: [], group_count: 0, error: :group_size_limits_not_configured)
-    end
+    return Result.new(found: false, breakdown: [], group_count: 0, error: :group_size_limits_not_configured) if group_min.blank? || group_max.blank?
 
-    if students_to_group <= 0
-      return Result.new(found: false, breakdown: [], group_count: 0, error: :no_students_to_group)
-    end
+    return Result.new(found: false, breakdown: [], group_count: 0, error: :no_students_to_group) if students_to_group <= 0
 
     allowed_sizes_largest_first = group_max.downto(group_min).to_a
     cache = {}
 
     chosen_size = find_group_size_for(students_to_group, allowed_sizes_largest_first, cache)
 
-    if chosen_size.nil?
-      return Result.new(found: false, breakdown: [], group_count: 0, error: :no_legal_combination_exists)
-    end
+    return Result.new(found: false, breakdown: [], group_count: 0, error: :no_legal_combination_exists) if chosen_size.nil?
 
     sizes_chosen = []
     students_remaining = students_to_group
