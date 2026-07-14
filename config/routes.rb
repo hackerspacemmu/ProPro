@@ -84,7 +84,6 @@ Rails.application.routes.draw do
       member do
         patch :confirm
         patch :revert
-        patch :force_confirm
         patch :lock
         patch :unlock
         patch :promote_leader

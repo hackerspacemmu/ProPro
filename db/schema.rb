@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_14_065259) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -100,9 +100,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "token"
+    t.datetime "expires_at"
     t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
     t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0"
     t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
+    t.index ["token"], name: "index_project_group_invites_on_token", unique: true
   end
 
   create_table "project_group_members", force: :cascade do |t|
@@ -123,6 +126,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
     t.boolean "locked", default: false, null: false
     t.integer "leader_id"
     t.integer "course_group_sequence"
+    t.datetime "dissolved_at"
     t.index ["course_id", "course_group_sequence"], name: "index_project_groups_on_course_id_and_course_group_sequence", unique: true
     t.index ["course_id"], name: "index_project_groups_on_course_id"
   end
