@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_31_093000) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_01_144548) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -47,6 +47,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_31_093000) do
     t.boolean "grouping_open", default: false, null: false
     t.datetime "grouping_opens_at"
     t.datetime "grouping_closes_at"
+    t.boolean "supervisor_variable_capacity_enabled", default: false, null: false
+    t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
+    t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
@@ -56,6 +59,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_31_093000) do
     t.integer "role", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "supervisor_capacity_offset", default: 0, null: false
+    t.boolean "supervisor_capacity_excluded", default: false, null: false
     t.index ["course_id"], name: "index_enrolments_on_course_id"
     t.index ["user_id"], name: "index_enrolments_on_user_id"
   end
@@ -130,10 +135,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_31_093000) do
     t.datetime "updated_at", null: false
     t.string "instance_type"
     t.integer "instance_id"
+    t.integer "source_field_id"
     t.index ["instance_type", "instance_id"], name: "index_project_instance_fields_on_instance"
     t.index ["project_instance_id", "project_template_field_id"], name: "index_project_instance_fields_on_instance_and_template_field", unique: true
     t.index ["project_instance_id"], name: "index_project_instance_fields_on_project_instance_id"
     t.index ["project_template_field_id"], name: "index_project_instance_fields_on_project_template_field_id"
+    t.index ["source_field_id"], name: "index_project_instance_fields_on_source_field_id"
   end
 
   create_table "project_instances", force: :cascade do |t|
@@ -193,6 +200,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_31_093000) do
     t.string "owner_type"
     t.integer "owner_id"
     t.integer "ownership_type"
+    t.integer "source_topic_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"

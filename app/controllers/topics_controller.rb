@@ -30,11 +30,11 @@ class TopicsController < ApplicationController
     @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
     @project = if @course.grouped?
-      group = current_user.project_groups.find_by(course: @course)
-      @course.projects.find_by(owner: group) if group
-    else
-      @course.projects.find_by(owner: current_user)
-    end
+                 group = current_user.project_groups.find_by(course: @course)
+                 @course.projects.find_by(owner: group) if group
+               else
+                 @course.projects.find_by(owner: current_user)
+               end
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
     @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
@@ -77,10 +77,30 @@ class TopicsController < ApplicationController
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
-    @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
-                            .where(course_id: Course.managed_by(current_user).select(:id))
-                            .select { |t| t.current_status == 'approved' }
-                            .sort_by(&:created_at).reverse
+    if params[:show_all_course_topics] == 'true'
+      coordinator_course_ids = current_user.enrolments.where(role: :coordinator).pluck(:course_id)
+
+      topics_scope = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+
+      @approved_topics = topics_scope.select do |t|
+        next false unless t.current_status == 'approved'
+
+        owned_by_me = t.owner_type == 'User' && t.owner_id == current_user.id
+        coordinates_course = coordinator_course_ids.include?(t.course_id)
+
+        owned_by_me || coordinates_course
+      end.sort_by(&:created_at).reverse
+    else
+      @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+                              .where(
+                                owner_type: 'User',
+                                owner_id: current_user.id
+                              )
+                              .select { |t| t.current_status == 'approved' }
+                              .sort_by(&:created_at).reverse
+    end
+
+    return render partial: 'copy_topic_overlay' if turbo_frame_request? && turbo_frame_request_id == 'overlay_content'
 
     return if @template_fields.present?
 
@@ -103,7 +123,15 @@ class TopicsController < ApplicationController
       ActiveRecord::Base.transaction do
         status = @course.require_coordinator_approval? ? :pending : :approved
 
-        @topic = Topic.create!(course: @course, owner: current_user)
+        source_id = params[:source_topic_id].presence
+
+        status = :approved if status == :pending && source_id && @course.auto_approve_copied_topics_without_changes? && topic_unchanged_from_source?(source_id, params[:fields])
+
+        @topic = Topic.create!(
+          course: @course,
+          owner: current_user,
+          source_topic_id: source_id
+        )
 
         title_value = nil
         params[:fields]&.each do |field_id, value|
@@ -118,9 +146,12 @@ class TopicsController < ApplicationController
         )
 
         params[:fields]&.each do |field_id, value|
+          source_field_id = params.dig(:source_fields, field_id.to_s).presence
+
           @instance.project_instance_fields.create!(
             project_template_field: ProjectTemplateField.find(field_id),
-            value: value
+            value: value,
+            source_field_id: source_field_id
           )
         end
       end
@@ -219,14 +250,39 @@ class TopicsController < ApplicationController
   end
 
   def toggle_topics
+    return if @course.toggle_topics
 
-    unless @course.toggle_topics
-      redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
-    end
+    redirect_to course_path(@course), alert: 'Topics are Disabled for this Course'
   end
 
   def set_topic
     @topic = @course.topics.find_by(id: params[:id])
     redirect_to course_path(@course), alert: 'Topic not found.' if @topic.nil?
+  end
+
+  def topic_unchanged_from_source?(source_id, submitted_fields)
+    return false if submitted_fields.blank?
+
+    source_topic = Topic.find_by(id: source_id)
+    return false unless source_topic&.current_instance
+
+    source_fields_by_label = source_topic.current_instance.project_instance_fields
+                                         .includes(:project_template_field)
+                                         .each_with_object({}) do |field, hash|
+      label = field.project_template_field.label.to_s.downcase.strip
+      hash[label] = field.value.to_s.strip
+    end
+
+    raw_submitted = submitted_fields.to_unsafe_h
+
+    raw_submitted.all? do |field_id, value|
+      target_field = ProjectTemplateField.find_by(id: field_id)
+      return false unless target_field
+
+      target_label = target_field.label.to_s.downcase.strip
+      source_value = source_fields_by_label[target_label]
+
+      value.to_s.strip == source_value
+    end
   end
 end

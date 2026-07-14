@@ -17,7 +17,6 @@ class ProjectGroupInvite < ApplicationRecord
   validates :kind,   presence: true
   validates :status, presence: true
 
-  # ── Scopes ─────────────────────────────────────────────────────────────────
   scope :pending_for_group, ->(group)   { where(project_group: group, status: :pending) }
   scope :for_course,        ->(course)  { joins(:project_group).where(project_groups: { course_id: course.id }) }
   scope :sent_by,           ->(user)    { where(sender: user) }

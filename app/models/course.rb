@@ -21,6 +21,7 @@ class Course < ApplicationRecord
   attribute :lecturer_access, :boolean, default: true
   attribute :use_progress_updates, :boolean, default: false
   attribute :require_coordinator_approval, :boolean, default: false
+  attribute :auto_approve_copied_topics_without_changes, :boolean, default: false
 
   attribute :supervisor_projects_limit, :integer, default: 1
   attribute :starting_week, :integer, default: 1
@@ -43,6 +44,7 @@ class Course < ApplicationRecord
   validates :student_access, presence: { message: 'cannot be empty' }, inclusion: { in: Course.student_accesses.keys.map, message: 'is invalid' }
   validates :supervisor_projects_limit, presence: { message: 'cannot be empty' }, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }
   validates :coursecode, uniqueness: { message: 'has already been taken' }, allow_nil: true
+  validates :auto_approve_copied_topics_without_changes, inclusion: { in: [true, false], message: 'must be true or false' }
 
   # group_min and group_max are required whenever grouping is enabled
   validates :group_min, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
@@ -113,7 +115,7 @@ class Course < ApplicationRecord
 
     size_counts = []
     remaining_students = student_count
-    while remaining_students > 0
+    while remaining_students.positive?
       chosen_size = cache[remaining_students]
       size_counts << chosen_size
       remaining_students -= chosen_size
@@ -124,7 +126,7 @@ class Course < ApplicationRecord
   end
 
   def find_group_size_for(ungrouped_students, allowed_sizes, cache)
-    return 0 if ungrouped_students == 0
+    return 0 if ungrouped_students.zero?
     return cache[ungrouped_students] if cache.key?(ungrouped_students)
 
     allowed_sizes.each do |size|
@@ -183,23 +185,6 @@ class Course < ApplicationRecord
     end
 
     ret
-  end
-
-  def lecturer_capacity(lecturer)
-    enrolment = enrolments.find_by(user: lecturer, role: :lecturer)
-    return empty_capacity if enrolment.nil?
-
-    approved = projects.supervised_by(enrolment).approved.count
-    pending  = projects.supervised_by(enrolment).pending_redo.count
-
-    {
-      approved_proposals: approved,
-      pending_proposals: pending,
-      total_proposals: approved + pending,
-      max_capacity: supervisor_projects_limit,
-      remaining_capacity: [supervisor_projects_limit - approved, 0].max,
-      is_at_capacity: approved >= supervisor_projects_limit
-    }
   end
 
   def students_with_status(status, student_list)

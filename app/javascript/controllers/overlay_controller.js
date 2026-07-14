@@ -68,7 +68,7 @@ export default class extends Controller {
   }
 
   selectSetting(event) {
-    const sourceCourseId = event.params.sourceId; 
+    const sourceCourseId = event.params.sourceId;
     const targetCourseId = this.targetCourseIdValue;
     const mode = this.modeValue;
 
@@ -105,33 +105,67 @@ export default class extends Controller {
   }
 
   copyTopicsDetails(event) {
-    const selects = this.element.querySelectorAll("select[data-target-field-id]");
+    const overlaySourceInput = this.element.querySelector(
+      "#overlay_source_topic_id",
+    );
+    const mainSourceInput = document.querySelector("#main_source_topic_id");
+
+    if (overlaySourceInput && mainSourceInput) {
+      mainSourceInput.value = overlaySourceInput.value;
+    }
+
+    const selects = this.element.querySelectorAll(
+      "select[data-target-field-id]",
+    );
+    const mainForm = document.querySelector("form[action*='/topics']");
 
     selects.forEach((select) => {
       const targetId = select.dataset.targetFieldId;
       const selectedOption = select.options[select.selectedIndex];
+      const sourceFieldId = selectedOption ? selectedOption.value : "";
+      const newValue =
+        selectedOption && sourceFieldId !== ""
+          ? selectedOption.dataset.value
+          : "";
 
-      if (!selectedOption || selectedOption.value === "") return; // Skip if 'Keep Empty'
+      const fieldId = targetId.replace("fields_", "");
+      const fieldName = `fields[${fieldId}]`;
 
-      const newValue = selectedOption.dataset.value;
-      const mainInput = document.getElementById(targetId);
+      const existingHidden = mainForm.querySelector(
+        `input[name="source_fields[${fieldId}]"]`,
+      );
+      if (existingHidden) existingHidden.remove();
 
-      if (mainInput) {
-        if (mainInput.type === "radio" || mainInput.tagName === "FIELDSET") {
-          const name = mainInput.name || `fields[${targetId.split("_")[1]}]`;
-          const radioToSelect = document.querySelector(
-            `input[name="${name}"][value="${newValue}"]`,
-          );
-          if (radioToSelect) radioToSelect.checked = true;
+      if (sourceFieldId !== "") {
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = `source_fields[${fieldId}]`;
+        hiddenInput.value = sourceFieldId;
+        mainForm.appendChild(hiddenInput);
+      }
+
+      const mainInputs = document.querySelectorAll(`[name="${fieldName}"]`);
+
+      mainInputs.forEach((mainInput) => {
+        if (mainInput.type === "radio") {
+          if (newValue === "") {
+            mainInput.checked = false;
+          } else {
+            mainInput.checked = mainInput.value === newValue;
+          }
         } else if (mainInput.tagName === "SELECT") {
           mainInput.value = newValue;
           mainInput.dispatchEvent(new Event("change", { bubbles: true }));
         } else {
           mainInput.value = newValue;
           mainInput.dispatchEvent(new Event("input", { bubbles: true }));
-          mainInput.dispatchEvent(new CustomEvent("text-editor:update", { detail: { value: newValue }}));
+          mainInput.dispatchEvent(
+            new CustomEvent("text-editor:update", {
+              detail: { value: newValue },
+            }),
+          );
         }
-      }
+      });
     });
 
     this.close(event);

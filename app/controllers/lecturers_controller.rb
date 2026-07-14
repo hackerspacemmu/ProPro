@@ -3,10 +3,8 @@ class LecturersController < ApplicationController
 
   def index
     @lecturers = @course.lecturers
-    @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
-    end
+    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
     @from_new_project = params[:from_new_project].present?
   end
 
@@ -28,14 +26,14 @@ class LecturersController < ApplicationController
       redirect_to course_lecturers_path(@course), alert: 'Not a lecturer.'
       return
     end
-    
-    # set current user's projects for Propose to Lecturer 
+
+    # set current user's projects for Propose to Lecturer
     @project = if @course.grouped?
-      group = current_user.project_groups.find_by(course: @course)
-      @course.projects.find_by(owner: group) if group
-    else
-      @course.projects.find_by(owner: current_user)
-    end
+                 group = current_user.project_groups.find_by(course: @course)
+                 @course.projects.find_by(owner: group) if group
+               else
+                 @course.projects.find_by(owner: current_user)
+               end
 
     set_supervised_projects
     set_lecturer_topics
@@ -78,8 +76,8 @@ class LecturersController < ApplicationController
                                     .supervised_by(@lecturer_enrolment)
                                     .approved
       @incoming_proposals = Project.where(course: @course)
-                                  .supervised_by(@lecturer_enrolment)
-                                  .proposals
+                                   .supervised_by(@lecturer_enrolment)
+                                   .proposals
     else
       @my_student_projects = []
       @incoming_proposals = []

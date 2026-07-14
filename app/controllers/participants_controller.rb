@@ -9,11 +9,11 @@ class ParticipantsController < ApplicationController
 
     @student_list = @course.students
 
-    if @course.grouped?
-      @group_list = @course.project_groups.includes(project_group_members: :user).to_a
-    else
-      @group_list = []
-    end
+    @group_list = if @course.grouped?
+                    @course.project_groups.includes(project_group_members: :user).to_a
+                  else
+                    []
+                  end
 
     projects_ownerships = @course.projects.approved.where(owner_type: 'User').pluck('owner_id')
 
@@ -36,17 +36,14 @@ class ParticipantsController < ApplicationController
 
   private
 
-  def lecturer_enrolment_filter
+  def supervised_owner_ids(owner_type)
+    # only filters by lecturer_enrolment_ids. No coordinator_enrolment_ids
     return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
 
-    @course.enrolments.find_by(user_id: params[:lecturer_filter], role: :lecturer)
-  end
+    enrolment_ids = @course.enrolments.where(user_id: params[:lecturer_filter]).pluck(:id)
+    return nil if enrolment_ids.empty?
 
-  def supervised_owner_ids(owner_type)
-    enrolment = lecturer_enrolment_filter
-    return nil unless enrolment
-
-    @course.projects.supervised_by(enrolment).where(owner_type: owner_type).pluck(:owner_id)
+    @course.projects.supervised_by(enrolment_ids).where(owner_type: owner_type).pluck(:owner_id)
   end
 
   def filtered_group_list
@@ -56,11 +53,9 @@ class ParticipantsController < ApplicationController
       group_list = group_list.select { |g| ids.include?(g.id) }
     end
 
-    if params[:status_filter].present? && params[:status_filter] != 'all'
-      group_list = @course.groups_with_status(params[:status_filter], group_list)
-    end
+    group_list = @course.groups_with_status(params[:status_filter], group_list) if params[:status_filter].present? && params[:status_filter] != 'all'
 
-    return group_list.sort_by(&:group_name)
+    group_list.sort_by(&:group_name)
   end
 
   def filtered_student_list

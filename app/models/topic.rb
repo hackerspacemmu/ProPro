@@ -6,6 +6,7 @@ class Topic < ApplicationRecord
 
   belongs_to :course
   belongs_to :owner, polymorphic: true
+  belongs_to :source_topic, class_name: 'Topic', optional: true
 
   has_many :topic_instances, dependent: :destroy, foreign_key: 'project_id'
 
