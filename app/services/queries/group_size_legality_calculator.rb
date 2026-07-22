@@ -1,26 +1,41 @@
-# Runs on every group trying to confirm to determine it's legality
+# Determines whether a given number of students can be split into legal group sizes for a course,
+# OR (default mode) simply whether a single group's size falls within min/max.
 class GroupSizeLegalityCalculator
-  def initialize(course:)
+  def initialize(course, students_to_group:)
     @course = course
+    @students_to_group = students_to_group
   end
 
-  def calculate_distribution(students_to_group:)
+  def execute
     group_min = @course.group_min
     group_max = @course.group_max
 
-    return Result.new(found: false, breakdown: [], group_count: 0, error: :group_size_limits_not_configured) if group_min.blank? || group_max.blank?
+    return blank_result(:group_size_limits_not_configured) if group_min.blank? || group_max.blank?
+    return blank_result(:no_students_to_group) if @students_to_group <= 0
 
-    return Result.new(found: false, breakdown: [], group_count: 0, error: :no_students_to_group) if students_to_group <= 0
+    if @course.student_list_finalised?
+      execute_dp(group_min, group_max)
+    else
+      execute_min_max(group_min, group_max)
+    end
+  end
 
+  private
+
+  def blank_result(error)
+    Result.new(found: false, breakdown: [], group_count: 0, error: error)
+  end
+
+  # Fixed-list mode: legality is calculated per group using the live enrolled students count
+  def execute_dp(group_min, group_max)
     allowed_sizes_largest_first = group_max.downto(group_min).to_a
     cache = {}
 
-    chosen_size = find_group_size_for(students_to_group, allowed_sizes_largest_first, cache)
-
-    return Result.new(found: false, breakdown: [], group_count: 0, error: :no_legal_combination_exists) if chosen_size.nil?
+    chosen_size = find_group_size_for(@students_to_group, allowed_sizes_largest_first, cache)
+    return blank_result(:no_legal_combination_exists) if chosen_size.nil?
 
     sizes_chosen = []
-    students_remaining = students_to_group
+    students_remaining = @students_to_group
 
     while students_remaining.positive?
       size = cache.fetch(students_remaining)
@@ -36,7 +51,12 @@ class GroupSizeLegalityCalculator
     Result.new(found: true, breakdown: breakdown, group_count: sizes_chosen.length, error: nil)
   end
 
-  private
+  # Default mode: no distribution, no enrolled-count dependency. A size is legal if it's within [group_min, group_max]. 
+  # Does not utilize students_to_group, but passed parameter for Fixed-list mode
+  def execute_min_max(group_min, group_max)
+    breakdown = (group_min..group_max).map { |size| { group_size: size, number_of_groups: nil } }
+    Result.new(found: true, breakdown: breakdown, group_count: nil, error: nil)
+  end
 
   def find_group_size_for(students_remaining, allowed_sizes_largest_first, cache)
     return 0 if students_remaining.zero?
@@ -66,11 +86,10 @@ class GroupSizeLegalityCalculator
       @error = error
     end
 
-    def found?
-      @found
-    end
+    def found? = @found
+    def success? = @error.nil?
+    def error? = !success?
 
-    # The actual legality check GroupConfirmer will call.
     def includes_group_of_size?(size)
       return false unless found?
 
