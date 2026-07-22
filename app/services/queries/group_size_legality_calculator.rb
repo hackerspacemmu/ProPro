@@ -51,7 +51,7 @@ class GroupSizeLegalityCalculator
     Result.new(found: true, breakdown: breakdown, group_count: sizes_chosen.length, error: nil)
   end
 
-  # Default mode: no distribution, no enrolled-count dependency. A size is legal if it's within [group_min, group_max]. 
+  # Default mode: no distribution, no enrolled-count dependency. A size is legal if it's within [group_min, group_max].
   # Does not utilize students_to_group, but passed parameter for Fixed-list mode
   def execute_min_max(group_min, group_max)
     breakdown = (group_min..group_max).map { |size| { group_size: size, number_of_groups: nil } }
