@@ -15,6 +15,7 @@ module Queries
 
       if @course.student_list_finalised?
         return blank_result(:no_students_to_group) if @students_to_group <= 0
+
         execute_dp(group_min, group_max)
       else
         execute_min_max(group_min, group_max)

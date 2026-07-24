@@ -34,8 +34,8 @@ class ProjectGroup < ApplicationRecord
 
       assign_next_leader! if was_leader
 
-      revert_to_draft! if confirmed? && 
-      !Queries::GroupSizeLegalityCalculator.new(course, students_to_group: course.students.count).execute.includes_group_of_size?(project_group_members.count)
+      revert_to_draft! if confirmed? &&
+                          !Queries::GroupSizeLegalityCalculator.new(course, students_to_group: course.students.count).execute.includes_group_of_size?(project_group_members.count)
     end
   end
 
