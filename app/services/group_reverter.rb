@@ -1,9 +1,9 @@
-# Leader reverts a confirmed group back to draft, if the grouping window is open.
 class GroupReverter
   def initialize(group)
     @group = group
   end
 
+  # Leader reverts a confirmed group back to draft if the grouping window is open.
   def revert!
     @group.with_lock do
       course = @group.course
@@ -31,5 +31,13 @@ class GroupReverter
     end
 
     def reverted? = @reverted
+
+    def message
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_draft then 'This group is already a draft.'
+      when nil then 'Group reverted to draft.'
+      end
+    end
   end
 end

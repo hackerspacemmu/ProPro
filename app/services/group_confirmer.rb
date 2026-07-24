@@ -1,19 +1,19 @@
-# Leader confirms a draft group, if the grouping window is open and size is legal.
-# Authorization (leader-only) lives in Pundit; this service only re-checks
-# window + legality against the DB, inside a lock, to close the double-submit race.
+# Leader comfirms draft group if the grouping window is open and size is legal.
 class GroupConfirmer
   def initialize(group)
     @group = group
   end
 
   def confirm!
+    # Check group size and grouping window inside lock to avoid double race condition on submit
     @group.with_lock do
       course = @group.course
 
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_confirmed) if @group.confirmed?
 
-      legality = GroupSizeLegalityCalculator.new(course, students_to_group: course.students.count).execute
+      # calls the same algorithm as the preview
+      legality = Queries::GroupSizeLegalityCalculator.new(course, students_to_group: course.students.count).execute
       return blocked(:size_illegal) unless legality.includes_group_of_size?(@group.project_group_members.count)
 
       @group.update!(confirmed: true)
@@ -36,5 +36,14 @@ class GroupConfirmer
     end
 
     def confirmed? = @confirmed
+
+    def message
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_confirmed then 'This group has already been confirmed.'
+      when :size_illegal then 'This group cannot be confirmed at its current size.'
+      when nil then 'Group confirmed.'
+      end
+    end
   end
 end

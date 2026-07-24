@@ -7,7 +7,7 @@ class SupervisorCapacityCalculatorTest < ActiveSupport::TestCase
     lecturer = FactoryBot.create(:user)
     enrolment = FactoryBot.create(:enrolment, :lecturer, course: course, user: lecturer)
 
-    result = SupervisorCapacityCalculator.new(course).calculate
+    result = Queries::SupervisorCapacityCalculator.new(course).calculate
     lecturer_capacity = result.lecturer_capacities.find { |lc| lc.enrolment.id == enrolment.id }
 
     assert_equal 0, lecturer_capacity.approved_count

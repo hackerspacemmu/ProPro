@@ -66,28 +66,26 @@ class ProjectGroupsController < ApplicationController
 
   def confirm
     authorize @group
-    begin
-      ActiveRecord::Base.transaction do
-        raise StandardError, 'This group cannot be confirmed yet.' unless @group.confirm!
-      end
-    rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
-      return
+
+    result = GroupConfirmer.new(@group).confirm!
+
+    if result.confirmed?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
     end
-    redirect_to course_project_groups_path(@course), notice: "#{@group.group_name} confirmed."
   end
 
   def revert
     authorize @group
-    begin
-      ActiveRecord::Base.transaction do
-        @group.revert_to_draft!
-      end
-    rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
-      return
+
+    result = GroupReverter.new(@group).revert!
+
+    if result.reverted?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
     end
-    redirect_to course_project_groups_path(@course), notice: "#{@group.group_name} reverted to draft."
   end
 
   def lock

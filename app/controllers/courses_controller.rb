@@ -68,7 +68,7 @@ class CoursesController < ApplicationController
 
     @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
 
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     return unless request.headers['HX-Request']
@@ -259,7 +259,7 @@ class CoursesController < ApplicationController
         )
 
         if params[:supervisor_capacity_offsets].present?
-          result = SupervisorCapacityUpdater.new(@course).update_capacities(
+          result = SupervisorCapacityUpdater.new(@course).update!(
             offsets: params[:supervisor_capacity_offsets],
             excluded_ids: params[:supervisor_capacity_excluded] || []
           )
@@ -431,7 +431,7 @@ class CoursesController < ApplicationController
   end
 
   def load_capacity_result
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
   end
 
   def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)

@@ -3,7 +3,7 @@ class LecturersController < ApplicationController
 
   def index
     @lecturers = @course.lecturers
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
     @from_new_project = params[:from_new_project].present?
   end

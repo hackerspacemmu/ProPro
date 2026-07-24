@@ -19,26 +19,22 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
                                   created_at: 30.minutes.ago)
   end
 
-  # ── confirm! ──────────────────────────────────────────────────────────────
+  # ── GroupConfirmer ───────────────────────────────────────────────────────
 
-  test 'confirm! confirms a legal group' do
+  test 'GroupConfirmer confirms a legal group' do
     # group has alice + bob (2 members), min is 2
-    assert @group.confirm!
+    result = GroupConfirmer.new(@group).confirm!
+    assert result.confirmed?
     assert @group.reload.confirmed?
   end
 
-  test 'confirm! returns false when can_confirm? is false' do
+  test 'GroupConfirmer blocks with size_illegal when group is below min' do
     solo = create(:project_group, course: @course, leader_id: @carol.id)
     create(:project_group_member, project_group: solo, user: @carol)
     # only 1 member, min is 2
-    assert_not solo.confirm!
-    assert_not solo.reload.confirmed?
-  end
-
-  test 'confirm! does not persist when guard fails' do
-    solo = create(:project_group, course: @course, leader_id: @carol.id)
-    create(:project_group_member, project_group: solo, user: @carol)
-    solo.confirm!
+    result = GroupConfirmer.new(solo).confirm!
+    assert_not result.confirmed?
+    assert_equal :size_illegal, result.blocked_reason
     assert_not solo.reload.confirmed?
   end
 
@@ -80,7 +76,8 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
   end
 
   test 'remove_member! reverts confirmed group when it falls below min' do
-    @group.confirm!
+    result = GroupConfirmer.new(@group).confirm!
+    assert result.confirmed?
     assert @group.reload.confirmed?
 
     # removing bob leaves 1 member (alice), below min of 2

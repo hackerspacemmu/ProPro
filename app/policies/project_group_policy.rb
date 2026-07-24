@@ -26,19 +26,11 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def confirm?
-    return true if coordinator?
-
-    grouping_window_open? &&
-      record.leader_id == user.id &&
-      !record.confirmed?
+    record.leader_id == user.id
   end
 
   def revert?
-    return true if coordinator?
-
-    grouping_window_open? &&
-      record.leader_id == user.id &&
-      record.confirmed?
+    record.leader_id == user.id
   end
 
   def destroy?
@@ -97,7 +89,6 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   private
 
-  # True if the current user is in ANY group in this course (not just this group).
   def current_user_in_any_group?
     ProjectGroupMember.joins(:project_group)
                       .where(user_id: user.id,
