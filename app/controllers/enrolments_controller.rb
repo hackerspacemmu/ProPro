@@ -10,7 +10,7 @@ class EnrolmentsController < ApplicationController
 
     if current_course.grouped?
       group_member = ProjectGroupMember.joins(:project_group)
-                                        .find_by(project_groups: { course_id: current_course.id },
+                                       .find_by(project_groups: { course_id: current_course.id },
                                                 user_id: enrolment.user_id)
 
       if group_member

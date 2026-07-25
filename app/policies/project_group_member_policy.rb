@@ -1,5 +1,5 @@
 class ProjectGroupMemberPolicy < ApplicationPolicy
-  # Check for Identity only. 
+  # Check for Identity only.
   # Window/confirmed project group checks belong in GroupMemberRemover.
   def destroy?
     return true if record.user_id == user.id
