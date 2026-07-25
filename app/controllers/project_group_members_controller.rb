@@ -1,58 +1,32 @@
 class ProjectGroupMembersController < ApplicationController
-  before_action :set_course
-  before_action :set_group
-
-  def create
-    authorize @course, :grouping_coordinator?
-
-    user = User.find(params[:user_id])
-    @group = @course.project_groups.find(params[:project_group_id])
-
-    begin
-      ProjectGroupMember.create!(user: user, project_group: @group)
-      flash[:notice] = "#{user.name} added to #{@group.group_name}."
-    rescue StandardError => e
-      flash[:alert] = e.message
-    end
-
-    redirect_to course_project_groups_path(@course), status: :see_other
-  end
+  before_action :authenticate_user!
+  before_action :set_project_group_member, only: %i[destroy]
 
   def destroy
-    begin
-      authorize @course, :grouping_coordinator?
+    authorize @project_group_member
 
-      user = User.find(params[:id])
+    result = GroupMemberRemover.new(
+      @project_group_member,
+      current_user: current_user,
+      dissolve_confirmed: params[:dissolve_confirmed] == 'true'
+    ).remove!
 
-      member = @group.project_group_members.find_by!(user: user)
-
-      ActiveRecord::Base.transaction do
-        member.destroy!
-
-        current_member_count = @group.project_group_members.reload.count
-
-        @group.revert_to_draft! if @group.confirmed? && current_member_count < @course.group_min.to_i
-      end
-
-      flash[:notice] = "#{user.name} removed from #{@group.group_name}."
-    rescue ActiveRecord::RecordNotFound
-      flash[:alert] = 'The student or group membership could not be found.'
-    rescue Pundit::NotAuthorizedError
-      flash[:alert] = 'You are not authorized to remove students from this group.'
-    rescue StandardError => e
-      flash[:alert] = e.message
+    if result.needs_confirmation?
+      render :confirm_dissolve, locals: { member: @project_group_member, result: result }
+      return
     end
 
-    redirect_to course_project_groups_path(@course), status: :see_other
+    if result.blocked?
+      redirect_back fallback_location: root_path, alert: result.message
+      return
+    end
+
+    redirect_back fallback_location: root_path, notice: result.message
   end
 
   private
 
-  def set_course
-    @course = Course.find(params[:course_id])
-  end
-
-  def set_group
-    @group = @course.project_groups.find(params[:project_group_id])
+  def set_project_group_member
+    @project_group_member = ProjectGroupMember.find(params[:id])
   end
 end
