@@ -83,10 +83,9 @@ class ProjectsController < ApplicationController
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
     # Show Supervisors
-    @lecturers = @course.lecturers
     @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    SupervisorCapacityCalculator.new(@course).calculate.lecturer_capacities.each do |lc|
+      @lecturer_capacity_info[lc.enrolment.user_id] = lc
     end
 
     @field_values = {}
@@ -125,10 +124,8 @@ class ProjectsController < ApplicationController
 
     # Show Supervisors
     @lecturers = @course.lecturers
-    @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
-    end
+    capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @lecturer_capacity_info = capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     # Load existing selected Topic_id or lecturer
     if @instance.source_topic_id.nil?
