@@ -231,6 +231,7 @@ class CoursesController < ApplicationController
   def settings
     authorize @course, :update?
     load_capacity_result
+    @courses = Course.managed_by(current_user).where.not(id: @course.id)
   end
 
   def handle_settings
