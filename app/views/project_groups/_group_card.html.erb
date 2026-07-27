@@ -8,6 +8,7 @@
     course.group_max.present? && member_count > course.group_max.to_i %>
 
   <div
+    id="<%= dom_id(group) %>"
     class="
       border <%= group.confirmed? ? 'border-[#1F78D1] shadow-sm' : (is_over_limit ? 'border-red-300 bg-[#fffafa]' : 'border-gray-200') %> bg-white rounded-[3px] flex
       flex-col mb-3
@@ -83,6 +84,7 @@
       <div class="grid grid-cols-2 gap-2">
         <% group.project_group_members.each do |membership| %>
           <div
+            id="<%= dom_id(membership) %>"
             class="
               flex items-center gap-2.5 p-2.5 rounded-[3px]
               <%= group.confirmed? ? 'bg-[#1F78D1]/5 border border-[#1F78D1]/20' : 'bg-gray-50 border border-gray-200' %> group/member
@@ -107,18 +109,18 @@
               <% end %>
             </div>
             <% if is_coordinator %>
-              <div
-                class="
-                  opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0 self-start
-                  pt-0.5
-                "
-              >
-                <%= button_to course_project_group_member_path(course, group, membership.user),
+              <%
+                will_dissolve_with_data = member_count == 1 && group.project.present?
+              %>
+              <div class="opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0 self-start pt-0.5">
+                <%= button_to course_project_group_member_path(course, group, membership),
                     method: :delete,
                     class: "text-[11px] text-red-400 hover:text-red-600 transition-colors",
-                    form: { data: { turbo_confirm: "Remove #{membership.user.name} from #{group.group_name}? They will become ungrouped.",
-turbo_frame: "_top"
-                    } } do %>
+                    form: {
+                      data: will_dissolve_with_data ?
+                        { turbo_stream: true } :
+                        { turbo_stream: true, turbo_confirm: "Remove #{membership.user.name} from #{group.group_name}? They will become ungrouped." }
+                    } do %>
                   Remove
                 <% end %>
               </div>

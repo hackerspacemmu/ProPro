@@ -67,16 +67,11 @@ class GroupMemberRemover
     @group.update!(leader_id: successor.user_id)
   end
 
-  # Soft-delete when a Project exists, otherwise hard deletes
   def dissolve!
     @group.project_group_invites.destroy_all
-    if @group.project.present?
-      @group.update!(dissolved_at: Time.current)
-    else
-      @group.destroy!
-    end
+    @group.destroy!
   end
-
+  
   def blocked(reason)
     Result.new(outcome: :blocked, blocked_reason: reason)
   end

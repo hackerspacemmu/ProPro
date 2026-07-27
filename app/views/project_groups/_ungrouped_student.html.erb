@@ -1,0 +1,29 @@
+<%#
+  _ungrouped_student.html.erb
+  locals: student
+  Extracted from the Ungrouped Students loop so it can be reused both for
+  the initial page render and for turbo_stream.append from
+  ProjectGroupMembersController#destroy.
+%>
+<div
+  id="<%= dom_id(student, :ungrouped) %>"
+  class="
+    flex items-center gap-2 border border-gray-100 rounded-[3px] p-2.5
+    transition-colors
+  "
+>
+  <div
+    class="
+      inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200
+      text-[10px] font-bold text-gray-600 shrink-0
+    "
+  >
+    <%= student.name.presence&.first&.upcase || "?" %>
+  </div>
+  <div class="leading-tight min-w-0">
+    <span class="text-sm text-gray-800 block truncate font-medium"><%= student.name.presence || student.email_address %></span>
+    <% if student.instid.present? %>
+      <span class="text-xs text-gray-400"><%= student.instid %></span>
+    <% end %>
+  </div>
+</div>
