@@ -71,7 +71,7 @@ class GroupMemberRemover
     @group.project_group_invites.destroy_all
     @group.destroy!
   end
-  
+
   def blocked(reason)
     Result.new(outcome: :blocked, blocked_reason: reason)
   end
