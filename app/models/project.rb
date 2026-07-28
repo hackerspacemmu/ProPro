@@ -35,7 +35,7 @@ class Project < ApplicationRecord
   STATUS_SORT_ORDER = { 'rejected' => 0, 'redo' => 1, 'pending' => 2, 'not_submitted' => 3, 'approved' => 4 }.freeze
 
   def supervisor
-    self.supervisor_enrolment.user
+    supervisor_enrolment.user
   end
 
   def member
@@ -63,12 +63,12 @@ class Project < ApplicationRecord
   end
 
   def instance_to_edit(created_by:, has_supervisor_comment:)
-    if approved? || rejected? || redo? || (pending? && has_supervisor_comment)
+    if rejected? || redo? || (pending? && has_supervisor_comment)
       project_instances.build(
         version: (project_instances.maximum(:version) || 0) + 1,
         created_by: created_by,
         supervisor_enrolment: supervisor_enrolment,
-        status: approved? ? :approved : :pending
+        status: :pending
       )
     else
       # If approved and pending (no supervisor comment) dont create new instance
