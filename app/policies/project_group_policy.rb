@@ -20,9 +20,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   def create?
     return true if coordinator?
 
-    enrolment.present? &&
-      grouping_window_open? &&
-      !record.course.project_group_members.exists?(user:)
+    enrolment.present? && enrolment.student?
   end
 
   def confirm?
@@ -60,12 +58,8 @@ class ProjectGroupPolicy < ApplicationPolicy
       record.leader_id == user.id && !record.confirmed?
   end
 
-  # Student can join an unlocked draft group if ungrouped and window is open.
   def join?
-    grouping_window_open? &&
-      !current_user_in_any_group? &&
-      !record.confirmed? &&
-      !record.locked?
+    enrolment.present? && enrolment.student?
   end
 
   # Student can send a join request to a locked draft group.

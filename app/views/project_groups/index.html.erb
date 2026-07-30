@@ -564,6 +564,7 @@
             locals: {
               course: @course,
               is_coordinator: policy(@course).grouping_coordinator?,
+              my_group: @my_group
             } %>
           <% else %>
             <div

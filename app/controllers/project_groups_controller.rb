@@ -1,6 +1,6 @@
 class ProjectGroupsController < ApplicationController
   before_action :set_course
-  before_action :set_group, only: %i[destroy confirm revert lock unlock promote_leader]
+  before_action :set_group, only: %i[destroy confirm revert lock join unlock promote_leader]
 
   def index
     authorize @course, :grouping?
@@ -9,6 +9,12 @@ class ProjectGroupsController < ApplicationController
                        .includes(project_group_members: :user)
                        .joins(:project_group_members)
                        .find_by(project_group_members: { user_id: current_user.id })
+
+    @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? &&
+      Queries::GroupSizeLegalityCalculator
+        .new(@course, students_to_group: @course.students.count)
+        .execute
+        .includes_group_of_size?(@my_group.project_group_members.count)
 
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
@@ -25,34 +31,20 @@ class ProjectGroupsController < ApplicationController
     @group = @course.project_groups.build
     authorize @group
 
-    leader = if policy(@group).coordinator?
-               User.find(params[:user_id])
-             else
-               current_user
-             end
+    leader = policy(@group).coordinator? ? User.find(params[:user_id]) : current_user
 
-    @group.leader_id = leader.id
+    result = GroupCreator.new(@course, leader: leader, current_user: current_user).create!
 
-    begin
-      ActiveRecord::Base.transaction do
-        @course.with_lock do
-          next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
-          @group.course_group_sequence = next_seq
-          @group.group_name = format('G%03d', next_seq)
-          @group.save!
-        end
-        ProjectGroupMember.create!(user: leader, project_group: @group)
-      end
-    rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
-      return
+    if result.created?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
     end
-
-    redirect_to course_project_groups_path(@course), notice: "Draft group #{@group.group_name} created."
   end
 
   def destroy
     authorize @group
+    
     begin
       ActiveRecord::Base.transaction do
         @group.destroy!
@@ -61,7 +53,20 @@ class ProjectGroupsController < ApplicationController
       redirect_to course_project_groups_path(@course), alert: e.message
       return
     end
+
     redirect_to course_project_groups_path(@course), notice: 'Group dissolved.'
+  end
+
+  def join
+    authorize @group
+
+    result = GroupJoiner.new(@group, current_user: current_user).join!
+
+    if result.joined?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
+    end
   end
 
   def confirm

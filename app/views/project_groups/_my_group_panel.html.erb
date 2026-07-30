@@ -136,7 +136,6 @@
       is_confirmed = @my_group.confirmed?
       is_locked    = @my_group.locked?
       member_count = @my_group.project_group_members.size
-      can_confirm  = @my_group.can_confirm?
       window_open  = @course.grouping_window_open?
     %>
 
@@ -192,9 +191,9 @@
               <%= button_to "Confirm Group",
                     confirm_course_project_group_path(@course, @my_group),
                     method: :patch,
-                    disabled: !can_confirm,
+                    disabled: !@my_group_can_confirm,
                     class: "w-full px-3 py-1.5 text-xs font-semibold text-white bg-[#1F78D1] rounded-[3px] hover:bg-[#1a6abf] transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed",
-                    title: can_confirm ? nil : "Group needs #{@course.group_min}–#{@course.group_max} members to confirm" %>
+                    title: @my_group_can_confirm ? nil : "Group needs #{@course.group_min}–#{@course.group_max} members to confirm" %>
             <% end %>
 
             <% if am_leader && is_confirmed && window_open %>
@@ -220,11 +219,21 @@
             <% end %>
           </div>
 
+          <%
+            my_membership = @my_group.project_group_members.find { |m| m.user_id == current_user.id }
+          %>
           <div class="mt-4 pt-3 border-t border-gray-100">
-            <%# Leave group — Person 2 %>
-            <button disabled class="text-xs text-gray-400 hover:text-gray-600 transition-colors opacity-40 cursor-not-allowed">
-              Leave group
-            </button>
+            <% if window_open %>
+              <%= button_to "Leave group",
+                    course_project_group_member_path(@course, @my_group, my_membership),
+                    method: :delete,
+                    class: "text-xs text-gray-400 hover:text-gray-600 transition-colors",
+                    form: { data: { confirm: "Leave #{@my_group.group_name}?" } } %>
+            <% else %>
+              <button disabled class="text-xs text-gray-400 opacity-40 cursor-not-allowed" title="Grouping window closed">
+                Leave group
+              </button>
+            <% end %>
           </div>
         </div>
 
@@ -258,7 +267,7 @@
                     <%= button_to course_project_group_member_path(@course, @my_group, member),
                           method: :delete,
                           class: "text-xs text-red-400 hover:text-red-600 transition-colors",
-                          form: { data: { confirm: "Remove #{member.name} from the group?" } } do %>
+                          form: { data: { turbo: false, confirm: "Remove #{member.name} from the group?" } } do %>
                       Kick
                     <% end %>
                   </div>

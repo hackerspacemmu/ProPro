@@ -87,6 +87,7 @@ Rails.application.routes.draw do
         patch :lock
         patch :unlock
         patch :promote_leader
+        patch :join
       end
 
       collection do
