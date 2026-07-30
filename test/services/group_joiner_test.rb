@@ -1,11 +1,11 @@
 # test/services/group_joiner_test.rb
-require "test_helper"
+require 'test_helper'
 
 class GroupJoinerTest < ActiveSupport::TestCase
   setup do
     @course = FactoryBot.create(:course,
-      grouped: true, grouping_enabled: true, grouping_open: true,
-      group_min: 2, group_max: 3, student_list_finalised: false)
+                                grouped: true, grouping_enabled: true, grouping_open: true,
+                                group_min: 2, group_max: 3, student_list_finalised: false)
     @leader  = FactoryBot.create(:user)
     @student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: @leader,  role: :student)
@@ -15,14 +15,14 @@ class GroupJoinerTest < ActiveSupport::TestCase
     FactoryBot.create(:project_group_member, project_group: @group, user: @leader)
   end
 
-  test "join succeeds, adds member" do
+  test 'join succeeds, adds member' do
     result = GroupJoiner.new(@group, current_user: @student).join!
 
     assert result.joined?
     assert @group.project_group_members.exists?(user_id: @student.id)
   end
 
-  test "blocked when window closed" do
+  test 'blocked when window closed' do
     @course.update!(grouping_open: false)
 
     result = GroupJoiner.new(@group, current_user: @student).join!
@@ -31,7 +31,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert_equal :window_closed, result.blocked_reason
   end
 
-  test "blocked when already grouped elsewhere in course" do
+  test 'blocked when already grouped elsewhere in course' do
     other_group = FactoryBot.create(:project_group, course: @course, leader_id: @student.id)
     FactoryBot.create(:project_group_member, project_group: other_group, user: @student)
 
@@ -41,7 +41,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  test "blocked when group confirmed" do
+  test 'blocked when group confirmed' do
     @group.update!(confirmed: true)
 
     result = GroupJoiner.new(@group, current_user: @student).join!
@@ -50,7 +50,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert_equal :group_confirmed, result.blocked_reason
   end
 
-  test "blocked when group locked" do
+  test 'blocked when group locked' do
     @group.update!(locked: true)
 
     result = GroupJoiner.new(@group, current_user: @student).join!
@@ -59,7 +59,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert_equal :group_locked, result.blocked_reason
   end
 
-  test "blocked when group full" do
+  test 'blocked when group full' do
     filler = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: filler, role: :student)
     FactoryBot.create(:project_group_member, project_group: @group, user: filler)
@@ -77,7 +77,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
   test "join clears joiner's own pending request invites course-wide" do
     other_group = FactoryBot.create(:project_group, course: @course, leader_id: @leader.id)
     invite = FactoryBot.create(:project_group_invite,
-      project_group: other_group, sender: @student, kind: :request, status: :pending)
+                               project_group: other_group, sender: @student, kind: :request, status: :pending)
 
     GroupJoiner.new(@group, current_user: @student).join!
 
@@ -88,14 +88,14 @@ class GroupJoinerTest < ActiveSupport::TestCase
     other_student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: other_student, role: :student)
     unrelated_invite = FactoryBot.create(:project_group_invite,
-      project_group: @group, sender: other_student, kind: :request, status: :pending)
+                                         project_group: @group, sender: other_student, kind: :request, status: :pending)
 
     GroupJoiner.new(@group, current_user: @student).join!
 
     assert unrelated_invite.reload.persisted?
   end
 
-  test "concurrent joins on last slot — only one succeeds" do
+  test 'concurrent joins on last slot — only one succeeds' do
     filler = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: filler, role: :student)
     FactoryBot.create(:project_group_member, project_group: @group, user: filler)

@@ -11,10 +11,10 @@ class ProjectGroupsController < ApplicationController
                        .find_by(project_group_members: { user_id: current_user.id })
 
     @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? &&
-      Queries::GroupSizeLegalityCalculator
-        .new(@course, students_to_group: @course.students.count)
-        .execute
-        .includes_group_of_size?(@my_group.project_group_members.count)
+                            Queries::GroupSizeLegalityCalculator
+                            .new(@course, students_to_group: @course.students.count)
+                            .execute
+                            .includes_group_of_size?(@my_group.project_group_members.count)
 
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
@@ -44,7 +44,7 @@ class ProjectGroupsController < ApplicationController
 
   def destroy
     authorize @group
-    
+
     begin
       ActiveRecord::Base.transaction do
         @group.destroy!
