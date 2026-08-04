@@ -216,8 +216,6 @@ class CoursesController < ApplicationController
           is_project_title: true
         )
         raise StandardError, 'Template creation failed' unless default_template.save
-
-        raise StandardError, 'Template creation failed' unless default_template.save
       end
     rescue StandardError
       @new_course.destroy

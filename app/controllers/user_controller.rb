@@ -1,5 +1,5 @@
 class UserController < ApplicationController
-  allow_unauthenticated_access only: %i[new_staff new_student create new]
+  allow_unauthenticated_access only: %i[new create claim handle_claim]
 
   def resend_invite
     user = User.find(params[:id])
@@ -126,7 +126,44 @@ class UserController < ApplicationController
   end
 
   def create
-    # TODO: after email, this will handle the creation of accounts if not exists
+    email = params.require(:email_address).strip
+
+    if User.find_by(email_address: email)
+      redirect_to user_profile_path, notice: "Your email is already in the system. Check your inbox or login!"
+      return
+    end
+
+    begin
+      ActiveRecord::Base.transaction do
+        new_user = User.create!(
+          email_address: email,
+          name: "Placeholder Username",
+          password: SecureRandom.base64(24),
+          has_registered: false,
+          is_staff: false
+        )
+
+        new_otp_instance = Otp.create!(
+          user: new_user,
+          otp: SecureRandom.base64(8),
+          token: SecureRandom.uuid
+        )
+      end
+    rescue StandardError => e
+      redirect_back_or_to '/', alert: e.message
+      return
+    end
+
+    new_user = User.find_by(email_address: email)
+
+    GeneralMailer.with(
+      email_address: new_user.email_address,
+      otp_token: new_user.otp.token,
+      otp: new_user.otp.otp,
+      is_staff: false
+    ).ProPro_Invite.deliver_later
+
+    redirect_to login_path, notice: "Account created successfully. Check your inbox!"
   end
 
   def profile
