@@ -4,10 +4,11 @@ Rails.application.routes.draw do
   get 'terms-of-service', to: 'static_pages#terms_of_service', as: 'terms_of_service'
   get 'about', to: 'static_pages#about'
 
-  post 'user/create'
-  get 'user/new_staff', to: 'user#new_staff', as: :new_staff
-  get 'user/new_student', to: 'user#new_student', as: :new_student
+  get 'user/new', to: 'user#new'
+  get 'user/claim', to: 'user#claim', as: :claim
   get 'user/profile'
+  post 'user/create'
+  post 'user/handle_claim'
   post 'user/edit'
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
 

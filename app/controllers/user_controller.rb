@@ -1,5 +1,5 @@
 class UserController < ApplicationController
-  allow_unauthenticated_access only: %i[new_staff new_student create]
+  allow_unauthenticated_access only: %i[new_staff new_student create new]
 
   def resend_invite
     user = User.find(params[:id])
@@ -15,22 +15,12 @@ class UserController < ApplicationController
       email_address: user.email_address,
       otp_token: otp_instance.token,
       otp: otp_instance.otp,
-      is_staff: user.is_staff
     ).ProPro_Invite.deliver_later
 
     redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
   end
 
-  def new_student
-    @email = Otp.find_by(token: params[:token]).user.email_address
-  rescue StandardError
-    redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
-  end
-
-  def new_staff
-    @email = Otp.find_by(token: params[:token]).user.email_address
-  rescue StandardError
-    redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
+  def new
   end
 
   def edit
@@ -70,7 +60,13 @@ class UserController < ApplicationController
     redirect_to user_profile_path, notice: 'Profile updated successfully'
   end
 
-  def create
+  def claim
+    @email = Otp.find_by(token: params[:token]).user.email_address
+  rescue StandardError
+    redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
+  end
+
+  def handle_claim
     response = params.permit(:password, :password_confirmation, :name, :token, :otp)
     return if response[:token].blank?
 
@@ -127,6 +123,10 @@ class UserController < ApplicationController
     end
 
     user.otp.destroy
+  end
+
+  def create
+    # TODO: after email, this will handle the creation of accounts if not exists
   end
 
   def profile
