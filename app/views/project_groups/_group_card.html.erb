@@ -59,11 +59,10 @@ Rendered as a collection from index via:
             <%# already grouped elsewhere — no join UI %>
           <% elsif group.locked? %>
             <% if policy(group).request_to_join? %>
-              <button
-                disabled
-                title="Join requests coming soon"
-                class="border border-blue-300 rounded px-2 py-0.5 text-xs text-blue-600 opacity-50 cursor-not-allowed"
-              >Request to join</button>
+              <%= button_to "Request to join",
+                    course_project_group_project_group_invites_path(course, group),
+                    method: :post,
+                    class: "border border-blue-300 rounded px-2 py-0.5 text-xs text-blue-600 hover:bg-blue-50 transition-colors" %>
             <% end %>
           <% elsif policy(group).join? %>
             <%= button_to "Join",

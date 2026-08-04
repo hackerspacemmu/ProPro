@@ -62,14 +62,10 @@ class ProjectGroupPolicy < ApplicationPolicy
     enrolment.present? && enrolment.student?
   end
 
-  # Student can send a join request to a locked draft group.
   def request_to_join?
-    grouping_window_open? &&
-      !current_user_in_any_group? &&
-      !record.confirmed?
+    enrolment.present? && enrolment.student?
   end
 
-  # Any member can leave within the grouping window.
   def leave?
     grouping_window_open? &&
       record.project_group_members.exists?(user_id: user.id)

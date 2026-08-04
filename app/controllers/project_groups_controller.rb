@@ -16,6 +16,9 @@ class ProjectGroupsController < ApplicationController
                             .execute
                             .includes_group_of_size?(@my_group.project_group_members.count)
 
+    @my_pending_requests = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending
+    @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :request) : []
+
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
                      .order(:created_at)

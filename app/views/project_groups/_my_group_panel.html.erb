@@ -264,7 +264,7 @@
                       Promote
                     <% end %>
 
-                    <%= button_to course_project_group_member_path(@course, @my_group, member),
+                    <%= button_to course_project_group_member_path(@course, @my_group, membership),
                           method: :delete,
                           class: "text-xs text-red-400 hover:text-red-600 transition-colors",
                           form: { data: { turbo: false, confirm: "Remove #{member.name} from the group?" } } do %>
@@ -277,12 +277,46 @@
           </ul>
         </div>
 
-        <%# ── Col 3: Join Requests — Person 3 wires this %>
+        <%# ── Col 3: Join Requests (leader-only visible content, but column always renders) %>
         <div class="w-full md:w-80 shrink-0 p-4">
           <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
             Join Requests
           </p>
-          <p class="text-xs text-gray-400">No pending requests</p>
+
+          <% if am_leader %>
+            <% if @incoming_join_requests.any? %>
+              <ul class="space-y-0 divide-y divide-gray-100">
+                <% @incoming_join_requests.each do |join_request| %>
+                  <li class="flex items-center justify-between gap-2 py-2 first:pt-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <%# avatar %>
+                      <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600 shrink-0">
+                        <%= join_request.sender.name.presence&.first&.upcase || "?" %>
+                      </div>
+                      <span class="text-xs text-gray-800 font-medium truncate">
+                        <%= join_request.sender.name %>
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                      <%= button_to "Accept",
+                            accept_course_project_group_project_group_invite_path(@course, @my_group, join_request),
+                            method: :patch,
+                            class: "text-xs text-[#1F78D1] hover:text-[#1a6abf] transition-colors font-medium" %>
+                      <%= button_to "Decline",
+                            decline_course_project_group_project_group_invite_path(@course, @my_group, join_request),
+                            method: :patch,
+                            class: "text-xs text-red-400 hover:text-red-600 transition-colors" %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="text-xs text-gray-400">No pending requests</p>
+            <% end %>
+          <% else %>
+            <p class="text-xs text-gray-300">Only the group leader can view join requests.</p>
+          <% end %>
         </div>
 
       </div>
