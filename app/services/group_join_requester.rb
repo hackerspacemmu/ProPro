@@ -17,7 +17,8 @@ class GroupJoinRequester
     join_request = ProjectGroupInvite.create!(
       project_group: @group,
       sender: @current_user,
-      kind: :request,
+      recipient_id: @group.leader_id,
+      kind: :direct_request,
       status: :pending
     )
 

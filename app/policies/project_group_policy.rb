@@ -77,6 +77,9 @@ class ProjectGroupPolicy < ApplicationPolicy
       (coordinator? || record.leader?(user))
   end
 
+  def generate_invite_link?
+    record.leader_id == user.id
+  end
   private
 
   def current_user_in_any_group?

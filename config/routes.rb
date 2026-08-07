@@ -27,6 +27,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :project_group_invite_links, only: [:show], param: :token
+
   resources :courses, only: %i[index show new create destroy] do
     member do
       get 'add_students'
@@ -88,6 +90,7 @@ Rails.application.routes.draw do
         patch :unlock
         patch :promote_leader
         patch :join
+        patch :generate_invite_link
       end
 
       collection do

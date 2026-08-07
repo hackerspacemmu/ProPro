@@ -69,6 +69,7 @@ class GroupMemberRemover
 
   def dissolve!
     @group.project_group_invites.destroy_all
+    @group.project_group_invite_links.destroy_all
     @group.destroy!
   end
 

@@ -1,6 +1,6 @@
 class ProjectGroupsController < ApplicationController
   before_action :set_course
-  before_action :set_group, only: %i[destroy confirm revert lock join unlock promote_leader]
+  before_action :set_group, only: %i[destroy confirm revert lock join unlock promote_leader generate_invite_link]
 
   def index
     authorize @course, :grouping?
@@ -16,8 +16,9 @@ class ProjectGroupsController < ApplicationController
                             .execute
                             .includes_group_of_size?(@my_group.project_group_members.count)
 
+    @my_group_invite_token = @my_group&.project_group_invite_links&.find_by(sender: current_user)&.token
     @my_pending_requests = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending
-    @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :request) : []
+    @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :direct_request) : []
 
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
@@ -162,6 +163,18 @@ class ProjectGroupsController < ApplicationController
       redirect_to course_project_groups_path(@course), notice: 'Settings updated.'
     rescue StandardError => e
       redirect_to course_project_groups_path(@course), alert: e.message
+    end
+  end
+
+  def generate_invite_link
+    authorize @group
+
+    result = GroupInviteLinkGenerator.new(@group, current_user: current_user).generate!
+
+    if result.generated?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
     end
   end
 
