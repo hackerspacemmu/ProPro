@@ -227,6 +227,7 @@
               <% if @my_group_invite_token.present? %>
                 <div class="mt-2 flex items-center gap-1" data-controller="invite-link">
                   <input type="text" readonly
+                        autocomplete="off"
                         value="<%= project_group_invite_link_url(@my_group_invite_token) %>"
                         data-invite-link-target="linkField"
                         class="text-xs border border-gray-200 rounded px-2 py-1 flex-1 min-w-0">
