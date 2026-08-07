@@ -85,8 +85,7 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def current_user_in_any_group?
     ProjectGroupMember.joins(:project_group)
-                      .where(user_id: user.id,
-                             project_groups: { course_id: record.course_id })
-                      .exists?
+                      .exists?(user_id: user.id,
+                               project_groups: { course_id: record.course_id })
   end
 end

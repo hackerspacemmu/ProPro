@@ -75,7 +75,7 @@ class GroupCreatorTest < ActiveSupport::TestCase
 
   test 'failure creating membership rolls back the group, no orphan row' do
     assert_no_difference 'ProjectGroup.count' do
-      ProjectGroupMember.stub :create!, ->(*) { raise ActiveRecord::RecordInvalid.new(ProjectGroupMember.new) } do
+      ProjectGroupMember.stub :create!, ->(*) { raise ActiveRecord::RecordInvalid, ProjectGroupMember.new } do
         assert_raises(ActiveRecord::RecordInvalid) do
           GroupCreator.new(@course, leader: @student, current_user: @student).create!
         end

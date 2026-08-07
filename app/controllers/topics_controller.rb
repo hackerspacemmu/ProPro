@@ -7,7 +7,7 @@ class TopicsController < ApplicationController
     @topics = policy_scope(@course.topics)
 
     query = params[:query].to_s.downcase
-    return unless query.present?
+    return if query.blank?
 
     @topics = @topics.select do |topic|
       latest = topic.topic_instances.order(version: :desc).first
@@ -180,7 +180,7 @@ class TopicsController < ApplicationController
           status: status
         )
 
-        raise StandardError unless params[:fields].present?
+        raise StandardError if params[:fields].blank?
 
         # Set Title
         title_field_id = params[:fields].keys.first
@@ -218,13 +218,11 @@ class TopicsController < ApplicationController
 
   def change_status
     current_instance = @topic.current_instance
-    if current_instance
-      current_instance.update!(
-        status: params[:status],
-        last_status_change_time: Time.current,
-        last_status_change_by: current_user.id
-      )
-    end
+    current_instance&.update!(
+      status: params[:status],
+      last_status_change_time: Time.current,
+      last_status_change_by: current_user.id
+    )
 
     GeneralMailer.with(
       name: @topic.owner.name,

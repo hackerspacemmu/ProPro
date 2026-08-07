@@ -35,7 +35,7 @@ class Project < ApplicationRecord
   STATUS_SORT_ORDER = { 'rejected' => 0, 'redo' => 1, 'pending' => 2, 'not_submitted' => 3, 'approved' => 4 }.freeze
 
   def supervisor
-    self.supervisor_enrolment.user
+    supervisor_enrolment.user
   end
 
   def member

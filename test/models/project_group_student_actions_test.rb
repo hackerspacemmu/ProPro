@@ -52,7 +52,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
     @group.project_group_members.order(created_at: :desc).each do |m|
       user = m.user
       # last member triggers dissolve via remove_member!
-      if @group.project_group_members.count == 1
+      if @group.project_group_members.one?
         # capture id before dissolve
         gid = @group.id
         begin

@@ -33,7 +33,7 @@ class CoursePolicy < ApplicationPolicy
   end
 
   def demote_to_lecturer?
-    coordinator && record.coordinators.count > 1
+    coordinator && record.coordinators.many?
   end
 
   # LECTURER PROFILE ACCESS

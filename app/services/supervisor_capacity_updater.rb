@@ -46,7 +46,7 @@ class SupervisorCapacityUpdater
 
   def check(enrolment, base)
     return [] if enrolment.supervisor_capacity_excluded?
-    return [] if base + enrolment.supervisor_capacity_offset > 0
+    return [] if (base + enrolment.supervisor_capacity_offset).positive?
 
     ["#{enrolment.user.name}'s offset would result in negative or zero capacity."]
   end

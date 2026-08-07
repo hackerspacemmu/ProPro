@@ -35,11 +35,11 @@ class ProjectTemplatesController < ApplicationController
   end
 
   def project_template_params
-    params.require(:project_template).permit(
-      :description,
-      project_template_fields_attributes: [
-        :id, :label, :hint, :field_type, :applicable_to, :_destroy, { options: [] }, :required, :free_edit, :position
-      ]
+    params.expect(
+      project_template: [:description,
+                         { project_template_fields_attributes: [
+                           :id, :label, :hint, :field_type, :applicable_to, :_destroy, { options: [] }, :required, :free_edit, :position
+                         ] }]
     )
   end
 end
