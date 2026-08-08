@@ -1,5 +1,5 @@
 <% require "htmldiff" %>
-<div class="w-full space-y-8">
+<div class="w-full space-y-8" data-controller="field-expand-modal">
   <div
     class="
       bg-white rounded-xl divide-y divide-gray-100 border border-gray-100 shadow-sm
@@ -53,16 +53,34 @@
             display_text = field.value
           end
           display_text = display_text.to_s.strip
-        end %>
+        end
+
+        rendered_markdown = is_markdown && display_text.present? ? render_markdown(display_text) : nil %>
 
         <%# Field value container %>
         <div
           class="
             !p-4 !md:p-6 sm:col-span-1 md:col-span-2 text-gray-900 break-words text-base
-            md:text-lg font-medium leading-relaxed min-w-0 !bg-white
+            md:text-lg font-medium leading-relaxed min-w-0 !bg-white relative
             <%= is_markdown ? 'prose prose-sm max-w-none' : 'whitespace-pre-wrap' %>
           "
-        ><% if display_text.present? %><%= is_markdown ? render_markdown(display_text) : display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
+        ><% if rendered_markdown %>
+          <button
+            type="button"
+            data-action="click->field-expand-modal#open"
+            data-title="<%= field.project_template_field.label %>"
+            class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors bg-white/80 rounded-md p-1"
+            aria-label="Expand <%= field.project_template_field.label %>"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+              /></svg>
+            <template><%= rendered_markdown %></template>
+          </button>
+        <% end %><% if display_text.present? %><%= rendered_markdown || display_text %><% else %><span class="text-gray-400 italic font-normal text-base md:text-lg">No content provided</span><% end %></div>
       </div>
     <% end %>
 
@@ -89,6 +107,36 @@
       </div>
     <% end %>
   </div>
+
+  <%# --- FIELD EXPAND MODAL (native <dialog>, shared across all fields in this render) --- %>
+  <dialog
+    data-field-expand-modal-target="dialog"
+    class="w-full max-w-3xl max-h-[85vh] m-auto p-0 rounded-xl border border-gray-100 shadow-lg bg-white backdrop:bg-black/40"
+  >
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+    <h4
+      data-field-expand-modal-target="title"
+      class="text-xs md:text-sm font-bold text-gray-700 uppercase tracking-wide"
+    >Field details</h4>
+      <button
+        type="button"
+        data-action="click->field-expand-modal#close"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Close"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          /></svg>
+      </button>
+    </div>
+    <div
+      data-field-expand-modal-target="content"
+      class="p-5 md:p-6 overflow-y-auto prose prose-sm max-w-none text-base md:text-lg"
+    ></div>
+  </dialog>
 
   <%# --- VERSION DIFF COMPARISON --- %>
   <% if index < instances.size %>
@@ -267,7 +315,7 @@
                           img
                           hr
                         ],
-                        attributes: %w[href src class alt title] %>
+                        attributes: %w[href src class alt title start] %>
                       </div>
                     </td>
 
@@ -313,7 +361,7 @@
                           img
                           hr
                         ],
-                        attributes: %w[href src class alt title] %>
+                        attributes: %w[href src class alt title start] %>
                       </div>
                     </td>
                   </tr>
