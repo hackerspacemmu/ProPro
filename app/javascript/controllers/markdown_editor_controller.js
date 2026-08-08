@@ -79,7 +79,7 @@ export default class extends Controller {
 
   setValue(event) {
     const value = event.detail?.value || this.element.value;
-  
+
     if (this.editor) {
       this.editor.value(value);
     }
@@ -113,7 +113,10 @@ export default class extends Controller {
       cm.replaceSelection(markdown);
     } catch (error) {
       // Turndown choked on this HTML -> fall back to plain text
-      console.error("Turndown conversion failed, falling back to plain text:", error);
+      console.error(
+        "Turndown conversion failed, falling back to plain text:",
+        error,
+      );
       const plainText = event.clipboardData.getData("text/plain");
       cm.replaceSelection(plainText);
     }
