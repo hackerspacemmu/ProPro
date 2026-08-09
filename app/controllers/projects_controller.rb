@@ -83,10 +83,9 @@ class ProjectsController < ApplicationController
     @lecturer_options = Enrolment.where(course: @course, role: :lecturer).includes(:user)
 
     # Show Supervisors
-    @lecturers = @course.lecturers
     @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
+    SupervisorCapacityCalculator.new(@course).calculate.lecturer_capacities.each do |lc|
+      @lecturer_capacity_info[lc.enrolment.user_id] = lc
     end
 
     @field_values = {}
@@ -125,10 +124,8 @@ class ProjectsController < ApplicationController
 
     # Show Supervisors
     @lecturers = @course.lecturers
-    @lecturer_capacity_info = {}
-    @lecturers.each do |lecturer|
-      @lecturer_capacity_info[lecturer.id] = @course.lecturer_capacity(lecturer)
-    end
+    capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @lecturer_capacity_info = capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     # Load existing selected Topic_id or lecturer
     if @instance.source_topic_id.nil?
@@ -313,6 +310,9 @@ class ProjectsController < ApplicationController
           topic = Topic.find_by(id: params[:based_on_topic], course: @course)
         end
 
+        @instance.last_edit_time = Time.current
+        @instance.last_edit_by = current_user.id
+
         if topic
           raise StandardError, 'Topic has no valid owner' unless topic.owner.is_a?(User)
 
@@ -321,15 +321,19 @@ class ProjectsController < ApplicationController
 
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
 
-          @instance.update!(source_topic: topic, supervisor_enrolment: supervisor_enrolment)
+          @instance.source_topic = topic
         else
           # DO NOT FIND BY COORDINATOR_ENROLMENT_IDS
           supervisor_enrolment = Enrolment.find_by(id: lecturer_id, course_id: @course.id, role: :lecturer)
 
           raise StandardError, 'Could not find supervisor enrolment' unless supervisor_enrolment
 
-          @instance.update!(source_topic_id: nil, supervisor_enrolment: supervisor_enrolment)
+          @instance.source_topic_id = nil
         end
+
+        @instance.supervisor_enrolment = supervisor_enrolment
+
+        @instance.save!
       end
     rescue StandardError => e
       redirect_to course_project_path(@course, @project), alert: "Project update failed: #{e.message}"
