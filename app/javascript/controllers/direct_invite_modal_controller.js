@@ -2,7 +2,15 @@ import { Controller } from "@hotwired/stimulus";
 
 // Connects to data-controller="direct-invite-modal"
 export default class extends Controller {
-  static targets = ["dialog", "searchInput", "row", "list", "hiddenInput", "submitButton", "empty"];
+  static targets = [
+    "dialog",
+    "searchInput",
+    "row",
+    "list",
+    "hiddenInput",
+    "submitButton",
+    "empty",
+  ];
 
   connect() {
     this.boundCloseOnBackdrop = this.closeOnBackdrop.bind(this);
@@ -89,7 +97,8 @@ export default class extends Controller {
     let visible = 0;
 
     this.rowTargets.forEach((row) => {
-      const match = query.length === 0 || row.dataset.name.toLowerCase().includes(query);
+      const match =
+        query.length === 0 || row.dataset.name.toLowerCase().includes(query);
       row.hidden = !match;
       if (match) visible += 1;
     });
