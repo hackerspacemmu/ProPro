@@ -1,6 +1,7 @@
 # Student requests to join a locked group they're not currently in.
-# Creates a pending ProjectGroupInvite, notifies the group leader by email.
-class GroupJoinRequester
+# Creates a pending ProjectGroupInvite (kind: direct_request), notifies
+# the group leader by mandatory email.
+class GroupDirectRequester
   def initialize(group, current_user:)
     @group = group
     @current_user = current_user
@@ -14,7 +15,7 @@ class GroupJoinRequester
     return blocked(:group_confirmed) if @group.confirmed?
     return blocked(:group_unlocked) unless @group.locked?
 
-    join_request = ProjectGroupInvite.create!(
+    invite = ProjectGroupInvite.create!(
       project_group: @group,
       sender: @current_user,
       recipient_id: @group.leader_id,
@@ -22,10 +23,10 @@ class GroupJoinRequester
       status: :pending
     )
 
-    GeneralMailer.with(join_request: join_request).Group_Join_Request_Notification.deliver_later
+    GeneralMailer.with(invite: invite).Group_Direct_Request_Notification.deliver_later
 
     Result.new(requested: true, blocked_reason: nil)
-  rescue ActiveRecord::RecordInvalid
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
     blocked(:already_requested)
   end
 

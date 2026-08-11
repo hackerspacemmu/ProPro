@@ -18,7 +18,7 @@ class GroupInviteLinkGenerator
 
       link = @group.project_group_invite_links.create!(
         sender: @current_user,
-        token: SecureRandom.urlsafe_base64(32),
+        token: SecureRandom.urlsafe_base64(8),
         expires_at: 24.hours.from_now
       )
 

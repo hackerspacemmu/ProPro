@@ -371,27 +371,32 @@ Enrolment.create!(
 # Create Project Group
 group_1 = ProjectGroup.create!(
   group_name: 'group_1',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student1.id
 )
 
 group_2 = ProjectGroup.create!(
   group_name: 'group_2',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student4.id
 )
 
 group_3 = ProjectGroup.create!(
   group_name: 'group_3',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student7.id
 )
 
 group_4 = ProjectGroup.create!(
   group_name: 'group_4',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student10.id
 )
 
 group_5 = ProjectGroup.create!(
   group_name: 'group_5',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student13.id
 )
 
 # Create Project Group Members

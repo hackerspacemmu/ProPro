@@ -27,7 +27,11 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :project_group_invite_links, only: [:show], param: :token
+  resources :project_group_invite_links, only: %i[show], param: :token do
+    member do
+      patch :redeem
+    end
+  end
 
   resources :courses, only: %i[index show new create destroy] do
     member do
@@ -98,6 +102,9 @@ Rails.application.routes.draw do
       end
       
       resources :project_group_invites, only: %i[create] do
+        collection do
+          post :direct_invite
+        end
         member do
           patch :accept
           patch :decline

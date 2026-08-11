@@ -47,26 +47,47 @@ class GeneralMailer < ApplicationMailer
     mail(to: @recipient, Subject: "You've Been Added To A Course in ProPro")
   end
 
-  def Group_Join_Request_Notification
-    @join_request = params[:join_request]
-    @group = @join_request.project_group
-    @sender = @join_request.sender
+  def Group_Direct_Request_Notification
+    @invite = params[:invite]
+    @group = @invite.project_group
+    @sender = @invite.sender
     @leader = @group.leader_id && User.find(@group.leader_id)
 
     mail(to: @leader.email_address, Subject: "New join request for #{@group.group_name}")
   end
 
-  def Group_Join_Request_Accepted
-    @join_request = params[:join_request]
-    @group = @join_request.project_group
+  def Group_Direct_Request_Accepted
+    @invite = params[:invite]
+    @group = @invite.project_group
 
-    mail(to: @join_request.sender.email_address, Subject: "Your request to join #{@group.group_name} was accepted")
+    mail(to: @invite.sender.email_address, Subject: "Your request to join #{@group.group_name} was accepted")
   end
 
-  def Group_Join_Request_Declined
-    @join_request = params[:join_request]
-    @group = @join_request.project_group
+  def Group_Direct_Request_Declined
+    @invite = params[:invite]
+    @group = @invite.project_group
 
-    mail(to: @join_request.sender.email_address, Subject: "Your request to join #{@group.group_name} was declined")
+    mail(to: @invite.sender.email_address, Subject: "Your request to join #{@group.group_name} was declined")
+  end
+
+  def Group_Direct_Invite_Notification
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.recipient.email_address, Subject: "You've been invited to join #{@group.group_name}")
+  end
+
+  def Group_Direct_Invite_Accepted
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.sender.email_address, Subject: "#{@invite.recipient.name} accepted your invite to #{@group.group_name}")
+  end
+
+  def Group_Direct_Invite_Declined
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.sender.email_address, Subject: "#{@invite.recipient.name} declined your invite to #{@group.group_name}")
   end
 end

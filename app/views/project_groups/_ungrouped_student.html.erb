@@ -20,10 +20,15 @@
   >
     <%= student.name.presence&.first&.upcase || "?" %>
   </div>
-  <div class="leading-tight min-w-0">
+  <div class="leading-tight min-w-0 flex-1">
     <span class="text-sm text-gray-800 block truncate font-medium"><%= student.name.presence || student.email_address %></span>
     <% if student.instid.present? %>
       <span class="text-xs text-gray-400"><%= student.instid %></span>
     <% end %>
   </div>
+  <% if @my_invited_student_ids&.include?(student.id) %>
+    <span class="text-[9px] font-semibold uppercase tracking-wide bg-gray-100 text-gray-400 rounded-[3px] px-1.5 py-0.5 shrink-0">
+      Invite sent
+    </span>
+  <% end %>
 </div>

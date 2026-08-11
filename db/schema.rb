@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_06_113610) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_11_072831) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -106,7 +106,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_06_113610) do
     t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
     t.index ["recipient_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_recipient_group_kind", unique: true, where: "status = 0 AND kind = 1"
     t.index ["recipient_id"], name: "index_project_group_invites_on_recipient_id"
-    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0"
+    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0 AND kind = 0"
     t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
   end
 

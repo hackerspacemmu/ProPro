@@ -8,7 +8,8 @@
   %>
 
   <div class="border-2 border-dashed border-gray-300 rounded-[3px] bg-white mb-6"
-      data-testid="my-group-panel-ungrouped">
+      data-testid="my-group-panel-ungrouped"
+      data-controller="direct-invite-modal">
 
     <%# ── Header ── %>
     <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
@@ -91,38 +92,41 @@
         <% end %>
       </div>
 
-      <%# ── Col 3: Pending requests sent by this student ── %>
+      <%# ── Col 3: Invites received from leaders (action required) ── %>
       <div class="w-full md:w-[200px] shrink-0 p-4">
         <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
-          Pending requests
+          Invites received
         </p>
 
-        <% if @my_pending_requests&.any? %>
+        <% if @incoming_direct_invites&.any? %>
           <ul class="space-y-0 divide-y divide-gray-100">
-            <% @my_pending_requests.each do |invite| %>
-              <li class="flex items-center gap-2 py-2 first:pt-0">
-                <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center
-                            text-[9px] font-bold text-gray-600 shrink-0">
-                  <%= invite.project_group.group_name.first(2).upcase %>
+            <% @incoming_direct_invites.each do |invite| %>
+              <li class="flex items-center justify-between gap-2 py-2 first:pt-0">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center
+                              text-[9px] font-bold text-gray-600 shrink-0">
+                    <%= invite.project_group.group_name.first(2).upcase %>
+                  </div>
+                  <span class="text-xs text-gray-800 font-medium truncate">
+                    <%= invite.project_group.group_name %>
+                  </span>
                 </div>
-                <span class="text-xs text-gray-800 font-medium flex-1 min-w-0 truncate">
-                  <%= invite.project_group.group_name %>
-                </span>
-                <span class="text-[9px] font-semibold uppercase tracking-wide
-                            bg-gray-100 text-gray-400 rounded-[3px] px-1.5 py-0.5 shrink-0">
-                  Sent
-                </span>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <%= button_to "Accept",
+                        accept_course_project_group_project_group_invite_path(@course, invite.project_group, invite),
+                        method: :patch,
+                        class: "text-xs text-[#1F78D1] hover:text-[#1a6abf] transition-colors font-medium" %>
+                  <%= button_to "Decline",
+                        decline_course_project_group_project_group_invite_path(@course, invite.project_group, invite),
+                        method: :patch,
+                        class: "text-xs text-red-400 hover:text-red-600 transition-colors" %>
+                </div>
               </li>
             <% end %>
           </ul>
         <% else %>
-          <div class="flex flex-col items-center justify-center py-6 gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                width="20px" fill="#e5e7eb" aria-hidden="true">
-              <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200ZM160-640v-80 480-400Z"/>
-            </svg>
-            <p class="text-xs text-gray-400 text-center">No pending requests</p>
-          </div>
+          <p class="text-xs text-gray-400">No invites</p>
         <% end %>
       </div>
 
@@ -139,7 +143,9 @@
       window_open  = @course.grouping_window_open?
     %>
 
-    <div class="border-2 border-gray-300 rounded-[3px] bg-white mb-6" data-testid="my-group-panel-grouped">
+    <div class="border-2 border-gray-300 rounded-[3px] bg-white mb-6"
+         data-testid="my-group-panel-grouped"
+         data-controller="direct-invite-modal">
 
       <%# ── Full width header %>
       <div class="flex items-start justify-between px-5 py-4 border-b border-gray-200">
@@ -298,9 +304,17 @@
 
         <%# ── Col 3: Join Requests (leader-only visible content, but column always renders) %>
         <div class="w-full md:w-80 shrink-0 p-4">
-          <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
-            Join Requests
-          </p>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400">
+              Join Requests
+            </p>
+            <% if am_leader && !is_confirmed && window_open %>
+              <button type="button" data-action="direct-invite-modal#open"
+                      class="text-xs text-[#1F78D1] hover:text-[#1a6abf] font-medium">
+                + Invite
+              </button>
+            <% end %>
+          </div>
 
           <% if am_leader %>
             <% if @incoming_join_requests.any? %>
@@ -308,7 +322,6 @@
                 <% @incoming_join_requests.each do |join_request| %>
                   <li class="flex items-center justify-between gap-2 py-2 first:pt-0">
                     <div class="flex items-center gap-2 min-w-0">
-                      <%# avatar %>
                       <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600 shrink-0">
                         <%= join_request.sender.name.presence&.first&.upcase || "?" %>
                       </div>
@@ -337,8 +350,70 @@
             <p class="text-xs text-gray-300">Only the group leader can view join requests.</p>
           <% end %>
         </div>
-
       </div>
+
+      <%# --- DIRECT INVITE MODAL (native <dialog>, shared within this panel) --- %>
+      <dialog data-direct-invite-modal-target="dialog"
+              aria-labelledby="direct-invite-modal-title"
+              class="overflow-visible rounded-[3px] border border-gray-200 p-0 w-full max-w-sm m-auto backdrop:bg-black/40">
+        <div class="p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 id="direct-invite-modal-title" class="text-sm font-bold text-gray-900">Invite a student</h3>
+            <button type="button" data-action="direct-invite-modal#close"
+                    class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
+          </div>
+
+          <%= form_with url: direct_invite_course_project_group_project_group_invites_path(@course, @my_group),
+                method: :post do %>
+
+            <%= hidden_field_tag :user_id, "", data: { direct_invite_modal_target: "hiddenInput" } %>
+
+            <div class="relative mb-3">
+              <input type="text"
+                    placeholder="Search for a student..."
+                    autocomplete="off"
+                    role="combobox"
+                    aria-expanded="false"
+                    aria-autocomplete="list"
+                    data-direct-invite-modal-target="searchInput"
+                    data-action="input->direct-invite-modal#search focus->direct-invite-modal#onFocus keydown->direct-invite-modal#onKeydown"
+                    class="w-full text-sm border border-gray-300 rounded-[3px] px-3 py-2" />
+
+              <ul data-direct-invite-modal-target="list"
+                  role="listbox"
+                  hidden
+                  class="absolute left-0 right-0 top-full mt-1 z-10 max-h-64 overflow-y-auto divide-y divide-gray-100 bg-white border border-gray-200 rounded-[3px] shadow-lg">
+                <% @ungrouped_students.each do |student| %>
+                  <li data-direct-invite-modal-target="row"
+                      data-name="<%= student.name %>"
+                      data-user-id="<%= student.id %>"
+                      data-action="click->direct-invite-modal#select"
+                      role="option"
+                      class="flex items-center gap-2 py-2 px-2 cursor-pointer hover:bg-gray-50">
+                    <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600 shrink-0">
+                      <%= student.name.presence&.first&.upcase || "?" %>
+                    </span>
+                    <span class="text-xs text-gray-800"><%= student.name %></span>
+                  </li>
+                <% end %>
+
+                <li data-direct-invite-modal-target="empty" hidden class="text-xs text-gray-400 text-center py-4">
+                  No matching students.
+                </li>
+              </ul>
+            </div>
+
+            <% if @ungrouped_students.empty? %>
+              <p class="text-xs text-gray-400 text-center py-4">No ungrouped students to invite.</p>
+            <% else %>
+              <%= submit_tag "Send invite",
+                    disabled: true,
+                    data: { direct_invite_modal_target: "submitButton" },
+                    class: "w-full text-xs font-semibold text-white bg-[#1F78D1] rounded-[3px] px-3 py-2 hover:bg-[#1a6abf] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" %>
+            <% end %>
+          <% end %>
+        </div>
+      </dialog>
     </div>
 
   <% end %>

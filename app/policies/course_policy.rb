@@ -23,7 +23,7 @@ class CoursePolicy < ApplicationPolicy
   def manage_lecturers?
     coordinator
   end
-
+  
   def export_csv?
     coordinator
   end

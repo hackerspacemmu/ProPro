@@ -1,0 +1,1071 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+queries/
+  group_size_legality_calculator.rb
+  supervisor_capacity_calculator.rb
+group_confirmer.rb
+group_creator.rb
+group_direct_inviter.rb
+group_direct_requester.rb
+group_invite_link_generator.rb
+group_invite_link_redeemer.rb
+group_invite_responder.rb
+group_joiner.rb
+group_member_remover.rb
+group_reverter.rb
+supervisor_capacity_updater.rb
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="queries/group_size_legality_calculator.rb">
+module Queries
+  # Determines whether a given number of students can be split into legal group sizes for a course,
+  # OR (default mode) simply whether a single group's size falls within min/max.
+  class GroupSizeLegalityCalculator
+    def initialize(course, students_to_group:)
+      @course = course
+      @students_to_group = students_to_group
+    end
+
+    def execute
+      group_min = @course.group_min
+      group_max = @course.group_max
+
+      return blank_result(:group_size_limits_not_configured) if group_min.blank? || group_max.blank?
+
+      if @course.student_list_finalised?
+        return blank_result(:no_students_to_group) if @students_to_group <= 0
+
+        execute_dp(group_min, group_max)
+      else
+        execute_min_max(group_min, group_max)
+      end
+    end
+
+    private
+
+    def blank_result(error)
+      Result.new(found: false, breakdown: [], group_count: 0, error: error)
+    end
+
+    # Fixed-list mode: legality is calculated per group using the live enrolled students count
+    def execute_dp(group_min, group_max)
+      allowed_sizes_largest_first = group_max.downto(group_min).to_a
+      cache = {}
+
+      chosen_size = find_group_size_for(@students_to_group, allowed_sizes_largest_first, cache)
+      return blank_result(:no_legal_combination_exists) if chosen_size.nil?
+
+      sizes_chosen = []
+      students_remaining = @students_to_group
+
+      while students_remaining.positive?
+        size = cache.fetch(students_remaining)
+        sizes_chosen << size
+        students_remaining -= size
+      end
+
+      breakdown = sizes_chosen
+                  .tally
+                  .map { |size, count| { group_size: size, number_of_groups: count } }
+                  .sort_by { |entry| -entry[:group_size] }
+
+      Result.new(found: true, breakdown: breakdown, group_count: sizes_chosen.length, error: nil)
+    end
+
+    # Default mode: no distribution, no enrolled-count dependency. A size is legal if it's within [group_min, group_max].
+    # Does not utilize students_to_group, but passed parameter for Fixed-list mode
+    def execute_min_max(group_min, group_max)
+      breakdown = (group_min..group_max).map { |size| { group_size: size, number_of_groups: nil } }
+      Result.new(found: true, breakdown: breakdown, group_count: nil, error: nil)
+    end
+
+    def find_group_size_for(students_remaining, allowed_sizes_largest_first, cache)
+      return 0 if students_remaining.zero?
+      return cache[students_remaining] if cache.key?(students_remaining)
+
+      allowed_sizes_largest_first.each do |size|
+        next if size > students_remaining
+
+        remainder_result = find_group_size_for(students_remaining - size, allowed_sizes_largest_first, cache)
+        next if remainder_result.nil?
+
+        cache[students_remaining] = size
+        return size
+      end
+
+      cache[students_remaining] = nil
+      nil
+    end
+
+    class Result
+      attr_reader :breakdown, :group_count, :error
+
+      def initialize(found:, breakdown:, group_count:, error:)
+        @found = found
+        @breakdown = breakdown
+        @group_count = group_count
+        @error = error
+      end
+
+      def found? = @found
+      def success? = @error.nil?
+      def error? = !success?
+
+      def includes_group_of_size?(size)
+        return false unless found?
+
+        breakdown.any? { |entry| entry[:group_size] == size }
+      end
+    end
+  end
+end
+</file>
+
+<file path="queries/supervisor_capacity_calculator.rb">
+module Queries
+  class SupervisorCapacityCalculator
+    class Result
+      attr_reader :base, :remainder, :total, :manual_value, :auto_calculated, :lecturer_capacities
+
+      def initialize(base:, remainder:, total:, manual_value:, auto_calculated:, lecturer_capacities:)
+        @base = base
+        @remainder = remainder
+        @total = total
+        @manual_value = manual_value
+        @auto_calculated = auto_calculated
+        @lecturer_capacities = lecturer_capacities
+      end
+
+      def auto_calculated?
+        @auto_calculated
+      end
+    end
+
+    class LecturerCapacity
+      attr_reader :enrolment, :offset, :approved_count, :pending_count, :effective_cap
+
+      def initialize(enrolment:, offset:, approved_count:, pending_count:, effective_cap:)
+        @enrolment = enrolment
+        @offset = offset
+        @approved_count = approved_count
+        @pending_count = pending_count
+        @effective_cap = effective_cap
+      end
+
+      def excluded?
+        enrolment.supervisor_capacity_excluded?
+      end
+
+      def at_capacity?
+        approved_count >= effective_cap
+      end
+
+      def remaining
+        [effective_cap - approved_count, 0].max
+      end
+
+      def total_proposals
+        approved_count + pending_count
+      end
+    end
+
+    def initialize(course, lecturer_enrolments: nil)
+      @course = course
+      @lecturer_enrolments = lecturer_enrolments
+    end
+
+    def execute
+      base, remainder, total = base_remainder_and_total
+
+      capacities = lecturer_enrolments.map { |enrolment| build_lecturer_capacity(enrolment, base) }
+
+      Result.new(
+        base: base, remainder: remainder, total: total,
+        manual_value: @course.supervisor_projects_limit,
+        auto_calculated: @course.supervisor_auto_calculate_enabled?,
+        lecturer_capacities: capacities
+      )
+    end
+
+    private
+
+    def lecturer_enrolments
+      @lecturer_enrolments ||= @course.enrolments.where(role: :lecturer).includes(:user).to_a
+    end
+
+    def base_remainder_and_total
+      return [@course.supervisor_projects_limit, 0, nil] unless @course.supervisor_auto_calculate_enabled?
+
+      total = @course.grouped? ? @course.project_groups.count : @course.projects.where(owner_type: 'User').count
+      eligible = lecturer_enrolments.reject(&:supervisor_capacity_excluded?)
+      return [0, 0, total] if eligible.empty?
+
+      positive_offset_sum = eligible.sum { |e| [e.supervisor_capacity_offset, 0].max }
+      adjusted_total = total - positive_offset_sum
+      [adjusted_total / eligible.count, adjusted_total % eligible.count, total]
+    end
+
+    def build_lecturer_capacity(enrolment, base)
+      approved = @course.projects.supervised_by(enrolment).approved.count
+      pending  = @course.projects.supervised_by(enrolment).pending_redo.count
+
+      effective_cap = enrolment.supervisor_capacity_excluded? ? 0 : base + enrolment.supervisor_capacity_offset
+
+      LecturerCapacity.new(
+        enrolment: enrolment,
+        offset: enrolment.supervisor_capacity_offset,
+        approved_count: approved,
+        pending_count: pending,
+        effective_cap: effective_cap
+      )
+    end
+  end
+end
+</file>
+
+<file path="group_confirmer.rb">
+# Leader comfirms draft group if the grouping window is open and size is legal.
+class GroupConfirmer
+  def initialize(group)
+    @group = group
+  end
+
+  def confirm!
+    # Check group size and grouping window inside lock to avoid double race condition on submit
+    @group.with_lock do
+      course = @group.course
+
+      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:already_confirmed) if @group.confirmed?
+
+      # calls the same algorithm as the preview
+      legality = Queries::GroupSizeLegalityCalculator.new(course, students_to_group: course.students.count).execute
+      return blocked(:size_illegal) unless legality.includes_group_of_size?(@group.project_group_members.count)
+
+      @group.update!(confirmed: true)
+      Result.new(confirmed: true, blocked_reason: nil)
+    end
+  end
+
+  private
+
+  def blocked(reason)
+    Result.new(confirmed: false, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :blocked_reason
+
+    def initialize(confirmed:, blocked_reason:)
+      @confirmed = confirmed
+      @blocked_reason = blocked_reason
+    end
+
+    def confirmed? = @confirmed
+
+    def message
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_confirmed then 'This group has already been confirmed.'
+      when :size_illegal then 'This group cannot be confirmed at its current size.'
+      when nil then 'Group confirmed.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_creator.rb">
+# Creates a project group. Student self-creates (becomes leader) or
+# coordinator places a specified leader directly.
+class GroupCreator
+  def initialize(course, leader:, current_user:)
+    @course = course
+    @leader = leader
+    @current_user = current_user
+  end
+
+  def create!
+    @course.with_lock do
+      return blocked(:already_grouped) if already_grouped?
+      return blocked(:window_closed) if self_create? && !@course.grouping_window_open?
+
+      group = build_group!
+      Result.new(created: true, group: group, blocked_reason: nil)
+    end
+  end
+
+  private
+
+  def self_create?
+    @leader.id == @current_user.id
+  end
+
+  def already_grouped?
+    @course.project_group_members.exists?(user_id: @leader.id)
+  end
+
+  def build_group!
+    next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
+    group = @course.project_groups.create!(
+      leader_id: @leader.id,
+      course_group_sequence: next_seq,
+      group_name: format('G%03d', next_seq)
+    )
+    ProjectGroupMember.create!(user: @leader, project_group: group)
+    group
+  end
+
+  def blocked(reason)
+    Result.new(created: false, group: nil, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :group, :blocked_reason
+
+    def initialize(created:, group:, blocked_reason:)
+      @created = created
+      @group = group
+      @blocked_reason = blocked_reason
+    end
+
+    def created? = @created
+    def blocked? = !created?
+
+    def message
+      return "Draft group #{group.group_name} created." if created?
+
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_grouped then 'Already in a group for this course.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_direct_inviter.rb">
+# Leader sends a direct invite to a specific student, dropdown-picked —
+# no token, no link. Creates a pending ProjectGroupInvite
+# (kind: direct_invite), notifies the recipient by mandatory email.
+class GroupDirectInviter
+  def initialize(group, current_user:, recipient:)
+    @group = group
+    @current_user = current_user
+    @recipient = recipient
+  end
+
+  def invite!
+    course = @group.course
+    recipient_enrolment = course.enrolments.find_by(user: @recipient)
+
+    return blocked(:invalid_recipient) unless recipient_enrolment&.student?
+    return blocked(:window_closed) unless course.grouping_window_open?
+    return blocked(:group_confirmed) if @group.confirmed?
+    return blocked(:group_full) if group_full?(course)
+    return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @recipient.id)
+
+    invite = ProjectGroupInvite.create!(
+      project_group: @group,
+      sender: @current_user,
+      recipient: @recipient,
+      kind: :direct_invite,
+      status: :pending
+    )
+
+    GeneralMailer.with(invite: invite).Group_Direct_Invite_Notification.deliver_later
+
+    Result.new(invited: true, blocked_reason: nil)
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+    blocked(:already_invited)
+  end
+
+  private
+
+  def group_full?(course)
+    course.group_max.present? && @group.project_group_members.count >= course.group_max
+  end
+
+  def blocked(reason)
+    Result.new(invited: false, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :blocked_reason
+
+    def initialize(invited:, blocked_reason:)
+      @invited = invited
+      @blocked_reason = blocked_reason
+    end
+
+    def invited? = @invited
+    def blocked? = !invited?
+
+    def message
+      return 'Invite sent.' if invited?
+
+      case blocked_reason
+      when :invalid_recipient then 'This user cannot be invited to a group.'
+      when :window_closed then 'The grouping window is closed.'
+      when :group_confirmed then 'Group already confirmed, not accepting members.'
+      when :group_full then 'Group has reached its maximum size.'
+      when :already_grouped then 'This student already joined another group.'
+      when :already_invited then 'This student already has a pending invite for this group.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_direct_requester.rb">
+# Student requests to join a locked group they're not currently in.
+# Creates a pending ProjectGroupInvite (kind: direct_request), notifies
+# the group leader by mandatory email.
+class GroupDirectRequester
+  def initialize(group, current_user:)
+    @group = group
+    @current_user = current_user
+  end
+
+  def request!
+    course = @group.course
+
+    return blocked(:window_closed) unless course.grouping_window_open?
+    return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
+    return blocked(:group_confirmed) if @group.confirmed?
+    return blocked(:group_unlocked) unless @group.locked?
+
+    invite = ProjectGroupInvite.create!(
+      project_group: @group,
+      sender: @current_user,
+      recipient_id: @group.leader_id,
+      kind: :direct_request,
+      status: :pending
+    )
+
+    GeneralMailer.with(invite: invite).Group_Direct_Request_Notification.deliver_later
+
+    Result.new(requested: true, blocked_reason: nil)
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+    blocked(:already_requested)
+  end
+
+  private
+
+  def blocked(reason)
+    Result.new(requested: false, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :blocked_reason
+
+    def initialize(requested:, blocked_reason:)
+      @requested = requested
+      @blocked_reason = blocked_reason
+    end
+
+    def requested? = @requested
+    def blocked? = !requested?
+
+    def message
+      return 'Join request sent.' if requested?
+
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_grouped then 'Already in a group for this course.'
+      when :group_confirmed then 'Group already confirmed, not accepting requests.'
+      when :group_unlocked then 'Group is unlocked — join it directly instead.'
+      when :already_requested then 'Already have a pending request for this group.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_invite_link_generator.rb">
+# Leader generates/regenerates the group's shareable invite link.
+# Regenation deletes the old record and creates a new one.
+# draft groups, no email notifications, can join if locked
+class GroupInviteLinkGenerator
+  def initialize(group, current_user:)
+    @group = group
+    @current_user = current_user
+  end
+
+  def generate!
+    course = @group.course
+
+    return blocked(:window_closed) unless course.grouping_window_open?
+    return blocked(:group_confirmed) if @group.confirmed?
+
+    @group.with_lock do
+      @group.project_group_invite_links.find_by(sender: @current_user)&.destroy!
+
+      link = @group.project_group_invite_links.create!(
+        sender: @current_user,
+        token: SecureRandom.urlsafe_base64(8),
+        expires_at: 24.hours.from_now
+      )
+
+      Result.new(generated: true, blocked_reason: nil,
+                 token: link.token, expires_at: link.expires_at)
+    end
+  end
+
+  private
+
+  def blocked(reason)
+    Result.new(generated: false, blocked_reason: reason, token: nil, expires_at: nil)
+  end
+
+  class Result
+    attr_reader :blocked_reason, :token, :expires_at
+
+    def initialize(generated:, blocked_reason:, token:, expires_at:)
+      @generated = generated
+      @blocked_reason = blocked_reason
+      @token = token
+      @expires_at = expires_at
+    end
+
+    def generated? = @generated
+    def blocked? = !generated?
+
+    def message
+      return 'Invite link generated.' if generated?
+
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :group_confirmed then 'Group already confirmed.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_invite_link_redeemer.rb">
+# Redeems a project group invite link. Whoever holds a valid token joins
+# instantly — no approval step, no email. Stateless, no self/leader
+# branching (link kind always self-serves). Enrollment/role check lives in
+# ProjectGroupInviteLinkPolicy#redeem? (identity concern, not service).
+class GroupInviteLinkRedeemer
+  def initialize(invite_link, current_user:)
+    @invite_link = invite_link
+    @current_user = current_user
+  end
+
+  def redeem!
+    return blocked(:expired) if @invite_link.expires_at.past?
+
+    group = @invite_link.project_group
+
+    group.with_lock do
+      course = group.course
+
+      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:group_confirmed) if group.confirmed?
+      return blocked(:group_full) if group_full?(group, course)
+      return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
+
+      ProjectGroupMember.create!(user: @current_user, project_group: group)
+      clear_conflicting_invites!(group)
+
+      Result.new(redeemed: true, blocked_reason: nil, group: group)
+    end
+  end
+
+  private
+
+  def group_full?(group, course)
+    course.group_max.present? && group.project_group_members.count >= course.group_max
+  end
+
+  def clear_conflicting_invites!(group)
+    ProjectGroupInvite
+      .where(status: :pending)
+      .where('sender_id = :id OR recipient_id = :id', id: @current_user.id)
+      .where(project_group_id: group.course.project_groups.select(:id))
+      .destroy_all
+  end
+
+  def blocked(reason)
+    Result.new(redeemed: false, blocked_reason: reason, group: nil)
+  end
+
+  class Result
+    attr_reader :blocked_reason, :group
+
+    def initialize(redeemed:, blocked_reason:, group:)
+      @redeemed = redeemed
+      @blocked_reason = blocked_reason
+      @group = group
+    end
+
+    def redeemed? = @redeemed
+    def blocked? = !redeemed?
+
+    def message
+      return "You've joined #{group.group_name}." if redeemed?
+
+      case blocked_reason
+      when :expired then 'This invite link has expired.'
+      when :window_closed then 'The grouping window is closed.'
+      when :group_confirmed then 'This group is already confirmed.'
+      when :group_full then 'This group has reached its maximum size.'
+      when :already_grouped then 'You are already in a group for this course.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_invite_responder.rb">
+# Responds to a pending ProjectGroupInvite — either a direct_request
+# (leader accepts/declines a student's request) or a direct_invite
+# (student accepts/declines a leader's invite). Joining user is inferred
+# from kind: sender for direct_request, recipient for direct_invite.
+# Accept adds the joining user as a member and clears their other pending
+# invites/requests course-wide. Decline just flips status, no state change.
+class GroupInviteResponder
+  def initialize(invite, current_user:)
+    @invite = invite
+    @current_user = current_user
+    @group = invite.project_group
+  end
+
+  def accept!
+    @group.with_lock do
+      @invite.reload
+      return blocked(:already_responded) unless @invite.pending?
+
+      course = @group.course
+      joining_user = joining_user_for(@invite)
+
+      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:already_grouped) if course.project_group_members.exists?(user_id: joining_user.id)
+      return blocked(:group_confirmed) if @group.confirmed?
+      return blocked(:group_full) if group_full?(course)
+
+      ProjectGroupMember.create!(user: joining_user, project_group: @group)
+      @invite.update!(status: :accepted)
+      clear_conflicting_invites!(joining_user)
+
+      deliver_mailer(:accepted)
+
+      Result.new(outcome: :accepted, blocked_reason: nil)
+    end
+  end
+
+  def decline!
+    return blocked(:already_responded) unless @invite.pending?
+
+    @invite.update!(status: :declined)
+    deliver_mailer(:declined)
+
+    Result.new(outcome: :declined, blocked_reason: nil)
+  end
+
+  private
+
+  def group_full?(course)
+    course.group_max.present? && @group.project_group_members.count >= course.group_max
+  end
+
+  def joining_user_for(invite)
+    invite.direct_request? ? invite.sender : invite.recipient
+  end
+
+  # Clears the direct request and invites for the student
+  def clear_conflicting_invites!(joining_user)
+    ProjectGroupInvite
+      .where(status: :pending)
+      .where('sender_id = :id OR recipient_id = :id', id: joining_user.id)
+      .where(project_group_id: @group.course.project_groups.select(:id))
+      .destroy_all
+  end
+
+  def deliver_mailer(outcome)
+    method =
+      if @invite.direct_request?
+        outcome == :accepted ? :Group_Direct_Request_Accepted : :Group_Direct_Request_Declined
+      else
+        outcome == :accepted ? :Group_Direct_Invite_Accepted : :Group_Direct_Invite_Declined
+      end
+
+    GeneralMailer.with(invite: @invite).public_send(method).deliver_later
+  end
+
+  def blocked(reason)
+    Result.new(outcome: :blocked, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :outcome, :blocked_reason
+
+    def initialize(outcome:, blocked_reason:)
+      @outcome = outcome
+      @blocked_reason = blocked_reason
+    end
+
+    def accepted? = outcome == :accepted
+    def declined? = outcome == :declined
+    def blocked? = outcome == :blocked
+
+    def message
+      return blocked_message if blocked?
+
+      case outcome
+      when :accepted then 'Accepted. Member added to the group.'
+      when :declined then 'Declined.'
+      end
+    end
+
+    private
+
+    def blocked_message
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_grouped then 'This student already joined another group.'
+      when :group_confirmed then 'Group already confirmed, not accepting members.'
+      when :group_full then 'Group has reached its maximum size.'
+      when :already_responded then 'This has already been responded to.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_joiner.rb">
+# Direct join to an unlocked draft group. Use GroupJoinRequester for locked groups.
+class GroupJoiner
+  def initialize(group, current_user:)
+    @group = group
+    @current_user = current_user
+  end
+
+  def join!
+    @group.with_lock do
+      course = @group.course
+
+      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
+      return blocked(:group_confirmed) if @group.confirmed?
+      return blocked(:group_locked) if @group.locked?
+      return blocked(:group_full) if @group.project_group_members.count >= course.group_max.to_i
+
+      ProjectGroupMember.create!(user: @current_user, project_group: @group)
+      clear_conflicting_invites!
+
+      Result.new(joined: true, blocked_reason: nil)
+    end
+  end
+
+  private
+
+  def clear_conflicting_invites!
+    ProjectGroupInvite
+      .where(sender_id: @current_user.id, kind: :request, status: :pending)
+      .where(project_group_id: @group.course.project_groups.select(:id))
+      .destroy_all
+  end
+
+  def blocked(reason)
+    Result.new(joined: false, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :blocked_reason
+
+    def initialize(joined:, blocked_reason:)
+      @joined = joined
+      @blocked_reason = blocked_reason
+    end
+
+    def joined? = @joined
+    def blocked? = !joined?
+
+    def message
+      return 'Joined the group.' if joined?
+
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_grouped then 'Already in a group for this course.'
+      when :group_confirmed then 'Group already confirmed, not accepting members.'
+      when :group_locked then 'Group is locked. Send a join request instead.'
+      when :group_full then 'Group has reached its maximum size.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_member_remover.rb">
+# Removes a member from a project group: self-leave, leader-kick, or coordinator-removal.
+class GroupMemberRemover
+  def initialize(member, current_user:, dissolve_confirmed: false)
+    @member = member
+    @current_user = current_user
+    @dissolve_confirmed = dissolve_confirmed
+    @group = member.project_group
+  end
+
+  def remove!
+    @group.with_lock do
+      return blocked(:window_closed) if requires_window_check? && !window_open?
+      return blocked(:group_confirmed) if leader_kick? && @group.confirmed?
+
+      remaining_count = @group.project_group_members.count - 1
+
+      return needs_confirmation(@group.project.current_title) if remaining_count.zero? && @group.project.present? && !@dissolve_confirmed
+
+      was_leader = @group.leader?(@member.user)
+      @member.destroy!
+
+      if remaining_count.zero?
+        dissolve!
+        return Result.new(outcome: :dissolved, blocked_reason: nil)
+      end
+
+      promote_next_leader! if was_leader
+
+      if @group.confirmed? && (self_leave? || !legal_at_current_size?)
+        @group.update!(confirmed: false)
+        return Result.new(outcome: :reverted, blocked_reason: nil)
+      end
+
+      Result.new(outcome: :unchanged, blocked_reason: nil)
+    end
+  end
+
+  private
+
+  def self_leave?
+    @current_user.id == @member.user_id
+  end
+
+  def leader_kick?
+    !self_leave? && @group.leader?(@current_user)
+  end
+
+  def requires_window_check?
+    self_leave? || leader_kick?
+  end
+
+  def window_open?
+    @group.course.grouping_window_open?
+  end
+
+  def legal_at_current_size?
+    course = @group.course
+    Queries::GroupSizeLegalityCalculator
+      .new(course, students_to_group: course.students.count)
+      .execute
+      .includes_group_of_size?(@group.project_group_members.count)
+  end
+
+  def promote_next_leader!
+    successor = @group.project_group_members.order(:created_at).first
+    @group.update!(leader_id: successor.user_id)
+  end
+
+  def dissolve!
+    @group.project_group_invites.destroy_all
+    @group.project_group_invite_links.destroy_all
+    @group.destroy!
+  end
+
+  def blocked(reason)
+    Result.new(outcome: :blocked, blocked_reason: reason)
+  end
+
+  def needs_confirmation(project_title)
+    Result.new(outcome: :needs_confirmation, blocked_reason: nil, project_title: project_title)
+  end
+
+  class Result
+    attr_reader :outcome, :blocked_reason, :project_title
+
+    def initialize(outcome:, blocked_reason:, project_title: nil)
+      @outcome = outcome
+      @blocked_reason = blocked_reason
+      @project_title = project_title
+    end
+
+    def dissolved? = outcome == :dissolved
+    def reverted? = outcome == :reverted
+    def needs_confirmation? = outcome == :needs_confirmation
+    def blocked? = outcome == :blocked
+
+    def message
+      return blocked_message if blocked?
+      return "Removing this member will permanently delete the project “#{project_title}”. This can't be undone." if needs_confirmation?
+
+      case outcome
+      when :dissolved then 'Member removed. The group had no remaining members and was dissolved.'
+      when :reverted then 'Member removed. The group no longer meets the size requirement and was reverted to draft.'
+      else 'Member removed.'
+      end
+    end
+
+    private
+
+    def blocked_message
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :group_confirmed then 'The leader can only remove members while the group is still a draft.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="group_reverter.rb">
+class GroupReverter
+  def initialize(group)
+    @group = group
+  end
+
+  # Leader reverts a confirmed group back to draft if the grouping window is open.
+  def revert!
+    @group.with_lock do
+      course = @group.course
+
+      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:already_draft) unless @group.confirmed?
+
+      @group.update!(confirmed: false)
+      Result.new(reverted: true, blocked_reason: nil)
+    end
+  end
+
+  private
+
+  def blocked(reason)
+    Result.new(reverted: false, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :blocked_reason
+
+    def initialize(reverted:, blocked_reason:)
+      @reverted = reverted
+      @blocked_reason = blocked_reason
+    end
+
+    def reverted? = @reverted
+
+    def message
+      case blocked_reason
+      when :window_closed then 'The grouping window is closed.'
+      when :already_draft then 'This group is already a draft.'
+      when nil then 'Group reverted to draft.'
+      end
+    end
+  end
+end
+</file>
+
+<file path="supervisor_capacity_updater.rb">
+class SupervisorCapacityUpdater
+  class Result
+    attr_reader :course, :errors
+
+    def initialize(updated:, course:, errors: [])
+      @updated = updated
+      @course = course
+      @errors = errors
+    end
+
+    def updated? = @updated
+  end
+
+  def initialize(course)
+    @course = course
+  end
+
+  def update!(offsets:, excluded_ids:)
+    excluded_ids = excluded_ids.map(&:to_s)
+    errors = []
+
+    all_lecturers = @course.enrolments.where(role: :lecturer).to_a
+
+    all_lecturers.each do |enrolment|
+      id = enrolment.id.to_s
+      next unless offsets.key?(id) || excluded_ids.include?(id)
+
+      enrolment.supervisor_capacity_offset = offsets[id].to_i if offsets.key?(id)
+      enrolment.supervisor_capacity_excluded = excluded_ids.include?(id)
+    end
+
+    base = Queries::SupervisorCapacityCalculator.new(@course, lecturer_enrolments: all_lecturers).execute.base
+
+    targets = all_lecturers.select { |e| offsets.key?(e.id.to_s) || excluded_ids.include?(e.id.to_s) }
+    targets.each { |enrolment| errors.concat(check(enrolment, base)) }
+
+    if errors.any?
+      Result.new(updated: false, course: @course, errors: errors)
+    else
+      persist(targets)
+      Result.new(updated: true, course: @course)
+    end
+  end
+
+  private
+
+  def check(enrolment, base)
+    return [] if enrolment.supervisor_capacity_excluded?
+    return [] if (base + enrolment.supervisor_capacity_offset).positive?
+
+    ["#{enrolment.user.name}'s offset would result in negative or zero capacity."]
+  end
+
+  def persist(targets)
+    targets.each { |e| e.save!(validate: false) }
+  end
+end
+</file>
+
+</files>

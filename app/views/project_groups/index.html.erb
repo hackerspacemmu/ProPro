@@ -619,34 +619,12 @@
             Ungrouped Students
             <span class="normal-case tracking-normal font-normal text-gray-400 ml-1"><%= @ungrouped_students.size %></span>
           </p>
-
+          
           <div id="ungrouped-students-list" class="overflow-y-auto flex-1 p-3 space-y-2">
             <% if @ungrouped_students.empty? %>
               <p class="text-sm text-gray-400 py-4 text-center">All students are in a group.</p>
             <% else %>
-              <% @ungrouped_students.each do |student| %>
-                <div
-                  class="
-                    flex items-center gap-2 border border-gray-100 rounded-[3px] p-2.5
-                    transition-colors
-                  "
-                >
-                  <div
-                    class="
-                      inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200
-                      text-[10px] font-bold text-gray-600 shrink-0
-                    "
-                  >
-                    <%= student.name.presence&.first&.upcase || "?" %>
-                  </div>
-                  <div class="leading-tight min-w-0">
-                    <span class="text-sm text-gray-800 block truncate font-medium"><%= student.name.presence || student.email_address %></span>
-                    <% if student.instid.present? %>
-                      <span class="text-xs text-gray-400"><%= student.instid %></span>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
+              <%= render partial: "ungrouped_student", collection: @ungrouped_students, as: :student %>
             <% end %>
           </div>
         </div>

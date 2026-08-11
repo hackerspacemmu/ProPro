@@ -12,7 +12,8 @@ class ProjectGroupInvite < ApplicationRecord
               scope: %i[project_group_id kind],
               conditions: -> { where(status: :pending) },
               message: 'already has a pending request for this group'
-            }
+            },
+            if: -> { direct_request? } 
 
   # Blocks a leader double-inviting same student into same group.
   validates :recipient_id,

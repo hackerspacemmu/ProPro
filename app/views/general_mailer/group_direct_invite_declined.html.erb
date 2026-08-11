@@ -3,43 +3,36 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Join Request on ProPro</title>
+    <title>Invite Declined on ProPro</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #efefef; font-family: Inter, sans-serif;">
-
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #efefef;">
         <tr>
             <td align="center" style="padding: 20px 0;">
-
                 <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #f8f9fa; border-radius: 16px; max-width: 600px; width: 100%;">
-
                     <tr>
                         <td style="background-color: #e1e1e1; border-radius: 16px 16px 0 0; padding: 25px; text-align: center;">
                             <h1 style="margin: 0; color: #000000; font-size: 24px; font-family: Arial, sans-serif;">
-                                <strong>New Join Request</strong>
+                                <strong>Invite Declined</strong>
                             </h1>
                         </td>
                     </tr>
-
                     <tr>
                         <td style="padding: 24px;">
                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
                                     <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
                                         <p style="margin: 0 0 16px 0;">
-                                            <%= @sender.name %> has requested to join your group <strong><%= @group.group_name %></strong>.
+                                            <strong><%= @invite.recipient.name %></strong> declined your invite to join <strong><%= @group.group_name %></strong>.
                                         </p>
                                         <p style="margin: 16px 0;">
-                                            Visit <%= course_project_groups_url(@group.course) %> to accept or decline this request.
+                                            Visit <%= course_project_groups_url(@group.course) %> to manage your group.
                                         </p>
                                     </td>
                                 </tr>
-
                                 <tr>
                                     <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
-                                        <p style="margin: 16px 0;">
-                                            - ProPro Team
-                                        </p>
+                                        <p style="margin: 16px 0;">- ProPro Team</p>
                                     </td>
                                 </tr>
                             </table>

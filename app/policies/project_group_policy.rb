@@ -81,6 +81,10 @@ class ProjectGroupPolicy < ApplicationPolicy
     record.leader_id == user.id
   end
 
+  def direct_invite?
+    record.leader_id == user.id
+  end
+
   private
 
   def current_user_in_any_group?

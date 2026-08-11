@@ -1,5 +1,4 @@
 # Removes a member from a project group: self-leave, leader-kick, or coordinator-removal.
-# inferred from current_user vs. the member's user and the group's leader.
 class GroupMemberRemover
   def initialize(member, current_user:, dissolve_confirmed: false)
     @member = member
