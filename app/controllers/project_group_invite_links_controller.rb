@@ -1,8 +1,7 @@
 class ProjectGroupInviteLinksController < ApplicationController
   before_action :set_invite_link, only: %i[show redeem]
 
-  def show
-  end
+  def show; end
 
   def redeem
     unless @invite_link
@@ -11,7 +10,7 @@ class ProjectGroupInviteLinksController < ApplicationController
     end
 
     authorize @invite_link
-    
+
     result = GroupInviteLinkRedeemer.new(@invite_link, current_user: current_user).redeem!
 
     if result.redeemed?
