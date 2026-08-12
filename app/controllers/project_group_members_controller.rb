@@ -7,6 +7,22 @@ class ProjectGroupMembersController < ApplicationController
     redirect_back fallback_location: root_path, alert: 'This member has already been removed.'
   end
 
+  def create
+    @course = Course.find(params[:course_id])
+    @group = @course.project_groups.find(params[:project_group_id])
+    authorize @course, :manage_groups?
+
+    user = User.find(params[:user_id])
+    result = GroupMemberAdder.new(@group, user: user, current_user: current_user).add!
+
+    if result.added?
+      flash[:notice] = result.message
+    else
+      flash[:alert] = result.message
+    end
+    redirect_to course_project_groups_path(@course), status: :see_other
+  end
+
   def destroy
     authorize @project_group_member
 

@@ -1,6 +1,6 @@
-# Student requests to join a locked group they're not currently in.
-# Creates a pending ProjectGroupInvite (kind: direct_request), notifies
-# the group leader by mandatory email.
+# Student requests to join a locked group.
+# Creates a pending ProjectGroupInvite (kind: direct_request)
+# Sends email to the leader
 class GroupDirectRequester
   def initialize(group, current_user:)
     @group = group

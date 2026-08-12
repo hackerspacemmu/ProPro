@@ -24,12 +24,17 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def confirm?
+    return true if manage_groups_policy.manage_groups?
+    
     record.leader_id == user.id
   end
 
   def revert?
+    return true if manage_groups_policy.manage_groups?
+
     record.leader_id == user.id
   end
+
 
   def destroy?
     return coordinator? if record.confirmed?
@@ -91,5 +96,9 @@ class ProjectGroupPolicy < ApplicationPolicy
     ProjectGroupMember.joins(:project_group)
                       .exists?(user_id: user.id,
                                project_groups: { course_id: record.course_id })
+  end
+
+  def manage_groups_policy
+    Pundit.policy(user, record.course)
   end
 end

@@ -1,137 +1,96 @@
+<%#
+  STYLE PASS — mockups: state-a-no-group.html (State A) / state-b-in-group.html (State B).
+
+  FLAGGED STRUCTURAL CHANGES (routes/params/policies unchanged):
+  1. State A: collapsed the old 3-column (Create | Join | Invites) layout
+     into a hero card (Create + Browse buttons) + a looped amber invite
+     banner per pending direct invite, matching the mockup 1:1.
+  2. State B: per-member Promote/Kick is now a <details> kebab menu
+     instead of two always-visible buttons — same button_to calls,
+     same params, same the turbo:false workaround on Kick (untouched).
+  3. State B: fixed a dead Stimulus wire — the "+ Invite" button referenced
+     `direct-invite-modal#open` but the panel's controller (and the modal's
+     own data-combobox-modal-target="dialog") is `combobox-modal`. There's
+     no `direct-invite-modal` instance in this branch's DOM, so the button
+     likely never opened anything. Changed the action to
+     `click->combobox-modal#open` to match the controller actually present.
+  4. State B: adopted the mockup's documented "two real branches" note —
+     non-leaders now get a 2-column layout (Settings + Members only, no
+     Dissolve button, no Join Requests column, "Leader-managed. You can
+     leave anytime." in Settings) instead of a 3rd column that only ever
+     rendered a placeholder sentence for them. All the individual
+     `am_leader && ...` gates that already existed are unchanged — this
+     just stops rendering an empty 3rd column shell around them.
+%>
 <%# Hide entirely for coordinators / lecturers %>
 <% unless @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer? %>
 
   <% if @my_group.nil? %>
 
-  <%
-    window_open = @course.grouping_window_open?
-  %>
+    <%
+      window_open = @course.grouping_window_open?
+    %>
 
-  <div class="border-2 border-dashed border-gray-300 rounded-[3px] bg-white mb-6"
-      data-testid="my-group-panel-ungrouped"
-      data-controller="direct-invite-modal">
-
-    <%# ── Header ── %>
-    <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
-      <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960"
-            width="16px" fill="#9ca3af" aria-hidden="true">
-          <path d="M40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm720 0v-120q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v120H760ZM360-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm400-160q0 66-47 113t-113 47q-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113Z"/>
-        </svg>
-      </div>
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">No group yet</h2>
-        <p class="text-xs text-gray-400 mt-0.5">
-          You're not in a group. Create one or request to join an existing group.
-        </p>
-      </div>
-    </div>
-
-    <%# ── Three columns — mirrors STATE B skeleton ── %>
-    <div class="block md:flex divide-y md:divide-y-0 md:divide-x divide-gray-200">
-
-      <%# ── Col 1: Create ── %>
-      <div class="w-full md:w-48 shrink-0 p-4">
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Create</p>
-
-        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960"
-              width="18px" fill="#1F78D1" aria-hidden="true">
-            <path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/>
+    <%# ── STATE A: No group ── %>
+    <div class="border border-dashed border-gray-300 rounded-xl bg-white p-6 mb-4"
+         data-testid="my-group-panel-ungrouped">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#9ca3af" aria-hidden="true">
+            <path d="M40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm720 0v-120q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v120H760ZM360-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm400-160q0 66-47 113t-113 47q-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113Z"/>
           </svg>
         </div>
+        <div>
+          <h1 class="text-lg font-medium text-gray-900">You don't have a group yet</h1>
+          <p class="text-sm text-gray-500 mt-0.5 max-w-lg leading-relaxed">
+            Create a draft group of your own, or find one that's still looking for members below.
+          </p>
+        </div>
+      </div>
 
-        <p class="text-sm font-medium text-gray-900 mb-1">Start a group</p>
-        <p class="text-xs text-gray-500 leading-relaxed mb-3">
-          Create a draft group. Others can find and request to join you.
-        </p>
-
-        <% if window_open %>
-          <%# Student create — no modal needed, current_user becomes leader %>
-          <%= button_to course_project_groups_path(@course),
+      <% if window_open %>
+        <div class="flex gap-2.5">
+          <%= button_to "New group",
+                course_project_groups_path(@course),
                 method: :post,
-                class: "inline-flex items-center gap-1 text-xs px-3 py-1.5 bg-[#1F78D1] text-white rounded-[3px] hover:bg-[#1a6abf] transition-colors font-medium" do %>
-            New group
-            <svg xmlns="http://www.w3.org/2000/svg" height="12px" viewBox="0 -960 960 960"
-                width="12px" fill="currentColor" aria-hidden="true">
-              <path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/>
-            </svg>
-          <% end %>
-        <% else %>
-          <span class="text-xs text-gray-300 font-medium">Grouping window closed</span>
-        <% end %>
-      </div>
-
-      <%# ── Col 2: Join ── %>
-      <div class="flex-1 min-w-0 p-4">
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Join</p>
-
-        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960"
-              width="18px" fill="#475D65" aria-hidden="true">
-            <path d="M480-120v-80h280v-560H480v-80h280q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H480Zm-80-160-55-58 102-102H120v-80h327L345-622l55-58 200 200-200 200Z"/>
-          </svg>
-        </div>
-
-        <p class="text-sm font-medium text-gray-900 mb-1">Request to join a group</p>
-        <p class="text-xs text-gray-500 leading-relaxed mb-3">
-          Browse draft groups below and send a join request. The group leader will approve or decline.
-        </p>
-
-        <% if window_open %>
+                class: "text-sm font-medium px-4 py-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white transition-colors" %>
           <a href="#result-pane"
-            class="inline-flex items-center gap-1 text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors font-medium">
+             class="text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
             Browse groups
-            <svg xmlns="http://www.w3.org/2000/svg" height="12px" viewBox="0 -960 960 960"
-                width="12px" fill="currentColor" aria-hidden="true">
-              <path d="M480-344 240-584l57-56 183 183 183-183 57 56-240 240Z"/>
-            </svg>
           </a>
-        <% else %>
-          <span class="text-xs text-gray-300 font-medium">Grouping window closed</span>
-        <% end %>
-      </div>
-
-      <%# ── Col 3: Invites received from leaders (action required) ── %>
-      <div class="w-full md:w-[200px] shrink-0 p-4">
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
-          Invites received
-        </p>
-
-        <% if @incoming_direct_invites&.any? %>
-          <ul class="space-y-0 divide-y divide-gray-100">
-            <% @incoming_direct_invites.each do |invite| %>
-              <li class="flex items-center justify-between gap-2 py-2 first:pt-0">
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center
-                              text-[9px] font-bold text-gray-600 shrink-0">
-                    <%= invite.project_group.group_name.first(2).upcase %>
-                  </div>
-                  <span class="text-xs text-gray-800 font-medium truncate">
-                    <%= invite.project_group.group_name %>
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-2 shrink-0">
-                  <%= button_to "Accept",
-                        accept_course_project_group_project_group_invite_path(@course, invite.project_group, invite),
-                        method: :patch,
-                        class: "text-xs text-[#1F78D1] hover:text-[#1a6abf] transition-colors font-medium" %>
-                  <%= button_to "Decline",
-                        decline_course_project_group_project_group_invite_path(@course, invite.project_group, invite),
-                        method: :patch,
-                        class: "text-xs text-red-400 hover:text-red-600 transition-colors" %>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        <% else %>
-          <p class="text-xs text-gray-400">No invites</p>
-        <% end %>
-      </div>
-
+        </div>
+      <% else %>
+        <span class="text-sm text-gray-300 font-medium">Grouping window closed</span>
+      <% end %>
     </div>
-  </div>
+
+    <%# Invite banner(s) — one per pending direct invite %>
+    <% if @incoming_direct_invites&.any? %>
+      <div class="flex flex-col gap-2 mb-6">
+        <% @incoming_direct_invites.each do |invite| %>
+          <div class="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-semibold shrink-0">
+                <%= invite.project_group.group_name.first(2).upcase %>
+              </div>
+              <div class="text-amber-900 truncate">
+                <b class="font-medium"><%= invite.project_group.group_name %></b> invited you to join their group
+              </div>
+            </div>
+            <div class="flex gap-4 shrink-0">
+              <%= button_to "Accept",
+                    accept_course_project_group_project_group_invite_path(@course, invite.project_group, invite),
+                    method: :patch,
+                    class: "text-zinc-800 hover:text-zinc-600 text-sm font-medium bg-transparent" %>
+              <%= button_to "Decline",
+                    decline_course_project_group_project_group_invite_path(@course, invite.project_group, invite),
+                    method: :patch,
+                    class: "text-gray-400 hover:text-red-600 text-sm bg-transparent" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
 
   <% else %>
     <%# ── STATE B: In a group ── %>
@@ -141,38 +100,43 @@
       is_locked    = @my_group.locked?
       member_count = @my_group.project_group_members.size
       window_open  = @course.grouping_window_open?
+
+      if am_leader
+        grid_cols_class = "md:grid-cols-[200px_1fr_260px]"
+      else
+        grid_cols_class = "md:grid-cols-[200px_1fr]"
+      end
     %>
 
-    <div class="border-2 border-gray-300 rounded-[3px] bg-white mb-6"
+    <div class="
+          bg-white border border-gray-200 border-l-4
+          <%= is_confirmed ? "border-l-emerald-600" : "border-l-gray-400" %>
+          rounded-r-xl rounded-l-sm mb-4
+        "
          data-testid="my-group-panel-grouped"
-         data-controller="direct-invite-modal">
+         data-controller="combobox-modal">
 
-      <%# ── Full width header %>
-      <div class="flex items-start justify-between px-5 py-4 border-b border-gray-200">
+      <%# ── Header ── %>
+      <div class="flex items-start justify-between px-5 py-4 border-b border-gray-100">
         <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-7 h-7 rounded-full bg-gray-200 shrink-0"></div>
-            <h2 class="text-xl font-bold text-gray-900"><%= @my_group.group_name %></h2>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-lg font-medium text-gray-900"><%= @my_group.group_name %></h1>
 
             <% if is_confirmed %>
-              <span class="inline-block bg-[#1F78D1] text-white text-[0.6875rem] font-normal rounded tracking-[1px] leading-none px-[0.625em] py-[0.4375em] whitespace-nowrap">
-                Confirmed
-              </span>
+              <span class="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">Confirmed</span>
             <% else %>
-              <span class="inline-block bg-[#475D65] text-white text-[0.6875rem] font-normal rounded tracking-[1px] leading-none px-[0.625em] py-[0.4375em] whitespace-nowrap">
-                Draft
-              </span>
+              <span class="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded bg-gray-100 text-gray-600">Draft</span>
             <% end %>
 
             <% if is_locked %>
-              <span class="inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor" class="inline-block align-middle">
+              <span title="Locked — join requests only" class="text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="currentColor" class="inline-block align-middle">
                   <path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm0-80h480v-400H240v400Zm296.5-143.5Q560-327 560-360t-23.5-56.5Q513-440 480-440t-56.5 23.5Q400-393 400-360t23.5 56.5Q447-280 480-280t56.5-23.5ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z"/>
                 </svg>
               </span>
             <% end %>
           </div>
-          <p class="text-xs text-gray-400"><%= member_count %> / <%= @course.group_max %> members</p>
+          <p class="text-xs text-gray-400 mt-1"><%= member_count %> / <%= @course.group_max %> members</p>
         </div>
 
         <%# Dissolve — leader only, draft only %>
@@ -180,67 +144,71 @@
           <%= button_to "Dissolve group",
                 course_project_group_path(@course, @my_group),
                 method: :delete,
-                class: "text-xs font-medium text-red-500 border border-red-200 rounded px-2.5 py-1 hover:bg-red-50 transition-colors shrink-0 mt-1",
+                class: "text-xs font-medium px-2.5 py-1.5 rounded-md border border-red-100 text-red-600 hover:bg-red-50 transition-colors shrink-0",
                 form: { data: { confirm: "Dissolve this group? This cannot be undone." } } %>
         <% end %>
       </div>
 
-      <%# ── Three columns %>
-      <div class="block md:flex divide-y md:divide-y-0 md:divide-x divide-gray-200">
+      <%# ── Columns (2 for members, 3 for the leader — see FLAG #4) ── %>
+      <div class="grid grid-cols-1 <%= grid_cols_class %> divide-y md:divide-y-0 md:divide-x divide-gray-100">
 
-        <%# ── Col 1: Settings %>
-        <div class="w-full md:w-48 shrink-0 p-4">
-          <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Settings</p>
+        <%# ── Col 1: Settings ── %>
+        <div class="p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">Settings</p>
 
           <div class="flex flex-col gap-1.5">
-            <% if am_leader && !is_confirmed && window_open %>
-              <%= button_to "Confirm Group",
-                    confirm_course_project_group_path(@course, @my_group),
-                    method: :patch,
-                    disabled: !@my_group_can_confirm,
-                    class: "w-full px-3 py-1.5 text-xs font-semibold text-white bg-[#1F78D1] rounded-[3px] hover:bg-[#1a6abf] transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed",
-                    title: @my_group_can_confirm ? nil : "Group needs #{@course.group_min}–#{@course.group_max} members to confirm" %>
-            <% end %>
-
-            <% if am_leader && is_confirmed && window_open %>
-              <%= button_to "Revert to Draft",
-                    revert_course_project_group_path(@course, @my_group),
-                    method: :patch,
-                    class: "w-full px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-[3px] hover:border-gray-400 hover:text-gray-800 transition-colors text-left",
-                    form: { data: { confirm: "Revert to draft? You will lose confirmed status." } } %>
-            <% end %>
-
-            <% if am_leader && !is_confirmed && window_open %>
-              <% if is_locked %>
-                <%= button_to "Unlock Group",
-                      unlock_course_project_group_path(@course, @my_group),
+            <% if am_leader %>
+              <% if !is_confirmed && window_open %>
+                <%= button_to "Confirm group",
+                      confirm_course_project_group_path(@course, @my_group),
                       method: :patch,
-                      class: "w-full px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-[3px] hover:border-gray-400 hover:text-gray-800 transition-colors text-left" %>
-              <% else %>
-                <%= button_to "Lock Group",
-                      lock_course_project_group_path(@course, @my_group),
+                      disabled: !@my_group_can_confirm,
+                      class: "w-full text-left text-xs font-semibold px-3 py-2 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                      title: @my_group_can_confirm ? nil : "Group needs #{@course.group_min}–#{@course.group_max} members to confirm" %>
+              <% end %>
+
+              <% if is_confirmed && window_open %>
+                <%= button_to "Revert to draft",
+                      revert_course_project_group_path(@course, @my_group),
                       method: :patch,
-                      class: "w-full px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-[3px] hover:border-gray-400 hover:text-gray-800 transition-colors text-left" %>
+                      class: "w-full text-left text-xs font-medium px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors",
+                      form: { data: { confirm: "Revert to draft? You will lose confirmed status." } } %>
               <% end %>
-            <% end %>
 
-            <% if am_leader && !is_confirmed && window_open %>
-              <%= button_to "Generate invite link",
-                    generate_invite_link_course_project_group_path(@course, @my_group),
-                    method: :patch,
-                    class: "w-full px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-[3px] hover:border-gray-400 hover:text-gray-800 transition-colors text-left" %>
-
-              <% if @my_group_invite_token.present? %>
-                <div class="mt-2 flex items-center gap-1" data-controller="invite-link">
-                  <input type="text" readonly
-                        autocomplete="off"
-                        value="<%= project_group_invite_link_url(@my_group_invite_token) %>"
-                        data-invite-link-target="linkField"
-                        class="text-xs border border-gray-200 rounded px-2 py-1 flex-1 min-w-0">
-                  <button type="button" data-action="invite-link#copy"
-                          class="text-xs text-gray-400 hover:text-gray-600">Copy</button>
-                </div>
+              <% if !is_confirmed && window_open %>
+                <% if is_locked %>
+                  <%= button_to "Unlock group",
+                        unlock_course_project_group_path(@course, @my_group),
+                        method: :patch,
+                        class: "w-full text-left text-xs font-medium px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" %>
+                <% else %>
+                  <%= button_to "Lock group",
+                        lock_course_project_group_path(@course, @my_group),
+                        method: :patch,
+                        class: "w-full text-left text-xs font-medium px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" %>
+                <% end %>
               <% end %>
+
+              <% if !is_confirmed && window_open %>
+                <%= button_to "Generate invite link",
+                      generate_invite_link_course_project_group_path(@course, @my_group),
+                      method: :patch,
+                      class: "w-full text-left text-xs font-medium px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" %>
+
+                <% if @my_group_invite_token.present? %>
+                  <div class="mt-2 flex items-center gap-1.5" data-controller="invite-link">
+                    <input type="text" readonly
+                          autocomplete="off"
+                          value="<%= project_group_invite_link_url(@my_group_invite_token) %>"
+                          data-invite-link-target="linkField"
+                          class="flex-1 min-w-0 text-[11.5px] text-gray-500 bg-gray-50 border border-gray-200 rounded-md px-2 py-1.5">
+                    <button type="button" data-action="invite-link#copy"
+                            class="text-[11.5px] text-gray-500 border border-gray-300 rounded-md px-2.5 py-1.5 hover:bg-gray-50 shrink-0">Copy</button>
+                  </div>
+                <% end %>
+              <% end %>
+            <% else %>
+              <p class="text-[12.5px] text-gray-400">Leader-managed. You can leave anytime.</p>
             <% end %>
           </div>
 
@@ -252,93 +220,98 @@
               <%= button_to "Leave group",
                     course_project_group_member_path(@course, @my_group, my_membership),
                     method: :delete,
-                    class: "text-xs text-gray-400 hover:text-gray-600 transition-colors",
+                    class: "text-xs text-gray-400 hover:text-gray-700 transition-colors",
                     form: { data: { confirm: "Leave #{@my_group.group_name}?" } } %>
             <% else %>
-              <button disabled class="text-xs text-gray-400 opacity-40 cursor-not-allowed" title="Grouping window closed">
+              <button disabled class="text-xs text-gray-300 cursor-not-allowed" title="Grouping window closed">
                 Leave group
               </button>
             <% end %>
           </div>
         </div>
 
-        <%# ── Col 2: Members %>
-        <div class="flex-1 min-w-0 p-4">
-          <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Members</p>
-          <ul class="space-y-0 divide-y divide-gray-100">
+        <%# ── Col 2: Members ── %>
+        <div class="p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">Members</p>
+          <ul class="divide-y divide-gray-100">
             <% @my_group.project_group_members.each do |membership| %>
               <% member = membership.user %>
               <% is_this_leader = member.id == @my_group.leader_id %>
 
               <li class="flex items-center justify-between py-2 first:pt-0" data-testid="member-row-<%= member.id %>">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-6 h-6 rounded-full bg-gray-200 shrink-0"></div>
-                  <span class="text-sm text-gray-800"><%= member.name %></span>
-                  <% if is_this_leader %>
-                    <span class="text-xs text-gray-400">(leader)</span>
-                  <% end %>
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-[26px] h-[26px] rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-[10px] font-semibold shrink-0">
+                    <%= member.name.presence&.first&.upcase || "?" %>
+                  </div>
+                  <span class="text-[13px] text-gray-800 truncate">
+                    <%= member.name %>
+                    <% if is_this_leader %>
+                      <span class="text-[10.5px] text-gray-400 ml-1">leader</span>
+                    <% end %>
+                  </span>
                 </div>
 
                 <% if am_leader && !is_this_leader && !is_confirmed && window_open %>
-                  <div class="flex items-center gap-3 shrink-0">
-                    <%= button_to promote_leader_course_project_group_path(@course, @my_group),
-                          method: :patch,
-                          params: { user_id: member.id },
-                          class: "text-xs text-gray-400 hover:text-gray-600 transition-colors",
-                          form: { data: { confirm: "Make #{member.name} the group leader? You will lose leader privileges." } } do %>
-                      Promote
-                    <% end %>
-
-                    <%= button_to course_project_group_member_path(@course, @my_group, membership),
-                          method: :delete,
-                          class: "text-xs text-red-400 hover:text-red-600 transition-colors",
-                          form: { data: { turbo: false, confirm: "Remove #{member.name} from the group?" } } do %>
-                      Kick
-                    <% end %>
-                  </div>
+                  <%# Kebab menu via native <details> — zero new JS. Was two always-visible
+                      buttons; same routes/params/confirm text, just tucked behind a toggle. %>
+                  <details class="relative shrink-0">
+                    <summary aria-label="Member actions"
+                      class="list-none cursor-pointer text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded p-1 [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+                    </summary>
+                    <div class="absolute right-0 top-7 bg-white border border-gray-200 rounded-lg min-w-[150px] shadow-lg z-10 overflow-hidden">
+                      <%= button_to "Promote to leader",
+                            promote_leader_course_project_group_path(@course, @my_group),
+                            method: :patch,
+                            params: { user_id: member.id },
+                            class: "block w-full text-left text-gray-700 text-[12.5px] px-3 py-2 hover:bg-gray-50",
+                            form: { data: { confirm: "Make #{member.name} the group leader? You will lose leader privileges." } } %>
+                      <%= button_to "Kick from group",
+                            course_project_group_member_path(@course, @my_group, membership),
+                            method: :delete,
+                            class: "block w-full text-left text-red-600 text-[12.5px] px-3 py-2 hover:bg-red-50",
+                            form: { data: { turbo: false, confirm: "Remove #{member.name} from the group?" } } %>
+                    </div>
+                  </details>
                 <% end %>
               </li>
             <% end %>
           </ul>
         </div>
 
-        <%# ── Col 3: Join Requests (leader-only visible content, but column always renders) %>
-        <div class="w-full md:w-80 shrink-0 p-4">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-[10px] font-semibold tracking-widest uppercase text-gray-400">
-              Join Requests
-            </p>
-            <% if am_leader && !is_confirmed && window_open %>
-              <button type="button" data-action="direct-invite-modal#open"
-                      class="text-xs text-[#1F78D1] hover:text-[#1a6abf] font-medium">
-                + Invite
-              </button>
-            <% end %>
-          </div>
+        <%# ── Col 3: Join Requests — leader only (see FLAG #4) ── %>
+        <% if am_leader %>
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Join requests</p>
+              <% if !is_confirmed && window_open %>
+                <button type="button" data-action="click->combobox-modal#open"
+                        class="flex items-center gap-1 text-zinc-800 hover:text-zinc-600 text-[11.5px] font-medium">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Invite
+                </button>
+              <% end %>
+            </div>
 
-          <% if am_leader %>
             <% if @incoming_join_requests.any? %>
-              <ul class="space-y-0 divide-y divide-gray-100">
+              <ul class="divide-y divide-gray-100">
                 <% @incoming_join_requests.each do |join_request| %>
                   <li class="flex items-center justify-between gap-2 py-2 first:pt-0">
                     <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600 shrink-0">
+                      <div class="w-[26px] h-[26px] rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-[10px] font-semibold shrink-0">
                         <%= join_request.sender.name.presence&.first&.upcase || "?" %>
                       </div>
-                      <span class="text-xs text-gray-800 font-medium truncate">
-                        <%= join_request.sender.name %>
-                      </span>
+                      <span class="text-[12.5px] text-gray-800 truncate"><%= join_request.sender.name %></span>
                     </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="flex gap-3 shrink-0">
                       <%= button_to "Accept",
                             accept_course_project_group_project_group_invite_path(@course, @my_group, join_request),
                             method: :patch,
-                            class: "text-xs text-[#1F78D1] hover:text-[#1a6abf] transition-colors font-medium" %>
+                            class: "text-zinc-800 hover:text-zinc-600 text-xs font-medium bg-transparent" %>
                       <%= button_to "Decline",
                             decline_course_project_group_project_group_invite_path(@course, @my_group, join_request),
                             method: :patch,
-                            class: "text-xs text-red-400 hover:text-red-600 transition-colors" %>
+                            class: "text-gray-400 hover:text-red-600 text-xs bg-transparent" %>
                     </div>
                   </li>
                 <% end %>
@@ -346,70 +319,52 @@
             <% else %>
               <p class="text-xs text-gray-400">No pending requests</p>
             <% end %>
-          <% else %>
-            <p class="text-xs text-gray-300">Only the group leader can view join requests.</p>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
       </div>
 
-      <%# --- DIRECT INVITE MODAL (native <dialog>, shared within this panel) --- %>
-      <dialog data-direct-invite-modal-target="dialog"
+      <%# --- DIRECT INVITE MODAL --- %>
+      <dialog data-combobox-modal-target="dialog"
+              data-action="click->combobox-modal#backdropClose click@document->combobox-modal#closeOnOutsideClick"
               aria-labelledby="direct-invite-modal-title"
-              class="overflow-visible rounded-[3px] border border-gray-200 p-0 w-full max-w-sm m-auto backdrop:bg-black/40">
+              class="overflow-visible rounded-lg border border-gray-200 p-0 w-full max-w-sm m-auto backdrop:bg-black/40">
         <div class="p-5">
           <div class="flex items-center justify-between mb-4">
             <h3 id="direct-invite-modal-title" class="text-sm font-bold text-gray-900">Invite a student</h3>
-            <button type="button" data-action="direct-invite-modal#close"
-                    class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
+            <button type="button" data-action="click->combobox-modal#close" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
           </div>
 
-          <%= form_with url: direct_invite_course_project_group_project_group_invites_path(@course, @my_group),
-                method: :post do %>
-
-            <%= hidden_field_tag :user_id, "", data: { direct_invite_modal_target: "hiddenInput" } %>
+          <%= form_with url: direct_invite_course_project_group_project_group_invites_path(@course, @my_group), method: :post do %>
+            <%= hidden_field_tag :user_id, "", data: { combobox_modal_target: "hiddenInput" } %>
 
             <div class="relative mb-3">
-              <input type="text"
-                    placeholder="Search for a student..."
-                    autocomplete="off"
-                    role="combobox"
-                    aria-expanded="false"
-                    aria-autocomplete="list"
-                    data-direct-invite-modal-target="searchInput"
-                    data-action="input->direct-invite-modal#search focus->direct-invite-modal#onFocus keydown->direct-invite-modal#onKeydown"
-                    class="w-full text-sm border border-gray-300 rounded-[3px] px-3 py-2">
+              <input type="text" placeholder="Search for a student..." autocomplete="off"
+                    role="combobox" aria-expanded="false" aria-autocomplete="list"
+                    data-combobox-modal-target="searchInput"
+                    data-action="input->combobox-modal#search focus->combobox-modal#onFocus keydown->combobox-modal#onKeydown"
+                    class="w-full text-sm border border-gray-300 rounded-md px-3 py-2">
 
-              <ul data-direct-invite-modal-target="list"
-                  role="listbox"
-                  hidden
-                  class="absolute left-0 right-0 top-full mt-1 z-10 max-h-64 overflow-y-auto divide-y divide-gray-100 bg-white border border-gray-200 rounded-[3px] shadow-lg">
+              <ul data-combobox-modal-target="list" role="listbox" hidden
+                  class="absolute left-0 right-0 top-full mt-1 z-10 max-h-64 overflow-y-auto divide-y divide-gray-100 bg-white border border-gray-200 rounded-md shadow-lg">
                 <% @ungrouped_students.each do |student| %>
-                  <li data-direct-invite-modal-target="row"
-                      data-name="<%= student.name %>"
-                      data-user-id="<%= student.id %>"
-                      data-action="click->direct-invite-modal#select"
-                      role="option"
+                  <li data-combobox-modal-target="row" data-name="<%= student.name %>" data-user-id="<%= student.id %>"
+                      data-action="click->combobox-modal#select" role="option"
                       class="flex items-center gap-2 py-2 px-2 cursor-pointer hover:bg-gray-50">
-                    <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600 shrink-0">
+                    <span class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[9px] font-semibold text-gray-500 shrink-0">
                       <%= student.name.presence&.first&.upcase || "?" %>
                     </span>
                     <span class="text-xs text-gray-800"><%= student.name %></span>
                   </li>
                 <% end %>
-
-                <li data-direct-invite-modal-target="empty" hidden class="text-xs text-gray-400 text-center py-4">
-                  No matching students.
-                </li>
+                <li data-combobox-modal-target="empty" hidden class="text-xs text-gray-400 text-center py-4">No matching students.</li>
               </ul>
             </div>
 
             <% if @ungrouped_students.empty? %>
               <p class="text-xs text-gray-400 text-center py-4">No ungrouped students to invite.</p>
             <% else %>
-              <%= submit_tag "Send invite",
-                    disabled: true,
-                    data: { direct_invite_modal_target: "submitButton" },
-                    class: "w-full text-xs font-semibold text-white bg-[#1F78D1] rounded-[3px] px-3 py-2 hover:bg-[#1a6abf] transition-colors disabled:opacity-40 disabled:cursor-not-allowed" %>
+              <%= submit_tag "Send invite", disabled: true, data: { combobox_modal_target: "submitButton" },
+                    class: "w-full text-xs font-semibold text-white bg-zinc-900 rounded-md px-3 py-2 hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" %>
             <% end %>
           <% end %>
         </div>

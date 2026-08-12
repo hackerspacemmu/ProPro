@@ -1,6 +1,6 @@
-# Leader sends a direct invite to a specific student, dropdown-picked —
-# no token, no link. Creates a pending ProjectGroupInvite
-# (kind: direct_invite), notifies the recipient by mandatory email.
+# Leader sends a direct invite to a student
+# Creates a pending ProjectGroupInvite (kind: direct_invite)
+# Sends email to the student
 class GroupDirectInviter
   def initialize(group, current_user:, recipient:)
     @group = group

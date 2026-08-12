@@ -4,30 +4,36 @@
   Extracted from the Ungrouped Students loop so it can be reused both for
   the initial page render and for turbo_stream.append from
   ProjectGroupMembersController#destroy.
+
+  STYLE PASS — mockups: state-a-no-group.html / state-b-in-group.html "u-row".
+  FLAG: added data-name (lowercased) matching the mockups' search-row hook.
+  Not wired to a filter controller this pass (none exists yet) — inert
+  until a follow-up adds real search.
 %>
 <div
   id="<%= dom_id(student, :ungrouped) %>"
+  data-name="<%= student.name.to_s.downcase %>"
   class="
-    flex items-center gap-2 border border-gray-100 rounded-[3px] p-2.5
+    flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-gray-50
     transition-colors
   "
 >
   <div
     class="
-      inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200
-      text-[10px] font-bold text-gray-600 shrink-0
+      inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100
+      text-gray-500 text-[10px] font-semibold shrink-0
     "
   >
     <%= student.name.presence&.first&.upcase || "?" %>
   </div>
   <div class="leading-tight min-w-0 flex-1">
-    <span class="text-sm text-gray-800 block truncate font-medium"><%= student.name.presence || student.email_address %></span>
+    <span class="text-[13px] text-gray-800 block truncate"><%= student.name.presence || student.email_address %></span>
     <% if student.instid.present? %>
-      <span class="text-xs text-gray-400"><%= student.instid %></span>
+      <span class="text-[10.5px] font-mono text-gray-400"><%= student.instid %></span>
     <% end %>
   </div>
   <% if @my_invited_student_ids&.include?(student.id) %>
-    <span class="text-[9px] font-semibold uppercase tracking-wide bg-gray-100 text-gray-400 rounded-[3px] px-1.5 py-0.5 shrink-0">
+    <span class="text-[9px] font-semibold uppercase tracking-wide bg-gray-100 text-gray-400 rounded px-1.5 py-0.5 shrink-0">
       Invite sent
     </span>
   <% end %>
