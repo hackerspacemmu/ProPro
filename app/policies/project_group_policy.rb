@@ -25,7 +25,7 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def confirm?
     return true if manage_groups_policy.manage_groups?
-    
+
     record.leader_id == user.id
   end
 
@@ -34,7 +34,6 @@ class ProjectGroupPolicy < ApplicationPolicy
 
     record.leader_id == user.id
   end
-
 
   def destroy?
     return coordinator? if record.confirmed?
