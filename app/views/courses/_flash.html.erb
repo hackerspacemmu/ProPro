@@ -1,21 +1,37 @@
 <% if flash[:alert] %>
-  <div class="mb-6 rounded-md bg-red-50 p-4 border-l-4 border-red-500">
-    <div class="flex">
+  <div
+    data-controller="flash"
+    role="alert"
+    class="mb-6 rounded-md bg-red-50 p-4 border-l-4 border-red-500 transition-opacity duration-300 ease-in motion-reduce:transition-none"
+  >
+    <div class="flex items-start justify-between gap-3">
       <div class="ml-3">
         <h3 class="text-sm font-medium text-red-800">Alert</h3>
         <div class="mt-2 text-sm text-red-700 whitespace-pre-line"><%= flash[:alert] %></div>
       </div>
+      <button type="button"
+              data-action="click->flash#dismiss"
+              class="text-red-400 hover:text-red-600 text-sm shrink-0"
+              aria-label="Dismiss">✕</button>
     </div>
   </div>
 <% end %>
 
 <% if flash[:notice] %>
-  <div class="mb-6 rounded-md bg-green-50 p-4 border-l-4 border-green-500">
-    <div class="flex">
+  <div
+    data-controller="flash"
+    role="status"
+    class="mb-6 rounded-md bg-green-50 p-4 border-l-4 border-green-500 transition-opacity duration-300 ease-in motion-reduce:transition-none"
+  >
+    <div class="flex items-start justify-between gap-3">
       <div class="ml-3">
         <h3 class="text-sm font-medium text-green-800">Success</h3>
         <div class="mt-2 text-sm text-green-700"><%= flash[:notice] %></div>
       </div>
+      <button type="button"
+              data-action="click->flash#dismiss"
+              class="text-green-400 hover:text-green-600 text-sm shrink-0"
+              aria-label="Dismiss">✕</button>
     </div>
   </div>
 <% end %>

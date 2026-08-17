@@ -10,11 +10,11 @@
      only the outer wrapper is new. Defaults open when grouping is OFF
      (so it's not hidden the first time someone needs to turn it on).
   2. Removed the old "Filters" sidebar (non-functional checkboxes) and
-     the sort dropdown, replaced with a Tabs (Draft/Confirmed/All, with
+     the sort dropdown, replaced with a Tabs (All/Draft/Confirmed, with
      real counts) + search bar above the Groups list, per both mockups.
-     Tabs/search are presentational only — no filtering logic existed
-     before and none was added; same functional level as before, just
-     tidier. Recommend a follow-up to wire real filtering if wanted.
+     Tabs/search are wired to a Stimulus controller (group-browse-filter)
+     that toggles group_card visibility client-side — no server round-trip,
+     since @groups is already fully loaded on render.
   3. Groups wrapper now uses a single‑column list for anyone who can
      manage groups (coordinators + eligible lecturers), and a 2‑col grid
      for students, keeping names readable in the management view.
@@ -108,7 +108,7 @@
               data-grouping-settings-target="destructiveWarning"
               class="hidden p-3 bg-red-50 border border-red-200 rounded-md"
             >
-              <p class="text-xs font-semibold text-red-700">⚠️ Warning: Saving these settings will disable the grouping system
+              <p class="text-xs font-semibold text-red-700"> Warning: Saving these settings will disable the grouping system
                 and permanently delete all current draft groups.</p>
             </div>
 
@@ -235,7 +235,7 @@
                           assigned group.
                         </p>
                         <% if @course.student_list_finalised? %>
-                          <p class="text-[10px] text-red-500 font-semibold mt-2">🔒 Locked: Student list is already finalised.</p>
+                          <p class="text-[10px] text-red-500 font-semibold mt-2"> Locked: Student list is already finalised.</p>
                         <% end %>
                       </div>
                     </div>
@@ -313,8 +313,12 @@
 
     <div class="flex flex-col lg:flex-row gap-6 items-start">
 
-      <%# ── Groups (owns the add-group combobox-modal scope, for anyone who can manage) ── %>
-      <div class="flex-1 min-w-0 w-full" <%= "data-controller=combobox-modal".html_safe if policy(@course).manage_groups? %>>
+      <%# ── Groups (owns the add-group combobox-modal scope, for anyone who can manage; group-browse-filter drives the tabs/search for everyone) ── %>
+      <%
+        group_browse_controllers = ["group-browse-filter"]
+        group_browse_controllers << "combobox-modal" if policy(@course).manage_groups?
+      %>
+      <div class="flex-1 min-w-0 w-full" data-controller="<%= group_browse_controllers.join(" ") %>">
 
         <%
           confirmed_count = @groups.count(&:confirmed?)
@@ -322,15 +326,27 @@
         %>
         <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
           <div class="flex gap-1 bg-white border border-gray-200 rounded-lg p-1">
-            <span class="text-[12.5px] px-3 py-1.5 rounded-md bg-zinc-900 text-white flex items-center gap-1.5">
-              Draft <span class="opacity-70"><%= draft_count %></span>
-            </span>
-            <span class="text-[12.5px] px-3 py-1.5 rounded-md text-gray-500 flex items-center gap-1.5">
+            <button type="button"
+                    data-status="all"
+                    data-group-browse-filter-target="tab"
+                    data-action="click->group-browse-filter#selectTab"
+                    class="text-[12.5px] px-3 py-1.5 rounded-md bg-zinc-900 text-white flex items-center gap-1.5">
+              All <span class="opacity-70"><%= @groups.size %></span>
+            </button>
+            <button type="button"
+                    data-status="draft"
+                    data-group-browse-filter-target="tab"
+                    data-action="click->group-browse-filter#selectTab"
+                    class="text-[12.5px] px-3 py-1.5 rounded-md text-gray-500 flex items-center gap-1.5">
+              Draft <span class="text-gray-400"><%= draft_count %></span>
+            </button>
+            <button type="button"
+                    data-status="confirmed"
+                    data-group-browse-filter-target="tab"
+                    data-action="click->group-browse-filter#selectTab"
+                    class="text-[12.5px] px-3 py-1.5 rounded-md text-gray-500 flex items-center gap-1.5">
               Confirmed <span class="text-gray-400"><%= confirmed_count %></span>
-            </span>
-            <span class="text-[12.5px] px-3 py-1.5 rounded-md text-gray-500 flex items-center gap-1.5">
-              All <span class="text-gray-400"><%= @groups.size %></span>
-            </span>
+            </button>
             <% if policy(@course).manage_groups? %>
               <button
                 type="button"
@@ -342,7 +358,10 @@
               </button>
             <% end %>
           </div>
-          <input class="flex-1 min-w-[180px] max-w-[280px] bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-400" placeholder="Search groups or members…">
+          <input class="flex-1 min-w-[180px] max-w-[280px] bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-400"
+                 placeholder="Search groups or members…"
+                 data-group-browse-filter-target="searchInput"
+                 data-action="input->group-browse-filter#search">
         </div>
 
         <%

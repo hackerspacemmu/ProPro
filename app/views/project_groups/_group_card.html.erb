@@ -43,6 +43,9 @@
 <div
   id="<%= dom_id(group) %>"
   data-controller="combobox-modal"
+  data-group-browse-filter-target="card"
+  data-status="<%= group.confirmed? ? "confirmed" : "draft" %>"
+  data-search-text="<%= [group.group_name, *group.project_group_members.map { |m| m.user.name }].compact.join(" ").downcase %>"
   class="
     border <%= accent_border %> <%= left_accent %> border-l-4 <%= card_bg %>
     rounded-r-lg rounded-l-sm <%= is_coordinator ? "p-3" : "p-4" %>
