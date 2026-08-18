@@ -16,6 +16,20 @@ class CommentPolicy < ApplicationPolicy
     own_comment? && !deleted?
   end
 
+  class << self
+    def project_supervisor(project)
+      project.supervisor
+    end
+
+    def project_coordinators(course)
+      course.enrolments.where(role: :coordinator).map(&:user)
+    end
+
+    def project_members(project)
+      project.owner_type == 'ProjectGroup' ? project.owner.users : [project.owner]
+    end
+  end
+
   private
 
   def own_comment?
@@ -40,20 +54,12 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def can_comment_on_project?
-    project_instance = record.location
-    project = project_instance.project
-    course = project.course
+    project = record.location.project
 
-    return true if course.enrolments.exists?(user: user, role: :coordinator)
-    return true if project.supervisor == user
+    return true if self.class.project_coordinators(project.course).include?(user)
+    return true if self.class.project_supervisor(project) == user
 
-    if project.owner_type == 'User'
-      project.owner_id == user.id
-    elsif project.owner_type == 'ProjectGroup'
-      project.owner.users.include?(user)
-    else
-      false
-    end
+    self.class.project_members(project).include?(user)
   end
 
   def can_comment_on_topic?

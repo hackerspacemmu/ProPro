@@ -8,26 +8,17 @@ class CommentsController < ApplicationController
 
     location = params[:comment][:source_type].constantize.find(params[:comment][:source_id])
 
-    case params[:comment][:source_type]
-    when 'TopicInstance'
-      whitelist = location.topic.course.coordinators.pluck(:id) << location.topic.owner.id
-    when 'ProjectInstance'
-      whitelist = location.project.course.coordinators.pluck(:id) << location.project.supervisor.id
-
-      if location.project.course.grouped?
-        whitelist += location.project.owner.project_group_members.pluck(:user_id)
-      else
-        whitelist << location.project.owner.id
-      end
-    end
-
-    return unless whitelist.include? Current.user.id
-
-    Comment.create!(
+    comment = Comment.new(
       user: Current.user,
       location: location,
       text: params[:comment][:user_comment]
     )
+
+    authorize comment
+
+    comment.save!
+
+    notify_project_comment(comment, location) if params[:comment][:source_type] == 'ProjectInstance'
 
     case params[:comment][:source_type]
     when 'ProjectInstance'
@@ -47,6 +38,28 @@ class CommentsController < ApplicationController
       redirect_to course_project_path(comment.location.project.course, comment.location.project, version: comment.location.version)
     when 'TopicInstance'
       redirect_to course_topic_path(comment.location.topic.course, comment.location.topic, version: comment.location.version)
+    end
+  end
+
+  private
+
+  def notify_project_comment(comment, project_instance)
+    project = project_instance.project
+
+    recipients = (CommentPolicy.project_members(project) + [CommentPolicy.project_supervisor(project)])
+                 .compact
+                 .uniq
+                 .reject { |u| u == Current.user }
+
+    recipients.each do |recipient|
+      GeneralMailer.with(
+        email_address: recipient.email_address,
+        recipient: recipient.name,
+        commenter_name: Current.user.name,
+        comment_snippet: comment.text.truncate(50),
+        course: project.course,
+        project: project
+      ).Project_Comment_Notification.deliver_later
     end
   end
 end

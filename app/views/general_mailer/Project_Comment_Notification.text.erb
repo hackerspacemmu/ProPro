@@ -1,0 +1,19 @@
+ProPro - New comment on your project.
+=======================================
+
+Hi, <%= @recipient %>
+
+<%= @course.course_name %>
+<%= @project.project_instances.last.title %>
+
+<%= @commenter_name %> commented on your project:
+
+"<%= @comment_snippet %>"
+
+To view it, visit this link:
+
+    <%= course_project_url(@course, @project) %>
+
+Sign in to view the full comment and reply.
+
+ProPro is a web app for Project Proposals and Progress monitoring. It is ideal for educators managing student projects where students propose their ideas for approval!
