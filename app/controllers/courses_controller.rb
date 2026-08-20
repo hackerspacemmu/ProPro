@@ -412,7 +412,16 @@ class CoursesController < ApplicationController
     authorize @course, :update?
 
     student_count = params[:student_count].to_i
-    @preview = @course.group_size_distribution(student_count)
+    result = Queries::GroupSizeConfirmabilityCalculator.new(@course, students_to_group: student_count).execute
+
+    @preview = if result.success?
+                 {
+                   groups: result.breakdown.map { |entry| { size: entry[:group_size], count: entry[:number_of_groups] } },
+                   total_groups: result.group_count
+                 }
+               else
+                 { error: result.message }
+               end
 
     render partial: 'courses/grouping_preview_result', locals: { preview: @preview, course: @course }
   end

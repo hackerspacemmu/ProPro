@@ -22,4 +22,11 @@ class ProjectGroup < ApplicationRecord
   def leader?(user)
     leader_id == user.id
   end
+
+  def confirmable?
+    Queries::GroupSizeConfirmabilityCalculator
+      .new(course, students_to_group: course.students_not_yet_confirmed_count)
+      .execute
+      .confirmable_size?(project_group_members.count)
+  end
 end

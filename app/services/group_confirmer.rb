@@ -12,9 +12,7 @@ class GroupConfirmer
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_confirmed) if @group.confirmed?
 
-      # calls the same algorithm as the preview
-      legality = Queries::GroupSizeLegalityCalculator.new(course, students_to_group: course.students.count).execute
-      return blocked(:size_illegal) unless legality.includes_group_of_size?(@group.project_group_members.count)
+      return blocked(:size_illegal) unless @group.confirmable?
 
       @group.update!(confirmed: true)
       Result.new(confirmed: true, blocked_reason: nil)

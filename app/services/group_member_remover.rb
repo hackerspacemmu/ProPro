@@ -54,11 +54,7 @@ class GroupMemberRemover
   end
 
   def legal_at_current_size?
-    course = @group.course
-    Queries::GroupSizeLegalityCalculator
-      .new(course, students_to_group: course.students.count)
-      .execute
-      .includes_group_of_size?(@group.project_group_members.count)
+    @group.confirmable?
   end
 
   def promote_next_leader!

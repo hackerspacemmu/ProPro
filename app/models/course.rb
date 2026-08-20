@@ -66,6 +66,15 @@ class Course < ApplicationRecord
   before_validation :null_number_of_updates_if_not_used
   before_validation :clear_grouping_fields_if_disabled
 
+  def students_not_yet_confirmed_count
+    confirmed_member_count = ProjectGroupMember
+                              .joins(:project_group)
+                              .where(project_groups: { course_id: id, confirmed: true })
+                              .count
+ 
+    students.count - confirmed_member_count
+  end
+
   def generate_coursecode!
     raise StandardError, 'Course join code can\'t be used for grouped course' if grouped
 
@@ -257,7 +266,7 @@ class Course < ApplicationRecord
       is_at_capacity: false }
   end
 
-  # enforce student_list_finalised to only toggle from false to true once
+  # validates student_list_finalised to only toggle from false to true once
   def student_list_cannot_be_unfinalised
     return unless student_list_finalised_was == true && student_list_finalised == false
 

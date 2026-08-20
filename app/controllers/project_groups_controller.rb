@@ -10,11 +10,7 @@ class ProjectGroupsController < ApplicationController
                        .joins(:project_group_members)
                        .find_by(project_group_members: { user_id: current_user.id })
 
-    @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? &&
-                            Queries::GroupSizeLegalityCalculator
-                            .new(@course, students_to_group: @course.students.count)
-                            .execute
-                            .includes_group_of_size?(@my_group.project_group_members.count)
+    @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? && @my_group.confirmable?
 
     @my_group_invite_token = @my_group&.project_group_invite_links&.find_by(sender: current_user)&.token
     @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :direct_request) : []
