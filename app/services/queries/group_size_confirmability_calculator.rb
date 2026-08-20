@@ -67,7 +67,7 @@ module Queries
       attr_reader :breakdown, :group_count, :error
 
       def initialize(found:, breakdown:, group_count:, error:,
-                      group_min: nil, group_max: nil, students_to_group: nil, finalised: nil)
+                     group_min: nil, group_max: nil, students_to_group: nil, finalised: nil)
         @found = found
         @breakdown = breakdown
         @group_count = group_count
