@@ -102,9 +102,9 @@ class Course < ApplicationRecord
 
   def unconfirmed_students_count
     confirmed_member_count = ProjectGroupMember
-                              .joins(:project_group)
-                              .where(project_groups: { course_id: id, confirmed: true })
-                              .count
+                             .joins(:project_group)
+                             .where(project_groups: { course_id: id, confirmed: true })
+                             .count
 
     students.count - confirmed_member_count
   end
