@@ -5,7 +5,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
 
   setup do
     @course = create(:course, grouping_enabled: true, grouping_open: true,
-                             group_min: 2, group_max: 3, student_list_finalised: false)
+                              group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
     @group = create(:project_group, course: @course, leader_id: @leader.id)
@@ -14,7 +14,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
     @link_sender = create(:user)
     create(:enrolment, course: @course, user: @link_sender, role: :student)
     @link = create(:project_group_invite_link, project_group: @group, sender: @link_sender,
-                                                token: 'valid-token', expires_at: 1.hour.from_now)
+                                               token: 'valid-token', expires_at: 1.hour.from_now)
 
     @redeemer_user = create(:user)
     create(:enrolment, course: @course, user: @redeemer_user, role: :student)
@@ -95,7 +95,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
   test 'redeeming clears the redeemer\'s own pending request (sender role) course-wide' do
     other_group = create(:project_group, course: @course, leader_id: @leader.id)
     own_request = create(:project_group_invite, project_group: other_group, sender: @redeemer_user,
-                                                 recipient: @leader, kind: :direct_request, status: :pending)
+                                                recipient: @leader, kind: :direct_request, status: :pending)
 
     GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
 
@@ -105,7 +105,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
   test 'redeeming clears a pending direct_invite where the redeemer is the RECIPIENT' do
     other_group = create(:project_group, course: @course, leader_id: @leader.id)
     incoming_invite = create(:project_group_invite, project_group: other_group, sender: @leader,
-                                                     recipient: @redeemer_user, kind: :direct_invite, status: :pending)
+                                                    recipient: @redeemer_user, kind: :direct_invite, status: :pending)
 
     GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
 

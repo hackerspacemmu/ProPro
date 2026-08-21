@@ -103,7 +103,6 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_equal 2, @course.project_groups.where(group_name: 'G001').count
   end
 
-
   test 'concurrent self-creates never collide on course_group_sequence' do
     other_student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: other_student, role: :student)

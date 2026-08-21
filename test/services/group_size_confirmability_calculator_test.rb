@@ -50,7 +50,6 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
     assert_equal({ group_size: 4, number_of_groups: 2 }, result.breakdown.first)
   end
 
-
   test 'confirmable_size? is true for the size that exactly empties the remaining pool' do
     course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
     # only one group's worth of students left to place
@@ -58,7 +57,6 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
 
     assert result.confirmable_size?(3)
   end
-
 
   test 'confirmable_size? is false when confirming this size strands an unconfirmable remainder' do
     course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 3, group_max: 4)

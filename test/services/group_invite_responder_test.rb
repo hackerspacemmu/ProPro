@@ -3,7 +3,7 @@ require 'test_helper'
 class GroupInviteResponderTest < ActiveSupport::TestCase
   setup do
     @course = create(:course, grouping_enabled: true, grouping_open: true,
-                             group_min: 2, group_max: 3, student_list_finalised: false)
+                              group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
     @group = create(:project_group, course: @course, leader_id: @leader.id, locked: true)
@@ -41,7 +41,7 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
 
   test 'declining either kind flips status without changing membership' do
     request = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
-                                             kind: :direct_request, status: :pending)
+                                            kind: :direct_request, status: :pending)
     invite  = create(:project_group_invite, project_group: @group, sender: @leader, recipient: @student,
                                             kind: :direct_invite, status: :pending)
 
@@ -176,7 +176,7 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
                                            kind: :direct_request, status: :pending)
     other_group = create(:project_group, course: @course, leader_id: @leader.id)
     stale_request = create(:project_group_invite, project_group: other_group, sender: @student,
-                                                   recipient: @leader, kind: :direct_request, status: :pending)
+                                                  recipient: @leader, kind: :direct_request, status: :pending)
 
     GroupInviteResponder.new(invite, current_user: @leader).accept!
 
