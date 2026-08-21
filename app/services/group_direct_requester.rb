@@ -14,6 +14,7 @@ class GroupDirectRequester
     return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
     return blocked(:group_confirmed) if @group.confirmed?
     return blocked(:group_unlocked) unless @group.locked?
+    return blocked(:no_leader_assigned) if @group.leader_id.blank?
 
     invite = ProjectGroupInvite.create!(
       project_group: @group,
@@ -56,6 +57,7 @@ class GroupDirectRequester
       when :group_confirmed then 'Group already confirmed, not accepting requests.'
       when :group_unlocked then 'Group is unlocked — join it directly instead.'
       when :already_requested then 'Already have a pending request for this group.'
+      when :no_leader_assigned then "This group hasn't been assigned a leader yet."
       end
     end
   end

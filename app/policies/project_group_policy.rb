@@ -11,12 +11,6 @@ class ProjectGroupPolicy < ApplicationPolicy
     record.course.grouping_window_open?
   end
 
-  def index?
-    return true if coordinator?
-
-    enrolment.present? && record.course.grouping_enabled?
-  end
-
   def create?
     return true if coordinator?
 
@@ -68,17 +62,6 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def request_to_join?
     enrolment.present? && enrolment.student?
-  end
-
-  def leave?
-    grouping_window_open? &&
-      record.project_group_members.exists?(user_id: user.id)
-  end
-
-  # Leader or coordinator can kick a member.
-  def kick_member?
-    grouping_window_open? &&
-      (coordinator? || record.leader?(user))
   end
 
   def generate_invite_link?

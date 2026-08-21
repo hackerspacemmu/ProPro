@@ -26,7 +26,7 @@ class GroupJoiner
 
   def clear_conflicting_invites!
     ProjectGroupInvite
-      .where(sender_id: @current_user.id, kind: :request, status: :pending)
+      .where(sender_id: @current_user.id, kind: :direct_request, status: :pending)
       .where(project_group_id: @group.course.project_groups.select(:id))
       .destroy_all
   end

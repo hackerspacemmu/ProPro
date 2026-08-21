@@ -22,6 +22,29 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert @group.project_group_members.exists?(user_id: @student.id)
   end
 
+  test "join clears joiner's own pending request invites course-wide" do
+    other_group = FactoryBot.create(:project_group, course: @course, leader_id: @leader.id)
+    invite = FactoryBot.create(:project_group_invite,
+                               project_group: other_group, sender: @student, recipient: @leader,
+                               kind: :direct_request, status: :pending)
+
+    GroupJoiner.new(@group, current_user: @student).join!
+
+    assert_raises(ActiveRecord::RecordNotFound) { invite.reload }
+  end
+
+  test "join does not touch other users' pending invites" do
+    other_student = FactoryBot.create(:user)
+    FactoryBot.create(:enrolment, course: @course, user: other_student, role: :student)
+    unrelated_invite = FactoryBot.create(:project_group_invite,
+                                         project_group: @group, sender: other_student, recipient: @leader,
+                                         kind: :direct_request, status: :pending)
+
+    GroupJoiner.new(@group, current_user: @student).join!
+
+    assert unrelated_invite.reload.persisted?
+  end
+
   test 'blocked when window closed' do
     @course.update!(grouping_open: false)
 
@@ -74,28 +97,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert_equal :group_full, result.blocked_reason
   end
 
-  test "join clears joiner's own pending request invites course-wide" do
-    other_group = FactoryBot.create(:project_group, course: @course, leader_id: @leader.id)
-    invite = FactoryBot.create(:project_group_invite,
-                               project_group: other_group, sender: @student, kind: :request, status: :pending)
-
-    GroupJoiner.new(@group, current_user: @student).join!
-
-    assert_raises(ActiveRecord::RecordNotFound) { invite.reload }
-  end
-
-  test "join does not touch other users' pending invites" do
-    other_student = FactoryBot.create(:user)
-    FactoryBot.create(:enrolment, course: @course, user: other_student, role: :student)
-    unrelated_invite = FactoryBot.create(:project_group_invite,
-                                         project_group: @group, sender: other_student, kind: :request, status: :pending)
-
-    GroupJoiner.new(@group, current_user: @student).join!
-
-    assert unrelated_invite.reload.persisted?
-  end
-
-  test 'concurrent joins on last slot — only one succeeds' do
+  test 'concurrent joins on last slot. only one succeeds' do
     filler = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: filler, role: :student)
     FactoryBot.create(:project_group_member, project_group: @group, user: filler)

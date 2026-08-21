@@ -15,7 +15,7 @@ class ProjectGroupInviteTest < ActiveSupport::TestCase
 
   test 'sender can only have one pending request per group' do
     @invite.save!
-    duplicate = build(:project_group_invite, project_group: @group, sender: @sender, kind: :request)
+    duplicate = build(:project_group_invite, project_group: @group, sender: @sender, kind: :direct_request)
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:sender_id], 'already has a pending request for this group'
   end

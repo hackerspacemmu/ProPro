@@ -97,6 +97,12 @@ class ProjectGroupsController < ApplicationController
 
   def lock
     authorize @group
+
+    if @group.leader_id.blank?
+      redirect_to course_project_groups_path(@course), alert: 'Assign a leader before locking this group.'
+      return
+    end
+
     begin
       @group.update!(locked: true)
     rescue StandardError => e

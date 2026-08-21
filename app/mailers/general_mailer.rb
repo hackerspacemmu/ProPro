@@ -51,7 +51,10 @@ class GeneralMailer < ApplicationMailer
     @invite = params[:invite]
     @group = @invite.project_group
     @sender = @invite.sender
-    @leader = @group.leader_id && User.find(@group.leader_id)
+
+    raise ArgumentError, "Group_Direct_Request_Notification: group #{@group.id} has no leader_id" if @group.leader_id.blank?
+
+    @leader = User.find(@group.leader_id)
 
     mail(to: @leader.email_address, Subject: "New join request for #{@group.group_name}")
   end

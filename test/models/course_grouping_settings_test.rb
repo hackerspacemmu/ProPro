@@ -1,8 +1,8 @@
-# test/models/course_grouping_test.rb
+# test/models/course_grouping_settings_test.rb
 
 require 'test_helper'
 
-class CourseGroupingTest < ActiveSupport::TestCase
+class CourseGroupingSettingsTest < ActiveSupport::TestCase
   # Validations
 
   test 'group_min and group_max are required when grouping is enabled' do
@@ -48,43 +48,6 @@ class CourseGroupingTest < ActiveSupport::TestCase
                    grouping_opens_at: 1.hour.from_now,
                    grouping_closes_at: 1.day.from_now)
     assert course.valid?
-  end
-
-  # group_size_distribution
-
-  test 'group_size_distribution returns a valid distribution for exact multiples' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 3, group_max: 3)
-    result = course.group_size_distribution(9)
-    assert_nil result[:error]
-    assert_equal 3, result[:total_groups]
-    assert_equal [{ size: 3, count: 3 }], result[:groups]
-  end
-
-  test 'group_size_distribution returns mixed sizes when remainder exists' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 3, group_max: 4)
-    result = course.group_size_distribution(11)
-    assert_nil result[:error]
-    sizes = result[:groups].flat_map { |e| Array.new(e[:count], e[:size]) }.sum
-    assert_equal 11, sizes
-  end
-
-  test 'group_size_distribution returns error when no legal combination exists' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 4, group_max: 4)
-    result = course.group_size_distribution(7)
-    assert result[:error].present?
-  end
-
-  test 'group_size_distribution returns error for zero students' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 3, group_max: 4)
-    result = course.group_size_distribution(0)
-    assert result[:error].present?
-  end
-
-  test 'group_size_distribution is deterministic, returns the same output' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 3, group_max: 4)
-    first  = course.group_size_distribution(11)
-    second = course.group_size_distribution(11)
-    assert_equal first, second
   end
 
   # grouping_window_open?
