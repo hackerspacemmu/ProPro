@@ -20,10 +20,7 @@ class Project < ApplicationRecord
   scope :rejected, -> { where(status: :rejected) }
   scope :pending_redo, -> { where(status: %i[pending redo]) }
   scope :proposals, -> { where(status: %i[pending redo rejected]) }
-
-  # Enrolment (supervisor) filters
   scope :supervised_by, ->(supervisor_enrolment) { where(supervisor_enrolment: supervisor_enrolment) }
-
   scope :owned_by_user_or_groups, lambda { |user, groups|
     where(owner: [user] + groups.to_a)
   }
@@ -31,6 +28,8 @@ class Project < ApplicationRecord
   scope :owned_by_groups, ->(groups) { where(owner: groups) }
 
   before_validation :set_ownership_type
+
+  validate :project_group_must_be_confirmed, if: -> { owner_type == "ProjectGroup" }
 
   STATUS_SORT_ORDER = { 'rejected' => 0, 'redo' => 1, 'pending' => 2, 'not_submitted' => 3, 'approved' => 4 }.freeze
 
@@ -80,5 +79,13 @@ class Project < ApplicationRecord
 
   def set_ownership_type
     self.ownership_type = :student
+  end
+
+  def project_group_must_be_confirmed
+    return if owner_id.blank?
+
+    if !group.confirmed?
+      errors.add(:owner_id, "cannot be a draft group")
+    end
   end
 end
