@@ -220,7 +220,7 @@
               <%= button_to "Leave group",
                     course_project_group_member_path(@course, @my_group, my_membership),
                     method: :delete,
-                    class: "text-xs text-gray-400 hover:text-gray-700 transition-colors",
+                    class: "text-xs text-red-500 hover:text-red-700 transition-colors",
                     form: { data: { confirm: "Leave #{@my_group.group_name}?" } } %>
             <% else %>
               <button disabled class="text-xs text-gray-300 cursor-not-allowed" title="Grouping window closed">

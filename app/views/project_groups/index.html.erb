@@ -1,28 +1,3 @@
-<%#
-  STYLE PASS — mockups: coordinator-view.html (settings bar + groups list)
-  and state-a/state-b (browse toolbar + ungrouped panel).
-
-  FLAGGED STRUCTURAL CHANGES:
-  1. Coordinator settings form wrapped in a native <details> — collapsed
-     summary bar (Grouping on/off · Mode · Min/Max · Window) with an
-     Edit/Done disclosure, matching the mockup. All existing fields,
-     names, and data-grouping-settings-* targets are untouched inside —
-     only the outer wrapper is new. Defaults open when grouping is OFF
-     (so it's not hidden the first time someone needs to turn it on).
-  2. Removed the old "Filters" sidebar (non-functional checkboxes) and
-     the sort dropdown, replaced with a Tabs (All/Draft/Confirmed, with
-     real counts) + search bar above the Groups list, per both mockups.
-     Tabs/search are wired to a Stimulus controller (group-browse-filter)
-     that toggles group_card visibility client-side — no server round-trip,
-     since @groups is already fully loaded on render.
-  3. Groups wrapper now uses a single‑column list for anyone who can
-     manage groups (coordinators + eligible lecturers), and a 2‑col grid
-     for students, keeping names readable in the management view.
-  4. Ungrouped Students panel is now a collapsed summary (avatar preview
-     + count) that expands via <details> — the turbo_stream.append
-     target id="ungrouped-students-list" is preserved exactly, so member
-     removal still appends correctly whether the panel is expanded or not.
-%>
 <% content_for :stylesheets do %>
   <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
 <% end %>
@@ -94,11 +69,11 @@
                       peer-checked:after:translate-x-full peer-checked:after:border-white
                       after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                       after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5
-                      after:w-5 after:transition-all peer-checked:bg-green-500
+                      after:w-5 after:transition-all peer-checked:bg-zinc-900
                     "
                   ></div>
                 </label>
-                <span class="text-sm font-black tracking-widest <%= @course.grouping_enabled? ? 'text-green-600' : 'text-gray-400' %> w-8">
+                <span class="text-sm font-black tracking-widest <%= @course.grouping_enabled? ? 'text-emerald-600' : 'text-gray-400' %> w-8">
                   <%= @course.grouping_enabled? ? "ON" : "OFF" %>
                 </span>
               </div>
@@ -213,7 +188,8 @@
                 <div class="flex flex-col md:flex-row gap-4">
                   <label class="
                         flex-1 border rounded-md p-3 transition-all
-                        <%= !@course.student_list_finalised? ? 'border-zinc-900 bg-gray-50 shadow-sm hover:opacity-100 cursor-pointer' : 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed' %>
+                    cursor-pointer hover:opacity-100
+                    <%= !@course.student_list_finalised? ? 'border-zinc-900 bg-gray-50 shadow-sm' : 'border-gray-200 bg-gray-50/50 opacity-60' %>
                       ">
                     <div class="flex items-start gap-3">
                       <div class="flex-shrink-0 mt-1">
@@ -221,22 +197,15 @@
                           type="radio"
                           name="student_list_finalised"
                           value="0"
-                          class="w-4 h-4 text-zinc-900 focus:ring-zinc-900 disabled:cursor-not-allowed"
+                          class="w-4 h-4 text-zinc-900 focus:ring-zinc-900"
                           <%= "checked" unless @course.student_list_finalised? %>
-                          <%= "disabled" if @course.student_list_finalised? %>
                         >
                       </div>
                       <div>
                         <h4 class="text-sm font-bold text-gray-900">Default Mode</h4>
                         <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                          Student list is
-                          <span class="font-semibold">not final</span>. No student self-grouping. Coordinator manages all
-                          groups manually via CRUD. Students can only view their
-                          assigned group.
+                          Groups can confirm if they are at most / at least group max and group min.
                         </p>
-                        <% if @course.student_list_finalised? %>
-                          <p class="text-[10px] text-red-500 font-semibold mt-2"> Locked: Student list is already finalised.</p>
-                        <% end %>
                       </div>
                     </div>
                   </label>
@@ -256,10 +225,10 @@
                         >
                       </div>
                       <div>
-                        <h4 class="text-sm font-bold text-gray-900">Fixed List Mode</h4>
-                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">Student list is
-                          <span class="font-semibold">final</span>. Students can self-group and send invites. Coordinators
-                          oversee draft groups and manually confirm them.</p>
+                        <h4 class="text-sm font-bold text-gray-900">Auto-Elibility mode</h4>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">This mode is only meant to be toggled
+                          on  when the number of students enrolled is final. The system will calculate the eligibility of a group 
+                          when they attempt to confirm to make sure no leftover ungrouped/unconfirmed students remain.</p>
                       </div>
                     </div>
                   </label>

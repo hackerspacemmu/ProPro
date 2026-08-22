@@ -4,20 +4,6 @@
     render partial: "group_card", collection: @groups, as: :group,
            locals: { course: @course, is_coordinator: ..., my_group: @my_group,
                       ungrouped_students: @ungrouped_students }
-
-  STYLE PASS — mockups: coordinator-view.html (compact row) + state-a/b
-  browse grid. Same partial serves both; index.html.erb switches the
-  wrapper (grid vs stacked list), the card itself is one shared design.
-
-  FLAGGED STRUCTURAL CHANGES (logic/routes/policies unchanged):
-  1. Confirm/Revert moved from a footer band into the header action row.
-  2. Member grid is now inside a native <details> disclosure (zero-JS
-     collapse) instead of always-rendered — reduces clutter on pages with
-     many groups. Defaults OPEN when can_manage (coordinator/lecturer),
-     closed otherwise.
-  3. Dropped the #1F78D1 brand-blue in favor of zinc-900, per the
-     mockups' own note ("swap by find/replace once a real CTA color
-     exists").
 %>
 <% member_count = group.project_group_members.size %>
 <% is_over_limit =
