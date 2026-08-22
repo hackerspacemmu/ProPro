@@ -47,6 +47,16 @@ class GeneralMailer < ApplicationMailer
     mail(to: @recipient, Subject: "You've Been Added To A Course in ProPro")
   end
 
+  def Project_Comment_Notification
+    @course = params[:course]
+    @project = params[:project]
+    @recipient = params[:recipient]
+    @commenter_name = params[:commenter_name]
+    @comment_snippet = params[:comment_snippet]
+
+    mail(to: params[:email_address], Subject: 'New Comment on Your Project')
+  end
+
   def Group_Direct_Request_Notification
     @invite = params[:invite]
     @group = @invite.project_group
