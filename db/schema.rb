@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_11_102449) do
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.datetime "grouping_closes_at"
     t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
+    t.boolean "lecturers_can_manage_groups", default: true, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
@@ -81,6 +82,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
     t.datetime "updated_at", null: false
     t.date "date"
     t.index ["project_id"], name: "index_progress_updates_on_project_id"
+  end
+
+  create_table "project_group_invite_links", force: :cascade do |t|
+    t.integer "project_group_id", null: false
+    t.integer "sender_id", null: false
+    t.string "token", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_group_id"], name: "index_project_group_invite_links_on_project_group_id"
+    t.index ["sender_id"], name: "index_project_group_invite_links_on_sender_id"
+    t.index ["token"], name: "index_project_group_invite_links_on_token", unique: true
+  end
+
+  create_table "project_group_invites", force: :cascade do |t|
+    t.integer "project_group_id", null: false
+    t.integer "sender_id", null: false
+    t.integer "kind", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "recipient_id", null: false
+    t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
+    t.index ["recipient_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_recipient_group_kind", unique: true, where: "status = 0 AND kind = 1"
+    t.index ["recipient_id"], name: "index_project_group_invites_on_recipient_id"
+    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0 AND kind = 0"
+    t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
   end
 
   create_table "project_group_members", force: :cascade do |t|
@@ -333,6 +361,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_02_083314) do
   add_foreign_key "enrolments", "users"
   add_foreign_key "otps", "users"
   add_foreign_key "progress_updates", "projects"
+  add_foreign_key "project_group_invite_links", "project_groups"
+  add_foreign_key "project_group_invite_links", "users", column: "sender_id"
+  add_foreign_key "project_group_invites", "project_groups"
+  add_foreign_key "project_group_invites", "users", column: "recipient_id"
+  add_foreign_key "project_group_invites", "users", column: "sender_id"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_groups", "courses"

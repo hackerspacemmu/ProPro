@@ -1,0 +1,32 @@
+<% if @invite_link && @invite_link.expires_at.future? %>
+  <% leader = @invite_link.sender %>
+  <% group = @invite_link.project_group %>
+  <% member_count = group.project_group_members.count %>
+
+  <div class="min-h-screen bg-white flex items-center justify-center px-4">
+    <div class="w-full max-w-sm border border-gray-200 rounded-[3px] bg-white shadow-sm text-center p-8">
+      <div class="w-16 h-16 rounded-full bg-[#1F78D1] flex items-center justify-center mx-auto mb-4">
+        <span class="text-white text-2xl font-bold"><%= leader.name.first.upcase %></span>
+      </div>
+
+      <p class="text-sm text-gray-500 mb-1">
+        <%= leader.name %> invited you to join
+      </p>
+      <h1 class="text-xl font-bold text-gray-900 mb-2"><%= group.group_name %></h1>
+      <p class="text-xs text-gray-400 mb-6">
+        <%= member_count %> member<%= 's' unless member_count == 1 %>
+      </p>
+
+      <%= button_to "Accept invite",
+            redeem_project_group_invite_link_path(@invite_link.token),
+            method: :patch,
+            class: "w-full bg-[#1F78D1] text-white text-sm font-medium rounded-[3px] py-2.5 hover:bg-[#1a6abf] transition-colors" %>
+    </div>
+  </div>
+<% else %>
+  <div class="min-h-screen bg-white flex items-center justify-center px-4">
+    <div class="w-full max-w-sm border border-gray-200 rounded-[3px] bg-white shadow-sm text-center p-8">
+      <p class="text-sm text-gray-500">This invite link is invalid or has expired.</p>
+    </div>
+  </div>
+<% end %>

@@ -8,7 +8,7 @@ module ProjectsHelper
   end
 
   def name(user_id)
-    return nil unless user_id.present?
+    return nil if user_id.blank?
 
     User.find_by(id: user_id)&.name
   end

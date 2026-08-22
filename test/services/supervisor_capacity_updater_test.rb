@@ -22,7 +22,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
       @lecturer2.id.to_s => '3'
     }
 
-    result = @service.update_capacities(offsets: offsets, excluded_ids: [])
+    result = @service.update!(offsets: offsets, excluded_ids: [])
 
     assert result.updated?
     assert result.errors.empty?
@@ -38,7 +38,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
   end
 
   test 'handles an empty batch as a no-op success' do
-    result = @service.update_capacities(offsets: {}, excluded_ids: [])
+    result = @service.update!(offsets: {}, excluded_ids: [])
 
     assert result.updated?
     assert result.errors.empty?
@@ -48,7 +48,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
     offsets = { @lecturer1.id.to_s => '-10' }
     excluded_ids = [@lecturer1.id.to_s]
 
-    result = @service.update_capacities(offsets: offsets, excluded_ids: excluded_ids)
+    result = @service.update!(offsets: offsets, excluded_ids: excluded_ids)
 
     assert result.updated?
     @lecturer1.reload
@@ -59,7 +59,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
   test 'clears a previously set offset back to zero' do
     @lecturer1.update!(supervisor_capacity_offset: 5)
 
-    result = @service.update_capacities(offsets: { @lecturer1.id.to_s => '0' }, excluded_ids: [])
+    result = @service.update!(offsets: { @lecturer1.id.to_s => '0' }, excluded_ids: [])
 
     assert result.updated?
     @lecturer1.reload
@@ -70,7 +70,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
     @course.update!(supervisor_auto_calculate_enabled: true)
     create_solo_projects(@course, 21)
 
-    result = @service.update_capacities(offsets: { @lecturer1.id.to_s => '-3' }, excluded_ids: [])
+    result = @service.update!(offsets: { @lecturer1.id.to_s => '-3' }, excluded_ids: [])
 
     assert result.updated?
     @lecturer1.reload
@@ -78,7 +78,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
   end
 
   test 'applies exclusion for a lecturer even when no offset is present in the same batch' do
-    result = @service.update_capacities(offsets: {}, excluded_ids: [@lecturer3.id.to_s])
+    result = @service.update!(offsets: {}, excluded_ids: [@lecturer3.id.to_s])
 
     assert result.updated?
     @lecturer3.reload
@@ -89,7 +89,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
   test 'preserves an existing offset, dormant, when excluding a lecturer whose offset is not in this batch' do
     @lecturer3.update!(supervisor_capacity_offset: 4)
 
-    result = @service.update_capacities(offsets: {}, excluded_ids: [@lecturer3.id.to_s])
+    result = @service.update!(offsets: {}, excluded_ids: [@lecturer3.id.to_s])
 
     assert result.updated?
     @lecturer3.reload
@@ -100,7 +100,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
   # --- INVALID INPUT / REJECTED OFFSETS ---
 
   test 'rejects an offset that brings capacity to exactly zero' do
-    result = @service.update_capacities(offsets: { @lecturer1.id.to_s => '-10' }, excluded_ids: [])
+    result = @service.update!(offsets: { @lecturer1.id.to_s => '-10' }, excluded_ids: [])
 
     assert_not result.updated?
     assert_includes result.errors.first, @lecturer1.user.name
@@ -108,7 +108,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
   end
 
   test 'rejects an offset that brings capacity below zero' do
-    result = @service.update_capacities(offsets: { @lecturer1.id.to_s => '-11' }, excluded_ids: [])
+    result = @service.update!(offsets: { @lecturer1.id.to_s => '-11' }, excluded_ids: [])
 
     assert_not result.updated?
     assert_includes result.errors.first, 'negative or zero capacity'
@@ -121,7 +121,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
       @lecturer3.id.to_s => '5'
     }
 
-    result = @service.update_capacities(offsets: offsets, excluded_ids: [])
+    result = @service.update!(offsets: offsets, excluded_ids: [])
 
     assert_not result.updated?
     assert_equal 2, result.errors.length
@@ -133,7 +133,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
     @course.update!(supervisor_auto_calculate_enabled: true)
     create_solo_projects(@course, 21)
 
-    result = @service.update_capacities(offsets: { @lecturer1.id.to_s => '-7' }, excluded_ids: [])
+    result = @service.update!(offsets: { @lecturer1.id.to_s => '-7' }, excluded_ids: [])
 
     assert_not result.updated?
     assert_includes result.errors.first, 'negative or zero capacity'
@@ -149,7 +149,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
       @lecturer2.id.to_s => '3'    # otherwise valid
     }
 
-    result = @service.update_capacities(offsets: offsets, excluded_ids: [])
+    result = @service.update!(offsets: offsets, excluded_ids: [])
 
     assert_not result.updated?
 
@@ -169,7 +169,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
       @lecturer1.id.to_s => '3'
     }
 
-    result = @service.update_capacities(offsets: offsets, excluded_ids: [])
+    result = @service.update!(offsets: offsets, excluded_ids: [])
 
     assert result.updated?
     @lecturer1.reload
@@ -185,7 +185,7 @@ class SupervisorCapacityUpdaterTest < ActiveSupport::TestCase
       coordinator.id.to_s => '5'
     }
 
-    result = @service.update_capacities(offsets: offsets, excluded_ids: [])
+    result = @service.update!(offsets: offsets, excluded_ids: [])
 
     assert result.updated?
     student.reload

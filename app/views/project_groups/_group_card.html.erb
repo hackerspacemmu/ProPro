@@ -1,65 +1,248 @@
-<article>
-  <header>
-    <h3>
-      <% if group.group_name.present? %>
-        <%= group.group_name %>
+<%#
+  locals: group, course, is_coordinator, my_group, ungrouped_students
+  Rendered as a collection from index via:
+    render partial: "group_card", collection: @groups, as: :group,
+           locals: { course: @course, is_coordinator: ..., my_group: @my_group,
+                      ungrouped_students: @ungrouped_students }
+%>
+<% member_count = group.project_group_members.size %>
+<% is_over_limit =
+  course.group_max.present? && member_count > course.group_max.to_i %>
+<% can_manage = policy(course).manage_groups? %>
+
+<%
+  if is_over_limit
+    accent_border = "border-red-200"
+    left_accent   = "border-l-red-400"
+    card_bg       = "bg-red-50/40"
+  elsif group.confirmed?
+    accent_border = "border-emerald-200"
+    left_accent   = "border-l-emerald-600"
+    card_bg       = is_coordinator ? "bg-emerald-50" : "bg-white"
+  else
+    accent_border = "border-gray-200"
+    left_accent   = "border-l-gray-400"
+    card_bg       = "bg-white"
+  end
+%>
+
+<div
+  id="<%= dom_id(group) %>"
+  data-controller="combobox-modal"
+  data-group-browse-filter-target="card"
+  data-status="<%= group.confirmed? ? "confirmed" : "draft" %>"
+  data-search-text="<%= [group.group_name, *group.project_group_members.map { |m| m.user.name }].compact.join(" ").downcase %>"
+  class="
+    border <%= accent_border %> <%= left_accent %> border-l-4 <%= card_bg %>
+    rounded-r-lg rounded-l-sm <%= is_coordinator ? "p-3" : "p-4" %>
+  "
+>
+  <%# Header row: badges, name, size, actions %>
+  <div class="flex items-center justify-between gap-2 flex-wrap">
+    <div class="flex items-center gap-2 min-w-0">
+      <% if group.confirmed? %>
+        <span class="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 shrink-0">Confirmed</span>
       <% else %>
-        Unnamed group
+        <span class="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 shrink-0">Draft</span>
       <% end %>
-    </h3>
 
-    <% if group.confirmed? %>
-      <span>Confirmed</span>
-    <% else %>
-      <span>Draft</span>
-    <% end %>
+      <% if group.locked? %>
+        <span title="Locked — join requests only" class="text-amber-600 shrink-0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+        </span>
+      <% end %>
 
-    <% if group.locked? %>
-      <span>Locked</span>
-    <% end %>
-  </header>
+      <span class="text-sm font-medium <%= is_over_limit ? "text-red-800" : "text-gray-900" %> truncate">
+        <%= group.group_name.presence || "Unnamed group" %>
+      </span>
+    </div>
 
-  <p>Members: <%= group.project_group_members.count %></p>
+    <div class="flex items-center gap-2 shrink-0">
+      <span class="text-xs <%= is_over_limit ? "text-red-600 font-bold" : "text-gray-400" %>">
+        <%= "⚠️ " if is_over_limit %><%= member_count %>/<%= course.group_max.presence || "?" %>
+      </span>
 
-  <ul>
-    <% group.project_group_members.each do |membership| %>
-      <li>
-        <%= membership.user.name %>
-        <% if membership.user_id == group.leader_id %>
-          <span>(Leader)</span>
+      <%# Join / Request-to-join — students only %>
+      <% unless is_coordinator %>
+        <% if my_group.present? %>
+          <%# already grouped elsewhere — no join UI %>
+        <% elsif group.locked? %>
+          <% if policy(group).request_to_join? %>
+            <%= button_to "Request to join",
+                  course_project_group_project_group_invites_path(course, group),
+                  method: :post,
+                  class: "text-xs font-medium px-2.5 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" %>
+          <% end %>
+        <% elsif policy(group).join? %>
+          <%= button_to "Join",
+                join_course_project_group_path(course, group),
+                method: :patch,
+                class: "text-xs font-medium px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white transition-colors" %>
         <% end %>
-      </li>
-    <% end %>
-  </ul>
-
-  <%# Student join / request actions %>
-  <% if !@current_user_enrolment&.coordinator? && @course.grouping_window_open? && @my_group.nil? %>
-    <% if group.confirmed? %>
-      <p>This group is confirmed and cannot be joined.</p>
-    <% elsif group.locked? %>
-      <%# TODO Person 3: POST project_group_invites (kind: request) %>
-      <button type="button" disabled>Request to join</button>
-    <% else %>
-      <%# TODO Person 2: joining an unlocked draft group %>
-      <button type="button" disabled>Join</button>
-    <% end %>
-  <% end %>
-
-  <%# Coordinator actions %>
-  <% if @current_user_enrolment&.coordinator? %>
-    <section>
-      <h4>Coordinator Actions</h4>
-
-      <%# TODO Person 1: form to add a student to this group %>
-      <button type="button" disabled>Add student</button>
-
-      <% if !group.confirmed? %>
-        <%# TODO Person 1: PATCH confirm_course_project_group_path %>
-        <button type="button" disabled>Confirm group</button>
-      <% else %>
-        <%# TODO Person 1: PATCH revert_course_project_group_path %>
-        <button type="button" disabled>Revert to draft</button>
       <% end %>
-    </section>
-  <% end %>
-</article>
+
+      <%# Confirm / Revert — top right, as requested %>
+      <% if policy(group).confirm? && !group.confirmed? %>
+        <%= button_to "Confirm",
+              confirm_course_project_group_path(course, group),
+              method: :patch,
+              class: "text-xs font-medium px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white transition-colors",
+              form: { data: { turbo_confirm: "Confirm #{group.group_name.presence || 'this group'}? Members can no longer be kicked once confirmed." } } %>
+      <% elsif policy(group).revert? && group.confirmed? %>
+        <%= button_to "Revert",
+              revert_course_project_group_path(course, group),
+              method: :patch,
+              class: "text-xs font-medium px-2.5 py-1 rounded-md border border-emerald-300 text-emerald-800 hover:bg-emerald-100 transition-colors" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Members — now always open by default %>
+  <details class="group mt-2.5" open>
+    <summary class="list-none cursor-pointer flex items-center justify-between gap-2 [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+      <div class="flex group-open:hidden">
+        <% group.project_group_members.first(4).each_with_index do |membership, i| %>
+          <div class="w-[22px] h-[22px] rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-[10px] font-semibold border-2 border-white <%= "-ml-1.5" if i > 0 %>">
+            <%= membership.user.name.presence&.first&.upcase || "?" %>
+          </div>
+        <% end %>
+        <% if member_count > 4 %>
+          <div class="w-[22px] h-[22px] rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-[9px] text-gray-400 -ml-1.5">
+            +<%= member_count - 4 %>
+          </div>
+        <% end %>
+      </div>
+      <span class="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition-colors">
+        <span class="group-open:hidden">Show members</span>
+        <span class="hidden group-open:inline">Hide members</span>
+        <svg class="transition-transform group-open:rotate-180" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </span>
+    </summary>
+
+    <div class="grid grid-cols-2 gap-2 mt-2.5 pt-2.5 border-t border-gray-100">
+      <% group.project_group_members.each do |membership| %>
+        <div
+          id="<%= dom_id(membership) %>"
+          class="flex items-center gap-2.5 p-2.5 rounded-md bg-gray-50 border border-gray-200 group/member"
+        >
+          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-[11px] font-bold text-gray-600 shrink-0">
+            <%= membership.user.name.presence&.first&.upcase || "?" %>
+          </div>
+          <div class="flex flex-col min-w-0 flex-1">
+            <span class="text-sm font-medium text-gray-900 truncate"
+                  title="<%= membership.user.name.presence || membership.user.email_address %>">
+              <%= membership.user.name.presence || membership.user.email_address %>
+            </span>
+            <% if membership.user.instid.present? %>
+              <span class="text-[11px] text-gray-400 font-mono"><%= membership.user.instid %></span>
+            <% end %>
+            <% if membership.user_id == group.leader_id %>
+              <span class="text-[10px] text-gray-400 mt-0.5">leader</span>
+            <% end %>
+          </div>
+          <% if can_manage %>
+            <%
+              will_dissolve_with_data = member_count == 1 && group.project.present?
+            %>
+            <div class="opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0 self-start pt-0.5">
+              <%= button_to course_project_group_member_path(course, group, membership),
+                  method: :delete,
+                  class: "text-[11px] text-red-400 hover:text-red-600 transition-colors",
+                  form: {
+                    data: will_dissolve_with_data ?
+                      { turbo_stream: true } :
+                      { turbo_stream: true, turbo_confirm: "Remove #{membership.user.name} from #{group.group_name}? They will become ungrouped." }
+                  } do %>
+                Remove
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if can_manage %>
+        <button
+          type="button"
+          data-action="click->combobox-modal#open"
+          class="
+            flex flex-col items-center justify-center gap-1 p-2.5 rounded-md border
+            border-dashed border-gray-300 bg-transparent text-gray-400 hover:border-gray-400
+            hover:bg-gray-50 hover:text-gray-600 transition-all min-h-[62px] cursor-pointer
+          "
+        >
+          <div class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <span class="text-[10px] tracking-wide">Add student</span>
+        </button>
+
+        <%# --- ADD-MEMBER MODAL (native <dialog>, inline, scoped to this card) --- %>
+        <dialog data-combobox-modal-target="dialog"
+                data-action="click->combobox-modal#backdropClose click@document->combobox-modal#closeOnOutsideClick"
+                aria-labelledby="add-member-modal-title-<%= group.id %>"
+                class="overflow-visible rounded-lg border border-gray-200 p-0 w-[380px] max-w-[calc(100vw-2rem)] m-auto backdrop:bg-black/40">
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 id="add-member-modal-title-<%= group.id %>" class="text-sm font-bold text-gray-900">
+                Add student to <%= group.group_name.presence || "group" %>
+              </h3>
+              <button type="button" data-action="click->combobox-modal#close"
+                      class="text-gray-400 hover:text-gray-600 text-sm" aria-label="Close">✕</button>
+            </div>
+
+            <%= form_with url: course_project_group_members_path(course, group), method: :post do %>
+              <%= hidden_field_tag :user_id, "", data: { combobox_modal_target: "hiddenInput" } %>
+
+              <div class="relative mb-3">
+                <input type="text"
+                      placeholder="Search for a student…"
+                      autocomplete="off"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-autocomplete="list"
+                      data-combobox-modal-target="searchInput"
+                      data-action="input->combobox-modal#search focus->combobox-modal#onFocus keydown->combobox-modal#onKeydown"
+                      class="w-full text-sm border border-gray-300 rounded-md px-3 py-2">
+
+                <ul data-combobox-modal-target="list" role="listbox" hidden
+                    class="absolute left-0 right-0 top-full mt-1 z-10 max-h-64 overflow-y-auto divide-y divide-gray-100 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <% ungrouped_students.each do |student| %>
+                    <li data-combobox-modal-target="row"
+                        data-name="<%= student.name %>"
+                        data-user-id="<%= student.id %>"
+                        data-action="click->combobox-modal#select"
+                        role="option"
+                        class="flex items-center gap-2 py-2 px-2 cursor-pointer hover:bg-gray-50">
+                      <span class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[9px] font-bold text-gray-600 shrink-0">
+                        <%= student.name.presence&.first&.upcase || "?" %>
+                      </span>
+                      <span class="text-xs text-gray-800">
+                        <%= student.name %><%= student.instid.present? ? " (#{student.instid})" : "" %>
+                      </span>
+                    </li>
+                  <% end %>
+                  <li data-combobox-modal-target="empty" hidden class="text-xs text-gray-400 text-center py-4">
+                    No matching students.
+                  </li>
+                </ul>
+              </div>
+
+              <% if ungrouped_students.empty? %>
+                <p class="text-xs text-gray-400 text-center py-4">No ungrouped students to add.</p>
+              <% else %>
+                <div class="flex justify-end gap-2">
+                  <button type="button" data-action="click->combobox-modal#close"
+                          class="text-xs px-3 py-1.5 border border-gray-300 rounded-md text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors">
+                    Cancel
+                  </button>
+                  <%= submit_tag "Add student", disabled: true, data: { combobox_modal_target: "submitButton" },
+                        class: "text-xs px-3 py-1.5 bg-zinc-900 text-white rounded-md hover:bg-zinc-800 transition-colors font-medium cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </dialog>
+      <% end %>
+    </div>
+  </details>
+</div>

@@ -1,6 +1,6 @@
 class ProjectGroupsController < ApplicationController
   before_action :set_course
-  before_action :set_group, only: %i[destroy confirm revert lock unlock promote_leader]
+  before_action :set_group, only: %i[destroy confirm revert lock join unlock promote_leader generate_invite_link]
 
   def index
     authorize @course, :grouping?
@@ -9,7 +9,15 @@ class ProjectGroupsController < ApplicationController
                        .includes(project_group_members: :user)
                        .joins(:project_group_members)
                        .find_by(project_group_members: { user_id: current_user.id })
-                       
+
+    @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? && @my_group.confirmable?
+
+    @my_group_invite_token = @my_group&.project_group_invite_links&.find_by(sender: current_user)&.token
+    @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :direct_request) : []
+    @incoming_direct_invites = ProjectGroupInvite.for_course(@course).sent_to(current_user).pending.where(kind: :direct_invite)
+    @my_requested_group_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_request).pluck(:project_group_id)
+    @my_invited_student_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_invite).pluck(:recipient_id)
+
     @groups = @course.project_groups
                      .includes(project_group_members: :user)
                      .order(:created_at)
@@ -22,29 +30,23 @@ class ProjectGroupsController < ApplicationController
   end
 
   def create
-    @group = @course.project_groups.build(leader_id: current_user.id)
+    @group = @course.project_groups.build
     authorize @group
 
-    begin
-      ActiveRecord::Base.transaction do
-        @course.with_lock do
-          next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
-          @group.course_group_sequence = next_seq
-          @group.group_name = format("G%03d", next_seq)
-          @group.save!
-        end
-        ProjectGroupMember.create!(user: current_user, project_group: @group)
-      end
-    rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
-      return
-    end
+    leader = policy(@group).coordinator? ? User.find(params[:user_id]) : current_user
 
-    redirect_to course_project_groups_path(@course), notice: "Draft group #{@group.group_name} created."
+    result = GroupCreator.new(@course, leader: leader, current_user: current_user).create!
+
+    if result.created?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
+    end
   end
 
   def destroy
     authorize @group
+
     begin
       ActiveRecord::Base.transaction do
         @group.destroy!
@@ -53,37 +55,54 @@ class ProjectGroupsController < ApplicationController
       redirect_to course_project_groups_path(@course), alert: e.message
       return
     end
+
     redirect_to course_project_groups_path(@course), notice: 'Group dissolved.'
+  end
+
+  def join
+    authorize @group
+
+    result = GroupJoiner.new(@group, current_user: current_user).join!
+
+    if result.joined?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
+    end
   end
 
   def confirm
     authorize @group
-    begin
-      ActiveRecord::Base.transaction do
-        raise StandardError, 'This group cannot be confirmed yet.' unless @group.confirm!
-      end
-    rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
-      return
+
+    result = GroupConfirmer.new(@group).confirm!
+
+    if result.confirmed?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
     end
-    redirect_to course_project_groups_path(@course), notice: "#{@group.group_name} confirmed."
   end
 
   def revert
     authorize @group
-    begin
-      ActiveRecord::Base.transaction do
-        @group.revert_to_draft!
-      end
-    rescue StandardError => e
-      redirect_to course_project_groups_path(@course), alert: e.message
-      return
+
+    result = GroupReverter.new(@group).revert!
+
+    if result.reverted?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
     end
-    redirect_to course_project_groups_path(@course), notice: "#{@group.group_name} reverted to draft."
   end
 
   def lock
     authorize @group
+
+    if @group.leader_id.blank?
+      redirect_to course_project_groups_path(@course), alert: 'Assign a leader before locking this group.'
+      return
+    end
+
     begin
       @group.update!(locked: true)
     rescue StandardError => e
@@ -114,6 +133,53 @@ class ProjectGroupsController < ApplicationController
       return
     end
     redirect_to course_project_groups_path(@course), notice: "#{target_member.user.name} is now the group leader."
+  end
+
+  def update_settings
+    authorize @course, :grouping_coordinator?
+
+    begin
+      ActiveRecord::Base.transaction do
+        # Extract boolean values from the flat form parameters
+        grouping_enabled_param = %w[1 true].include?(params[:grouping_enabled])
+        student_list_param     = %w[1 true].include?(params[:student_list_finalised])
+
+        if @course.grouping_enabled? && !grouping_enabled_param
+          @course.disable_grouping!
+
+        elsif @course.grouping_enabled? && @course.student_list_finalised? && !student_list_param
+          @course.revert_to_default_mode!
+
+        else
+          # Update all attributes in a single call to pass model validations
+          @course.update!(
+            grouping_enabled: grouping_enabled_param,
+            student_list_finalised: student_list_param,
+            group_min: params[:group_min].presence,
+            group_max: params[:group_max].presence,
+            grouping_open: %w[1 true].include?(params[:grouping_open]),
+            grouping_opens_at: params[:grouping_opens_at].presence,
+            grouping_closes_at: params[:grouping_closes_at].presence
+          )
+        end
+      end
+
+      redirect_to course_project_groups_path(@course), notice: 'Settings updated.'
+    rescue StandardError => e
+      redirect_to course_project_groups_path(@course), alert: e.message
+    end
+  end
+
+  def generate_invite_link
+    authorize @group
+
+    result = GroupInviteLinkGenerator.new(@group, current_user: current_user).generate!
+
+    if result.generated?
+      redirect_to course_project_groups_path(@course), notice: result.message
+    else
+      redirect_to course_project_groups_path(@course), alert: result.message
+    end
   end
 
   private

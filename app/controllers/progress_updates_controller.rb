@@ -35,7 +35,7 @@ class ProgressUpdatesController < ApplicationController
 
   def update
     @progress_update = ProgressUpdate.find(params[:id])
-    if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))
+    if @progress_update.update(params.expect(progress_update: %i[rating feedback date]))
       redirect_to course_project_path(@course, @project, tab: 'progress')
     else
       render :edit, status: :unprocessable_entity

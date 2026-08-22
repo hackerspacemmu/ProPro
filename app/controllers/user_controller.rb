@@ -45,7 +45,7 @@ class UserController < ApplicationController
     end
 
     if params[:user][:new_password].present?
-      if params[:user][:new_password_confirmation].blank? or params[:user][:new_password] != params[:user][:new_password_confirmation]
+      if params[:user][:new_password_confirmation].blank? || (params[:user][:new_password] != params[:user][:new_password_confirmation])
         redirect_back_or_to '/', alert: 'New passwords do not match'
         return
       elsif params[:user][:new_password].length > 72

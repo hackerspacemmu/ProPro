@@ -68,7 +68,7 @@ class CoursesController < ApplicationController
 
     @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
 
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     return unless request.headers['HX-Request']
@@ -147,7 +147,7 @@ class CoursesController < ApplicationController
       end
     end
 
-    if @course.grouped && !csv_obj.headers.include?('Group')
+    if @course.grouped && csv_obj.headers.exclude?('Group')
       redirect_back_or_to '/', alert: 'Not grouped CSV file'
       return
     end
@@ -185,7 +185,7 @@ class CoursesController < ApplicationController
 
   def create
     authorize Course.new
-    response = params.require(:course).permit(:course_name, :grouped)
+    response = params.expect(course: %i[course_name grouped])
 
     @new_course = Course.new(
       course_name: response[:course_name],
@@ -260,7 +260,7 @@ class CoursesController < ApplicationController
         )
 
         if params[:supervisor_capacity_offsets].present?
-          result = SupervisorCapacityUpdater.new(@course).update_capacities(
+          result = SupervisorCapacityUpdater.new(@course).update!(
             offsets: params[:supervisor_capacity_offsets],
             excluded_ids: params[:supervisor_capacity_excluded] || []
           )
@@ -412,7 +412,16 @@ class CoursesController < ApplicationController
     authorize @course, :update?
 
     student_count = params[:student_count].to_i
-    @preview = @course.group_size_distribution(student_count)
+    result = Queries::GroupSizeConfirmabilityCalculator.new(@course, students_to_group: student_count).execute
+
+    @preview = if result.success?
+                 {
+                   groups: result.breakdown.map { |entry| { size: entry[:group_size], count: entry[:number_of_groups] } },
+                   total_groups: result.group_count
+                 }
+               else
+                 { error: result.message }
+               end
 
     render partial: 'courses/grouping_preview_result', locals: { preview: @preview, course: @course }
   end
@@ -432,11 +441,11 @@ class CoursesController < ApplicationController
   end
 
   def load_capacity_result
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
   end
 
   def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)
-    hash_map.keys.each do |group|
+    hash_map.each_key do |group|
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
 
       hash_map[group].each do |group_member|
@@ -738,7 +747,7 @@ class CoursesController < ApplicationController
   # Filter Project by status helpers
 
   def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
-    return [] unless student_list.present?
+    return [] if student_list.blank?
 
     case status
     when 'approved'
@@ -757,7 +766,7 @@ class CoursesController < ApplicationController
   end
 
   def groups_by_status(status, group_list, course)
-    return [] unless group_list.present?
+    return [] if group_list.blank?
 
     case status
     when 'approved'

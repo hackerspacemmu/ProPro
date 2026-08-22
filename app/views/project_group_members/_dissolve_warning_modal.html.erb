@@ -1,0 +1,71 @@
+<div
+  id="dissolve-warning-modal"
+  data-controller="dissolve-warning-modal"
+  data-action="click->dissolve-warning-modal#closeOnBackdrop"
+  class="
+    fixed inset-0 bg-black/40 z-50 flex items-center justify-center
+  "
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="dissolve-warning-modal-title"
+>
+  <div
+    class="
+      bg-white rounded-[4px] border border-gray-200 w-[420px] max-w-[calc(100vw-2rem)]
+      overflow-hidden shadow-lg
+    "
+  >
+
+    <div
+      class="
+        flex items-center justify-between px-5 py-4 border-b border-gray-200
+      "
+    >
+      <p class="text-sm font-semibold text-gray-900" id="dissolve-warning-modal-title">Remove last member?</p>
+      <button
+        data-action="click->dissolve-warning-modal#close"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Close"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="18px"
+          viewBox="0 -960 960 960"
+          width="18px"
+          fill="currentColor"
+        >
+          <path
+            d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <div class="px-5 py-3 border-b border-gray-200 bg-red-50/60">
+      <p class="text-xs text-red-700 leading-relaxed">
+        <%= result.message %>
+      </p>
+    </div>
+
+    <div class="flex justify-end gap-2 px-5 py-4">
+      <button
+        type="button"
+        data-action="click->dissolve-warning-modal#close"
+        class="
+          text-xs px-3 py-1.5 border border-gray-300 rounded-[3px] text-gray-600
+          hover:border-gray-400 hover:text-gray-800 transition-colors
+        "
+      >
+        Cancel
+      </button>
+      <%= button_to "Confirm remove",
+            course_project_group_member_path(member.project_group.course, member.project_group, member),
+            method: :delete,
+            params: { dissolve_confirmed: true },
+            form: { data: { turbo_stream: true } },
+            class:
+              "text-xs px-3 py-1.5 bg-red-600 text-white rounded-[3px] hover:bg-red-700 transition-colors font-medium cursor-pointer" %>
+    </div>
+
+  </div>
+</div>

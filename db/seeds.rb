@@ -57,8 +57,8 @@ student3 = User.create!(
 )
 
 student4 = User.create!(
-  email_address: 'student4@test.com',
-  name: 'student4',
+  email_address: 'brandon.lim.wei.keong@test.com',
+  name: 'Brandon Lim Wei Keong',
   has_registered: true,
   instid: '1191202126',
   is_staff: false,
@@ -66,8 +66,8 @@ student4 = User.create!(
 )
 
 student5 = User.create!(
-  email_address: 'student5@test.com',
-  name: 'student5',
+  email_address: 'mugilan.a.l.thirumalaisamy@test.com',
+  name: 'Mugilan A/L Thirumalaisamy',
   has_registered: true,
   instid: '1191202126',
   is_staff: false,
@@ -75,8 +75,8 @@ student5 = User.create!(
 )
 
 student6 = User.create!(
-  email_address: 'student6@test.com',
-  name: 'student6',
+  email_address: 'tan.zhi.kai@test.com',
+  name: 'Tan Zhi Kai',
   has_registered: true,
   instid: '1191202127',
   is_staff: false,
@@ -84,8 +84,8 @@ student6 = User.create!(
 )
 
 student7 = User.create!(
-  email_address: 'student7@test.com',
-  name: 'student7',
+  email_address: 'bryan.chong.jun.xiong@test.com',
+  name: 'Bryan Chong Jun Xiong',
   has_registered: true,
   instid: '1191202128',
   is_staff: false,
@@ -93,8 +93,8 @@ student7 = User.create!(
 )
 
 student8 = User.create!(
-  email_address: 'student8@test.com',
-  name: 'student8',
+  email_address: 'faisal.abdul-rahman.al-fattah.bin.syed.osman.bakar.zaini.al-hadi@test.com',
+  name: 'Faisal Abdul-Rahman Al-Fattah Bin Syed Osman Bakar Zaini Al-Hadi',
   has_registered: true,
   instid: '1191202129',
   is_staff: false,
@@ -102,8 +102,8 @@ student8 = User.create!(
 )
 
 student9 = User.create!(
-  email_address: 'student9@test.com',
-  name: 'student9',
+  email_address: 'liew.mei.ling@test.com',
+  name: 'Liew Mei Ling',
   has_registered: true,
   instid: '1191202130',
   is_staff: false,
@@ -111,8 +111,8 @@ student9 = User.create!(
 )
 
 student10 = User.create!(
-  email_address: 'student10@test.com',
-  name: 'student10',
+  email_address: 'koh.wei.keat@test.com',
+  name: 'Koh Wei Keat',
   has_registered: true,
   instid: '1191202131',
   is_staff: false,
@@ -120,8 +120,8 @@ student10 = User.create!(
 )
 
 student11 = User.create!(
-  email_address: 'student11@test.com',
-  name: 'student11',
+  email_address: 'raymond.lee.wei.kang@test.com',
+  name: 'Raymond Lee Wei Kang',
   has_registered: true,
   instid: '1191202132',
   is_staff: false,
@@ -129,8 +129,8 @@ student11 = User.create!(
 )
 
 student12 = User.create!(
-  email_address: 'student12@test.com',
-  name: 'student12',
+  email_address: 'kevin.chong.wei.keong@test.com',
+  name: 'Kevin Chong Wei Keong',
   has_registered: true,
   instid: '1191202133',
   is_staff: false,
@@ -138,8 +138,8 @@ student12 = User.create!(
 )
 
 student13 = User.create!(
-  email_address: 'student13@test.com',
-  name: 'student13',
+  email_address: 'leong.yee.ling@test.com',
+  name: 'Leong Yee Ling',
   has_registered: true,
   instid: '1191202133',
   is_staff: false,
@@ -147,8 +147,8 @@ student13 = User.create!(
 )
 
 student14 = User.create!(
-  email_address: 'student14@test.com',
-  name: 'student14',
+  email_address: 'muzzammil.hakim.bin.norhazimi@test.com',
+  name: 'Muzzammil Hakim bin Norhazimi',
   has_registered: true,
   instid: '1191202134',
   is_staff: false,
@@ -160,6 +160,15 @@ student15 = User.create!(
   name: 'student15',
   has_registered: true,
   instid: '1191202135',
+  is_staff: false,
+  password: 'password123'
+)
+
+student16 = User.create!(
+  email_address: 'student16@test.com',
+  name: 'student16',
+  has_registered: true,
+  instid: '1191202136',
   is_staff: false,
   password: 'password123'
 )
@@ -362,27 +371,32 @@ Enrolment.create!(
 # Create Project Group
 group_1 = ProjectGroup.create!(
   group_name: 'group_1',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student1.id
 )
 
 group_2 = ProjectGroup.create!(
   group_name: 'group_2',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student4.id
 )
 
 group_3 = ProjectGroup.create!(
   group_name: 'group_3',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student7.id
 )
 
 group_4 = ProjectGroup.create!(
   group_name: 'group_4',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student10.id
 )
 
 group_5 = ProjectGroup.create!(
   group_name: 'group_5',
-  course: course_with_groups
+  course: course_with_groups,
+  leader_id: student13.id
 )
 
 # Create Project Group Members

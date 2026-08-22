@@ -103,3 +103,6 @@ yarn-debug.log*
 
 # Ignore repomix config file
 repomix.config.json
+STUDENT_GROUPING_ARCHITECTURE.md
+STUDENT_GROUPING_CRUD_TASKS.md
+STUDENT_GROUPING_REFERENCE.md

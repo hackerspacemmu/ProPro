@@ -47,6 +47,7 @@ class ProjectInstance < ApplicationRecord
       f.project_template_field&.is_project_title?
     end
     return if title_field.blank?
+
     self.title = title_field.value
   end
 end

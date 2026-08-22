@@ -82,7 +82,7 @@ class Course < ApplicationRecord
 
   def disable_grouping!
     transaction do
-      project_groups.where(confirmed: false).destroy_all
+      destroy_draft_groups
       update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
     end
   end
@@ -91,55 +91,22 @@ class Course < ApplicationRecord
   # Confirmed groups stay. Draft groups are destroyed.
   def revert_to_default_mode!
     transaction do
-      project_groups.where(confirmed: false).destroy_all
+      destroy_draft_groups
       update!(student_list_finalised: false)
     end
   end
 
-  # NOTE: Finds the Largest legal group size combination
-  def group_size_distribution(student_count = students.count)
-    return { error: 'Group limits are not set' } if group_min.blank? || group_max.blank?
-    return { error: 'Student count must be greater than 0' } if student_count <= 0
-
-    cache = {}
-    group_size_chosen = find_group_size_for(student_count, group_max.downto(group_min).to_a, cache)
-
-    if group_size_chosen.nil?
-      return {
-        error: 'No legal combination can be found.'
-      }
-    end
-
-    size_counts = []
-    remaining_students = student_count
-    while remaining_students.positive?
-      chosen_size = cache[remaining_students]
-      size_counts << chosen_size
-      remaining_students -= chosen_size
-    end
-
-    breakdown = size_counts.tally.map { |size, count| { size: size, count: count } }.sort_by { |entry| -entry[:size] }
-    { groups: breakdown, total_groups: size_counts.length }
+  def enable_auto_confirmability_mode!
+    update!(student_list_finalised: true)
   end
 
-  def find_group_size_for(ungrouped_students, allowed_sizes, cache)
-    return 0 if ungrouped_students.zero?
-    return cache[ungrouped_students] if cache.key?(ungrouped_students)
+  def unconfirmed_students_count
+    confirmed_member_count = ProjectGroupMember
+                             .joins(:project_group)
+                             .where(project_groups: { course_id: id, confirmed: true })
+                             .count
 
-    allowed_sizes.each do |size|
-      next if size > ungrouped_students
-
-      remaining_students = ungrouped_students - size
-      result = find_group_size_for(remaining_students, allowed_sizes, cache)
-
-      unless result.nil?
-        cache[ungrouped_students] = size
-        return size
-      end
-    end
-
-    cache[ungrouped_students] = nil
-    nil
+    students.count - confirmed_member_count
   end
 
   STUDENT_CSV_COLUMNS = ['Last name', 'ID number', 'Email address'].freeze
@@ -220,6 +187,12 @@ class Course < ApplicationRecord
   end
 
   private
+
+  def destroy_draft_groups
+    project_groups.where(confirmed: false).find_each do |group|
+      group.destroy!
+    end
+  end
 
   def null_number_of_updates_if_not_used
     return if use_progress_updates

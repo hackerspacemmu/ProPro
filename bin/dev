@@ -1,9 +1,4 @@
 #!/usr/bin/env ruby
 
-if Gem.win_platform?
-  exec 'foreman start -f Procfile.dev'
-else
-  system('gem install foreman') unless `gem list foreman -i`.strip == 'true'
-
-  exec 'foreman start -f Procfile.dev'
-end
+system('gem install foreman') if !Gem.win_platform? && `gem list foreman -i`.strip != 'true'
+exec 'foreman start -f Procfile.dev'
