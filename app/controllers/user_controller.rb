@@ -61,7 +61,7 @@ class UserController < ApplicationController
   end
 
   def handle_claim
-    response = params.permit(:password, :password_confirmation, :name, :token)
+    response = params.permit(:password, :password_confirmation, :name, :instid, :token)
     return if response[:token].blank?
 
     if response[:password].blank?
@@ -71,6 +71,11 @@ class UserController < ApplicationController
 
     if response[:password_confirmation].blank?
       redirect_back_or_to '/', alert: 'Password confirmation cannot be empty'
+      return
+    end
+
+    if response[:instid].blank?
+      redirect_back_or_to '/', alert: 'Institution ID cannot be empty'
       return
     end
 
@@ -98,7 +103,7 @@ class UserController < ApplicationController
       return
     end
 
-    if user.update!(has_registered: true, password: response[:password], name: response[:name].strip)
+    if user.update!(has_registered: true, password: response[:password], name: response[:name].strip, instid: response[:instid].strip)
       redirect_to '/session/new', notice: 'Account successfully claimed'
     else
       redirect_back_or_to '/', alert: 'Something went wrong'

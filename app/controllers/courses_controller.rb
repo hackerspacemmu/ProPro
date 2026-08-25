@@ -179,12 +179,10 @@ class CoursesController < ApplicationController
   end
 
   def new
-    authorize Course.new
     @new_course = Course.new
   end
 
   def create
-    authorize Course.new
     response = params.require(:course).permit(:course_name, :grouped)
 
     @new_course = Course.new(
