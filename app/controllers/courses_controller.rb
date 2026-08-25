@@ -455,7 +455,6 @@ class CoursesController < ApplicationController
 
           new_otp_instance = Otp.create!(
             user: new_user,
-            otp: SecureRandom.base64(8),
             token: SecureRandom.uuid
           )
 
@@ -527,7 +526,6 @@ class CoursesController < ApplicationController
 
         new_otp_instance = Otp.create!(
           user: new_user,
-          otp: SecureRandom.base64(8),
           token: SecureRandom.uuid
         )
 
@@ -564,7 +562,6 @@ class CoursesController < ApplicationController
 
         new_otp_instance = Otp.create!(
           user: new_lecturer,
-          otp: SecureRandom.base64(8),
           token: SecureRandom.uuid
         )
 

@@ -9,12 +9,11 @@ class UserController < ApplicationController
     end
 
     # Ensure OTP exists or recreate if missing (though it should exist for unregistered users)
-    otp_instance = user.otp || Otp.create!(user: user, otp: SecureRandom.base64(8), token: SecureRandom.uuid)
+    otp_instance = user.otp || Otp.create!(user: user, token: SecureRandom.uuid)
 
     GeneralMailer.with(
       email_address: user.email_address,
-      otp_token: otp_instance.token,
-      otp: otp_instance.otp,
+      otp_token: otp_instance.token
     ).ProPro_Invite.deliver_later
 
     redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
@@ -62,13 +61,8 @@ class UserController < ApplicationController
   end
 
   def handle_claim
-    response = params.permit(:password, :password_confirmation, :name, :token, :otp)
+    response = params.permit(:password, :password_confirmation, :name, :token)
     return if response[:token].blank?
-
-    if response[:otp].blank?
-      redirect_back_or_to '/', alert: 'OTP cannot be empty'
-      return
-    end
 
     if response[:password].blank?
       redirect_back_or_to '/', alert: 'Password cannot be empty'
@@ -90,7 +84,7 @@ class UserController < ApplicationController
       return
     end
 
-    otp_instance = Otp.find_by(token: response[:token], otp: response[:otp].strip)
+    otp_instance = Otp.find_by(token: response[:token])
 
     unless otp_instance
       redirect_back_or_to '/', alert: 'Something went wrong'
@@ -132,7 +126,6 @@ class UserController < ApplicationController
 
         new_otp_instance = Otp.create!(
           user: new_user,
-          otp: SecureRandom.base64(8),
           token: SecureRandom.uuid
         )
       end
@@ -145,8 +138,7 @@ class UserController < ApplicationController
 
     GeneralMailer.with(
       email_address: new_user.email_address,
-      otp_token: new_user.otp.token,
-      otp: new_user.otp.otp
+      otp_token: new_user.otp.token
     ).ProPro_Invite.deliver_later
 
     redirect_to login_path, notice: "Account created successfully. Check your inbox!"
