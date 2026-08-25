@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   get 'about', to: 'static_pages#about'
 
   get 'user/new', to: 'user#new'
-  get 'user/claim', to: 'user#claim', as: :claim
+  get 'user/claim', to: 'user#claim', as: 'user_claim'
   get 'user/profile'
   post 'user/create'
   post 'user/handle_claim'

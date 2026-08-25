@@ -24,11 +24,6 @@ class UserController < ApplicationController
   end
 
   def edit
-    unless Current.user.is_staff
-      redirect_back_or_to '/', alert: 'Only staff can edit profiles'
-      return
-    end
-
     if params[:user][:name].blank?
       redirect_back_or_to '/', alert: 'Name cannot be empty'
       return
@@ -91,7 +86,7 @@ class UserController < ApplicationController
     end
 
     if response[:password].length > 72
-      redirect_back_or_to '/', alert: 'Password must be less than 72 characters'
+      redirect_back_or_to '/', alert: 'Password must be less than or equal to 72 characters'
       return
     end
 
@@ -104,19 +99,12 @@ class UserController < ApplicationController
 
     user = otp_instance.user
 
-    if response[:name].blank? && user.is_staff
+    if response[:name].blank?
       redirect_back_or_to '/', alert: 'Name cannot be empty'
       return
     end
 
-    # ugly ik, whachu gonna do about it
-    if !user.is_staff
-      if user.update(has_registered: true, password: response[:password])
-        redirect_to '/session/new', notice: 'Account successfully claimed'
-      else
-        redirect_back_or_to '/', alert: 'Something went wrong'
-      end
-    elsif user.update(has_registered: true, password: response[:password], name: response[:name].strip)
+    if user.update!(has_registered: true, password: response[:password], name: response[:name].strip)
       redirect_to '/session/new', notice: 'Account successfully claimed'
     else
       redirect_back_or_to '/', alert: 'Something went wrong'
@@ -139,8 +127,7 @@ class UserController < ApplicationController
           email_address: email,
           name: "Placeholder Username",
           password: SecureRandom.base64(24),
-          has_registered: false,
-          is_staff: false
+          has_registered: false
         )
 
         new_otp_instance = Otp.create!(
@@ -159,8 +146,7 @@ class UserController < ApplicationController
     GeneralMailer.with(
       email_address: new_user.email_address,
       otp_token: new_user.otp.token,
-      otp: new_user.otp.otp,
-      is_staff: false
+      otp: new_user.otp.otp
     ).ProPro_Invite.deliver_later
 
     redirect_to login_path, notice: "Account created successfully. Check your inbox!"

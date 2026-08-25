@@ -34,7 +34,7 @@
                                         </p>
                                         <p style="margin: 16px 0;">
                                             <a href="https://propro.click/user/claim?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
-                                            https://propro.click/user/claim?token=<%= @otp_token %>
+                                            <%= user_claim_url(token: @otp_token) %>
                                             </a>
                                         </p>
                                         <p style="margin: 16px 0;">
