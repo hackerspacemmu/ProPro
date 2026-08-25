@@ -108,7 +108,7 @@
           <%= link_to "Forgot password?",
           new_password_path,
           class:
-            "text-sm text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
+          "text-sm text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
         </div>
 
         <%= form.password_field :password,
@@ -123,6 +123,13 @@
         <%= form.submit "Sign In",
                     class:
                       "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg cursor-pointer transition-colors shadow-md hover:shadow-lg text-lg" %>
+      </div>
+
+      <div class="pt-2 mt-6">
+          <%= link_to "New User?",
+          user_new_path,
+                    class:
+                    "block w-full bg-green-500 hover:bg-green-600 text-white text-center font-bold py-3 px-4 rounded-lg cursor-pointer transition-colors shadow-md hover:shadow-lg text-lg" %>
       </div>
 
     <% end %>
