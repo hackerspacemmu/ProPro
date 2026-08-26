@@ -49,6 +49,7 @@ Rails.application.configure do
     domain: 'localhost',
     authentication: :plain
   }
+
   ActionMailer::Base.delivery_method = :smtp
 
   # Print deprecation notices to the Rails logger.

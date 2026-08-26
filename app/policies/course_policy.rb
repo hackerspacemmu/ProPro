@@ -4,10 +4,6 @@ class CoursePolicy < ApplicationPolicy
     enrolled
   end
 
-  def create?
-    user.is_staff
-  end
-
   def update?
     coordinator
   end

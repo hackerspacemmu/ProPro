@@ -5,7 +5,6 @@ lecturer1 = User.create!(
   has_registered: true,
   instid: nil,
   web_link: 'test.com',
-  is_staff: true,
   password: 'password123'
 )
 
@@ -15,7 +14,6 @@ lecturer2 = User.create!(
   has_registered: true,
   instid: nil,
   web_link: 'test.com',
-  is_staff: true,
   password: 'password123'
 )
 
@@ -25,7 +23,6 @@ lecturer3 = User.create!(
   has_registered: true,
   instid: nil,
   web_link: 'test.com',
-  is_staff: true,
   password: 'password123'
 )
 
@@ -34,7 +31,6 @@ student1 = User.create!(
   name: 'student1',
   has_registered: true,
   instid: '1191202123',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -43,7 +39,6 @@ student2 = User.create!(
   name: 'student2',
   has_registered: true,
   instid: '1191202124',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -52,7 +47,6 @@ student3 = User.create!(
   name: 'student3',
   has_registered: true,
   instid: '1191202125',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -61,7 +55,6 @@ student4 = User.create!(
   name: 'student4',
   has_registered: true,
   instid: '1191202126',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -70,7 +63,6 @@ student5 = User.create!(
   name: 'student5',
   has_registered: true,
   instid: '1191202126',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -79,7 +71,6 @@ student6 = User.create!(
   name: 'student6',
   has_registered: true,
   instid: '1191202127',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -88,7 +79,6 @@ student7 = User.create!(
   name: 'student7',
   has_registered: true,
   instid: '1191202128',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -97,7 +87,6 @@ student8 = User.create!(
   name: 'student8',
   has_registered: true,
   instid: '1191202129',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -106,7 +95,6 @@ student9 = User.create!(
   name: 'student9',
   has_registered: true,
   instid: '1191202130',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -115,7 +103,6 @@ student10 = User.create!(
   name: 'student10',
   has_registered: true,
   instid: '1191202131',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -124,7 +111,6 @@ student11 = User.create!(
   name: 'student11',
   has_registered: true,
   instid: '1191202132',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -133,7 +119,6 @@ student12 = User.create!(
   name: 'student12',
   has_registered: true,
   instid: '1191202133',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -142,7 +127,6 @@ student13 = User.create!(
   name: 'student13',
   has_registered: true,
   instid: '1191202133',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -151,7 +135,6 @@ student14 = User.create!(
   name: 'student14',
   has_registered: true,
   instid: '1191202134',
-  is_staff: false,
   password: 'password123'
 )
 
@@ -160,7 +143,6 @@ student15 = User.create!(
   name: 'student15',
   has_registered: true,
   instid: '1191202135',
-  is_staff: false,
   password: 'password123'
 )
 

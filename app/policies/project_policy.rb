@@ -61,8 +61,6 @@ class ProjectPolicy < ApplicationPolicy
 
     return true if project_owner && approved && any_free_edit_fields?
 
-    return true if coordinator
-
     false
   end
 
