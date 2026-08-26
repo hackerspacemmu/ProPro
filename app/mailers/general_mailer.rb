@@ -2,6 +2,7 @@ class GeneralMailer < ApplicationMailer
   def ProPro_Invite
     @otp_token = params[:otp_token]
     @email_address = params[:email_address]
+    @from_course = params[:from_course]
     mail(to: @email_address, Subject: 'Invitation for ProPro')
   end
 

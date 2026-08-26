@@ -13,7 +13,8 @@ class UserController < ApplicationController
 
     GeneralMailer.with(
       email_address: user.email_address,
-      otp_token: otp_instance.token
+      otp_token: otp_instance.token,
+      from_course: false
     ).ProPro_Invite.deliver_later
 
     redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
@@ -143,7 +144,8 @@ class UserController < ApplicationController
 
     GeneralMailer.with(
       email_address: new_user.email_address,
-      otp_token: new_user.otp.token
+      otp_token: new_user.otp.token,
+      from_course: false
     ).ProPro_Invite.deliver_later
 
     redirect_to login_path, notice: "Account created successfully. Check your inbox!"

@@ -491,7 +491,7 @@ class CoursesController < ApplicationController
       GeneralMailer.with(
         email_address: user[:email_address],
         otp_token: user[:otp_token],
-        otp: user[:otp]
+        from_course: true
       ).ProPro_Invite.deliver_later
     end
   end
