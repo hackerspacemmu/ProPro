@@ -1,0 +1,36 @@
+<% icon_bg, icon_fg, badge_bg, badge_fg, verb =
+     case proposal.current_status
+     when "pending"
+       ["bg-[#E8F0FE]", "text-[#1A73E8]", "bg-[#E8F0FE]", "text-[#1967D2]", "Submitted"]
+     when "redo"
+       ["bg-[#FFF8E1]", "text-[#F57F17]", "bg-[#FFF8E1]", "text-[#F57F17]", "Returned for revision"]
+     when "rejected"
+       ["bg-[#FCE8E6]", "text-[#C5221F]", "bg-[#FCE8E6]", "text-[#C5221F]", "Rejected"]
+     else
+       ["bg-[#E8F0FE]", "text-[#1A73E8]", "bg-[#E8F0FE]", "text-[#1967D2]", "Updated"]
+     end %>
+
+<div class="group flex items-center justify-between p-4 hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-full <%= icon_bg %> <%= icon_fg %> flex items-center justify-center shrink-0 mt-1">
+      <span class="material-symbols-outlined">description</span>
+    </div>
+    <div>
+      <h3 style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 400; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);"
+          class="group-hover:text-[#1A73E8] transition-colors">
+        <%= proposal.current_title %>
+      </h3>
+      <p class="text-[15px] text-[#5F6368] mt-0.5">
+        <%= proposal.owner_name %> &bull; <%= verb %> <%= time_ago_in_words(proposal.current_instance&.updated_at || proposal.updated_at) %> ago
+      </p>
+    </div>
+  </div>
+  <div class="flex items-center gap-6">
+    <span class="<%= badge_bg %> <%= badge_fg %> px-3 py-1 rounded-full text-sm font-medium tracking-wide">
+      <%= proposal.current_status.capitalize %>
+    </span>
+    <button type="button" class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+  </div>
+</div>

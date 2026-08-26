@@ -51,6 +51,21 @@ class CoursesController < ApplicationController
       @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
 
+    # For To Review tab
+    @pending_proposals = @incoming_proposals.select { |p| p.current_status == "pending" }
+    @reviewed_proposals = @incoming_proposals.select { |p| %w[redo rejected].include?(p.current_status) }
+    @pending_topics = if @current_user_enrolment&.coordinator?
+                        @topic_list.select do |topic|
+                          topic.lecturer? && topic.owner != current_user &&
+                            %w[pending redo rejected].include?(topic.status.to_s)
+                        end
+                      else
+                        []
+                      end
+
+    # For Supervised Projects tab (Ticket 6)
+    @approved_projects = @my_student_projects.select(&:approved?)
+
     # view instances for participants_table
     @filtered_group_list   = filtered_group_list
     @filtered_student_list = filtered_student_list

@@ -47,11 +47,4 @@ module SidebarHelper
     end
   end
 
-  def sidebar_link(label, path)
-    link_to(
-      label,
-      path,
-      class: 'block p-0 md:p-1 lg:px-2 lg:py-1.75 w-full rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors'
-    )
-  end
 end

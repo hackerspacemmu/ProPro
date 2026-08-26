@@ -1,0 +1,1036 @@
+<% content_for :hide_toggler, true %>
+<% content_for :no_sidebar, true %>
+<% content_for :hide_breadcrumbs, true %>
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<!--
+  The literal 'Google Sans' (as opposed to 'Google Sans Flex') is Google's internal UI typeface —
+  it still isn't published on Google Fonts, so it can't be <link>-ed. It stays first in the UI-chrome
+  stack below so devices that already have it installed (ChromeOS, Android, Google's own apps) render
+  the exact original; everyone else now falls to 'Google Sans Flex' — Google's public variable-font
+  sibling, loaded above — instead of dropping all the way to Roboto. See "Typography" for the full scale.
+
+  EVERY page must include the two <link> font tags above and the stylesheet tag. grouping_settings_html.erb
+  currently does NOT — it falls back to the browser default sans-serif and hand-draws an SVG close icon
+  because Material Symbols never loads. See Section 25 for the full list of fixes that page needs.
+-->
+
+<div class="min-h-screen bg-white text-[#3C4043] font-['Roboto',sans-serif] p-8">
+  <div class="max-w-5xl mx-auto space-y-16">
+
+    <header class="border-b border-[#E0E0E0] pb-6">
+      <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">ProPro Material Style Guide</h1>
+      <p class="text-[#5F6368] mt-2 text-[15px]">Exact Google Classroom visual language. Soft shadows, pill buttons, pure white surfaces, standard Google Material Colors, and a Google Sans / Roboto type pairing for UI chrome vs. reading copy.</p>
+    </header>
+
+    <!-- AUDIT CALLOUT: read this before building new pages -->
+    <section class="bg-[#FEF7E0] border border-[#F2DE8A] rounded-lg p-6">
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 500; color: #B06000;" class="text-[16px] mb-2 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">warning</span>
+        Audit: components added, drift found
+      </h2>
+      <p class="text-[13px] text-[#3C4043] leading-relaxed">
+        Sections 1–12 below are unchanged from the original guide. Sections 13–24 document components pulled from
+        <code>progress_updates</code>, <code>projects_form</code>, <code>projects_show</code>, <code>projects_show_responsive</code>,
+        <code>projects_version_comparison</code>, and <code>course_show</code> that weren't captured yet. Section 25 lists exact
+        color/shape/icon drift found in the live .erb files (mostly in <code>grouping_settings_html.erb</code> and <code>projects_form_html.erb</code>)
+        that should be corrected in those files directly — the guide below always shows the <em>canonical</em> version, not the drifted one.
+      </p>
+    </section>
+
+    <!-- 1. COLORS & TYPOGRAPHY -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Colors</h2>
+        <div class="space-y-3">
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#1A73E8]"></div><span class="text-sm">Primary Blue (#1A73E8) — hover #1B66C9</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#137333]"></div><span class="text-sm">Success Green (#137333) — hover #0f5c29 — Approve buttons, "Excellent"/"Approved" semantics</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#37474F]"></div><span class="text-sm">Deep Card Header Tone (#37474F)</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#E8F0FE] border border-[#E0E0E0]"></div><span class="text-sm">Active Tab / Highlight (#E8F0FE)</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#D3E3FD] border border-[#E0E0E0]"></div><span class="text-sm">Selected Container (#D3E3FD) — inset active-item pill</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#3C4043]"></div><span class="text-sm">Primary Text (#3C4043)</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full" style="background-color: var(--gm3-sys-color-on-surface, #1f1f1f);"></div><span class="text-sm">On-Surface / Heading Text (#1f1f1f) — headings &amp; titles, one shade darker than Primary Text</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#5F6368]"></div><span class="text-sm">Secondary Text (#5F6368) — inactive nav icons &amp; labels</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#444746]"></div><span class="text-sm">Meta Text (#444746) — timestamps, "N awaiting action" counts, comment timestamps</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#E0E0E0]"></div><span class="text-sm">Dividers / Borders (#E0E0E0)</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#DADCE0] border border-[#E0E0E0]"></div><span class="text-sm">Input Borders (#DADCE0) — one step darker than divider gray, used on all form controls</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#F1F3F4] border border-[#E0E0E0]"></div><span class="text-sm">Surface Container (#F1F3F4)</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#f8fafd] border border-[#E0E0E0]"></div><span class="text-sm">App Canvas (#f8fafd) — page background behind the white content pane</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#E1E3E1]"></div><span class="text-sm">Neutral Avatar (#E1E3E1 bg / #3C4043 text) — non-color-coded people (group owners, generic users)</span></div>
+          <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#C5221F]"></div><span class="text-sm">Danger (#C5221F) — paired bg tint #FCE8E6</span></div>
+        </div>
+        <p class="text-xs text-[#5F6368] mt-4">
+          <strong>Do not use generic Tailwind palette colors</strong> (<code>gray-*</code>, <code>blue-*</code>, <code>red-*</code>, <code>amber-*</code>) anywhere.
+          Every color in the app should resolve to one of the hex tokens on this page. This is the single biggest deviation found in the audit — see Section 25.
+        </p>
+      </div>
+
+      <div>
+        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Typography</h2>
+
+        <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Google Sans — UI Chrome</div>
+        <div class="space-y-4">
+          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Display (36px / 400 / 44px)</div>
+          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Section Heading (22px / 400 / 28px)</div>
+          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Card / Section Title (16px / 500 / 24px)</div>
+          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Nav / Tab / Label (14px / 500 / 20px)</div>
+        </div>
+        <p class="text-xs text-[#5F6368] mt-3">Used for headings, nav items, tabs, and list/card titles — anything that's UI chrome rather than reading copy. Falls back to Roboto when neither Google Sans nor Google Sans Flex loads.</p>
+
+        <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3 mt-6">Roboto — Reading Type</div>
+        <div class="space-y-4">
+          <div class="text-[14px] font-medium text-[#3C4043]">Body Medium (14px / 500)</div>
+          <div class="text-[14px] text-[#5F6368]">Body Regular (14px / 400) - Descriptions</div>
+          <div style="font-size: .875rem; font-weight: 400; letter-spacing: 0; line-height: 1.25rem; color: #444746;">Meta / Timestamp (14px / 400 / 20px, #444746) - "Group 1 • Submitted 2 hours ago"</div>
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide">Eyebrow Label (12px / 500 / uppercase, #5F6368)</div>
+        </div>
+        <p class="text-xs text-[#5F6368] mt-3">
+          The <strong>Eyebrow Label</strong> style (<code>text-xs font-medium text-[#5F6368] uppercase tracking-wide</code>) is its own reusable pattern —
+          it's the field label on every definition-list row ("Group Name", "Feedback", "Proposed Deadline") and every settings sub-heading. Always
+          <code>#5F6368</code> at <code>font-medium</code> — never <code>font-semibold</code> and never a darker/different gray. <code>projects_form_html.erb</code>
+          currently renders its field labels as <code>text-xs font-semibold text-[#3C4043] uppercase</code> (bolder, darker) — bring it in line with this token.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. SPACING & CORNER RADIUS -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Corner Radius</h2>
+        <div class="space-y-4 text-sm text-[#5F6368]">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-[4px]"></div>
+            <span><strong>4px (rounded-[4px])</strong> - Compact/inline controls: version-picker selects, snackbars</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-[6px]"></div>
+            <span><strong>6px (rounded-md)</strong> - Standard standalone form inputs, textareas, selects, WYSIWYG toolbar</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-lg"></div>
+            <span><strong>8px (rounded-lg)</strong> - Project Cards, Dialogs, Feed Items, Data Chips, Timeline content cards</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-[10px]"></div>
+            <span><strong>10px (rounded-[10px])</strong> - Selection cards (Section 15)</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-xl"></div>
+            <span><strong>12px (rounded-xl)</strong> - Top-level form/settings section containers (bigger than a card, holds multiple fields)</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-full"></div>
+            <span><strong>Full (rounded-full)</strong> - Buttons, Badges, Avatars, Nav Pills — always, never <code>rounded-md</code> on a button</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-tl-[28px]"></div>
+            <span><strong>28px (rounded-tl-[28px])</strong> - App shell content pane / modal dialogs</span>
+          </div>
+        </div>
+        <p class="text-xs text-[#5F6368] mt-3"><code>grouping_settings_html.erb</code>'s footer action buttons ("Add Students", "Delete Course") currently use <code>rounded-md</code> — every button must be a pill regardless of context.</p>
+      </div>
+
+      <div>
+        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Spacing System</h2>
+        <div class="space-y-3 text-sm text-[#5F6368]">
+          <div class="flex items-center gap-3"><div class="w-1 h-4 bg-[#1A73E8]"></div> <span><strong>4px (p-1, gap-1)</strong> - Icon spacing</span></div>
+          <div class="flex items-center gap-3"><div class="w-2 h-4 bg-[#1A73E8]"></div> <span><strong>8px (p-2, gap-2)</strong> - Tight component padding</span></div>
+          <div class="flex items-center gap-3"><div class="w-4 h-4 bg-[#1A73E8]"></div> <span><strong>16px (p-4, gap-4)</strong> - Standard card padding</span></div>
+          <div class="flex items-center gap-3"><div class="w-6 h-4 bg-[#1A73E8]"></div> <span><strong>24px (p-6, gap-6)</strong> - Section padding, Modal padding</span></div>
+          <div class="flex items-center gap-3"><div class="w-8 h-4 bg-[#1A73E8]"></div> <span><strong>32px (p-8, mb-8)</strong> - Major section spacing</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. HEADER & NAV BAR -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Header & Nav Bar</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Global App Header — compact</div>
+      <div class="border border-[#E0E0E0] rounded-t-lg bg-white p-2 mb-2 shadow-sm flex items-center justify-between max-w-4xl">
+        <div class="flex items-center gap-4">
+          <button class="p-2 ml-1 rounded-full hover:bg-[#F1F3F4] text-[#5F6368] transition-colors">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <span class="text-[24px] text-[#5F6368] font-medium tracking-normal">ProPro</span>
+        </div>
+        <div class="flex items-center pr-4">
+          <button class="text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors">
+            Log out
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mb-6">Used on the top-level Home dashboard, where there's no page beneath "ProPro" to break out to.</p>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Breadcrumb Header — page-level</div>
+      <div class="border border-[#E0E0E0] rounded-t-lg bg-white p-2 mb-2 shadow-sm flex items-center justify-between max-w-4xl">
+        <div class="flex items-center gap-2">
+          <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <span class="text-[24px] text-[#5F6368] font-medium">ProPro</span>
+          <span class="material-symbols-outlined text-[#5F6368] text-[20px] mx-1">chevron_right</span>
+          <span class="text-[24px] text-[#3C4043] font-normal">Course or Project Title</span>
+        </div>
+        <button class="text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors pr-2">
+          Log out
+        </button>
+      </div>
+      <p class="text-xs text-[#5F6368] mb-8">Appears once you're inside a course or project — "ProPro" stays a clickable root, the second label swaps to whatever the person is currently viewing.</p>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Side Nav Bar — isolated preview (32px avatars)</div>
+      <div class="w-[280px] border border-[#E0E0E0] rounded-lg bg-white py-3 shadow-sm mb-2">
+        <nav class="flex flex-col gap-1 pr-3">
+          <a href="#" class="flex items-center gap-4 px-6 py-3 bg-[#E8F0FE] text-[#1967D2] rounded-r-full font-medium">
+            <span class="material-symbols-outlined fill-current">home</span>
+            <span>Home</span>
+          </a>
+          <a href="#" class="flex items-center gap-4 px-6 py-3 text-[#3C4043] hover:bg-[#F1F3F4] rounded-r-full font-medium transition-colors">
+            <span class="material-symbols-outlined text-[#5F6368]">fact_check</span>
+            <span>To review</span>
+          </a>
+          <hr class="border-[#E0E0E0] my-2">
+          <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] hover:bg-[#F1F3F4] rounded-r-full cursor-pointer transition-colors">
+            <span class="text-sm font-medium">Teaching</span>
+            <span class="material-symbols-outlined text-sm">expand_less</span>
+          </div>
+          <a href="#" class="flex items-center gap-4 px-6 py-3 text-[#3C4043] hover:bg-[#F1F3F4] rounded-r-full font-medium transition-colors">
+            <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-xs font-bold shrink-0">F</div>
+            <div class="flex flex-col overflow-hidden">
+              <span class="truncate text-sm">Foundation 2026</span>
+              <span class="text-xs text-[#5F6368] truncate">Active</span>
+            </div>
+          </a>
+        </nav>
+      </div>
+      <p class="text-xs text-[#5F6368] mb-8">Compact, boxed variant for previewing the nav in isolation — top-level items highlight edge-to-edge (<code>rounded-r-full</code>).</p>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Side Nav Bar — live page states (36px avatars)</div>
+      <div class="w-[280px] bg-[#f8fafd] border border-[#E0E0E0] rounded-lg py-3 mb-2">
+        <nav class="flex flex-col gap-1 pr-3">
+
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+          </a>
+
+          <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] cursor-pointer">
+            <span style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+            <span class="material-symbols-outlined text-sm">expand_less</span>
+          </div>
+
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+            <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">F</div>
+            <span class="truncate">Foundation 2026</span>
+          </a>
+
+          <!-- Selected / active state: inset full pill, not edge-to-edge -->
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0]">
+            <div class="w-9 h-9 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-bold shrink-0">G</div>
+            <span class="truncate font-semibold">Grouped Topic Approval Enabled</span>
+          </a>
+
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+            <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">D</div>
+            <span class="truncate">Data Structures</span>
+          </a>
+
+          <div class="py-2">
+            <div class="border-t border-[#DADCE0]"></div>
+          </div>
+
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+            <span class="material-symbols-outlined text-[#5F6368]">person</span>
+            <span>Edit profile</span>
+          </a>
+
+        </nav>
+      </div>
+      <p class="text-xs text-[#5F6368]">Real usage inside an expandable group: the active item gets an <strong>inset</strong> full pill (<code>mx-3 rounded-full</code>, bg #D3E3FD / text #0B57D0) rather than the compact header's edge-to-edge highlight. Its avatar recolors to neutral gray (#E1E3E1 / #3C4043) so it doesn't fight the selection tint. Reserve this pattern for the active item inside an expandable ("Enrolled") group; use the edge-to-edge <code>rounded-r-full</code> highlight for top-level items like Home.</p>
+    </section>
+
+    <!-- 4. TABS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Tabs</h2>
+      <div class="border-b border-[#E0E0E0] max-w-4xl">
+        <div class="flex gap-8">
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors">Project Details</a>
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="pb-3 text-[#1A73E8] border-b-4 border-[#1A73E8]">To Review</a>
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors">Topic Directory</a>
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors">People</a>
+          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors">Settings</a>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-2">Flush against the content edge and left-aligned — the row fills whatever width is available rather than centering or capping. Active tab: Primary Blue text with a 4px underline. When tabs live inside a scrollable/sticky context (project detail pages), see Section 24's mobile scrollable-tabs variant, which adds a count badge.</p>
+    </section>
+
+    <!-- 5. COURSE CARDS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Course Cards</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
+        <div class="group block rounded-lg border border-[#E0E0E0] overflow-hidden hover:shadow-md transition-shadow bg-white relative flex flex-col h-72">
+
+          <!-- Deep-toned Header (Google Classroom Style) -->
+          <div class="bg-[#37474F] p-4 relative cursor-pointer flex flex-col h-32 justify-between">
+            <div>
+              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-white text-[1.125rem] font-medium truncate leading-tight group-hover:underline">Scatting class</h3>
+              <p class="text-white/80 text-[0.8125rem] mt-1">G11</p>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="p-4 flex-1 bg-white"></div>
+
+          <!-- Card Action Bar -->
+          <div class="h-[3.25rem] border-t border-[#E0E0E0] flex justify-end items-center px-2 gap-1 bg-white">
+            <button class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">trending_up</span>
+            </button>
+            <button class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">folder</span>
+            </button>
+            <button class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3">Title now carries the Google Sans chrome font, matching the Card / Section Title scale used everywhere else.</p>
+    </section>
+
+    <!-- 6. LIST ITEMS — PROPOSAL ROWS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">List Items — Proposal Rows</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Section header pattern</div>
+      <div class="flex items-center justify-between mb-6 max-w-4xl">
+        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Pending Proposals</h2>
+        <span class="text-[14px] text-[#444746]">4 awaiting action</span>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Row — status variants</div>
+      <div class="bg-white border border-[#DADCE0] rounded-lg overflow-hidden shadow-sm max-w-4xl">
+
+        <!-- Pending -->
+        <div class="group flex items-center justify-between p-4 border-b border-[#DADCE0] hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-[#E8F0FE] text-[#1A73E8] flex items-center justify-center shrink-0 mt-1">
+              <span class="material-symbols-outlined">description</span>
+            </div>
+            <div>
+              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="group-hover:text-[#1A73E8] transition-colors">EduPulse</h3>
+              <p class="text-[14px] text-[#444746] mt-0.5">Group 1 • Submitted 2 hours ago</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-sm font-medium tracking-wide">Pending</span>
+            <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Redo -->
+        <div class="group flex items-center justify-between p-4 border-b border-[#DADCE0] hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-[#FFF8E1] text-[#F57F17] flex items-center justify-center shrink-0 mt-1">
+              <span class="material-symbols-outlined">description</span>
+            </div>
+            <div>
+              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="group-hover:text-[#1A73E8] transition-colors">MMU Foodie</h3>
+              <p class="text-[14px] text-[#444746] mt-0.5">Group 2 • Returned for revision yesterday</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="bg-[#FFF8E1] text-[#F57F17] px-3 py-1 rounded-full text-sm font-medium tracking-wide">Redo</span>
+            <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Rejected: no group-hover title color, no bottom border (last row) -->
+        <div class="group flex items-center justify-between p-4 hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-[#FCE8E6] text-[#C5221F] flex items-center justify-center shrink-0 mt-1">
+              <span class="material-symbols-outlined">description</span>
+            </div>
+            <div>
+              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">IMprove</h3>
+              <p class="text-[14px] text-[#444746] mt-0.5">Group 9 • Rejected last week</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="bg-[#FCE8E6] text-[#C5221F] px-3 py-1 rounded-full text-sm font-medium tracking-wide">Rejected</span>
+            <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
+              <span class="material-symbols-outlined">more_vert</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-4xl">The icon avatar and status pill always share a color: blue/#1A73E8 = Pending, yellow/#F57F17 = Redo, red/#C5221F = Rejected, green/#137333 = Approved (see Status Colors & Badges). The trailing <code>more_vert</code> button stays hidden until row hover (<code>opacity-0 group-hover:opacity-100</code>) to keep dense lists quiet. Rejected rows also drop the title's hover-highlight — they're closed out, not actionable. <strong>This "Pending" pill (bg #E8F0FE / text #1967D2, unbordered) is the only correct Pending treatment</strong> — see Section 25 for a bordered gold variant found in <code>projects_form_html.erb</code> that should be replaced with this one.</p>
+    </section>
+
+    <!-- 7. STATUS COLORS & BADGES -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Status Colors & Badges</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-[#E0E0E0] pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#E8F0FE] border border-[#1A73E8]"></div>
+              <span class="text-sm font-medium">Pending / Action Required</span>
+            </div>
+            <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Pending</span>
+          </div>
+
+          <div class="flex items-center justify-between border-b border-[#E0E0E0] pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#FFF8E1] border border-[#F57F17]"></div>
+              <span class="text-sm font-medium">Redo / In Progress</span>
+            </div>
+            <span class="bg-[#FFF8E1] text-[#F57F17] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Redo</span>
+          </div>
+
+          <div class="flex items-center justify-between border-b border-[#E0E0E0] pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#FCE8E6] border border-[#C5221F]"></div>
+              <span class="text-sm font-medium">Danger / Rejected</span>
+            </div>
+            <span class="bg-[#FCE8E6] text-[#C5221F] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Rejected</span>
+          </div>
+
+          <div class="flex items-center justify-between pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#E6F4EA] border border-[#137333]"></div>
+              <span class="text-sm font-medium">Success / Approved</span>
+            </div>
+            <span class="bg-[#E6F4EA] text-[#137333] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Approved</span>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3">Same four colors drive the icon avatars in List Items — Proposal Rows above, the rating pills on Progress Updates (Section 19), and the diff/version-compare toolbar (Section 21). This 4-color system is now confirmed consistent across every page that uses it — no drift found here.</p>
+    </section>
+
+    <!-- 8. BUTTONS & ACTIONS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Buttons & Actions</h2>
+      <div class="flex flex-wrap items-center gap-6">
+        <button class="bg-[#1A73E8] hover:bg-[#1B66C9] hover:shadow-md text-white px-6 py-2.5 rounded-full font-medium text-[14px] transition-all">
+          Create Proposal
+        </button>
+
+        <button class="border border-[#DADCE0] text-[#1A73E8] hover:bg-[#F8F9FA] px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+          Cancel
+        </button>
+
+        <button class="text-[#1A73E8] hover:bg-[#F8F9FA] px-4 py-2.5 rounded-[4px] font-medium text-[14px] transition-colors">
+          View all
+        </button>
+
+        <button class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-4">
+        Primary hover is always <code>#1B66C9</code> — <code>projects_form_html.erb</code> currently uses <code>#1557B0</code> on its "Update Proposal" buttons; align it to this token. More button variants (Success, Split/Dropdown, Danger icon-only, small Ghost) are in Section 13.
+      </p>
+    </section>
+
+    <!-- 9. INPUTS & FORMS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Inputs & Forms</h2>
+      <div class="max-w-2xl space-y-6">
+
+        <!-- Google Material Floating Label (Outlined) -->
+        <div class="relative">
+          <input type="text" class="block w-full px-4 py-3.5 text-[#3C4043] bg-transparent border border-[#DADCE0] rounded-[4px] appearance-none focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent peer" placeholder=" ">
+          <label class="absolute text-[14px] text-[#5F6368] duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-1 peer-focus:px-1 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 peer-focus:text-[#1A73E8]">
+            Project Title
+          </label>
+        </div>
+
+        <!-- Google Material Filled Input (Standard for long text) -->
+        <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
+          <label class="absolute top-2 left-4 text-xs text-[#5F6368] font-medium">Description</label>
+          <textarea rows="3" class="w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] resize-none" placeholder="Enter details..."></textarea>
+        </div>
+
+      </div>
+      <p class="text-xs text-[#5F6368] mt-4">This is the canonical Filled Input. <code>grouping_settings_html.erb</code> reimplements it with generic colors (<code>bg-[#f1f3f4]</code> is fine, but <code>border-gray-400</code> / <code>focus-within:bg-[#e8eaed]</code> / <code>focus-within:border-blue-600</code> should become <code>border-[#5F6368]</code> / no bg change on focus / <code>focus-within:border-[#1A73E8]</code>). Standalone standard text inputs (not floating-label) use 6px radius — see Section 24.</p>
+    </section>
+
+    <!-- 10. COMMENTS & UPDATES FEED -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Comments & Updates Feed</h2>
+
+      <!-- Classroom Stream Card -->
+      <div class="border border-[#E0E0E0] rounded-lg bg-white p-4 max-w-3xl shadow-sm hover:shadow-md transition-shadow">
+
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#1A73E8] text-white flex items-center justify-center font-medium">L1</div>
+            <div>
+              <div class="text-[14px] font-medium text-[#1f1f1f]">Lecturer 1</div>
+              <div class="text-[14px] text-[#444746]">Oct 15 (Edited Oct 16)</div>
+            </div>
+          </div>
+          <button class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </div>
+
+        <div class="text-[#3C4043] text-[14px] mb-4">
+          Please review the attached grading rubric for your project proposals. Make sure your methodology section clearly outlines your data gathering techniques.
+        </div>
+
+        <!-- Stream Action Area -->
+        <div class="border-t border-[#E0E0E0] pt-4 mt-4 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center font-medium text-xs">WK</div>
+          <div class="flex-1 border border-[#DADCE0] rounded-full px-4 py-2 text-sm text-[#5F6368] hover:bg-[#F8F9FA] cursor-pointer">
+            Add class comment...
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">This full-width pill trigger opens a composer. The actual persistent side-panel composer (used on project detail pages) is a different, compact variant — see Section 20.</p>
+    </section>
+
+    <!-- 11. DIFF VIEWER -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Diff Viewer</h2>
+      <div class="border border-[#E0E0E0] rounded-lg bg-white font-mono text-sm overflow-hidden max-w-3xl">
+        <div class="flex bg-[#FCE8E6] text-[#C5221F] border-b border-[#F9D2CE]">
+          <div class="w-10 text-center py-1 border-r border-[#F9D2CE] select-none">-</div>
+          <div class="px-4 py-1 flex-1">Original proposal scope included 3 features.</div>
+        </div>
+        <div class="flex bg-[#E6F4EA] text-[#137333] border-b border-[#CEEAD6]">
+          <div class="w-10 text-center py-1 border-r border-[#CEEAD6] select-none">+</div>
+          <div class="px-4 py-1 flex-1">Revised proposal scope includes 5 features and testing.</div>
+        </div>
+        <div class="flex bg-white text-[#5F6368]">
+          <div class="w-10 text-center py-1 border-r border-[#E0E0E0] select-none"> </div>
+          <div class="px-4 py-1 flex-1">Timeline remains set for 12 weeks.</div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">Line-level diff, for structured field-by-field changes. For inline/word-level diffing inside rich text (used on the Compare Versions tab), see the Inline Diff Highlights in Section 21 — same red/green tokens, different presentation.</p>
+    </section>
+
+    <!-- 12. DATA TABLES -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Data Tables</h2>
+      <div class="border border-[#E0E0E0] rounded-lg overflow-hidden max-w-4xl shadow-sm">
+        <table class="w-full text-left">
+          <thead class="border-b border-[#E0E0E0] bg-white">
+            <tr>
+              <th class="px-6 py-4 text-[14px] font-medium text-[#5F6368]">Name</th>
+              <th class="px-6 py-4 text-[14px] font-medium text-[#5F6368]">Email</th>
+              <th class="px-6 py-4 text-[14px] font-medium text-[#5F6368]">Role</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E0E0E0]">
+            <tr class="hover:bg-[#F8F9FA] transition-colors">
+              <td class="px-6 py-4 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center font-medium text-xs">K</div>
+                <span class="text-[14px] font-medium text-[#3C4043]">Koh Wei Keat</span>
+              </td>
+              <td class="px-6 py-4 text-[14px] text-[#5F6368]">weikeat@example.edu</td>
+              <td class="px-6 py-4"><span class="bg-[#F1F3F4] text-[#3C4043] px-2 py-1 rounded-[4px] text-xs font-medium">Coordinator</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 13. BUTTONS — ADDITIONAL VARIANTS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">13. Buttons — Additional Variants</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Success Button (Approve actions)</div>
+      <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-5 pr-4 py-2.5 rounded-full font-medium text-[14px] transition-colors flex items-center gap-2 shadow-sm mb-6">
+        <span class="material-symbols-outlined text-[18px]">check</span>
+        Approve
+      </button>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Split Button (primary action + attached dropdown)</div>
+      <div class="relative inline-block mb-6">
+        <div class="inline-flex shadow-sm rounded-full">
+          <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">check</span>
+            Approve
+          </button>
+          <div class="w-[1px] bg-white/30"></div>
+          <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mb-6 max-w-3xl">The dropdown reveals a popover menu — see the "Rich" dropdown pattern in Section 14. Any color works for the primary segment (Success shown here); a thin 1px white/30 divider always separates the two segments.</p>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Danger Icon-Only Button (mobile action bars)</div>
+      <button class="p-2.5 text-[#C5221F] hover:bg-[#FCE8E6] rounded-full transition-colors flex items-center justify-center mb-6">
+        <span class="material-symbols-outlined text-[22px]">block</span>
+      </button>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Small Ghost Button (compact secondary action inside a card)</div>
+      <button class="w-full max-w-xs py-2.5 px-3 rounded-[6px] bg-[#F1F3F4] hover:bg-[#E8F0FE] text-[#3C4043] hover:text-[#1A73E8] text-[13px] font-medium transition-colors flex items-center justify-center gap-1.5 mb-6">
+        <span class="material-symbols-outlined text-[18px]">search</span>
+        Browse Topic Catalog
+      </button>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Text Link Button (inline, no button chrome)</div>
+      <button class="text-[13px] text-[#1A73E8] font-medium hover:underline">Change</button>
+
+      <p class="text-xs text-[#5F6368] mt-4 max-w-3xl">Every filled/outlined button variant is still a pill (<code>rounded-full</code>) except the Small Ghost variant, which is a rectangular sub-component nested inside a card, and the plain Text Link, which has no shape at all. <code>grouping_settings_html.erb</code>'s footer buttons ("Add Students", "Delete Course", "Save") should map onto Outline / Danger Text / Primary respectively, using the hex tokens and pill shape — not generic Tailwind grays/reds on <code>rounded-md</code>.</p>
+    </section>
+
+    <!-- 14. DROPDOWN / CONTEXT MENUS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">14. Dropdown / Context Menus</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Simple Menu (icon + single label — triggered by more_vert)</div>
+      <div class="w-40 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden mb-6">
+        <div class="py-1">
+          <button class="w-full text-left px-4 py-2 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors text-[14px] text-[#3C4043]">
+            <span class="material-symbols-outlined text-[18px] text-[#5F6368]">edit</span>
+            Edit
+          </button>
+          <div class="border-t border-[#E0E0E0] my-1"></div>
+          <button class="w-full text-left px-4 py-2 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors text-[14px] text-[#C5221F]">
+            <span class="material-symbols-outlined text-[18px] text-[#C5221F]">delete</span>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Rich Menu (icon + title + subtitle — used off the Approve split button)</div>
+      <div class="w-56 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden">
+        <div class="py-1">
+          <button class="w-full text-left px-4 py-2.5 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors">
+            <span class="material-symbols-outlined text-[18px] text-[#5F6368]">replay</span>
+            <div class="flex flex-col">
+              <span class="text-[14px] text-[#3C4043] font-medium">Request Changes</span>
+              <span class="text-xs text-[#5F6368]">Return to group for redo</span>
+            </div>
+          </button>
+          <div class="border-t border-[#E0E0E0] my-1"></div>
+          <button class="w-full text-left px-4 py-2.5 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors">
+            <span class="material-symbols-outlined text-[18px] text-[#C5221F]">block</span>
+            <div class="flex flex-col">
+              <span class="text-[14px] text-[#C5221F] font-medium">Reject Proposal</span>
+              <span class="text-xs text-[#C5221F]/70">Close out permanently</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">Both variants: <code>rounded-lg</code> shadow-lg popover, destructive items hover to the Danger bg tint (#FCE8E6) with red text/icon, a 1px divider separates neutral from destructive actions.</p>
+    </section>
+
+    <!-- 15. SELECTION CARDS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">15. Selection Cards</h2>
+      <p class="text-xs text-[#5F6368] mb-4 max-w-3xl">For choosing between a small number of mutually-exclusive options (proposal method, student-list mode). 10px radius — a step between the 8px card radius and the 12px section radius.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl">
+        <div class="border-2 border-[#1A73E8] bg-[#F8F9FA] rounded-[10px] p-5 relative cursor-pointer flex flex-col justify-between transition-all shadow-xs">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-full bg-[#E8F0FE] text-[#1A73E8] flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">person</span>
+              </div>
+              <div class="w-5 h-5 rounded-full bg-[#1A73E8] text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-[14px]">check</span>
+              </div>
+            </div>
+            <h3 class="text-[15px] font-semibold text-[#1f1f1f]" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;">Propose to Lecturer</h3>
+            <p class="text-[13px] text-[#5F6368] mt-1">Submit your original project proposal directly to a supervisor.</p>
+          </div>
+        </div>
+        <div class="border border-[#DADCE0] hover:border-[#1A73E8] bg-white rounded-[10px] p-5 cursor-pointer flex flex-col justify-between transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-full bg-[#F1F3F4] text-[#5F6368] flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">article</span>
+              </div>
+              <div class="w-5 h-5 rounded-full border border-[#DADCE0]"></div>
+            </div>
+            <h3 class="text-[15px] font-semibold text-[#1f1f1f]" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;">Base on a Topic</h3>
+            <p class="text-[13px] text-[#5F6368] mt-1">Select from a pre-defined course topic template curated by lecturers.</p>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl"><strong>Selected:</strong> 2px Primary Blue border, #F8F9FA bg, filled blue check-circle indicator. <strong>Unselected:</strong> 1px #DADCE0 border, white bg, hollow gray circle, border turns blue on hover. A larger radio-card variant with description text and a muted/disabled state also appears in Settings (Section 24).</p>
+    </section>
+
+    <!-- 16. MODALS & DIALOGS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">16. Modals & Dialogs</h2>
+      <div class="bg-white rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden flex flex-col border border-[#E0E0E0]">
+        <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+          <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">Record Progress Update</h2>
+          <button class="text-[#5F6368] hover:bg-[#F1F3F4] rounded-full p-2 transition-colors flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">close</span>
+          </button>
+        </div>
+        <div class="px-6 py-2 space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Status</label>
+            <div class="relative">
+              <select class="w-full bg-white border border-[#DADCE0] rounded-[4px] pl-4 pr-10 py-3.5 text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent appearance-none cursor-pointer text-[14px]">
+                <option>Select an overall status...</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#5F6368] pointer-events-none">arrow_drop_down</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-6 flex justify-end gap-2">
+          <button class="text-[#1A73E8] hover:bg-[#F8F9FA] px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">Cancel</button>
+          <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors shadow-sm">Save Update</button>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">28px radius (Material 3 standard), dark <code>bg-black/50</code> backdrop, header/body/footer structure, footer actions right-aligned with a text Cancel + filled primary Save. Select fields inside modals use the 4px "compact" radius, not 6px.</p>
+    </section>
+
+    <!-- 17. DEFINITION LIST / META INFO GRID -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">17. Definition List / Meta Info Grid</h2>
+      <div class="bg-white border border-[#E0E0E0] rounded-lg p-6 max-w-3xl">
+        <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] text-[#1f1f1f] mb-6">Project Overview</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+          <div>
+            <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-1">Group Name</div>
+            <div class="text-[15px] text-[#3C4043]">Group 4</div>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Owners</div>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-medium">K</div>
+                <span class="text-[15px] text-[#3C4043]">Koh Wei Keat</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mt-6 mb-2">Row variant (label/value stripe, used for dynamic template fields)</div>
+      <div class="bg-white border border-[#E0E0E0] rounded-lg overflow-hidden max-w-3xl">
+        <div class="py-4 px-6 border-b border-[#E0E0E0] flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-[#F8F9FA] transition-colors">
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide md:w-1/3 shrink-0 pt-1">Project Title</div>
+          <div class="text-[15px] text-[#3C4043] md:w-2/3">Difficult Group Project Group 4</div>
+        </div>
+        <div class="p-4 bg-[#F8F9FA]">
+          <div class="flex items-center gap-2 text-xs text-[#5F6368]">
+            <span class="material-symbols-outlined text-[18px]">info</span>
+            <span>Based on Topic: <strong>Own Proposal</strong></span>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">Both use the Eyebrow Label for field names. The row variant stacks label above value on mobile (drop the <code>md:</code> prefixes) and swaps <code>hover:bg-[#F8F9FA]</code> for <code>active:bg-[#F8F9FA]</code> on touch. A gray info-strip footer (bg #F8F9FA, <code>info</code> icon) closes out a looped field list when it's derived from a topic template.</p>
+    </section>
+
+    <!-- 18. DATA CHIPS vs STATUS PILLS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">18. Data Chips vs. Status Pills</h2>
+      <div class="flex items-center gap-6">
+        <div>
+          <span class="bg-[#F1F3F4] border border-[#DADCE0] text-[#3C4043] px-3 py-1 rounded-lg text-[13px] font-medium">Web App</span>
+          <p class="text-xs text-[#5F6368] mt-2 max-w-[200px]">Data Chip — <code>rounded-lg</code> (8px), gray, bordered. Displays a selected field <em>value</em> (a dropdown answer, a tag).</p>
+        </div>
+        <div>
+          <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Pending</span>
+          <p class="text-xs text-[#5F6368] mt-2 max-w-[200px]">Status Pill — <code>rounded-full</code>, colored, unbordered. Communicates workflow <em>state</em>.</p>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-4 max-w-3xl">Easy to confuse since both are small colored labels — the shape is the signal: square-ish corners = a value, fully round = a state.</p>
+    </section>
+
+    <!-- 19. TIMELINE / ACTIVITY FEED -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">19. Timeline / Activity Feed</h2>
+      <div class="relative ml-4 max-w-3xl">
+        <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-[#E0E0E0]"></div>
+        <div class="relative pl-16">
+          <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-[#1A73E8] border-[3px] border-white text-white flex items-center justify-center font-medium z-10 text-xs">L1</div>
+          <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
+            <div class="px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start bg-[#F8F9FA] rounded-t-xl">
+              <div>
+                <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-[#1f1f1f]">Progress 2</h3>
+                <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                  2026-08-20
+                </p>
+              </div>
+              <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">Satisfactory</span>
+            </div>
+            <div class="p-6">
+              <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Feedback</div>
+              <div class="text-[14px] text-[#3C4043] leading-relaxed">Vestibulum at neque quam, sit amet mattis tellus sollicitudin vitae.</div>
+              <div class="mt-6 pt-4 border-t border-[#E0E0E0] text-[12px] text-[#5F6368]">Last updated: 20-08-2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">A continuous 1px vertical line runs behind circular author-avatar nodes (40px, 3px white ring so the line reads as passing behind, not through). Each entry is an 8px-radius (<code>rounded-xl</code> here specifically, matching the card's own header radius) flat card with a shaded header strip. Rating pill reuses the 4 status colors: green=Excellent, blue=Satisfactory, yellow=Unsatisfactory, (red=No Progress, not yet shown but follows the same system).</p>
+    </section>
+
+    <!-- 20. COMMENTS PANEL -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">20. Comments Panel (persistent side rail)</h2>
+      <div class="w-[380px] bg-[#f8fafd] border border-[#E0E0E0] rounded-lg flex flex-col">
+        <div class="px-6 py-4 border-b border-[#E0E0E0] flex items-center justify-between bg-white shrink-0">
+          <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; color: #1f1f1f;">Comments</h2>
+          <span class="bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-xs font-medium">7</span>
+        </div>
+        <div class="p-6 space-y-6">
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-1">Comments for V1</div>
+
+          <div class="flex gap-3 group">
+            <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-xs font-medium shrink-0">L1</div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-sm font-medium text-[#137333]">lecturer1</span>
+                <span class="text-[14px] text-[#444746]">1 day ago</span>
+              </div>
+              <p class="text-[14px] text-[#3C4043]">Please expand on the historical reporting aspect.</p>
+            </div>
+            <button class="text-[#5F6368] hover:text-[#C5221F] opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5">
+              <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          </div>
+
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-xs font-medium shrink-0">L1</div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-sm font-medium text-[#137333]">Test Lecturer 1</span>
+                <span class="text-[14px] text-[#444746]">01:15 AM</span>
+              </div>
+              <p class="text-[14px] text-[#5F6368] italic">This comment was deleted</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 bg-white border-t border-[#E0E0E0]">
+          <div class="border border-[#DADCE0] rounded-lg focus-within:border-[#1A73E8] focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-white flex items-end">
+            <textarea rows="1" class="w-full bg-transparent border-none p-3 text-[#3C4043] focus:ring-0 text-[14px] resize-none min-h-[44px] outline-none" placeholder="Write a comment..."></textarea>
+            <button class="p-2 m-1 text-[#1A73E8] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">send</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">
+        <strong>Author name color is role-coded:</strong> lecturer/staff names render in Success Green (#137333), not the default heading color — this is consistent across every page that shows comments. <strong>Timestamp is always Meta Text</strong> (14px, #444746) — <code>projects_show_html.erb</code> currently sets its comment timestamps to <code>text-xs text-[#5F6368]</code>; bring them in line with the token used everywhere else. <strong>Deleted state:</strong> italic gray body text (#5F6368), no delete button, no timestamp interaction. <strong>Live comment:</strong> a red <code>close</code> icon fades in on row hover, top-right, to delete. This compact composer (rounded-lg box, inline send icon) is the persistent-panel variant — different from the full-width pill "Add class comment..." trigger in Section 10.
+      </p>
+    </section>
+
+    <!-- 21. VERSION COMPARE -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">21. Version Compare</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Compare toolbar</div>
+      <div class="flex justify-center mb-6">
+        <div class="inline-flex items-center gap-4">
+          <div class="bg-[#FFF8E1] text-[#F57F17] rounded-full px-4 py-1.5 flex items-center gap-2 border border-transparent hover:border-[#F57F17]/30 transition-colors cursor-pointer">
+            <div class="w-1.5 h-1.5 rounded-full bg-[#F57F17]"></div>
+            <select class="bg-transparent text-sm font-medium text-[#F57F17] focus:outline-none cursor-pointer appearance-none">
+              <option>Version 1 (22 Aug 2026)</option>
+            </select>
+          </div>
+          <span class="material-symbols-outlined text-[#5F6368] text-[20px]">sync_alt</span>
+          <div class="bg-[#E6F4EA] text-[#137333] rounded-full px-4 py-1.5 flex items-center gap-2 border border-transparent hover:border-[#137333]/30 transition-colors cursor-pointer">
+            <div class="w-1.5 h-1.5 rounded-full bg-[#137333]"></div>
+            <select class="bg-transparent text-sm font-medium text-[#137333] focus:outline-none cursor-pointer appearance-none">
+              <option>Version 2 (Current)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Inline diff highlights (within rich text)</div>
+      <div class="p-4 border border-[#E0E0E0] rounded-md bg-white text-[#3C4043] text-[14px] leading-relaxed max-w-2xl">
+        <span class="bg-[#FCE8E6] text-[#C5221F] px-1 rounded line-through mr-1">Mobile App</span>
+        <span class="bg-[#E6F4EA] text-[#137333] px-1 rounded font-medium">Web App</span>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-3 max-w-3xl">Toolbar pills use a small colored dot + the same status colors as everywhere else (yellow=older/base, green=newer/current) wrapping a borderless <code>&lt;select&gt;</code>. Inline diffs use the same red/green tokens as the line-based Diff Viewer (Section 11) but as small inline spans: struck-through red for removed text, bold green for added text — never a whole new color pair.</p>
+    </section>
+
+    <!-- 22. SPLIT-PANE APP LAYOUT -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">22. Split-Pane App Layout (70/30)</h2>
+      <p class="text-xs text-[#5F6368] max-w-3xl leading-relaxed">
+        Used on every project detail page (Project Details / Compare Versions / Progress Updates tabs). Structure:
+        <code>main</code> is a flex row inside the white <code>rounded-tl-[28px]</code> canvas. The left pane (<code>flex-1</code>) scrolls independently and holds the sticky context header + sticky tabs + tab content.
+        The right pane is a fixed <code>w-[380px]</code> Comments Panel (Section 20) on the app-canvas gray (<code>bg-[#f8fafd]</code>), separated by a single <code>border-l border-[#E0E0E0]</code> — no shadow. Both panes independently
+        <code>overflow-y-auto</code>. On mobile this collapses to a single column with Comments becoming a 4th scrollable tab (Section 24) instead of a persistent rail.
+      </p>
+    </section>
+
+    <!-- 23. PAGE HEADERS — ADDITIONAL VARIANTS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">23. Page Headers — Additional Variants</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Full-Screen Takeover Header (editing a proposal)</div>
+      <div class="bg-white border-b border-[#E0E0E0] px-6 py-3.5 flex items-center justify-between shadow-xs max-w-4xl mb-2">
+        <div class="flex items-center gap-4">
+          <span class="p-2 -ml-2 rounded-full text-[#5F6368] flex items-center justify-center">
+            <span class="material-symbols-outlined text-[22px]">close</span>
+          </span>
+          <div class="h-5 w-[1px] bg-[#DADCE0]"></div>
+          <div class="flex items-center gap-3">
+            <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[18px] text-[#1f1f1f] font-medium">Edit Proposal — <span class="text-[#5F6368] font-normal">Pineapple das</span></h1>
+            <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Pending</span>
+          </div>
+        </div>
+        <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all flex items-center gap-2 shadow-sm">
+          <span class="material-symbols-outlined text-[18px]">check</span>
+          Update Proposal
+        </button>
+      </div>
+      <p class="text-xs text-[#5F6368] mb-6 max-w-4xl">Sticky, bordered, white — replaces the global app header entirely while editing. Close (✕) + a vertical divider + title on the left, primary action on the right. Status pill next to the title always uses the standard Status Pill colors (Section 7/18) — not a bordered/uppercase gold variant.</p>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Full-Screen Settings Overlay Header</div>
+      <div class="bg-white border-b border-[#E0E0E0] px-4 py-3 flex items-center justify-between max-w-4xl">
+        <div class="flex items-center gap-6">
+          <span class="p-2 rounded-full text-[#5F6368] flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">close</span>
+          </span>
+          <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-xl font-medium text-[#1f1f1f]">Class settings</h1>
+        </div>
+        <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white font-medium text-sm px-6 py-2 rounded-full transition-colors">Save</button>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-2 max-w-4xl"><code>grouping_settings_html.erb</code> uses this pattern but with a hand-drawn SVG ✕ (Material Symbols never loads on that page — see Section 25) and a gray Save button instead of Primary Blue.</p>
+    </section>
+
+    <!-- 24. FORMS — ADDITIONAL PATTERNS -->
+    <section>
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">24. Forms — Additional Patterns</h2>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Standard Text Input (standalone, not floating-label)</div>
+      <input type="text" value="Pineapple das" class="w-full max-w-md border border-[#DADCE0] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#3C4043] focus:outline-none focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8] transition-shadow mb-1">
+      <div class="text-[12px] text-[#5F6368] mb-6">*Required — helper text sits directly under the field, 12px, secondary gray.</div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Radio Pills (methodology-style choice group)</div>
+      <div class="grid grid-cols-3 gap-3 max-w-lg mb-6">
+        <label class="flex items-center gap-2.5 p-3 rounded-[6px] border border-[#DADCE0] cursor-pointer hover:bg-[#F8F9FA] transition-colors">
+          <input type="radio" name="methodology-demo" class="text-[#1A73E8] border-[#DADCE0]"><span class="text-[14px] text-[#3C4043]">Agile</span>
+        </label>
+        <label class="flex items-center gap-2.5 p-3 rounded-[6px] border border-[#1A73E8] bg-[#E8F0FE]/40 cursor-pointer">
+          <input type="radio" name="methodology-demo" checked class="text-[#1A73E8] border-[#DADCE0]"><span class="text-[14px] font-medium text-[#1A73E8]">Waterfall</span>
+        </label>
+        <label class="flex items-center gap-2.5 p-3 rounded-[6px] border border-[#DADCE0] cursor-pointer hover:bg-[#F8F9FA] transition-colors">
+          <input type="radio" name="methodology-demo" class="text-[#1A73E8] border-[#DADCE0]"><span class="text-[14px] text-[#3C4043]">Kanban</span>
+        </label>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">WYSIWYG Toolbar</div>
+      <div class="border border-[#DADCE0] rounded-[6px] overflow-hidden max-w-2xl mb-6">
+        <div class="bg-[#F8F9FA] border-b border-[#DADCE0] px-2 py-1.5 flex items-center gap-1">
+          <button class="p-1.5 text-[#5F6368] hover:bg-[#E8F0FE] hover:text-[#1A73E8] rounded-[4px]"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+          <button class="p-1.5 text-[#5F6368] hover:bg-[#E8F0FE] hover:text-[#1A73E8] rounded-[4px]"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+          <div class="w-[1px] h-4 bg-[#DADCE0] mx-1"></div>
+          <button class="p-1.5 text-[#5F6368] hover:bg-[#E8F0FE] hover:text-[#1A73E8] rounded-[4px]"><span class="material-symbols-outlined text-[18px]">format_list_bulleted</span></button>
+          <button class="p-1.5 text-[#5F6368] hover:bg-[#E8F0FE] hover:text-[#1A73E8] rounded-[4px]"><span class="material-symbols-outlined text-[18px]">link</span></button>
+        </div>
+        <textarea rows="4" class="w-full p-4 text-[14px] text-[#3C4043] bg-white border-none focus:ring-0 resize-y outline-none"></textarea>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Settings Row (label + inline Yes/No)</div>
+      <div class="bg-white border border-[#E0E0E0] rounded-lg overflow-hidden max-w-2xl mb-6">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-[#E0E0E0] hover:bg-[#F8F9FA] transition-colors">
+          <span class="text-sm font-medium text-[#3C4043] mb-2 sm:mb-0">Use progress updates?</span>
+          <div class="flex items-center gap-6">
+            <label class="flex items-center text-sm text-[#3C4043] cursor-pointer"><input type="radio" name="pu-demo" class="text-[#1A73E8] border-[#DADCE0] mr-2"> Yes</label>
+            <label class="flex items-center text-sm text-[#3C4043] cursor-pointer"><input type="radio" name="pu-demo" class="text-[#1A73E8] border-[#DADCE0] mr-2"> No</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Radio-Card List (mode selector w/ description + disabled state)</div>
+      <div class="space-y-3 max-w-2xl mb-6">
+        <label class="flex items-start gap-3 p-4 border border-[#1A73E8] bg-[#E8F0FE]/40 rounded-lg cursor-pointer">
+          <input type="radio" checked class="mt-0.5 text-[#1A73E8] border-[#DADCE0] shrink-0">
+          <div>
+            <span class="block text-sm font-medium text-[#3C4043]">Default</span>
+            <span class="block text-xs text-[#5F6368] mt-1 leading-relaxed">The student list may still change. Groups form within min/max limits.</span>
+          </div>
+        </label>
+        <div class="flex items-start gap-3 p-4 border border-[#E0E0E0] rounded-lg bg-[#F8F9FA] opacity-60">
+          <div class="mt-0.5 h-4 w-4 shrink-0"></div>
+          <div>
+            <span class="block text-sm font-medium text-[#9AA0A6]">Final student list</span>
+            <span class="block text-xs text-[#9AA0A6] mt-1 leading-relaxed">Unavailable once Default mode has been saved.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Preview / Result Panel</div>
+      <div class="bg-[#F8F9FA] border border-[#E0E0E0] rounded-lg p-5 space-y-3 max-w-2xl mb-6">
+        <p class="text-sm font-medium text-[#3C4043]">Preview group distribution</p>
+        <p class="text-xs text-[#5F6368]">Enter an expected student count to see how legal groups would form.</p>
+        <div class="text-sm text-[#3C4043] pt-1">— result renders here —</div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Alert / Error Banner</div>
+      <div class="rounded-lg border border-[#F9D2CE] bg-[#FCE8E6] p-4 max-w-2xl mb-6">
+        <h3 class="text-sm font-medium text-[#C5221F]">2 errors prohibited saving:</h3>
+        <ul class="mt-2 text-sm text-[#C5221F] list-disc list-inside">
+          <li>Minimum group size can't be blank</li>
+        </ul>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Beta / Experimental Tag</div>
+      <span class="text-xs font-semibold px-2 py-0.5 rounded bg-[#FFF8E1] text-[#F57F17] align-middle">Beta</span>
+
+      <p class="text-xs text-[#5F6368] mt-4 max-w-3xl">
+        All of the above are pulled from <code>grouping_settings_html.erb</code>, remapped from generic Tailwind grays/blues/reds/ambers onto the standard hex tokens. Radio-card selected state reuses the same blue tint pattern as the Section 15 selection cards; the disabled option drops to a neutral <code>#9AA0A6</code> muted-gray text with 60% opacity on the whole row. The Beta tag reuses the Redo/yellow token rather than introducing a new amber.
+      </p>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2 mt-6">Mobile — sticky bottom action bar</div>
+      <div class="bg-white border-t border-[#E0E0E0] p-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex items-center justify-between gap-3 max-w-sm">
+        <select class="bg-[#F8F9FA] border border-[#DADCE0] rounded-lg px-2 py-2.5 text-[14px] text-[#3C4043] font-medium focus:outline-none focus:ring-2 focus:ring-[#1A73E8]">
+          <option>V1 (Current)</option>
+        </select>
+        <div class="flex items-center gap-2">
+          <button class="p-2.5 text-[#C5221F] hover:bg-[#FCE8E6] rounded-full"><span class="material-symbols-outlined text-[22px]">block</span></button>
+          <button class="p-2.5 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full"><span class="material-symbols-outlined text-[22px]">replay</span></button>
+          <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-3 pr-4 py-2.5 rounded-full font-medium text-[14px] flex items-center gap-1.5 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">check</span> Approve
+          </button>
+        </div>
+      </div>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2 mt-6">Mobile — scrollable tabs with count badge</div>
+      <div class="border-b border-[#E0E0E0] overflow-x-auto flex max-w-sm">
+        <div class="flex gap-6 min-w-max">
+          <span class="pb-3 text-[#1A73E8] border-b-4 border-[#1A73E8] text-[14px] font-medium">Project Details</span>
+          <span class="pb-3 text-[#5F6368] border-b-4 border-transparent text-[14px] font-medium flex items-center gap-1.5">
+            Comments
+            <span class="bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-[11px] font-medium leading-none">7</span>
+          </span>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mt-2 max-w-3xl">On narrow viewports the persistent Comments rail (Section 22) collapses into a 4th tab carrying the same count-badge used on the panel header. Icon-only Reject/Redo buttons + a full Approve pill fill a fixed bottom bar so primary actions stay reachable while scrolling.</p>
+    </section>
+
+    <!-- 25. KNOWN INCONSISTENCIES TO FIX IN THE ACTUAL PAGES -->
+    <section class="bg-[#FCE8E6] border border-[#F9D2CE] rounded-lg p-6">
+      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 500; color: #C5221F;" class="text-[16px] mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">rule</span>
+        25. Known Inconsistencies To Fix
+      </h2>
+      <ul class="text-[13px] text-[#3C4043] space-y-2 list-disc list-inside leading-relaxed">
+        <li><strong>grouping_settings_html.erb</strong> — missing the Google Fonts / Material Symbols <code>&lt;link&gt;</code> tags entirely; uses <code>font-sans</code> instead of Roboto/Google Sans; hand-draws an SVG ✕ icon instead of the <code>material-symbols-outlined close</code> span; uses generic Tailwind <code>gray-*/blue-*/red-*/amber-*</code> classes throughout instead of the hex tokens in Section 1; footer buttons ("Add Students", "Add Lecturers", "Delete Course") are <code>rounded-md</code> instead of pill-shaped, and the Danger button uses <code>red-50/red-700</code> instead of <code>#FCE8E6/#C5221F</code>; the "Save" button is gray instead of Primary Blue.</li>
+        <li><strong>projects_form_html.erb</strong> — header "Pending" badge is a bordered gold chip (<code>#FEF7E0/#B06000</code>, uppercase, bordered) instead of the standard unbordered blue Status Pill; primary-button hover is <code>#1557B0</code> instead of the documented <code>#1B66C9</code>; field labels are <code>font-semibold text-[#3C4043]</code> instead of the standard Eyebrow Label (<code>font-medium text-[#5F6368]</code>); its select-field caret uses <code>expand_more</code> where every other select on the app uses <code>arrow_drop_down</code> — standardize on <code>arrow_drop_down</code>.</li>
+        <li><strong>projects_show_html.erb</strong> — comment timestamps use <code>text-xs text-[#5F6368]</code> instead of the Meta Text token (<code>text-[14px] text-[#444746]</code>) used on every other page's comment panel.</li>
+      </ul>
+    </section>
+
+  </div>
+</div>

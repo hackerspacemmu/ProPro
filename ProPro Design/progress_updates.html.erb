@@ -1,0 +1,422 @@
+<% content_for :hide_toggler, true %>
+<% content_for :no_sidebar, true %>
+<% content_for :hide_breadcrumbs, true %>
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+<!-- ============================================== -->
+<!-- APP LAYOUT AREA (PROGRESS UPDATES IMPLEMENTED) -->
+<!-- ============================================== -->
+
+<div class="min-h-screen bg-[#f8fafd] text-[#3C4043] font-['Roboto',sans-serif] flex flex-col relative">
+
+  <!-- 1. GLOBAL HEADER -->
+  <header class="flex items-center justify-between px-4 py-3 shrink-0">
+    <div class="flex items-center gap-2">
+      <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <span class="text-[24px] text-[#5F6368] font-medium tracking-normal">ProPro</span>
+      <span class="material-symbols-outlined text-[#5F6368] text-[20px] mx-1">chevron_right</span>
+      <span class="text-[24px] text-[#3C4043] font-normal tracking-normal">Grouped Topic Approval Enabled</span>
+    </div>
+    <div class="flex items-center gap-4 pr-2">
+      <button class="text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors">
+        Log out
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. LAYOUT WRAPPER -->
+  <div class="flex flex-1 overflow-hidden h-[calc(100vh-64px)]">
+
+    <!-- SIDEBAR -->
+    <aside class="w-[280px] shrink-0 py-3 overflow-y-auto">
+      <nav class="flex flex-col gap-1 pr-3">
+        <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60 font-medium text-[14px] leading-5 tracking-normal">
+          <span class="material-symbols-outlined">home</span>
+          <span>Home</span>
+        </a>
+        
+        <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] mt-2 cursor-pointer">
+          <span style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="font-medium text-[14px] leading-5 tracking-normal">Enrolled</span>
+          <span class="material-symbols-outlined text-sm">expand_less</span>
+        </div>
+
+        <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60 font-medium text-[14px] leading-5 tracking-normal">
+          <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">F</div>
+          <span class="truncate">Foundation 2026</span>
+        </a>
+
+        <!-- Active Sidebar Item: Inset Pill -->
+        <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0] font-medium text-[14px] leading-5 tracking-normal">
+          <div class="w-9 h-9 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-bold shrink-0">G</div>
+          <span class="truncate font-semibold">Grouped Topic Approval Enabled</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN APP CANVAS -->
+    <main class="flex-1 bg-white rounded-tl-[28px] flex overflow-hidden">
+      
+      <!-- LEFT PANE: Content Area (70% width) -->
+      <div class="flex-1 flex flex-col overflow-y-auto">
+        
+        <!-- Context Header (Sticky Info) -->
+        <div class="px-8 pt-8 pb-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <span class="bg-[#E6F4EA] text-[#137333] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Approved</span>
+                <span class="text-[14px] text-[#444746]">02:57 PM, 25 Aug 2026</span>
+              </div>
+              <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: #1f1f1f;">Pineapple das</h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Tabs (Progress Updates Active) -->
+        <div class="border-b border-[#E0E0E0] px-8 sticky top-0 bg-white z-20">
+          <div class="flex gap-8">
+            <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent text-[14px] font-medium leading-5 tracking-normal transition-colors">Project Details</a>
+            <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent text-[14px] font-medium leading-5 tracking-normal transition-colors">Compare Versions</a>
+            <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="pb-3 text-[#1A73E8] border-b-4 border-[#1A73E8] text-[14px] font-medium leading-5 tracking-normal">Progress Updates</a>
+          </div>
+        </div>
+
+        <!-- Content Area: Progress Updates -->
+        <div class="p-8 max-w-4xl w-full mx-auto space-y-8 relative">
+
+          <!-- RECORD NEW UPDATE ACTION (Button Trigger) -->
+          <!-- In real app, this button removes the 'hidden' class from #progress-modal -->
+          <div class="mb-8">
+            <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white pl-4 pr-5 py-2.5 rounded-full font-medium text-[14px] transition-colors flex items-center gap-2 shadow-sm">
+              <span class="material-symbols-outlined text-[20px]">add</span>
+              Record Update
+            </button>
+          </div>
+
+          <!-- TIMELINE CONTAINER (Hardcoded List) -->
+          <div class="relative ml-4 mt-8">
+            <!-- Continuous Vertical Line -->
+            <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-[#E0E0E0]"></div>
+
+            <div class="space-y-8 relative">
+              
+              <!-- Timeline Item 1 (Excellent) -->
+              <div class="relative pl-16">
+                
+                <!-- Timeline Node (Lecturer Avatar) -->
+                <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-[#1A73E8] border-[3px] border-white text-white flex items-center justify-center font-medium z-10 text-xs">
+                  L1
+                </div>
+                
+                <!-- Content Card (Flat, No Shadows) -->
+                <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
+                  
+                  <!-- Card Header -->
+                  <div class="px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start bg-[#F8F9FA] rounded-t-xl">
+                    <div>
+                      <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-[#1f1f1f] flex items-center gap-2">
+                        <span class="text-[#1A73E8]">Extra 1</span>
+                      </h3>
+                      <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                        2026-09-01
+                      </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                      <!-- Semantic Rating Pill -->
+                      <span class="bg-[#E6F4EA] text-[#137333] px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">
+                        Excellent
+                      </span>
+
+                      <!-- Inline Actions Dropdown (Hidden behind more_vert) -->
+                      <div class="relative group">
+                        <button class="p-1.5 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors flex items-center justify-center">
+                          <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all origin-top-right">
+                          <div class="py-1">
+                            <button class="w-full text-left px-4 py-2 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors text-[14px] text-[#3C4043]">
+                              <span class="material-symbols-outlined text-[18px] text-[#5F6368]">edit</span>
+                              Edit
+                            </button>
+                            <div class="border-t border-[#E0E0E0] my-1"></div>
+                            <button class="w-full text-left px-4 py-2 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors text-[14px] text-[#C5221F]">
+                              <span class="material-symbols-outlined text-[18px] text-[#C5221F]">delete</span>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card Body (Feedback Content) -->
+                  <div class="p-6">
+                    <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Feedback</div>
+                    <div class="text-[14px] text-[#3C4043] leading-relaxed prose prose-sm max-w-none">
+                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. This is a very robust update on the database architecture.</p>
+                    </div>
+                    
+                    <!-- Meta Updated Tag -->
+                    <div class="mt-6 pt-4 border-t border-[#E0E0E0] text-[12px] text-[#5F6368]">
+                      Last updated: 25-08-2026
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Timeline Item 2 (Satisfactory) -->
+              <div class="relative pl-16">
+                
+                <!-- Timeline Node (Lecturer Avatar) -->
+                <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-[#1A73E8] border-[3px] border-white text-white flex items-center justify-center font-medium z-10 text-xs">
+                  L1
+                </div>
+                
+                <!-- Content Card (Flat, No Shadows) -->
+                <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
+                  
+                  <!-- Card Header -->
+                  <div class="px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start bg-[#F8F9FA] rounded-t-xl">
+                    <div>
+                      <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-[#1f1f1f] flex items-center gap-2">
+                        <span>Progress 2</span>
+                      </h3>
+                      <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                        2026-08-20
+                      </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                      <!-- Semantic Rating Pill -->
+                      <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">
+                        Satisfactory
+                      </span>
+
+                      <!-- Inline Actions Dropdown (Hidden behind more_vert) -->
+                      <div class="relative group">
+                        <button class="p-1.5 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors flex items-center justify-center">
+                          <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all origin-top-right">
+                          <div class="py-1">
+                            <button class="w-full text-left px-4 py-2 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors text-[14px] text-[#3C4043]">
+                              <span class="material-symbols-outlined text-[18px] text-[#5F6368]">edit</span>
+                              Edit
+                            </button>
+                            <div class="border-t border-[#E0E0E0] my-1"></div>
+                            <button class="w-full text-left px-4 py-2 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors text-[14px] text-[#C5221F]">
+                              <span class="material-symbols-outlined text-[18px] text-[#C5221F]">delete</span>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card Body (Feedback Content) -->
+                  <div class="p-6">
+                    <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Feedback</div>
+                    <div class="text-[14px] text-[#3C4043] leading-relaxed prose prose-sm max-w-none">
+                      <p>Vestibulum at neque quam, sit amet mattis tellus sollicitudin vitae. Nam maximus mauris in ligula condimentum, tincidunt viverra dolor posuere. Duis lectus mi, egestas a dictum.</p>
+                    </div>
+                    
+                    <!-- Meta Updated Tag -->
+                    <div class="mt-6 pt-4 border-t border-[#E0E0E0] text-[12px] text-[#5F6368]">
+                      Last updated: 20-08-2026
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Timeline Item 3 (Unsatisfactory) -->
+              <div class="relative pl-16">
+                
+                <!-- Timeline Node (Lecturer Avatar) -->
+                <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-[#1A73E8] border-[3px] border-white text-white flex items-center justify-center font-medium z-10 text-xs">
+                  L1
+                </div>
+                
+                <!-- Content Card (Flat, No Shadows) -->
+                <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
+                  
+                  <!-- Card Header -->
+                  <div class="px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start bg-[#F8F9FA] rounded-t-xl">
+                    <div>
+                      <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-[#1f1f1f] flex items-center gap-2">
+                        <span>Progress 1</span>
+                      </h3>
+                      <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                        2026-08-10
+                      </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                      <!-- Semantic Rating Pill -->
+                      <span class="bg-[#FFF8E1] text-[#F57F17] px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">
+                        Unsatisfactory
+                      </span>
+
+                      <!-- Inline Actions Dropdown (Hidden behind more_vert) -->
+                      <div class="relative group">
+                        <button class="p-1.5 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors flex items-center justify-center">
+                          <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all origin-top-right">
+                          <div class="py-1">
+                            <button class="w-full text-left px-4 py-2 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors text-[14px] text-[#3C4043]">
+                              <span class="material-symbols-outlined text-[18px] text-[#5F6368]">edit</span>
+                              Edit
+                            </button>
+                            <div class="border-t border-[#E0E0E0] my-1"></div>
+                            <button class="w-full text-left px-4 py-2 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors text-[14px] text-[#C5221F]">
+                              <span class="material-symbols-outlined text-[18px] text-[#C5221F]">delete</span>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card Body (Feedback Content) -->
+                  <div class="p-6">
+                    <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Feedback</div>
+                    <div class="text-[14px] text-[#3C4043] leading-relaxed prose prose-sm max-w-none">
+                      <p>The wireframes provided lack basic navigation flows. Please revise these before moving to high fidelity.</p>
+                    </div>
+                    
+                    <!-- Meta Updated Tag -->
+                    <div class="mt-6 pt-4 border-t border-[#E0E0E0] text-[12px] text-[#5F6368]">
+                      Last updated: 10-08-2026
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANE: Persistent Comments Sidebar (30% width) -->
+      <div class="w-[380px] bg-[#f8fafd] border-l border-[#E0E0E0] flex flex-col shrink-0">
+        
+        <div class="px-6 py-4 border-b border-[#E0E0E0] flex items-center justify-between bg-white shrink-0">
+          <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: #1f1f1f;">Comments</h2>
+          <span class="bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-xs font-medium">1</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-4 flex items-center gap-2">
+            Comments for V1
+          </div>
+          
+          <!-- Comment Example -->
+          <div class="flex gap-3 group">
+            <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-xs font-medium shrink-0">L1</div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-sm font-medium text-[#137333]">Test Lecturer 1</span>
+                <span class="text-[14px] text-[#444746]">01:15 AM</span>
+              </div>
+              <p class="text-[14px] text-[#5F6368] italic">This comment was deleted</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment Input Box -->
+        <div class="p-4 bg-white border-t border-[#E0E0E0] shrink-0">
+          <div class="border border-[#DADCE0] rounded-lg focus-within:border-[#1A73E8] focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-white flex items-end">
+            <textarea rows="1" class="w-full bg-transparent border-none p-3 text-[#3C4043] focus:ring-0 text-[14px] resize-none min-h-[44px] outline-none" placeholder="Write a comment..."></textarea>
+            <button class="p-2 m-1 text-[#1A73E8] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">send</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- RECORD UPDATE MODAL (Hidden by default)          -->
+  <!-- In a real app, remove the 'hidden' class to show -->
+  <!-- ============================================== -->
+  <div id="progress-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <!-- Dark Backdrop -->
+    <div class="absolute inset-0 bg-black/50 transition-opacity"></div>
+    
+    <!-- Modal Dialog (Material 3 standard rounded-3xl / 28px) -->
+    <div class="relative bg-white rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden flex flex-col m-4">
+      
+      <!-- Modal Header -->
+      <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">Record Progress Update</h2>
+        <button class="text-[#5F6368] hover:bg-[#F1F3F4] rounded-full p-2 transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-[24px]">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Form Fields) -->
+      <div class="px-6 py-2 space-y-6">
+        
+        <!-- Status Dropdown -->
+        <div>
+          <label class="block text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Status</label>
+          <div class="relative">
+            <select class="w-full bg-white border border-[#DADCE0] rounded-[4px] pl-4 pr-10 py-3.5 text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent appearance-none cursor-pointer text-[14px]">
+              <option value="" disabled selected>Select an overall status...</option>
+              <option value="no_progress">No Progress</option>
+              <option value="unsatisfactory">Unsatisfactory</option>
+              <option value="satisfactory">Satisfactory</option>
+              <option value="excellent">Excellent</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#5F6368] pointer-events-none">arrow_drop_down</span>
+          </div>
+        </div>
+
+        <!-- Feedback Textarea -->
+        <div>
+          <label class="block text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Feedback</label>
+          <textarea rows="5" class="w-full bg-white border border-[#DADCE0] rounded-[4px] px-4 py-3.5 text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent resize-none text-[14px]" placeholder="Provide details on the group's progress..."></textarea>
+          <p class="text-xs text-[#5F6368] mt-2">Markdown formatting is supported.</p>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer (Actions) -->
+      <div class="px-6 py-6 flex justify-end gap-2">
+        <button class="text-[#1A73E8] hover:bg-[#F8F9FA] px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+          Cancel
+        </button>
+        <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors shadow-sm">
+          Save Update
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

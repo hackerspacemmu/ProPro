@@ -1,0 +1,362 @@
+<% content_for :hide_toggler, true %>
+<% content_for :no_sidebar, true %>
+<% content_for :hide_breadcrumbs, true %>
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+<div class="min-h-screen bg-[#f8fafd] text-[#3C4043] font-['Roboto',sans-serif] flex flex-col">
+
+  <!-- 1. GLOBAL HEADER -->
+  <header class="flex items-center justify-between px-4 py-3 shrink-0">
+    <div class="flex items-center gap-2">
+      <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <span class="text-[24px] text-[#5F6368] font-medium tracking-tight">ProPro</span>
+      <span class="material-symbols-outlined text-[#5F6368] text-[20px] mx-1">chevron_right</span>
+      <span class="text-[24px] text-[#3C4043] font-normal tracking-tight">Grouped Topic Approval Enabled</span>
+    </div>
+    <div class="flex items-center gap-4 pr-2">
+      <button class="text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors">
+        Log out
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. LAYOUT WRAPPER -->
+  <div class="flex flex-1 overflow-hidden h-[calc(100vh-64px)]">
+
+    <!-- SIDEBAR (Transparent background, sits on #f8fafd) -->
+    <aside class="w-[280px] shrink-0 py-3 overflow-y-auto">
+      <nav class="flex flex-col gap-1 pr-3">
+        <a href="#" style="font-family: 'Google Sans', sans-serif;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60 font-medium text-[14px]">
+          <span class="material-symbols-outlined">home</span>
+          <span>Home</span>
+        </a>
+        
+        <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] mt-2 cursor-pointer">
+          <span style="font-family: 'Google Sans', sans-serif;" class="font-medium text-[14px]">Enrolled</span>
+          <span class="material-symbols-outlined text-sm">expand_less</span>
+        </div>
+
+        <a href="#" style="font-family: 'Google Sans', sans-serif;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60 font-medium text-[14px]">
+          <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">F</div>
+          <span class="truncate">Foundation 2026</span>
+        </a>
+
+        <!-- Active Sidebar Item: Inset Pill -->
+        <a href="#" style="font-family: 'Google Sans', sans-serif;" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0] font-medium text-[14px]">
+          <div class="w-9 h-9 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-bold shrink-0">G</div>
+          <span class="truncate font-semibold">Grouped Topic Approval Enabled</span>
+        </a>
+
+        <a href="#" style="font-family: 'Google Sans', sans-serif;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60 font-medium text-[14px]">
+          <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">D</div>
+          <span class="truncate">Data Structures</span>
+        </a>
+
+        <div class="py-2">
+          <div class="border-t border-[#DADCE0]"></div>
+        </div>
+
+        <a href="#" style="font-family: 'Google Sans', sans-serif;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60 font-medium text-[14px]">
+          <span class="material-symbols-outlined text-[#5F6368]">person</span>
+          <span>Edit profile</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN APP CANVAS (No borders or shadows against the sidebar/header edge) -->
+    <main class="flex-1 bg-white rounded-tl-[28px] flex overflow-hidden">
+      
+      <!-- LEFT PANE: Project Details (70% width) -->
+      <div class="flex-1 flex flex-col overflow-y-auto">
+        
+        <!-- Context Header (Sticky Info) -->
+        <div class="px-8 pt-8 pb-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Pending</span>
+                <span class="text-[15px] text-[#5F6368]">Submitted 2 hours ago</span>
+              </div>
+              <h1 style="font-family: 'Google Sans', sans-serif;" class="text-[28px] text-[#1f1f1f] font-normal tracking-tight">Difficult Group Project Group 4</h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              
+              <!-- Version Selector inside Header -->
+              <div class="flex items-center gap-2 mr-2">
+                <span class="text-sm font-medium text-[#5F6368]">Version:</span>
+                <select class="bg-white border border-[#DADCE0] rounded-[4px] px-3 py-2 text-sm text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent cursor-pointer">
+                  <option>1 of 1 (Current)</option>
+                </select>
+              </div>
+              
+              <!-- Split Button Container -->
+              <!-- 'group' class is used here for pure CSS hover in the mockup -->
+              <div class="relative group">
+                
+                <!-- Button Group -->
+                <div class="inline-flex shadow-sm rounded-full">
+                  <!-- Primary Action (Approve) -->
+                  <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">check</span>
+                    Approve
+                  </button>
+                  
+                  <!-- Vertical Divider -->
+                  <div class="w-[1px] bg-white/30"></div>
+                  
+                  <!-- Dropdown Trigger -->
+                  <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+                  </button>
+                </div>
+
+                <!-- Dropdown Menu (Popover) -->
+                <!-- Positioned absolute to the container. Uses group-hover to reveal. -->
+                <div class="absolute right-0 top-full mt-1.5 w-56 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all origin-top-right">
+                  <div class="py-1">
+                    
+                    <!-- Action: Redo -->
+                    <button class="w-full text-left px-4 py-2.5 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors">
+                      <span class="material-symbols-outlined text-[18px] text-[#5F6368]">replay</span>
+                      <div class="flex flex-col">
+                        <span class="text-[14px] text-[#3C4043] font-medium">Request Changes</span>
+                        <span class="text-xs text-[#5F6368]">Return to group for redo</span>
+                      </div>
+                    </button>
+                    
+                    <div class="border-t border-[#E0E0E0] my-1"></div>
+                    
+                    <!-- Action: Reject -->
+                    <!-- Changes background to light red on hover to warn of destructive action -->
+                    <button class="w-full text-left px-4 py-2.5 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors">
+                      <span class="material-symbols-outlined text-[18px] text-[#C5221F]">block</span>
+                      <div class="flex flex-col">
+                        <span class="text-[14px] text-[#C5221F] font-medium">Reject Proposal</span>
+                        <span class="text-xs text-[#C5221F]/70">Close out permanently</span>
+                      </div>
+                    </button>
+
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Tabs -->
+        <div class="border-b border-[#E0E0E0] px-8 sticky top-0 bg-white z-10">
+          <div class="flex gap-8">
+            <!-- Active Tab -->
+            <a href="#" style="font-family: 'Google Sans', sans-serif;" class="pb-3 text-[#1A73E8] border-b-4 border-[#1A73E8] text-[14px] font-medium">Project Details</a>
+            <a href="#" style="font-family: 'Google Sans', sans-serif;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent text-[14px] font-medium transition-colors">Compare Versions</a>
+            <a href="#" style="font-family: 'Google Sans', sans-serif;" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent text-[14px] font-medium transition-colors">Progress Updates</a>
+          </div>
+        </div>
+
+        <!-- Content Area: Project Details -->
+        <div class="p-8 max-w-5xl space-y-8">
+
+          <!-- 1. META INFORMATION CARD (The Overview) -->
+          <div class="bg-white border border-[#E0E0E0] rounded-lg p-6">
+            <h3 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] text-[#1f1f1f] mb-6">Project Overview</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+              
+              <div>
+                <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-1">Group Name</div>
+                <div class="text-[15px] text-[#3C4043]">Group 4</div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-1">Type</div>
+                <div class="text-[15px] text-[#3C4043]">Grouped Project</div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Owners</div>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-medium">K</div>
+                    <span class="text-[15px] text-[#3C4043]">Koh Wei Keat</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-medium">R</div>
+                    <span class="text-[15px] text-[#3C4043]">Raymond Lee Wei Kang</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-medium">K</div>
+                    <span class="text-[15px] text-[#3C4043]">Kevin Chong Wei Keong</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Supervisor</div>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-medium">L1</div>
+                  <span class="text-[15px] text-[#3C4043] font-medium">Lecturer 1</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 2. DYNAMIC TEMPLATE FIELDS (Looped Content) -->
+          <div class="bg-white border border-[#E0E0E0] rounded-lg overflow-hidden">
+            
+            <!-- DATA TYPE: Short Text -->
+            <div class="py-4 px-6 border-b border-[#E0E0E0] flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-[#F8F9FA] transition-colors">
+              <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide md:w-1/3 shrink-0 pt-1">Project Title</div>
+              <div class="text-[15px] text-[#3C4043] md:w-2/3">
+                Difficult Group Project Group 4
+              </div>
+            </div>
+
+            <!-- DATA TYPE: Dropdown / Select (Single Chip) -->
+            <div class="py-4 px-6 border-b border-[#E0E0E0] flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-[#F8F9FA] transition-colors">
+              <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide md:w-1/3 shrink-0 pt-1">Target Platform</div>
+              <div class="text-[15px] text-[#3C4043] md:w-2/3 flex flex-wrap gap-2">
+                <span class="bg-[#F1F3F4] border border-[#DADCE0] text-[#3C4043] px-3 py-1 rounded-lg text-[13px] font-medium">Web App</span>
+              </div>
+            </div>
+
+            <!-- DATA TYPE: Short Text (Used for arbitrary fields like Dates with emoji) -->
+            <div class="py-4 px-6 border-b border-[#E0E0E0] flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-[#F8F9FA] transition-colors">
+              <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide md:w-1/3 shrink-0 pt-1">Proposed Deadline</div>
+              <div class="text-[15px] text-[#3C4043] md:w-2/3">
+                 November 24, 2026
+              </div>
+            </div>
+
+            <!-- DATA TYPE: Rich Text / Long Paragraph -->
+            <div class="py-5 px-6 border-b border-[#E0E0E0] flex flex-col gap-3 hover:bg-[#F8F9FA] transition-colors">
+              <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide">Group Project Description</div>
+              <!-- Rich Text Container: Flat design, bordered, no shadow -->
+              <div class="text-[15px] text-[#3C4043] leading-relaxed bg-white border border-[#E0E0E0] rounded-lg p-6 prose prose-sm max-w-none">
+  <h2>1. User Account Management — Main Feature</h2>
+  <p>Users can create and manage their accounts.</p>
+  <h3>User Registration</h3>
+  <ul><li>Username</li><li>Email</li><li>Password</li></ul>
+  <h3>Login / Logout</h3>
+  <ul><li>Users can securely log in to their account.</li><li>Users can log out of their account.</li></ul>
+  <h3>Profile Management</h3>
+  <ul><li>View profile</li><li>Edit profile information</li><li>Edit profile image</li><li>View listed items</li><li>View transaction history</li></ul>
+
+  <h2>2. Collectible Item Management — Main Feature</h2>
+  <p>Users can upload and manage collectible items.</p>
+  <h3>Item Management</h3>
+  <ul><li>Add item</li><li>Edit item</li><li>Delete item</li><li>Mark item as unavailable</li></ul>
+  <h3>Item Information</h3>
+  <ul><li><strong>Item Name:</strong> Name of the collectible</li><li><strong>Category:</strong> Type/category of the collectible</li><li><strong>Description:</strong> Detailed description</li><li><strong>Image:</strong> Image of the collectible</li><li><strong>Condition:</strong> Physical condition</li><li><strong>Price:</strong> Required for Sell listings</li><li><strong>Listing Type:</strong> Sell / Trade</li><li><strong>Status:</strong> Available / Pending / Sold / Traded</li></ul>
+  <p><strong>Example:</strong> Pikachu Rare Card — Pokemon Card — Excellent — Trade — Available</p>
+
+  <h2>3. Browse &amp; Search System — Main Feature</h2>
+  <ul><li>View all available items</li><li>Search by keyword</li><li>Filter by category, listing type, price, and condition</li></ul>
+  <p><strong>Categories:</strong> Pokemon Card, Pop Mart, Figure, Others</p>
+
+  <h2>4. Buying System — Main Feature</h2>
+  <ul><li>Purchase record</li><li>Seller notification</li><li>Transaction history</li></ul>
+  <h3>Purchase Flow</h3>
+  <ol><li>Buyer views item</li><li>Clicks Buy</li><li>Confirms purchase</li><li>Transaction is completed</li><li>Item is removed from the marketplace or marked as Sold</li></ol>
+
+  <h2>5. Trading / Exchange System — Main Feature</h2>
+  <ul><li>Send trade request</li><li>View received requests</li><li>Accept trade</li><li>Reject trade</li><li>Trade history</li></ul>
+  <h3>Trade Flow</h3>
+  <ol><li>User A owns Item A</li><li>User B sends a trade request</li><li>User A accepts or rejects</li><li>If accepted, the trade is completed</li></ol>
+
+  <h2>6. Favourite / Wishlist System — Main Feature</h2>
+  <ul><li>Add favourite</li><li>Remove favourite</li><li>View wishlist</li></ul>
+
+  <h2>7. Auction System — Extra Feature</h2>
+  <p><em>If enough time is available.</em></p>
+  <ul><li>Set starting price</li><li>Place bids</li><li>View highest bid</li><li>Auction countdown</li><li>Determine winner</li></ul>
+  <p><strong>Example:</strong> Charizard Card — Starting Price: RM50 — Current Bid: RM120 — Ends: 10 PM</p>
+
+  <h2>8. Rating &amp; Review System — Extra Feature</h2>
+  <p>After a successful transaction, users can rate each other.</p>
+  <ul><li>5-star rating</li><li>Review</li></ul>
+</div>
+            </div>
+
+            <!-- Info Footer (Appended as the last looped item/info) -->
+            <div class="p-4 bg-[#F8F9FA]">
+              <div class="flex items-center gap-2 text-xs text-[#5F6368]">
+                <span class="material-symbols-outlined text-[18px]">info</span>
+                <span>Based on Topic: <strong>Own Proposal</strong></span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT PANE: Persistent Comments Sidebar (30% width) -->
+      <!-- The border-l separates the comment pane from the main content pane -->
+      <div class="w-[380px] bg-[#f8fafd] border-l border-[#E0E0E0] flex flex-col shrink-0">
+        
+        <div class="px-6 py-4 border-b border-[#E0E0E0] flex items-center justify-between bg-white shrink-0">
+          <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] text-[#1f1f1f]">Comments</h2>
+          <span class="bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-xs font-medium">7</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+          
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-4 flex items-center gap-2">
+            Comments for V1
+          </div>
+          
+          <!-- Comment 1 -->
+          <div class="flex gap-3 group">
+            <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-xs font-medium shrink-0">L1</div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-sm font-medium text-[#137333]">lecturer1</span>
+                <span class="text-xs text-[#5F6368]">1 day ago</span>
+              </div>
+              <p class="text-[14px] text-[#3C4043]">Hey everyone, please expand on the historical reporting aspect in your description.</p>
+            </div>
+            <button class="text-[#5F6368] hover:text-[#C5221F] opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5">
+              <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          </div>
+
+          <!-- Comment 2 -->
+          <div class="flex gap-3 group">
+            <div class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-xs font-medium shrink-0">L1</div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-sm font-medium text-[#137333]">lecturer1</span>
+                <span class="text-xs text-[#5F6368]">1 day ago</span>
+              </div>
+              <p class="text-[14px] text-[#3C4043]">Also make sure you attach the mockups before the deadline.</p>
+            </div>
+            <button class="text-[#5F6368] hover:text-[#C5221F] opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5">
+              <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Comment Input Box -->
+        <div class="p-4 bg-white border-t border-[#E0E0E0] shrink-0">
+          <div class="border border-[#DADCE0] rounded-lg focus-within:border-[#1A73E8] focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-white flex items-end">
+            <textarea rows="1" class="w-full bg-transparent border-none p-3 text-[#3C4043] focus:ring-0 text-[14px] resize-none min-h-[44px] outline-none" placeholder="Write a comment..."></textarea>
+            <button class="p-2 m-1 text-[#1A73E8] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">send</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
