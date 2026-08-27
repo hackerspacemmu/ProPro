@@ -1,6 +1,4 @@
-<% content_for :hide_toggler, true %>
-<% content_for :no_sidebar, true %>
-<% content_for :hide_breadcrumbs, true %>
+<% content_for :body_class, "bg-[#f8fafd]" %>
 
 <% breadcrumb :course, @course %>
 
@@ -8,11 +6,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
-<div class="min-h-screen bg-[#f8fafd] text-[#3C4043] font-['Roboto',sans-serif]">
+<div class="text-[#3C4043] font-['Roboto',sans-serif]">
 
   <div class="flex">
     <%= render "shared/sidebar" %>
-
     <main class="flex-1 bg-white rounded-tl-[28px] min-h-[calc(100vh-3.5rem)]"
           data-controller="tabs">
 

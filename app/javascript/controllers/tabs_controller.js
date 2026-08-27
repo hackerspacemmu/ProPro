@@ -32,8 +32,17 @@ export default class extends Controller {
 
     this.tabTargets.forEach((tab, i) => {
       const isActive = i === index
-      tab.classList.toggle(this.hasActiveClass ? this.activeClass : "text-[#1A73E8] border-[#1A73E8]", isActive)
-      tab.classList.toggle(this.hasInactiveClass ? this.inactiveClass : "text-[#5F6368] border-transparent", !isActive)
+
+      const activeClasses = (this.hasActiveClass ? this.activeClass : "text-[#1A73E8] border-[#1A73E8]").split(" ")
+      const inactiveClasses = (this.hasInactiveClass ? this.inactiveClass : "text-[#5F6368] border-transparent").split(" ")
+
+      if (isActive) {
+        tab.classList.add(...activeClasses)
+        tab.classList.remove(...inactiveClasses)
+      } else {
+        tab.classList.add(...inactiveClasses)
+        tab.classList.remove(...activeClasses)
+      }
     })
   }
 }

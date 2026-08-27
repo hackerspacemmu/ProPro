@@ -10,7 +10,8 @@
        ["bg-[#E8F0FE]", "text-[#1A73E8]", "bg-[#E8F0FE]", "text-[#1967D2]", "Updated"]
      end %>
 
-<div class="group flex items-center justify-between p-4 hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+<%= link_to course_project_path(@course, proposal),
+    class: "group flex items-center justify-between p-4 hover:bg-[#F8F9FA] cursor-pointer transition-colors no-underline text-inherit" do %>
   <div class="flex items-start gap-4">
     <div class="w-10 h-10 rounded-full <%= icon_bg %> <%= icon_fg %> flex items-center justify-center shrink-0 mt-1">
       <span class="material-symbols-outlined">description</span>
@@ -33,4 +34,4 @@
       <span class="material-symbols-outlined">more_vert</span>
     </button>
   </div>
-</div>
+<% end %>

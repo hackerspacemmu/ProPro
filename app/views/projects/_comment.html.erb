@@ -1,0 +1,18 @@
+<%# locals: (comment:) %>
+<div class="flex gap-3 group" id="<%= dom_id(comment) %>">
+  <%= render "shared/avatar", label: comment.author_initials, variant: :filled, size: "w-8 h-8", text_size: "text-xs" %>
+  <div class="flex-1">
+    <div class="flex justify-between items-start mb-1">
+      <span class="text-sm font-medium text-[#137333]"><%= comment.author_name %></span>
+      <span class="text-xs text-[#5F6368]"><%= time_ago_in_words(comment.created_at) %> ago</span>
+    </div>
+    <p class="text-[14px] text-[#3C4043]"><%= comment.body %></p>
+  </div>
+  <% if comment.author == current_user %>
+    <%= button_to comment_path(comment), method: :delete,
+          form: { data: { turbo_confirm: "Delete this comment?" } },
+          class: "text-[#5F6368] hover:text-[#C5221F] opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5 bg-transparent border-0 p-0" do %>
+      <span class="material-symbols-outlined text-[16px]">close</span>
+    <% end %>
+  <% end %>
+</div>
