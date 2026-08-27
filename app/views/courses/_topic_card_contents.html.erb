@@ -49,14 +49,7 @@ description_text =
   display_parts.any? ? display_parts.join(" ") : "No details provided."
 
 # --- Determine Owner Name ---
-owner_name =
-  if topic.owner.respond_to?(:name)
-    topic.owner.name
-  elsif topic.owner.respond_to?(:group_name)
-    topic.owner.group_name
-  else
-    "Unknown Owner"
-  end %>
+owner_name = topic.owner_name %>
 
 <%# --- CARD HEADER (Colored) --- %>
 <div

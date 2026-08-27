@@ -18,7 +18,7 @@
       <span class="material-symbols-outlined text-sm">expand_less</span>
     </div>
 
-    <% current_user.courses.each do |course| %>
+    <% current_user.courses.distinct.each do |course| %>
       <% active = course == @course %>
       <%= link_to course_path(course),
             class: [

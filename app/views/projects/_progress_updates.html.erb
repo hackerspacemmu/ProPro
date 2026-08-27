@@ -1,140 +1,160 @@
+<%# locals: (progress:, course:, project:, current_version:, latest_version:, weeks:, can_record_progress_update:) %>
+
 <div class="w-full space-y-6">
 
-  <% total = progress.size %>
-  <% progress.each_with_index do |progress_update, i| %>
-
-    <div
-      class="
-        bg-white rounded-xl border border-gray-100 shadow-sm p-6 hover:shadow-md
-      "
-    >
-
-      <div
+  <% if can_record_progress_update && current_version == latest_version %>
+    <div class="mb-8">
+      <button
+        data-action="click->record-update-modal#open"
         class="
-          flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4 border-b
-          border-gray-50 pb-4
+          bg-[#1A73E8] hover:bg-[#1B66C9] text-white pl-4 pr-5 py-2.5 rounded-full
+          font-medium text-[14px] transition-colors flex items-center gap-2 shadow-sm
         "
       >
-
-        <div>
-          <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <% if (total - i) > weeks %>
-              <span class="text-blue-600">Extra
-                <%= (total - weeks - i) %></span>
-            <% else %>
-              <span>Progress
-                <%= (total - i) %></span>
-            <% end %>
-          </h3>
-          <p class="text-sm text-gray-500 mt-1 flex items-center gap-1">
-            <svg
-              class="w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              /></svg>
-            <%= progress_update.date %>
-          </p>
-        </div>
-
-        <% rating_color =
-          case progress_update.rating
-          when "excellent"
-            "bg-emerald-100 text-emerald-800 border-emerald-200"
-          when "satisfactory"
-            "bg-blue-100 text-blue-800 border-blue-200"
-          when "unsatisfactory"
-            "bg-red-100 text-red-800 border-red-200"
-          else
-            "bg-gray-100 text-gray-800 border-gray-200"
-          end %>
-        <span
-          class="
-            self-start px-3 py-1 rounded-lg text-xs font-bold border
-            <%= rating_color %> capitalize shadow-sm
-          "
-        >
-          <%= progress_update.rating.gsub("_", " ").titleize %>
-        </span>
-      </div>
-
-      <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-4">
-        <strong class="block text-md font-bold uppercase tracking-wide mb-2">Feedback</strong>
-        <div class="prose prose-sm max-w-none text-gray-700">
-          <%= sanitize render_markdown(progress_update.feedback),
-          tags: %w[
-            h1
-            h2
-            h3
-            h4
-            h5
-            h6
-            p
-            br
-            ul
-            ol
-            li
-            strong
-            em
-            del
-            ins
-            table
-            thead
-            tbody
-            tr
-            th
-            td
-            blockquote
-            pre
-            code
-            a
-            img
-            hr
-          ],
-          attributes: %w[href src class alt title] %>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between pt-2">
-        <p class="text-xs text-gray-400 font-medium">
-          Updated:
-          <%= progress_update.updated_at.strftime("%d-%m-%Y") %>
-        </p>
-
-        <% if policy(project).can_record_progress_update? && current_version == latest_version %>
-          <div class="flex items-center gap-3">
-            <%= button_to edit_course_project_progress_update_path(course, project, progress_update),
-                method: :get,
-                class: "text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer" do %>
-              Edit
-            <% end %>
-
-            <%= button_to course_project_progress_update_path(course, project, progress_update),
-                method: :delete,
-                form: { data: { turbo_confirm: "Are you sure?" } },
-                class: "text-sm font-medium text-red-500 hover:text-red-700 transition-colors hover:cursor-pointer cursor:pointer" do %>
-              Delete
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-
+        <span class="material-symbols-outlined text-[20px]">add</span>
+        Record Update
+      </button>
     </div>
   <% end %>
 
-  <% if progress.empty? %>
+  <% if progress.any? %>
+    <div class="relative ml-4 mt-8">
+      <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-[#E0E0E0]"></div>
+
+      <div class="space-y-8 relative">
+        <% total = progress.size %>
+        <% progress.each_with_index do |progress_update, i| %>
+
+          <div class="relative pl-16">
+            <div
+              class="
+                absolute left-0 top-0 w-10 h-10 rounded-full bg-[#1A73E8] border-[3px]
+                border-white text-white flex items-center justify-center font-medium
+                z-10 text-xs
+              "
+            >
+              <% if progress_update.respond_to?(:created_by) && progress_update.created_by.present? %>
+                <%= name(progress_update.created_by)[0].upcase %>
+              <% else %>
+                L1
+              <% end %>
+            </div>
+
+            <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
+              <div
+                class="
+                  px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start
+                  bg-[#F8F9FA] rounded-t-xl
+                "
+              >
+                <div>
+                  <h3
+                    style="font-family: 'Google Sans', sans-serif;"
+                    class="text-[16px] font-medium text-[#1f1f1f] flex items-center gap-2"
+                  >
+                    <% if (total - i) > weeks %>
+                      <span class="text-[#1A73E8]">Extra <%= (total - weeks - i) %></span>
+                    <% else %>
+                      <span>Progress <%= (total - i) %></span>
+                    <% end %>
+                  </h3>
+                  <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                    <%= progress_update.date %>
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <% rating_pill =
+                    case progress_update.rating
+                    when "excellent"
+                      "bg-[#E6F4EA] text-[#137333]"
+                    when "satisfactory"
+                      "bg-[#E8F0FE] text-[#1967D2]"
+                    when "unsatisfactory"
+                      "bg-[#FFF8E1] text-[#F57F17]"
+                    else
+                      "bg-[#F1F3F4] text-[#5F6368]"
+                    end %>
+                  <span class="<%= rating_pill %> px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">
+                    <%= progress_update.rating.gsub("_", " ").titleize %>
+                  </span>
+
+                  <% if can_record_progress_update && current_version == latest_version %>
+                    <div class="relative" data-controller="dropdown">
+                      <button
+                        data-action="click->dropdown#toggle"
+                        class="
+                          p-1.5 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full
+                          transition-colors flex items-center justify-center
+                        "
+                      >
+                        <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                      </button>
+
+                      <div
+                        data-dropdown-target="menu"
+                        class="
+                          absolute right-0 top-full mt-1 w-40 bg-white border
+                          border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50
+                          hidden origin-top-right
+                        "
+                      >
+                        <div class="py-1">
+                          <%= button_to edit_course_project_progress_update_path(course, project, progress_update),
+                              method: :get,
+                              class: "w-full text-left px-4 py-2 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors text-[14px] text-[#3C4043]" do %>
+                            <span class="material-symbols-outlined text-[18px] text-[#5F6368]">edit</span>
+                            Edit
+                          <% end %>
+
+                          <div class="border-t border-[#E0E0E0] my-1"></div>
+
+                          <%= button_to course_project_progress_update_path(course, project, progress_update),
+                              method: :delete,
+                              form: { data: { turbo_confirm: "Are you sure?" } },
+                              class: "w-full text-left px-4 py-2 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors text-[14px] text-[#C5221F]" do %>
+                            <span class="material-symbols-outlined text-[18px] text-[#C5221F]">delete</span>
+                            Delete
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="p-6">
+                <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Feedback</div>
+                <div class="text-[14px] text-[#3C4043] leading-relaxed prose prose-sm max-w-none">
+                  <%= sanitize render_markdown(progress_update.feedback),
+                  tags: %w[
+                    h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table
+                    thead tbody tr th td blockquote pre code a img hr
+                  ],
+                  attributes: %w[href src class alt title] %>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-[#E0E0E0] text-[12px] text-[#5F6368]">
+                  Last updated: <%= progress_update.updated_at.strftime("%d-%m-%Y") %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+  <% else %>
     <div
       class="
-        text-center py-12 border-2 border-dashed border-gray-200 rounded-xl
-        bg-gray-50/50
+        text-center py-12 border-2 border-dashed border-[#E0E0E0] rounded-xl
+        bg-[#F8F9FA]/50
       "
     >
-      <p class="text-gray-500 text-sm">No progress updates recorded.</p>
+      <span class="material-symbols-outlined text-[48px] text-gray-300 mb-2">timeline</span>
+      <p class="text-[#5F6368] text-sm">No progress updates recorded.</p>
     </div>
   <% end %>
 

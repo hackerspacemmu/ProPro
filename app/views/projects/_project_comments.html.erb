@@ -1,3 +1,5 @@
+<%# locals: (comments:, current_instance_id:, current_version:, latest_version:, new_comment:, project:, course:) %>
+
 <section
   id="project-comments"
   class="
@@ -12,11 +14,11 @@
       justify-between
     "
   >
-    <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Comments</h2>
+    <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] text-[#1f1f1f]">Comments</h2>
     <% if comments.any? %>
       <span
         class="
-          px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 text-xs font-bold
+          bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-xs font-medium
         "
       ><%= comments.count %></span>
     <% end %>
@@ -24,7 +26,7 @@
 
   <div
     class="
-      flex-1 min-h-0 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative
+      flex-1 min-h-0 overflow-y-auto bg-[#f8fafd] p-6 custom-scrollbar relative
     "
     data-controller="scroll-to-bottom"
     data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
@@ -32,81 +34,63 @@
   >
 
     <% if comments.any? %>
-      <div class="space-y-6 relative pl-4">
+      <div class="space-y-6 relative">
 
         <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
-          <div class="pt-2 pb-1" id="version-<%= version %>-comments">
-            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide">
-              Comments for v<%= version %>
-            </h3>
+          <div class="mb-4" id="version-<%= version %>-comments">
+            <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-4 flex items-center gap-2">
+              Comments for V<%= version %>
+            </div>
           </div>
           <% version_comments.each do |comment| %>
             <% is_current_version = comment.location_id == current_instance_id %>
 
-            <article
-              class="
-                relative flex gap-4 z-10 group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>
-              "
-            >
-
-              <div class="flex-shrink-0 relative">
-                <div
-                  class="
-                    w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center
-                    text-xs font-bold ring-4 ring-gray-50/30
-                  "
-                >
-                  <%= comment.user.name[0].upcase %>
-                </div>
+            <div class="flex gap-3 group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>">
+              <div
+                class="
+                  w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center
+                  justify-center text-xs font-medium shrink-0
+                "
+              >
+                <%= comment.user.name[0].upcase %>
               </div>
 
               <div class="flex-1 min-w-0">
-
-                <%# --- FIXED HEADER LAYOUT --- %>
-                <header class="flex items-center justify-between gap-2 mb-1">
-
-                  <div class="flex items-baseline gap-2 min-w-0 flex-1">
-                    <% if Current.user == comment.user %>
-                      <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.name %></h4>
-                    <% else %>
-                      <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.name %></h4>
-                    <% end %>
-
-                    <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                      <% if comment.created_at > 3.days.ago %>
-                        <%= time_ago_in_words(comment.created_at) %>
-                        ago
-                      <% else %>
-                        <%= format_timestamp(comment.created_at) %>
-                      <% end %>
-                    </span>
-                  </div>
-
-                  <%# delete button %>
-                  <% if Current.user == comment.user && !comment.deleted %>
-                    <%= link_to soft_delete_comment_path(comment),
-                        data: { turbo_method: :patch, confirm: "Delete this comment?" },
-                        class: "flex-shrink-0 text-red-400 hover:text-red-600 transition-colors p-1 -mr-1",
-                        title: "Delete comment" do %>
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        /></svg>
-                    <% end %>
+                <div class="flex justify-between items-start mb-1">
+                  <% if Current.user == comment.user %>
+                    <span class="text-sm font-medium text-[#137333]"><%= comment.user.name %></span>
+                  <% else %>
+                    <span class="text-sm font-medium text-[#3C4043]"><%= comment.user.name %></span>
                   <% end %>
-                </header>
 
-                <div class="text-sm text-gray-600 leading-relaxed break-words">
+                  <span class="text-xs text-[#5F6368]">
+                    <% if comment.created_at > 3.days.ago %>
+                      <%= time_ago_in_words(comment.created_at) %> ago
+                    <% else %>
+                      <%= format_timestamp(comment.created_at) %>
+                    <% end %>
+                  </span>
+                </div>
+
+                <div class="text-[14px] text-[#3C4043] leading-relaxed break-words">
                   <% if !comment.deleted %>
                     <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
                   <% else %>
-                    <span class="text-gray-400 italic text-xs bg-gray-100 px-2 py-0.5 rounded">This comment was deleted</span>
+                    <span class="text-[14px] text-[#5F6368] italic">This comment was deleted</span>
                   <% end %>
                 </div>
               </div>
-            </article>
+
+              <%# delete button %>
+              <% if Current.user == comment.user && !comment.deleted %>
+                <%= link_to soft_delete_comment_path(comment),
+                    data: { turbo_method: :patch, confirm: "Delete this comment?" },
+                    class: "text-[#5F6368] hover:text-[#C5221F] opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5 flex-shrink-0",
+                    title: "Delete comment" do %>
+                  <span class="material-symbols-outlined text-[16px]">close</span>
+                <% end %>
+              <% end %>
+            </div>
           <% end %>
         <% end %>
       </div>
@@ -117,17 +101,7 @@
           h-full flex flex-col items-center justify-center text-center opacity-60
         "
       >
-        <svg
-          class="w-12 h-12 text-gray-300 mb-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        ><path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          /></svg>
+        <span class="material-symbols-outlined text-[48px] text-gray-300 mb-2">chat_bubble_outline</span>
         <p class="text-sm text-gray-500">No comments yet.</p>
         <p class="text-xs text-gray-400">Be the first to start the discussion.</p>
       </div>
@@ -135,20 +109,21 @@
   </div>
 
   <% if policy(new_comment).create? %>
-    <div class="p-4 border-t border-gray-100 bg-white relative z-20 flex-shrink-0">
-      <%= form_with model: new_comment, local: true, class: "relative" do |form| %>
+    <div class="p-4 border-t border-[#E0E0E0] bg-white shrink-0">
+      <%= form_with model: new_comment, local: true do |form| %>
         <%= form.hidden_field :source_type, value: "ProjectInstance" %>
         <%= form.hidden_field :source_id, value: current_instance_id %>
 
         <div
           class="
-            flex items-end gap-2 bg-gray-50 rounded-xl p-2 border-2 border-gray-200
-            transition-all focus-within:border-2 focus-within:border-black
+            border border-[#DADCE0] rounded-lg focus-within:border-[#1A73E8]
+            focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-white
+            flex items-end
           "
         >
           <%= form.text_area :user_comment,
                          class:
-                           "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 py-2 px-2 focus:outline-none resize-none overflow-y-auto max-h-[200px]",
+                           "w-full bg-transparent border-none p-3 text-[#3C4043] focus:ring-0 text-[14px] resize-none min-h-[44px] outline-none",
                          rows: 1,
                          data: {
                            controller: "textarea-resize",
@@ -157,18 +132,10 @@
                          },
                          placeholder: "Write a comment..." %>
 
-          <%= form.button type: "submit", class: "p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-gray-100 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors flex-shrink-0", title: "Send" do %>
-            <svg
-              class="w-4 h-4 transform rotate-90"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              /></svg>
+          <%= form.button type: "submit",
+              class: "p-2 m-1 text-[#1A73E8] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center",
+              title: "Send" do %>
+            <span class="material-symbols-outlined text-[20px]">send</span>
           <% end %>
         </div>
       <% end %>

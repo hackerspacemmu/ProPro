@@ -1,0 +1,90 @@
+<%# locals: (course:, project:) %>
+
+<div data-controller="record-update-modal">
+  <dialog
+    data-record-update-modal-target="dialog"
+    class="
+      rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden flex flex-col m-auto
+      backdrop:bg-black/50
+    "
+    aria-label="Record Progress Update"
+  >
+    <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+      <h2
+        style="font-family: 'Google Sans', sans-serif;"
+        class="text-[22px] font-normal text-[#1f1f1f]"
+      >
+        Record Progress Update
+      </h2>
+      <button
+        data-action="click->record-update-modal#close"
+        class="
+          text-[#5F6368] hover:bg-[#F1F3F4] rounded-full p-2 transition-colors flex
+          items-center justify-center
+        "
+      >
+        <span class="material-symbols-outlined text-[24px]">close</span>
+      </button>
+    </div>
+
+    <%= form_with url: course_project_progress_updates_path(course, project), method: :post, local: true, class: "flex flex-col h-full" do |f| %>
+      <div class="px-6 py-2 space-y-6">
+        <div>
+          <label class="block text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Status</label>
+          <div class="relative">
+            <%= f.select :rating,
+                options_for_select(
+                  [
+                    ["No Progress", "no_progress"],
+                    ["Unsatisfactory", "unsatisfactory"],
+                    ["Satisfactory", "satisfactory"],
+                    ["Excellent", "excellent"]
+                  ],
+                  ""
+                ),
+                { prompt: "Select an overall status..." },
+                class: "w-full bg-white border border-[#DADCE0] rounded-[4px] pl-4 pr-10 py-3.5 text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent appearance-none cursor-pointer text-[14px]",
+                data: { testid: "progress-rating-select" } %>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#5F6368] pointer-events-none">arrow_drop_down</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Feedback</label>
+          <%= f.text_area :feedback,
+              rows: 5,
+              class: "w-full bg-white border border-[#DADCE0] rounded-[4px] px-4 py-3.5 text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent resize-none text-[14px]",
+              placeholder: "Provide details on the group's progress...",
+              data: { testid: "progress-feedback-textarea" } %>
+          <p class="text-xs text-[#5F6368] mt-2">Markdown formatting is supported.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Date</label>
+          <%= f.date_field :date,
+              value: Date.current.to_s,
+              class: "w-full bg-white border border-[#DADCE0] rounded-[4px] px-4 py-3.5 text-[#3C4043] focus:outline-none focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent text-[14px]",
+              data: { testid: "progress-date-input" } %>
+        </div>
+      </div>
+
+      <div class="px-6 py-6 flex justify-end gap-2">
+        <button
+          type="button"
+          data-action="click->record-update-modal#close"
+          class="
+            text-[#1A73E8] hover:bg-[#F8F9FA] px-5 py-2.5 rounded-full font-medium
+            text-[14px] transition-colors
+          "
+        >
+          Cancel
+        </button>
+        <%= f.button type: "submit",
+            class: "bg-[#1A73E8] hover:bg-[#1B66C9] text-white px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors shadow-sm",
+            data: { testid: "progress-save-submit" } do %>
+          Save Update
+        <% end %>
+      </div>
+    <% end %>
+  </dialog>
+</div>
