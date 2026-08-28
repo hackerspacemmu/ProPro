@@ -3,8 +3,8 @@ require 'application_system_test_case'
 class TopicChangeStatusTest < ApplicationSystemTestCase
   setup do
     @course      = create(:course, require_coordinator_approval: true)
-    @lecturer    = create(:user, is_staff: true)
-    @coordinator = create(:user, is_staff: true)
+    @lecturer    = create(:user)
+    @coordinator = create(:user)
 
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)

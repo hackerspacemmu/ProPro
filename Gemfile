@@ -90,7 +90,6 @@ gem 'pundit', '~> 2.5'
 gem 'erb-formatter', '~> 0.7.3'
 
 # Parse markdown to HTML
-gem 'redcarpet', '~> 3.6.1'
 
 gem 'htmldiff'
 
@@ -98,3 +97,5 @@ gem 'sqids', '~> 0.2.2'
 
 # For sortable template field
 gem 'acts_as_list'
+
+gem "commonmarker", "~> 2.9"

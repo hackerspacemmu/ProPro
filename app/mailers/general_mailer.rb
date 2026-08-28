@@ -1,9 +1,8 @@
 class GeneralMailer < ApplicationMailer
   def ProPro_Invite
-    @otp = params[:otp]
     @otp_token = params[:otp_token]
     @email_address = params[:email_address]
-    @is_staff = params[:is_staff]
+    @from_course = params[:from_course]
     mail(to: @email_address, Subject: 'Invitation for ProPro')
   end
 
@@ -45,5 +44,15 @@ class GeneralMailer < ApplicationMailer
     @recipient = params[:email_address]
 
     mail(to: @recipient, Subject: "You've Been Added To A Course in ProPro")
+  end
+
+  def Project_Comment_Notification
+    @course = params[:course]
+    @project = params[:project]
+    @recipient = params[:recipient]
+    @commenter_name = params[:commenter_name]
+    @comment_snippet = params[:comment_snippet]
+
+    mail(to: params[:email_address], Subject: 'New Comment on Your Project')
   end
 end

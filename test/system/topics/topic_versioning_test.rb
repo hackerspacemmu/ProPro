@@ -3,7 +3,7 @@ require 'application_system_test_case'
 class TopicVersioningTest < ApplicationSystemTestCase
   setup do
     @course   = create(:course)
-    @lecturer = create(:user, is_staff: true)
+    @lecturer = create(:user)
 
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
