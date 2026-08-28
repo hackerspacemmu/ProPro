@@ -459,8 +459,7 @@ class CoursesController < ApplicationController
           unregistered_students.add(
             {
               email_address: group_member[:email_address],
-              otp_token: new_otp_instance.token,
-              otp: new_otp_instance.otp
+              otp_token: new_otp_instance.token
             }
           )
         end
@@ -566,8 +565,7 @@ class CoursesController < ApplicationController
         unregistered_lecturers.add(
           {
             email_address: email,
-            otp_token: new_otp_instance.token,
-            otp: new_otp_instance.otp
+            otp_token: new_otp_instance.token
           }
         )
       elsif new_lecturer.enrolments.where(course: parent_course).empty?
