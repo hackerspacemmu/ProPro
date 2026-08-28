@@ -2,7 +2,7 @@
 
 <section
   id="project-comments"
-  class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] flex flex-col shrink-0"
+  class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] flex flex-col shrink-0 h-full"
 >
 
   <div
@@ -34,7 +34,7 @@
 
         <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
           <div class="mb-4" id="version-<%= version %>-comments">
-            <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-4 flex items-center justify-center">
+            <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-4 flex items-center justify-start">
               Comments for v<%= version %>
             </div>
           </div>
@@ -89,11 +89,6 @@
             </div>
           <% end %>
 
-          <% if version_comments.any? && version == current_version && comments.group_by { |c| c.location.version }.keys.length > 1 %>
-            <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider pt-2 pb-1 flex items-center justify-center border-t border-[#E0E0E0]/50 mt-4">
-              Version <%= version %> Context (Current)
-            </div>
-          <% end %>
         <% end %>
       </div>
 

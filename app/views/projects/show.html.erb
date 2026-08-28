@@ -101,14 +101,23 @@
         current_user: current_user,
         members: @members %>
 
-        <%= render "project_comments",
-        comments: @comments,
-        new_comment: @new_comment,
-        course: @course,
-        project: @project,
-        current_instance_id: @current_instance.id,
-        current_version: @current_version,
-        latest_version: @latest_version %>
+        <div
+          class="
+            w-full self-start
+            h-[600px] min-[1245px]:h-[700px]
+            min-[1245px]:sticky min-[1245px]:top-6
+            min-[1245px]:max-h-[calc(100vh-3rem)]
+          "
+        >
+          <%= render "project_comments",
+          comments: @comments,
+          new_comment: @new_comment,
+          course: @course,
+          project: @project,
+          current_instance_id: @current_instance.id,
+          current_version: @current_version,
+          latest_version: @latest_version %>
+        </div>
       </div>
 
     </main>
