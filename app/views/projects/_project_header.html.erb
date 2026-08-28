@@ -1,0 +1,55 @@
+<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:) %>
+
+<%# Flash messages %>
+<% if flash[:notice] %>
+  <div
+    data-testid="flash-notice"
+    class="
+      mx-8 mt-8 w-[calc(100%-4rem)] p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm
+      font-bold flex items-center justify-center gap-3 shadow-sm mb-4
+    "
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M5 13l4 4L19 7"
+      /></svg>
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+
+<% if flash[:alert] %>
+  <div
+    data-testid="flash-alert"
+    class="
+      mx-8 mt-8 w-[calc(100%-4rem)] p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm
+      font-bold flex items-center justify-center gap-3 shadow-sm mb-4
+    "
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+      /></svg>
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<%# Sticky Tabs %>
+<div class="border-b border-[#E0E0E0] px-8 sticky top-0 bg-[#FFFFFF] z-10 pt-6">
+  <div class="flex gap-8">
+    <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="0" class="pb-3 text-[#1A73E8] border-b-[3px] border-[#1A73E8] text-[14px] font-medium whitespace-nowrap">
+      Project Details
+    </button>
+    <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="1" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
+      Compare Versions
+    </button>
+    <% if course.use_progress_updates %>
+      <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="2" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
+        Progress Updates
+      </button>
+    <% end %>
+  </div>
+</div>

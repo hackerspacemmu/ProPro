@@ -2,23 +2,19 @@
 
 <section
   id="project-comments"
-  class="
-    w-full flex flex-col h-full bg-white rounded-2xl shadow-sm border
-    border-gray-100 overflow-hidden
-  "
+  class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] flex flex-col shrink-0"
 >
 
   <div
     class="
-      px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center
-      justify-between
+      px-5 py-4 border-b border-[#E0E0E0] flex items-center justify-between
     "
   >
-    <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] text-[#1f1f1f]">Comments</h2>
+    <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] font-medium text-[#1f1f1f]">Comments</h2>
     <% if comments.any? %>
       <span
         class="
-          bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-xs font-medium
+          bg-[#F1F3F4] text-[#3C4043] px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium border border-[#E0E0E0]
         "
       ><%= comments.count %></span>
     <% end %>
@@ -26,7 +22,7 @@
 
   <div
     class="
-      flex-1 min-h-0 overflow-y-auto bg-[#f8fafd] p-6 custom-scrollbar relative
+      flex-1 min-h-0 overflow-y-auto p-5 space-y-6
     "
     data-controller="scroll-to-bottom"
     data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
@@ -34,12 +30,12 @@
   >
 
     <% if comments.any? %>
-      <div class="space-y-6 relative">
+      <div class="space-y-6">
 
         <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
           <div class="mb-4" id="version-<%= version %>-comments">
-            <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-4 flex items-center gap-2">
-              Comments for V<%= version %>
+            <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-4 flex items-center justify-center">
+              Comments for v<%= version %>
             </div>
           </div>
           <% version_comments.each do |comment| %>
@@ -49,21 +45,21 @@
               <div
                 class="
                   w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center
-                  justify-center text-xs font-medium shrink-0
+                  justify-center text-[13px] font-medium shrink-0
                 "
               >
                 <%= comment.user.name[0].upcase %>
               </div>
 
               <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start mb-1">
+                <div class="flex justify-between items-baseline mb-1">
                   <% if Current.user == comment.user %>
-                    <span class="text-sm font-medium text-[#137333]"><%= comment.user.name %></span>
+                    <span class="text-[14px] font-medium text-[#137333]"><%= comment.user.name %></span>
                   <% else %>
-                    <span class="text-sm font-medium text-[#3C4043]"><%= comment.user.name %></span>
+                    <span class="text-[14px] font-medium text-[#3C4043]"><%= comment.user.name %></span>
                   <% end %>
 
-                  <span class="text-xs text-[#5F6368]">
+                  <span class="text-[12px] text-[#5F6368]">
                     <% if comment.created_at > 3.days.ago %>
                       <%= time_ago_in_words(comment.created_at) %> ago
                     <% else %>
@@ -92,6 +88,12 @@
               <% end %>
             </div>
           <% end %>
+
+          <% if version_comments.any? && version == current_version && comments.group_by { |c| c.location.version }.keys.length > 1 %>
+            <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider pt-2 pb-1 flex items-center justify-center border-t border-[#E0E0E0]/50 mt-4">
+              Version <%= version %> Context (Current)
+            </div>
+          <% end %>
         <% end %>
       </div>
 
@@ -109,21 +111,21 @@
   </div>
 
   <% if policy(new_comment).create? %>
-    <div class="p-4 border-t border-[#E0E0E0] bg-white shrink-0">
+    <div class="p-5 pt-0 shrink-0">
       <%= form_with model: new_comment, local: true do |form| %>
         <%= form.hidden_field :source_type, value: "ProjectInstance" %>
         <%= form.hidden_field :source_id, value: current_instance_id %>
 
         <div
           class="
-            border border-[#DADCE0] rounded-lg focus-within:border-[#1A73E8]
-            focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-white
-            flex items-end
+            border border-[#DADCE0] rounded-[4px] focus-within:border-[#1A73E8]
+            focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-[#FFFFFF]
+            flex items-center pr-1
           "
         >
           <%= form.text_area :user_comment,
                          class:
-                           "w-full bg-transparent border-none p-3 text-[#3C4043] focus:ring-0 text-[14px] resize-none min-h-[44px] outline-none",
+                           "w-full bg-transparent border-none pl-3 pr-2 py-2.5 text-[#3C4043] focus:ring-0 text-[14px] resize-none outline-none",
                          rows: 1,
                          data: {
                            controller: "textarea-resize",
@@ -133,7 +135,7 @@
                          placeholder: "Write a comment..." %>
 
           <%= form.button type: "submit",
-              class: "p-2 m-1 text-[#1A73E8] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center",
+              class: "p-2 text-[#1A73E8] hover:bg-[#F8F9FA] rounded-[4px] transition-colors flex items-center justify-center shrink-0",
               title: "Send" do %>
             <span class="material-symbols-outlined text-[20px]">send</span>
           <% end %>

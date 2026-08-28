@@ -92,11 +92,11 @@
             <%= link_to "Cancel",
                 course_project_path(@course, @project),
                 class:
-                  "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
+                  "w-full sm:w-auto text-center border border-[#DADCE0] text-[#1A73E8] hover:bg-[#F8F9FA] px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors" %>
 
             <%= submit_tag "Update Proposal",
                 class:
-                  "w-full sm:w-auto cursor-pointer bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
+                  "w-full sm:w-auto cursor-pointer bg-[#1A73E8] hover:bg-[#1B66C9] hover:shadow-md text-white font-medium py-2.5 px-6 rounded-full shadow-sm transition-all text-[14px] flex justify-center items-center" %>
           </div>
 
         <% end %>

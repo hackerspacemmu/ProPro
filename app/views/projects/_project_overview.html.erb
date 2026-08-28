@@ -1,85 +1,73 @@
 <%# locals: (project:, course:, current_instance:) %>
 
-<div class="flex gap-4 flex-wrap">
-  <%# Group Name (if applicable) %>
-  <% if project.owner.is_a?(ProjectGroup) %>
-    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-white/50">
-      <div class="flex items-center gap-3">
-        <span class="text-gray-700 font-semibold text-sm flex items-center gap-2">
-          <%= image_tag("group.svg", class: "w-4 h-4 object-contain opacity-70 shrink-0") %>
-          Group Name
-        </span>
-        <span class="text-gray-900 break-words">
-          <%= link_to participant_profile_course_path(course, project.owner.id, 'group'),
-              class: "hover:text-gray-700 underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
-            <%= project.owner.group_name %>
-          <% end %>
-        </span>
-      </div>
-    </div>
-  <% end %>
-
-  <%# Type %>
-  <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-white/50">
-    <div class="flex items-center gap-3">
-      <span class="text-gray-700 font-semibold text-sm flex items-center gap-2">
-        <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70 shrink-0") %>
-        Type
+<div class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] p-6">
+  <%# Context header: status + timestamp + title %>
+  <div class="mb-6 border-b border-[#E0E0E0] pb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <% status_badge =
+        case current_instance.status
+        when "approved"
+          "bg-[#E6F4EA] text-[#137333]"
+        when "rejected"
+          "bg-[#FCE8E6] text-[#C5221F]"
+        when "redo"
+          "bg-[#FFF8E1] text-[#F57F17]"
+        else
+          "bg-[#E8F0FE] text-[#1967D2]"
+        end %>
+      <span class="<%= status_badge %> px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium tracking-wide">
+        <%= current_instance.status.humanize %>
       </span>
-      <span class="text-gray-900">Project</span>
+      <% if current_instance.last_status_change_time.present? %>
+        <span class="text-[14px] text-[#5F6368]">
+          <%= time_ago_in_words(current_instance.last_status_change_time) %> ago
+        </span>
+      <% end %>
     </div>
+    <h1 style="font-family: 'Google Sans', sans-serif;" class="text-[26px] text-[#1f1f1f] font-normal tracking-tight">
+      <%= current_instance.title %>
+    </h1>
   </div>
 
-  <%# Owners %>
-  <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-white/50">
-    <div class="flex items-center gap-3">
-      <span class="text-gray-700 font-semibold text-sm flex items-center gap-2">
-        <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70 shrink-0") %>
-        Owners
-      </span>
-      <div class="flex items-center gap-2 text-gray-900 min-w-0">
-        <% if project.owner.is_a?(User) %>
-          <p class="flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-400 text-white text-xs font-bold uppercase shrink-0">
-              <%= project.owner.name[0].upcase %>
-            </span>
-            <%= link_to participant_profile_course_path(course, project.owner.id, 'student'),
-                class: "underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current hover:text-gray-700" do %>
-              <%= project.owner.name %>
-            <% end %>
-          </p>
-        <% else %>
-          <% project.owner.users.each do |user| %>
-            <p class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-400 text-white text-xs font-bold uppercase shrink-0">
-                <%= user.name[0].upcase %>
-              </span>
-              <%= link_to participant_profile_course_path(course, user.id, 'student'),
-                  class: "underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current hover:text-gray-900" do %>
-                <%= user.name %>
-              <% end %>
-            </p>
-          <% end %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+    <% if project.owner.is_a?(ProjectGroup) %>
+      <div>
+        <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-1">Group Name</div>
+        <div class="text-[14px] text-[#3C4043]">
+          <%= link_to project.owner.group_name, participant_profile_course_path(course, project.owner.id, 'group'),
+              class: "hover:text-[#1A73E8] transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-1">Type</div>
+      <div class="text-[14px] text-[#3C4043]">Project</div>
+    </div>
+
+    <div>
+      <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-3">Owners</div>
+      <div class="space-y-3">
+        <% owners = project.owner.is_a?(User) ? [project.owner] : project.owner.users %>
+        <% owners.each do |user| %>
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full bg-[#F1F3F4] text-[#3C4043] flex items-center justify-center text-[13px] font-medium border border-[#E0E0E0] shrink-0"><%= user.name[0].upcase %></span>
+            <%= link_to user.name, participant_profile_course_path(course, user.id, 'student'), class: "text-[14px] text-[#3C4043] hover:text-[#1A73E8] transition-colors" %>
+          </div>
         <% end %>
       </div>
     </div>
-  </div>
 
-  <%# Supervisor %>
-  <% unless @course.solo_supervisor? %>
-    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-white/50">
-      <div class="flex items-center gap-3">
-        <span class="text-gray-700 font-semibold text-sm flex items-center gap-2">
-          <%= image_tag("person.svg", class: "w-4 h-4 object-contain opacity-70 shrink-0") %>
-          Supervisor
-        </span>
-        <span class="text-gray-900">
-          <%= link_to course_lecturer_path(course, current_instance.supervisor),
-              class: "underline decoration-transparent transition-colors duration-300 ease-in-out hover:decoration-current" do %>
-            <%= current_instance.supervisor.name %>
-          <% end %>
-        </span>
+    <% unless @course.solo_supervisor? %>
+      <div>
+        <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-3">Supervisor</div>
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-[13px] font-medium shrink-0">
+            <%= current_instance.supervisor.name.split.map(&:first).first(2).join.upcase %>
+          </span>
+          <%= link_to current_instance.supervisor.name, course_lecturer_path(course, current_instance.supervisor), class: "text-[14px] text-[#3C4043] font-medium hover:text-[#1A73E8] transition-colors" %>
+        </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>

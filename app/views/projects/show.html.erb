@@ -1,10 +1,7 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
-<% end %>
-
-<% content_for :hide_toggler, true %>
-
+<% content_for :body_class, "bg-[#f8fafd]" %>
 <% breadcrumb :project, @project %>
+
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 
 <% content_for :title do %>
   <%= @project.current_title.truncate(TITLE_NAME_LIMIT) %>
@@ -13,128 +10,107 @@
   | ProPro
 <% end %>
 
-<main class="min-h-screen bg-gray-50 w-full">
-  <div
-    class="
-      max-w-[1920px] mx-auto w-full bg-white rounded-tl-[28px] flex
-      overflow-hidden min-h-screen
-    "
-  >
-    <%# ===== LEFT PANE ===== %>
-    <div class="flex-1 flex flex-col overflow-y-auto">
+<div class="text-[#3C4043] font-['Roboto',sans-serif]">
+  <div class="flex">
+    <%= render "shared/sidebar" %>
 
-      <%= render "context_header",
-      current_instance: @current_instance,
-      project: @project,
-      course: @course,
-      current_version: @current_version,
-      latest_version: @latest_version,
-      instances: @instances %>
-
-      <%# Sticky Tabs %>
-      <div class="border-b border-[#E0E0E0] px-8 sticky top-0 bg-white z-10">
-        <div
-          data-controller="tabs"
-          data-tabs-index-value="0"
-          class="flex gap-8"
-        >
-          <button
-            data-action="click->tabs#select"
-            class="
-              pb-3 text-[#1A73E8] border-b-4 border-[#1A73E8] text-[14px] font-medium
-            "
-          >
-            Project Details
-          </button>
-          <button
-            data-action="click->tabs#select"
-            class="
-              pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4
-              border-transparent text-[14px] font-medium transition-colors
-            "
-          >
-            Compare Versions
-          </button>
-          <% if @course.use_progress_updates %>
-            <button
-              data-action="click->tabs#select"
-              class="
-                pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4
-                border-transparent text-[14px] font-medium transition-colors
-              "
-            >
-              Progress Updates
-            </button>
-          <% end %>
-        </div>
-      </div>
-
-      <%# Content Panels %>
-      <div class="p-8 max-w-5xl space-y-8">
-
-        <%# Panel 1: Project Details %>
-        <div data-tabs-target="panel" class="space-y-8">
-          <%= render "project_overview",
-          project: @project,
-          course: @course,
-          current_instance: @current_instance %>
-
-          <%= render "project_details",
-          fields: @current_fields,
-          next_fields: @next_fields,
-          based_on_topic_name:
-            @current_instance&.source_topic&.topic_instances&.last&.title || nil,
-          index: @index,
-          instances: @instances %>
-        </div>
-
-        <%# Panel 2: Compare Versions %>
-        <div data-tabs-target="panel" class="hidden">
-          <%= render "compare_versions_tab",
-          fields: @current_fields,
-          next_fields: @next_fields,
-          index: @index,
-          instances: @instances %>
-        </div>
-
-        <%# Panel 3: Progress Updates (conditional) %>
-        <% if @course.use_progress_updates %>
-          <div data-tabs-target="panel" class="hidden">
-            <%= render "progress_updates",
-            progress: @progress,
-            project: @project,
-            current_version: @current_version,
-            latest_version: @latest_version,
-            course: @course,
-            weeks: @weeks,
-            can_record_progress_update: policy(@project).can_record_progress_update? %>
-          </div>
-        <% end %>
-
-      </div>
-
-    </div>
-
-    <%# ===== RIGHT PANE: Persistent Comments Sidebar ===== %>
-    <div
-      class="
-        w-[380px] bg-[#f8fafd] border-l border-[#E0E0E0] flex flex-col shrink-0
-      "
+    <main
+      class="flex-1 bg-[#FFFFFF] rounded-tl-[16px] flex overflow-hidden min-h-[calc(100vh-3.5rem)]"
+      data-controller="tabs"
     >
-      <%= render "project_comments",
-      comments: @comments,
-      new_comment: @new_comment,
-      course: @course,
-      project: @project,
-      current_instance_id: @current_instance.id,
-      current_version: @current_version,
-      latest_version: @latest_version %>
-    </div>
 
+      <%# ===== LEFT PANE ===== %>
+      <div class="flex-1 flex flex-col overflow-y-auto relative border-r border-[#E0E0E0]">
+
+        <%= render "project_header",
+        current_instance: @current_instance,
+        project: @project,
+        course: @course,
+        current_version: @current_version,
+        latest_version: @latest_version,
+        instances: @instances,
+        current_user: current_user,
+        members: @members %>
+
+        <%# Content Panels %>
+        <div class="p-8 max-w-5xl space-y-6">
+
+          <%# Panel 1: Project Details %>
+          <div data-tabs-target="panel" class="space-y-6">
+            <%= render "project_overview",
+            project: @project,
+            course: @course,
+            current_instance: @current_instance %>
+
+            <%= render "project_details",
+            fields: @current_fields,
+            next_fields: @next_fields,
+            based_on_topic_name:
+              @current_instance&.source_topic&.topic_instances&.last&.title || nil,
+            index: @index,
+            instances: @instances %>
+
+          </div>
+
+          <%# Panel 2: Compare Versions %>
+          <div data-tabs-target="panel" class="hidden">
+            <%= render "compare_versions_tab",
+            fields: @current_fields,
+            next_fields: @next_fields,
+            index: @index,
+            instances: @instances %>
+          </div>
+
+          <%# Panel 3: Progress Updates (conditional) %>
+          <% if @course.use_progress_updates %>
+            <div
+              data-tabs-target="panel"
+              class="hidden"
+              data-controller="record-update-modal"
+            >
+              <%= render "progress_updates",
+              progress: @progress,
+              project: @project,
+              current_version: @current_version,
+              latest_version: @latest_version,
+              course: @course,
+              weeks: @weeks,
+              can_record_progress_update: policy(@project).can_record_progress_update? %>
+
+              <%= render "record_update_modal", course: @course, project: @project %>
+            </div>
+          <% end %>
+
+        </div>
+
+      </div>
+
+      <%# ===== RIGHT PANE: Review + Comments ===== %>
+      <div
+        class="
+          w-[360px] bg-[#FFFFFF] p-6 overflow-y-auto flex flex-col gap-6 shrink-0
+        "
+      >
+        <%= render "project_review_card",
+        current_instance: @current_instance,
+        project: @project,
+        course: @course,
+        current_version: @current_version,
+        latest_version: @latest_version,
+        instances: @instances,
+        current_user: current_user,
+        members: @members %>
+
+        <%= render "project_comments",
+        comments: @comments,
+        new_comment: @new_comment,
+        course: @course,
+        project: @project,
+        current_instance_id: @current_instance.id,
+        current_version: @current_version,
+        latest_version: @latest_version %>
+      </div>
+
+    </main>
   </div>
-</main>
-
-<%# Record Update Modal %>
-<% if @course.use_progress_updates %>
-  <%= render "record_update_modal", course: @course, project: @project %>
-<% end %>
+</div>

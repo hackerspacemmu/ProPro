@@ -1,26 +1,26 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["dialog"]
+  static targets = ["dialog"];
 
   connect() {
-    this.boundCloseOnBackdrop = this.closeOnBackdrop.bind(this)
-    this.dialogTarget.addEventListener("click", this.boundCloseOnBackdrop)
+    this.boundCloseOnBackdrop = this.closeOnBackdrop.bind(this);
+    this.dialogTarget.addEventListener("click", this.boundCloseOnBackdrop);
   }
 
   disconnect() {
-    this.dialogTarget.removeEventListener("click", this.boundCloseOnBackdrop)
+    this.dialogTarget.removeEventListener("click", this.boundCloseOnBackdrop);
   }
 
   open() {
-    this.dialogTarget.showModal()
+    this.dialogTarget.showModal();
   }
 
   close() {
-    this.dialogTarget.close()
+    this.dialogTarget.close();
   }
 
   closeOnBackdrop(event) {
-    if (event.target === this.dialogTarget) this.close()
+    if (event.target === this.dialogTarget) this.close();
   }
 }
