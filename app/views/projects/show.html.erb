@@ -21,7 +21,7 @@
     >
 
       <%# ===== LEFT PANE ===== %>
-      <div class="flex-1 flex flex-col overflow-y-auto relative border-r border-[#E0E0E0]">
+      <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative border-r border-[#E0E0E0]">
 
         <%= render "project_header",
         current_instance: @current_instance,
@@ -95,8 +95,8 @@
         aria-label="Comments"
         class="
           fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-[#FFFFFF] p-6
-          flex flex-col gap-6 overflow-y-auto shrink-0 border-l border-[#E0E0E0]
-          translate-x-full transition-transform duration-300 ease-out shadow-2xl
+          flex flex-col gap-6 overflow-y-auto shrink-0
+          translate-x-full transition-transform duration-300 ease-out
           min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none
           min-[1245px]:transition-none min-[1245px]:border-l-0
         "

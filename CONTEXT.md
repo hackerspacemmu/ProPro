@@ -26,7 +26,7 @@ definitions.
 
 ## Project show (review + comments)
 
-- **content tabs** — the Project Details / Compare Versions / Progress Updates tab set in the sticky tab bar. Constant at every width; screensize never adds tabs.
+- **content tabs** — the Project Details / Compare Versions / Progress Updates tab set in the sticky tab bar. Constant at every width; screensize never adds tabs. Scrolls horizontally on narrow screens with the scrollbar hidden; a **tab fade mask** (`tab-fade`) paints a trailing-edge white-to-transparent gradient only while more tabs are actually cut off.
 - **review actions** — the shared version switcher + policy-driven actions (`_review_actions`), rendered in either the review card (desktop) or the review action bar (mobile).
 - **review card** — the desktop-only Review Project card (title + Active badge) hosting `_review_actions`.
 - **review action bar** — the mobile-only pinned bottom bar (version switcher + actions) hosting the same `_review_actions`; thumb-reachable on every tab.
@@ -36,7 +36,7 @@ definitions.
 ## App chrome
 
 - **app sidebar** — `shared/_sidebar`: app-wide nav (Home / courses / Edit profile), plus the `render_sidebar` helper widget for legacy pages. One element, two presentations: a static left column at ≥`lg` (1024px), an off-canvas drawer below it opened by the header menu icon. Controlled by `sidebar`. Its breakpoint is chrome-level and deliberately independent of content breakpoints (e.g., the `min-[1245px]` comments drawer).
-- **drawer idiom** — the shared pattern for "drawer over content": a single element that is a static in-flow column on desktop (`lg:static lg:translate-x-0` / `min-[1245px]:translate-x-0`) and an off-canvas panel below it; the controller only toggles the translate class, the backdrop `hidden`, body scroll lock, and `aria-expanded`. Used by `sidebar` and `comments-drawer`.
+- **drawer idiom** — the shared pattern for "drawer over content": a single element that is a static in-flow column on desktop (`lg:static lg:translate-x-0` / `min-[1245px]:translate-x-0`) and an off-canvas panel below it; the controller toggles the translate class, the off-state whitespace classes (`shadow-2xl`, `border-l` for `comments-drawer` so they can't paint into the viewport while closed), the backdrop `hidden`, body scroll lock, and `aria-expanded`. Used by `sidebar` and `comments-drawer`.
 
 ## Form actions
 

@@ -328,8 +328,10 @@ version switcher, preserving today's always-visible review card).
 (sticky comments heights) and `topics/show` (mobile-tabs).
 
 **Deferred (noted but not built):** `topics/show` keeps its `mobile-tabs` +
-comments-column behavior until migrated to the same drawer; 3-tab overflow on
-sub-~380px viewports is unflagged.
+comments-column behavior until migrated to the same drawer. ~~3-tab overflow
+on sub-~380px viewports is unflagged~~ — **now fixed: Ticket 10
+(`docs/design_refactor_plan.md`)** — scrollable tabs + `overflow-x-hidden`
+pane + a Selenium 360×760 regression guard.
 
 ### Known broken system tests (pre-existing, from earlier redesign)
 

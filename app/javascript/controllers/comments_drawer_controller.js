@@ -5,6 +5,8 @@ export default class extends Controller {
 
   close() {
     this.panelTarget.classList.add("translate-x-full");
+    this.panelTarget.classList.remove("shadow-2xl");
+    this.panelTarget.classList.remove("border-l", "border-[#E0E0E0]");
     this.backdropTarget.classList.add("hidden");
     document.body.classList.remove("overflow-hidden");
     this.setExpanded(false);
@@ -12,6 +14,8 @@ export default class extends Controller {
 
   open() {
     this.panelTarget.classList.remove("translate-x-full");
+    this.panelTarget.classList.add("shadow-2xl");
+    this.panelTarget.classList.add("border-l", "border-[#E0E0E0]");
     this.backdropTarget.classList.remove("hidden");
     document.body.classList.add("overflow-hidden");
     this.setExpanded(true);

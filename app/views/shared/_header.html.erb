@@ -1,5 +1,5 @@
-<header class="flex items-center justify-between px-4 py-3">
-  <div class="flex items-center gap-2">
+<header class="flex items-center justify-between gap-3 px-4 py-3">
+  <div class="flex items-center gap-2 min-w-0">
     <% unless content_for?(:hide_toggler) %>
       <button type="button"
         data-sidebar-target="toggleButton"
@@ -7,12 +7,12 @@
         aria-label="Toggle sidebar"
         aria-expanded="false"
         aria-controls="app-sidebar"
-        class="lg:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+        class="lg:hidden shrink-0 p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
         <span class="material-symbols-outlined">menu</span>
       </button>
     <% end %>
 
-    <span class="text-[24px] text-[#5F6368] font-medium">ProPro</span>
+    <span class="shrink-0 text-[24px] text-[#5F6368] font-medium">ProPro</span>
 
     <% unless content_for?(:hide_breadcrumbs) %>
       <% render_custom_breadcrumbs %>
@@ -26,5 +26,6 @@
 
   <%= button_to "Log out", session_path, method: :delete,
         form: { data: { turbo_confirm: nil } },
+        form_class: "shrink-0 m-0",
         class: "text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors pr-2 bg-transparent border-0 cursor-pointer" %>
 </header>
