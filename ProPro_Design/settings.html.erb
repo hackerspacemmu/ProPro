@@ -312,7 +312,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <div class="bg-[#f1f3f4] rounded-t-md px-3 py-1 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all w-36">
-                    <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="e.g. 30"
+                    <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="e.g. 30" autocomplete="off"
                            class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm"
                            hx-get="<%= grouping_preview_course_path(@course) %>"
                            hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
