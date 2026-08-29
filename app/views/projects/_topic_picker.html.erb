@@ -1,0 +1,47 @@
+<%# locals: (course:, topics:, topic_pick_values:) %>
+
+<dialog
+  data-method-picker-target="topicDialog"
+  class="rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden m-auto backdrop:bg-black/50"
+  aria-label="Browse Topic Catalog"
+>
+  <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+    <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">
+      Browse Topic Catalog
+    </h2>
+    <button
+      type="button"
+      data-action="click->method-picker#closeTopic"
+      class="text-[#5F6368] hover:bg-[#F1F3F4] rounded-full p-2 transition-colors flex items-center justify-center"
+    >
+      <span class="material-symbols-outlined text-[24px]">close</span>
+    </button>
+  </div>
+
+  <script type="application/json" data-method-picker-target="topicValues"><%= topic_pick_values.to_json.gsub("</", "<\\/").html_safe %></script>
+
+  <div class="px-6 pb-6 max-h-[70vh] overflow-y-auto space-y-3">
+    <% if topics.empty? %>
+      <p class="text-[14px] text-[#5F6368]">No topics are currently available.</p>
+    <% else %>
+      <% topics.each do |topic| %>
+        <button
+          type="button"
+          data-method-picker-target="topicOption"
+          data-topic-id="<%= topic.id %>"
+          data-title="<%= topic.current_title %>"
+          data-action="click->method-picker#chooseTopic"
+          class="w-full flex items-center gap-3 p-3 rounded-[8px] border border-[#DADCE0] hover:border-[#1A73E8] hover:bg-[#F8F9FA] transition-colors text-left"
+        >
+          <div class="w-9 h-9 rounded-full bg-[#F1F3F4] text-[#5F6368] flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px]">article</span>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[14px] font-medium text-[#1f1f1f] font-google-sans truncate"><%= topic.current_title %></div>
+            <div class="text-[12px] text-[#5F6368] truncate"><%= topic.owner_name %></div>
+          </div>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</dialog>

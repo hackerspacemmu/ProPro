@@ -16,7 +16,8 @@
 
     <main
       class="flex-1 bg-[#FFFFFF] rounded-tl-[16px] flex overflow-hidden min-h-[calc(100vh-3.5rem)]"
-      data-controller="tabs"
+      data-controller="tabs comments-drawer"
+      data-action="keydown.esc@window->comments-drawer#closeOnEscape"
     >
 
       <%# ===== LEFT PANE ===== %>
@@ -30,10 +31,11 @@
         latest_version: @latest_version,
         instances: @instances,
         current_user: current_user,
-        members: @members %>
+        members: @members,
+        comments_count: @comments.size %>
 
         <%# Content Panels %>
-        <div class="p-8 max-w-5xl space-y-6">
+        <div class="p-8 max-w-5xl space-y-6 pb-28 min-[1245px]:pb-8">
 
           <%# Panel 1: Project Details %>
           <div data-tabs-target="panel" class="space-y-6">
@@ -85,20 +87,26 @@
 
       </div>
 
-      <%# ===== RIGHT PANE: Review + Comments ===== %>
+      <%# ===== RIGHT PANE: review desktop-only, comments drawer ===== %>
       <div
+        id="comments-drawer"
+        data-comments-drawer-target="panel"
+        role="region"
+        aria-label="Comments"
         class="
-          w-[360px] bg-[#FFFFFF] p-6 overflow-y-auto flex flex-col gap-6 shrink-0
+          fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-[#FFFFFF] p-6
+          flex flex-col gap-6 overflow-y-auto shrink-0 border-l border-[#E0E0E0]
+          translate-x-full transition-transform duration-300 ease-out shadow-2xl
+          min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none
+          min-[1245px]:transition-none min-[1245px]:border-l-0
         "
       >
         <%= render "project_review_card",
-        current_instance: @current_instance,
         project: @project,
         course: @course,
         current_version: @current_version,
         latest_version: @latest_version,
         instances: @instances,
-        current_user: current_user,
         members: @members %>
 
         <div
@@ -120,6 +128,20 @@
         </div>
       </div>
 
+      <div
+        data-comments-drawer-target="backdrop"
+        data-action="click->comments-drawer#close"
+        class="hidden fixed inset-0 bg-black/40 z-40 min-[1245px]:hidden"
+      ></div>
+
     </main>
   </div>
+
+  <%= render "review_action_bar",
+  project: @project,
+  course: @course,
+  current_version: @current_version,
+  latest_version: @latest_version,
+  instances: @instances,
+  members: @members %>
 </div>

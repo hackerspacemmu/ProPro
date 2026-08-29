@@ -2,9 +2,12 @@
   <div class="flex items-center gap-2">
     <% unless content_for?(:hide_toggler) %>
       <button type="button"
-              data-action="sidebar#toggle"
-              aria-label="Toggle sidebar"
-              class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+        data-sidebar-target="toggleButton"
+        data-action="sidebar#toggle"
+        aria-label="Toggle sidebar"
+        aria-expanded="false"
+        aria-controls="app-sidebar"
+        class="lg:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
         <span class="material-symbols-outlined">menu</span>
       </button>
     <% end %>

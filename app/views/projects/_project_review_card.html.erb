@@ -1,98 +1,17 @@
-<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:) %>
+<%# locals: (project:, course:, current_version:, latest_version:, instances:, members:) %>
 
-<div class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] p-5 flex flex-col gap-5 shrink-0">
+<div class="hidden min-[1245px]:flex flex-col gap-5 shrink-0 bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] p-5">
 
   <div class="flex items-center justify-between">
     <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] font-medium text-[#1f1f1f]">Review Project</h2>
     <span class="text-[11px] font-medium text-[#137333] bg-[#E6F4EA] px-2 py-0.5 rounded-[4px]">Active</span>
   </div>
 
-  <%# Version Selector %>
-  <div class="flex items-center gap-2">
-    <span class="text-sm font-medium text-[#5F6368]">Version:</span>
-    <div class="relative flex-1">
-      <%= select_tag nil,
-          options_for_select(
-            instances.each_with_index.map do |inst, i|
-              label = "#{i + 1} of #{instances.size}"
-              label += " (Current)" if i == instances.size - 1
-              [label, i + 1]
-            end,
-            current_version
-          ),
-          data: {
-            controller: "version-select",
-            version_select_course_value: course.id,
-            version_select_project_value: project.id,
-            action: "change->version-select#navigate"
-          },
-          class: "w-full bg-[#FFFFFF] border border-[#DADCE0] rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-[#3C4043] focus:outline-none focus:border-[#1A73E8] cursor-pointer appearance-none" %>
-      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#5F6368]">
-        <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
-      </div>
-    </div>
-  </div>
-
-  <%# Action body — policy-driven %>
-  <% if policy(project).change_status? && current_version == latest_version %>
-    <%# Supervisor: Approve split button + status dropdown %>
-    <div class="relative group w-full" data-controller="dropdown">
-      <div class="flex w-full shadow-sm rounded-full">
-        <%= button_to change_status_course_project_path(course, project, status: "approved"),
-            method: :patch,
-            form_class: "flex flex-1 m-0",
-            class: "flex-1 justify-center bg-[#137333] hover:bg-[#0f5c29] text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2" do %>
-          <span class="material-symbols-outlined text-[18px]">check</span>
-          Approve
-        <% end %>
-
-        <div class="w-[1px] bg-white/30"></div>
-
-        <button
-          type="button"
-          data-action="click->dropdown#toggle"
-          class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center shrink-0"
-        >
-          <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
-        </button>
-      </div>
-
-      <div
-        data-dropdown-target="menu"
-        class="absolute right-0 top-full mt-1.5 w-full bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50 hidden origin-top"
-      >
-        <div class="py-1">
-          <%= button_to change_status_course_project_path(course, project, status: "redo"),
-              method: :patch,
-              class: "w-full text-left px-4 py-2.5 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors" do %>
-            <span class="material-symbols-outlined text-[18px] text-[#5F6368]">replay</span>
-            <div class="flex flex-col">
-              <span class="text-[14px] text-[#3C4043] font-medium">Request Changes</span>
-              <span class="text-xs text-[#5F6368]">Return to group for redo</span>
-            </div>
-          <% end %>
-
-          <div class="border-t border-[#E0E0E0] my-1"></div>
-
-          <%= button_to change_status_course_project_path(course, project, status: "rejected"),
-              method: :patch,
-              class: "w-full text-left px-4 py-2.5 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors" do %>
-            <span class="material-symbols-outlined text-[18px] text-[#C5221F]">block</span>
-            <div class="flex flex-col">
-              <span class="text-[14px] text-[#C5221F] font-medium">Reject Proposal</span>
-              <span class="text-xs text-[#C5221F]/70">Close out permanently</span>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  <% else %>
-    <%# Student / owner: policy-driven Edit / Unable to Edit / Jump To Latest %>
-    <%= render "project_actions",
-    project: project,
-    course: course,
-    current_version: current_version,
-    latest_version: latest_version,
-    members: members %>
-  <% end %>
+  <%= render "review_actions",
+  project: project,
+  course: course,
+  current_version: current_version,
+  latest_version: latest_version,
+  instances: instances,
+  members: members %>
 </div>

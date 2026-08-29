@@ -1,105 +1,96 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
-<% end %>
+<% content_for :no_sidebar, true %>
 <% content_for :hide_toggler, true %>
+<% content_for :hide_breadcrumbs, true %>
+<% content_for :body_class, "bg-[#f8fafd]" %>
 <% breadcrumb :new_project, @course %>
 <% content_for :title,
 "Create Proposal - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
 
-<main
-  class="
-    min-h-screen bg-gray-50 w-full pt-2 pb-12 px-4 sm:px-6 md:px-8 transition-all
-    duration-300
-  "
->
-  <div
+<div class="min-h-screen bg-[#f8fafd] text-[#3C4043] font-['Roboto',sans-serif] flex flex-col">
+
+  <header
     class="
-      mx-auto w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:w-10/12 2xl:w-8/12
+      sticky top-0 z-30 bg-white border-b border-[#E0E0E0] px-6 py-3.5 flex
+      items-center justify-between shadow-xs
     "
   >
-
-    <div class="mb-8">
-      <%= link_to course_path(@course), class: "group inline-flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
-        <div
-          class="
-            w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
-            justify-center mr-2 group-hover:border-green-300 shadow-sm transition-all
-          "
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            /></svg>
-        </div>
-        Back to Course
+    <div class="flex items-center gap-4">
+      <%= link_to course_path(@course),
+          title: "Close and return to course",
+          class: "p-2 -ml-2 rounded-full hover:bg-[#F1F3F4] text-[#5F6368] hover:text-[#3C4043] transition-colors flex items-center justify-center" do %>
+        <span class="material-symbols-outlined text-[22px]">close</span>
       <% end %>
 
-      <h1
-        class="
-          text-3xl lg:text-4xl font-bold text-gray-900 flex flex-wrap items-center gap-2
-          justify-center
-        "
-      >
-        Create Proposal for
-        <span class="inline-block text-green-700 break-all"><%= @course.course_name %></span>
-        <%= image_tag(
-          "edit.svg",
-          class: "w-5 h-5 sm:w-6 sm:h-6 opacity-60 hidden sm:inline-block mt-1",
-        ) %>
-      </h1>
+      <div class="h-5 w-[1px] bg-[#DADCE0]"></div>
 
-      <p class="text-gray-500 mt-3 text-sm sm:text-base text-center">
-        Fill out the details below to submit your project proposal.
-      </p>
+      <h1 style="font-family: 'Google Sans', sans-serif;" class="text-[18px] text-[#1f1f1f] font-medium tracking-tight">
+        Create Proposal — <span class="text-[#5F6368] font-normal"><%= @course.course_name %></span>
+      </h1>
     </div>
 
-    <div
-      class="
-        bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100
-        overflow-hidden
-      "
-    >
-      <div class="p-5 sm:p-8 md:p-10">
-        <%= form_with url: course_projects_path(@course), method: :post, class: "space-y-8" do |form| %>
+    <div class="flex items-center gap-3">
+      <%= link_to "Discard Changes",
+          course_path(@course),
+          class: "px-5 py-2 rounded-full text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#3C4043] font-medium text-[14px] transition-colors" %>
+      <button
+        type="submit"
+        form="project-form"
+        class="bg-[#1A73E8] hover:bg-[#1557B0] text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all flex items-center gap-2 shadow-sm"
+      >
+        <span class="material-symbols-outlined text-[18px]">check</span>
+        Create Proposal
+      </button>
+    </div>
+  </header>
 
-          <% input_classes =
-            "w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base" %>
+  <main class="flex-1 py-10 px-4 sm:px-6 overflow-y-auto">
+    <div class="max-w-4xl mx-auto space-y-8">
 
-          <% if @course.toggle_topics || !@course.solo_supervisor? %>
-            <%= render "proposal_method",
+      <%= form_with url: course_projects_path(@course),
+            method: :post,
+            local: true,
+            html: { id: "project-form" },
+            class: "space-y-8" do |form| %>
+
+        <% if @course.toggle_topics || !@course.solo_supervisor? %>
+          <%= render "proposal_method",
               course: @course,
               selected_lecturer: @selected_lecturer,
               selected_topic: @selected_topic,
               selected_own_proposal_lecturer_id: @selected_lecturer_enrolment&.id,
-              lecturer_capacity_info: @lecturer_capacity_info %>
-            <% end %>
+              lecturer_capacity_info: @lecturer_capacity_info,
+              topics: @topics,
+              topic_pick_values: @topic_pick_values %>
+        <% end %>
 
-          <%= render 'project_new',
-              template_fields: @template_fields,
-              field_values: @field_values,
-              input_classes: input_classes %>
-
-          <div
-            class="
-              pt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center
-              sm:justify-end gap-3 sm:gap-4
-            "
-          >
-            <%= link_to "Cancel",
-                course_path(@course),
-                class:
-                  "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
-
-            <%= submit_tag "Create Proposal",
-                class:
-                  "w-full sm:w-auto cursor-pointer bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-slate-500/20 hover:shadow-slate-500/30 transition-all transform active:scale-95 text-sm sm:text-base flex justify-center items-center" %>
+        <section class="bg-white border border-[#E0E0E0] rounded-[12px] p-8 shadow-xs space-y-8">
+          <div class="border-b border-[#E0E0E0] pb-4">
+            <h2 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight font-['Google_Sans',sans-serif]">
+              Project Details
+            </h2>
+            <p class="text-[13px] text-[#5F6368] mt-1">Fill out the template fields required.</p>
           </div>
 
-        <% end %>
-      </div>
-    </div>
+          <%= render "template_fields",
+              template_fields: @template_fields,
+              values: @field_values,
+              is_approved: false %>
+        </section>
 
-  </div>
-</main>
+        <div class="flex items-center justify-between pt-4 pb-8">
+          <%= link_to "Cancel",
+              course_path(@course),
+              class: "text-[14px] font-medium text-[#5F6368] hover:text-[#3C4043]" %>
+          <button
+            type="submit"
+            class="bg-[#1A73E8] hover:bg-[#1557B0] text-white px-6 py-2.5 rounded-full font-medium text-[14px] transition-all flex items-center gap-2 shadow-sm"
+          >
+            <span class="material-symbols-outlined text-[18px]">check</span>
+            Create Proposal
+          </button>
+        </div>
+
+      <% end %>
+    </div>
+  </main>
+</div>

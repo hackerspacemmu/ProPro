@@ -1,4 +1,10 @@
-<aside class="w-[280px] shrink-0 py-3"
+<aside id="app-sidebar"
+       class="
+         w-[280px] shrink-0 py-3 bg-white
+         fixed top-0 left-0 h-full z-50 -translate-x-full transition-transform
+         duration-300 ease-out
+         lg:static lg:translate-x-0 lg:transition-none lg:h-auto
+       "
        data-sidebar-target="container">
   <nav class="flex flex-col gap-1 pr-3">
 
@@ -51,4 +57,6 @@
   </nav>
 </aside>
 
-<div class="fixed inset-0 bg-black/30 hidden" data-sidebar-target="backdrop" data-action="click->sidebar#toggle"></div>
+<div class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"
+     data-sidebar-target="backdrop"
+     data-action="click->sidebar#close"></div>

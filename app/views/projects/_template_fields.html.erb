@@ -1,0 +1,96 @@
+<%# locals: (template_fields:, values:, is_approved: false) %>
+
+<% input_classes =
+     "w-full border border-[#DADCE0] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#3C4043] bg-white focus:outline-none focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8] transition-shadow" %>
+
+<div id="template-fields-container" class="space-y-8">
+  <% template_fields.each do |field| %>
+    <% readonly_field = is_approved && !field.free_edit %>
+    <% field_input_classes =
+         readonly_field ? "#{input_classes} opacity-60 bg-gray-100 cursor-not-allowed border-gray-200 shadow-none" : input_classes %>
+    <% existing_value = values[field.id] %>
+
+    <div class="space-y-1">
+      <%= label_tag "fields_#{field.id}",
+        class: "block text-xs font-semibold text-[#3C4043] uppercase tracking-wide font-google-sans mb-1.5",
+        title: field.hint do %>
+        <%= field.label %>
+        <% if field.required && !readonly_field %>
+          <span class="text-[#C5221F]">*</span>
+        <% end %>
+        <% if field.free_edit %>
+          <span class="ml-2 text-[10px] font-semibold text-[#1A73E8] bg-[#E8F0FE] px-2 py-0.5 rounded-full border border-[#DADCE0] uppercase tracking-tighter">
+            Editable Post-Approval
+          </span>
+        <% end %>
+      <% end %>
+
+      <% if field.hint.present? %>
+        <div class="text-[12px] text-[#5F6368] mt-1"><%= field.hint %></div>
+      <% end %>
+
+      <% if readonly_field %>
+        <%= hidden_field_tag "fields[#{field.id}]", existing_value %>
+      <% end %>
+
+      <% case field.field_type %>
+      <% when "shorttext" %>
+        <%= text_field_tag "fields[#{field.id}]",
+              existing_value,
+              class: field_input_classes,
+              placeholder: field.hint,
+              required: (field.required && !readonly_field),
+              disabled: readonly_field,
+              autocomplete: "off" %>
+
+      <% when "textarea" %>
+        <%= text_area_tag "fields[#{field.id}]",
+              existing_value,
+              class: "#{field_input_classes} resize-none overflow-hidden leading-relaxed",
+              data: { controller: readonly_field ? "" : "markdown-editor" },
+              rows: 2,
+              placeholder: field.hint,
+              required: (field.required && !readonly_field),
+              disabled: readonly_field %>
+
+      <% when "dropdown" %>
+        <div class="relative">
+          <%= select_tag "fields[#{field.id}]",
+                options_for_select(field.option_list, existing_value),
+                prompt: "Select an option",
+                class: "#{field_input_classes} appearance-none pr-10 cursor-pointer",
+                required: (field.required && !readonly_field),
+                disabled: readonly_field %>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5F6368]">
+            <span class="material-symbols-outlined text-[20px]">expand_more</span>
+          </div>
+        </div>
+
+      <% when "radio" %>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <% field.option_list.each_with_index do |option, idx| %>
+            <label class="flex items-center gap-2.5 p-3 rounded-[6px] border border-[#DADCE0] cursor-pointer hover:bg-[#F8F9FA] transition-colors has-[:checked]:border-[#1A73E8] has-[:checked]:bg-[#E8F0FE]/40 <%= 'opacity-60 pointer-events-none' if readonly_field %>">
+              <%= radio_button_tag "fields[#{field.id}]",
+                    option,
+                    (option.to_s == existing_value.to_s),
+                    id: "field_#{field.id}_#{idx}",
+                    required: (field.required && !readonly_field),
+                    disabled: readonly_field,
+                    class: "h-4 w-4 text-[#1A73E8] border-[#DADCE0] focus:ring-[#1A73E8] cursor-pointer" %>
+              <span class="text-[14px] text-[#3C4043]"><%= option %></span>
+            </label>
+          <% end %>
+        </div>
+
+      <% else %>
+        <%= text_field_tag "fields[#{field.id}]",
+              existing_value,
+              class: field_input_classes,
+              placeholder: field.hint,
+              required: (field.required && !readonly_field),
+              disabled: readonly_field,
+              autocomplete: "off" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

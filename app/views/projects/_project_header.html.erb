@@ -1,4 +1,4 @@
-<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:) %>
+<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:, comments_count:) %>
 
 <%# Flash messages %>
 <% if flash[:notice] %>
@@ -39,17 +39,37 @@
 
 <%# Sticky Tabs %>
 <div class="border-b border-[#E0E0E0] px-8 sticky top-0 bg-[#FFFFFF] z-10 pt-6">
-  <div class="flex gap-8">
-    <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="0" class="pb-3 text-[#1A73E8] border-b-[3px] border-[#1A73E8] text-[14px] font-medium whitespace-nowrap">
-      Project Details
-    </button>
-    <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="1" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
-      Compare Versions
-    </button>
-    <% if course.use_progress_updates %>
-      <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="2" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
-        Progress Updates
+  <div class="flex items-center justify-between gap-8">
+    <div class="flex gap-8">
+      <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="0" class="pb-3 text-[#1A73E8] border-b-[3px] border-[#1A73E8] text-[14px] font-medium whitespace-nowrap">
+        Project Details
       </button>
-    <% end %>
+      <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="1" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
+        Compare Versions
+      </button>
+      <% if course.use_progress_updates %>
+        <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="2" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
+          Progress Updates
+        </button>
+      <% end %>
+    </div>
+
+    <%# Comments trigger — opens the comments drawer below the desktop breakpoint %>
+    <button
+      type="button"
+      data-comments-drawer-target="trigger"
+      data-action="comments-drawer#toggle"
+      aria-expanded="false"
+      aria-controls="comments-drawer"
+      title="Comments"
+      class="min-[1245px]:hidden relative w-9 h-9 flex items-center justify-center rounded-full text-[#5F6368] hover:text-[#3C4043] hover:bg-[#F1F3F4] transition-colors"
+    >
+      <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+      <% if comments_count.positive? %>
+        <span
+          class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#1A73E8] text-white text-[10px] font-medium leading-4 flex items-center justify-center"
+        ><%= comments_count %></span>
+      <% end %>
+    </button>
   </div>
 </div>

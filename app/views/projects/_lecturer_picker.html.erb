@@ -1,0 +1,55 @@
+<%# locals: (course:, lecturer_capacity_info:) %>
+
+<% enrolments = course.enrolments.where(role: :lecturer).includes(:user).order(:id) %>
+
+<dialog
+  data-method-picker-target="lecturerDialog"
+  class="rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden m-auto backdrop:bg-black/50"
+  aria-label="Choose a supervisor"
+>
+  <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+    <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">
+      Choose a Supervisor
+    </h2>
+    <button
+      type="button"
+      data-action="click->method-picker#closeLecturer"
+      class="text-[#5F6368] hover:bg-[#F1F3F4] rounded-full p-2 transition-colors flex items-center justify-center"
+    >
+      <span class="material-symbols-outlined text-[24px]">close</span>
+    </button>
+  </div>
+
+  <div class="px-6 pb-6 max-h-[70vh] overflow-y-auto space-y-3">
+    <% if enrolments.empty? %>
+      <p class="text-[14px] text-[#5F6368]">No supervisors are available for this course.</p>
+    <% else %>
+      <% enrolments.each do |enrolment| %>
+        <% lecturer = enrolment.user %>
+        <% capacity = lecturer_capacity_info[enrolment.user_id] %>
+        <% pending = capacity ? capacity.pending_count : 0 %>
+        <% capacity_label = "#{capacity ? capacity.approved_count : 0}/#{capacity ? capacity.effective_cap : 0} approved" %>
+        <% capacity_label += " · #{pending} pending" if pending.positive? %>
+
+        <button
+          type="button"
+          data-method-picker-target="lecturerOption"
+          data-enrolment-id="<%= enrolment.id %>"
+          data-name="<%= lecturer.name %>"
+          data-avatar="<%= lecturer.name.split.map(&:first).first(2).join.upcase %>"
+          data-capacity="<%= capacity_label %>"
+          data-action="click->method-picker#chooseLecturer"
+          class="w-full flex items-center gap-3 p-3 rounded-[8px] border border-[#DADCE0] hover:border-[#1A73E8] hover:bg-[#F8F9FA] transition-colors text-left"
+        >
+          <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-[13px] font-bold font-google-sans shrink-0">
+            <%= lecturer.name.split.map(&:first).first(2).join.upcase %>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[14px] font-medium text-[#1f1f1f] font-google-sans truncate"><%= lecturer.name %></div>
+            <div class="text-[12px] text-[#5F6368]"><%= capacity_label %></div>
+          </div>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</dialog>

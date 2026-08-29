@@ -179,9 +179,11 @@ All three hit `change_status_course_project_path` with the appropriate
 - The existing partial already has all this structure — it's a restyle, not
   a rebuild.
 
-**Mobile behavior:** On small screens, the right pane becomes a 4th tab in
-the tab bar (Comments), matching the current `mobile-tabs` pattern. The
-shell handles this with responsive classes, not a separate controller.
+**Mobile behavior:** ~~On small screens, the right pane becomes a 4th tab in
+the tab bar (Comments)~~ — **SUPERSEDED by ADR-0007.** Comments become an
+icon-triggered drawer (see Ticket 9), and the review actions + version
+switcher move to a pinned bottom bar. The tab bar stays a fixed set at every
+width.
 
 ### Ticket 5 — Restyle Progress Updates tab + Record Update modal
 
@@ -275,6 +277,69 @@ tab/link. Projects don't have a separate settings page.
   leave inline for now. Recommend adding for consistency.
 - Not used by `projects/show` itself — cleanup while we're in the codebase.
 
+### Ticket 9 — Responsive: comments drawer + pinned review action bar
+
+**ADR:** `docs/adr/0007-comments-drawer-and-review-action-bar.md`
+
+**Decision:** Below `min-[1245px]` the tab bar must never grow a 4th tab. Two
+mobile-only presentations instead:
+
+1. **Comments drawer** — the right pane stays a single element that is the
+   static sticky comments column on desktop and an off-canvas slide-in panel
+   on mobile. Same element, responsive classes only.
+2. **Pinned review action bar** — the version switcher + policy-driven
+   actions are `fixed` to the bottom on mobile (thumb-reachable on every tab).
+
+**Files:**
+- New `app/views/projects/_review_actions.html.erb` — extracted from the old
+  `_project_review_card`: version `<select>` + action body. **Single source of
+  truth** for the controls and role gates; both frames render this partial.
+  The split-button status dropdown opens **upward** in the mobile bar vs
+  downward in the card (`bottom-full ... min-[1245px]:top-full`).
+- New `app/views/projects/_review_action_bar.html.erb` — mobile-only pinned
+  bar frame (`fixed bottom-0 ... min-[1245px]:hidden`), includes
+  `env(safe-area-inset-bottom)` padding. Renders `_review_actions`.
+- New `app/javascript/controllers/comments_drawer_controller.js` — registry
+  identifier `comments-drawer`; targets `panel`/`backdrop`/`trigger`; toggles
+  `translate-x-full` + `hidden` on the backdrop, body scroll lock, Escape
+  close, `aria-expanded` on the trigger. It never affects desktop because
+  `min-[1245px]:translate-x-0` wins.
+- Modify `app/views/projects/_project_review_card.html.erb` — now a
+  desktop-only frame (`hidden min-[1245px]:flex`) = title + Active badge
+  + `render "review_actions"`.
+- Modify `app/views/projects/_project_header.html.erb` — tab row becomes
+  `justify-between`; right side gains the comments trigger (chat_bubble icon
+  + count badge, `min-[1245px]:hidden`, `aria-controls="comments-drawer"`).
+  New `comments_count` local.
+- Modify `app/views/projects/show.html.erb` — `<main>` gets
+  `data-controller="tabs comments-drawer"` + `keydown.esc@window` action; the
+  right pane gets `id="comments-drawer"`, `data-comments-drawer-target="panel"`
+  and the drawer/mobile classes; a backdrop element follows the pane; the
+  action bar renders after `</main>`; the content column gets
+  `pb-28 min-[1245px]:pb-8` so nothing hides under the pinned bar.
+
+**Gates (shared, in `_review_actions`):** supervisor + latest →
+`change_status?` split-button; owner/coordinator → `_project_actions`
+(Edit / Unable to Edit / Jump To Latest); every viewer gets the version
+switcher. The bar/card render for all roles (a no-action viewer sees the lone
+version switcher, preserving today's always-visible review card).
+
+**Breakpoint:** `min-[1245px]`, matching existing usage in `projects/show`
+(sticky comments heights) and `topics/show` (mobile-tabs).
+
+**Deferred (noted but not built):** `topics/show` keeps its `mobile-tabs` +
+comments-column behavior until migrated to the same drawer; 3-tab overflow on
+sub-~380px viewports is unflagged.
+
+### Known broken system tests (pre-existing, from earlier redesign)
+
+`test/system/projects/project_versioning_test.rb` (3 tests) and
+`test/system/projects/change_status_test.rb` (happy-path test) reference
+removed testids (`version-back`, `version-next`, `current-version`,
+`status-select`, `change-status-submit`) that no longer exist in the
+redesigned review UI (replaced by the version `<select>` + split-button).
+Fixing them needs a JS-aware driver or new selectors; defer to a follow-up.
+
 ### Ticket 8 — Delete dead partials
 
 **Files:**
@@ -299,6 +364,11 @@ tab/link. Projects don't have a separate settings page.
 5. `app/javascript/controllers/dropdown_controller.js` — generic click-toggle dropdown
 6. `app/javascript/controllers/version_select_controller.js` — navigate on `<select>` change
 7. `app/javascript/controllers/record_update_modal_controller.js` — open/close/reset `<dialog>`
+
+### Ticket 9 additions (ADR-0007)
+- `app/views/projects/_review_actions.html.erb` — shared version switcher + action body
+- `app/views/projects/_review_action_bar.html.erb` — mobile pinned bottom bar frame
+- `app/javascript/controllers/comments_drawer_controller.js` — comments drawer toggle/backdrop/Escape
 
 ### Modified files (4)
 6. `app/views/projects/show.html.erb` — rewrite (two-pane shell with persistent comments)
@@ -328,7 +398,7 @@ tab/link. Projects don't have a separate settings page.
 ## 6. Build Order
 
 ```
-1 → 2 → 7 (parallel) → 3 → 4 → 5 → 6 → 8
+1 → 2 → 7 (parallel) → 3 → 4 → 5 → 6 → 8 → 9
 ```
 
 Tickets 2, 4, 5 don't depend on each other. Ticket 7 is fully independent.
@@ -345,8 +415,9 @@ the parent view, then visual QA, then tests.
 2. **Split-button interaction** → `dropdown_controller.js` (click toggle,
    not CSS hover — works on touch).
 3. **Version control** → `<select>` dropdown per mockup.
-4. **Comments on desktop** → Persistent `w-[380px]` right pane, not a tab.
-   On mobile → 4th tab (responsive classes in shell).
+4. **Comments on desktop** → Persistent `w-[360px]` right pane as one element,
+   a static sticky column on desktop. **On mobile → comments drawer (ADR-0007)
+   — SUPERSEDED: not a 4th tab.** See Ticket 9.
 5. **`owner_name` precedence** → Already on `Project` at `project.rb:61-69`.
    Card partials call the model method. No behavior change.
 6. **Settings link** → Not in the mockup. No link added.
@@ -385,7 +456,15 @@ Minimum coverage:
   soft delete works. Comments visible on all tabs.
 - **Progress updates:** Timeline layout renders; Record Update button
   visible to supervisor on approved project; modal opens, submits, closes.
-- **Responsive:** On mobile, comments collapse into 4th tab.
+- **Responsive:** The three content tabs stay identical at every width. Below
+  `min-[1245px]`, comments become a drawer (trigger icon + count badge in the
+  tab bar; backdrop; Escape; scroll lock) and the version switcher + actions
+  pin to a bottom bar. Desktop keeps the static sticky comments column.
+- **New:** `test/system/projects/project_show_responsive_test.rb` — structural
+  coverage only (rack_test has no JS/viewport): drawer trigger/panel/backdrop
+  present, comments render, review actions + version switcher render, supervisor
+  sees the Approve split-button. No count-based select asserts (the shared
+  `_review_actions` renders in both frames; `select_tag nil` emits no `id`).
 
 ### Updated: `test/system/projects/project_versioning_test.rb`
 

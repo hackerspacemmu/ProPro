@@ -1,0 +1,17 @@
+<%# locals: (project:, course:, current_version:, latest_version:, instances:, members:) %>
+
+<div
+  class="
+    fixed bottom-0 left-0 right-0 z-30 bg-[#FFFFFF] border-t border-[#E0E0E0] px-4
+    pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]
+    shadow-[0_-2px_12px_rgba(60,64,67,0.08)] min-[1245px]:hidden
+  "
+>
+  <%= render "review_actions",
+  project: project,
+  course: course,
+  current_version: current_version,
+  latest_version: latest_version,
+  instances: instances,
+  members: members %>
+</div>
