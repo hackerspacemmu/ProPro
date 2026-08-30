@@ -14,13 +14,11 @@
 
   <span class="mx-3 text-gray-400"></span>
 
-  <% if Current.user.is_staff %>
-    <%= link_to "Edit Profile",
-    user_profile_path,
-    class:
-      "text-gray-600 hover:text-green-700 font-semibold transition-colors no-underline" %>
-    <span class="mx-3 text-gray-400"></span>
-  <% end %>
+  <%= link_to "Edit Profile",
+  user_profile_path,
+  class:
+    "text-gray-600 hover:text-green-700 font-semibold transition-colors no-underline" %>
+  <span class="mx-3 text-gray-400"></span>
 
   <%= link_to "Log Out",
   session_path,
@@ -48,9 +46,7 @@
     <%= render "courses/flash" %>
   </div>
 
-  <% if !Current.user.is_staff %>
-    <%= render "join_by_code_form", course: @course %>
-  <% end %>
+  <%= render "join_by_code_form", course: @course %>
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
     <% if @courses.present? %>
@@ -128,11 +124,9 @@
 
   </div>
 
-  <% if Current.user.is_staff %>
-    <%= link_to new_course_path,
-        class: "fixed bottom-12 right-12 w-[56px] h-[56px] bg-green-700 hover:bg-green-800 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-3xl no-underline z-50 pb-1" do %>
-      <span>+</span>
-    <% end %>
+  <%= link_to new_course_path,
+      class: "fixed bottom-12 right-12 w-[56px] h-[56px] bg-green-700 hover:bg-green-800 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-3xl no-underline z-50 pb-1" do %>
+    <span>+</span>
   <% end %>
 
 </div>

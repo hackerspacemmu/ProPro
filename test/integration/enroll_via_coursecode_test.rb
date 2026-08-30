@@ -5,7 +5,7 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
     @course = create(:course)
     @course.generate_coursecode! # Ensures a valid code is created
 
-    @student = create(:user, is_staff: false)
+    @student = create(:user)
   end
 
   test 'should successfully enroll in course with valid coursecode' do

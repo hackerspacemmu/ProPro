@@ -26,42 +26,32 @@
                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
                                     <td style="text-align: center; font-size: 16px; color: #222; font-family: Arial, sans-serif; line-height: 1.5;">
+                                        <% if @from_course %>
+                                          <p style="margin: 0 0 16px 0;">
+                                              You have been invited and enrolled into a ProPro course.
+                                          </p>
+                                        <% else %>
+                                          <p style="margin: 0 0 16px 0;">
+                                              Your email has been used to register for an account on ProPro
+                                          </p>
+                                        <% end %>
                                         <p style="margin: 0 0 16px 0;">
-                                            You have been invited and enrolled into a ProPro course. ProPro is a web app for <strong>Pro</strong>ject <strong>Pro</strong>posals and <strong>Pro</strong>gress monitoring. It is ideal for educators managing student projects where students propose their ideas for approval!
+                                            ProPro is a web app for <strong>Pro</strong>ject <strong>Pro</strong>posals and <strong>Pro</strong>gress monitoring. It is ideal for educators managing student projects where students propose their ideas for approval!
                                         </p>
-                                        <p style="margin: 16px 0;">
-                                            You have been added to a course via your email address. An account have automatically been created for you. To claim your account, visit:
-                                        </p>
-                                        <p style="margin: 16px 0;">
-                                            <% if @is_staff %>
-                                                <a href="https://propro.click/user/new_staff?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
-                                                    https://propro.click/user/new_staff?token=<%= @otp_token %>
-                                                </a>
-                                            <% else %>
-                                                <a href="https://propro.click/user/new_student?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
-                                                https://propro.click/user/new_student?token=<%= @otp_token %>
-                                            </a>
-                                            <% end %>
-                                        </p>
-                                        <p style="margin: 16px 0;">
-                                            and enter the one-time password (OTP) shown below:
-                                        </p>
-                                    </td>
-                                </tr>
 
-                                <tr>
-                                    <td style="padding: 20px 0;">
-                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                                            <tr>
-                                                <td align="center">
-                                                    <div style="background-color: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 20px; display: inline-block; min-width: 200px;">
-                                                        <strong style="font-size: 22px; font-weight: bold; letter-spacing: 2px; color: #000000; font-family: Arial, sans-serif;">
-                                                            <%= @otp %>
-                                                        </strong>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        <% if @from_course %>
+                                          <p style="margin: 16px 0;">
+                                              You have been added to a course via your email address. An account have automatically been created for you. To claim your account, visit:
+                                          </p>
+                                        <% end %>
+                                        <p style="margin: 16px 0;">
+                                            To claim your account, visit:
+                                        </p>
+                                        <p style="margin: 16px 0;">
+                                            <a href="https://propro.click/user/claim?token=<%= @otp_token %>" style="color: #0066cc; text-decoration: underline;">
+                                            <%= user_claim_url(token: @otp_token) %>
+                                            </a>
+                                        </p>
                                     </td>
                                 </tr>
 

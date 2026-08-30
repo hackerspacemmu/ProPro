@@ -194,12 +194,10 @@ class CoursesController < ApplicationController
   end
 
   def new
-    authorize Course.new
     @new_course = Course.new
   end
 
   def create
-    authorize Course.new
     response = params.require(:course).permit(:course_name, :grouped)
 
     @new_course = Course.new(
@@ -230,8 +228,6 @@ class CoursesController < ApplicationController
           applicable_to: 'both',
           is_project_title: true
         )
-        raise StandardError, 'Template creation failed' unless default_template.save
-
         raise StandardError, 'Template creation failed' unless default_template.save
       end
     rescue StandardError
@@ -455,7 +451,7 @@ class CoursesController < ApplicationController
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
 
       hash_map[group].each do |group_member|
-        new_user = User.find_by(email_address: group_member[:email_address], is_staff: false)
+        new_user = User.find_by(email_address: group_member[:email_address])
 
         if new_user
           new_user.update!(instid: group_member[:instid])
@@ -467,22 +463,18 @@ class CoursesController < ApplicationController
             name: group_member[:name],
             password: SecureRandom.base64(24),
             has_registered: false,
-            instid: group_member[:instid],
-            is_staff: false
+            instid: group_member[:instid]
           )
 
           new_otp_instance = Otp.create!(
             user: new_user,
-            otp: SecureRandom.base64(8),
             token: SecureRandom.uuid
           )
 
           unregistered_students.add(
             {
               email_address: group_member[:email_address],
-              otp_token: new_otp_instance.token,
-              otp: new_otp_instance.otp,
-              is_staff: false
+              otp_token: new_otp_instance.token
             }
           )
         end
@@ -513,8 +505,7 @@ class CoursesController < ApplicationController
       GeneralMailer.with(
         email_address: user[:email_address],
         otp_token: user[:otp_token],
-        otp: user[:otp],
-        is_staff: user[:is_staff]
+        from_course: true
       ).ProPro_Invite.deliver_later
     end
   end
@@ -530,7 +521,7 @@ class CoursesController < ApplicationController
 
   def create_db_entries_solo(student_set, parent_course, unregistered_students, registered_students)
     student_set.each do |student|
-      new_user = User.find_by(email_address: student[:email_address], is_staff: false)
+      new_user = User.find_by(email_address: student[:email_address])
 
       if new_user
         new_user.update!(instid: student[:instid])
@@ -542,13 +533,11 @@ class CoursesController < ApplicationController
           name: student[:name],
           password: SecureRandom.base64(24),
           has_registered: false,
-          instid: student[:instid],
-          is_staff: false
+          instid: student[:instid]
         )
 
         new_otp_instance = Otp.create!(
           user: new_user,
-          otp: SecureRandom.base64(8),
           token: SecureRandom.uuid
         )
 
@@ -556,8 +545,7 @@ class CoursesController < ApplicationController
           {
             email_address: student[:email_address],
             otp_token: new_otp_instance.token,
-            otp: new_otp_instance.otp,
-            is_staff: false
+            otp: new_otp_instance.otp
           }
         )
       end
@@ -574,29 +562,25 @@ class CoursesController < ApplicationController
     lecturer_emails.each do |email|
       next if email.blank?
 
-      new_lecturer = User.find_by(email_address: email, is_staff: true)
+      new_lecturer = User.find_by(email_address: email)
 
       if !new_lecturer
         new_lecturer = User.create!(
           email_address: email,
           password: SecureRandom.base64(24),
           has_registered: false,
-          is_staff: true,
           name: "Lecturer-#{SecureRandom.hex(2)}"
         )
 
         new_otp_instance = Otp.create!(
           user: new_lecturer,
-          otp: SecureRandom.base64(8),
           token: SecureRandom.uuid
         )
 
         unregistered_lecturers.add(
           {
             email_address: email,
-            otp_token: new_otp_instance.token,
-            otp: new_otp_instance.otp,
-            is_staff: true
+            otp_token: new_otp_instance.token
           }
         )
       elsif new_lecturer.enrolments.where(course: parent_course).empty?
