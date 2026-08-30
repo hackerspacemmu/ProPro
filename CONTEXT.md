@@ -18,6 +18,12 @@ definitions.
 - **solo supervisor course** — a course with fewer than three lecturer+coordinator enrolments. No lecturer choice exists; proposals default to the single lecturer (`Course#solo_supervisor?`).
 - **toggle topics** — `Course#toggle_topics`; gates whether "Base on a Topic" exists at all.
 
+## Course settings
+
+- **course settings** — the coordinator's settings page for a course: a takeover-layout form (`no_sidebar` + sticky top nav, Save inside the form) whose section cards are Class Details · General · Permissions and Rules · Grouping. General holds the **coursecode widget** and the Supervisor Capacity subsections.
+- **settings sections** — the section cards on course settings: Class Details · General · Permissions and Rules · Grouping (headers styled `text-3xl font-normal text-gray-800 tracking-tight`, per the mockup). General's subsection cards are Coursecode and Supervisor Capacity. Grouping's two-mode card set is driven by `@course.grouping_enabled?` / `student_list_finalised?`.
+- **coursecode widget** — the formless control inside General (ADR-0010): no `<form>` in the static DOM, so it lives inside `#course-settings-form` without nesting one. Generate/Re-Generate is a `data-turbo-method: :post` link to `update_coursecode_course_path(course, generate: true)`; the toggle fires its own `fetch` + `Turbo.renderStreamMessage`. Both keep `course_code_form`, `coursecode-form-handler`, and `Course#coursecode` semantics; `coursecode` and `coursecode_enabled` stay out of `handle_settings`' whitelist. Its partial's single top-level node must be the `course_code_form` turbo frame.
+
 ## Template fields
 
 - **template fields** — `project_template_fields` on a course's template; typed `shorttext`/`textarea`/`dropdown`/`radio`, with `required`, `hint`, `free_edit`, `is_project_title`, and `applicable_to` attributes.
@@ -37,6 +43,7 @@ definitions.
 
 - **app sidebar** — `shared/_sidebar`: app-wide nav (Home / courses / Edit profile), plus the `render_sidebar` helper widget for legacy pages. One element, two presentations: a static left column at ≥`lg` (1024px), an off-canvas drawer below it opened by the header menu icon. Controlled by `sidebar`. Its breakpoint is chrome-level and deliberately independent of content breakpoints (e.g., the `min-[1245px]` comments drawer).
 - **drawer idiom** — the shared pattern for "drawer over content": a single element that is a static in-flow column on desktop (`lg:static lg:translate-x-0` / `min-[1245px]:translate-x-0`) and an off-canvas panel below it; the controller toggles the translate class, the off-state whitespace classes (`shadow-2xl`, `border-l` for `comments-drawer` so they can't paint into the viewport while closed), the backdrop `hidden`, body scroll lock, and `aria-expanded`. Used by `sidebar` and `comments-drawer`.
+- **takeover layout** — the chrome-less full-screen form surface (ADR-0005): `no_sidebar`, hidden toggler/breadcrumbs, a sticky action header, and a single centered form column. Shared by projects/edit, projects/new, and course settings.
 
 ## Form actions
 

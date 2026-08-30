@@ -1,29 +1,35 @@
+<%# locals: (course:) %>
+<%# Formless: Generate/Re-Generate is a data-turbo-method link (Turbo synthesizes a throwaway
+    form at click time) and the toggle fires its own fetch. There is no <form> in the static
+    DOM, so this can live anywhere inside #course-settings-form. The top-level node of this
+    partial must stay exactly <turbo-frame id="course_code_form"> — Turbo Streams replace()
+    swaps in the WHOLE template content, so any wrapper would get re-nested on every replace
+    (see ADR-0010). %>
 <%= turbo_frame_tag "course_code_form" do %>
-  <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6">
-    <%= form_with url: update_coursecode_course_path(@course), model: @course, method: :post, data: { controller: "coursecode-form-handler" } do |form| %>
-      <%= form.label :coursecode,
-        'Course Join Code & Invite Link (Beta)',
-        class: "block text-sm font-medium text-gray-700" %>
-      <p class="mt-2 text-xs text-amber-600">
-        Use this only for individual projects. For groups, use CSV imports.
-        Group formation in ProPro coming in a future update.
-      </p>
-      <div class="mt-1 flex gap-6" >
-        <%= form.text_field :coursecode,
-          required: true,
-          readonly: true,
-          disabled: true,
-          class: "appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
-        <button id="regenerate-code-btn" type="button" data-action="click->coursecode-form-handler#generateCode" class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
-          <%= @course.coursecode.present? ? 'Re-Generate Join Code' : 'Generate Join code' %>
-        </button>
-      </div>
-      <input type="hidden" name="generate" value="false" data-coursecode-form-handler-target="generateFlag">
-      <label class="inline-flex items-center cursor-pointer mt-4">
-        <%= form.check_box :coursecode_enabled, class: "sr-only peer", role: "switch", data: { action: "change->coursecode-form-handler#submitForm" } %>
-        <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500"></div>
-        <span class="ml-3 text-sm font-medium text-gray-700">Allow joining via course code</span>
-      </label>
-    <% end %>
+  <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6"
+       data-controller="coursecode-form-handler"
+       data-coursecode-form-handler-url-value="<%= update_coursecode_course_path(course) %>">
+    <label for="coursecode" class="block text-sm font-medium text-gray-700">Course Join Code &amp; Invite Link (Beta)</label>
+    <p class="mt-2 text-xs text-amber-600">
+      Use this only for individual projects. For groups, use CSV imports. Group formation in ProPro coming in a future update.
+    </p>
+    <div class="mt-1 flex items-center gap-6">
+      <input type="text" id="coursecode" disabled readonly
+             value="<%= course.coursecode %>" placeholder="—"
+             autocomplete="off"
+             class="appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+      <%= link_to (course.coursecode.present? ? 'Re-Generate Join Code' : 'Generate Join Code'),
+            update_coursecode_course_path(course, generate: true),
+            id: "regenerate-code-btn",
+            data: { turbo_method: :post },
+            class: "px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm cursor-pointer" %>
+    </div>
+    <label class="inline-flex items-center cursor-pointer mt-4">
+      <input type="checkbox" id="course_coursecode_enabled" class="sr-only peer" role="switch"
+             <%= 'checked' if course.coursecode_enabled %>
+             data-action="change->coursecode-form-handler#toggle">
+      <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-green-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500"></div>
+      <span class="ml-3 text-sm font-medium text-gray-700">Allow joining via course code</span>
+    </label>
   </div>
 <% end %>

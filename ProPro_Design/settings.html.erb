@@ -1,79 +1,98 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
-<% end %>
-<% breadcrumb :course_settings, @course %>
-
-<% content_for :title, "Course Settings - #{@course.course_name.truncate(TITLE_NAME_LIMIT)} | ProPro" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Settings - Final Year Project I | ProPro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Roboto', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
+</style>
+</head>
+<body class="font-sans">
 
 <!-- Full-screen modal overlay mimicking Google Classroom Settings -->
 <div class="fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col font-sans">
-  
-  <%= form_with url: handle_settings_course_path(@course), model: @course, method: :post, id: "course-settings-form", class: "flex flex-col min-h-screen" do |form| %>
+
+  <form onsubmit="event.preventDefault(); return false;" id="course-settings-form" class="flex flex-col min-h-screen">
 
     <!-- Sticky Top Navigation -->
     <div class="sticky top-0 z-40 bg-white border-b border-gray-300 px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-6">
-        <%= link_to course_path(@course), class: "p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors" do %>
+        <a href="#" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
-        <% end %>
+        </a>
         <h1 class="text-xl font-medium text-gray-800">Class settings</h1>
       </div>
       <div>
-        <%= form.submit "Save", class: "bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium text-sm px-6 py-2 rounded-full cursor-pointer transition-colors" %>
+        <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium text-sm px-6 py-2 rounded-full cursor-pointer transition-colors">Save</button>
       </div>
     </div>
 
     <!-- Main Content Area -->
     <main class="flex-1 w-full max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-10 pb-24">
-      
-      <div id="flash">
-        <%= render "courses/flash" %>
-      </div>
 
-      <% if @course.errors.any? %>
-        <div class="rounded-lg border border-red-200 bg-red-50 p-4 mb-6">
+      <div id="flash">
+        <div class="mb-6 rounded-md bg-green-50 p-4 border-l-4 border-green-500">
           <div class="flex">
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
-                <%= pluralize(@course.errors.count, "error") %> prohibited saving:
-              </h3>
-              <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-                <% @course.errors.full_messages.each do |message| %>
-                  <li><%= message %></li>
-                <% end %>
-              </ul>
+              <h3 class="text-sm font-medium text-green-800">Success</h3>
+              <div class="mt-2 text-sm text-green-700">Course successfully updated.</div>
             </div>
           </div>
         </div>
-      <% end %>
+      </div>
 
-      <%= render "copy_course_overlay", course: @course, mode: "settings" %>
+      <!-- Reuse-details overlay trigger -->
+      <div data-controller="overlay" class="relative">
+        <div class="flex justify-end">
+          <button type="button" onclick="openOverlay()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+            Reuse details from another course
+          </button>
+        </div>
+      </div>
 
       <!-- SECTION 1: Class Details -->
       <section class="border border-gray-300 rounded-xl overflow-hidden bg-white">
         <div class="p-6 sm:p-8 space-y-6">
           <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">Class Details</h2>
-          
+
           <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-            <%= form.label :course_name, "Class name", class: "block text-xs font-medium text-gray-600" %>
-            <%= form.text_field :course_name, required: true, class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1" %>
+            <label for="course_name" class="block text-xs font-medium text-gray-600">Class name</label>
+            <input type="text" id="course_name" name="course[course_name]" required value="Final Year Project I"
+                   class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
           </div>
 
           <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-            <%= form.label :course_description, "Project Details", class: "block text-xs font-medium text-gray-600" %>
-            <%= form.text_area :course_description, rows: 2, class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1 resize-none overflow-hidden", data: { controller: "textarea-resize", action: "input->textarea-resize#resize" } %>
+            <label for="course_description" class="block text-xs font-medium text-gray-600">Project Details</label>
+            <textarea id="course_description" name="course[course_description]" rows="2" oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
+                      class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1 resize-none overflow-hidden">A two-semester capstone project where final-year Computer Science students design, build, and defend an original software system under a supervising lecturer.</textarea>
           </div>
 
           <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-            <%= form.label :file_link, "Project File Link (URL)", class: "block text-xs font-medium text-gray-600" %>
-            <%= form.text_field :file_link, class: "w-full bg-transparent border-none p-0 focus:ring-0 text-blue-600 text-sm mt-1 underline" %>
+            <label for="file_link" class="block text-xs font-medium text-gray-600">Project File Link (URL)</label>
+            <input type="text" id="file_link" name="course[file_link]" value="https://drive.google.com/drive/folders/1a2b3c-fyp-resources"
+                   class="w-full bg-transparent border-none p-0 focus:ring-0 text-blue-600 text-sm mt-1 underline">
           </div>
 
           <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all w-full sm:w-1/2">
-            <%= form.label :starting_week, "Starting Week", class: "block text-xs font-medium text-gray-600" %>
-            <%= form.text_field :starting_week, required: true, class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1" %>
+            <label for="starting_week" class="block text-xs font-medium text-gray-600">Starting Week</label>
+            <input type="text" id="starting_week" name="course[starting_week]" required value="3"
+                   class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
           </div>
         </div>
       </section>
@@ -82,26 +101,124 @@
       <section class="border border-gray-300 rounded-xl overflow-hidden bg-white">
         <div class="p-6 sm:p-8 space-y-8">
           <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">General</h2>
-          
+
           <!-- SUBSECTION: Coursecode -->
           <div class="border-b border-gray-200 pb-8">
             <h3 class="text-lg font-medium text-gray-800 mb-4">Coursecode</h3>
-            <%= render "course_code_form", course: @course %>
+
+            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6">
+              <label for="coursecode" class="block text-sm font-medium text-gray-700">Course Join Code &amp; Invite Link (Beta)</label>
+              <p class="mt-2 text-xs text-amber-600">
+                Use this only for individual projects. For groups, use CSV imports.
+                Group formation in ProPro coming in a future update.
+              </p>
+              <div class="mt-1 flex gap-6">
+                <input type="text" id="coursecode" name="course[coursecode]" required readonly disabled value="K4M9XZ"
+                       class="appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                <button id="regenerate-code-btn" type="button" onclick="generateCode()" class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+                  Re-Generate Join Code
+                </button>
+              </div>
+              <label class="inline-flex items-center cursor-pointer mt-4">
+                <input type="checkbox" id="coursecode_enabled" name="course[coursecode_enabled]" class="sr-only peer" role="switch" checked>
+                <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500"></div>
+                <span class="ml-3 text-sm font-medium text-gray-700">Allow joining via course code</span>
+              </label>
+            </div>
           </div>
 
           <!-- SUBSECTION: Supervisor Capacity -->
           <div>
             <h3 class="text-lg font-medium text-gray-800 mb-4">Supervisor Capacity</h3>
-            
+
             <div class="space-y-6">
               <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all w-full sm:w-1/2">
-                <%= form.label :supervisor_projects_limit, "Maximum Projects per Supervisor", class: "block text-xs font-medium text-gray-600" %>
-                <%= form.hidden_field :supervisor_projects_limit %>
-                <%= form.number_field :supervisor_projects_limit, id: "supervisor_projects_limit_visible", required: true, disabled: @course.supervisor_auto_calculate_enabled?, class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1" %>
+                <label for="supervisor_projects_limit_visible" class="block text-xs font-medium text-gray-600">Maximum Projects per Supervisor</label>
+                <input type="number" id="supervisor_projects_limit_visible" name="course[supervisor_projects_limit]" required value="5"
+                       class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
               </div>
 
               <!-- Manage Project Allocations and Lecturer exclusions -->
-              <%= render "supervisor_capacity_settings", form: form %>
+              <div class="space-y-4">
+                <details class="group rounded-lg border border-gray-200 bg-white shadow-sm" open>
+                  <summary class="cursor-pointer px-4 py-3 flex items-center justify-between gap-4 text-left text-sm font-semibold text-gray-900 list-none">
+                    <span>Manage Project Allocations and Lecturer exclusions</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-gray-500 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+
+                  <div class="border-t border-gray-200 px-4 py-4 space-y-4">
+                    <p class="text-sm text-gray-500">
+                      Maximum projects and variable project allocations affect display numbers in supervisor list only, serving as a guideline. Supervisors are free to accept projects beyond the listed number.
+                    </p>
+
+                    <div class="flex items-start gap-3">
+                      <div class="flex h-5 items-center">
+                        <input type="checkbox" id="supervisor_auto_calculate_enabled" onchange="toggleAutoCalculate()" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                      </div>
+                      <div>
+                        <label for="supervisor_auto_calculate_enabled" class="text-sm font-medium text-gray-700">Auto-calculate based on number of groups and lecturers</label>
+                        <p class="text-sm text-gray-500">Divides total projects by eligible supervisors. Disables the manual base limit input.</p>
+                      </div>
+                    </div>
+
+                    <div class="rounded-md border border-gray-200 overflow-hidden">
+                      <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                          <tr>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Supervisor</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-500 whitespace-nowrap">Exclude</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-500 whitespace-nowrap">Offset</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-500 whitespace-nowrap">Relative Capacity</th>
+                          </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                          <tr data-row class="">
+                            <td class="px-4 py-3 text-gray-900">Dr. Wong Mei Ling</td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="checkbox" onchange="updateRow(this)" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="number" value="0" oninput="updateRow(this)" class="w-20 text-center px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <span class="font-medium text-gray-900" data-result>5</span>
+                              <span class="text-xs text-gray-400 ml-1" data-formula>(5 + 0)</span>
+                            </td>
+                          </tr>
+                          <tr data-row class="">
+                            <td class="px-4 py-3 text-gray-900">Dr. Ahmad Faiz Rahman</td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="checkbox" onchange="updateRow(this)" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="number" value="2" oninput="updateRow(this)" class="w-20 text-center px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <span class="font-medium text-gray-900" data-result>7</span>
+                              <span class="text-xs text-gray-400 ml-1" data-formula>(5 + 2)</span>
+                            </td>
+                          </tr>
+                          <tr data-row class="opacity-60">
+                            <td class="px-4 py-3 text-gray-900">Dr. Priya Nair</td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="checkbox" checked onchange="updateRow(this)" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="number" value="-1" disabled oninput="updateRow(this)" class="w-20 text-center px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <span class="font-medium text-gray-900" data-result>4</span>
+                              <span class="text-xs text-gray-400 ml-1" data-formula>(5 - 1)</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
         </div>
@@ -111,17 +228,17 @@
       <section class="border border-gray-300 rounded-xl overflow-hidden bg-white">
         <div class="p-6 sm:p-8 space-y-6">
           <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">Permissions and Rules</h2>
-          
+
           <div class="bg-white border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-200">
-            
+
             <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 hover:bg-gray-50 transition-colors">
               <span class="text-sm font-medium text-gray-800 mb-2 sm:mb-0">Allow lecturers to add topics for students to base their proposals on.</span>
               <div class="flex items-center space-x-6">
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :toggle_topics, true, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Yes
+                  <input type="radio" name="toggle_topics" value="true" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Yes
                 </label>
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :toggle_topics, false, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> No
+                  <input type="radio" name="toggle_topics" value="false" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> No
                 </label>
               </div>
             </div>
@@ -130,10 +247,10 @@
               <span class="text-sm font-medium text-gray-800 mb-2 sm:mb-0">Lecturer topics require approval?</span>
               <div class="flex items-center space-x-6">
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :require_coordinator_approval, true, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Yes
+                  <input type="radio" name="require_coordinator_approval" value="true" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Yes
                 </label>
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :require_coordinator_approval, false, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> No
+                  <input type="radio" name="require_coordinator_approval" value="false" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> No
                 </label>
               </div>
             </div>
@@ -142,10 +259,10 @@
               <span class="text-sm font-medium text-gray-800 mb-2 sm:mb-0">Auto-approve unchanged copied topics?</span>
               <div class="flex items-center space-x-6">
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :auto_approve_copied_topics_without_changes, true, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Yes
+                  <input type="radio" name="auto_approve_copied_topics_without_changes" value="true" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Yes
                 </label>
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :auto_approve_copied_topics_without_changes, false, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> No
+                  <input type="radio" name="auto_approve_copied_topics_without_changes" value="false" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> No
                 </label>
               </div>
             </div>
@@ -154,10 +271,10 @@
               <span class="text-sm font-medium text-gray-800 mb-2 sm:mb-0">Use progress updates?</span>
               <div class="flex items-center space-x-6">
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :use_progress_updates, true, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Yes
+                  <input type="radio" name="use_progress_updates" value="true" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Yes
                 </label>
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :use_progress_updates, false, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> No
+                  <input type="radio" name="use_progress_updates" value="false" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> No
                 </label>
               </div>
             </div>
@@ -166,10 +283,10 @@
               <span class="text-sm font-medium text-gray-800 mb-2 sm:mb-0">Lecturer views public?</span>
               <div class="flex items-center space-x-6">
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :lecturer_access, true, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Yes
+                  <input type="radio" name="lecturer_access" value="true" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Yes
                 </label>
                 <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                  <%= form.radio_button :lecturer_access, false, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> No
+                  <input type="radio" name="lecturer_access" value="false" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> No
                 </label>
               </div>
             </div>
@@ -177,7 +294,7 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 hover:bg-gray-50 transition-colors">
               <span class="text-sm font-medium text-gray-800 mb-2 sm:mb-0">Number of progress updates</span>
               <div class="w-full sm:w-32 bg-[#f1f3f4] rounded-t-md px-3 py-1 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all mt-2 sm:mt-0">
-                <%= form.number_field :number_of_updates, class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm text-center" %>
+                <input type="number" value="3" class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm text-center">
               </div>
             </div>
 
@@ -186,12 +303,18 @@
           <div class="pt-4">
             <span class="block text-sm font-medium text-gray-800 mb-3">Student can see projects from:</span>
             <div class="bg-gray-50 rounded-lg p-5 space-y-3 border border-gray-200">
-              <% Course.student_accesses.keys.map { |key| [key, key.to_s.humanize] }.each_with_index do |(value, label_text), idx| %>
-                <div class="flex items-center">
-                  <%= form.radio_button :student_access, value, id: "student_access_#{idx}", class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" %>
-                  <%= form.label :student_access, label_text, value: value, for: "student_access_#{idx}", class: "ml-3 block text-sm text-gray-800 cursor-pointer" %>
-                </div>
-              <% end %>
+              <div class="flex items-center">
+                <input type="radio" name="student_access" id="student_access_0" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                <label for="student_access_0" class="ml-3 block text-sm text-gray-800 cursor-pointer">Owner only</label>
+              </div>
+              <div class="flex items-center">
+                <input type="radio" name="student_access" id="student_access_1" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                <label for="student_access_1" class="ml-3 block text-sm text-gray-800 cursor-pointer">Own lecturer only</label>
+              </div>
+              <div class="flex items-center">
+                <input type="radio" name="student_access" id="student_access_2" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                <label for="student_access_2" class="ml-3 block text-sm text-gray-800 cursor-pointer">No restriction</label>
+              </div>
             </div>
           </div>
         </div>
@@ -199,11 +322,8 @@
 
       <!-- SECTION 4: Grouping (Inlined and Restyled) -->
       <section class="border border-gray-300 rounded-xl overflow-hidden bg-white">
-        <div class="p-6 sm:p-8 space-y-6"
-             data-controller="grouping-settings"
-             data-grouping-settings-enabled-value="<%= @course.grouping_enabled? %>"
-             data-grouping-settings-finalised-value="<%= @course.student_list_finalised? %>">
-          
+        <div class="p-6 sm:p-8 space-y-6">
+
           <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-2">
             <div>
               <h2 class="text-3xl font-normal text-gray-800 tracking-tight">Student Self-Grouping <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800 align-middle">Beta</span></h2>
@@ -216,40 +336,30 @@
             <span class="text-sm font-medium text-gray-800">Allow students to form their own groups?</span>
             <div class="flex items-center space-x-6">
               <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                <%= form.radio_button :grouping_enabled, true,
-                      class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2",
-                      data: { action: "change->grouping-settings#toggleEnabled" } %> Yes
+                <input type="radio" name="grouping_enabled" value="true" checked onchange="toggleGroupingEnabled()" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Yes
               </label>
               <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                <%= form.radio_button :grouping_enabled, false,
-                      class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2",
-                      data: { action: "change->grouping-settings#toggleEnabled" } %> No
+                <input type="radio" name="grouping_enabled" value="false" onchange="toggleGroupingEnabled()" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> No
               </label>
             </div>
           </div>
 
           <!-- Options Section: hidden until grouping enabled -->
-          <div data-grouping-settings-target="groupingOptions" class="space-y-8 pl-4 border-l-2 border-blue-200 pt-2">
+          <div id="groupingOptions" class="space-y-8 pl-4 border-l-2 border-blue-200 pt-2">
 
             <!-- Sub-block: Group Configuration -->
             <div class="space-y-6">
-              <span class="block text-xs font-semibold uppercase tracking-wide text-gray-400">
-                Group Configuration
-              </span>
+              <span class="block text-xs font-semibold uppercase tracking-wide text-gray-400">Group Configuration</span>
 
               <!-- Mode Selection -->
               <div>
                 <span class="block text-sm font-medium text-gray-800 mb-1">Student list mode</span>
-                <p class="text-xs text-gray-500 mb-4">
-                  Choose whether the coordinator knows the exact final count of students.
-                </p>
+                <p class="text-xs text-gray-500 mb-4">Choose whether the coordinator knows the exact final count of students.</p>
 
                 <div class="space-y-3">
                   <!-- Default Mode Card -->
-                  <label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors <%= @course.student_list_finalised? ? 'border-gray-200 bg-white hover:border-blue-300' : 'border-blue-500 bg-blue-50/40 ring-1 ring-blue-500' %>">
-                    <%= form.radio_button :student_list_finalised, false,
-                          class: "mt-0.5 focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 shrink-0",
-                          data: { action: "change->grouping-settings#toggleMode" } %>
+                  <label id="mode-default-card" class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors border-gray-200 bg-white hover:border-blue-300">
+                    <input type="radio" name="student_list_finalised" value="false" onchange="toggleMode()" class="mt-0.5 focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 shrink-0">
                     <div>
                       <span class="block text-sm font-medium text-gray-800">Default</span>
                       <span class="block text-xs text-gray-500 mt-1 leading-relaxed">
@@ -259,94 +369,66 @@
                   </label>
 
                   <!-- Fixed List Mode Card -->
-                  <% if @course.persisted? && @course.grouping_enabled? && !@course.student_list_finalised? %>
-                    <div class="flex items-start gap-3 p-4 border border-gray-200 rounded-lg bg-gray-50 opacity-60">
-                      <div class="mt-0.5 h-4 w-4 shrink-0"></div>
-                      <div>
-                        <span class="block text-sm font-medium text-gray-400">Final student list</span>
-                        <span class="block text-xs text-gray-400 mt-1 leading-relaxed">
-                          Fixed list mode cannot be enabled once default mode has been saved.
-                        </span>
-                      </div>
+                  <label id="mode-fixed-card" class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors border-blue-500 bg-blue-50/40 ring-1 ring-blue-500">
+                    <input type="radio" name="student_list_finalised" value="true" checked onchange="toggleMode()" class="mt-0.5 focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 shrink-0">
+                    <div>
+                      <span class="block text-sm font-medium text-gray-800">Final student list</span>
+                      <span class="block text-xs text-gray-500 mt-1 leading-relaxed">
+                        I will import students and the student list is final — no new students will be added. The system can automatically determine legal group sizes for every student.
+                      </span>
                     </div>
-                  <% else %>
-                    <label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors <%= @course.student_list_finalised? ? 'border-blue-500 bg-blue-50/40 ring-1 ring-blue-500' : 'border-gray-200 bg-white hover:border-blue-300' %>">
-                      <%= form.radio_button :student_list_finalised, true,
-                            class: "mt-0.5 focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 shrink-0",
-                            data: { action: "change->grouping-settings#toggleMode" } %>
-                      <div>
-                        <span class="block text-sm font-medium text-gray-800">Final student list</span>
-                        <span class="block text-xs text-gray-500 mt-1 leading-relaxed">
-                          I will import students and the student list is final — no new students will be added. The system can automatically determine legal group sizes for every student.
-                        </span>
-                      </div>
-                    </label>
-                  <% end %>
+                  </label>
                 </div>
               </div>
 
               <!-- Min / Max Group Sizes -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-                  <%= form.label :group_min, "Minimum group size", class: "block text-xs font-medium text-gray-600" %>
-                  <%= form.number_field :group_min, min: 1, placeholder: "e.g. 3",
-                        class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1",
-                        data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
+                  <label for="group_min" class="block text-xs font-medium text-gray-600">Minimum group size</label>
+                  <input type="number" id="group_min" min="1" placeholder="e.g. 3" value="3"
+                         class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
                 </div>
 
                 <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-                  <%= form.label :group_max, "Maximum group size", class: "block text-xs font-medium text-gray-600" %>
-                  <%= form.number_field :group_max, min: 1, placeholder: "e.g. 4",
-                        class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1",
-                        data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
+                  <label for="group_max" class="block text-xs font-medium text-gray-600">Maximum group size</label>
+                  <input type="number" id="group_max" min="1" placeholder="e.g. 4" value="5"
+                         class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
                 </div>
               </div>
 
               <!-- Preview Section -->
-              <div data-grouping-settings-target="previewSection" class="bg-gray-50 border border-gray-200 rounded-lg p-5 space-y-4">
+              <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 space-y-4">
                 <div>
                   <p class="text-sm font-medium text-gray-800">Preview group distribution</p>
-                  <p class="text-xs text-gray-500 mt-0.5">
-                    Enter an expected student count to see how legal groups would form. Actual numbers will come from enrolled students.
-                  </p>
+                  <p class="text-xs text-gray-500 mt-0.5">Enter an expected student count to see how legal groups would form. Actual numbers will come from enrolled students.</p>
                 </div>
                 <div class="flex items-center gap-3">
                   <div class="bg-[#f1f3f4] rounded-t-md px-3 py-1 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all w-36">
-                    <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="e.g. 30" autocomplete="off"
-                           class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm"
-                           hx-get="<%= grouping_preview_course_path(@course) %>"
-                           hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
-                           hx-params="student_count,course[group_min],course[group_max]"
-                           hx-target="#grouping_preview_result"
-                           hx-trigger="input changed delay:400ms"
-                           data-grouping-settings-target="previewInput">
+                    <input type="number" id="grouping_preview_count" min="1" placeholder="e.g. 30" autocomplete="off" value="30"
+                           class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm">
                   </div>
                   <span class="text-xs font-medium text-gray-600">students</span>
                 </div>
-                <div id="grouping_preview_result" class="text-sm pt-1"></div>
+                <div class="text-sm pt-1">With 30 students at 3–5 per group, you'd get 6 groups of 5, with 0 students needing manual placement.</div>
               </div>
             </div>
 
             <!-- Sub-block: Student Access -->
             <div class="space-y-6 pt-4 border-t border-gray-100">
-              <span class="block text-xs font-semibold uppercase tracking-wide text-gray-400">
-                Student Access
-              </span>
+              <span class="block text-xs font-semibold uppercase tracking-wide text-gray-400">Student Access</span>
 
               <!-- Allow Student Grouping Now Toggle -->
               <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-200 rounded-lg bg-white gap-3">
                 <div>
                   <span class="block text-sm font-medium text-gray-800">Allow student grouping now</span>
-                  <span class="block text-xs text-gray-500 mt-0.5">
-                    Students can join, leave, and form groups only when this is on.
-                  </span>
+                  <span class="block text-xs text-gray-500 mt-0.5">Students can join, leave, and form groups only when this is on.</span>
                 </div>
                 <div class="flex items-center gap-6 shrink-0">
                   <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                    <%= form.radio_button :grouping_open, true, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Open
+                    <input type="radio" name="grouping_open" value="true" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Open
                   </label>
                   <label class="flex items-center text-sm text-gray-700 cursor-pointer">
-                    <%= form.radio_button :grouping_open, false, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2" %> Closed
+                    <input type="radio" name="grouping_open" value="false" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 mr-2"> Closed
                   </label>
                 </div>
               </div>
@@ -356,29 +438,23 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <span class="block text-sm font-medium text-gray-800">Auto-close window (optional)</span>
-                    <span class="block text-xs text-gray-500 mt-0.5">
-                      Optionally set specific dates to open and close student access automatically.
-                    </span>
+                    <span class="block text-xs text-gray-500 mt-0.5">Optionally set specific dates to open and close student access automatically.</span>
                   </div>
-                  <button type="button" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline shrink-0"
-                          data-action="click->grouping-settings#toggleWindow"
-                          data-grouping-settings-target="windowToggleBtn">
-                    <%= (@course.grouping_opens_at.present? || @course.grouping_closes_at.present?) ? 'Remove window' : 'Set a window' %>
+                  <button type="button" id="windowToggleBtn" onclick="toggleWindow()" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline shrink-0">
+                    Remove window
                   </button>
                 </div>
 
-                <div data-grouping-settings-target="windowFields" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
+                <div id="windowFields" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
                   <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-                    <%= form.label :grouping_opens_at, "Open from", class: "block text-xs font-medium text-gray-600" %>
-                    <%= form.datetime_local_field :grouping_opens_at,
-                          class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1",
-                          value: @course.grouping_opens_at&.strftime('%Y-%m-%dT%H:%M') %>
+                    <label for="grouping_opens_at" class="block text-xs font-medium text-gray-600">Open from</label>
+                    <input type="datetime-local" id="grouping_opens_at" value="2026-09-14T09:00"
+                           class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
                   </div>
                   <div class="bg-[#f1f3f4] rounded-t-md px-4 py-2 border-b border-gray-400 focus-within:bg-[#e8eaed] focus-within:border-blue-600 focus-within:border-b-2 transition-all">
-                    <%= form.label :grouping_closes_at, "Close at", class: "block text-xs font-medium text-gray-600" %>
-                    <%= form.datetime_local_field :grouping_closes_at,
-                          class: "w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1",
-                          value: @course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M') %>
+                    <label for="grouping_closes_at" class="block text-xs font-medium text-gray-600">Close at</label>
+                    <input type="datetime-local" id="grouping_closes_at" value="2026-09-21T23:59"
+                           class="w-full bg-transparent border-none p-0 focus:ring-0 text-gray-800 text-sm mt-1">
                   </div>
                 </div>
               </div>
@@ -392,13 +468,70 @@
       <!-- Roster and Course Action Footers -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-gray-200">
         <div class="flex gap-3 w-full sm:w-auto">
-          <%= link_to "Add Students", add_students_course_path(@course), class: "w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
-          <%= link_to "Add Lecturers", add_lecturers_course_path(@course), class: "w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          <a href="#" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Add Students</a>
+          <a href="#" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Add Lecturers</a>
         </div>
 
-        <%= link_to "Delete Course", course_path(@course), class: "w-full sm:w-auto inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors", data: { turbo_method: :delete, turbo_confirm: "Are you sure? This cannot be undone." } %>
+        <a href="#" onclick="return confirm('Are you sure? This cannot be undone.')" class="w-full sm:w-auto inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">Delete Course</a>
       </div>
 
     </main>
-  <% end %>
+  </form>
 </div>
+
+<!-- Reuse-details overlay -->
+<div id="overlayMenu" class="fixed inset-0 z-[60] flex items-start justify-center pt-20 bg-black/50 transition-opacity duration-150 opacity-0 pointer-events-none">
+  <div class="bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative">
+    <div class="mb-6">
+      <h3 class="text-2xl font-bold text-gray-600">Select a Course to Copy</h3>
+    </div><br>
+
+    <div class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between cursor-pointer">
+          <div>
+            <div class="flex items-start justify-between mb-2">
+              <h4 class="text-lg font-bold text-gray-900 transition-colors">Software Engineering Studio</h4>
+            </div>
+            <p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">A two-semester group project course covering the full SDLC, from requirements gathering to deployment.</p>
+          </div>
+          <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">L</div>
+            <span class="text-xs font-medium text-gray-400">Coordinator: <span class="text-gray-600">Dr. Lim Chee Keong</span></span>
+          </div>
+        </div>
+        <div class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between cursor-pointer">
+          <div>
+            <div class="flex items-start justify-between mb-2">
+              <h4 class="text-lg font-bold text-gray-900 transition-colors">Database Systems Project</h4>
+            </div>
+            <p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">Individual project course pairing each student with a supervising lecturer to design a normalized schema and a working application.</p>
+          </div>
+          <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">N</div>
+            <span class="text-xs font-medium text-gray-400">Coordinator: <span class="text-gray-600">Dr. Priya Nair</span></span>
+          </div>
+        </div>
+        <div class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between cursor-pointer">
+          <div>
+            <div class="flex items-start justify-between mb-2">
+              <h4 class="text-lg font-bold text-gray-900 transition-colors">Mobile App Development Capstone</h4>
+            </div>
+            <p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">No description available for this course.</p>
+          </div>
+          <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">A</div>
+            <span class="text-xs font-medium text-gray-400">Coordinator: <span class="text-gray-600">Dr. Ahmad Faiz Rahman</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end">
+      <button type="button" onclick="closeOverlay()" class="text-red-600 hover:text-red-800 text-sm font-medium">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -14,9 +14,7 @@
   the exact original; everyone else now falls to 'Google Sans Flex' — Google's public variable-font
   sibling, loaded above — instead of dropping all the way to Roboto. See "Typography" for the full scale.
 
-  EVERY page must include the two <link> font tags above and the stylesheet tag. grouping_settings_html.erb
-  currently does NOT — it falls back to the browser default sans-serif and hand-draws an SVG close icon
-  because Material Symbols never loads. See Section 25 for the full list of fixes that page needs.
+  EVERY page must include the two <link> font tags above and the stylesheet tag.
 -->
 
 <div class="min-h-screen bg-white text-[#3C4043] font-['Roboto',sans-serif] p-8">
@@ -37,7 +35,7 @@
         Sections 1–12 below are unchanged from the original guide. Sections 13–24 document components pulled from
         <code>progress_updates</code>, <code>projects_form</code>, <code>projects_show</code>, <code>projects_show_responsive</code>,
         <code>projects_version_comparison</code>, and <code>course_show</code> that weren't captured yet. Section 25 lists exact
-        color/shape/icon drift found in the live .erb files (mostly in <code>grouping_settings_html.erb</code> and <code>projects_form_html.erb</code>)
+        color/shape/icon drift found in the live .erb files (e.g. <code>projects_form_html.erb</code>)
         that should be corrected in those files directly — the guide below always shows the <em>canonical</em> version, not the drifted one.
       </p>
     </section>
@@ -131,7 +129,6 @@
             <span><strong>28px (rounded-tl-[28px])</strong> - App shell content pane / modal dialogs</span>
           </div>
         </div>
-        <p class="text-xs text-[#5F6368] mt-3"><code>grouping_settings_html.erb</code>'s footer action buttons ("Add Students", "Delete Course") currently use <code>rounded-md</code> — every button must be a pill regardless of context.</p>
       </div>
 
       <div>
@@ -465,7 +462,7 @@
         </div>
 
       </div>
-      <p class="text-xs text-[#5F6368] mt-4">This is the canonical Filled Input. <code>grouping_settings_html.erb</code> reimplements it with generic colors (<code>bg-[#f1f3f4]</code> is fine, but <code>border-gray-400</code> / <code>focus-within:bg-[#e8eaed]</code> / <code>focus-within:border-blue-600</code> should become <code>border-[#5F6368]</code> / no bg change on focus / <code>focus-within:border-[#1A73E8]</code>). Standalone standard text inputs (not floating-label) use 6px radius — see Section 24.</p>
+      <p class="text-xs text-[#5F6368] mt-4">This is the canonical Filled Input. Standalone standard text inputs (not floating-label) use 6px radius — see Section 24.</p>
     </section>
 
     <!-- 10. COMMENTS & UPDATES FEED -->
@@ -588,7 +585,7 @@
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Text Link Button (inline, no button chrome)</div>
       <button class="text-[13px] text-[#1A73E8] font-medium hover:underline">Change</button>
 
-      <p class="text-xs text-[#5F6368] mt-4 max-w-3xl">Every filled/outlined button variant is still a pill (<code>rounded-full</code>) except the Small Ghost variant, which is a rectangular sub-component nested inside a card, and the plain Text Link, which has no shape at all. <code>grouping_settings_html.erb</code>'s footer buttons ("Add Students", "Delete Course", "Save") should map onto Outline / Danger Text / Primary respectively, using the hex tokens and pill shape — not generic Tailwind grays/reds on <code>rounded-md</code>.</p>
+      <p class="text-xs text-[#5F6368] mt-4 max-w-3xl">Every filled/outlined button variant is still a pill (<code>rounded-full</code>) except the Small Ghost variant, which is a rectangular sub-component nested inside a card, and the plain Text Link, which has no shape at all.</p>
     </section>
 
     <!-- 14. DROPDOWN / CONTEXT MENUS -->
@@ -905,7 +902,6 @@
         </div>
         <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white font-medium text-sm px-6 py-2 rounded-full transition-colors">Save</button>
       </div>
-      <p class="text-xs text-[#5F6368] mt-2 max-w-4xl"><code>grouping_settings_html.erb</code> uses this pattern but with a hand-drawn SVG ✕ (Material Symbols never loads on that page — see Section 25) and a gray Save button instead of Primary Blue.</p>
     </section>
 
     <!-- 24. FORMS — ADDITIONAL PATTERNS -->
@@ -989,7 +985,7 @@
       <span class="text-xs font-semibold px-2 py-0.5 rounded bg-[#FFF8E1] text-[#F57F17] align-middle">Beta</span>
 
       <p class="text-xs text-[#5F6368] mt-4 max-w-3xl">
-        All of the above are pulled from <code>grouping_settings_html.erb</code>, remapped from generic Tailwind grays/blues/reds/ambers onto the standard hex tokens. Radio-card selected state reuses the same blue tint pattern as the Section 15 selection cards; the disabled option drops to a neutral <code>#9AA0A6</code> muted-gray text with 60% opacity on the whole row. The Beta tag reuses the Redo/yellow token rather than introducing a new amber.
+        Radio-card selected state reuses the same blue tint pattern as the Section 15 selection cards; the disabled option drops to a neutral <code>#9AA0A6</code> muted-gray text with 60% opacity on the whole row. The Beta tag reuses the Redo/yellow token rather than introducing a new amber.
       </p>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2 mt-6">Mobile — sticky bottom action bar</div>
@@ -1026,7 +1022,6 @@
         25. Known Inconsistencies To Fix
       </h2>
       <ul class="text-[13px] text-[#3C4043] space-y-2 list-disc list-inside leading-relaxed">
-        <li><strong>grouping_settings_html.erb</strong> — missing the Google Fonts / Material Symbols <code>&lt;link&gt;</code> tags entirely; uses <code>font-sans</code> instead of Roboto/Google Sans; hand-draws an SVG ✕ icon instead of the <code>material-symbols-outlined close</code> span; uses generic Tailwind <code>gray-*/blue-*/red-*/amber-*</code> classes throughout instead of the hex tokens in Section 1; footer buttons ("Add Students", "Add Lecturers", "Delete Course") are <code>rounded-md</code> instead of pill-shaped, and the Danger button uses <code>red-50/red-700</code> instead of <code>#FCE8E6/#C5221F</code>; the "Save" button is gray instead of Primary Blue.</li>
         <li><strong>projects_form_html.erb</strong> — header "Pending" badge is a bordered gold chip (<code>#FEF7E0/#B06000</code>, uppercase, bordered) instead of the standard unbordered blue Status Pill; primary-button hover is <code>#1557B0</code> instead of the documented <code>#1B66C9</code>; field labels are <code>font-semibold text-[#3C4043]</code> instead of the standard Eyebrow Label (<code>font-medium text-[#5F6368]</code>); its select-field caret uses <code>expand_more</code> where every other select on the app uses <code>arrow_drop_down</code> — standardize on <code>arrow_drop_down</code>.</li>
         <li><strong>projects_show_html.erb</strong> — comment timestamps use <code>text-xs text-[#5F6368]</code> instead of the Meta Text token (<code>text-[14px] text-[#444746]</code>) used on every other page's comment panel.</li>
       </ul>

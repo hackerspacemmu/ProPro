@@ -1,6 +1,8 @@
+<%# locals: (course:, mode:, courses:) %>
 <div data-controller="overlay" data-overlay-target-course-id-value="<%= course.id %>" data-overlay-mode-value="<%= mode %>" class="relative">
   <div class="flex justify-end">
-    <button type="button" data-action="click->overlay#open" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+    <button type="button" data-action="click->overlay#open" class="inline-flex items-center gap-2 border border-[#DADCE0] text-[#1A73E8] hover:bg-[#F8F9FA] px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+      <span class="material-symbols-outlined text-[18px]">content_copy</span>
       Reuse details from another course
     </button>
   </div>
@@ -8,56 +10,59 @@
   <div data-overlay-target="menu" data-action="click->overlay#closeOnBackdrop"
       class="fixed inset-0 z-[60] flex items-start justify-center pt-20 bg-black/50 transition-opacity duration-150 opacity-0 pointer-events-none">
 
-    <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
+    <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-[28px] shadow-xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
         data: { overlay_target: "container" } do %>
-      <div class="mb-6">
-        <h3 class="text-2xl font-bold text-gray-600">Select a Course to Copy</h3>
-      </div><br>
+      <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+        <h3 style="font-family: 'Google Sans', sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">Select a Course to Copy</h3>
+        <button type="button" data-action="click->overlay#close" class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-[24px]">close</span>
+        </button>
+      </div>
 
-      <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
-        <% if @courses.present? %>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <% @courses.each do |course_item| %>
+      <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin px-6 py-2">
+        <% if courses.present? %>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <% courses.each do |course_item| %>
               <div data-overlay-target="card" data-action="click->overlay#selectSetting" data-overlay-source-id-param="<%= course_item.id %>"
-                  class="h-full min-h-[240px] bg-white rounded-xl border border-gray-200 p-8 transition-all duration-200 ease-in-out hover:border-green-400 hover:shadow-md flex flex-col justify-between cursor-pointer">
+                  class="h-full min-h-[240px] bg-white rounded-[10px] border border-[#E0E0E0] p-6 transition-all duration-200 ease-in-out hover:border-[#1A73E8] hover:shadow-md flex flex-col justify-between cursor-pointer">
                 <div>
                   <div class="flex items-start justify-between mb-2">
-                    <h4 class="text-lg font-bold text-gray-900 transition-colors">
+                    <h4 style="font-family: 'Google Sans', sans-serif;" class="text-[15px] font-semibold text-[#1f1f1f]">
                       <%= course_item.course_name %>
                     </h4>
                   </div>
 
-                  <p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">
+                  <p class="text-[13px] text-[#5F6368] leading-relaxed line-clamp-3 mb-4">
                     <%= course_item.course_description.presence || "No description available for this course." %>
                   </p>
                 </div>
 
-                <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
-                  <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                <div class="pt-4 border-t border-[#E0E0E0] flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-xs font-bold shrink-0">
                     <%= course_item.coordinators.first&.name&.first&.upcase || "?" %>
                   </div>
-                  <span class="text-xs font-medium text-gray-400">
+                  <span class="text-xs font-medium text-[#5F6368]">
                     Coordinator:
-                    <span class="text-gray-600"><%= course_item.coordinators.first&.name || "None" %></span>
+                    <span class="text-[#3C4043]"><%= course_item.coordinators.first&.name || "None" %></span>
                   </span>
                 </div>
               </div>
             <% end %>
           </div>
         <% else %>
-          <div class="col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-            <%= image_tag "info.svg", class: "w-6 h-6" %>
-              <h5 class="text-sm text-gray-600 font-medium m-0">
-                You have no courses at the moment. Please create one.
-              </h5>
+          <div class="flex items-center gap-3 p-5 bg-white rounded-lg border border-[#E0E0E0] shadow-sm">
+            <span class="material-symbols-outlined text-[20px] text-[#5F6368]">info</span>
+            <p class="text-[14px] text-[#5F6368] font-medium m-0">
+              You have no courses at the moment. Please create one.
+            </p>
           </div>
         <% end %>
       </div>
 
-      <div class="mt-6 flex justify-end">
-        <button type="button" 
+      <div class="px-6 py-6 flex justify-end">
+        <button type="button"
             data-action="click->overlay#close"
-            class="text-red-600 hover:text-red-800 text-sm font-medium">
+            class="text-[#1A73E8] hover:bg-[#F8F9FA] px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">
           Cancel
         </button>
       </div>

@@ -1,87 +1,80 @@
+<%# locals: (form:, capacity_result:, lecturer_enrolments:) %>
 <div data-controller="supervisor-capacity"
-     data-supervisor-capacity-base-value="<%= @capacity_result.base %>"
-     class="space-y-4">
+     data-supervisor-capacity-base-value="<%= capacity_result.base %>"
+     class="space-y-6">
 
-  <details class="group rounded-lg border border-gray-200 bg-white shadow-sm">
+  <details class="group rounded-lg border border-[#E0E0E0] bg-white shadow-sm">
     <summary
-      class="cursor-pointer px-4 py-3 flex items-center justify-between gap-4 text-left text-sm font-semibold text-gray-900 list-none">
+      class="cursor-pointer px-5 py-4 flex items-center justify-between gap-4 text-left text-[14px] font-medium text-[#3C4043] list-none">
       <span>Manage Project Allocations and Lecturer exclusions</span>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-4 w-4 shrink-0 text-gray-500 transition-transform group-open:rotate-180"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
+      <span class="material-symbols-outlined text-[20px] text-[#5F6368] transition-transform group-open:rotate-180 shrink-0">expand_more</span>
     </summary>
 
-    <div class="border-t border-gray-200 px-4 py-4 space-y-4">
-      <p class="text-sm text-gray-500">
+    <div class="border-t border-[#E0E0E0] px-5 py-4 space-y-6">
+      <p class="text-[14px] text-[#5F6368]">
         Maximum projects and variable project allocations affect display numbers in supervisor list only, serving as a guideline. Supervisors are free to accept projects beyond the listed number.
       </p>
 
       <div class="flex items-start gap-3">
         <div class="flex h-5 items-center">
           <%= form.check_box :supervisor_auto_calculate_enabled,
-                class: "h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500",
+                class: "h-4 w-4 rounded border-[#DADCE0] text-[#137333] focus:ring-[#137333]",
                 data: { action: "change->supervisor-capacity#toggleAutoCalculate" } %>
         </div>
         <div>
           <%= form.label :supervisor_auto_calculate_enabled,
                 "Auto-calculate based on number of groups and lecturers",
-                class: "text-sm font-medium text-gray-700" %>
-          <p class="text-sm text-gray-500">
+                class: "text-[14px] font-medium text-[#3C4043]" %>
+          <p class="text-[14px] text-[#5F6368]">
             Divides total projects by eligible supervisors. Disables the manual base limit input.
           </p>
         </div>
       </div>
 
-      <% if @lecturer_enrolments.any? %>
-        <% lecturer_capacity_map = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.id } %>
+      <% if lecturer_enrolments.any? %>
+        <% lecturer_capacity_map = capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.id } %>
 
-        <div class="rounded-md border border-gray-200 overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
+        <div class="rounded-lg border border-[#E0E0E0] overflow-hidden">
+          <table class="min-w-full divide-y divide-[#E0E0E0] text-[14px]">
+            <thead class="bg-[#F8F9FA]">
               <tr>
-                <th class="px-4 py-3 text-left font-medium text-gray-500">Supervisor</th>
-                <th class="px-4 py-3 text-center font-medium text-gray-500 whitespace-nowrap">Exclude</th>
-                <th class="px-4 py-3 text-center font-medium text-gray-500 whitespace-nowrap">Offset</th>
-                <th class="px-4 py-3 text-center font-medium text-gray-500 whitespace-nowrap">Relative Capacity</th>
+                <th class="px-5 py-3 text-left font-medium text-[#5F6368]">Supervisor</th>
+                <th class="px-5 py-3 text-center font-medium text-[#5F6368] whitespace-nowrap">Exclude</th>
+                <th class="px-5 py-3 text-center font-medium text-[#5F6368] whitespace-nowrap">Offset</th>
+                <th class="px-5 py-3 text-center font-medium text-[#5F6368] whitespace-nowrap">Relative Capacity</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-100">
-              <% @lecturer_enrolments.each do |enrolment| %>
+            <tbody class="bg-white divide-y divide-[#E0E0E0]">
+              <% lecturer_enrolments.each do |enrolment| %>
                 <% lc = lecturer_capacity_map[enrolment.id] %>
                 <% offset = enrolment.supervisor_capacity_offset %>
                 <% effective_cap = lc&.effective_cap || 0 %>
                 <% sign = offset >= 0 ? "+ #{offset}" : "- #{offset.abs}" %>
                 <tr data-supervisor-capacity-target="row"
                     class="<%= 'opacity-60' if enrolment.supervisor_capacity_excluded? %>">
-                  <td class="px-4 py-3 text-gray-900"><%= enrolment.user.name %></td>
-                  <td class="px-4 py-3 text-center">
+                  <td class="px-5 py-3 text-[#3C4043]"><%= enrolment.user.name %></td>
+                  <td class="px-5 py-3 text-center">
                     <%= check_box_tag "supervisor_capacity_excluded[]", enrolment.id,
                           enrolment.supervisor_capacity_excluded,
-                          class: "h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500",
+                          class: "h-4 w-4 rounded border-[#DADCE0] text-[#137333] focus:ring-[#137333]",
                           data: {
                             action: "change->supervisor-capacity#updateRow",
                             excluded: true
                           } %>
                   </td>
-                  <td class="px-4 py-3 text-center">
+                  <td class="px-5 py-3 text-center">
                     <%= number_field_tag "supervisor_capacity_offsets[#{enrolment.id}]",
                           offset,
                           disabled: enrolment.supervisor_capacity_excluded?,
-                          class: "w-20 text-center px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-green-500 focus:border-green-500",
+                          class: "w-20 text-center px-2 py-1.5 border border-[#DADCE0] rounded-[6px] text-[14px] text-[#3C4043] focus:outline-none focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8]",
                           data: {
                             action: "input->supervisor-capacity#updateRow",
                             offset: true
                           } %>
                   </td>
-                  <td class="px-4 py-3 text-center">
-                    <span class="font-medium text-gray-900" data-result><%= effective_cap %></span>
-                    <span class="text-xs text-gray-400 ml-1" data-formula>(<%= @capacity_result.base %> <%= sign %>)</span>
+                  <td class="px-5 py-3 text-center">
+                    <span class="font-medium text-[#3C4043]" data-result><%= effective_cap %></span>
+                    <span class="text-xs text-[#5F6368] ml-1" data-formula>(<%= capacity_result.base %> <%= sign %>)</span>
                   </td>
                 </tr>
               <% end %>
@@ -89,7 +82,7 @@
           </table>
         </div>
       <% else %>
-        <p class="text-sm text-gray-500 italic">No lecturers enrolled yet.</p>
+        <p class="text-[14px] text-[#5F6368] italic">No lecturers enrolled yet.</p>
       <% end %>
     </div>
   </details>
