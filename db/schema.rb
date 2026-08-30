@@ -50,7 +50,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_082339) do
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
     t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.string "email_domain_restriction"
-    t.boolean "email_domain_restriction_enabled", default: false
+    t.boolean "email_domain_restriction_enabled", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
