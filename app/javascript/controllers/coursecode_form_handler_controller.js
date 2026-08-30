@@ -9,16 +9,17 @@ export default class extends Controller {
 
   async toggle(event) {
     const body = new URLSearchParams({
-      "course[coursecode_enabled]": event.target.checked ? "1" : "0"
+      "course[coursecode_enabled]": event.target.checked ? "1" : "0",
     });
 
     const response = await fetch(this.urlValue, {
       method: "POST",
       headers: {
         Accept: "text/vnd.turbo-stream.html",
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')
+          ?.content,
       },
-      body
+      body,
     });
 
     if (response.ok) {
