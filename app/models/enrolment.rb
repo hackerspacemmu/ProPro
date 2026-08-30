@@ -15,6 +15,17 @@ class Enrolment < ApplicationRecord
     raise 'Invalid course code' unless course
     raise 'Joining via course code is disabled for this course' unless course.coursecode_enabled
 
+    if course.email_domain_restriction_enabled?
+      domain_array = (course.email_domain_restriction).split(",").map(&:strip)
+      user_email_domain = (user.email_address).sub(/^.*@/, '')
+      
+      if !domain_array.include?(user_email_domain)
+        #Only thing this does is add @ to each domain to make it prettier
+        domain_array_string = domain_array.map { |d| " @#{d} " }.join(", ")
+        raise "Email Domain Restriction is enabled for this course. Please join using an account linked to an email with #{domain_array_string} ."
+      end
+    end
+
     enrolment = find_or_create_by!(
       user: user,
       course: course,
