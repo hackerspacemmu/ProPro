@@ -97,7 +97,7 @@ class SettingsCoursecodeTest < ApplicationSystemTestCase
     click_generate
     assert_text 'Course join code successfully generated'
 
-    refute_equal first_code, @course.reload.coursecode
+    assert_not_equal first_code, @course.reload.coursecode
   end
 
   test 'toggling join code access persists independently of the settings form' do
@@ -115,6 +115,6 @@ class SettingsCoursecodeTest < ApplicationSystemTestCase
 
     toggle_enabled
     assert_text 'Course join code settings updated'
-    refute @course.reload.coursecode_enabled
+    assert_not @course.reload.coursecode_enabled
   end
 end
