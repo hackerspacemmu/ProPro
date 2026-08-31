@@ -30,7 +30,10 @@
     <%= render "courses/flash" %>
   </div>
 
-  <%= render "course_code_form", course: @course %>
+  <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6">
+    <%= render "course_code_form", course: @course %>
+    <%= render "course_email_domain_restrict_form", course: @course %>
+  </div>
 
   <div
     class="

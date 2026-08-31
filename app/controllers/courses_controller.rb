@@ -3,7 +3,7 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
   def show
@@ -390,6 +390,32 @@ class CoursesController < ApplicationController
     render turbo_stream: [
       turbo_stream.update('flash', partial: 'courses/flash'),
       turbo_stream.replace('course_code_form', partial: 'courses/course_code_form', locals: { course: @course })
+    ]
+  end
+
+  def update_email_domain
+    authorize @course, :update?
+
+    if params[:course]&.key?(:email_domain_restriction_enabled)
+
+      is_enabled = params[:course][:email_domain_restriction_enabled] == '1'
+      domain = params[:course][:email_domain_restriction]
+
+      if params[:course][:email_domain_restriction].blank? && is_enabled
+        @course.update!(email_domain_restriction_enabled: false)
+        flash.now[:alert] ||= 'Email domain cannot be empty when domain restriction is enabled'
+      else
+        @course.update!(email_domain_restriction: domain.downcase)
+        @course.update!(email_domain_restriction_enabled: is_enabled)
+        flash.now[:notice] ||= 'Email restriction settings changed'
+      end
+    end
+    rescue StandardError => e
+      flash.now[:alert] = e.message
+    ensure
+    render turbo_stream: [
+      turbo_stream.update('flash', partial: 'courses/flash'),
+      turbo_stream.replace('email_domain_restrict_form', partial: 'courses/course_email_domain_restrict_form', locals: { course: @course })
     ]
   end
 
