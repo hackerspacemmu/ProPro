@@ -66,7 +66,7 @@ class CoursesController < ApplicationController
     end
 
     # For To Review tab
-    @pending_proposals = @incoming_proposals.select { |p| p.current_status == "pending" }
+    @pending_proposals = @incoming_proposals.select { |p| p.current_status == 'pending' }
     @reviewed_proposals = @incoming_proposals.select { |p| %w[redo rejected].include?(p.current_status) }
     @pending_topics = if @current_user_enrolment&.coordinator?
                         @topic_list.select do |topic|

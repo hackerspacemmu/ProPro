@@ -34,13 +34,17 @@ export default class extends Controller {
   }
 
   toggleRow(id) {
-    const detail = this.element.querySelector(`[data-detail-row-id="${CSS.escape(id)}"]`);
+    const detail = this.element.querySelector(
+      `[data-detail-row-id="${CSS.escape(id)}"]`,
+    );
     if (!detail) return;
 
     const expand = detail.classList.contains("hidden");
     detail.classList.toggle("hidden", !expand);
 
-    const row = this.element.querySelector(`tr[data-row-id="${CSS.escape(id)}"]`);
+    const row = this.element.querySelector(
+      `tr[data-row-id="${CSS.escape(id)}"]`,
+    );
     const chevron = row?.querySelector("[data-row-chevron]");
     if (chevron) chevron.classList.toggle("rotate-180", expand);
   }
@@ -54,9 +58,13 @@ export default class extends Controller {
       .forEach((detail) => detail.classList.toggle("hidden", !allExpanded));
     this.element
       .querySelectorAll("[data-row-chevron]")
-      .forEach((chevron) => chevron.classList.toggle("rotate-180", allExpanded));
+      .forEach((chevron) =>
+        chevron.classList.toggle("rotate-180", allExpanded),
+      );
 
-    const toggleAllIcon = this.element.querySelector("#groups-table-toggle-all");
+    const toggleAllIcon = this.element.querySelector(
+      "#groups-table-toggle-all",
+    );
     if (toggleAllIcon) {
       toggleAllIcon.textContent = allExpanded ? "unfold_less" : "unfold_more";
     }
