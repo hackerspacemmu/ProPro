@@ -4,6 +4,21 @@
 
 <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 
+<%# Tab indices are derived from the same array that renders the panels, so
+    data-tabs-index-param always matches the DOM position regardless of which
+    conditional tabs render for the current role. %>
+<%
+  tabs = []
+  tabs << { name: "Project Details", partial: "courses/project_details_tab" }
+  tabs << { name: "To Review", partial: "courses/to_review_tab" }
+  if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer?
+    tabs << { name: "Supervised Projects", partial: "courses/supervised_projects_tab" }
+  end
+  tabs << { name: "Topic Directory", partial: "courses/topic_directory_tab" }
+  tabs << { name: "People", partial: "courses/people_tab" }
+  tabs << { name: "Groups", partial: "courses/groups_tab" }
+%>
+
 <div class="text-[#3C4043] font-['Roboto',sans-serif]">
 
   <div class="flex">
@@ -12,63 +27,25 @@
           data-controller="tabs">
 
       <div class="border-b border-[#E0E0E0] px-6 pt-4">
-        <div class="flex gap-8">
-          <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="0"
-                  style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
-                  class="pb-3 border-b-4 transition-colors">Project Details</button>
-
-          <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="1"
-                  style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
-                  class="pb-3 border-b-4 transition-colors">To Review</button>
-
-          <%# Placeholder — see flag at top of file, not in the mockup. %>
-          <% if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer? %>
-            <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="2"
+        <div class="flex flex-wrap gap-x-8 gap-y-1">
+          <% tabs.each_with_index do |tab, index| %>
+            <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="<%= index %>"
                     style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
-                    class="pb-3 border-b-4 transition-colors">Supervised Projects</button>
+                    class="pb-3 whitespace-nowrap border-b-4 transition-colors"><%= tab[:name] %></button>
           <% end %>
-
-          <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="3"
-                  style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
-                  class="pb-3 border-b-4 transition-colors">Topic Directory</button>
-
-          <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="4"
-                  style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
-                  class="pb-3 border-b-4 transition-colors">People</button>
 
           <%# Real navigation, not a tab panel — separate settings page. %>
           <%= link_to "Settings", settings_course_path(@course),
                 style: "font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;",
-                class: "pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors" %>
+                class: "pb-3 whitespace-nowrap text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors" %>
         </div>
       </div>
 
-      <!-- Panel 0: Project Details -->
-      <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8">
-        <%= render "courses/project_details_tab" %>
-      </div>
-
-      <!-- Panel 1: To Review (real redesign) -->
-      <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8 hidden">
-        <%= render "courses/to_review_tab" %>
-      </div>
-
-      <% if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer? %>
-        <!-- Panel 2: Supervised Projects -->
-        <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8 hidden">
-          <%= render "courses/supervised_projects_tab" %>
+      <% tabs.each_with_index do |tab, index| %>
+        <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8<%= index.zero? ? '' : ' hidden' %>">
+          <%= render tab[:partial] %>
         </div>
       <% end %>
-
-      <!-- Panel 3: Topic Directory -->
-      <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8 hidden">
-        <%= render "courses/topic_directory_tab" %>
-      </div>
-
-      <!-- Panel 4: People -->
-      <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8 hidden">
-        <%= render "courses/people_tab" %>
-      </div>
 
     </main>
   </div>

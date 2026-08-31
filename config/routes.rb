@@ -61,8 +61,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :participants, only: [:index]
-
     resources :lecturers, only: %i[index show] do
       member do
         patch 'promote_to_coordinator'

@@ -1,0 +1,80 @@
+<%# ivar→locals seam — the Groups panel counterpart of _people_tab.html.erb.
+    Reads controller ivars ONCE and passes locals down; nothing rendered from
+    here touches an ivar again. %>
+<section data-controller="modal">
+
+  <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-gray-300 pb-4 mb-4 gap-4">
+    <div class="flex items-baseline gap-4 shrink-0">
+      <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'Google Sans', sans-serif;">Groups</h2>
+      <span class="text-sm font-medium text-gray-500"><%= pluralize(@total_group_count, "group") %></span>
+    </div>
+
+    <div class="flex flex-col gap-3 w-full md:flex-row md:items-center md:w-auto">
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <div class="relative flex items-center flex-1 md:w-[240px]">
+          <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
+          <input type="text" id="groups-search" name="search_query" value="<%= params[:search_query] %>"
+                 placeholder="Search groups or students..."
+                 class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full pl-9 pr-4 py-2 transition-all outline-none"
+                 hx-get="<%= course_url(@course) %>"
+                 hx-target="#groups-table-container"
+                 hx-swap="outerHTML"
+                 hx-trigger="input changed delay:300ms"
+                 hx-include="#groups-search, #groups-status-filter, #lecturer-filter"
+                 hx-vals='{"section": "groups"}'
+                 hx-indicator="#groups-loading">
+        </div>
+
+        <% if policy(@course).manage_students? %>
+          <button type="button" data-action="modal#open" title="Add Students" class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors shrink-0">
+            <span class="material-symbols-outlined">group_add</span>
+          </button>
+        <% end %>
+
+        <span id="groups-loading" class="htmx-indicator text-blue-600 text-sm font-medium shrink-0"><span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span></span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+        <% unless @course.solo_supervisor? %>
+          <select id="lecturer-filter" name="lecturer_filter"
+                  class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full sm:w-[190px] px-4 py-2 transition-all cursor-pointer outline-none"
+                  hx-get="<%= course_url(@course) %>"
+                  hx-target="#groups-table-container"
+                  hx-swap="outerHTML"
+                  hx-trigger="change"
+                  hx-include="#groups-search, #groups-status-filter, #lecturer-filter"
+                  hx-vals='{"section": "groups"}'>
+            <option value="all" <%= params[:lecturer_filter].blank? || params[:lecturer_filter] == 'all' ? 'selected' : '' %>>All Supervisors</option>
+            <% @course.lecturers.each do |lecturer| %>
+              <option value="<%= lecturer.id %>" <%= params[:lecturer_filter] == lecturer.id.to_s ? 'selected' : '' %>><%= lecturer.name %></option>
+            <% end %>
+          </select>
+        <% end %>
+
+        <select id="groups-status-filter" name="status_filter"
+                class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full sm:w-[190px] px-4 py-2 transition-all cursor-pointer outline-none"
+                hx-get="<%= course_url(@course) %>"
+                hx-target="#groups-table-container"
+                hx-swap="outerHTML"
+                hx-trigger="change"
+                hx-include="#groups-search, #groups-status-filter, #lecturer-filter"
+                hx-vals='{"section": "groups"}'>
+          <option value="all" <%= params[:status_filter].blank? || params[:status_filter] == 'all' ? 'selected' : '' %>>All Statuses</option>
+          <% %w[approved pending redo rejected not_submitted].each do |group_status| %>
+            <option value="<%= group_status %>" <%= params[:status_filter] == group_status ? 'selected' : '' %>><%= group_status.titleize %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <%= render "courses/groups_table",
+             course: @course,
+             groups: @filtered_group_list,
+             projects_by_owner: @projects_by_owner,
+             total_count: @total_group_count,
+             displayed_count: @filtered_group_list.count,
+             show_all: @show_all %>
+
+  <%= render "courses/add_students_modal", course: @course %>
+</section>

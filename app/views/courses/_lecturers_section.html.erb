@@ -1,0 +1,85 @@
+<%# --- locals: course, lecturers, capacity_result, lecturer_capacity_info %>
+<%# Renders the Lecturers half of the People tab. Values arrive as locals from
+    the _people_tab seam; no ivar reads here. project/status/supervisor-derived
+    data is never fetched inside a row partial — it comes in as locals. %>
+
+<section class="mb-14">
+  <div class="flex items-center justify-between border-b border-gray-300 pb-4 mb-4">
+    <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'Google Sans', sans-serif;">Lecturers</h2>
+    <% if policy(course).manage_lecturers? %>
+      <%= link_to add_lecturers_course_path(course),
+            title: "Add Lecturer",
+            class: "inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors" do %>
+        <span class="material-symbols-outlined">person_add</span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if course.solo_supervisor? %>
+    <p class="text-sm text-gray-600 mb-4">Instructor: <%= lecturers.first&.name %></p>
+  <% end %>
+
+  <div class="flex flex-col gap-1">
+    <% lecturers.each do |lecturer| %>
+      <% lecturer_capacity = lecturer_capacity_info[lecturer.id] %>
+      <% excluded = lecturer_capacity.nil? || lecturer_capacity.excluded? %>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors group gap-3 sm:gap-0">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="w-9 h-9 rounded-full bg-[#E8F0FE] flex items-center justify-center text-sm font-medium text-[#1A73E8] shrink-0"><%= lecturer.name.first.upcase %></div>
+          <%= link_to participant_profile_course_path(course, lecturer.id, 'student'),
+                      title: lecturer.name,
+                      class: "text-sm font-medium text-gray-900 hover:underline truncate min-w-0" do %>
+            <%= lecturer.name %>
+          <% end %>
+        </div>
+
+        <% unless course.solo_supervisor? || excluded %>
+          <% ratio = lecturer_capacity.effective_cap.zero? ? 0 : lecturer_capacity.approved_count.to_f / lecturer_capacity.effective_cap %>
+          <% color =
+               case
+               when ratio >= 1.0 then "#C5221F"
+               when ratio >= 0.7 then "#F57F17"
+               else "#137333"
+               end %>
+          <% exceeding = lecturer_capacity.effective_cap.positive? && lecturer_capacity.approved_count > lecturer_capacity.effective_cap %>
+          <% pending_exceeds = lecturer_capacity.approved_count + lecturer_capacity.pending_count > lecturer_capacity.effective_cap %>
+
+          <div class="flex items-center gap-4 sm:ml-auto">
+            <% if exceeding %>
+              <div class="flex items-center gap-1.5 text-[#C5221F]" title="Capacity exceeded">
+                <span class="material-symbols-outlined text-[18px]">error</span>
+              </div>
+            <% else %>
+              <div class="w-6"></div>
+            <% end %>
+
+            <% if lecturer_capacity.pending_count.positive? %>
+              <span class="text-xs font-normal <%= pending_exceeds ? "text-red-600" : "text-gray-500" %>">
+                (<%= lecturer_capacity.pending_count %> pending)
+              </span>
+            <% end %>
+
+            <div class="w-24 h-1.5 bg-[#E1E3E1] rounded-full overflow-hidden flex shrink-0">
+              <% fill_width = [[ratio * 100, 100].min, 0].max.round(2) %>
+              <div class="h-full rounded-full" style="width: <%= fill_width %>% ; background-color: <%= color %>"></div>
+            </div>
+
+            <span class="text-sm font-medium text-[<%= color %>] w-10 text-right shrink-0">
+              <%= lecturer_capacity.approved_count %>/<%= lecturer_capacity.effective_cap %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if course.supervisor_auto_calculate_enabled? && capacity_result && capacity_result.remainder.positive? %>
+    <p class="flex items-center gap-1.5 text-sm text-grey-500 mt-5">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>You will need to allocate an additional <%= capacity_result.remainder %> project(s) to supervisors using offsets</span>
+    </p>
+  <% end %>
+</section>

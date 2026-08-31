@@ -1,0 +1,62 @@
+<%# --- locals: student, group, selected, course, enrolment %>
+<%# Project-derived data must arrive as an explicit local, never via
+    student_status/student_project_for (plan §5). Invited students carry
+    main-branch's Pending chip + Resend Invite envelope; the row also exposes
+    data-student-invited/data-resend-url so the Actions "Resend invitation
+    email" label + submit reuse the exact same feature. %>
+<tr class="hover:bg-gray-50 transition-colors group"
+    data-student-id="<%= student.id %>"
+    data-student-invited="<%= !student.has_registered %>"
+    data-resend-url="<%= resend_invite_path(student) %>"
+    data-remove-url="<%= enrolment_path(id: enrolment, course_id: course) %>">
+  <td class="px-2 py-3 align-middle text-center">
+    <input type="checkbox" name="students_table_selection" value="<%= student.id %>"
+           <%= 'checked' if selected %>
+           class="accent-[#1A73E8] w-[18px] h-[18px] cursor-pointer">
+  </td>
+
+  <td class="px-4 py-3 align-middle min-w-0">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-8 h-8 rounded-full <%= student.has_registered ? "bg-gray-200 text-gray-700" : "bg-[#E0E0E0] text-gray-500" %> flex items-center justify-center text-xs font-medium shrink-0">
+        <% if student.has_registered %>
+          <%= student.name.first.upcase %>
+        <% else %>
+          <span class="material-symbols-outlined text-[20px]">person</span>
+        <% end %>
+      </div>
+      <div class="flex items-center gap-1.5 min-w-0">
+        <span class="text-sm font-medium <%= student.has_registered ? "text-gray-900" : "text-gray-700" %> truncate min-w-0" title="<%= student.name %>"><%= student.name %></span>
+        <% unless student.has_registered %>
+          <span class="inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap shrink-0">
+            <span class="bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border border-yellow-200 leading-none">Pending</span>
+            <% if policy(course).manage_students? %>
+              <%= button_to resend_invite_path(student),
+                            method: :post,
+                            form: { class: "inline-flex items-center" },
+                            class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors",
+                            title: "Resend Invite" do %>
+                <span class="material-symbols-outlined text-[16px]">mail</span>
+              <% end %>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </td>
+
+  <td class="px-4 py-3 text-sm text-gray-500 align-middle min-w-0">
+    <div class="truncate w-full" title="<%= student.email_address %>"><%= student.email_address %></div>
+  </td>
+
+  <td class="px-4 py-3 text-sm align-middle truncate">
+    <% if group.present? %>
+      <%= link_to participant_profile_course_path(course, group.id, 'group'),
+                  title: group.group_name,
+                  class: "#{student.has_registered ? "text-gray-700" : "text-gray-500"} font-medium hover:underline truncate block w-full" do %>
+        <%= group.group_name %>
+      <% end %>
+    <% else %>
+      <span class="text-gray-400 italic" title="">-</span>
+    <% end %>
+  </td>
+</tr>

@@ -1,0 +1,43 @@
+<%# --- locals: course %>
+<%# CSV import modal — the in-place replacement for the old add_students full
+    page (Ticket 3.5). Opened from the Students section person_add and the
+    Groups tab group_add; posts to the existing handle_add_students_course_path. %>
+
+<dialog data-modal-target="dialog"
+        data-action="click->modal#backdropClose"
+        class="m-auto rounded-[10px] border border-gray-200 shadow-xl p-0 w-[95%] sm:w-[85%] md:w-[75%] lg:w-[50%] max-w-3xl text-[#3C4043] font-['Roboto',sans-serif]">
+  <div class="p-6 max-h-[80vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <div>
+        <h3 class="text-xl font-bold text-gray-900">Add Students</h3>
+        <p class="text-sm text-gray-500 mt-0.5"><%= course.course_name %> · <%= course.grouped? ? "Grouped" : "Not Grouped" %></p>
+      </div>
+      <button type="button" data-action="modal#close" class="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors shrink-0">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <%= form_with url: handle_add_students_course_path, class: "w-full", method: :post do |form| %>
+      <p class="mb-3 text-sm text-gray-600">Upload CSV export from EBwise:</p>
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
+        <%= form.file_field :csv_file,
+                            class: "w-full border border-gray-300 rounded-lg cursor-pointer bg-gray-50 file:border-gray-300 file:rounded-l-lg file:h-full file:bg-gray-300 hover:file:bg-gray-400 file:py-2 file:px-2 lg:file:px-5 text-sm" %>
+        <%= form.submit "Add Students",
+                        class: "w-full sm:w-auto flex justify-center rounded-md bg-green-400 hover:bg-green-600 py-2 px-4 hover:cursor-pointer font-medium text-sm transition-colors mt-2 sm:mt-0" %>
+      </div>
+    <% end %>
+
+    <div class="mt-4 p-3 bg-[#ebebeb] rounded-md outline outline-1 outline-[#c4c4c4] text-sm text-gray-700">
+      <p class="mb-2">
+        Provide a CSV file in
+        <%= link_to course.grouped? ? "this format (Grouped)" : "this format (Solo)",
+              course.grouped? ? "/sampleCSV/ProPro Sample Import - Group.csv" : "/sampleCSV/ProPro Sample Import - Solo.csv",
+              download: true,
+              class: "text-sky-500 underline decoration-sky-500 hover:decoration-sky-700 hover:text-sky-700" %>
+      </p>
+      <p class="text-gray-500">
+        In Moodle-based systems: <%= course.grouped? ? %(course page → "Participants" → "Groups → Overview" → filter by grouping → download bottom "CSV").html_safe : %(course page → "Participants" → filter roles to Student → "Select all" → export "Comma separated values (.csv)").html_safe %>
+      </p>
+    </div>
+  </div>
+</dialog>

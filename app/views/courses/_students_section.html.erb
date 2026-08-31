@@ -1,0 +1,84 @@
+<%# --- locals: course, students, student_group_map, student_enrolment_map, total_student_count, total_count, displayed_count, show_all %>
+<%# The students-select controller scopes this whole section: it drives the
+    single-select radios, the Actions dropdown dispatch, and survives the
+    htmx table swaps (delegated listeners + htmx:afterSwap reset). %>
+<section data-controller="students-select modal">
+
+  <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-gray-300 pb-4 mb-4 gap-4">
+    <div class="flex items-baseline gap-4 shrink-0">
+      <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'Google Sans', sans-serif;">Students</h2>
+      <span class="text-sm font-medium text-gray-500"><%= pluralize(total_student_count, "student") %></span>
+    </div>
+
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <div class="relative flex items-center flex-1 md:w-[240px]">
+        <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
+        <input type="text" id="students-search" name="search_query" value="<%= params[:search_query] %>"
+               placeholder="Search students..."
+               class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full pl-9 pr-4 py-2 transition-all outline-none"
+               hx-get="<%= course_url(course) %>"
+               hx-target="#students-table-container"
+               hx-swap="outerHTML"
+               hx-trigger="input changed delay:300ms"
+               hx-include="#students-search"
+               hx-vals='{"section": "students"}'
+               hx-indicator="#students-loading">
+      </div>
+
+      <% if policy(course).manage_students? %>
+        <button type="button" data-action="modal#open" title="Add Students" class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors shrink-0">
+          <span class="material-symbols-outlined">person_add</span>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between mb-3 px-1">
+    <div class="flex items-center gap-4">
+      <% if policy(course).manage_students? %>
+        <div class="relative group z-30">
+          <button type="button" disabled data-students-select-target="actions"
+                  class="inline-flex items-center px-4 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-[#1A73E8] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#1A73E8] transition-colors disabled:opacity-50 disabled:pointer-events-none">
+            <span>Actions</span>
+            <span class="material-symbols-outlined text-[20px] ml-1">arrow_drop_down</span>
+          </button>
+          <div class="hidden group-hover:block group-focus-within:block absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-20 py-1">
+            <button type="button" data-action="students-select#email" data-students-select-target="emailItem"
+                  class="hidden w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+              <span class="material-symbols-outlined text-[18px] text-gray-500">mail</span>
+              <span>Resend invitation email</span>
+            </button>
+            <button type="button" data-action="students-select#remove" class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+              <span class="material-symbols-outlined text-[18px] text-red-500">person_remove</span>
+              <span>Remove</span>
+            </button>
+          </div>
+        </div>
+      <% end %>
+
+      <span id="students-loading" class="htmx-indicator text-blue-600 text-sm font-medium"><span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span></span>
+    </div>
+
+    <button type="button"
+            title="Sort by name"
+            class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center"
+            hx-get="<%= course_url(course) %>"
+            hx-target="#students-table-container"
+            hx-swap="outerHTML"
+            hx-include="#students-search"
+            hx-vals='{"section": "students", "sort_by": "student_name", "sort_dir": "<%= params[:sort_dir] == 'desc' ? 'asc' : 'desc' %>"}'>
+      <span class="material-symbols-outlined text-[20px]">sort_by_alpha</span>
+    </button>
+  </div>
+
+  <%= render "courses/students_table",
+             course: course,
+             students: students,
+             student_group_map: student_group_map,
+             student_enrolment_map: student_enrolment_map,
+             total_count: total_count,
+             displayed_count: displayed_count,
+             show_all: show_all %>
+
+  <%= render "courses/add_students_modal", course: course %>
+</section>

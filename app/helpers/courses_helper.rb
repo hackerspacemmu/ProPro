@@ -14,12 +14,4 @@ module CoursesHelper
   def student_status(student, course)
     student_project_for(student, course)&.current_status || 'not_submitted'
   end
-
-  def participants_exceed?(course)
-    course.students.size > Rails.application.config.participants_threshold
-  end
-
-  def supervisors_exceed?(course)
-    course.supervisors.size > Rails.application.config.supervisors_threshold
-  end
 end

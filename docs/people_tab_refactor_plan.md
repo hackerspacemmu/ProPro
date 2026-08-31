@@ -131,10 +131,28 @@ is added — otherwise there's a fourth combination to get wrong.
 `EnrolmentsController#destroy` (only destroy action that touches
 enrolment/group membership) always destroys the `Enrolment` and cascades
 to the group membership as a side effect (`app/controllers/enrolments_controller.rb`).
-There is no route/controller/policy method anywhere in the codebase for
-"remove this student from their group, keep them enrolled." The spec's
-Students-tab row action "remove from group (override, independent of
-unenroll)" is **new backend surface**, not a view change.
+
+On `main`/`refactor/design` the remove-from-group capability is **half-built and
+broken**: the route exists (`config/routes.rb:97`,
+`resources :members, only: %i[create destroy], controller: 'project_group_members'`),
+a leader-facing "Kick" button exists
+(`app/views/project_groups/_my_group_panel.html.erb:133` posts to
+`course_project_group_member_path`), but **no `ProjectGroupMembersController`
+exists on either branch** — the button 404s today. The `refactor/design` panel
+also passes the wrong object to that path (the `User`, not the `ProjectGroupMember`).
+
+**Correction (folding in the verified history):** `feat/student-grouping-crud`
+already owns this feature end-to-end — `ProjectGroupMemberPolicy#destroy?`,
+`ProjectGroupMembersController#create/#destroy`, `GroupMemberRemover`,
+`GroupMemberAdder`, the dissolve-warning modal, and a fixed `_my_group_panel`
+(which passes `membership` correctly at line ~270). Its
+`EnrolmentsController#destroy` even carries the IDOR fix (§2.7). **Ticket 1 must
+adopt that mechanism when the branch merges — not build a parallel
+`ProjectGroupPolicy#remove_member?` route/policy** or this plan reintroduces the
+exact duplicate-implementation failure §2.1 warns about. Known gaps on the
+branch, for the merge-audit: its `EnrolmentsController` hardcodes
+`dissolve_confirmed: true` (the "this will delete an existing project" modal is
+skipped) and runs `remove!` + `enrolment.destroy!` outside a transaction.
 
 ### 2.5 Helpers already read instance variables, not locals
 
@@ -144,8 +162,10 @@ and ignore it — they read `@projects_by_owner` straight off whatever
 controller rendered the current request. This is exactly the anti-pattern
 the "partials as reusable components" excerpt you're working from warns
 about (locals only, no instance variables) — it's baked into current code,
-and it's an easy thing to copy by habit into the new Teachers/Students/Groups
-partials since the existing helpers are right there to call.
+and it's an easy thing to copy by habit into the new Lecturers/Students/Groups
+partials since the existing helpers are right there to call. New partials must
+take project-derived data (project/status/supervisor) as explicit locals, never
+via these helpers.
 
 ### 2.6 Capacity color tiers need a ratio, not a new field
 
@@ -155,6 +175,38 @@ exposes `approved_count`, `effective_cap`, `pending_count`, and a binary
 can be computed in the view from `approved_count.to_f / effective_cap` —
 no model change needed — but `effective_cap` can be `0` (e.g. all lecturers
 excluded from auto-calc), so the partial must guard the division.
+
+### 2.7 Live IDOR in `EnrolmentsController#destroy` (verified, both branches)
+
+`app/controllers/enrolments_controller.rb:8` authorizes on the request body:
+`params.require(%i[coordinator_id course_id id])` then checks
+`course_coordinators.include?(params[:coordinator_id].to_i)` — **never
+`current_user`**. The view renders `coordinator_id: Current.user` as a normal
+form field (`app/views/courses/profile.html.erb:187`), so anyone can submit a
+different coordinator's id and the check passes; the `destroy` then deletes any
+enrolment. Zero delta between `main` and `refactor/design`. `feat/student-grouping-crud`
+already fixed it (`current_course.coordinator_ids.include?(current_user.id)`,
+scoped find, no `coordinator_id` param). The Students-tab "Remove" action wires
+straight onto this action, so this refactor ships the fix (Ticket 1-security).
+
+### 2.8 "Status" means project review status; "Active" is undefined
+
+`sort_value_for_student`'s `'status'` case and `student_status`/
+`CoursesHelper#student_status` both compute **project review status**
+(approved/pending/redo/rejected/not_submitted). The spec's Invited/Joined/Active
+is a different axis backed by a single boolean, `users.has_registered` — no
+third state exists in the schema. Any future status badge/column is net-new and
+needs an "Active" definition before it's buildable. Not built in this pass
+(mockup-strict Students table has no status column).
+
+### 2.9 The has/without-projects split is meaningless for grouped courses
+
+`@students_with_projects`/`@students_without_projects`
+(`courses_controller.rb#show`) derives from
+`projects.approved.where(owner_type: 'User')` — solo ownership only. For any
+grouped course, group-owned projects carry `owner_type: 'ProjectGroup'`, so no
+student's id appears in the `User`-owner set regardless of their group
+membership. The split must not be used as the Ungrouped/Grouped filter.
 
 ---
 
@@ -272,66 +324,72 @@ that loads the course page as a plain student and asserts each visible tab
 opens its own panel — this is the regression guard for §2.3 and for every
 tab added after it, including Groups.
 
-### Ticket 1 — `remove_from_group` backend (independent, no view work)
+### Ticket 1 (security) — Live IDOR in `EnrolmentsController#destroy` (blocking, ships with this refactor)
 
-New policy method (`ProjectGroupPolicy#remove_member?` — coordinator, or
-group leader during the open grouping window, mirroring the existing
-`destroy?`/`promote_leader?` gating already in that file) + a controller
-action that destroys the `ProjectGroupMember` only, leaves the `Enrolment`
-alone. Test this directly against the policy and controller before any
-Students-tab or Groups-tab UI exists — it's small and fully decoupled from
-the redesign's view work.
+Stands alone before any Students-tab UI: drop `params[:coordinator_id]` from the
+`require`, authorize on `current_course.coordinator_ids.include?(current_user.id)`,
+scope the enrolment find to the course. Mirrors the `feat/student-grouping-crud`
+fix so the later merge is a no-op, and is what the Students-tab "Remove" action
+wires onto. Add a controller regression test (non-coordinator cannot delete;
+`coordinator_id` param is ignored).
 
-### Ticket 2 — Teachers list partial
+### Ticket 2 — Lecturers section partial
 
 Extract from `_people_tab.html.erb`'s "Supervisors Available" block into its
-own partial, **locals only** (`course:`, `lecturers:`, `capacity_result:`,
-`lecturer_capacity_info:` — don't reach for `@course`/`@lecturers` inside
-the partial). Capacity bar computes its own ratio from
+own section partial, **locals only** (`course:`, `lecturers:`,
+`capacity_result:`, `lecturer_capacity_info:` — don't reach for ivars inside).
+UI heading is **"Lecturers"**, not "Teachers" (naming sign-off).
+Capacity bar computes its own ratio from
 `lecturer_capacity.approved_count.to_f / lecturer_capacity.effective_cap`
 with a zero-guard; three-tier color reuses the exact hexes already used for
-project status (`#137333`/`#F57F17`/`#C5221F`) rather than new Tailwind
-shades, per spec. Pending tag turns red when
+project status (`#137333`/`#F57F17`/`#C5221F`); excluded (`excluded?`)
+lecturers render a bare row with no bar/count. Pending tag turns red when
 `lecturer_capacity.pending_count + lecturer_capacity.approved_count > lecturer_capacity.effective_cap`.
-Drop the static "Total Projects / Max per Lecturer" line (removed per spec);
-keep the conditional offset callout, gated exactly as it is today
+Drop the static "Total Projects / Max per Lecturer" line; keep the conditional
+offset callout, gated exactly as it is today
 (`@course.supervisor_auto_calculate_enabled? && @capacity_result.remainder > 0`).
+Preserve the solo-supervisor "Instructor:" variant.
 
-### Ticket 3 — Students tab
+### Ticket 3 — Students section (People tab sub-section)
 
-Reuse `courses_controller.rb`'s existing `filtered_student_list`,
-`search_students`, `sort_value_for_student`, `sort_descending?` — this
-machinery already does search + sort + status filter correctly on `main`;
-don't reimplement it. Do **not** wire this tab's search/sort against
-`ParticipantsController` (see §2.1) — pick `CoursesController#show`'s
-version as the single source of truth and delete the other one in Ticket 5.
-New: single consolidated status badge (Invited/Joined/Active) replacing
-whatever ad hoc status logic gets reused; row actions call the existing
-`EnrolmentsController#destroy` (remove from course) and the new Ticket 1
-action (remove from group). Add the Ungrouped/Grouped filter as a thin
-wrapper around the existing group-membership check already used to compute
-`@students_with_projects`/`@students_without_projects` in
-`courses_controller.rb#show` — verify in the audit whether that split is
-actually "has a project" (current code) vs "is in a group" (what the filter
-needs) before assuming they're the same thing; they aren't for solo-supervisor
-non-grouped courses.
+Mockup-strict Students table inside People: single-select checkbox (radio
+behavior, **no select-all**), Student | Email | Group | more_vert columns,
+gray `(invited)` suffix for `!has_registered`, search by name, sort-by-name
+toggle. Reuse `courses_controller.rb`'s existing
+`filtered_student_list`, `search_students`, `sort_value_for_student`,
+`sort_descending?` — don't reimplement; delete the `ParticipantsController`
+duplicate in Ticket 5. **No status column, no badge, no Ungrouped/Grouped
+filter** on this tab (mockup-strict; see §2.8/§2.9 for why those were cut).
+Actions dropdown operates on the ONE selected row:
+- **Email** dispatches per row: `!has_registered` → server `resend_invite_path`
+  (the real `UserController#resend_invite` OTP+mailer action — this is what
+  preserves that surface after Ticket 5 deletes its only current callers
+  `_participants_table.html.erb:137,271`); registered → client `mailto:` compose.
+- **Remove** = `EnrolmentsController#destroy` (now fixed by Ticket 1);
+  **no** remove-from-group action on this tab in this session.
+- The row's `more_vert` menu offers "Remove from course" only.
 
-### Ticket 4 — Groups tab
+### Ticket 3.5 — CSV import modal (`_add_students_modal.html.erb`)
 
-**Before building:** resolve the open spec question — does "+Add students"
-on this tab mean the page-level bulk-enroll flow (same target as Students
-tab) or a per-group "add member" action that also enrolls on first use? This
-changes the policy gating and the controller action, not just a button
-label — don't guess it into the view and pave over the ambiguity. Build
-the table on the existing `filtered_group_list`/`search_groups`/
-`sort_value_for_group` and confirm the audit's finding on whether drafts
-are excluded from whatever scope feeds this list (Browse Groups drafts must
-never appear here, per spec — check `ProjectGroup` for a `confirmed`
-scope/column and make sure the Groups-tab query filters on it explicitly,
-don't rely on it "just not happening to include drafts" incidentally).
-Member column: collapsed avatar stack + count, expand per row via a small
-Stimulus controller (new, generic — don't hardcode to this table if it can
-be reused for the header's expand/collapse-all).
+The existing full-page bulk-enroll flow (`add_students.html.erb` →
+`handle_add_students_course_path`, `_participants.html.erb`'s htmx handler)
+becomes a modal. Opened by both the Students section header `person_add` and
+the Groups tab header `group_add`. Posts to the existing
+`handle_add_students_course_path`; `add_students.html.erb` becomes orphaned →
+deleted in Ticket 5.
+
+### Ticket 4 — Groups tab (sibling top-level tab)
+
+**Resolved spec question:** "+Add students / Create Group" on the Groups tab
+header is the same CSV bulk-enroll modal (Ticket 3.5), not a per-group add.
+Build the table on the existing `filtered_group_list`/`search_groups`/
+`sort_value_for_group`, but **data source is confirmed groups only**
+(`ProjectGroup.where(confirmed: true)`) — drafts never appear (Browse Groups'
+drafts stay off this tab). Filter is the full backend status set
+All/Approved/Pending/Redo/Rejected/Not Submitted. Sortable columns: Group /
+Project Title / Status / Supervisor. Member column: collapsed avatar stack +
+count, expand per row + a generic Stimulus header expand/collapse-all
+(`expandable_rows_controller.js`, not hardcoded to this table).
 
 ### Ticket 5 — Delete dead code
 
@@ -340,57 +398,88 @@ be reused for the header's expand/collapse-all).
   — once Students/Groups tabs fully replace what the fullpage view did.
   Confirm nothing else links to `course_participants_path` first.
 - `app/views/courses/_participants.html.erb`, `_participants_table.html.erb`
-  — superseded by the Students/Groups tab partials.
+  — superseded by the section/table partials.
+- `app/views/courses/add_students.html.erb` — orphaned by Ticket 3.5.
+- `app/views/courses/add_students.html.erb` — KEPT for Ticket 5 despite the
+  "orphaned by Ticket 3.5" note: `settings.html.erb:392` still links to
+  `add_students_course_path` (course-settings footer). People/Groups tabs now
+  open the CSV modal; the settings entry point keeps the full page.
+- `app/views/courses/_lecturers.html.erb` — KEPT for Ticket 5 despite the
+  "superseded" note: still rendered by `_project_details_tab.html.erb:30`
+  (solo-supervisor "Instructor" grid), so it was NOT dead. Audit error caught
+  at implementation (missing-partial test failure); restored from HEAD.
 - `app/views/courses/_lecturer_section.html.erb`, `_student_section.html.erb`
-  — already deleted on `refactor/design`; confirm nothing on `main`-only
-  code paths still references them before merging.
+  — confirm nothing on `main`-only paths still references them before merging.
 
 > **Deferred (ADR-011, future session):** select-all, bulk remove, and bulk
 > send-email are intentionally NOT built in this refactor. The Students table is
-> single-select only; the Actions dropdown acts on the one selected row
-> (Email = client-side `mailto:`, Remove = existing
-> `EnrolmentsController#destroy`). Do not "complete" the mockup's bulk UI
-> without revisiting `docs/adr/0011-defer-bulk-student-actions.md`.
+> single-select only; the Actions dropdown acts on the one selected row:
+> Email dispatches per row (invited → `resend_invite`, registered → `mailto:`),
+> Remove = `EnrolmentsController#destroy`. Any future bulk route follows the
+> top-level convention (`resources :enrolments`, `course_id` param — not
+> nesting). Do not "complete" the mockup's bulk UI without revisiting
+> `docs/adr/0011-defer-bulk-student-actions.md`.
+>
+> **Deferred (merge + audit session):** remove-from-group rides the
+> `feat/student-grouping-crud` mechanism
+> (`ProjectGroupMemberPolicy#destroy?` → `ProjectGroupMembersController#destroy`
+> → `GroupMemberRemover`) — merged, audited, then wired to the Students-tab row
+> action. **No** parallel `ProjectGroupPolicy#remove_member?` is built (see
+> §2.4). Merge-audit carries the branch's `EnrolmentsController#destroy` gaps:
+> hardcoded `dissolve_confirmed: true` and non-transactional
+> `remove!` + `destroy!`.
 
 ### File operations summary
 
 | Type | Path |
 |---|---|
-| New | `app/views/courses/_teachers_list.html.erb` (locals: `course`, `lecturers`, `capacity_result`, `lecturer_capacity_info`) |
-| New | `app/views/courses/_students_tab.html.erb`, `_students_row.html.erb` |
-| New | `app/views/courses/_groups_tab.html.erb`, `_groups_row.html.erb` |
-| New | policy method on `ProjectGroupPolicy` + controller action for remove-from-group |
-| New | Stimulus controller for row-level member expand/collapse (+ header toggle) |
-| Modify | `app/views/courses/show.html.erb` — fix index/DOM mismatch (Ticket 0), add Groups as its own top-level tab, replace People-tab People-only content with People (Teachers) + separate Students/Groups tabs per spec |
-| Modify | `app/views/courses/_people_tab.html.erb` → becomes just the Teachers list render, per spec ("People holds Teachers + Students only" — re-check this against "Groups is its own top-level tab" wording; confirm with whoever owns the spec whether Students also moves out of People into its own tab or stays inside People as a sub-section, since the tab list at the top of the spec lists People and Groups as siblings but the People description says "holds Teachers + Students") |
+| New | `app/views/courses/_lecturers_section.html.erb` (locals: `course`, `lecturers`, `capacity_result`, `lecturer_capacity_info`) |
+| New | `app/views/courses/_students_section.html.erb` (locals: `course`, `students`, `student_group_map`, `total_student_count`), `_students_table.html.erb`, `_student_row.html.erb` (locals: `student`, `group`, `selected`; project-derived data must arrive as locals, never via `student_status`/`student_project_for` — §5) |
+| New | `app/views/courses/_groups_tab.html.erb` (locals: `course`, `groups`), `_groups_table.html.erb`, `_group_row.html.erb` (locals: `group`, `project`, `status`, `supervisor`) |
+| New | `app/views/courses/_add_students_modal.html.erb` (locals: `course`) — CSV import, posts to `handle_add_students_course_path` |
+| New | `app/javascript/controllers/expandable_rows_controller.js` (generic row expand/collapse + header toggle-all) |
+| Modify | `app/views/courses/show.html.erb` — fix index/DOM mismatch (Ticket 0, Ruby-computed indices), add Groups as its own top-level tab, render People (Lecturers + Students sections) + Groups via the tab shell |
+| Modify | `app/views/courses/_people_tab.html.erb` → the **ivar→locals seam** (header comment; reads `@course` etc. and passes locals down; everything below is locals-only); `_groups_tab.html.erb` is the same seam for its panel |
+| Modify | `app/controllers/enrolments_controller.rb` — IDOR fix (Ticket 1) |
+| Modify | `app/controllers/courses_controller.rb` — extend `show`'s htmx branch for `section: students/groups`, build `student_group_map` once |
 | Delete | `app/controllers/participants_controller.rb`, its route, `app/views/participants/index.html.erb` |
-| Delete | `app/views/courses/_participants.html.erb`, `_participants_table.html.erb` |
-| Untouched | `app/views/project_groups/*` (Browse Groups screen — spec says unchanged) |
+| Delete | `app/views/courses/_participants.html.erb`, `_participants_table.html.erb`, `_lecturers.html.erb`, `add_students.html.erb` |
+| Untouched | `app/views/project_groups/*` (Browse Groups screen — spec says unchanged; remove-from-group stays deferred to the branch merge) |
 
-> Flag before Ticket 4: the spec text has an internal inconsistency worth
-> resolving with whoever wrote it — the tab list says
-> `People / Groups / Settings` (Groups as a sibling top-level tab), but the
-> "People" section header says "People holds Teachers + Students only,"
-> which would make Students a sub-section of People, not its own tab. Ticket
-> 3 above assumes Students is reachable somewhere under People and Groups is
-> the only new top-level tab; confirm this before building the tab shell in
-> Ticket 0/4 so the index-fix isn't done against the wrong tab count.
+> **Resolved (was "Flag before Ticket 4"):** Groups is a sibling top-level tab;
+> People = Lecturers section + Students section (Students stays inside People as
+> a sub-section, per mockup-strict). Spec inconsistency resolved by the mockups
+> (`ProPro_Design/people_tab.html.erb`, `groups_tab.html.erb`).
 
 ### Tests to add
 
 - System test: student-role user can open every visible tab and see the
   matching panel (regression guard for §2.3, run before and after Ticket 0).
-- Controller/policy test: remove-from-group destroys the `ProjectGroupMember`
-  only, leaves `Enrolment` intact; non-leader/non-coordinator is denied.
-- System test: Teachers list capacity bar renders correct color tier at
-  <70%/70–99%/100%+, and at `effective_cap == 0` without raising.
-- System test: Students tab search/filter/sort produce the same result set
-  `CoursesController#show`'s existing private methods already produce today
-  — i.e. this is a "did we actually reuse it" regression test, not just a
-  new-feature test.
-- System test: Groups tab never renders an unconfirmed/draft `ProjectGroup`.
+- Controller test: `EnrolmentsController#destroy` — non-coordinator denied,
+  `coordinator_id` param is ignored, only the current course's enrolment is
+  removable (Ticket 1).
+- Controller test: Lecturers section capacity bar renders (non-solo course only)
+  and the excluded lecturer's `effective_cap == 0` never prints `x/0`.
+- Controller test: Students section search/sort reuse — htmx
+  `section=students&search_query=…` returns the same partial
+  `CoursesController#show`'s existing privates produce ("did we actually reuse
+  it" regression, not just a new-feature test).
+- Controller test: Students Email dispatch — unregistered row exposes
+  `data-resend-url` (/user/:id/resend_invite) + the "(invited)" suffix.
+- Controller test: Groups tab never renders an unconfirmed/draft `ProjectGroup`
+  (page path and htmx `section=groups` path).
+- Controller test: tab/panel parity for the student role (5 tabs) and `Groups`
+  button presence.
 - Delete-path test: after Ticket 5, `course_participants_path` and
   `ParticipantsController` are gone and nothing 404s that shouldn't.
+> **Implementation note (2026-08-31):** `test/controllers/courses_controller_test.rb`
+> (extended) and `test/controllers/enrolments_controller_test.rb` (new) cover the
+> above as controller-level tests asserted against the response body — 19 tests,
+> all green alongside the full repository suite (108 runs, 0 failures). `mailto:`
+> dispatch itself is client-side JavaScript (system tests drive `rack_test`), so
+> the registered-student branch is exercised by the JS lint rather than a browser
+> test; the unregistered/resend branch is covered by the `data-resend-url` markup
+> assertion.
 
 ---
 

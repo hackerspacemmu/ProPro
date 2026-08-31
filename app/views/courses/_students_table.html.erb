@@ -1,0 +1,56 @@
+<%# --- locals: course, students, student_group_map, student_enrolment_map, total_count, displayed_count, show_all %>
+<%# htmx re-render target on the People tab — rendered from BOTH the page path and
+    the courses#show htmx branch, so it only ever uses locals. Never reach for
+    student_status/student_project_for (see plan §5). %>
+
+<div id="students-table-container" class="overflow-x-auto border border-gray-200 rounded-lg">
+  <table class="w-full min-w-[480px] table-fixed">
+    <thead class="bg-white">
+      <tr>
+        <th class="w-[4%] px-2 py-3 border-b border-gray-200 text-center"></th>
+        <th class="w-[38%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Student</th>
+        <th class="w-[31%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Email</th>
+        <th class="w-[27%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Group</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% if students.present? %>
+        <% students.each do |student| %>
+          <%= render "courses/student_row",
+                     student: student,
+                     group: student_group_map[student.id],
+                     selected: false,
+                     course: course,
+                     enrolment: student_enrolment_map[student.id] %>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-500 italic">No students have been enrolled yet.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if total_count.positive? %>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 bg-white rounded-b-lg">
+      <span class="text-sm text-gray-500">
+        Showing <span class="font-semibold text-gray-700"><%= displayed_count %></span>
+        of <span class="font-semibold text-gray-700"><%= total_count %></span> students
+      </span>
+
+      <% if !show_all && total_count > displayed_count %>
+        <button type="button"
+                class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors cursor-pointer"
+                hx-get="<%= course_url(course) %>"
+                hx-target="#students-table-container"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-include="#students-search"
+                hx-vals='{"section": "students", "show_all": "true"}'
+                hx-indicator="#students-loading">
+          Show all <%= total_count %>
+        </button>
+      <% end %>
+    </div>
+  <% end %>
+</div>

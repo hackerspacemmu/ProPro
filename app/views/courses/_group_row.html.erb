@@ -1,0 +1,81 @@
+<%# --- locals: course, group, project, status, supervisor %>
+<%# project/status/supervisor arrive as locals computed once above (table-side
+    map lookup) — this partial never looks them up itself (plan §5). %>
+<% badge_classes, badge_color =
+     case status.to_s
+     when "approved"      then ["bg-[#E6F4EA] text-[#137333]", "bg-[#137333]"]
+     when "pending"       then ["bg-[#E8F0FE] text-[#1967D2]", "bg-[#1967D2]"]
+     when "redo"          then ["bg-[#FEF7E0] text-[#E37400]", "bg-[#E37400]"]
+     when "rejected"      then ["bg-[#FCE8E6] text-[#C5221F]", "bg-[#C5221F]"]
+     else                      ["bg-gray-100 text-gray-600", "bg-gray-500"]
+     end %>
+
+<tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="<%= group.id %>">
+  <td class="px-4 py-4 text-sm align-middle">
+    <%= link_to participant_profile_course_path(course, group.id, 'group'),
+                title: group.group_name || "Group #{group.id}",
+                class: "text-gray-900 font-medium hover:underline truncate block w-full" do %>
+      <%= group.group_name || "Group #{group.id}" %>
+    <% end %>
+  </td>
+  <td class="px-4 py-4 align-middle">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="flex -space-x-1.5 shrink-0">
+        <% group.project_group_members.first(3).each do |member| %>
+          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10"><%= member.user.name.first.upcase %></div>
+        <% end %>
+      </div>
+      <span class="text-sm text-gray-500 truncate"><%= pluralize(group.project_group_members.count, "member") %></span>
+    </div>
+  </td>
+  <td class="px-4 py-4 text-sm align-middle">
+    <% if project.present? %>
+      <% project_title = project.project_instances.order(:version).last&.title %>
+      <%= link_to course_project_path(course, project), title: project_title, class: "text-gray-900 hover:underline truncate block w-full" do %>
+        <%= project_title || "-" %>
+      <% end %>
+    <% else %>
+      <span class="text-gray-400 italic text-xs">-</span>
+    <% end %>
+  </td>
+  <td class="px-4 py-4 align-middle">
+    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium <%= badge_classes %>">
+      <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= badge_color %>"></span>
+      <%= status.to_s.titleize %>
+    </span>
+  </td>
+  <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+    <div class="flex items-center justify-between gap-2">
+      <span class="truncate min-w-0" title="<%= supervisor&.name %>"><%= supervisor&.name || "-" %></span>
+      <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+    </div>
+  </td>
+</tr>
+<tr class="hidden bg-gray-50/30" data-detail-row-id="<%= group.id %>">
+  <td colspan="5" class="px-4 py-4 border-t border-gray-100">
+    <div class="pl-[10%]">
+      <div class="flex flex-col gap-4">
+        <% group.project_group_members.each do |member| %>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0"><%= member.user.name.first.upcase %></div>
+            <span class="text-sm text-gray-700 truncate min-w-0" title="<%= member.user.name %>"><%= member.user.name %></span>
+            <% unless member.user.has_registered %>
+              <span class="inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap shrink-0">
+                <span class="bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border border-yellow-200 leading-none">Pending</span>
+                <% if policy(course).manage_students? %>
+                  <%= button_to resend_invite_path(member.user),
+                                method: :post,
+                                form: { class: "inline-flex items-center" },
+                                class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors",
+                                title: "Resend Invite" do %>
+                    <span class="material-symbols-outlined text-[16px]">mail</span>
+                  <% end %>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </td>
+</tr>
