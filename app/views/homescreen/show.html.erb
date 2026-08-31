@@ -1,380 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>People - ProPro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Material Symbols for Google Material Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap');
-  </style>
-</head>
-<body class="bg-[#f8fafd] text-[#3C4043] font-['Roboto',sans-serif] h-screen flex flex-col overflow-hidden">
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
+<% end %>
 
-  <!-- ========================================== -->
-  <!-- HEADER                                     -->
-  <!-- ========================================== -->
-  <header class="flex items-center justify-between gap-3 px-4 py-3 shrink-0">
-    <div class="flex items-center gap-2 min-w-0">
-      <button type="button" aria-label="Toggle sidebar" class="lg:hidden shrink-0 p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
+<% content_for :hide_toggler, true %>
+<% content_for :no_sidebar, true %>
+<%# 3. DEFINE TOP BAR LINKS %>
+<% content_for :breadcrumbs do %>
 
-      <span class="shrink-0 text-[24px] text-[#5F6368] font-medium" style="font-family: 'Google Sans', sans-serif;">ProPro</span>
+  <%= link_to "Home",
+  root_url,
+  class:
+    "text-gray-600 hover:text-green-700 font-semibold transition-colors no-underline" %>
 
-      <!-- Breadcrumbs Mockup -->
-      <nav class="hidden md:flex items-center ml-4 text-sm text-[#5F6368]" style="font-family: 'Google Sans', sans-serif;">
-        <a href="#" class="hover:text-gray-900 transition-colors">Home</a>
-        <span class="mx-2 material-symbols-outlined text-[16px]">chevron_right</span>
-        <span class="text-[#3C4043] font-medium">Scatting class (G11)</span>
-      </nav>
-    </div>
+  <span class="mx-3 text-gray-400"></span>
 
-    <button type="button" class="shrink-0 m-0 text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors pr-2 bg-transparent border-0 cursor-pointer" style="font-family: 'Google Sans', sans-serif;">
-      Log out
-    </button>
-  </header>
+  <%= link_to "Edit Profile",
+  user_profile_path,
+  class:
+    "text-gray-600 hover:text-green-700 font-semibold transition-colors no-underline" %>
+  <span class="mx-3 text-gray-400"></span>
 
-  <!-- ========================================== -->
-  <!-- MAIN LAYOUT (Sidebar + Content)            -->
-  <!-- ========================================== -->
-  <div class="flex flex-1 overflow-hidden">
-    
-    <!-- SIDEBAR -->
-    <aside id="app-sidebar" class="w-[280px] shrink-0 py-3 bg-[#f8fafd] hidden lg:flex flex-col h-full overflow-y-auto">
-      <nav class="flex flex-col gap-1 pr-3">
-        
-        <!-- Home (Inactive) -->
-        <a href="#" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-black/5" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">
-          <span class="material-symbols-outlined">home</span>
-          <span>Home</span>
-        </a>
+  <%= link_to "Log Out",
+  session_path,
+  data: {
+    turbo_method: :delete,
+  },
+  class:
+    "text-red-600 hover:text-red-800 font-semibold transition-colors no-underline" %>
 
-        <!-- Enrolled Header -->
-        <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] cursor-pointer">
-          <span style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">Enrolled</span>
-          <span class="material-symbols-outlined text-sm">expand_less</span>
-        </div>
+<% end %>
 
-        <!-- Active Course -->
-        <a href="#" class="flex items-center gap-4 transition-colors truncate mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0]" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">
-          <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">
-            S
-          </div>
-          <span class="truncate">Scatting class</span>
-        </a>
+<div
+  id="home"
+  class="
+    flex-1 w-full min-w-0 p-4 pb-6 sm:p-6 lg:p-8 font-sans text-gray-900 bg-gray-50
+  "
+>
 
-        <!-- Inactive Course -->
-        <a href="#" class="flex items-center gap-4 transition-colors truncate px-6 py-3.5 rounded-r-full text-[#3C4043] hover:bg-black/5" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">
-          <div class="w-9 h-9 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-bold shrink-0">
-            D
-          </div>
-          <span class="truncate">Database Systems</span>
-        </a>
-
-        <div class="py-2">
-          <div class="border-t border-[#DADCE0]"></div>
-        </div>
-
-        <!-- Profile -->
-        <a href="#" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-black/5" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">
-          <span class="material-symbols-outlined text-[#5F6368]">person</span>
-          <span>Edit profile</span>
-        </a>
-      </nav>
-    </aside>
-
-    <!-- MAIN WORKSPACE -->
-    <main class="flex-1 flex flex-col bg-white rounded-tl-[28px] shadow-[-2px_0_12px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
-
-      <!-- TABS -->
-      <div class="border-b border-[#E0E0E0] px-6 pt-4 shrink-0 bg-white z-10">
-        <div class="flex gap-8 overflow-x-auto no-scrollbar">
-          <button type="button" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors whitespace-nowrap" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">Project Details</button>
-          <button type="button" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors whitespace-nowrap" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">To Review</button>
-          <button type="button" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors whitespace-nowrap" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">Supervised Projects</button>
-          <button type="button" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors whitespace-nowrap" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">Topic Directory</button>
-          
-          <!-- Active Tab -->
-          <button type="button" class="pb-3 text-[#0B57D0] border-b-4 border-[#0B57D0] transition-colors whitespace-nowrap" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">People</button>
-          
-          <button type="button" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors whitespace-nowrap" style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;">Settings</button>
-        </div>
-      </div>
-
-      <!-- SCROLLABLE CONTENT (Redesigned People Tab) -->
-      <div class="flex-1 overflow-y-auto bg-white p-6 md:p-10">
-        <div class="max-w-5xl mx-auto w-full">
-
-          <!-- ========================================== -->
-          <!-- 1. TEACHERS SECTION                        -->
-          <!-- ========================================== -->
-          <section class="mb-14">
-            <!-- Header -->
-            <div class="flex items-start justify-between border-b border-gray-300 pb-4 mb-4">
-              <div>
-                <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'Google Sans', sans-serif;">Teachers</h2>
-              </div>
-              <button class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors mt-1" title="Add Teacher">
-                <span class="material-symbols-outlined">person_add</span>
-              </button>
-            </div>
-
-            <!-- List -->
-            <div class="flex flex-col gap-1">
-              <div class="flex items-center justify-between py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors group">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full bg-[#E8F0FE] flex items-center justify-center text-sm font-medium text-[#1A73E8] shrink-0">C</div>
-                  <span class="text-sm font-medium text-gray-900">CHIAM JUIN HOONG</span>
-                </div>
-                <div class="flex items-center gap-4 ml-auto">
-                  <div class="w-24 h-1.5 bg-[#E1E3E1] rounded-full overflow-hidden flex">
-                    <div class="bg-[#C5221F] w-[100%] h-full rounded-full"></div>
-                  </div>
-                  <span class="text-sm font-medium text-[#C5221F] w-6 text-right">1/1</span>
-                  <button class="p-1.5 text-gray-400 hover:bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-all ml-1">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-              
-              <div class="flex items-center justify-between py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors group">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full bg-[#E6F4EA] flex items-center justify-center text-sm font-medium text-[#1E8E3E] shrink-0">T</div>
-                  <span class="text-sm font-medium text-gray-900">Test Lecturer 1</span>
-                </div>
-                <div class="flex items-center gap-4 ml-auto">
-                  <div class="w-24 h-1.5 bg-[#E1E3E1] rounded-full overflow-hidden flex">
-                    <div class="bg-[#137333] w-[0%] h-full rounded-full"></div>
-                  </div>
-                  <span class="text-sm font-medium text-[#137333] w-6 text-right">0/1</span>
-                  <button class="p-1.5 text-gray-400 hover:bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-all ml-1">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- ========================================== -->
-          <!-- 2. GROUPS SECTION (Accordion Rows)         -->
-          <!-- ========================================== -->
-          <section>
-            <!-- Header and Controls -->
-            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-gray-300 pb-4 mb-4 gap-4">
-              
-              <div class="flex items-baseline gap-4 shrink-0">
-                <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'Google Sans', sans-serif;">Groups</h2>
-                <span class="text-sm font-medium text-gray-500">4 groups</span>
-              </div>
-
-              <!-- Utilities -->
-              <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-                <div class="relative flex items-center w-full md:w-[240px]">
-                  <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
-                  <input type="text" placeholder="Search..." class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full pl-9 pr-4 py-2 transition-all outline-none">
-                </div>
-
-                <select class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] block w-full md:w-auto px-4 py-2 transition-all cursor-pointer outline-none">
-                  <option value="all">All Statuses</option>
-                  <option value="approved">Approved</option>
-                  <option value="pending">Pending</option>
-                </select>
-
-                <button class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors shrink-0" title="Add Group">
-                  <span class="material-symbols-outlined">group_add</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Data Table -->
-            <div class="overflow-x-auto pb-8 border border-gray-200 rounded-lg">
-              <table class="min-w-full table-fixed">
-                <thead class="bg-white">
-                  <tr>
-                    <th class="w-[10%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Group</th>
-                    <th class="w-[30%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Members</th>
-                    <th class="w-[30%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Project Title</th>
-                    <th class="w-[15%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Status</th>
-                    <th class="w-[15%] px-4 py-3 text-left text-xs font-medium text-[#5F6368] border-b border-gray-200 uppercase tracking-wider">Supervisor</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                  
-                  <!-- ========================================== -->
-                  <!-- GROUP 01 -->
-                  <!-- ========================================== -->
-                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" onclick="toggleRow('group-01')">
-                    <td class="w-[10%] px-4 py-4 text-sm font-medium text-gray-900 align-middle">01</td>
-                    <td class="w-[30%] px-4 py-4 align-middle">
-                      <div class="flex items-center gap-3">
-                        <div class="flex -space-x-1.5">
-                          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">T</div>
-                        </div>
-                        <span class="text-sm text-gray-500">1 member</span>
-                      </div>
-                    </td>
-                    <td class="w-[30%] px-4 py-4 text-sm align-middle pr-4">
-                      <a href="#" class="text-[#1A73E8] hover:underline truncate block w-full">Pineapple das</a>
-                    </td>
-                    <td class="w-[15%] px-4 py-4 align-middle">
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#E8F0FE] text-[#1967D2]">
-                        Pending
-                      </span>
-                    </td>
-                    <td class="w-[15%] px-4 py-4 text-sm text-gray-600 align-middle">
-                      <div class="flex items-center justify-between">
-                        <span>Test Lecturer 1</span>
-                        <span id="icon-group-01" class="material-symbols-outlined text-gray-400 transition-transform duration-200">expand_more</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <!-- Detail Row -->
-                  <tr id="detail-group-01" class="hidden bg-gray-50/30">
-                    <td colspan="5" class="px-4 py-4 border-t border-gray-100">
-                      <div class="pl-[10%]"> 
-                        <div class="flex flex-col gap-4">
-                          <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">T</div>
-                            <span class="text-sm text-gray-700">Test Student 1</span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- ========================================== -->
-                  <!-- GROUP 03 -->
-                  <!-- ========================================== -->
-                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" onclick="toggleRow('group-03')">
-                    <td class="w-[10%] px-4 py-4 text-sm font-medium text-gray-900 align-middle">03</td>
-                    <td class="w-[30%] px-4 py-4 align-middle">
-                      <div class="flex items-center gap-3">
-                        <div class="flex -space-x-1.5">
-                          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-30">S</div>
-                          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-20">N</div>
-                          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">T</div>
-                        </div>
-                        <span class="text-sm text-gray-500">3 members</span>
-                      </div>
-                    </td>
-                    <td class="w-[30%] px-4 py-4 text-sm align-middle pr-4">
-                      <a href="#" class="text-[#1A73E8] hover:underline truncate block w-full">Test Create Proposal for ...</a>
-                    </td>
-                    <td class="w-[15%] px-4 py-4 align-middle">
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#E6F4EA] text-[#137333]">
-                        Approved
-                      </span>
-                    </td>
-                    <td class="w-[15%] px-4 py-4 text-sm text-gray-600 align-middle">
-                      <div class="flex items-center justify-between">
-                        <span>Test Lecturer 1</span>
-                        <span id="icon-group-03" class="material-symbols-outlined text-gray-400 transition-transform duration-200">expand_more</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <!-- Detail Row -->
-                  <tr id="detail-group-03" class="hidden bg-gray-50/30">
-                    <td colspan="5" class="px-4 py-4 border-t border-gray-100">
-                      <div class="pl-[10%]"> 
-                        <div class="flex flex-col gap-4">
-                          <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">S</div>
-                            <span class="text-sm text-gray-700">SOO SHI JIAN</span>
-                          </div>
-                          <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">N</div>
-                            <span class="text-sm text-gray-700">NIILESH A/L SARAVANA KUMAR</span>
-                          </div>
-                          <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">T</div>
-                            <span class="text-sm text-gray-700">Test Student 2</span>
-                            <span class="bg-[#FEF7E0] text-[#E37400] text-[10px] px-1.5 py-0.5 rounded font-medium">Pending</span>
-                            <button class="text-gray-400 hover:text-gray-700 transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span></button>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <!-- ========================================== -->
-                  <!-- GROUP 04 -->
-                  <!-- ========================================== -->
-                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" onclick="toggleRow('group-04')">
-                    <td class="w-[10%] px-4 py-4 text-sm font-medium text-gray-900 align-middle">04</td>
-                    <td class="w-[30%] px-4 py-4 align-middle">
-                      <div class="flex items-center gap-3">
-                        <div class="flex -space-x-1.5">
-                          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-20">C</div>
-                          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">C</div>
-                        </div>
-                        <span class="text-sm text-gray-500">2 members</span>
-                      </div>
-                    </td>
-                    <td class="w-[30%] px-4 py-4 text-sm align-middle pr-4">
-                      <a href="#" class="text-[#1A73E8] hover:underline truncate block w-full">IIIIIIIIIIIII</a>
-                    </td>
-                    <td class="w-[15%] px-4 py-4 align-middle">
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#E6F4EA] text-[#137333]">
-                        Approved
-                      </span>
-                    </td>
-                    <td class="w-[15%] px-4 py-4 text-sm text-gray-600 align-middle">
-                      <div class="flex items-center justify-between">
-                        <span>Test Lecturer 1</span>
-                        <span id="icon-group-04" class="material-symbols-outlined text-gray-400 transition-transform duration-200">expand_more</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <!-- Detail Row -->
-                  <tr id="detail-group-04" class="hidden bg-gray-50/30">
-                    <td colspan="5" class="px-4 py-4 border-t border-gray-100">
-                      <div class="pl-[10%]"> 
-                        <div class="flex flex-col gap-4">
-                          <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">C</div>
-                            <span class="text-sm text-gray-700">CHIAM JUIN HOONG</span>
-                            <span class="bg-[#FEF7E0] text-[#E37400] text-[10px] px-1.5 py-0.5 rounded font-medium">Pending</span>
-                            <button class="text-gray-400 hover:text-gray-700 transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span></button>
-                          </div>
-                          <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">C</div>
-                            <span class="text-sm text-gray-700">CHONG SENG KIAT</span>
-                            <span class="bg-[#FEF7E0] text-[#E37400] text-[10px] px-1.5 py-0.5 rounded font-medium">Pending</span>
-                            <button class="text-gray-400 hover:text-gray-700 transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span></button>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-
-                </tbody>
-              </table>
-            </div>
-
-          </section>
-
-        </div>
-      </div>
-    </main>
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-1"><%= Current.user.name %>'s Dashboard</h1>
+    <h3 class="text-base text-gray-500 font-normal">Your Courses</h3>
   </div>
 
-  <!-- Simple Vanilla JS for the Toggle -->
-  <script>
-    function toggleRow(groupId) {
-      const detailRow = document.getElementById('detail-' + groupId);
-      const icon = document.getElementById('icon-' + groupId);
-      
-      if (detailRow.classList.contains('hidden')) {
-        detailRow.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
-      } else {
-        detailRow.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
-      }
-    }
-  </script>
-</body>
-</html>
+  <div class="mb-4 max-w-fit">
+    <%= render "courses/flash" %>
+  </div>
+
+  <%= render "join_by_code_form", course: @course %>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+    <% if @courses.present? %>
+      <% @courses.each do |course| %>
+        <%= link_to course_path(course), class: "group block no-underline h-full" do %>
+
+          <div
+            class="
+              h-full bg-white rounded-xl border border-gray-200 p-6 transition-all
+              duration-200 ease-in-out group-hover:border-green-400 group-hover:shadow-md
+              group-hover:-translate-y-1 flex flex-col justify-between
+            "
+          >
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h4
+                  class="
+                    text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors
+                  "
+                >
+                  <%= course.course_name %>
+                </h4>
+                <svg
+                  class="
+                    w-5 h-5 text-gray-300 group-hover:text-green-500 transition-colors
+                  "
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  /></svg>
+              </div>
+
+              <p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">
+                <%= course.course_description.presence ||
+                  "No description available for this course." %>
+              </p>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
+              <div
+                class="
+                  w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs
+                  font-bold text-gray-500
+                "
+              >
+                <%= course.coordinators.first&.name&.first&.upcase || "?" %>
+              </div>
+              <span class="text-xs font-medium text-gray-400">
+                Coordinator:
+                <span class="text-gray-600"><%= course.coordinators.first&.name || "None" %></span>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+    <% else %>
+      <div
+        class="
+          col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border
+          border-gray-100 shadow-sm
+        "
+      >
+        <%= image_tag "info.svg", class: "w-6 h-6" %>
+        <h5 class="text-sm text-gray-600 font-medium m-0">
+          You have no courses at the moment. Please create one.
+        </h5>
+      </div>
+    <% end %>
+
+  </div>
+
+  <%= link_to new_course_path,
+      class: "fixed bottom-12 right-12 w-[56px] h-[56px] bg-green-700 hover:bg-green-800 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-3xl no-underline z-50 pb-1" do %>
+    <span>+</span>
+  <% end %>
+
+</div>
