@@ -79,10 +79,21 @@
       <div class="flex-1 overflow-y-auto bg-white">
         
         <div class="max-w-[800px] mx-auto px-8 py-10 pb-20">
+
+          <div class="flex justify-end mb-6">
+            <button class="flex items-center gap-2 text-[14px] font-medium text-[#1A73E8] hover:bg-[#E8F0FE] px-3 py-2 rounded-md transition-colors">
+              <span class="material-symbols-outlined text-[20px]">unfold_less</span>
+              Collapse all
+            </button>
+          </div>
           
-          <div class="mb-12">
-            <div class="flex items-baseline gap-4 mb-4">
-              <h2 style="font-family: 'Google Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#1A73E8]">Pending Proposals</h2>
+                    <div class="mb-12">
+            <div class="flex items-center justify-between mb-4 cursor-pointer group">
+              <h2 style="font-family: 'Google Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Pending Proposals</h2>
+              <div class="flex items-center gap-3">
+                <span class="text-[#1A73E8] font-medium text-[15px]">4</span>
+                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
+              </div>
             </div>
 
             <div class="border border-[#DADCE0] rounded-[8px] overflow-hidden bg-white">
@@ -103,9 +114,6 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
@@ -125,9 +133,6 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
@@ -147,9 +152,6 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
@@ -169,19 +171,19 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
             </div>
           </div>
 
-
-          <div>
-            <div class="flex items-baseline gap-4 mb-4">
+                    <div class="mb-12">
+            <div class="flex items-center justify-between mb-4 cursor-pointer group">
               <h2 style="font-family: 'Google Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Reviewed Proposals</h2>
+              <div class="flex items-center gap-3">
+                <span class="text-[#1A73E8] font-medium text-[15px]">4</span>
+                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
+              </div>
             </div>
 
             <div class="border border-[#DADCE0] rounded-[8px] overflow-hidden bg-white">
@@ -202,9 +204,6 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#FFF8E1] text-[#E65100] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Redo</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
@@ -224,9 +223,6 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#FFF8E1] text-[#E65100] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Redo</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
@@ -246,9 +242,6 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#FCE8E6] text-[#C5221F] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Rejected</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
 
@@ -268,9 +261,58 @@
                 </div>
                 <div class="flex items-center gap-6">
                   <span class="bg-[#FCE8E6] text-[#C5221F] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Rejected</span>
-                  <button class="p-2 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full transition-colors opacity-0 group-hover:opacity-100">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+                    <div>
+            <div class="flex items-center justify-between mb-4 cursor-pointer group">
+              <h2 style="font-family: 'Google Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Pending Topics</h2>
+              <div class="flex items-center gap-3">
+                <span class="text-[#1A73E8] font-medium text-[15px]">2</span>
+                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
+              </div>
+            </div>
+
+            <div class="border border-[#DADCE0] rounded-[8px] overflow-hidden bg-white">
+
+              <div class="group flex items-center justify-between p-4 border-b border-[#E0E0E0] last:border-b-0 hover:bg-[#F8F9FA] transition-colors cursor-pointer relative">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-full bg-[#F1F3F4] flex items-center justify-center shrink-0 group-hover:bg-[#E8F0FE] transition-colors">
+                    <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#1A73E8] transition-colors">topic</span>
+                  </div>
+                  <div>
+                    <h3 style="font-family: 'Google Sans', sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Machine Learning Optimization</h3>
+                    <div class="flex items-center gap-2 text-[13px] text-[#5F6368]">
+                      <span>Dr. Sarah Jenkins</span>
+                      <span>•</span>
+                      <span>Proposed 4 hours ago</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-6">
+                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
+                </div>
+              </div>
+
+              <div class="group flex items-center justify-between p-4 border-b border-[#E0E0E0] last:border-b-0 hover:bg-[#F8F9FA] transition-colors cursor-pointer relative">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-full bg-[#F1F3F4] flex items-center justify-center shrink-0 group-hover:bg-[#E8F0FE] transition-colors">
+                    <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#1A73E8] transition-colors">topic</span>
+                  </div>
+                  <div>
+                    <h3 style="font-family: 'Google Sans', sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Blockchain in Supply Chain</h3>
+                    <div class="flex items-center gap-2 text-[13px] text-[#5F6368]">
+                      <span>Prof. Ahmad Tariq</span>
+                      <span>•</span>
+                      <span>Proposed 1 day ago</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-6">
+                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
                 </div>
               </div>
 
