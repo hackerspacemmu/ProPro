@@ -1,5 +1,5 @@
-<header class="flex items-center justify-between gap-3 px-4 py-3">
-  <div class="flex items-center gap-2 min-w-0">
+<header class="flex items-center justify-between gap-3 px-4 py-3 min-h-[3.5rem]">
+  <div class="flex items-center gap-2 min-w-0 flex-1">
     <% unless content_for?(:hide_toggler) %>
       <button type="button"
         data-sidebar-target="toggleButton"
@@ -12,20 +12,37 @@
       </button>
     <% end %>
 
-    <span class="shrink-0 text-[24px] text-[#5F6368] font-medium">ProPro</span>
+    <%# Desktop only: wordmark, also the Home link %>
+    <%= link_to "ProPro", root_path,
+          class: "hidden sm:inline shrink-0 text-[24px] text-[#5F6368] font-medium hover:text-[#3C4043] transition-colors" %>
 
     <% unless content_for?(:hide_breadcrumbs) %>
-      <% render_custom_breadcrumbs %>
-      <% if content_for?(:breadcrumbs) %>
-        <%= yield :breadcrumbs %>
-      <% else %>
-        <%= link_to "Home", root_path, class: "hover:text-gray-900 transition-colors" %>
-      <% end %>
+      <%# Desktop only: full breadcrumb trail %>
+      <div class="hidden sm:flex sm:items-center sm:gap-2 sm:min-w-0">
+        <% render_custom_breadcrumbs %>
+        <%= yield :breadcrumbs if content_for?(:breadcrumbs) %>
+      </div>
+
+      <%# Mobile only: course name, truncated %>
+      <span class="sm:hidden truncate text-[17px] text-[#3C4043] font-medium min-w-0">
+        <%= current_breadcrumb_page_name %>
+      </span>
     <% end %>
   </div>
 
-  <%= button_to "Log out", session_path, method: :delete,
-        form: { data: { turbo_confirm: nil } },
-        form_class: "shrink-0 m-0",
-        class: "text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors pr-2 bg-transparent border-0 cursor-pointer" %>
+  <div class="flex items-center gap-1 shrink-0">
+    <%# Desktop only: text log-out link %>
+    <%= button_to "Log out", session_path, method: :delete,
+          form: { class: "hidden sm:block m-0", data: { turbo_confirm: nil } },
+          class: "text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors pr-2 bg-transparent border-0 cursor-pointer" %>
+
+    <%# Mobile only: settings gear. Guarded — header is shared by ~30 views. %>
+    <% if @course.present? %>
+      <%= link_to settings_course_path(@course),
+            class: "sm:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors",
+            aria: { label: "Course settings" } do %>
+        <span class="material-symbols-outlined">settings</span>
+      <% end %>
+    <% end %>
+  </div>
 </header>

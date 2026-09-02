@@ -32,9 +32,9 @@
           data-tabs-active-class="text-[#0B57D0]"
           data-tabs-inactive-class="text-[#1F1F1F] hover:bg-[#F8F9FA]">
 
-      <div class="border-b border-[#E0E0E0] px-8 bg-white shrink-0">
+      <div class="border-b border-[#E0E0E0] px-4 sm:px-8 bg-white shrink-0">
         <div class="flex items-center justify-between">
-          <div role="tablist" class="flex flex-wrap gap-y-1">
+          <div role="tablist" class="flex flex-nowrap gap-y-1">
             <% tabs.each_with_index do |tab, index| %>
               <% selected = index == active_index %>
               <button type="button"
@@ -48,13 +48,13 @@
                       data-tabs-index-param="<%= index %>"
                       data-tabs-key-param="<%= tab[:key] %>"
                       style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
-                      class="group h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap <%= selected ? 'text-[#0B57D0]' : 'text-[#1F1F1F] hover:bg-[#F8F9FA]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
+                      class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap <%= selected ? 'text-[#0B57D0]' : 'text-[#1F1F1F] hover:bg-[#F8F9FA]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
             <% end %>
           </div>
 
           <% if @current_user_enrolment&.coordinator? %>
             <%= link_to settings_course_path(@course),
-                  class: "h-[3rem] w-[3rem] flex items-center justify-center rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors shrink-0",
+                  class: "hidden lg:flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors shrink-0",
                   title: "Settings" do %>
               <span class="material-symbols-outlined">settings</span>
             <% end %>

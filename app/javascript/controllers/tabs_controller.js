@@ -39,7 +39,9 @@ export default class extends Controller {
     // index can be stale) land on the same tab the URL already advertises.
     const urlTab = new URL(window.location.href).searchParams.get("tab");
     if (urlTab) {
-      const keyed = this.tabTargets.findIndex((tab) => tab.dataset.tabsKeyParam === urlTab);
+      const keyed = this.tabTargets.findIndex(
+        (tab) => tab.dataset.tabsKeyParam === urlTab,
+      );
       if (keyed !== -1) this.setActive(keyed);
       return;
     }

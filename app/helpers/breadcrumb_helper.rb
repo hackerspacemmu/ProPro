@@ -1,4 +1,10 @@
 module BreadcrumbHelper
+  def current_breadcrumb_page_name
+    return '' unless breadcrumbs.present? && breadcrumbs.any?
+
+    breadcrumbs.last.text
+  end
+
   def render_custom_breadcrumbs
     return unless breadcrumbs.present? && breadcrumbs.any?
 

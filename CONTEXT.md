@@ -41,6 +41,9 @@ definitions.
 
 ## Course show (Overview)
 
+- **course tabs** — the Overview / Topics / People / Groups tab set on `courses/show`. All four are always visible at every width; no overflow menu, no "More" dropdown, no horizontal scroll. Styled like Google Classroom: blue 3px underline on the active tab, 14px / 500 weight, tightened spacing so four names fit at 360px.
+- **settings gear** — the course settings link. On desktop, renders as an inline tab-row link (unchanged). On mobile (<sm / 640px), relocates to the header's action slot as a gear icon. Never appears in both places at the same width.
+- **mobile header** — on mobile (<sm / 640px): hamburger menu · course name (truncated if long) · · · settings gear. No ProPro wordmark, no breadcrumb trail, no Log out. On desktop (≥sm): unchanged from current — wordmark, full breadcrumb trail, Log out link.
 - **Overview** — the first content tab on `courses/show`, renamed from "Project Details". A max-w-[800px] centered column consolidating the Project Details card plus the Supervised Projects, Pending Proposals, Reviewed Proposals, and Pending Topics sections. A temporary consolidation while the To Review and Supervised Projects tabs remain (kept for a later deletion pass). Rendered by `_overview_tab.html.erb`.
 - **section header** — the collapsible title row at the top of each Overview section (title + blue count + `expand_less` chevron). Toggles its own row list via **collapsible section**. Long titles truncate rather than wrap.
 - **row item** — the mockup's list row language shared by proposals and topics: circular icon avatar, title + meta on the left, status pill inline at the end of the meta line, and the time line (`time_meta`, "Submitted X ago") as the right-side text at 1rem/400/1.5rem. One line at every width. Topics render as row items (not colored cards) at every `_topic_card` call site.

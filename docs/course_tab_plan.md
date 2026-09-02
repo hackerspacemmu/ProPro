@@ -1,229 +1,294 @@
-# courses/show — Tab & Header Navigation Plan
+# ProPro — courses/show — Header & Tab Bar Revision (v3)
 
-Suggested repo path: `docs/courses_show_tabs_plan.md`
+Addendum to *"ProPro Redesign — courses/show — Breadcrumb, Tab Bar &
+Empty-State Illustrations — Follow-up Plan (v2)."* Everything in v2 stands
+**except** §0.1, §4.1, §4.2, Tickets 1–3, and the tab-bar/breadcrumb rows of
+the §6 open-items table, which this doc supersedes. §2, §3.3, §3.4, §4.3,
+Tickets 0 and 4–8 are unchanged and still apply.
 
-**Replaces the tab-bar sections of `courses_show_refactor_plan.md`** for
-implementation purposes. Kept short on purpose — no alternatives-considered
-essay — so it fits easily in context.
-okat
-**Status:** mostly decided. Two open questions below block implementation.
+**Trigger for this revision:** a direct side-by-side against Google
+Classroom's mobile layout (Classroom: 4 tabs, no breadcrumb chain, gear icon
+in the header) made it clear the six-tab-plus-Settings-plus-full-breadcrumb
+row on mobile isn't a spacing problem to patch — it's carrying more
+navigation than Classroom's equivalent row, full stop. v2's "responsive
+More menu, nothing removed from the row" compromise (§0.1, Option B)
+under-corrects for that. This revision goes further on two specific points
+that v2 had explicitly deferred or rejected:
 
----
+1. **Settings moves out of the tab row into the header, mobile only.**
+   v2's §0.1 "Option A" considered this and rejected it as an IA change
+   out of scope — but Alex has since confirmed this is exactly what's
+   wanted, scoped to mobile only (desktop keeps Settings as the existing
+   inline tab-row link, unchanged). This isn't the full Option A (Groups
+   still stays a separate top-level tab, not merged into People) — just
+   the Settings half of it, and only below `sm`.
+2. **The mobile header drops both the ProPro wordmark and the full
+   breadcrumb trail**, leaving only the truncated current-page name — v2
+   had already decided to drop the trail below `sm` (§0.1), this extends
+   the same logic to the wordmark, since a "ProPro" label plus a course
+   name is redundant chrome on a screen this narrow, and the drawer
+   (opened via the hamburger, which stays) already gets you home.
 
-## Confirmed: one IA at every breakpoint
-
-Same tabs, same panels, regardless of screen width. No primary/overflow
-"More" split is needed for the tab row — 4 tabs fit at any width. This makes
-the earlier primary/overflow implementation work (§4.2 / "Ticket 1") for the
-tab row unnecessary; don't build it if it hasn't started. (Breadcrumb
-collapse can keep whatever breakpoint suits it on its own — it no longer
-needs to be reconciled with a tab-overflow breakpoint, since tabs don't
-overflow anymore.)  
-
----
-
-## Tab structure
-
-### Coordinator / Lecturer
-
-| Tab | Contains |
-|---|---|
-| Overview | Project details, Supervised Projects (see Q1), Reviewed Proposals, Pending Topics |
-| Topics | Topic Directory |
-| People | Lecturers, Students |
-| Groups | Own tab (see note below) |
-
-### Student
-
-| Tab | Contains |
-|---|---|
-| Overview | Project details, My Project (own section, not a separate tab) |
-| Topics | Topic Directory |
-| People | Lecturers, Students |
-| Groups | *Assumed same as coordinator — see Q2* |
-
---- 
-
-## Header icons (coordinator/lecturer only, same at every breakpoint)
-
-| Icon | Notes |
-|---|---|
-| Settings | Coordinator only. Header, not the tab row, not a dropdown. |
-| Project template | Coordinator only, out of scope for this ticket — reserve the header slot now so it isn't a layout change later. |
+A third change follows from the first: since the header's mobile "action"
+slot now holds the settings gear, **Log out no longer fits there** and
+needs a new, permanent home — the sidebar drawer (see §3 below). This
+wasn't part of the original ask but is a direct consequence of it.
 
 ---
 
-## Naming
+## 0. Confirmed decisions
 
-"Project Details" tab renamed to "Overview" (unchanged from earlier draft).
+**All four tabs are always visible at every width.** No overflow menu, no
+"More" dropdown, no horizontal scroll. The tab set is: Overview, Topics,
+People, Groups. On narrow screens (<360px) the spacing between tabs is
+tightened so all four fit. Settings gear moves to the header on mobile
+(see §2) and is removed from the tab row entirely on mobile.
 
----
-
-# courses/show — Tab Bar Styling, Hover, Responsive & Tab Persistence Plan (agreed)
-
-Supersedes the tab-bar sections of `courses_show_refactor_plan.md` for
-implementation purposes. Decisions below were settled via a grilling session
-(matching `ProPro_Design/course_show.html.erb` mockup + `style_guide.html.erb`)
-against the current `app/views/courses/show.html.erb`.
-
-**Status:** decided. One combined ticket — styling + hover + responsive +
-`?tab=` persistence — because they all touch the same two files
-(`show.html.erb`, `tabs_controller.js`).
-
-**Revision:** the mockup's tab bar was updated (uncommitted diff to
-`ProPro_Design/course_show.html.erb:79-98`) from the thin-underline style to
-the **M3 filled-primary tab**: full-height `h-[3rem]` tiles, active = Primary
-Blue `#0B57D0` text on a `#F0F4F9` container fill with a full-width 3px
-indicator, inactive = on-surface `#1F1F1F` text with a `#F8F9FA` bg-wash hover.
-The decisions and gap list below reflect the updated mockup.
-
-**Revision 2:** the first implementation drew the 3px indicator as an always-on
-`border-b-[3px]` — that lost the mockup's `rounded-t-[3px]`, so it was walked
-back to the mockup's nested absolute indicator div (see D-1), lit by
-`group-aria-selected`. `connect()` also grew a URL-first resolution so a Turbo
-snapshot restore can't snap the active bar back to Overview against the URL.
+Styling matches Google Classroom: blue 3px underline on the active tab,
+14px / 500 weight, `'Google Sans', Roboto, Arial, sans-serif` font stack.
 
 ---
 
-## Ground truth
+## 1. What changed, in one table
 
-| Reference | Role |
-|---|---|
-| `ProPro_Design/course_show.html.erb` | the mockup — tab row at lines 79–98 |
-| `ProPro_Design/style_guide.html.erb` | canonical tab reference (§Tabs, lines 255–265) |
-| `app/views/projects/_project_header.html.erb` | existing tab-fade / hover precedent |
-| `app/javascript/controllers/tabs_controller.js` | the generic tab controller |
-
-The mockup is at `ProPro_Design/`, **not** `docs/`.
-
----
-
-## Decisions (grilled & confirmed)
-
-| # | Decision | Resolution |
+| Element | v2 (previous plan) | v3 (this revision) |
 |---|---|---|
-| D-1 | Active-tab indicator | **M3 filled-primary tile**: `text-[#0B57D0] bg-[#F0F4F9]`, plus the mockup's own 3px indicator — an absolutely-positioned `div` inside the tile (`absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px]`), **not a border**. It lives in every tile and is lit by `group-aria-selected:bg-[#0B57D0]` on the tile's `group`, so the generic `tabs_controller` needs no inner-indicator target (it already maintains `aria-selected`). Restores the mockup's `rounded-t-[3px]`, which the earlier always-on-`border-b-[3px]` distillation lost. |
-| D-2 | Hover on inactive tabs | **`hover:bg-[#F8F9FA]` bg-wash**; inactive text stays `#1F1F1F` (no text-color hover). Active tile never hovers (already filled). |
-| D-3 | Where the state classes live | **`data-tabs-active-class` / `data-tabs-inactive-class` on `<main>`** — data-driven override in the view, keeping `tabs_controller` generic/reusable (its built-in defaults stay the old underline style for projects/show). |
-| D-4 | Tab row | **`px-8` flush container**, tiles `h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap`; on wrap, **`gap-y-1`** for a breathing row (no `gap-x`). |
-| D-5 | Scope | **One combined ticket** — styling + hover + responsive + persistence, not split. |
-| D-6 | Controller refactor | **Fold the `setActive()` DRY refactor in** (single owner of "what does active mean"). |
+| Settings, mobile | Rendered inline in tab row, hidden below `lg`, moved into "More" dropdown | Removed from tab row and "More" entirely; rendered as a gear icon in the header, mobile only |
+| Settings, desktop | Inline tab-row link | Unchanged — inline tab-row link |
+| ProPro wordmark, mobile | Unchanged (still shown) | Hidden below `sm` |
+| ProPro wordmark, desktop | Shown, plain text | Shown, now also the Home link (wraps in `link_to`) |
+| Breadcrumb trail, mobile | Collapses to truncated current-page name below `sm` (already decided in v2) | Unchanged — same collapse, now paired with the wordmark also hiding |
+| Log out, mobile | Unchanged (still a header link) | Removed from header; added to the sidebar drawer, below "Edit profile" |
+| Log out, desktop | Header link | Unchanged — header link |
+| Primary tab count, mobile | 4 | 3 (assumed — see §0) |
 
 ---
 
-## Target tab bar
+## 2. Header — `app/views/shared/_header.html.erb`
 
-`app/views/courses/show.html.erb`:
+```erb
+<header class="flex items-center justify-between gap-3 px-4 py-3 min-h-[3.5rem]">
+  <div class="flex items-center gap-2 min-w-0 flex-1">
+    <% unless content_for?(:hide_toggler) %>
+      <button type="button" data-sidebar-target="toggleButton" data-action="sidebar#toggle"
+        aria-label="Toggle sidebar" aria-expanded="false" aria-controls="app-sidebar"
+        class="lg:hidden shrink-0 p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    <% end %>
 
-- `<main>` gains `data-tabs-active-index-value`, `data-tabs-active-class`,
-  `data-tabs-inactive-class`, and the active index is computed server-side from
-  `params[:tab]` (stable key, fallback to first key) so the server renders the
-  correct initial tab — no JS flash on load.
-- **Active-class string:** `text-[#0B57D0] bg-[#F0F4F9]`
-- **Inactive-class string:** `text-[#1F1F1F] hover:bg-[#F8F9FA]`
-- The `tabs` array entries get a stable `key` ("overview", "to_review",
-  "topics", "people", "groups"), independent of DOM position.
-- The tab row container: `border-b border-[#E0E0E0] px-8 bg-white shrink-0`;
-  inner row `flex flex-wrap gap-y-1`.
-- **ARIA split:** `role="tablist"` wraps only the real tab buttons. The
-  Settings link stays visually in the row but **outside** the tablist (a
-  tablist must contain only `role="tab"` items — the earlier draft put the link
-  inside it, an ARIA violation). Settings renders as the **same inactive tile**
-  (no border — it isn't a tab).
-- Each tab: `role="tab"`, `aria-selected`, `aria-controls="panel-<key>"`,
-  roving `tabindex` (0 active / -1 inactive), `data-tabs-index-param`,
-  `data-tabs-key-param`, tile base class with `group` and an inner indicator
-  `<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px]
-  transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]">`.
-  No `border-b` anywhere on the tile — the indicator div IS the 3px bar.
-- Panels: `role="tabpanel"`, `aria-labelledby="tab-<key>"`, `hidden` only on the
-  non-active panel.
+    <%# Desktop only (sm and up): wordmark, now also the Home link %>
+    <%= link_to "ProPro", root_path,
+          class: "hidden sm:inline shrink-0 text-[24px] text-[#5F6368] font-medium hover:text-[#3C4043] transition-colors" %>
 
-### vs current — gap list
+    <% unless content_for?(:hide_breadcrumbs) %>
+      <%# Desktop only: full trail (unchanged from v2 Ticket 2) %>
+      <div class="hidden sm:flex sm:items-center sm:gap-2 sm:min-w-0">
+        <% render_custom_breadcrumbs %>
+        <%= yield :breadcrumbs if content_for?(:breadcrumbs) %>
+      </div>
 
-| Gap | Mockup / target | Current |
+      <%# Mobile only: current page name, nothing else — no wordmark, no chevron chain %>
+      <span class="sm:hidden truncate text-[17px] text-[#3C4043] font-medium min-w-0">
+        <%= current_breadcrumb_page_name %>
+      </span>
+    <% end %>
+  </div>
+
+  <div class="flex items-center gap-1 shrink-0">
+    <%# Desktop only: text log-out link, unchanged %>
+    <%= button_to "Log out", session_path, method: :delete,
+          form: { data: { turbo_confirm: nil } },
+          form_class: "hidden sm:block m-0",
+          class: "text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors pr-2 bg-transparent border-0 cursor-pointer" %>
+
+    <%# Mobile only: settings gear, replaces log-out's slot. Guarded — header is shared
+        by ~30 views, not all of which have @course. %>
+    <% if @course.present? %>
+      <%= link_to settings_course_path(@course),
+            class: "sm:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors",
+            aria: { label: "Course settings" } do %>
+        <span class="material-symbols-outlined">settings</span>
+      <% end %>
+    <% end %>
+  </div>
+</header>
+```
+
+**Blocked on the same prerequisite v2 already flagged (its §4.1):**
+`current_breadcrumb_page_name` needs to exist as a real accessor in
+`breadcrumb_helper.rb` / `config/breadcrumbs.rb` before this ships — read
+both files first. Do not stand in `@course&.course_name` as a placeholder;
+it's wrong on the ~29 other views sharing this header.
+
+**New, not in v2:** the `if @course.present?` guard on the settings gear.
+Every other element in this header (wordmark, breadcrumb, log out) works
+on any page; the settings gear specifically only makes sense inside a
+course, so it needs its own conditional rather than assuming context.
+
+---
+
+## 3. Sidebar — `app/views/shared/_sidebar.html.erb`
+
+Add Log out below the existing divider/"Edit profile" block, so removing
+it from the mobile header doesn't strand the feature:
+
+```erb
+<div class="py-2">
+  <div class="border-t border-[#DADCE0]"></div>
+</div>
+
+<% profile_active = current_page?(user_profile_path) %>
+<%= link_to user_profile_path, ... %> <%# unchanged, existing Edit profile link %>
+
+<%= button_to "Log out", session_path, method: :delete,
+      form: { data: { turbo_confirm: nil } }, form_class: "m-0",
+      class: "flex items-center gap-4 w-full text-left px-6 py-3.5 rounded-r-full text-[#3C4043] hover:bg-white/60 transition-colors bg-transparent border-0 cursor-pointer",
+      style: "font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" do %>
+  <span class="material-symbols-outlined text-[#5F6368]">logout</span>
+  <span>Log out</span>
+<% end %>
+```
+
+This renders at every width (the drawer itself is what's mobile-only, via
+the existing `-translate-x-full lg:static` treatment) — so on desktop, Log
+out now exists in two places (header + drawer). That's an intentional,
+Classroom-like redundancy (its "Log out"-equivalent lives in more than one
+menu too), not a bug to dedupe.
+
+---
+
+## 4. Tab bar — `app/views/courses/show.html.erb`
+
+Same primary/overflow mechanism as v2 §4.2 (scrolling-strip + fade mask
+ported unchanged from `_project_header.html.erb`, `data-tabs-index-param`
+still computed via `each_with_index` so the existing tab-index fix holds)
+— only the membership of `primary_names` changes, and Settings is removed
+from the loop entirely rather than being hidden/relocated into "More":
+
+```erb
+<%
+  tabs = []
+  tabs << { name: "Project Details", partial: "courses/project_details_tab" }
+  tabs << { name: "To Review", partial: "courses/to_review_tab" }
+  if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer?
+    tabs << { name: "Supervised Projects", partial: "courses/supervised_projects_tab" }
+  end
+  tabs << { name: "Topic Directory", partial: "courses/topic_directory_tab" }
+  tabs << { name: "People", partial: "courses/people_tab" }
+  tabs << { name: "Groups", partial: "courses/groups_tab" }
+
+  # Assumed per §0 — confirm before building.
+  primary_names = ["Project Details", "To Review", "People"]
+  overflow_tabs = tabs.reject { |t| primary_names.include?(t[:name]) }
+%>
+
+<div class="border-b border-[#E0E0E0] px-6 pt-4">
+  <div data-controller="tab-fade">
+    <div data-testid="content-tabs" data-tab-fade-target="scroller"
+         class="flex flex-nowrap items-center gap-x-8 gap-y-1 overflow-x-auto
+                [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+                [-webkit-overflow-scrolling:touch]">
+
+      <% tabs.each_with_index do |tab, index| %>
+        <% is_overflow = overflow_tabs.include?(tab) %>
+        <button type="button" data-tabs-target="tab" data-action="tabs#show"
+                data-tabs-index-param="<%= index %>"
+                style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
+                class="pb-3 whitespace-nowrap border-b-4 transition-colors <%= is_overflow ? "hidden lg:inline-flex" : "" %>">
+          <%= tab[:name] %>
+        </button>
+      <% end %>
+
+      <%# Settings: desktop-only here. No mobile counterpart in this row —
+          it lives in the header gear instead (see §2). %>
+      <%= link_to "Settings", settings_course_path(@course),
+            style: "font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;",
+            class: "pb-3 whitespace-nowrap text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors hidden lg:inline-flex" %>
+
+      <% if overflow_tabs.any? %>
+        <div class="lg:hidden relative shrink-0" data-controller="dropdown">
+          <button type="button" data-action="dropdown#toggle"
+                  class="pb-3 whitespace-nowrap text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors">
+            More <span aria-hidden="true">⌄</span>
+          </button>
+          <div data-dropdown-target="menu" class="hidden absolute right-0 top-full mt-1 min-w-[10rem] bg-white border border-[#E0E0E0] rounded-lg shadow-lg z-10">
+            <% overflow_tabs.each do |tab| %>
+              <button type="button" data-action="tabs#show dropdown#close"
+                      data-tabs-index-param="<%= tabs.index(tab) %>"
+                      class="block w-full text-left px-4 py-2.5 text-sm text-[#3C4043] hover:bg-[#F1F3F4]">
+                <%= tab[:name] %>
+              </button>
+            <% end %>
+            <%# No Settings item here — it's in the header gear on mobile, not this menu. %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div data-tab-fade-target="rightMask"
+         class="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white to-transparent hidden"></div>
+  </div>
+</div>
+```
+
+Two things worth calling out because they're easy to get wrong copying
+from v2's version of this block:
+
+- The Settings `link_to` is **not** duplicated into the "More" dropdown
+  the way it was in v2 — v2 rendered Settings inline *and* in the menu
+  (`hidden lg:inline-flex` + a menu copy) as parallel triggers for the same
+  destination. Here there is exactly one Settings entry point below `lg`
+  (the header gear) and one above it (this inline link) — never both at
+  once, and never inside the dropdown.
+- `settings_course_path(@course)` is called in two places now (header gear,
+  desktop tab link) — same path helper, just gated by opposite breakpoints,
+  so they never render at the same time and there's no duplicate-ID risk.
+
+---
+
+## 5. Ticket list (supersedes v2 Tickets 1–3)
+
+### Ticket 1 — Header: mobile wordmark/breadcrumb drop + settings gear
+
+Implement §2 above. Requires `current_breadcrumb_page_name` (blocked on
+reading `breadcrumb_helper.rb` / `config/breadcrumbs.rb` — same
+prerequisite v2 already flagged, now blocking two things instead of one).
+
+### Ticket 2 — Sidebar: add Log out
+
+Implement §3 above. No dependencies — can land independently and first.
+
+### Ticket 3 — Tab bar: 3-tab primary set, Settings removed from row/menu
+
+Implement §4 above. **Blocked on §0** — confirm the primary-3 list before
+building; only the `primary_names` array changes if the assumed set is
+wrong, but building against the wrong assumption wastes a review cycle.
+
+### Ticket 4 — Breadcrumb helper truncation fix (unchanged from v2 Ticket 2)
+
+`flex-wrap` → `flex-nowrap` on the trail container, `break-all` →
+`truncate flex-1 min-w-0` on the final crumb — still needed at `sm` and up
+regardless of the mobile collapse. No change from v2.
+
+### Build order
+
+```
+2 (independent, do first)
+1 → depends on the same breadcrumb-helper read as 4
+3 → blocked on §0 confirmation
+4 → unblocks 1 and 3's mobile-name display
+```
+
+v2's Tickets 0 (file-boundary check) and 4–8 (empty states, tests) are
+unaffected by this revision and proceed as originally planned.
+
+---
+
+## 6. Open items (updates to v2 §6)
+
+| # | Question | Status |
 |---|---|---|
-| Tab look | full-height `h-[3rem]` tiles, active filled `#F0F4F9` + `#0B57D0` 3px indicator | underline strip under text, `#1A73E8`, no fill |
-| Hover (inactive) | `hover:bg-[#F8F9FA]` wash | none |
-| Row | `px-8` flush, no `gap-x`, `gap-y-1` on wrap | `px-8 pt-5`, `gap-x-8` |
-| Inactive text | `#1F1F1F` | `#5F6368` / `#3C4043` on hover |
-| Settings tile | inactive-tile look, no indicator | text link + underline |
-| Active tab rendered server-side | yes, from `?tab=` | no (JS forces index 0) |
-
----
-
-## Controller rewrite
-
-`app/javascript/controllers/tabs_controller.js` — single `setActive(index)`
-owns panel `hidden`, active/inactive classes, `aria-selected`, and roving
-`tabindex`. Its **built-in defaults are unchanged** (the old underline style:
-`text-[#1A73E8] border-[#1A73E8]` active, `text-[#5F6368] border-transparent`
-inactive) because projects/show still mounts this controller without overrides;
-courses/show supplies the M3 strings via `data-tabs-active-class` /
-`data-tabs-inactive-class` on `<main>`.
-
-- `connect()` prefers the URL's `?tab=` key (from `replaceState` clicks) over
-  `activeIndexValue`, falling back to the baked value only when the URL has no
-  `tab` param — so Turbo snapshot restores (where the baked index is stale) land
-  on the same tab the URL advertises. Never writes the URL.
-- `show(event)` → `setActive(Number(event.params.index))`, then
-  `history.replaceState` writes `?tab=<key>` (not pushState — a tab switch
-  isn't a back-button page). Reads `event.params.key`.
-- A client-side test quirk surfaced here: headless Chrome intermittently drops
-  synthetic *native* clicks sent right after load (~50%), while JS-dispatched
-  clicks always work and real user clicks are unaffected. The persistence test
-  drives the tab via `find_button(...).evaluate_script('this.click()')` for
-  determinism.
-
-Validation: `params[:tab]` is only `include?`-checked / used for keyed lookup,
-never interpolated — nothing to sanitize.
-
----
-
-## Responsiveness
-
-- Row: `flex flex-wrap gap-y-1` + `whitespace-nowrap` tiles — wraps to a second
-  row on narrow screens with a 4px breathing gap, no horizontal overflow.
-  Consistent with the `course_tab_plan.md` "same tabs at every width" decision —
-  no primary/overflow "More" split, no new breakpoint logic.
-- Tiles carry no `gap-x` (the mockup spaces tiles only via their `px-[1.5rem]`).
-- The `h-[3rem]` fixed height is constant per row; `gap-y-1` is the only added
-  wrap affordance.
-
----
-
-## Out of scope (decided)
-
-- Mockup's sticky / `shrink-0` content-pane structure (`overflow-hidden flex-col`
-  main with an independently-scrolling pane) — structural, beyond tab styling
-  + hover.
-- Setting relocation to a header icon — deferred per `course_tab_plan.md`.
-- Arrow-key tab navigation — deferred; roving `tabindex` added without
-  arrow-key handlers (note: affects AT verification).
-- **Resolved, not out of scope:** the earlier "distil the indicator to an
-  always-on `border-b-[3px]` (Option A)" decision was walked back — the mockup's
-  nested absolute indicator div (with `rounded-t-[3px]`) is the implementation,
-  lit via `group-aria-selected` so no controller target/`setActive` coupling was
-  needed after all.
-
----
-
-## Tests
-
-- Existing `test/system/courses/course_tabs_test.rb` (9 tests) stays green —
-  `click_button`, `assert_text`, `click_link 'Settings'` semantics unchanged.
-- Add a persistence test: drive a tab, reload, same tab stays; and a direct
-  `visit course_path(@course, tab: 'to_review')` lands on To Review.
-
----
-
-## Grill-with-docs note
-
-Per `grill-with-docs` the six decisions would normally land as a repo paper
-trail (resolved terms → `CONTEXT.md`, gated decisions → an ADR under
-`docs/adr/`), but its dependencies (`grilling`, `domain-modeling`) aren't
-installed as skills in this repo. Decisions are therefore recorded in this
-plan. If a paper trail is wanted when the implementation lands, capture it as
-e.g. `docs/adr/0012-course-show-tab-bar-and-persistence.md`.
-
-----
+| OI-1 (v2) | Breadcrumb truncate + mobile collapse | Unchanged — resolved in v2, this doc just extends it to also hide the wordmark. |
+| OI-6 (new) | Which 3 tabs are primary on mobile? | **Open — see §0.** Assumed Project Details/To Review/People pending confirmation. |
+| OI-7 (new) | Settings-in-header gear: any other mobile pages besides courses/show need the same treatment, or is it courses/show-specific? | Open — not addressed in this revision; `_header.html.erb` is shared by ~30 views, and right now the gear only renders `if @course.present?`, which happens to be true elsewhere too (e.g. topics, lecturers pages) — worth deciding whether that's intended or should be scoped tighter. |
+| — (v2, tab-row "More" superseded) | Permanent 4-tab merge vs. responsive "More" keeping all destinations | Still resolved as "responsive, nothing merged" per v2 §0.1 — this revision doesn't reopen that, it just also pulls Settings out of the *tab row* specifically (not a full IA merge). |

@@ -41,7 +41,7 @@ class TmpFillProbeTest < ApplicationSystemTestCase
   def dump(label)
     state = evaluate_script("Array.from(document.querySelectorAll('[data-tabs-target=\"tab\"]')).map(t => { const cs = getComputedStyle(t); return { text: t.textContent.trim(), selected: t.getAttribute('aria-selected'), cls: t.className, bg: cs.backgroundColor }; })")
     Rails.logger.info("=== #{label} ===")
-    state.each { |t| Rails.logger.info("  #{t["text"]}: aria=#{t["selected"]} bg=#{t["bg"]}  #{t["cls"]}") }
+    state.each { |t| Rails.logger.info("  #{t['text']}: aria=#{t['selected']} bg=#{t['bg']}  #{t['cls']}") }
   end
 
   test 'probe fill freeze' do
