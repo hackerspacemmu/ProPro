@@ -3,20 +3,6 @@
 <% if topic_instance %>
   <% status_key = topic.status.to_s.downcase
 
-  header_bg =
-    case status_key
-    when "approved"
-      "bg-emerald-600"
-    when "pending"
-      "bg-sky-700"
-    when "redo"
-      "bg-amber-600"
-    when "rejected"
-      "bg-red-700"
-    else
-      "bg-gray-600"
-    end
-
   path =
     if local_assigns[:lecturer].present?
       course_lecturer_topic_path(course, lecturer, topic)
@@ -25,27 +11,14 @@
     else
       course_topic_path(@course, topic, from_new_project: params[:from_new_project])
     end
-
-  card_classes =
-    "group block relative w-full min-h-48 sm:h-64 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden no-underline flex flex-col text-left"
   %>
 
-  <% if policy(topic).show? %>
-    <%= link_to path, class: card_classes do %>
-      <%= render "courses/topic_card_contents",
-      topic: topic,
-      topic_instance: topic_instance,
-      header_bg: header_bg,
-      status_key: status_key %>
-    <% end %>
-  <% else %>
-    <div class="<%= card_classes %> opacity-75 cursor-not-allowed">
-      <%= render "courses/topic_card_contents",
-      topic: topic,
-      topic_instance: topic_instance,
-      header_bg: header_bg,
-      status_key: status_key %>
-    </div>
-  <% end %>
-
+  <%= render "shared/row_item",
+      path: path,
+      linkable: policy(topic).show?,
+      icon: "topic",
+      title: topic_instance.title.presence || "Untitled Topic",
+      meta_parts: [topic.owner_name],
+      time_meta: "Updated #{time_ago_in_words(topic.updated_at)} ago",
+      status: status_key %>
 <% end %>

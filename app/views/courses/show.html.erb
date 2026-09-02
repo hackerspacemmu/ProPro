@@ -9,12 +9,9 @@
     conditional tabs render for the current role. %>
 <%
   tabs = []
-  tabs << { name: "Project Details", partial: "courses/project_details_tab" }
+  tabs << { name: "Overview", partial: "courses/overview_tab" }
   tabs << { name: "To Review", partial: "courses/to_review_tab" }
-  if @current_user_enrolment&.coordinator? || @current_user_enrolment&.lecturer?
-    tabs << { name: "Supervised Projects", partial: "courses/supervised_projects_tab" }
-  end
-  tabs << { name: "Topic Directory", partial: "courses/topic_directory_tab" }
+  tabs << { name: "Topics", partial: "courses/topic_directory_tab" }
   tabs << { name: "People", partial: "courses/people_tab" }
   tabs << { name: "Groups", partial: "courses/groups_tab" }
 %>

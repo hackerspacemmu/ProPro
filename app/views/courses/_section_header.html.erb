@@ -1,0 +1,23 @@
+<%# Locals: title, count, section (optional — when present the header toggles
+    this section's row list via the collapsible-sections controller). %>
+<%
+  interactive = section.present?
+  header_classes = "flex items-center justify-between mb-4"
+  header_classes += " cursor-pointer group" if interactive
+  chevron_classes = "material-symbols-outlined text-[#5F6368]"
+  chevron_classes += " group-hover:text-[#202124] transition-all" if interactive
+%>
+
+<div class="<%= header_classes %>"
+     <% if interactive %>
+     role="button" tabindex="0"
+     data-action="click->collapsible-sections#toggle keydown->collapsible-sections#onKeydown"
+     data-collapsible-sections-target="toggle"
+     data-collapsible-sections-section="<%= section %>"
+     <% end %>>
+  <h2 class="truncate min-w-0 text-[22px] font-normal text-[#202124]"><%= title %></h2>
+  <div class="flex items-center gap-3 shrink-0">
+    <span class="text-[#1A73E8] font-medium text-[15px]"><%= count %></span>
+    <span class="<%= chevron_classes %>" <%= "data-collapsible-sections-chevron=hidden" if interactive %>>expand_less</span>
+  </div>
+</div>

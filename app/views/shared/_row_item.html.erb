@@ -1,0 +1,97 @@
+<%# Locals: path, icon, title, meta_parts (array joined with "•"),
+    time_meta (right-aligned "Submitted X ago" text, rendered larger than the
+    meta line), status, pill_label (defaults to status humanized), linkable
+    (default true), link_options, border_top (default true), and an optional
+    block rendered below the row line. The status pill sits beside time_meta on
+    the right. %>
+
+<%
+  pill_bg, pill_fg =
+    case status.to_s
+    when "approved" then ["bg-[#E6F4EA]", "text-[#137333]"]
+    when "pending"  then ["bg-[#E8F0FE]", "text-[#1967D2]"]
+    when "redo"     then ["bg-[#FFF8E1]", "text-[#E65100]"]
+    when "rejected" then ["bg-[#FCE8E6]", "text-[#C5221F]"]
+    else                 ["bg-[#F1F3F4]", "text-[#5F6368]"]
+    end
+
+  linkable = local_assigns.fetch(:linkable, true)
+  pill_label = local_assigns.fetch(:pill_label, status.to_s.humanize)
+  link_options = local_assigns[:link_options] || {}
+  meta_parts = local_assigns[:meta_parts] || []
+  time_meta = local_assigns[:time_meta]
+  border_top = local_assigns.fetch(:border_top, true)
+  rejected = status.to_s == "rejected"
+
+  row_classes =
+    "group flex flex-col w-full py-3 px-4 " \
+    "hover:bg-[#F1F3F4] transition-colors bg-white"
+  row_classes += " border-t border-[#E0E0E0]" if border_top
+  row_classes += " opacity-80" if rejected
+  row_classes += linkable ? " cursor-pointer" : " opacity-75 cursor-not-allowed"
+  title_color = rejected ? "text-[#5F6368]" : "text-[#202124]"
+
+  pill_span = "#{pill_bg} #{pill_fg} px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap"
+%>
+
+<% if linkable %>
+  <%= link_to path, class: row_classes, **link_options do %>
+    <div class="flex items-center justify-between w-full min-w-0">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="w-9 h-9 rounded-full border border-[#DADCE0] flex items-center justify-center shrink-0 bg-transparent text-[#5F6368]">
+          <span class="material-symbols-outlined text-[20px]"><%= icon %></span>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-[16px] font-normal leading-6 <%= title_color %> truncate"><%= title %></h3>
+          <div class="flex items-center gap-2 text-[15px] text-[#5F6368]">
+            <% meta_parts.each_with_index do |part, idx| %>
+              <% unless idx.zero? %><span class="shrink-0">•</span><% end %>
+              <span class="<%= idx.zero? ? "truncate" : "whitespace-nowrap" %>"><%= part %></span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <% if time_meta.present? %>
+        <div class="flex items-center gap-3 shrink-0 pl-4">
+          <span class="<%= pill_span %>"><%= pill_label %></span>
+          <span class="text-[16px] font-normal tracking-normal leading-6 text-[#5F6368] whitespace-nowrap"><%= time_meta %></span>
+        </div>
+      <% else %>
+        <div class="flex items-center gap-3 shrink-0">
+          <span class="<%= pill_span %>"><%= pill_label %></span>
+        </div>
+      <% end %>
+    </div>
+    <%= yield %>
+  <% end %>
+<% else %>
+  <div class="<%= row_classes %>">
+    <div class="flex items-center justify-between w-full min-w-0">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="w-9 h-9 rounded-full border border-[#DADCE0] flex items-center justify-center shrink-0 bg-transparent text-[#5F6368]">
+          <span class="material-symbols-outlined text-[20px]"><%= icon %></span>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-[16px] font-normal leading-6 <%= title_color %> truncate"><%= title %></h3>
+          <div class="flex items-center gap-2 text-[15px] text-[#5F6368]">
+            <% meta_parts.each_with_index do |part, idx| %>
+              <% unless idx.zero? %><span class="shrink-0">•</span><% end %>
+              <span class="<%= idx.zero? ? "truncate" : "whitespace-nowrap" %>"><%= part %></span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <% if time_meta.present? %>
+        <div class="flex items-center gap-3 shrink-0 pl-4">
+          <span class="<%= pill_span %>"><%= pill_label %></span>
+          <span class="text-[16px] font-normal tracking-normal leading-6 text-[#5F6368] whitespace-nowrap"><%= time_meta %></span>
+        </div>
+      <% else %>
+        <div class="flex items-center gap-3 shrink-0">
+          <span class="<%= pill_span %>"><%= pill_label %></span>
+        </div>
+      <% end %>
+    </div>
+    <%= yield %>
+  </div>
+<% end %>

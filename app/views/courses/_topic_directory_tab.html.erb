@@ -15,13 +15,11 @@
       </header>
 
       <div class="flex flex-start gap-4 flex-wrap mt-2 pt-1 pb-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          <% if @topic_list.any? %>
-            <%= render partial: "topic_card", collection: @topic_list, as: :topic %>
-          <% else %>
-            <p class="mt-1 col-span-full text-left">No topics are currently available.</p>
-          <% end %>
-        </div>
+        <% if @topic_list.any? %>
+          <%= render "shared/row_list", rows: @topic_list, partial: "topic_card", item: :topic %>
+        <% else %>
+          <p class="mt-1 text-left">No topics are currently available.</p>
+        <% end %>
       </div>
     </div>
   </section>
@@ -83,9 +81,8 @@
                     <span class="text-sm text-gray-500"><%= group.size %></span>
                   </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full sm:pl-8 <%= 'hidden' if is_collapsible %>">
-                  <%= render partial: "topic_card", collection: group, as: :topic %>
-                </div>
+                <%= render "shared/row_list", rows: group, partial: "topic_card", item: :topic,
+                    container_classes: "w-full sm:pl-8 #{'hidden' if is_collapsible}" %>
               </div>
             <% end %>
           <% end %>

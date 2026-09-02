@@ -14,40 +14,41 @@ class CourseTabsTest < ApplicationSystemTestCase
     create(:enrolment, user: @student_user, course: @course)
   end
 
-  test "coordinator sees all five tabs" do
+  test "coordinator sees the tab set" do
     login_as @coordinator_user
     visit course_path(@course)
 
-    assert_text "Project Details"
+    assert_text "Overview"
     assert_text "To Review"
-    assert_text "Supervised Projects"
-    assert_text "Topic Directory"
+    assert_text "Topics"
     assert_text "People"
+    assert_text "Groups"
     assert_text "Settings"
   end
 
-  test "lecturer sees all five tabs" do
+  test "lecturer sees the tab set" do
     login_as @lecturer_user
     visit course_path(@course)
 
-    assert_text "Project Details"
+    assert_text "Overview"
     assert_text "To Review"
-    assert_text "Supervised Projects"
-    assert_text "Topic Directory"
+    assert_text "Topics"
     assert_text "People"
+    assert_text "Groups"
     assert_text "Settings"
   end
 
-  test "student sees four tabs no supervised projects" do
+  test "student sees the tab set" do
     login_as @student_user
     visit course_path(@course)
 
-    assert_text "Project Details"
+    assert_text "Overview"
     assert_text "To Review"
-    assert_text "Topic Directory"
+    assert_text "Topics"
     assert_text "People"
+    assert_text "Groups"
     assert_text "Settings"
-    assert_no_text "Supervised Projects"
+    assert_text "Projects that are approved by you will appear here."
   end
 
   test "to review tab shows pending proposals" do
@@ -74,14 +75,13 @@ class CourseTabsTest < ApplicationSystemTestCase
     assert_text "Redo Proposal"
   end
 
-  test "supervised projects tab shows only approved projects" do
+  test "overview supervised projects shows only approved projects" do
     approved = create(:project, course: @course, supervisor_enrolment: @lecturer_enrolment, status: :approved)
     create(:project_instance, project: approved, supervisor_enrolment: @lecturer_enrolment, created_by: @student_user, status: :approved, title: "Approved Project")
 
     login_as @lecturer_user
     visit course_path(@course)
 
-    click_button "Supervised Projects"
     assert_text "Approved Project"
   end
 

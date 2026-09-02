@@ -37,30 +37,29 @@
 
       <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
         <% if @approved_topics.present? %>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="flex flex-col border-b border-[#E0E0E0]">
             <% @approved_topics.each do |topic| %>
-              <% 
-                topic_instance = topic.topic_instances.order(:version).last
-                status_key = "approved"
-                header_bg = "bg-emerald-600"
-                
-                path = new_course_topic_path(@course, source_topic_id: topic.id)
-              %>
+              <% topic_instance = topic.topic_instances.order(:version).last %>
 
-              <%= link_to path, data: { overlay_target: "card", action: "click->overlay#selectTopic", overlay_course_id_param: topic.id },
-                  class: "group block h-full bg-white rounded-xl border border-gray-200 transition-all duration-200 ease-in-out hover:border-emerald-400 hover:shadow-lg flex flex-col overflow-hidden no-underline" do %>
-                
-                <div class="flex-none">
-                  <%= render "courses/topic_card_contents", topic: topic, topic_instance: topic_instance, header_bg: header_bg, status_key: status_key %>
-                </div>
-
-                <div class="mt-auto border-t border-gray-100 bg-gray-50/40 px-5 py-4">
-                  <div class="flex items-center justify-between gap-4">
-                    <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 whitespace-nowrap">Course</span>
-                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md truncate">
-                      <%= topic.course.course_name %>
-                    </span>
-                  </div>
+              <%= render "shared/row_item",
+                  path: new_course_topic_path(@course, source_topic_id: topic.id),
+                  icon: "topic",
+                  title: topic_instance.title.presence || "Untitled Topic",
+                  meta_parts: [topic.owner_name],
+                  time_meta: "Updated #{time_ago_in_words(topic.updated_at)} ago",
+                  status: "approved",
+                  link_options: {
+                    data: {
+                      overlay_target: "card",
+                      action: "click->overlay#selectTopic",
+                      overlay_course_id_param: topic.id
+                    }
+                  } do %>
+                <div class="mt-2 flex items-center justify-between gap-4">
+                  <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 whitespace-nowrap">Course</span>
+                  <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md truncate">
+                    <%= topic.course.course_name %>
+                  </span>
                 </div>
               <% end %>
             <% end %>

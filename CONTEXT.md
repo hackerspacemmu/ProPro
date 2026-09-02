@@ -39,6 +39,13 @@ definitions.
 - **comments drawer** — one element, two presentations: the static sticky comments column on desktop; a backdrop-toggled off-canvas slide-in on mobile (`top-0 right-0 bottom-0` + `translate-x-full`, escaped by `min-[1245px]:translate-x-0`), opened by the comments trigger. Controlled by `comments-drawer`.
 - **comments trigger** — the mobile-only tab-bar button (chat bubble + count badge) that opens/closes the comments drawer (`aria-expanded` mirrors open state).
 
+## Course show (Overview)
+
+- **Overview** — the first content tab on `courses/show`, renamed from "Project Details". A max-w-[800px] centered column consolidating the Project Details card plus the Supervised Projects, Pending Proposals, Reviewed Proposals, and Pending Topics sections. A temporary consolidation while the To Review and Supervised Projects tabs remain (kept for a later deletion pass). Rendered by `_overview_tab.html.erb`.
+- **section header** — the collapsible title row at the top of each Overview section (title + blue count + `expand_less` chevron). Toggles its own row list via **collapsible section**. Long titles truncate rather than wrap.
+- **row item** — the mockup's list row language shared by proposals and topics: circular icon avatar, title + meta on the left, status pill inline at the end of the meta line, and the time line (`time_meta`, "Submitted X ago") as the right-side text at 1rem/400/1.5rem. One line at every width. Topics render as row items (not colored cards) at every `_topic_card` call site.
+- **collapsible section** — an Overview section plus its row list, toggled by its **section header**; all four are toggled together by the **Collapse all / Expand all** button (`unfold_less`/`unfold_more`). Wired by the `collapsible-sections` Stimulus controller (`data-collapsible-sections-target="toggle"/"body"` paired by `data-collapsible-sections-section`). The section's top divider line lives outside the collapsible body (`_row_list` `borderless_first:`), so it persists when the section is collapsed. Sections load expanded, show their empty-state sentence when empty, and hold no state persistence.
+
 ## App chrome
 
 - **app sidebar** — `shared/_sidebar`: app-wide nav (Home / courses / Edit profile), plus the `render_sidebar` helper widget for legacy pages. One element, two presentations: a static left column at ≥`lg` (1024px), an off-canvas drawer below it opened by the header menu icon. Controlled by `sidebar`. Its breakpoint is chrome-level and deliberately independent of content breakpoints (e.g., the `min-[1245px]` comments drawer).

@@ -1,0 +1,107 @@
+<%# Overview — the first content tab on courses/show (renamed from "Project Details").
+    A max-w-[800px] centered column consolidating the Project Details card plus the
+    Supervised Projects, Pending Proposals, Reviewed Proposals, and Pending Topics
+    sections (per course_show.html.erb mockup). Sections collapse via the
+    collapsible-sections Stimulus controller; each section's top line persists when
+    collapsed (it lives outside the collapsible body). %>
+
+<%
+  has_rows = @approved_projects.any? || @pending_proposals.any? || @reviewed_proposals.any? || @pending_topics.any?
+  empty_state_classes = "border-b border-[#E0E0E0] py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-[#5F6368]"
+%>
+
+<section id="proposal-guidelines" class="mb-4">
+  <div class="border border-gray-200 shadow-sm rounded-[10px] w-full p-6 bg-[#f8f9fa]">
+    <h4 class="break-all whitespace-pre-line text-xl font-medium text-[#202124]">Project Details</h4>
+    <p class="text-[0.9rem] sm:text-[1rem] mt-3 leading-[1.5] whitespace-pre-line text-[#5F6368] break-words"><%= @description || "No description available for this course." %></p>
+
+    <% if @course.file_link.present? %>
+      <a class="text-decoration-none max-w-max text-inherit mt-6 block" href="<%= @course.file_link %>" target="_blank" rel="noopener noreferrer">
+        <div class="text-[#313848] w-fit flex z-0 border border-[#DADCE0] bg-white pl-3 pr-5 py-2.5 rounded-[8px] hover:bg-[#F8F9FA] transition-colors cursor-pointer">
+          <div class="file-icon flex items-center justify-center mr-3 bg-[#E8F0FE] text-[#1A73E8] rounded-[6px] w-[36px] h-[36px] shrink-0">
+            <span class="material-symbols-outlined">folder_zip</span>
+          </div>
+          <div class="flex flex-col justify-center">
+            <span class="font-medium text-[14px]"><%= File.basename(URI.parse(@course.file_link).path.presence || "") rescue @course.file_link %></span>
+          </div>
+        </div>
+      </a>
+    <% end %>
+  </div>
+</section>
+
+<% if @course.solo_supervisor? %>
+  <section id="supervisors-available" class="mb-10">
+    <div class="border border-gray-200 shadow-sm rounded-[10px] w-full p-4 bg-[#f8f9fa]">
+      <header>
+        <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Instructor: <%= @lecturers.first&.name %></h4>
+      </header>
+      <ul class="list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <%= render partial: "lecturers", collection: @lecturers, as: :lecturer, locals: { course: @course } %>
+      </ul>
+    </div>
+  </section>
+<% end %>
+
+<div data-controller="collapsible-sections">
+  <% if has_rows %>
+    <div class="flex justify-end mb-10">
+      <button type="button" data-action="collapsible-sections#toggleAll" class="flex items-center gap-2 text-[14px] font-medium text-[#1A73E8] hover:bg-[#E8F0FE] px-3 py-2 rounded-md transition-colors">
+        <span data-collapsible-sections-target="toggleAllIcon" class="material-symbols-outlined text-[20px]">unfold_less</span>
+        <span data-collapsible-sections-target="toggleAllLabel">Collapse all</span>
+      </button>
+    </div>
+  <% end %>
+
+  <div class="mb-12" id="supervised-projects">
+    <%= render "courses/section_header", title: "Supervised Projects", count: @approved_projects.size, section: "supervised-projects" %>
+    <div class="border-t border-[#E0E0E0]"></div>
+    <% if @approved_projects.any? %>
+      <%= render "shared/row_list", rows: @approved_projects, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "supervised-projects" } } %>
+    <% else %>
+      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="supervised-projects">
+        Projects that are approved by you will appear here.
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mb-12" id="pending-proposals">
+    <%= render "courses/section_header", title: "Pending Proposals", count: @pending_proposals.size, section: "pending-proposals" %>
+    <div class="border-t border-[#E0E0E0]"></div>
+    <% if @pending_proposals.any? %>
+      <%= render "shared/row_list", rows: @pending_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-proposals" } } %>
+    <% else %>
+      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-proposals">
+        Proposals that are pending review from you will appear here.
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mb-12" id="reviewed-proposals">
+    <%= render "courses/section_header", title: "Reviewed Proposals", count: @reviewed_proposals.size, section: "reviewed-proposals" %>
+    <div class="border-t border-[#E0E0E0]"></div>
+    <% if @reviewed_proposals.any? %>
+      <%= render "shared/row_list", rows: @reviewed_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "reviewed-proposals" } } %>
+    <% else %>
+      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="reviewed-proposals">
+        Proposals that you previously rejected and returned.
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mb-12" id="pending-topics">
+    <%= render "courses/section_header", title: "Pending Topics", count: @pending_topics.size, section: "pending-topics" %>
+    <div class="border-t border-[#E0E0E0]"></div>
+    <% if @pending_topics.any? %>
+      <%= render "shared/row_list", rows: @pending_topics, partial: "courses/topic_card", item: :topic, borderless_first: true,
+          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-topics" } } %>
+    <% else %>
+      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-topics">
+        Topics that are pending review from you will appear here.
+      </div>
+    <% end %>
+  </div>
+</div>

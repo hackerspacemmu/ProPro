@@ -306,15 +306,14 @@
               <p class="italic text-gray-500">No Projects Available</p>
             </div>
           <% else %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <%= render partial: "courses/project_card",
-              collection: @my_student_projects,
-              as: :project,
+              <%= render "shared/row_list",
+              rows: @approved_topics,
+              partial: "courses/topic_card",
+              item: :topic,
               locals: {
                 course: @course,
                 lecturer: @lecturer,
               } %>
-            </div>
           <% end %>
         </div>
       </section>
@@ -342,15 +341,14 @@
                 <p class="text-gray-500 italic">No Released Topics Available</p>
               </div>
             <% else %>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <%= render partial: "courses/topic_card",
-                collection: @approved_topics,
-                as: :topic,
-                locals: {
-                  course: @course,
-                  lecturer: @lecturer,
-                } %>
-              </div>
+              <%= render "shared/row_list",
+              rows: @approved_topics,
+              partial: "courses/topic_card",
+              item: :topic,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             <% end %>
           </div>
         </section>
@@ -373,19 +371,14 @@
                 <p class="text-gray-500 italic">No Pending Topics Available</p>
               </div>
             <% else %>
-              <div
-                class="
-                  grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
-                "
-              >
-                <%= render partial: "courses/topic_card",
-                collection: @pending_topics,
-                as: :topic,
-                locals: {
-                  course: @course,
-                  lecturer: @lecturer,
-                } %>
-              </div>
+              <%= render "shared/row_list",
+              rows: @pending_topics,
+              partial: "courses/topic_card",
+              item: :topic,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             <% end %>
           </div>
         </section>
@@ -410,15 +403,14 @@
                 <p class="text-gray-500 italic">This lecturer has no available topics yet.</p>
               </div>
             <% else %>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <%= render partial: "courses/topic_card",
-                collection: @approved_topics,
-                as: :topic,
-                locals: {
-                  course: @course,
-                  lecturer: @lecturer,
-                } %>
-              </div>
+              <%= render "shared/row_list",
+              rows: @approved_topics,
+              partial: "courses/topic_card",
+              item: :topic,
+              locals: {
+                course: @course,
+                lecturer: @lecturer,
+              } %>
             <% end %>
           </div>
         </section>

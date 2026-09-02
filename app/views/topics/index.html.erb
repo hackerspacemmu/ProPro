@@ -81,13 +81,8 @@
 
     <%# --- Topics Grid --- %>
     <section class="topics-list mb-12" id="topics-list">
-      <div
-        class="
-          grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
-        "
-      >
         <% if @topics.any? %>
-          <%= render partial: "courses/topic_card", collection: @topics, as: :topic %>
+          <%= render "shared/row_list", rows: @topics, partial: "courses/topic_card", item: :topic %>
         <% else %>
           <div
             class="
@@ -110,7 +105,6 @@
             <p class="text-gray-400 text-sm mt-1">Try adjusting your search keywords.</p>
           </div>
         <% end %>
-      </div>
     </section>
 
     <%# --- Bottom Back Button --- %>
