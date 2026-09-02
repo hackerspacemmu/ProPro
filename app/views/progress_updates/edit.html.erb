@@ -11,7 +11,7 @@
   <div class="mx-auto w-full xl:w-10/12 2xl:w-8/12">
 
     <div class="mb-8">
-      <%= link_to course_project_path(@course, @project, tab: "progress", anchor: "project-progress"), class: "group inline-flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
+      <%= link_to course_project_path(@course, @project), class: "group inline-flex items-center text-sm font-medium text-gray-500 hover:text-green-600 transition-colors mb-4" do %>
         <div
           class="
             w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center
@@ -114,12 +114,7 @@
             "
           >
             <%= link_to "Cancel",
-            course_project_path(
-              @course,
-              @project,
-              tab: "progress",
-              anchor: "project-progress",
-            ),
+            course_project_path(@course, @project),
             class:
               "w-full sm:w-auto text-center text-sm font-bold text-gray-500 hover:text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors" %>
 

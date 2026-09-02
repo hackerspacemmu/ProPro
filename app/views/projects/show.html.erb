@@ -10,6 +10,13 @@
   | ProPro
 <% end %>
 
+<%
+  project_tab_slugs = ["details", "compare"]
+  project_tab_slugs << "progress" if @course.use_progress_updates
+  project_tab_persist_key = "propro_tab_project_#{@project.id}"
+  project_initial_tab = project_tab_slugs.index(cookies[project_tab_persist_key]) || 0
+%>
+
 <div class="text-[#3C4043] font-['Roboto',sans-serif]">
   <div class="flex">
     <%= render "shared/sidebar" %>
@@ -17,6 +24,7 @@
     <main
       class="flex-1 bg-[#FFFFFF] rounded-tl-[16px] flex overflow-hidden min-h-[calc(100vh-3.5rem)]"
       data-controller="tabs comments-drawer"
+      data-tabs-persist-key-value="<%= project_tab_persist_key %>"
       data-action="keydown.esc@window->comments-drawer#closeOnEscape"
     >
 
@@ -38,7 +46,7 @@
         <div class="p-8 max-w-5xl space-y-6 pb-28 min-[1245px]:pb-8">
 
           <%# Panel 1: Project Details %>
-          <div data-tabs-target="panel" class="space-y-6">
+          <div data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 0 ? ' hidden' : '' %>">
             <%= render "project_overview",
             project: @project,
             course: @course,
@@ -55,7 +63,7 @@
           </div>
 
           <%# Panel 2: Compare Versions %>
-          <div data-tabs-target="panel" class="hidden">
+          <div data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 1 ? ' hidden' : '' %>">
             <%= render "compare_versions_tab",
             fields: @current_fields,
             next_fields: @next_fields,
@@ -67,7 +75,7 @@
           <% if @course.use_progress_updates %>
             <div
               data-tabs-target="panel"
-              class="hidden"
+              class="<%= project_initial_tab != 2 ? 'hidden' : '' %>"
               data-controller="record-update-modal"
             >
               <%= render "progress_updates",

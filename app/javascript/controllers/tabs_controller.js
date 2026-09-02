@@ -1,27 +1,27 @@
 import { Controller } from "@hotwired/stimulus";
 
 // Generic tab controller — deliberately NOT mobile_tabs_controller.js,
-// which is hard-coded to 3 named targets for the project/topic show pages
+// which is hard-coded to 3 named targets for the topic show page
 // and out of scope for this work.
 //
 // Usage:
 //   <div data-controller="tabs"
-//        data-tabs-active-index-value="0"
+//        data-tabs-persist-key-value="propro_tab_course_42"
 //        data-tabs-active-class="..."
 //        data-tabs-inactive-class="...">
 //     <button data-tabs-target="tab" data-action="tabs#show"
-//             data-tabs-index-param="0" data-tabs-key-param="overview">...</button>
-//     <button ... index-param="1" key-param="to_review">...</button>
+//             data-tabs-index-param="0" data-tabs-slug-param="overview">...</button>
+//     <button ... index-param="1" slug-param="topics">...</button>
 //     <div data-tabs-target="panel">...</div>
 //     <div data-tabs-target="panel">...</div>
 //   </div>
 //
-// The server renders the initially-active tab (from ?tab=) directly into the
-// HTML — no flash of the wrong tab on load — while clicks write the tab's
-// "key" (a stable id, independent of DOM position) back into the URL via
-// replaceState. connect() prefers the URL's ?tab= key so reconnects stay on
-// the tab the URL advertises (fresh loads AND Turbo snapshot restores, where
-// the baked activeIndexValue can be stale), falling back to activeIndexValue.
+// data-tabs-persist-key-value is optional. When present, the selected tab's
+// slug is written to a plain cookie under that key on every user-initiated
+// switch, so the *server* can render the right panel un-hidden on the next
+// full page load. connect() trusts whatever the server already rendered
+// rather than forcing tab 0, so it never fights that server-side choice
+// (that's what would reintroduce the flash-of-wrong-tab problem).
 //
 // The "Settings" entry in the tab bar is a plain link_to (real navigation to
 // a separate page), not a data-tabs-target="tab" — it doesn't participate in
@@ -29,40 +29,22 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = ["tab", "panel"];
   static classes = ["active", "inactive"];
-  static values = { activeIndex: { type: Number, default: 0 } };
+  static values = { persistKey: String };
 
   connect() {
-    // Prefer the URL's ?tab= key over the server-baked activeIndexValue. The
-    // server renders the initially-active tab from params[:tab], and clicks
-    // keep the URL current via replaceState — so reading the URL here makes
-    // every reconnect (fresh load AND Turbo snapshot restores where the baked
-    // index can be stale) land on the same tab the URL already advertises.
-    const urlTab = new URL(window.location.href).searchParams.get("tab");
-    if (urlTab) {
-      const keyed = this.tabTargets.findIndex(
-        (tab) => tab.dataset.tabsKeyParam === urlTab,
-      );
-      if (keyed !== -1) this.setActive(keyed);
-      return;
-    }
-    this.setActive(this.activeIndexValue);
+    const alreadyVisible = this.panelTargets.findIndex(
+      (panel) => !panel.classList.contains("hidden"),
+    );
+    this.applyState(alreadyVisible === -1 ? 0 : alreadyVisible);
   }
 
   show(event) {
     const index = Number(event.params.index);
-    this.setActive(index);
-
-    // replaceState, not pushState — switching tabs isn't a new page for
-    // back-button purposes, it just needs to survive a refresh/share.
-    const key = event.params.key;
-    if (key) {
-      const url = new URL(window.location.href);
-      url.searchParams.set("tab", key);
-      window.history.replaceState(window.history.state, "", url);
-    }
+    this.applyState(index);
+    this.persist(event.params.slug);
   }
 
-  setActive(index) {
+  applyState(index) {
     this.panelTargets.forEach((panel, i) => {
       panel.classList.toggle("hidden", i !== index);
     });
@@ -78,7 +60,7 @@ export default class extends Controller {
       const inactiveClasses = (
         this.hasInactiveClass
           ? this.inactiveClass
-          : "text-[#5F6368] hover:text-[#3C4043] border-transparent"
+          : "text-[#5F6368] border-transparent"
       ).split(" ");
 
       if (isActive) {
@@ -92,5 +74,12 @@ export default class extends Controller {
       tab.setAttribute("aria-selected", isActive);
       tab.setAttribute("tabindex", isActive ? "0" : "-1");
     });
+  }
+
+  persist(slug) {
+    if (!slug || !this.hasPersistKeyValue) return;
+    const secure = window.location.protocol === "https:" ? "; secure" : "";
+    document.cookie =
+      `${this.persistKeyValue}=${slug}; path=/; max-age=31536000; samesite=lax${secure}`;
   }
 }

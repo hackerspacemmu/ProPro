@@ -4,22 +4,18 @@
 
 <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 
-<%# Tab indices are derived from the same array that renders the panels, so
-    data-tabs-index-param always matches the DOM position regardless of which
-    conditional tabs render for the current role. Each tab carries a stable
-    `key` (independent of position) used to persist the active tab across
-    refreshes via ?tab=. The server renders the initially-active tab from
-    params[:tab], so there's no flash of the wrong tab on load. %>
+<%# Cookie is plain/unsigned on purpose: it only ever holds one of the four
+    slugs below, and tabs.find_index ignores anything else, so there is
+    nothing to forge that does more than land the user on Overview. %>
 <%
   tabs = []
-  tabs << { key: "overview",  name: "Overview",  partial: "courses/overview_tab" }
-  tabs << { key: "topics",    name: "Topics",    partial: "courses/topic_directory_tab" }
-  tabs << { key: "people",    name: "People",    partial: "courses/people_tab" }
-  tabs << { key: "groups",    name: "Groups",    partial: "courses/groups_tab" }
+  tabs << { slug: "overview", name: "Overview", partial: "courses/overview_tab" }
+  tabs << { slug: "topics",   name: "Topics",   partial: "courses/topic_directory_tab" }
+  tabs << { slug: "people",   name: "People",   partial: "courses/people_tab" }
+  tabs << { slug: "groups",   name: "Groups",   partial: "courses/groups_tab" }
 
-  tab_keys     = tabs.map { |t| t[:key] }
-  active_key   = tab_keys.include?(params[:tab]) ? params[:tab] : tab_keys.first
-  active_index = tab_keys.index(active_key)
+  tab_persist_key = "propro_tab_course_#{@course.id}"
+  initial_tab_index = tabs.find_index { |t| t[:slug] == cookies[tab_persist_key] } || 0
 %>
 
 <div class="text-[#3C4043] font-['Roboto',sans-serif]">
@@ -28,7 +24,7 @@
     <%= render "shared/sidebar" %>
     <main class="flex-1 bg-white rounded-tl-[28px] overflow-hidden min-h-[calc(100vh-3.5rem)]"
           data-controller="tabs"
-          data-tabs-active-index-value="<%= active_index %>"
+          data-tabs-persist-key-value="<%= tab_persist_key %>"
           data-tabs-active-class="text-[#0B57D0]"
           data-tabs-inactive-class="text-[#1F1F1F] hover:bg-[#F8F9FA]">
 
@@ -36,17 +32,17 @@
         <div class="flex items-center justify-between">
           <div role="tablist" class="flex flex-nowrap gap-y-1">
             <% tabs.each_with_index do |tab, index| %>
-              <% selected = index == active_index %>
+              <% selected = index == initial_tab_index %>
               <button type="button"
-                      id="tab-<%= tab[:key] %>"
+                      id="tab-<%= tab[:slug] %>"
                       role="tab"
                       aria-selected="<%= selected %>"
-                      aria-controls="panel-<%= tab[:key] %>"
+                      aria-controls="panel-<%= tab[:slug] %>"
                       tabindex="<%= selected ? 0 : -1 %>"
                       data-tabs-target="tab"
                       data-action="tabs#show"
                       data-tabs-index-param="<%= index %>"
-                      data-tabs-key-param="<%= tab[:key] %>"
+                      data-tabs-slug-param="<%= tab[:slug] %>"
                       style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
                       class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap <%= selected ? 'text-[#0B57D0]' : 'text-[#1F1F1F] hover:bg-[#F8F9FA]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
             <% end %>
@@ -63,11 +59,11 @@
       </div>
 
       <% tabs.each_with_index do |tab, index| %>
-        <div id="panel-<%= tab[:key] %>"
+        <div id="panel-<%= tab[:slug] %>"
              role="tabpanel"
-             aria-labelledby="tab-<%= tab[:key] %>"
+             aria-labelledby="tab-<%= tab[:slug] %>"
              data-tabs-target="panel"
-             class="max-w-5xl mx-auto px-6 py-8<%= index == active_index ? '' : ' hidden' %>">
+             class="max-w-5xl mx-auto px-6 py-8<%= index == initial_tab_index ? '' : ' hidden' %>">
           <%= render tab[:partial] %>
         </div>
       <% end %>

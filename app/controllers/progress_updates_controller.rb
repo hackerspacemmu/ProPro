@@ -30,13 +30,13 @@ class ProgressUpdatesController < ApplicationController
       return
     end
 
-    redirect_to course_project_path(@course, @project, tab: 'progress')
+    redirect_to course_project_path(@course, @project)
   end
 
   def update
     @progress_update = ProgressUpdate.find(params[:id])
     if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))
-      redirect_to course_project_path(@course, @project, tab: 'progress')
+      redirect_to course_project_path(@course, @project)
     else
       render :edit, status: :unprocessable_entity
     end
@@ -45,7 +45,7 @@ class ProgressUpdatesController < ApplicationController
   def destroy
     @progress_update = ProgressUpdate.find(params[:id])
     @progress_update.destroy
-    redirect_to course_project_path(@course, @project, tab: 'progress'), notice: 'Progress update deleted successfully.'
+    redirect_to course_project_path(@course, @project), notice: 'Progress update deleted successfully.'
   end
 
   private
