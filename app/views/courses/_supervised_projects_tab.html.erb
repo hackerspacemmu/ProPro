@@ -1,7 +1,0 @@
-<div class="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full">
-  <% if @approved_projects.any? %>
-    <%= render partial: "project_card", collection: @approved_projects, as: :project, locals: { course: @course } %>
-  <% else %>
-    <p class="col-span-full text-left text-gray-500">No approved student projects yet.</p>
-  <% end %>
-</div>

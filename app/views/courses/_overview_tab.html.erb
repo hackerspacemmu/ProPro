@@ -3,10 +3,10 @@
     Supervised Projects, Pending Proposals, Reviewed Proposals, and Pending Topics
     sections (per course_show.html.erb mockup). Sections collapse via the
     collapsible-sections Stimulus controller; each section's top line persists when
-    collapsed (it lives outside the collapsible body). %>
+    collapsed (it lives outside the collapsible body). Section visibility is gated
+    by @presenter (OverviewPresenter) — hidden sections are not rendered at all. %>
 
 <%
-  has_rows = @approved_projects.any? || @pending_proposals.any? || @reviewed_proposals.any? || @pending_topics.any?
   empty_state_classes = "border-b border-[#E0E0E0] py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-[#5F6368]"
 %>
 
@@ -44,7 +44,7 @@
 <% end %>
 
 <div data-controller="collapsible-sections">
-  <% if has_rows %>
+  <% if @presenter.any_sections? %>
     <div class="flex justify-end mb-10">
       <button type="button" data-action="collapsible-sections#toggleAll" class="flex items-center gap-2 text-[14px] font-medium text-[#1A73E8] hover:bg-[#E8F0FE] px-3 py-2 rounded-md transition-colors">
         <span data-collapsible-sections-target="toggleAllIcon" class="material-symbols-outlined text-[20px]">unfold_less</span>
@@ -53,55 +53,63 @@
     </div>
   <% end %>
 
-  <div class="mb-12" id="supervised-projects">
-    <%= render "courses/section_header", title: "Supervised Projects", count: @approved_projects.size, section: "supervised-projects" %>
-    <div class="border-t border-[#E0E0E0]"></div>
-    <% if @approved_projects.any? %>
-      <%= render "shared/row_list", rows: @approved_projects, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
-          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "supervised-projects" } } %>
-    <% else %>
-      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="supervised-projects">
-        Projects that are approved by you will appear here.
-      </div>
-    <% end %>
-  </div>
+  <% if @presenter.show_supervised_projects? %>
+    <div class="mb-12" id="supervised-projects">
+      <%= render "courses/section_header", title: "Supervised Projects", count: @presenter.supervised_projects.size, section: "supervised-projects" %>
+      <div class="border-t border-[#E0E0E0]"></div>
+      <% if @presenter.supervised_projects.any? %>
+        <%= render "shared/row_list", rows: @presenter.supervised_projects, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+            container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "supervised-projects" } } %>
+      <% else %>
+        <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="supervised-projects">
+          Projects that are approved by you will appear here.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
-  <div class="mb-12" id="pending-proposals">
-    <%= render "courses/section_header", title: "Pending Proposals", count: @pending_proposals.size, section: "pending-proposals" %>
-    <div class="border-t border-[#E0E0E0]"></div>
-    <% if @pending_proposals.any? %>
-      <%= render "shared/row_list", rows: @pending_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
-          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-proposals" } } %>
-    <% else %>
-      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-proposals">
-        Proposals that are pending review from you will appear here.
-      </div>
-    <% end %>
-  </div>
+  <% if @presenter.show_pending_proposals? %>
+    <div class="mb-12" id="pending-proposals">
+      <%= render "courses/section_header", title: "Pending Proposals", count: @presenter.pending_proposals.size, section: "pending-proposals" %>
+      <div class="border-t border-[#E0E0E0]"></div>
+      <% if @presenter.pending_proposals.any? %>
+        <%= render "shared/row_list", rows: @presenter.pending_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+            container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-proposals" } } %>
+      <% else %>
+        <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-proposals">
+          Proposals that are pending review from you will appear here.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
-  <div class="mb-12" id="reviewed-proposals">
-    <%= render "courses/section_header", title: "Reviewed Proposals", count: @reviewed_proposals.size, section: "reviewed-proposals" %>
-    <div class="border-t border-[#E0E0E0]"></div>
-    <% if @reviewed_proposals.any? %>
-      <%= render "shared/row_list", rows: @reviewed_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
-          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "reviewed-proposals" } } %>
-    <% else %>
-      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="reviewed-proposals">
-        Proposals that you previously rejected and returned.
-      </div>
-    <% end %>
-  </div>
+  <% if @presenter.show_reviewed_proposals? %>
+    <div class="mb-12" id="reviewed-proposals">
+      <%= render "courses/section_header", title: "Reviewed Proposals", count: @presenter.reviewed_proposals.size, section: "reviewed-proposals" %>
+      <div class="border-t border-[#E0E0E0]"></div>
+      <% if @presenter.reviewed_proposals.any? %>
+        <%= render "shared/row_list", rows: @presenter.reviewed_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+            container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "reviewed-proposals" } } %>
+      <% else %>
+        <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="reviewed-proposals">
+          Proposals that you previously rejected and returned.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
-  <div class="mb-12" id="pending-topics">
-    <%= render "courses/section_header", title: "Pending Topics", count: @pending_topics.size, section: "pending-topics" %>
-    <div class="border-t border-[#E0E0E0]"></div>
-    <% if @pending_topics.any? %>
-      <%= render "shared/row_list", rows: @pending_topics, partial: "courses/topic_card", item: :topic, borderless_first: true,
-          container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-topics" } } %>
-    <% else %>
-      <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-topics">
-        Topics that are pending review from you will appear here.
-      </div>
-    <% end %>
-  </div>
+  <% if @presenter.show_pending_topics? %>
+    <div class="mb-12" id="pending-topics">
+      <%= render "courses/section_header", title: "Pending Topics", count: @presenter.pending_topics.size, section: "pending-topics" %>
+      <div class="border-t border-[#E0E0E0]"></div>
+      <% if @presenter.pending_topics.any? %>
+        <%= render "shared/row_list", rows: @presenter.pending_topics, partial: "courses/topic_card", item: :topic, borderless_first: true,
+            container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-topics" } } %>
+      <% else %>
+        <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-topics">
+          Topics that are pending review from you will appear here.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>

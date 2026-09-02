@@ -12,10 +12,11 @@ is the template this doc follows (query audit → architecture → tickets →
 files → build order → tests).
 
 **In scope:** the mockup's consolidated **Overview** (first-tab) content, the
-first-tab rename, converting **topic cards to row-style list items**, and the
-per-section **expand/collapse** behavior (§11).
-**Out of scope:** the tab bar itself (only the first tab's label string
-changes) and People/Groups/Topic-Directory content behavior.
+first-tab rename, converting **topic cards to row-style list items**, the
+per-section **expand/collapse** behavior (§11), **removing the To Review tab**
+(D1), **settings icon relocation** (D2), and **presenter-based section
+visibility** (D3, D4).
+**Out of scope:** People/Groups/Topic-Directory content behavior.
 
 ---
 
@@ -440,3 +441,177 @@ reload resets to expanded. Slugs: `supervised-projects`, `pending-proposals`,
    header and the collapsible body; because the line lives outside the body it
    persists when the section is collapsed (no doubled 2px seam when expanded —
    the first row is borderless).
+
+---
+
+## 12. Tab bar cleanup & presenter-based visibility (2026-09-02)
+
+Supersedes §5 Ticket 4's reference to `_to_review_tab.html.erb` (deleted here)
+and introduces a presenter for section visibility in the Overview tab.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| D1 | Remove `_to_review_tab.html.erb` + its `show.html.erb` callsite | Overview tab already renders the same three sections (Pending Proposals, Reviewed Proposals, Pending Topics) via collapsible sections |
+| D2 | Settings → gear icon button, rightmost in header row | Same flex row, icon-only (`material-symbols-outlined`), `ml-auto` or `justify-between` |
+| D3 | Don't render hidden sections at all (no empty states for students) | Presenter gates the `render` call; section container never hits the DOM. Empty states are dishonest UI when the section isn't for the current role. |
+| D4 | Introduce `OverviewPresenter` for section visibility; keep Pundit for record-level auth | View objects (per Copeland §7.3.3) for presentation decisions, policies for authorization — complementary |
+
+### Role visibility matrix
+
+| Section | Coordinator | Lecturer | Student |
+|---------|:-----------:|:--------:|:-------:|
+| Supervised Projects | ✓ | ✓ | ✗ |
+| Pending Proposals | ✓ | ✓ | ✗ |
+| Reviewed Proposals | ✓ | ✓ | ✗ |
+| Pending Topics | ✓ | ✗ | ✗ |
+
+### 12.1 OverviewPresenter
+
+**Path:** `app/presenters/overview_presenter.rb` (new directory)
+
+```ruby
+class OverviewPresenter
+  def initialize(enrolment:, approved_projects:, pending_proposals:,
+                 reviewed_proposals:, pending_topics:)
+    @enrolment = enrolment
+    @approved_projects = approved_projects
+    @pending_proposals = pending_proposals
+    @reviewed_proposals = reviewed_proposals
+    @pending_topics = pending_topics
+  end
+
+  # Section visibility — returns false → section is not rendered at all
+  def show_supervised_projects? = !student?
+  def show_pending_proposals?    = !student?
+  def show_reviewed_proposals?   = !student?
+  def show_pending_topics?       = coordinator?
+
+  # Collection accessors (view passes these to row_list)
+  def supervised_projects = @approved_projects
+  def pending_proposals   = @pending_proposals
+  def reviewed_proposals  = @reviewed_proposals
+  def pending_topics      = @pending_topics
+
+  # Replaces the has_rows check — only counts sections the current role sees
+  def any_sections?
+    (show_supervised_projects? && @approved_projects.any?) ||
+    (show_pending_proposals?   && @pending_proposals.any?) ||
+    (show_reviewed_proposals?  && @reviewed_proposals.any?) ||
+    (show_pending_topics?      && @pending_topics.any?)
+  end
+
+  private
+
+  def student?     = @enrolment&.student?
+  def coordinator? = @enrolment&.coordinator?
+end
+```
+
+Takes `enrolment` (not `user`) because role lives on `Enrolment` (enum on
+`Enrolment#role`, not `User`). The `&.` safe navigation handles the edge case
+of an unenrolled user (policy already blocks page access, but the presenter
+shouldn't blow up).
+
+### 12.2 Controller change
+
+In `CoursesController#show`, after the existing data-loading block (lines
+58–81), build the presenter:
+
+```ruby
+@presenter = OverviewPresenter.new(
+  enrolment: @current_user_enrolment,
+  approved_projects: @approved_projects,
+  pending_proposals: @pending_proposals,
+  reviewed_proposals: @reviewed_proposals,
+  pending_topics: @pending_topics
+)
+```
+
+The existing role-based `if/elsif` blocks that populate `@my_student_projects`
+and `@incoming_proposals` **stay** — they scope data to the current supervisor.
+The presenter only decides **visibility**, not data scoping. For students,
+`@my_student_projects` is already `[]`; the key change is the view won't render
+those sections at all.
+
+### 12.3 Overview tab changes
+
+`_overview_tab.html.erb`: wrap each section in presenter guards:
+
+```erb
+<% if @presenter.show_supervised_projects? %>
+  <div class="border-t border-[#E0E0E0] py-5">
+    <%= render "section_header", title: "Supervised Projects",
+        count: @presenter.supervised_projects.size, section: "supervised-projects" %>
+    <% if @presenter.supervised_projects.any? %>
+      <%= render "shared/row_list", rows: @presenter.supervised_projects, ... %>
+    <% else %>
+      <p class="text-[#5F6368] text-[0.875rem] leading-[1.5rem]">
+        Projects that are approved by you will appear here.
+      </p>
+    <% end %>
+  </div>
+<% end %>
+```
+
+Same pattern for Pending Proposals, Reviewed Proposals, Pending Topics. Update
+`has_rows` to use `@presenter.any_sections?`.
+
+### 12.4 Tab bar changes
+
+**`show.html.erb`:**
+
+1. **Remove to_review** — delete the `tabs <<` line for `"to_review"`.
+
+2. **Settings → icon button** — replace the text link with:
+
+```erb
+<div class="border-b border-[#E0E0E0] px-8 bg-white shrink-0">
+  <div class="flex items-center justify-between">
+    <div role="tablist" class="flex flex-wrap gap-y-1">
+      <%# tab buttons unchanged %>
+    </div>
+
+    <% if @current_user_enrolment&.coordinator? %>
+      <%= link_to settings_course_path(@course),
+            class: "h-[3rem] w-[3rem] flex items-center justify-center rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors",
+            title: "Settings" do %>
+        <span class="material-symbols-outlined">settings</span>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+```
+
+Key: `justify-between` puts tabs left, icon right. Coordinator-only guard
+matches the existing `CoursePolicy#update?` authorization.
+
+### 12.5 File operations (this section only)
+
+| Operation | File |
+|-----------|------|
+| **Create** | `app/presenters/overview_presenter.rb` |
+| **Modify** | `app/controllers/courses_controller.rb` — build `@presenter` |
+| **Modify** | `app/views/courses/_overview_tab.html.erb` — presenter guards |
+| **Modify** | `app/views/courses/show.html.erb` — remove to_review tab, settings icon |
+| **Delete** | `app/views/courses/_to_review_tab.html.erb` |
+| **Delete** | `app/views/courses/_supervised_projects_tab.html.erb` (already unreferenced) |
+| **Modify** | `test/controllers/courses_controller_test.rb` — fix stale tab names, add role visibility tests |
+| **Modify** | `test/system/courses/course_tab_persistence_test.rb` — remove To Review tab test |
+
+### 12.6 Tests
+
+**Controller test updates** (`courses_controller_test.rb`):
+- Fix stale `'Project Details'` → `'Overview'` assertions
+- Remove/update `'To Review'` tab assertions
+- Add: student does NOT see section headers (Supervised Projects, Pending Proposals, Reviewed Proposals, Pending Topics) in response body
+- Add: lecturer sees Supervised Projects, Pending Proposals, Reviewed Proposals but NOT Pending Topics
+- Add: coordinator sees all four section headers
+
+**System test updates** (`course_tab_persistence_test.rb`):
+- Remove or rewrite the test that clicks "To Review" tab
+
+**New unit test** (`test/presenters/overview_presenter_test.rb`):
+- Test `show_*?` for each role (coordinator, lecturer, student)
+- Test `any_sections?` with various data combinations

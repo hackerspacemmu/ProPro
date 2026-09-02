@@ -17,34 +17,30 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Project Details'
-    assert_select 'button', text: 'To Review'
-    assert_select 'button', text: 'Supervised Projects'
-    assert_select 'button', text: 'Topic Directory'
+    assert_select 'button', text: 'Overview'
+    assert_select 'button', text: 'Topics'
     assert_select 'button', text: 'People'
+    assert_select 'button', text: 'Groups'
   end
 
   test 'show renders successfully for lecturer' do
     sign_in @lecturer_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Project Details'
-    assert_select 'button', text: 'To Review'
-    assert_select 'button', text: 'Supervised Projects'
+    assert_select 'button', text: 'Overview'
+    assert_select 'button', text: 'Topics'
   end
 
   test 'show renders successfully for student' do
     sign_in @student_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Project Details'
-    assert_select 'button', text: 'To Review'
-    assert_select 'button', text: 'Topic Directory'
+    assert_select 'button', text: 'Overview'
+    assert_select 'button', text: 'Topics'
     assert_select 'button', text: 'People'
-    assert_select 'button', text: 'Supervised Projects', count: 0
   end
 
-  test 'show displays pending proposals in to review tab' do
+  test 'show displays pending proposals in overview tab' do
     sign_in @coordinator_user
     supervisor_enrolment = @coordinator_enrolment
     pending_project = create(:project, course: @course, supervisor_enrolment: supervisor_enrolment, status: :pending)
@@ -59,7 +55,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
-    assert_select 'a[href=?]', settings_course_path(@course), text: 'Settings'
+    assert_select 'a[href=?]', settings_course_path(@course), count: 1
   end
 
   test 'show displays course description in project details' do
@@ -75,8 +71,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get course_path(@course)
     assert_response :success
 
-    assert_select "button[data-tabs-target='tab']", count: 5
-    assert_select "div[data-tabs-target='panel']", count: 5
+    assert_select "button[data-tabs-target='tab']", count: 4
+    assert_select "div[data-tabs-target='panel']", count: 4
     assert_select 'button', text: 'Groups'
     assert_select 'section', text: /Students/
   end

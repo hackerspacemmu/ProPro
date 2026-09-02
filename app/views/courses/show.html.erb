@@ -6,40 +6,68 @@
 
 <%# Tab indices are derived from the same array that renders the panels, so
     data-tabs-index-param always matches the DOM position regardless of which
-    conditional tabs render for the current role. %>
+    conditional tabs render for the current role. Each tab carries a stable
+    `key` (independent of position) used to persist the active tab across
+    refreshes via ?tab=. The server renders the initially-active tab from
+    params[:tab], so there's no flash of the wrong tab on load. %>
 <%
   tabs = []
-  tabs << { name: "Overview", partial: "courses/overview_tab" }
-  tabs << { name: "To Review", partial: "courses/to_review_tab" }
-  tabs << { name: "Topics", partial: "courses/topic_directory_tab" }
-  tabs << { name: "People", partial: "courses/people_tab" }
-  tabs << { name: "Groups", partial: "courses/groups_tab" }
+  tabs << { key: "overview",  name: "Overview",  partial: "courses/overview_tab" }
+  tabs << { key: "topics",    name: "Topics",    partial: "courses/topic_directory_tab" }
+  tabs << { key: "people",    name: "People",    partial: "courses/people_tab" }
+  tabs << { key: "groups",    name: "Groups",    partial: "courses/groups_tab" }
+
+  tab_keys     = tabs.map { |t| t[:key] }
+  active_key   = tab_keys.include?(params[:tab]) ? params[:tab] : tab_keys.first
+  active_index = tab_keys.index(active_key)
 %>
 
 <div class="text-[#3C4043] font-['Roboto',sans-serif]">
 
   <div class="flex">
     <%= render "shared/sidebar" %>
-    <main class="flex-1 bg-white rounded-tl-[28px] min-h-[calc(100vh-3.5rem)]"
-          data-controller="tabs">
+    <main class="flex-1 bg-white rounded-tl-[28px] overflow-hidden min-h-[calc(100vh-3.5rem)]"
+          data-controller="tabs"
+          data-tabs-active-index-value="<%= active_index %>"
+          data-tabs-active-class="text-[#0B57D0]"
+          data-tabs-inactive-class="text-[#1F1F1F] hover:bg-[#F8F9FA]">
 
-      <div class="border-b border-[#E0E0E0] px-6 pt-4">
-        <div class="flex flex-wrap gap-x-8 gap-y-1">
-          <% tabs.each_with_index do |tab, index| %>
-            <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="<%= index %>"
-                    style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
-                    class="pb-3 whitespace-nowrap border-b-4 transition-colors"><%= tab[:name] %></button>
+      <div class="border-b border-[#E0E0E0] px-8 bg-white shrink-0">
+        <div class="flex items-center justify-between">
+          <div role="tablist" class="flex flex-wrap gap-y-1">
+            <% tabs.each_with_index do |tab, index| %>
+              <% selected = index == active_index %>
+              <button type="button"
+                      id="tab-<%= tab[:key] %>"
+                      role="tab"
+                      aria-selected="<%= selected %>"
+                      aria-controls="panel-<%= tab[:key] %>"
+                      tabindex="<%= selected ? 0 : -1 %>"
+                      data-tabs-target="tab"
+                      data-action="tabs#show"
+                      data-tabs-index-param="<%= index %>"
+                      data-tabs-key-param="<%= tab[:key] %>"
+                      style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
+                      class="group h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap <%= selected ? 'text-[#0B57D0]' : 'text-[#1F1F1F] hover:bg-[#F8F9FA]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
+            <% end %>
+          </div>
+
+          <% if @current_user_enrolment&.coordinator? %>
+            <%= link_to settings_course_path(@course),
+                  class: "h-[3rem] w-[3rem] flex items-center justify-center rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors shrink-0",
+                  title: "Settings" do %>
+              <span class="material-symbols-outlined">settings</span>
+            <% end %>
           <% end %>
-
-          <%# Real navigation, not a tab panel — separate settings page. %>
-          <%= link_to "Settings", settings_course_path(@course),
-                style: "font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;",
-                class: "pb-3 whitespace-nowrap text-[#5F6368] hover:text-[#3C4043] border-b-4 border-transparent transition-colors" %>
         </div>
       </div>
 
       <% tabs.each_with_index do |tab, index| %>
-        <div data-tabs-target="panel" class="max-w-5xl mx-auto px-6 py-8<%= index.zero? ? '' : ' hidden' %>">
+        <div id="panel-<%= tab[:key] %>"
+             role="tabpanel"
+             aria-labelledby="tab-<%= tab[:key] %>"
+             data-tabs-target="panel"
+             class="max-w-5xl mx-auto px-6 py-8<%= index == active_index ? '' : ' hidden' %>">
           <%= render tab[:partial] %>
         </div>
       <% end %>

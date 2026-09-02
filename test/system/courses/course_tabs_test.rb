@@ -14,90 +14,98 @@ class CourseTabsTest < ApplicationSystemTestCase
     create(:enrolment, user: @student_user, course: @course)
   end
 
-  test "coordinator sees the tab set" do
+  test 'coordinator sees the tab set' do
     login_as @coordinator_user
     visit course_path(@course)
 
-    assert_text "Overview"
-    assert_text "To Review"
-    assert_text "Topics"
-    assert_text "People"
-    assert_text "Groups"
-    assert_text "Settings"
+    assert_text 'Overview'
+    assert_text 'To Review'
+    assert_text 'Topics'
+    assert_text 'People'
+    assert_text 'Groups'
+    assert_text 'Settings'
   end
 
-  test "lecturer sees the tab set" do
+  test 'lecturer sees the tab set' do
     login_as @lecturer_user
     visit course_path(@course)
 
-    assert_text "Overview"
-    assert_text "To Review"
-    assert_text "Topics"
-    assert_text "People"
-    assert_text "Groups"
-    assert_text "Settings"
+    assert_text 'Overview'
+    assert_text 'To Review'
+    assert_text 'Topics'
+    assert_text 'People'
+    assert_text 'Groups'
+    assert_text 'Settings'
   end
 
-  test "student sees the tab set" do
+  test 'student sees the tab set' do
     login_as @student_user
     visit course_path(@course)
 
-    assert_text "Overview"
-    assert_text "To Review"
-    assert_text "Topics"
-    assert_text "People"
-    assert_text "Groups"
-    assert_text "Settings"
-    assert_text "Projects that are approved by you will appear here."
+    assert_text 'Overview'
+    assert_text 'To Review'
+    assert_text 'Topics'
+    assert_text 'People'
+    assert_text 'Groups'
+    assert_text 'Settings'
+    assert_text 'Projects that are approved by you will appear here.'
   end
 
-  test "to review tab shows pending proposals" do
+  test 'to review tab shows pending proposals' do
     pending_project = create(:project, course: @course, supervisor_enrolment: @coordinator_enrolment, status: :pending)
-    create(:project_instance, project: pending_project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, status: :pending, title: "Test Proposal")
+    create(:project_instance, project: pending_project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, status: :pending, title: 'Test Proposal')
 
     login_as @coordinator_user
     visit course_path(@course)
 
-    click_button "To Review"
-    assert_text "Pending Proposals"
-    assert_text "Test Proposal"
+    click_button 'To Review'
+    assert_text 'Pending Proposals'
+    assert_text 'Test Proposal'
   end
 
-  test "to review tab shows reviewed proposals" do
+  test 'to review tab shows reviewed proposals' do
     redo_project = create(:project, course: @course, supervisor_enrolment: @coordinator_enrolment, status: :redo)
-    create(:project_instance, project: redo_project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, status: :redo, title: "Redo Proposal")
+    create(:project_instance, project: redo_project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, status: :redo, title: 'Redo Proposal')
 
     login_as @coordinator_user
     visit course_path(@course)
 
-    click_button "To Review"
-    assert_text "Reviewed Proposals"
-    assert_text "Redo Proposal"
+    click_button 'To Review'
+    assert_text 'Reviewed Proposals'
+    assert_text 'Redo Proposal'
   end
 
-  test "overview supervised projects shows only approved projects" do
+  test 'overview supervised projects shows only approved projects' do
     approved = create(:project, course: @course, supervisor_enrolment: @lecturer_enrolment, status: :approved)
-    create(:project_instance, project: approved, supervisor_enrolment: @lecturer_enrolment, created_by: @student_user, status: :approved, title: "Approved Project")
+    create(:project_instance, project: approved, supervisor_enrolment: @lecturer_enrolment, created_by: @student_user, status: :approved, title: 'Approved Project')
 
     login_as @lecturer_user
     visit course_path(@course)
 
-    assert_text "Approved Project"
+    assert_text 'Approved Project'
   end
 
-  test "settings link uses correct path" do
+  test 'settings link uses correct path' do
     login_as @coordinator_user
     visit course_path(@course)
 
-    click_link "Settings"
+    click_link 'Settings'
     assert_current_path settings_course_path(@course)
   end
 
-  test "project details tab shows course description" do
-    @course.update!(course_description: "Test course description")
+  test 'project details tab shows course description' do
+    @course.update!(course_description: 'Test course description')
     login_as @student_user
     visit course_path(@course)
 
-    assert_text "Test course description"
+    assert_text 'Test course description'
+  end
+
+  test '?tab= parameter opens the matching tab on load' do
+    login_as @coordinator_user
+    visit course_path(@course, tab: 'to_review')
+
+    assert_selector 'button[aria-selected="true"]', text: 'To Review'
+    assert_text 'Pending Proposals'
   end
 end

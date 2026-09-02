@@ -80,6 +80,14 @@ class CoursesController < ApplicationController
     # For Supervised Projects tab (Ticket 6)
     @approved_projects = @my_student_projects.select(&:approved?)
 
+    @presenter = OverviewPresenter.new(
+      enrolment: @current_user_enrolment,
+      approved_projects: @approved_projects,
+      pending_proposals: @pending_proposals,
+      reviewed_proposals: @reviewed_proposals,
+      pending_topics: @pending_topics
+    )
+
     # view instances for participants_table
     @filtered_group_list   = filtered_group_list
     @filtered_student_list = filtered_student_list
