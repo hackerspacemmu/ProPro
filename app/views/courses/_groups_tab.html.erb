@@ -15,7 +15,8 @@
           <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
           <input type="text" id="groups-search" name="search_query" value="<%= params[:search_query] %>"
                  placeholder="Search groups or students..."
-                 class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full pl-9 pr-4 py-2 transition-all outline-none"
+                 data-search-shortcut-target="input fallbackInput"
+                 class="peer bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none"
                  hx-get="<%= course_url(@course) %>"
                  hx-target="#groups-table-container"
                  hx-swap="outerHTML"
@@ -23,6 +24,8 @@
                  hx-include="#groups-search, #groups-status-filter, #lecturer-filter"
                  hx-vals='{"section": "groups"}'
                  hx-indicator="#groups-loading">
+          <kbd aria-hidden="true"
+               class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-[#E0E0E0] bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
         </div>
 
         <% if policy(@course).manage_students? %>

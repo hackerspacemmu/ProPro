@@ -79,7 +79,6 @@ export default class extends Controller {
   persist(slug) {
     if (!slug || !this.hasPersistKeyValue) return;
     const secure = window.location.protocol === "https:" ? "; secure" : "";
-    document.cookie =
-      `${this.persistKeyValue}=${slug}; path=/; max-age=31536000; samesite=lax${secure}`;
+    document.cookie = `${this.persistKeyValue}=${slug}; path=/; max-age=31536000; samesite=lax${secure}`;
   }
 }
