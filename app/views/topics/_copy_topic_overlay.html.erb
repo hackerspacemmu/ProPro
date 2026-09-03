@@ -1,29 +1,40 @@
-<div data-controller="overlay" data-overlay-target-course-id-value="<%= @course.id %>" class="relative">
+<div
+  data-controller="field-expand-modal copy-topic"
+  data-copy-topic-target-course-id-value="<%= @course.id %>"
+  class="relative"
+>
   <div class="flex justify-end">
-    <button type="button" data-action="click->overlay#open" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded shadow-sm">
+    <button
+      type="button"
+      data-action="click->copy-topic#open"
+      class="px-4 py-2 bg-[#F1F3F4] hover:bg-[#E8EAED] text-[#3C4043] text-sm font-medium rounded-full shadow-sm transition-colors"
+    >
       Reuse details from another topic
     </button>
   </div>
 
-  <div data-overlay-target="menu" data-action="click->overlay#closeOnBackdrop"
-      class="fixed inset-0 z-[60] flex items-start justify-center pt-20 bg-black/50 transition-opacity duration-150 opacity-0 pointer-events-none">
-    
-    <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-xl shadow-2xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
-        data: { overlay_target: "container" } do %>
-      
-      <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
-        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wide">
+  <dialog
+    data-field-expand-modal-target="dialog"
+    data-copy-topic-target="dialog"
+    class="w-full max-w-3xl max-h-[85vh] m-auto p-0 rounded-xl border border-[#E0E0E0] shadow-lg bg-white backdrop:bg-black/40"
+  >
+    <%= turbo_frame_tag "overlay_content",
+      class: "flex flex-col h-full p-6 md:p-8 overflow-y-auto",
+      data: { copy_topic_target: "container" } do %>
+
+      <div class="flex-none flex items-center justify-between border-b border-[#E0E0E0] pb-4 mb-4">
+        <h3 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight font-['Google_Sans',sans-serif]">
           Select a Topic to Copy
         </h3>
 
         <div class="flex items-center gap-3">
-          <span class="text-xs font-semibold text-gray-500">Show all topics from coordinated courses</span>
-          
+          <span class="text-xs font-semibold text-[#5F6368]">Show all topics from coordinated courses</span>
+
           <%= form_with url: new_course_topic_path(@course), method: :get, data: { turbo_frame: "overlay_content" } do |f| %>
             <label class="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                name="show_all_course_topics" 
+              <input
+                type="checkbox"
+                name="show_all_course_topics"
                 value="true"
                 class="sr-only peer"
                 <%= 'checked' if params[:show_all_course_topics] == "true" %>
@@ -33,9 +44,9 @@
             </label>
           <% end %>
         </div>
-      </div><br>
+      </div>
 
-      <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+      <div class="flex-grow">
         <% if @approved_topics.present? %>
           <div class="flex flex-col border-b border-[#E0E0E0]">
             <% @approved_topics.each do |topic| %>
@@ -50,14 +61,14 @@
                   status: "approved",
                   link_options: {
                     data: {
-                      overlay_target: "card",
-                      action: "click->overlay#selectTopic",
-                      overlay_course_id_param: topic.id
+                      copy_topic_target: "card",
+                      action: "click->copy-topic#selectTopic",
+                      copy_topic_course_id_param: topic.id
                     }
                   } do %>
                 <div class="mt-2 flex items-center justify-between gap-4">
-                  <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 whitespace-nowrap">Course</span>
-                  <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-1 rounded-md truncate">
+                  <span class="text-[10px] uppercase tracking-widest font-bold text-[#5F6368] whitespace-nowrap">Course</span>
+                  <span class="text-[11px] font-semibold text-[#137333] bg-[#E6F4EA] px-2.5 py-1 rounded-md truncate">
                     <%= topic.course.course_name %>
                   </span>
                 </div>
@@ -65,9 +76,9 @@
             <% end %>
           </div>
         <% else %>
-          <div class="col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div class="col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border border-[#E0E0E0] shadow-sm">
             <%= image_tag "info.svg", class: "w-6 h-6" %>
-            <h5 class="text-sm text-gray-600 font-medium m-0">
+            <h5 class="text-sm text-[#5F6368] font-medium m-0">
               You don't have any approved topics yet.
             </h5>
           </div>
@@ -75,10 +86,14 @@
       </div>
 
       <div class="mt-6 flex justify-end">
-        <button type="button" data-action="click->overlay#close" class="text-red-600 hover:text-red-800 text-sm font-medium">
+        <button
+          type="button"
+          data-action="click->field-expand-modal#close"
+          class="text-[#C5221F] hover:text-[#A50E0E] text-sm font-medium"
+        >
           Cancel
         </button>
       </div>
     <% end %>
-  </div>
+  </dialog>
 </div>

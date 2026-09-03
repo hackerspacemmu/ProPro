@@ -62,6 +62,12 @@ definitions.
 - **breadcrumb crumb** — any non-anchor breadcrumb item rendered by `BreadcrumbHelper#render_custom_breadcrumbs`, styled smaller than the anchor (1rem/500).
 - **takeover layout** — the chrome-less full-screen form surface (ADR-0005): `no_sidebar`, hidden toggler/breadcrumbs, a sticky action header, and a single centered form column. Shared by projects/edit, projects/new, and course settings.
 
+## Topic forms
+
+- **copy-topic modal** — the "Reuse details from another topic" native `<dialog>` on `topics/new`. A single dialog with two steps loaded into the `overlay_content` turbo frame: step 1 the approved-topic list (with show-all-toggle), step 2 the per-field merge form. Driven by two controllers on one wrapper: **field-expand-modal** (owns `close()` and backdrop-click-to-close) plus **copy-topic** (owns `open()` and the copy logic).
+- **copy-topic controller** — `copy_topic_controller.js`, Stimulus identifier `copy-topic`. One-line `open()` (`showModal()`), plus `selectTopic`, `updateDropdown`, `copyTopicsDetails`, and `returnToList` moved over from `overlay_controller.js`. Attaches *alongside* **field-expand-modal** on the copy-topic modal wrapper rather than reimplementing close/backdrop.
+- **topic template fields** — the shared field renderer for `topics/new` and `topics/edit` (`topics/_template_fields.html.erb`), locals-only `template_fields:`, `field_values:`, `input_classes:` and always-editable (no approved read-only branch, unlike `projects/_template_fields.html.erb`). Fields-only — no method/topic/lecturer concepts, which are project-only.
+
 ## Form actions
 
 - **Discard Changes / Cancel** — the same behavior by either name: leave the form without saving.
