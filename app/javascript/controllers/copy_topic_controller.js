@@ -49,7 +49,7 @@ export default class extends Controller {
 
   // The actual copy: read every source-field select, write matching values into
   // the main new-topic form, then close the dialog.
-  copyTopicsDetails(event) {
+  copyTopicsDetails() {
     const overlaySourceInput = this.element.querySelector(
       "#overlay_source_topic_id",
     );
