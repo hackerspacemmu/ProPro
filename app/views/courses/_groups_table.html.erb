@@ -1,31 +1,4 @@
 <%# --- locals: course, groups, projects_by_owner, total_count, displayed_count, show_all %>
-<%# htmx re-render target on the Groups tab — keep this locals-only; project/
-    status/supervisor come in via projects_by_owner and are handed to _group_row
-    as explicit locals, never via the courses_helper ivar-readers (plan §5). %>
-
-<% sort_column = ->(column, label, align: :left, width: 'w-[15%]') do %>
-  <%# group_name is the backend default sort — show its icon active with no
-      sort params so the arrow is visible on first load. %>
-  <% is_active = params[:sort_by] == column || (params[:sort_by].blank? && column == 'group_name') %>
-  <% next_dir = (is_active && params[:sort_dir] == 'asc') ? 'desc' : 'asc' %>
-  <th class="<%= width %> px-4 py-3 border-b border-gray-200 text-<%= align %> text-xs font-medium text-[#5F6368] uppercase tracking-wider select-none"
-      hx-get="<%= course_url(course) %>"
-      hx-target="#groups-table-container"
-      hx-swap="outerHTML"
-      hx-trigger="click"
-      hx-include="#groups-search, #groups-status-filter, #lecturer-filter"
-      hx-vals='{"section": "groups", "sort_by": "<%= column %>", "sort_dir": "<%= next_dir %>"}'
-      hx-indicator="#groups-loading">
-    <div class="flex items-center gap-1">
-      <%= label %>
-      <% if is_active %>
-        <span class="material-symbols-outlined text-[16px] text-[#1A73E8]"><%= params[:sort_dir] == 'desc' ? 'arrow_upward' : 'arrow_downward' %></span>
-      <% else %>
-        <span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
-      <% end %>
-    </div>
-  </th>
-<% end %>
 
 <div id="groups-table-container"
      class="overflow-x-auto pb-8 border border-gray-200 rounded-lg"
@@ -33,7 +6,7 @@
   <table class="w-full min-w-[650px] table-fixed">
     <thead class="bg-white">
       <tr>
-        <% sort_column.call('group_name', 'Group', width: 'w-[15%]') %>
+        <%= render "courses/sort_header", course: course, column: 'group_name', label: 'Group', width: 'w-[15%]' %>
         <th class="w-[30%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-[#5F6368] uppercase tracking-wider cursor-pointer select-none"
             data-expandable-toggle-all>
           <div class="flex items-center gap-1">
@@ -41,9 +14,9 @@
             <span id="groups-table-toggle-all" class="material-symbols-outlined text-[16px] text-gray-400 transition-all">unfold_more</span>
           </div>
         </th>
-        <% sort_column.call('project_title', 'Project Title', width: 'w-[20%]') %>
-        <% sort_column.call('status', 'Status', width: 'w-[15%]') %>
-        <% sort_column.call('supervisor', 'Supervisor', width: 'w-[20%]') %>
+        <%= render "courses/sort_header", course: course, column: 'project_title', label: 'Project Title', width: 'w-[20%]' %>
+        <%= render "courses/sort_header", course: course, column: 'status', label: 'Status', width: 'w-[15%]' %>
+        <%= render "courses/sort_header", course: course, column: 'supervisor', label: 'Supervisor', width: 'w-[20%]' %>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-200">

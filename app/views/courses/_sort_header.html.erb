@@ -1,0 +1,20 @@
+<%# locals: course, column, label, align: 'left', width: 'w-[15%]' %>
+<% is_active = params[:sort_by] == column || (params[:sort_by].blank? && column == 'group_name') %>
+<% next_dir = (is_active && params[:sort_dir] == 'asc') ? 'desc' : 'asc' %>
+<th class="<%= width %> px-4 py-3 border-b border-gray-200 text-<%= align %> text-xs font-medium text-[#5F6368] uppercase tracking-wider select-none"
+    hx-get="<%= course_url(course) %>"
+    hx-target="#groups-table-container"
+    hx-swap="outerHTML"
+    hx-trigger="click"
+    hx-include="#groups-search, #groups-status-filter, #lecturer-filter"
+    hx-vals='{"section": "groups", "sort_by": "<%= column %>", "sort_dir": "<%= next_dir %>"}'
+    hx-indicator="#groups-loading">
+  <div class="flex items-center gap-1">
+    <%= label %>
+    <% if is_active %>
+      <span class="material-symbols-outlined text-[16px] text-[#1A73E8]"><%= params[:sort_dir] == 'desc' ? 'arrow_upward' : 'arrow_downward' %></span>
+    <% else %>
+      <span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+    <% end %>
+  </div>
+</th>
