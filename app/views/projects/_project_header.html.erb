@@ -1,4 +1,4 @@
-<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:, comments_count:) %>
+<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:, comments_count:, initial_tab_index:) %>
 
 <%# Flash messages %>
 <% if flash[:notice] %>
@@ -42,20 +42,33 @@
   <div class="flex items-center gap-3">
     <div class="relative flex-1 min-w-0" data-controller="tab-fade">
       <div
+        role="tablist"
         data-testid="content-tabs"
         data-tab-fade-target="scroller"
-        class="flex gap-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+        class="flex flex-nowrap gap-x-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
       >
-        <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="0" data-tabs-slug-param="details" class="pb-3 text-[#1A73E8] border-b-[3px] border-[#1A73E8] text-[14px] font-medium whitespace-nowrap">
-          Project Details
-        </button>
-        <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="1" data-tabs-slug-param="compare" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
-          Compare Versions
-        </button>
-        <% if course.use_progress_updates %>
-          <button type="button" data-tabs-target="tab" data-action="tabs#show" data-tabs-index-param="2" data-tabs-slug-param="progress" class="pb-3 text-[#5F6368] hover:text-[#3C4043] border-b-[3px] border-transparent text-[14px] font-medium transition-colors whitespace-nowrap">
-            Progress Updates
-          </button>
+        <%
+          project_tab_defs = []
+          project_tab_defs << { slug: "details", name: "Project Details", index: 0 }
+          project_tab_defs << { slug: "compare", name: "Compare Versions", index: 1 }
+          if course.use_progress_updates
+            project_tab_defs << { slug: "progress", name: "Progress Updates", index: 2 }
+          end
+        %>
+        <% project_tab_defs.each do |tab_def| %>
+          <% selected = tab_def[:index] == initial_tab_index %>
+          <button type="button"
+                  id="tab-<%= tab_def[:slug] %>"
+                  role="tab"
+                  aria-selected="<%= selected %>"
+                  aria-controls="panel-<%= tab_def[:slug] %>"
+                  tabindex="<%= selected ? 0 : -1 %>"
+                  data-tabs-target="tab"
+                  data-action="tabs#show"
+                  data-tabs-index-param="<%= tab_def[:index] %>"
+                  data-tabs-slug-param="<%= tab_def[:slug] %>"
+                  style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
+                  class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors <%= selected ? 'text-[#0B57D0]' : 'text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]' %>"><%= tab_def[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
         <% end %>
       </div>
 

@@ -25,6 +25,8 @@
       class="flex-1 bg-[#FFFFFF] rounded-tl-[16px] flex overflow-hidden min-h-[calc(100vh-3.5rem)]"
       data-controller="tabs comments-drawer"
       data-tabs-persist-key-value="<%= project_tab_persist_key %>"
+      data-tabs-active-class="text-[#0B57D0]"
+      data-tabs-inactive-class="text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]"
       data-action="keydown.esc@window->comments-drawer#closeOnEscape"
     >
 
@@ -40,13 +42,14 @@
         instances: @instances,
         current_user: current_user,
         members: @members,
-        comments_count: @comments.size %>
+        comments_count: @comments.size,
+        initial_tab_index: project_initial_tab %>
 
         <%# Content Panels %>
         <div class="p-8 max-w-5xl space-y-6 pb-28 min-[1245px]:pb-8">
 
           <%# Panel 1: Project Details %>
-          <div data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 0 ? ' hidden' : '' %>">
+          <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 0 ? ' hidden' : '' %>">
             <%= render "project_overview",
             project: @project,
             course: @course,
@@ -63,7 +66,7 @@
           </div>
 
           <%# Panel 2: Compare Versions %>
-          <div data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 1 ? ' hidden' : '' %>">
+          <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 1 ? ' hidden' : '' %>">
             <%= render "compare_versions_tab",
             fields: @current_fields,
             next_fields: @next_fields,
@@ -74,6 +77,9 @@
           <%# Panel 3: Progress Updates (conditional) %>
           <% if @course.use_progress_updates %>
             <div
+              id="panel-progress"
+              role="tabpanel"
+              aria-labelledby="tab-progress"
               data-tabs-target="panel"
               class="<%= project_initial_tab != 2 ? 'hidden' : '' %>"
               data-controller="record-update-modal"

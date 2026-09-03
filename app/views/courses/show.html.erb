@@ -26,11 +26,11 @@
           data-controller="tabs search-shortcut"
           data-tabs-persist-key-value="<%= tab_persist_key %>"
           data-tabs-active-class="text-[#0B57D0]"
-          data-tabs-inactive-class="text-[#1F1F1F] hover:bg-[#F8F9FA]">
+          data-tabs-inactive-class="text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]">
 
       <div class="border-b border-[#E0E0E0] px-4 sm:px-8 bg-white shrink-0">
         <div class="flex items-center justify-between">
-          <div role="tablist" class="flex flex-nowrap gap-y-1">
+          <div role="tablist" class="flex flex-nowrap gap-x-2">
             <% tabs.each_with_index do |tab, index| %>
               <% selected = index == initial_tab_index %>
               <button type="button"
@@ -44,7 +44,7 @@
                       data-tabs-index-param="<%= index %>"
                       data-tabs-slug-param="<%= tab[:slug] %>"
                       style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
-                      class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap <%= selected ? 'text-[#0B57D0]' : 'text-[#1F1F1F] hover:bg-[#F8F9FA]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
+                      class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors <%= selected ? 'text-[#0B57D0]' : 'text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
             <% end %>
           </div>
 
