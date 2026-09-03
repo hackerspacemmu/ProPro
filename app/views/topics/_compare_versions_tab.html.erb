@@ -1,0 +1,126 @@
+<% require "htmldiff" %>
+
+<% if index < instances.size %>
+
+  <div class="flex justify-center mb-8">
+    <div class="inline-flex items-center gap-4">
+
+      <div class="bg-[#FFF8E1] text-[#F57F17] rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-[#F57F17]/30">
+        <div class="w-1.5 h-1.5 rounded-full bg-[#F57F17]"></div>
+        <span class="text-sm font-medium">Version <%= index %></span>
+      </div>
+
+      <div class="text-[#5F6368] flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[20px]">sync_alt</span>
+      </div>
+
+      <div class="bg-[#E6F4EA] text-[#137333] rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-[#137333]/30">
+        <div class="w-1.5 h-1.5 rounded-full bg-[#137333]"></div>
+        <span class="text-sm font-medium">Version <%= index + 1 %> (Current)</span>
+      </div>
+
+    </div>
+  </div>
+
+  <% combined_fields = (fields.to_a + next_fields.to_a) %>
+  <% sorted_fields = combined_fields.uniq(&:project_template_field_id).sort_by { |f| f.project_template_field&.position || 0 } %>
+  <% all_field_ids = sorted_fields.map(&:project_template_field_id) %>
+
+  <% has_changes = false %>
+  <% left_col = +"" %>
+  <% right_col = +"" %>
+  <% all_field_ids.each do |field_id| %>
+    <% current_field = fields.find { |f| f.project_template_field_id == field_id }
+    next_field = next_fields.find { |f| f.project_template_field_id == field_id }
+    field_name = (current_field || next_field).project_template_field.label %>
+
+    <% normalize = ->(text) { text.to_s.gsub(/\r\n?/, "\n").gsub(/^$/, "[[EMPTYLINE]]") } %>
+    <% old_val = normalize.call(current_field&.value) %>
+    <% new_val = normalize.call(next_field&.value) %>
+
+    <% if old_val != new_val %>
+      <% has_changes = true %>
+
+      <% raw_old = render_markdown(current_field&.value.to_s) %>
+      <% raw_new = render_markdown(next_field&.value.to_s) %>
+
+      <% brand_lists = ->(html) do
+        html = html.to_s.gsub(%r{<ol[^>]*>.*?</ol>}m) { |m| m.gsub(/<li\b[^>]*>/i, '<li class="diff-ol-item">') }
+        html.gsub(%r{<ul[^>]*>.*?</ul>}m) { |m| m.gsub(/<li\b[^>]*>/i, '<li class="diff-ul-item">') }
+      end %>
+
+      <% old_html = brand_lists.call(raw_old) %>
+      <% new_html = brand_lists.call(raw_new) %>
+
+      <% html_differ = Object.new.extend(HTMLDiff) %>
+      <% rich_diff = html_differ.diff(old_html, new_html) %>
+
+      <% left_html = rich_diff
+        .gsub(%r{<ins\b[^>]*>.*?</ins>}m, "")
+        .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
+        .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+        .gsub(%r{<p>\s*</p>}m, "")
+        .gsub(%r{(<li\b[^>]*>)(\s*<del\b[^>]*>.*?</del>\s*)</li>}m, '\1\2</li>')
+        .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+        .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+        .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+        .gsub(%r{<table[^>]*>\s*</table>}m, "")
+        .gsub(%r{<code[^>]*>\s*</code>}m, "")
+        .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
+
+      <% right_html = rich_diff
+        .gsub(%r{<del\b[^>]*>.*?</del>}m, "")
+        .gsub(%r{<li\b[^>]*>\s*</li>}m, "")
+        .gsub(%r{<(ul|ol)>\s*</\1>}m, "")
+        .gsub(%r{<p>\s*</p>}m, "")
+        .gsub(%r{(<li\b[^>]*>)(\s*<ins\b[^>]*>.*?</ins>\s*)</li>}m, '\1\2</li>')
+        .gsub(%r{<(td|th)[^>]*>\s*</\1>}m, "")
+        .gsub(%r{<tr[^>]*>\s*</tr>}m, "")
+        .gsub(%r{<(thead|tbody)[^>]*>\s*</\1>}m, "")
+        .gsub(%r{<table[^>]*>\s*</table>}m, "")
+        .gsub(%r{<code[^>]*>\s*</code>}m, "")
+        .gsub(%r{<pre[^>]*>\s*</pre>}m, "") %>
+
+      <% left_col << %(
+        <div>
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">#{field_name}</div>
+          <div class="bg-[#F8F9FA] border border-[#E0E0E0] rounded-lg p-4 prose prose-sm max-w-none text-[14px] text-[#3C4043] leading-relaxed [&_del]:bg-[#FCE8E6] [&_del]:text-[#C5221F] [&_del]:line-through [&_del]:no-underline [&_del]:px-0.5 [&_del]:rounded [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6 [&_li.diff-ol-item::marker]:text-[#5F6368] [&_li.diff-ol-item::marker]:font-bold [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6 [&_li.diff-ul-item::marker]:text-[#5F6368] [&_li.diff-ul-item::marker]:font-bold">#{sanitize(left_html, tags: %w[h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table thead tbody tr th td blockquote pre code a img hr], attributes: %w[href src class alt title start])}</div>
+        </div>) %>
+
+      <% right_col << %(
+        <div>
+          <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">#{field_name}</div>
+          <div class="bg-white border border-[#E0E0E0] shadow-sm rounded-lg p-4 prose prose-sm max-w-none text-[14px] text-[#3C4043] leading-relaxed [&_ins]:bg-[#E6F4EA] [&_ins]:text-[#137333] [&_ins]:font-medium [&_ins]:no-underline [&_ins]:px-0.5 [&_ins]:rounded [&_li.diff-ol-item]:list-decimal [&_li.diff-ol-item]:ml-6 [&_li.diff-ol-item::marker]:text-[#5F6368] [&_li.diff-ol-item::marker]:font-bold [&_li.diff-ul-item]:list-disc [&_li.diff-ul-item]:ml-6 [&_li.diff-ul-item::marker]:text-[#5F6368] [&_li.diff-ul-item::marker]:font-bold">#{sanitize(right_html, tags: %w[h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table thead tbody tr th td blockquote pre code a img hr], attributes: %w[href src class alt title start])}</div>
+        </div>) %>
+    <% end %>
+  <% end %>
+
+  <% if has_changes %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+      <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-[#E0E0E0] -translate-x-1/2 hidden md:block"></div>
+      <div class="space-y-8 pr-2">
+        <%= left_col.html_safe %>
+      </div>
+      <div class="space-y-8 pl-2">
+        <%= right_col.html_safe %>
+      </div>
+    </div>
+  <% end %>
+
+  <% unless has_changes %>
+    <div class="text-center py-16 border-2 border-dashed border-[#E0E0E0] rounded-lg bg-[#F8F9FA]/50">
+      <span class="material-symbols-outlined text-[48px] text-gray-300 mx-auto mb-3">compare_arrows</span>
+      <p class="text-[#5F6368] text-sm font-medium">No field changes detected</p>
+      <p class="text-gray-400 text-xs mt-1">All fields are identical between these two versions.</p>
+    </div>
+  <% end %>
+
+<% else %>
+
+  <div class="text-center py-16 border-2 border-dashed border-[#E0E0E0] rounded-lg bg-[#F8F9FA]/50">
+    <span class="material-symbols-outlined text-[48px] text-gray-300 mx-auto mb-3">compare_arrows</span>
+    <p class="text-[#5F6368] text-sm font-medium">Only one version exists</p>
+    <p class="text-gray-400 text-xs mt-1">Nothing to compare yet.</p>
+  </div>
+
+<% end %>

@@ -3,7 +3,7 @@ require 'application_system_test_case'
 class TopicVersioningTest < ApplicationSystemTestCase
   setup do
     @course   = create(:course)
-    @lecturer = create(:user)
+    @lecturer = create(:user, is_staff: true)
 
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
@@ -16,38 +16,53 @@ class TopicVersioningTest < ApplicationSystemTestCase
     login_as(@lecturer)
     visit course_topic_path(@course, @topic)
 
-    assert_selector '[data-testid="current-version"]', text: /2 of 2/i
+    version_select = find('[data-controller="version-select"]')
+    selected_option = version_select.find('option[selected]')
+    assert selected_option.text.include?('2 of 2'), "Expected '2 of 2 (Current)' to be selected, got: #{selected_option.text}"
   end
 
-  test 'clicking back navigates to previous version' do
+  test 'selecting version 1 navigates to previous version' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic)
 
-    find('[data-testid="version-back"]').click
-
-    assert_selector '[data-testid="current-version"]', text: /1 of 2/i
+    select '1 of 2', from: version_select_id
+    assert_current_path course_topic_path(@course, @topic, version: 1)
   end
 
-  test 'clicking next navigates to next version' do
+  test 'selecting version 2 navigates to next version' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic, version: 1)
 
-    find('[data-testid="version-next"]').click
-
-    assert_selector '[data-testid="current-version"]', text: /2 of 2/i
+    select '2 of 2 (Current)', from: version_select_id
+    assert_current_path course_topic_path(@course, @topic, version: 2)
   end
 
-  test 'back button is disabled on version 1' do
+  test 'on version 1, dropdown shows versions bounded correctly with version 1 selected' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic, version: 1)
 
-    assert_no_selector '[data-testid="version-back"]'
+    version_select = find('[data-controller="version-select"]')
+    options = version_select.all('option')
+    assert_equal 2, options.length
+    assert options[0].text.include?('1 of 2')
+    assert options[0].selected?
+    assert options[1].text.include?('2 of 2 (Current)')
   end
 
-  test 'next button is disabled on latest version' do
+  test 'on latest version, dropdown shows all versions with latest selected' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic)
 
-    assert_no_selector '[data-testid="version-next"]'
+    version_select = find('[data-controller="version-select"]')
+    options = version_select.all('option')
+    assert_equal 2, options.length
+    assert options.last.text.include?('2 of 2 (Current)')
+    assert options.last.selected?
+  end
+
+  private
+
+  def version_select_id
+    find('[data-controller="version-select"]')[:id]
   end
 end
