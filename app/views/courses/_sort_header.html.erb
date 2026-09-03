@@ -1,4 +1,6 @@
 <%# locals: course, column, label, align: 'left', width: 'w-[15%]' %>
+<% align ||= 'left' %>
+<% width ||= 'w-[15%]' %>
 <% is_active = params[:sort_by] == column || (params[:sort_by].blank? && column == 'group_name') %>
 <% next_dir = (is_active && params[:sort_dir] == 'asc') ? 'desc' : 'asc' %>
 <th class="<%= width %> px-4 py-3 border-b border-gray-200 text-<%= align %> text-xs font-medium text-[#5F6368] uppercase tracking-wider select-none"

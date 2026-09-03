@@ -13,6 +13,7 @@ individual decisions live in `docs/adr/`.
 | Proposal forms (edit/new) | `projects_forms_refactor_plan.md` | `0001`–`0006` | ✅ done |
 | `projects/show` redesign + app sidebar | `projects_show_refactor_plan.md` | `0007`–`0008` | ✅ done |
 | Responsiveness hardening | this doc, Ticket 10 | — | ✅ done |
+| Breadcrumb refactor | this doc, Ticket 12 | — | ✅ done |
 | `topics/show` migration | (follow-up) | — | 🔲 deferred |
 
 ## Completed inventory
@@ -248,6 +249,82 @@ test setup — not a production bug.
   `app/views/**` (`courses/*`, `project_groups/*`, `lecturers/show`,
   `topics/_topic_actions`) surfaced during the design lint sweep; 17
   `--fix`-autocorrectable. Decision pending.
+
+## Ticket 12 — Breadcrumb refactor (ProPro anchor + chevrons)
+
+**Delivered.** Moves the breadcrumb anchor from a plain **"Dashboard"** root
+crumb to the **"ProPro"** wordmark, swaps the textual `>` separator for an
+inline-SVG chevron, and applies Google-Classroom-style sizing to the anchor
+versus its child crumbs. Desktop-only (`sm+`); mobile unchanged.
+
+### Goal
+
+- `ProPro > course > project title` (was `Dashboard > course > project title`)
+- ProPro wordmark clickable → `root_path` (dashboard).
+- Replace the `>` character with a chevron icon.
+- Anchor styled slightly bigger (1.5rem/400), child crumbs smaller
+  (1rem/500), per Google Classroom.
+
+### Why the wordmark, not "Dashboard"
+
+The header already had a standalone **"ProPro"** wordmark linking to
+`root_path`, duplicating the breadcrumb's "Dashboard" crumb (same target).
+The "Dashboard" crumb was dropped and the wordmark became the breadcrumb's
+anchor — one link, one trail.
+
+### Files changed
+
+- **`app/views/shared/_header.html.erb`** — the standalone desktop wordmark
+  was moved **into the `sm+` breadcrumb row** (and into the
+  `unless hide_breadcrumbs` block, so it is hidden on **takeover layout**
+  pages). Styled as the anchor: link to `root_path`, font stack
+  `Google Sans, Roboto, Arial, sans-serif`, `text-[1.5rem] leading-8
+  font-normal` (~24px/400), muted color (`#5F6368` → hover `#3C4043`).
+  Mobile (`sm:hidden` course name) untouched.
+
+- **`app/helpers/breadcrumb_helper.rb`** — `render_custom_breadcrumbs`:
+  - Drops the root "Dashboard" crumb (`breadcrumbs.drop(1)`) — the wordmark
+    (rendered by the header) replaces it.
+  - Child crumbs: same font stack, `text-[1rem] leading-6 font-medium`
+    (~16px/500), muted color with darker hover.
+  - Separator: **inline SVG chevron** (`chevron_right`), ~1.25rem,
+    `text-[#9AA0A6]`, `select-none`, overtakes the old `tag.span('>', ...)`.
+
+- **`config/breadcrumbs.rb`** — **unchanged**. The `:root` "Dashboard" crumb
+  stays as the declared parent of every trail; the helper simply stops
+  rendering it.
+- **`app/assets/stylesheets/application.css`** — **unchanged**. Legacy
+  `.breadcrumb` rules remain unused; styling stays as Tailwind utilities +
+  inline SVG, matching the existing helper pattern.
+
+### Resulting trails
+
+- `ProPro > course > project title`
+- `ProPro > course > Settings`
+- Static/error/**takeover layout** pages already set `hide_breadcrumbs` → no trail.
+
+### Styling reference (Google Classroom)
+
+| Element | Font | Size | Weight | Color |
+|---|---|---|---|---|
+| ProPro anchor (crumb #1) | Google Sans, Roboto, Arial, sans-serif | 1.5rem (24px) | 400 | muted → darker hover |
+| Child crumbs | Google Sans, Roboto, Arial, sans-serif | 1rem (16px) | 500 | muted → darker hover |
+| Chevron separator | inline SVG | ~1rem | — | gray |
+
+### Glossary (CONTEXT.md, App chrome)
+
+- **breadcrumb anchor / ProPro wordmark** — first breadcrumb item; "ProPro"
+  wordmark link to `root_path`; replaces the old "Dashboard" root crumb.
+- **breadcrumb chevron** — inline-SVG right-pointing separator, replaces `>`.
+- **breadcrumb crumb** — any non-anchor breadcrumb item, styled smaller.
+
+### Verification
+
+- `bin/rails test` — no behavior regressions (breadcrumbs are presentation
+  only; no test asserts the old `>` or "Dashboard" crumb).
+- Lint clean on the two touched views/helper.
+
+---
 
 ## How to verify
 

@@ -57,6 +57,9 @@ definitions.
 
 - **app sidebar** — `shared/_sidebar`: app-wide nav (Home / courses / Edit profile), plus the `render_sidebar` helper widget for legacy pages. One element, two presentations: a static left column at ≥`lg` (1024px), an off-canvas drawer below it opened by the header menu icon. Controlled by `sidebar`. Its breakpoint is chrome-level and deliberately independent of content breakpoints (e.g., the `min-[1245px]` comments drawer).
 - **drawer idiom** — the shared pattern for "drawer over content": a single element that is a static in-flow column on desktop (`lg:static lg:translate-x-0` / `min-[1245px]:translate-x-0`) and an off-canvas panel below it; the controller toggles the translate class, the off-state whitespace classes (`shadow-2xl`, `border-l` for `comments-drawer` so they can't paint into the viewport while closed), the backdrop `hidden`, body scroll lock, and `aria-expanded`. Used by `sidebar` and `comments-drawer`.
+- **breadcrumb anchor / ProPro wordmark** — the first breadcrumb item: the "ProPro" wordmark link to `root_path`. Replaces the old "Dashboard" root crumb (which is no longer rendered). Desktop-only (rendered inside the `sm+` breadcrumb row). Google-Classroom-styled — bigger than the child crumbs (1.5rem/400) with a muted color that darkens on hover. Skipped (hidden) on pages under the **takeover layout**, which hide breadcrumbs.
+- **breadcrumb chevron** — the inline-SVG right-pointing separator between breadcrumb items, replacing the old textual `>`. Purely decorative.
+- **breadcrumb crumb** — any non-anchor breadcrumb item rendered by `BreadcrumbHelper#render_custom_breadcrumbs`, styled smaller than the anchor (1rem/500).
 - **takeover layout** — the chrome-less full-screen form surface (ADR-0005): `no_sidebar`, hidden toggler/breadcrumbs, a sticky action header, and a single centered form column. Shared by projects/edit, projects/new, and course settings.
 
 ## Form actions
