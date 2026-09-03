@@ -48,6 +48,9 @@
     </thead>
     <tbody class="divide-y divide-gray-200">
       <% if groups.present? %>
+        <% any_filter = params[:search_query].present? ||
+                        (params[:lecturer_filter].present? && params[:lecturer_filter] != 'all') ||
+                        (params[:status_filter].present? && params[:status_filter] != 'all') %>
         <% groups.each do |group| %>
           <% group_project = projects_by_owner[['ProjectGroup', group.id]]
              group_status = group_project&.current_status || 'not_submitted'
@@ -57,7 +60,8 @@
                      group: group,
                      project: group_project,
                      status: group_status,
-                     supervisor: supervisor %>
+                     supervisor: supervisor,
+                     expanded: any_filter %>
         <% end %>
       <% else %>
         <tr>

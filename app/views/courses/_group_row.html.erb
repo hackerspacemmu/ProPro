@@ -1,6 +1,7 @@
-<%# --- locals: course, group, project, status, supervisor %>
+<%# --- locals: course, group, project, status, supervisor, expanded %>
 <%# project/status/supervisor arrive as locals computed once above (table-side
-    map lookup) — this partial never looks them up itself (plan §5). %>
+    map lookup) — this partial never looks them up itself (plan §5).
+    expanded: when true, the detail row renders open (search/filter active). %>
 <% badge_classes, badge_color =
      case status.to_s
      when "approved"      then ["bg-[#E6F4EA] text-[#137333]", "bg-[#137333]"]
@@ -20,9 +21,16 @@
   </td>
   <td class="px-4 py-4 align-middle">
     <div class="flex items-center gap-3 min-w-0">
+      <% any_pending = group.project_group_members.any? { |m| !m.user.has_registered } %>
       <div class="flex -space-x-1.5 shrink-0">
-        <% group.project_group_members.first(3).each do |member| %>
-          <div class="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10"><%= member.user.name.first.upcase %></div>
+        <% member_count = [group.project_group_members.count, 3].min %>
+        <% group.project_group_members.first(3).each_with_index do |member, idx| %>
+          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">
+            <%= member.user.name.first.upcase %>
+            <% if idx == member_count - 1 && any_pending %>
+              <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-yellow-400 border-2 border-white"></span>
+            <% end %>
+          </div>
         <% end %>
       </div>
       <span class="text-sm text-gray-500 truncate"><%= pluralize(group.project_group_members.count, "member") %></span>
@@ -47,11 +55,11 @@
   <td class="px-4 py-4 text-sm text-gray-600 align-middle">
     <div class="flex items-center justify-between gap-2">
       <span class="truncate min-w-0" title="<%= supervisor&.name %>"><%= supervisor&.name || "-" %></span>
-      <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+      <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0<%= expanded ? ' rotate-180' : '' %>">expand_more</span>
     </div>
   </td>
 </tr>
-<tr class="hidden bg-gray-50/30" data-detail-row-id="<%= group.id %>">
+<tr class="<%= expanded ? '' : 'hidden' %> bg-gray-50/30" data-detail-row-id="<%= group.id %>">
   <td colspan="5" class="px-4 py-4 border-t border-gray-100">
     <div class="pl-[10%]">
       <div class="flex flex-col gap-4">
