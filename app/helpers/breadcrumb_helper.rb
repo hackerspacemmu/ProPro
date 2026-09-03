@@ -28,20 +28,20 @@ module BreadcrumbHelper
   def breadcrumb_crumb(crumb, last:)
     if last
       tag.span(crumb.text,
-        class: 'text-gray-900 font-medium text-[1rem] leading-6 break-all',
-        style: "font-family: #{GOOGLE_SANS_FONT}")
+               class: 'text-gray-900 font-medium text-[1rem] leading-6 break-all',
+               style: "font-family: #{GOOGLE_SANS_FONT}")
     else
       link_to crumb.text, crumb.url,
-        class: [
-          'whitespace-nowrap',
-          'text-[1rem] leading-6',
-          'font-medium',
-          'text-[#5F6368]',
-          'hover:text-[#3C4043]',
-          'transition-colors',
-          'no-underline'
-        ].join(' '),
-        style: "font-family: #{GOOGLE_SANS_FONT}"
+              class: [
+                'whitespace-nowrap',
+                'text-[1rem] leading-6',
+                'font-medium',
+                'text-[#5F6368]',
+                'hover:text-[#3C4043]',
+                'transition-colors',
+                'no-underline'
+              ].join(' '),
+              style: "font-family: #{GOOGLE_SANS_FONT}"
     end
   end
 

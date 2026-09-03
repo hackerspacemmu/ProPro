@@ -1,216 +1,141 @@
-<% if !@is_student %>
-  <section
-    id="topic-comments"
+<%# locals: (comments:, current_instance_id:, current_version:, latest_version:, new_comment:, topic:, course:) %>
+
+<section
+  id="topic-comments"
+  class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] flex flex-col shrink-0 h-full"
+>
+
+  <div
     class="
-      w-full flex flex-col h-full bg-white rounded-2xl shadow-sm border
-      border-gray-100 overflow-hidden mb-4
+      px-5 py-4 border-b border-[#E0E0E0] flex items-center justify-between
     "
   >
+    <h2 style="font-family: 'Google Sans', sans-serif;" class="text-[16px] font-medium text-[#1f1f1f]">Comments</h2>
+    <% if comments.any? %>
+      <span
+        class="
+          bg-[#F1F3F4] text-[#3C4043] px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium border border-[#E0E0E0]
+        "
+      ><%= comments.count %></span>
+    <% end %>
+  </div>
 
-    <%# --- Header --- %>
-    <div
-      class="
-        px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center
-        justify-between
-      "
-    >
-      <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Comments</h2>
-      <% if comments&.any? %>
-        <span
-          class="
-            px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 text-xs font-bold
-          "
-        >
-          <%= comments.count %>
-        </span>
-      <% end %>
-    </div>
+  <div
+    class="
+      flex-1 min-h-0 overflow-y-auto p-5 space-y-6
+    "
+    data-controller="scroll-to-bottom"
+    data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
+    data-scroll-to-bottom-target-version-value="<%= current_version %>"
+  >
 
-    <%# --- Comments Body --- %>
-    <div
-      class="
-        flex-1 overflow-y-auto bg-gray-50/30 p-5 custom-scrollbar relative
-      "
-      data-controller="scroll-to-bottom"
-      data-scroll-to-bottom-enabled-value="<%= current_version == latest_version %>"
-      data-scroll-to-bottom-target-version-value="<%= current_version %>"
-    >
+    <% if comments.any? %>
+      <div class="space-y-6">
 
-      <% if comments&.any? %>
-        <div class="space-y-6 relative pl-2 sm:pl-4">
-
-          <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
-
-            <div class="pt-2 pb-1" id="version-<%= version %>-comments">
-              <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Comments for v<%= version %>
-              </h3>
+        <% comments.group_by { |c| c.location.version }.each do |version, version_comments| %>
+          <div class="mb-4" id="version-<%= version %>-comments">
+            <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-4 flex items-center justify-start">
+              Comments for v<%= version %>
             </div>
-            <% version_comments.each do |comment| %>
-              <% is_current_version = comment.location_id == current_instance_id %>
+          </div>
+          <% version_comments.each do |comment| %>
+            <% is_current_version = comment.location_id == current_instance_id %>
 
-              <article
+            <div class="flex gap-3 group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>">
+              <div
                 class="
-                  relative flex gap-4 z-10 group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>
+                  w-8 h-8 rounded-full bg-[#1A73E8] text-white flex items-center
+                  justify-center text-[13px] font-medium shrink-0
                 "
               >
+                <%= comment.user.name[0].upcase %>
+              </div>
 
-                <div class="flex-shrink-0 relative">
-                  <div
-                    class="
-                      w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center
-                      text-xs font-bold ring-4 ring-gray-50/30
-                    "
-                  >
-                    <%= comment.user.name[0].upcase %>
-                  </div>
-                </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-baseline mb-1">
+                  <% if Current.user == comment.user %>
+                    <span class="text-[14px] font-medium text-[#137333]"><%= comment.user.name %></span>
+                  <% else %>
+                    <span class="text-[14px] font-medium text-[#3C4043]"><%= comment.user.name %></span>
+                  <% end %>
 
-                <div class="flex-1 min-w-0">
-
-                  <%# --- FIXED HEADER LAYOUT --- %>
-                  <header class="flex items-center justify-between gap-2 mb-1">
-
-                    <div class="flex items-baseline gap-2 min-w-0 flex-1">
-                      <% if Current.user == comment.user %>
-                        <h4 class="text-sm font-bold text-green-600 truncate"><%= comment.user.name %></h4>
-                      <% else %>
-                        <h4 class="text-sm font-bold text-gray-800 truncate"><%= comment.user.name %></h4>
-                      <% end %>
-
-                      <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                        <% if comment.created_at > 3.days.ago %>
-                          <%= time_ago_in_words(comment.created_at) %>
-                          ago
-                        <% else %>
-                          <%= format_timestamp(comment.created_at) %>
-                        <% end %>
-                      </span>
-                    </div>
-
-                    <%# delete button %>
-                    <% if Current.user == comment.user && !comment.deleted %>
-                      <%= link_to soft_delete_comment_path(comment),
-                          data: { turbo_method: :patch, confirm: "Delete this comment?" },
-                          class: "flex-shrink-0 text-red-400 hover:text-red-600 transition-colors p-1 -mr-1",
-                          title: "Delete comment" do %>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          /></svg>
-                      <% end %>
-                    <% end %>
-                  </header>
-
-                  <div class="text-sm text-gray-600 leading-relaxed break-words">
-                    <% if !comment.deleted %>
-                      <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
+                  <span class="text-[12px] text-[#5F6368]">
+                    <% if comment.created_at > 3.days.ago %>
+                      <%= time_ago_in_words(comment.created_at) %> ago
                     <% else %>
-                      <span class="text-gray-400 italic text-xs bg-gray-100 px-2 py-0.5 rounded">This comment was deleted</span>
+                      <%= format_timestamp(comment.created_at) %>
                     <% end %>
-                  </div>
+                  </span>
                 </div>
-              </article>
-            <% end %>
+
+                <div class="text-[14px] text-[#3C4043] leading-relaxed break-words">
+                  <% if !comment.deleted %>
+                    <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
+                  <% else %>
+                    <span class="text-[14px] text-[#5F6368] italic">This comment was deleted</span>
+                  <% end %>
+                </div>
+              </div>
+
+              <% if Current.user == comment.user && !comment.deleted %>
+                <%= link_to soft_delete_comment_path(comment),
+                    data: { turbo_method: :patch, confirm: "Delete this comment?" },
+                    class: "text-[#5F6368] hover:text-[#C5221F] opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5 flex-shrink-0",
+                    title: "Delete comment" do %>
+                  <span class="material-symbols-outlined text-[16px]">close</span>
+                <% end %>
+              <% end %>
+            </div>
           <% end %>
 
-        </div>
-      <% else %>
-        <div
-          class="
-            h-full flex flex-col items-center justify-center text-center opacity-60
-          "
-        >
-          <svg
-            class="w-12 h-12 text-gray-300 mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          ><path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            /></svg>
-          <p class="text-sm text-gray-500">No comments yet.</p>
-          <p class="text-xs text-gray-400">Be the first to start the discussion.</p>
-        </div>
-      <% end %>
-
-    </div>
-
-    <% if (current_version == latest_version) && (@current_user.id == @topic.owner_id || @is_coordinator) %>
-      <div class="p-4 border-t border-gray-100 bg-white flex-shrink-0 relative z-20">
-        <%= form_with model: new_comment, local: true, class: "relative" do |form| %>
-
-          <%= form.hidden_field :source_type, value: "TopicInstance" %>
-          <%= form.hidden_field :source_id, value: current_instance_id %>
-
-          <div
-            class="
-              flex items-end gap-2 bg-gray-50 rounded-xl p-2 border-2 border-gray-200
-              transition-all focus-within:border-2 focus-within:border-black
-            "
-          >
-
-            <%= form.text_area :user_comment,
-                           class:
-                             "w-full bg-transparent border-0 text-sm text-gray-800 placeholder-gray-400 py-2 px-2 focus:outline-none resize-none overflow-y-auto max-h-[250px]",
-                           rows: 1,
-                           data: {
-                             controller: "textarea-resize",
-                             action:
-                               "input->textarea-resize#commentResize turbo:submit-end@window->textarea-resize#resetComment",
-                           },
-                           placeholder: "Write a comment..." %>
-
-            <%= form.button type: "submit", class: "p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-gray-100 hover:bg-blue-50 hover:text-blue-700 cursor-pointer transition-colors flex-shrink-0", title: "Send" do %>
-              <svg
-                class="w-4 h-4 transform rotate-90"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              ><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                /></svg>
-            <% end %>
-
-          </div>
         <% end %>
       </div>
-    <% end %>
 
-  </section>
-<% else %>
-  <section
-    class="
-      w-full flex flex-col items-center justify-center h-full min-h-[300px] bg-white
-      rounded-2xl shadow-sm border border-gray-100 p-8 text-center opacity-80
-    "
-  >
-    <svg
-      class="w-12 h-12 text-gray-300 mb-3"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-      />
-    </svg>
-    <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">
-      Comments Restricted
-    </p>
-    <p class="text-xs text-gray-400">
-      Comments cannot be viewed
-    </p>
-  </section>
-<% end %>
+    <% else %>
+      <div
+        class="
+          h-full flex flex-col items-center justify-center text-center opacity-60
+        "
+      >
+        <span class="material-symbols-outlined text-[48px] text-gray-300 mb-2">chat_bubble_outline</span>
+        <p class="text-sm text-gray-500">No comments yet.</p>
+        <p class="text-xs text-gray-400">Be the first to start the discussion.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if (current_version == latest_version) && (current_user.id == topic.owner_id || @is_coordinator) %>
+    <div class="p-5 pt-0 shrink-0">
+      <%= form_with model: new_comment, local: true do |form| %>
+        <%= form.hidden_field :source_type, value: "TopicInstance" %>
+        <%= form.hidden_field :source_id, value: current_instance_id %>
+
+        <div
+          class="
+            border border-[#DADCE0] rounded-[4px] focus-within:border-[#1A73E8]
+            focus-within:ring-1 focus-within:ring-[#1A73E8] transition-all bg-[#FFFFFF]
+            flex items-center pr-1
+          "
+        >
+          <%= form.text_area :user_comment,
+                         class:
+                           "w-full bg-transparent border-none pl-3 pr-2 py-2.5 text-[#3C4043] focus:ring-0 text-[14px] resize-none outline-none",
+                         rows: 1,
+                         data: {
+                           controller: "textarea-resize",
+                           action:
+                             "input->textarea-resize#commentResize turbo:submit-end@window->textarea-resize#resetComment",
+                         },
+                         placeholder: "Write a comment..." %>
+
+          <%= form.button type: "submit",
+              class: "p-2 text-[#1A73E8] hover:bg-[#F8F9FA] rounded-[4px] transition-colors flex items-center justify-center shrink-0",
+              title: "Send" do %>
+            <span class="material-symbols-outlined text-[20px]">send</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+</section>

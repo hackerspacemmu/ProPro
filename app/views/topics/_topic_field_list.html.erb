@@ -1,0 +1,71 @@
+<%# locals: (fields:) %>
+
+<div
+  class="
+    bg-white border border-[#E0E0E0] rounded-[8px] overflow-hidden
+  "
+>
+  <% sorted_fields = fields.sort_by { |f| f.project_template_field&.position || 0 } %>
+  <% sorted_fields.each do |field| %>
+
+    <%
+      display_text = nil
+      is_markdown = false
+      is_dropdown = false
+
+      if field.value.present?
+        if field.project_template_field.dropdown? || field.project_template_field.radio?
+          begin
+            parsed = JSON.parse(field.value)
+            display_text = parsed.is_a?(Array) ? parsed.join(", ") : parsed
+            is_dropdown = true
+          rescue JSON::ParserError
+            display_text = field.value
+          end
+        elsif field.project_template_field.textarea?
+          display_text = field.value
+          is_markdown = true
+        else
+          display_text = field.value
+        end
+        display_text = display_text.to_s.strip
+      end
+
+      rendered_markdown = is_markdown && display_text.present? ? render_markdown(display_text) : nil
+    %>
+
+    <% if is_markdown %>
+      <div class="py-5 px-6 border-b border-[#E0E0E0] flex flex-col gap-3 hover:bg-[#F8F9FA] transition-colors">
+        <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider">
+          <%= field.project_template_field.label %>
+        </div>
+        <div
+          class="
+            text-[15px] text-[#3C4043] leading-relaxed bg-white border border-[#E0E0E0]
+            rounded-[4px] p-5 prose prose-sm max-w-none
+          "
+        >
+          <% if display_text.present? %><%= rendered_markdown %><% else %><span class="text-[#5F6368] italic font-normal">No content provided</span><% end %>
+        </div>
+      </div>
+
+    <% else %>
+      <div class="py-4 px-6 border-b border-[#E0E0E0] flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-[#F8F9FA] transition-colors">
+        <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider md:w-1/3 shrink-0 pt-1">
+          <%= field.project_template_field.label %>
+        </div>
+        <div class="text-[14px] text-[#3C4043] md:w-2/3 flex flex-wrap gap-2">
+          <% if display_text.present? %>
+            <% if is_dropdown %>
+              <span class="bg-[#F1F3F4] border border-[#DADCE0] text-[#3C4043] px-3 py-1 rounded-[4px] text-[13px] font-medium"><%= display_text %></span>
+            <% else %>
+              <%= display_text %>
+            <% end %>
+          <% else %>
+            <span class="text-[#5F6368] italic font-normal">No content provided</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

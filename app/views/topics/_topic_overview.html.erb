@@ -1,0 +1,78 @@
+<%# locals: (topic:, course:, current_instance:) %>
+
+<div class="bg-[#FFFFFF] border border-[#E0E0E0] rounded-[8px] p-6">
+  <div class="mb-6 border-b border-[#E0E0E0] pb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <% status_badge =
+        case current_instance.status
+        when "approved"
+          "bg-[#E6F4EA] text-[#137333]"
+        when "rejected"
+          "bg-[#FCE8E6] text-[#C5221F]"
+        when "redo"
+          "bg-[#FFF8E1] text-[#F57F17]"
+        else
+          "bg-[#E8F0FE] text-[#1967D2]"
+        end %>
+      <span class="<%= status_badge %> px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium tracking-wide">
+        <%= current_instance.status.humanize %>
+      </span>
+      <% if current_instance.last_status_change_time.present? %>
+        <span class="text-[14px] text-[#5F6368]">
+          <%= time_ago_in_words(current_instance.last_status_change_time) %> ago
+        </span>
+      <% end %>
+    </div>
+    <h1 style="font-family: 'Google Sans', sans-serif;" class="text-[26px] text-[#1f1f1f] font-normal tracking-tight">
+      <%= current_instance.title %>
+    </h1>
+
+    <% if topic.source_topic.present? && (course.enrolments.exists?(user: current_user, role: :coordinator) || topic.owner == current_user) %>
+      <div class="flex items-center gap-1.5 text-[12px] font-medium text-[#5F6368] mt-2">
+        <span class="material-symbols-outlined text-[14px]">content_copy</span>
+        <span>Copied from</span>
+        <%= link_to topic.source_topic.current_title, course_topic_path(topic.source_topic.course, topic.source_topic), class: "text-[#1A73E8] hover:underline font-semibold" %>
+        <% if topic.source_topic.course != course %>
+          <span class="text-[#9AA0A6] font-normal">in</span>
+          <span class="text-[#3C4043] font-semibold"><%= topic.source_topic.course.course_name %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+    <div>
+      <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-1">Type</div>
+      <div class="text-[14px] text-[#3C4043]">Topic</div>
+    </div>
+
+    <div>
+      <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-3">Owner</div>
+      <div class="space-y-3">
+        <% if topic.owner.is_a?(User) %>
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full bg-[#F1F3F4] text-[#3C4043] flex items-center justify-center text-[13px] font-medium border border-[#E0E0E0] shrink-0"><%= topic.owner.name[0].upcase %></span>
+            <%= link_to topic.owner.name, course_lecturer_path(course, topic.owner), class: "text-[14px] text-[#3C4043] hover:text-[#1A73E8] transition-colors" %>
+          </div>
+        <% else %>
+          <% topic.owner.users.each do |user| %>
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-[#F1F3F4] text-[#3C4043] flex items-center justify-center text-[13px] font-medium border border-[#E0E0E0] shrink-0"><%= user.name[0].upcase %></span>
+              <%= link_to user.name, course_lecturer_path(course, user), class: "text-[14px] text-[#3C4043] hover:text-[#1A73E8] transition-colors" %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if topic.owner.is_a?(ProjectGroup) %>
+      <div>
+        <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider mb-1">Group Name</div>
+        <div class="text-[14px] text-[#3C4043]">
+          <%= link_to topic.owner.group_name, participant_profile_course_path(course, topic.owner.id, 'group'),
+              class: "hover:text-[#1A73E8] transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

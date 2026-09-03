@@ -1,0 +1,93 @@
+<%# locals: (current_instance:, topic:, course:, current_version:, latest_version:, instances:, current_user:, members:, comments_count:, initial_tab_index:) %>
+
+<% if flash[:notice] %>
+  <div
+    data-testid="flash-notice"
+    class="
+      mx-8 mt-8 w-[calc(100%-4rem)] p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm
+      font-bold flex items-center justify-center gap-3 shadow-sm mb-4
+    "
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M5 13l4 4L19 7"
+      /></svg>
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+
+<% if flash[:alert] %>
+  <div
+    data-testid="flash-alert"
+    class="
+      mx-8 mt-8 w-[calc(100%-4rem)] p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm
+      font-bold flex items-center justify-center gap-3 shadow-sm mb-4
+    "
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+      /></svg>
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<div class="border-b border-[#E0E0E0] px-8 sticky top-0 bg-[#FFFFFF] z-10">
+  <div class="flex items-center gap-3">
+    <div class="relative flex-1 min-w-0" data-controller="tab-fade">
+      <div
+        role="tablist"
+        data-testid="content-tabs"
+        data-tab-fade-target="scroller"
+        class="flex flex-nowrap gap-x-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+      >
+        <%
+          topic_tab_defs = []
+          topic_tab_defs << { slug: "details", name: "Topic Details", index: 0 }
+          topic_tab_defs << { slug: "compare", name: "Compare Versions", index: 1 }
+        %>
+        <% topic_tab_defs.each do |tab_def| %>
+          <% selected = tab_def[:index] == initial_tab_index %>
+          <button type="button"
+                  id="tab-<%= tab_def[:slug] %>"
+                  role="tab"
+                  aria-selected="<%= selected %>"
+                  aria-controls="panel-<%= tab_def[:slug] %>"
+                  tabindex="<%= selected ? 0 : -1 %>"
+                  data-tabs-target="tab"
+                  data-action="tabs#show"
+                  data-tabs-index-param="<%= tab_def[:index] %>"
+                  data-tabs-slug-param="<%= tab_def[:slug] %>"
+                  style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
+                  class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors <%= selected ? 'text-[#0B57D0]' : 'text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]' %>"><%= tab_def[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
+        <% end %>
+      </div>
+
+      <div
+        data-tab-fade-target="rightMask"
+        class="hidden pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#FFFFFF] to-transparent"
+      ></div>
+    </div>
+
+    <button
+      type="button"
+      data-comments-drawer-target="trigger"
+      data-action="comments-drawer#toggle"
+      aria-expanded="false"
+      aria-controls="comments-drawer"
+      title="Comments"
+      class="min-[1245px]:hidden shrink-0 relative w-9 h-9 flex items-center justify-center rounded-full text-[#5F6368] hover:text-[#3C4043] hover:bg-[#F1F3F4] transition-colors"
+    >
+      <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+      <% if comments_count.positive? %>
+        <span
+          class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#1A73E8] text-white text-[10px] font-medium leading-4 flex items-center justify-center"
+        ><%= comments_count %></span>
+      <% end %>
+    </button>
+  </div>
+</div>
