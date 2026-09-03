@@ -17,17 +17,17 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_topic_path(@course, @topic)
 
-    click_button "Approve"
+    click_button 'Approve'
 
     assert_selector '[data-testid="flash-notice"]'
-    assert_text "Approved"
+    assert_text 'Approved'
   end
 
   test 'if coordinator approval enabled, lecturer cannot change their own topic status sad path' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic)
 
-    assert_no_text "Approve"
+    assert_no_text 'Approve'
     assert_no_selector '[data-controller="dropdown"]'
   end
 
@@ -36,7 +36,7 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_topic_path(@course, @topic)
 
-    assert_no_text "Approve"
+    assert_no_text 'Approve'
     assert_no_selector '[data-controller="dropdown"]'
   end
 end
