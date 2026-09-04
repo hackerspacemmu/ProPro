@@ -2,8 +2,6 @@
 
 <% breadcrumb :course, @course %>
 
-<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
 <%# Cookie is plain/unsigned on purpose: it only ever holds one of the four
     slugs below, and tabs.find_index ignores anything else, so there is
     nothing to forge that does more than land the user on Overview. %>

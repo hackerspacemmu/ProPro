@@ -1,8 +1,6 @@
 <% content_for :body_class, "bg-[#f8fafd]" %>
 <% breadcrumb :topic, @topic %>
 
-<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
 <% content_for :title do %>
   <%= @topic.current_title.truncate(TITLE_NAME_LIMIT) %>
   - View Topic | ProPro
