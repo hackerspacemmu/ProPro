@@ -1,25 +1,22 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "courses" %>
-<% end %>
 <% content_for :title, "New Lecturer | ProPro" %>
 
-<div class="main">
-  <h1>New Staff</h1>
+<div class="w-[95%] mx-auto text-[28px] py-[10px] flex-auto">
+  <h1 class="text-[30px] font-bold text-black mt-0 mb-0">New Staff</h1>
   <br>
 
-  <div class="container">
-    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+  <div class="rounded-[10px] w-full p-[15px] bg-[#f8f9fa] mb-[20px]">
+    <h5 class="font-normal mt-0 mb-0"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
+    <h5 class="font-normal mt-0 mb-0"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
     <br>
 
     <%= form_with url: user_create_path do |form| %>
       <%= form.hidden_field :token, value: params[:token] %>
-      <%= form.search_field :email, value: @email, disabled: true %><br>
-      <%= form.password_field :otp, required: true, placeholder: "OTP" %><br>
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-      <%= form.password_field :password_confirmation, required: true, placeholder: "Enter password confirmation", maxlength: 72 %><br>
-      <%= form.search_field :name, placeholder: "Name", required: true %><br>
-    <%= form.submit "Create Account" %>
+      <%= form.search_field :email, value: @email, disabled: true, class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+      <%= form.password_field :otp, required: true, placeholder: "OTP", class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+      <%= form.password_field :password_confirmation, required: true, placeholder: "Enter password confirmation", maxlength: 72, class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+      <%= form.search_field :name, placeholder: "Name", required: true, class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+    <%= form.submit "Create Account", class: "bg-[#dfdfdf] text-black py-2.5 px-[15px] border-none rounded cursor-pointer text-[10px]" %>
     <% end %>
   </div>
 </div>

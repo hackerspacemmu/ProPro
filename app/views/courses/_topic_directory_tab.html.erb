@@ -61,7 +61,7 @@
                 <div class="flex items-center justify-start gap-2 pb-2 pt-2 sm:pl-3">
                   <button
                     type="button"
-                    class="flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
+                    class="flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-200 transition-colors cursor-pointer mr-4"
                     onclick="
                       const grid = this.closest('.mb-3').querySelector('.grid');
                       const arrow = this.querySelector('.arrow');
@@ -78,7 +78,7 @@
                       </div>
                       <span class="font-medium"><%= stat.upcase %></span>
                     </div>
-                    <span class="text-sm text-gray-500"><%= group.size %></span>
+                    <span class="text-sm text-gray-500 mr-4"><%= group.size %></span>
                   </div>
                 </div>
                 <%= render "shared/row_list", rows: group, partial: "topic_card", item: :topic,

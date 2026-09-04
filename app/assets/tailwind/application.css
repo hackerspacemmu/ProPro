@@ -1,6 +1,47 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme {
+  /* Text & surfaces */
+  --color-on-surface: #3C4043;
+  --color-on-surface-strong: #1F1F1F;
+  --color-on-surface-variant: #5F6368;
+  --color-on-surface-disabled: #9AA0A6;
+  --color-surface: #FFFFFF;
+  --color-surface-tint: #F8FAFD;
+  --color-surface-variant: #F1F3F4;
+
+  /* Borders */
+  --color-outline: #DADCE0;
+  --color-outline-variant: #E0E0E0;
+
+  /* Primary (blue) */
+  --color-primary: #1A73E8;
+  --color-primary-strong: #0B57D0;
+  --color-primary-hover: #1B66C9;
+  --color-primary-container: #E8F0FE;
+  --color-primary-container-alt: #D3E3FD;
+
+  /* Status: success */
+  --color-success: #137333;
+  --color-success-hover: #0F5C29;
+  --color-success-container: #E6F4EA;
+
+  /* Status: error */
+  --color-error: #C5221F;
+  --color-error-hover: #A50E0E;
+  --color-error-container: #FCE8E6;
+
+  /* Status: warning/redo */
+  --color-warning: #F57F17;
+  --color-warning-container: #FFF8E1;
+
+  /* Structural */
+  --radius-panel: 28px;
+  --radius-card: 8px;
+  --breakpoint-comments: 1245px;
+}
+
 /* Force EasyMDE Preview Headings to restore their size */
 .editor-preview h1 {
   font-size: 2em !important;

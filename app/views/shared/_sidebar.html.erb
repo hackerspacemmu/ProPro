@@ -1,6 +1,6 @@
 <aside id="app-sidebar"
        class="
-         w-[280px] shrink-0 py-3 bg-[#f8fafd]
+         w-[280px] shrink-0 py-3 bg-surface-tint
          fixed top-0 left-0 h-full z-50 -translate-x-full transition-transform
          duration-300 ease-out
          lg:static lg:translate-x-0 lg:transition-none lg:h-auto
@@ -12,14 +12,14 @@
     <%= link_to root_path,
           class: [
             "flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors",
-            home_active ? "bg-[#D3E3FD] text-[#0B57D0] font-semibold" : "text-[#3C4043] hover:bg-white/60"
+            home_active ? "bg-primary-container-alt text-primary-strong font-semibold" : "text-on-surface hover:bg-white/60"
           ],
           style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" do %>
       <span class="material-symbols-outlined">home</span>
       <span>Home</span>
     <% end %>
 
-    <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] cursor-pointer">
+    <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer">
       <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
       <span class="material-symbols-outlined text-sm">expand_less</span>
     </div>
@@ -29,10 +29,10 @@
       <%= link_to course_path(course),
             class: [
               "flex items-center gap-4 transition-colors truncate",
-              active ? "mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0] font-semibold" : "px-6 py-3.5 rounded-r-full text-[#3C4043] hover:bg-white/60"
+              active ? "mx-3 px-4 py-3.5 rounded-full bg-primary-container-alt text-primary-strong font-semibold" : "px-6 py-3.5 rounded-r-full text-on-surface hover:bg-white/60"
             ],
             style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" do %>
-        <div class="w-9 h-9 rounded-full <%= active ? 'bg-[#E1E3E1] text-[#3C4043]' : 'bg-[#1A73E8] text-white' %> flex items-center justify-center text-sm font-bold shrink-0">
+        <div class="w-9 h-9 rounded-full <%= active ? 'bg-[#E1E3E1] text-on-surface' : 'bg-primary text-white' %> flex items-center justify-center text-sm font-bold shrink-0">
           <%= course.course_name.first.upcase %>
         </div>
         <span class="truncate"><%= course.course_name %></span>
@@ -40,22 +40,22 @@
     <% end %>
 
     <div class="py-2">
-      <div class="border-t border-[#DADCE0]"></div>
+      <div class="border-t border-outline"></div>
     </div>
 
     <% profile_active = current_page?(user_profile_path) %>
     <%= link_to user_profile_path,
           class: [
             "flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors",
-            profile_active ? "bg-[#D3E3FD] text-[#0B57D0] font-semibold" : "text-[#3C4043] hover:bg-white/60"
+            profile_active ? "bg-primary-container-alt text-primary-strong font-semibold" : "text-on-surface hover:bg-white/60"
           ],
           style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" do %>
-      <span class="material-symbols-outlined text-[#5F6368]">person</span>
+      <span class="material-symbols-outlined text-on-surface-variant">person</span>
       <span>Edit profile</span>
     <% end %>
 
-    <span class="flex items-center gap-4 px-6 py-3.5 rounded-r-full text-[#3C4043] text-[0.875rem] font-medium leading-[1.25rem]">
-      <span class="material-symbols-outlined text-[#5F6368]">logout</span>
+    <span class="flex items-center gap-4 px-6 py-3.5 rounded-r-full text-on-surface text-[0.875rem] font-medium leading-[1.25rem]">
+      <span class="material-symbols-outlined text-on-surface-variant">logout</span>
       <span>Log out</span>
     </span>
 

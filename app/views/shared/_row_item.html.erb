@@ -55,8 +55,8 @@
       
       <!-- Title & Meta Parts -->
       <div class="min-w-0 flex-1">
-        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium leading-6 mb-0.5 <%= title_color %> truncate"><%= title %></h3>
-        <div class="flex items-center gap-2 text-[13px] text-[#747775] flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
+        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 400; letter-spacing: 0; line-height: 1.5rem;" class="mb-0.5 <%= title_color %> truncate"><%= title %></h3>
+        <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="flex items-center gap-2 text-[13px] text-[#747775] flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
           <% meta_parts.each_with_index do |part, idx| %>
             <% unless idx.zero? %><span class="shrink-0">•</span><% end %>
             <span class="<%= idx.zero? ? "truncate max-w-full" : "whitespace-nowrap" %>"><%= part %></span>

@@ -1,4 +1,4 @@
-<% content_for :body_class, "bg-[#f8fafd]" %>
+<% content_for :body_class, "bg-surface-tint" %>
 
 <% breadcrumb :course, @course %>
 
@@ -16,17 +16,17 @@
   initial_tab_index = tabs.find_index { |t| t[:slug] == cookies[tab_persist_key] } || 0
 %>
 
-<div class="text-[#3C4043] font-['Roboto',sans-serif]">
+<div class="text-on-surface font-['Roboto',sans-serif]">
 
   <div class="flex">
     <%= render "shared/sidebar" %>
-    <main class="flex-1 bg-white rounded-tl-[28px] overflow-hidden min-h-[calc(100vh-3.5rem)]"
+    <main class="flex-1 bg-white rounded-tl-panel overflow-hidden min-h-[calc(100vh-3.5rem)]"
           data-controller="tabs search-shortcut"
           data-tabs-persist-key-value="<%= tab_persist_key %>"
-          data-tabs-active-class="text-[#0B57D0]"
-          data-tabs-inactive-class="text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]">
+          data-tabs-active-class="text-primary-strong"
+          data-tabs-inactive-class="text-on-surface-variant hover:bg-[#F8F9FA] hover:text-on-surface">
 
-      <div class="border-b border-[#E0E0E0] px-4 sm:px-8 bg-white shrink-0">
+      <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0">
         <div class="flex items-center justify-between">
           <div role="tablist" class="flex flex-nowrap gap-x-2">
             <% tabs.each_with_index do |tab, index| %>
@@ -42,13 +42,13 @@
                       data-tabs-index-param="<%= index %>"
                       data-tabs-slug-param="<%= tab[:slug] %>"
                       style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
-                      class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors <%= selected ? 'text-[#0B57D0]' : 'text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></button>
+                      class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors <%= selected ? 'text-primary-strong' : 'text-on-surface-variant hover:bg-[#F8F9FA] hover:text-on-surface' %>"><%= tab[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-primary-strong"></div></button>
             <% end %>
           </div>
 
           <% if @current_user_enrolment&.coordinator? %>
             <%= link_to settings_course_path(@course),
-                  class: "hidden lg:flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors shrink-0",
+                  class: "hidden lg:flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0",
                   title: "Settings" do %>
               <span class="material-symbols-outlined">settings</span>
             <% end %>
