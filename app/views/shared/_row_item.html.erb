@@ -1,9 +1,8 @@
 <%# Locals: path, icon, title, meta_parts (array joined with "•"),
-    time_meta (right-aligned "Submitted X ago" text, rendered larger than the
-    meta line), status, pill_label (defaults to status humanized), linkable
+    time_meta (appended to meta line as "• timestamp"), status,
+    pill_label (defaults to status humanized), linkable
     (default true), link_options, border_top (default true), and an optional
-    block rendered below the row line. The status pill sits beside time_meta on
-    the right. %>
+    block rendered below the row line. The status pill sits on the right. %>
 
 <%
   pill_bg, pill_fg =
@@ -12,6 +11,15 @@
     when "pending"  then ["bg-[#E8F0FE]", "text-[#1967D2]"]
     when "redo"     then ["bg-[#FFF8E1]", "text-[#E65100]"]
     when "rejected" then ["bg-[#FCE8E6]", "text-[#C5221F]"]
+    else                 ["bg-[#F1F3F4]", "text-[#5F6368]"]
+    end
+
+  icon_bg, icon_fg =
+    case status.to_s
+    when "approved" then ["bg-[#F1F3F4]", "text-[#137333]"]
+    when "pending"  then ["bg-[#F1F3F4]", "text-[#1967D2]"]
+    when "redo"     then ["bg-[#F1F3F4]", "text-[#E65100]"]
+    when "rejected" then ["bg-[#F1F3F4]", "text-[#C5221F]"]
     else                 ["bg-[#F1F3F4]", "text-[#5F6368]"]
     end
 
@@ -38,7 +46,7 @@
   <div class="flex items-start sm:items-center gap-4 w-full min-w-0">
     
     <!-- Icon Container: Stays fixed on the left -->
-    <div class="w-9 h-9 rounded-full border border-[#DADCE0] flex items-center justify-center shrink-0 bg-transparent text-[#5F6368] mt-0.5 sm:mt-0">
+    <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 <%= icon_bg %> <%= icon_fg %> mt-0.5 sm:mt-0">
       <span class="material-symbols-outlined text-[20px]"><%= icon %></span>
     </div>
 
@@ -47,23 +55,22 @@
       
       <!-- Title & Meta Parts -->
       <div class="min-w-0 flex-1">
-        <h3 class="text-[16px] font-normal leading-6 <%= title_color %> truncate"><%= title %></h3>
-        <div class="flex items-center gap-2 text-[15px] text-[#5F6368] flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
+        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium leading-6 mb-0.5 <%= title_color %> truncate"><%= title %></h3>
+        <div class="flex items-center gap-2 text-[13px] text-[#747775] flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
           <% meta_parts.each_with_index do |part, idx| %>
             <% unless idx.zero? %><span class="shrink-0">•</span><% end %>
             <span class="<%= idx.zero? ? "truncate max-w-full" : "whitespace-nowrap" %>"><%= part %></span>
           <% end %>
+          <% if time_meta.present? %>
+            <span class="shrink-0">•</span>
+            <span class="whitespace-nowrap"><%= time_meta %></span>
+          <% end %>
         </div>
       </div>
 
-      <!-- Pill & Time Meta -->
+      <!-- Pill -->
       <div class="flex items-center gap-3 shrink-0">
         <span class="<%= pill_span %>"><%= pill_label %></span>
-        <% if time_meta.present? %>
-          <span class="text-[14px] sm:text-[16px] font-normal tracking-normal leading-6 text-[#5F6368] whitespace-nowrap">
-            <%= time_meta %>
-          </span>
-        <% end %>
       </div>
 
     </div>

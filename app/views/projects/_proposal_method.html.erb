@@ -22,7 +22,7 @@
   <%= 'data-controller="method-picker"'.html_safe unless readonly %>
 >
   <div>
-    <h2 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight font-google-sans">
+    <h2 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight">
       Proposal Method
     </h2>
     <p class="text-[13px] text-[#5F6368] mt-1">
@@ -56,21 +56,21 @@
               <span data-method-picker-target="lecturerCheck" class="material-symbols-outlined text-[14px] <%= 'hidden' unless lecturer_selected %>">check</span>
             </div>
           </div>
-          <h3 class="text-[15px] font-semibold text-[#1f1f1f] font-google-sans">Propose to Lecturer</h3>
+          <h3 class="text-[15px] font-semibold text-[#1f1f1f]">Propose to Lecturer</h3>
           <p class="text-[13px] text-[#5F6368] mt-1">Submit your original project proposal directly to a supervisor.</p>
         </div>
 
         <div class="mt-5 pt-4 border-t border-[#E0E0E0]">
           <div data-method-picker-target="lecturerSurface" class="bg-white border border-[#DADCE0] rounded-[8px] p-3 flex items-center justify-between gap-3 <%= 'hidden' unless lecturer_selected %>">
             <div class="flex items-center gap-3 min-w-0">
-              <div data-method-picker-target="lecturerAvatar" class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-[13px] font-bold font-google-sans shrink-0"><%= lecturer_initials %></div>
+              <div data-method-picker-target="lecturerAvatar" class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-[13px] font-bold shrink-0"><%= lecturer_initials %></div>
               <div class="min-w-0">
-                <div data-method-picker-target="lecturerName" class="text-[14px] font-medium text-[#1f1f1f] font-google-sans truncate"><%= lecturer_selected ? selected_lecturer.name : "" %></div>
+                <div data-method-picker-target="lecturerName" class="text-[14px] font-medium text-[#1f1f1f] truncate"><%= lecturer_selected ? selected_lecturer.name : "" %></div>
                 <div data-method-picker-target="lecturerCapacity" class="text-[12px] text-[#5F6368]"><%= capacity_label %></div>
               </div>
             </div>
             <% unless readonly %>
-              <button type="button" data-action="click->method-picker#openLecturerPicker" class="text-[13px] text-[#1A73E8] font-medium hover:underline font-google-sans shrink-0">
+              <button type="button" data-action="click->method-picker#openLecturerPicker" class="text-[13px] text-[#1A73E8] font-medium hover:underline shrink-0">
                 Change
               </button>
             <% end %>
@@ -79,7 +79,7 @@
           <div data-method-picker-target="lecturerEmpty" class="bg-white border border-[#DADCE0] rounded-[8px] p-3 text-center <%= 'hidden' if lecturer_selected %>">
             <p class="text-[12px] text-[#5F6368] mb-2">No supervisor selected</p>
             <% unless readonly %>
-              <button type="button" data-action="click->method-picker#openLecturerPicker" class="w-full py-2.5 px-3 rounded-[6px] bg-[#F1F3F4] hover:bg-[#E8F0FE] text-[#3C4043] hover:text-[#1A73E8] text-[13px] font-medium transition-colors font-google-sans flex items-center justify-center gap-1.5">
+              <button type="button" data-action="click->method-picker#openLecturerPicker" class="w-full py-2.5 px-3 rounded-[6px] bg-[#F1F3F4] hover:bg-[#E8F0FE] text-[#3C4043] hover:text-[#1A73E8] text-[13px] font-medium transition-colors flex items-center justify-center gap-1.5">
                 <span class="material-symbols-outlined text-[18px]">search</span>
                 Select a supervisor
               </button>
@@ -110,7 +110,7 @@
               <span data-method-picker-target="topicCheck" class="material-symbols-outlined text-[14px] <%= 'hidden' unless topic_selected %>">check</span>
             </div>
           </div>
-          <h3 class="text-[15px] font-semibold text-[#1f1f1f] font-google-sans">Base on a Topic</h3>
+          <h3 class="text-[15px] font-semibold text-[#1f1f1f]">Base on a Topic</h3>
           <p class="text-[13px] text-[#5F6368] mt-1">Select from a pre-defined course topic curated by lecturers.</p>
         </div>
 
@@ -120,10 +120,10 @@
               <div class="w-9 h-9 rounded-full bg-[#F1F3F4] text-[#5F6368] flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-[18px]">article</span>
               </div>
-              <div data-method-picker-target="topicName" class="text-[14px] font-medium text-[#1f1f1f] font-google-sans truncate"><%= topic_selected ? selected_topic.current_title : "" %></div>
+              <div data-method-picker-target="topicName" class="text-[14px] font-medium text-[#1f1f1f] truncate"><%= topic_selected ? selected_topic.current_title : "" %></div>
             </div>
             <% unless readonly %>
-              <button type="button" data-action="click->method-picker#openTopicPicker" class="text-[13px] text-[#1A73E8] font-medium hover:underline font-google-sans shrink-0">
+              <button type="button" data-action="click->method-picker#openTopicPicker" class="text-[13px] text-[#1A73E8] font-medium hover:underline shrink-0">
                 Change
               </button>
             <% end %>
@@ -134,7 +134,7 @@
               <p class="text-[12px] text-[#5F6368] mb-2">Selecting a topic is optional. If none is chosen, your proposal will default to an own proposal.</p>
             <% end %>
             <% unless readonly %>
-              <button type="button" data-action="click->method-picker#openTopicPicker" class="w-full py-2.5 px-3 rounded-[6px] bg-[#F1F3F4] hover:bg-[#E8F0FE] text-[#3C4043] hover:text-[#1A73E8] text-[13px] font-medium transition-colors font-google-sans flex items-center justify-center gap-1.5">
+              <button type="button" data-action="click->method-picker#openTopicPicker" class="w-full py-2.5 px-3 rounded-[6px] bg-[#F1F3F4] hover:bg-[#E8F0FE] text-[#3C4043] hover:text-[#1A73E8] text-[13px] font-medium transition-colors flex items-center justify-center gap-1.5">
                 <span class="material-symbols-outlined text-[18px]">search</span>
                 Browse Topic Catalog
               </button>

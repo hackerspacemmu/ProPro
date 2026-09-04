@@ -2,9 +2,9 @@
     A max-w-[800px] centered column consolidating the Project Details card plus the
     Supervised Projects, Pending Proposals, Reviewed Proposals, and Pending Topics
     sections (per course_show.html.erb mockup). Sections collapse via the
-    collapsible-sections Stimulus controller; each section's top line persists when
-    collapsed (it lives outside the collapsible body). Section visibility is gated
-    by @presenter (OverviewPresenter) — hidden sections are not rendered at all. %>
+    collapsible-sections Stimulus controller; each section's border lives on the
+    section header itself. Section visibility is gated by @presenter
+    (OverviewPresenter) — hidden sections are not rendered at all. %>
 
 <%
   empty_state_classes = "border-b border-[#E0E0E0] py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-[#5F6368]"
@@ -56,7 +56,6 @@
   <% if @presenter.show_supervised_projects? %>
     <div class="mb-12" id="supervised-projects">
       <%= render "courses/section_header", title: "Supervised Projects", count: @presenter.supervised_projects.size, section: "supervised-projects" %>
-      <div class="border-t border-[#E0E0E0]"></div>
       <% if @presenter.supervised_projects.any? %>
         <%= render "shared/row_list", rows: @presenter.supervised_projects, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "supervised-projects" } } %>
@@ -71,7 +70,6 @@
   <% if @presenter.show_pending_proposals? %>
     <div class="mb-12" id="pending-proposals">
       <%= render "courses/section_header", title: "Pending Proposals", count: @presenter.pending_proposals.size, section: "pending-proposals" %>
-      <div class="border-t border-[#E0E0E0]"></div>
       <% if @presenter.pending_proposals.any? %>
         <%= render "shared/row_list", rows: @presenter.pending_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-proposals" } } %>
@@ -86,7 +84,6 @@
   <% if @presenter.show_reviewed_proposals? %>
     <div class="mb-12" id="reviewed-proposals">
       <%= render "courses/section_header", title: "Reviewed Proposals", count: @presenter.reviewed_proposals.size, section: "reviewed-proposals" %>
-      <div class="border-t border-[#E0E0E0]"></div>
       <% if @presenter.reviewed_proposals.any? %>
         <%= render "shared/row_list", rows: @presenter.reviewed_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "reviewed-proposals" } } %>
@@ -101,7 +98,6 @@
   <% if @presenter.show_pending_topics? %>
     <div class="mb-12" id="pending-topics">
       <%= render "courses/section_header", title: "Pending Topics", count: @presenter.pending_topics.size, section: "pending-topics" %>
-      <div class="border-t border-[#E0E0E0]"></div>
       <% if @presenter.pending_topics.any? %>
         <%= render "shared/row_list", rows: @presenter.pending_topics, partial: "courses/topic_card", item: :topic, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-topics" } } %>

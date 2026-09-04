@@ -1,5 +1,5 @@
 module BreadcrumbHelper
-  GOOGLE_SANS_FONT = 'Google Sans,Roboto,Arial,sans-serif'
+  DM_SANS_FONT = 'DM Sans,Roboto,Arial,sans-serif'
 
   def current_breadcrumb_page_name
     return '' unless breadcrumbs.present? && breadcrumbs.any?
@@ -29,7 +29,7 @@ module BreadcrumbHelper
     if last
       tag.span(crumb.text,
                class: 'text-gray-900 font-medium text-[1rem] leading-6 break-all',
-               style: "font-family: #{GOOGLE_SANS_FONT}")
+               style: "font-family: #{DM_SANS_FONT}")
     else
       link_to crumb.text, crumb.url,
               class: [
@@ -41,7 +41,7 @@ module BreadcrumbHelper
                 'transition-colors',
                 'no-underline'
               ].join(' '),
-              style: "font-family: #{GOOGLE_SANS_FONT}"
+              style: "font-family: #{DM_SANS_FONT}"
     end
   end
 

@@ -5,14 +5,13 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 <!--
-  The literal 'Google Sans' (as opposed to 'Google Sans Flex') is Google's internal UI typeface —
-  it still isn't published on Google Fonts, so it can't be <link>-ed. It stays first in the UI-chrome
-  stack below so devices that already have it installed (ChromeOS, Android, Google's own apps) render
-  the exact original; everyone else now falls to 'Google Sans Flex' — Google's public variable-font
-  sibling, loaded above — instead of dropping all the way to Roboto. See "Typography" for the full scale.
+  The UI-chrome typeface is DM Sans (loaded above), standing in where the proprietary 'Google Sans'
+  would otherwise sit. Google Sans itself isn't published on Google Fonts, and it was never actually
+  loaded in production — views shipped a 'Google Sans' stack that silently fell back to Roboto. DM Sans
+  is the public Google-Fonts replacement for that UI-chrome role. See "Typography" for the full scale.
 
   EVERY page must include the two <link> font tags above and the stylesheet tag.
 -->
@@ -21,13 +20,13 @@
   <div class="max-w-5xl mx-auto space-y-16">
 
     <header class="border-b border-[#E0E0E0] pb-6">
-      <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">ProPro Material Style Guide</h1>
-      <p class="text-[#5F6368] mt-2 text-[15px]">Exact Google Classroom visual language. Soft shadows, pill buttons, pure white surfaces, standard Google Material Colors, and a Google Sans / Roboto type pairing for UI chrome vs. reading copy.</p>
+      <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">ProPro Material Style Guide</h1>
+      <p class="text-[#5F6368] mt-2 text-[15px]">Exact Google Classroom visual language. Soft shadows, pill buttons, pure white surfaces, standard Google Material Colors, and a DM Sans / Roboto type pairing for UI chrome vs. reading copy.</p>
     </header>
 
     <!-- AUDIT CALLOUT: read this before building new pages -->
     <section class="bg-[#FEF7E0] border border-[#F2DE8A] rounded-lg p-6">
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 500; color: #B06000;" class="text-[16px] mb-2 flex items-center gap-2">
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 500; color: #B06000;" class="text-[16px] mb-2 flex items-center gap-2">
         <span class="material-symbols-outlined text-[20px]">warning</span>
         Audit: components added, drift found
       </h2>
@@ -43,7 +42,7 @@
     <!-- 1. COLORS & TYPOGRAPHY -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
-        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Colors</h2>
+        <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Colors</h2>
         <div class="space-y-3">
           <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#1A73E8]"></div><span class="text-sm">Primary Blue (#1A73E8) — hover #1B66C9</span></div>
           <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#137333]"></div><span class="text-sm">Success Green (#137333) — hover #0f5c29 — Approve buttons, "Excellent"/"Approved" semantics</span></div>
@@ -68,16 +67,16 @@
       </div>
 
       <div>
-        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Typography</h2>
+        <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Typography</h2>
 
-        <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Google Sans — UI Chrome</div>
+        <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">DM Sans — UI Chrome</div>
         <div class="space-y-4">
-          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Display (36px / 400 / 44px)</div>
-          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Section Heading (22px / 400 / 28px)</div>
-          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Card / Section Title (16px / 500 / 24px)</div>
-          <div style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Nav / Tab / Label (14px / 500 / 20px)</div>
+          <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Display (36px / 400 / 44px)</div>
+          <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Section Heading (22px / 400 / 28px)</div>
+          <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Card / Section Title (16px / 500 / 24px)</div>
+          <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Nav / Tab / Label (14px / 500 / 20px)</div>
         </div>
-        <p class="text-xs text-[#5F6368] mt-3">Used for headings, nav items, tabs, and list/card titles — anything that's UI chrome rather than reading copy. Falls back to Roboto when neither Google Sans nor Google Sans Flex loads.</p>
+        <p class="text-xs text-[#5F6368] mt-3">Used for headings, nav items, tabs, and list/card titles — anything that's UI chrome rather than reading copy. Falls back to Roboto when DM Sans hasn't loaded.</p>
 
         <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3 mt-6">Roboto — Reading Type</div>
         <div class="space-y-4">
@@ -98,7 +97,7 @@
     <!-- 2. SPACING & CORNER RADIUS -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
-        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Corner Radius</h2>
+        <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Corner Radius</h2>
         <div class="space-y-4 text-sm text-[#5F6368]">
           <div class="flex items-center gap-4">
             <div class="w-16 h-10 bg-[#F1F3F4] border border-[#E0E0E0] rounded-[4px]"></div>
@@ -132,7 +131,7 @@
       </div>
 
       <div>
-        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Spacing System</h2>
+        <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Spacing System</h2>
         <div class="space-y-3 text-sm text-[#5F6368]">
           <div class="flex items-center gap-3"><div class="w-1 h-4 bg-[#1A73E8]"></div> <span><strong>4px (p-1, gap-1)</strong> - Icon spacing</span></div>
           <div class="flex items-center gap-3"><div class="w-2 h-4 bg-[#1A73E8]"></div> <span><strong>8px (p-2, gap-2)</strong> - Tight component padding</span></div>
@@ -145,7 +144,7 @@
 
     <!-- 3. HEADER & NAV BAR -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Header & Nav Bar</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Header & Nav Bar</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Global App Header — compact</div>
       <div class="border border-[#E0E0E0] rounded-t-lg bg-white p-2 mb-2 shadow-sm flex items-center justify-between max-w-4xl">
@@ -210,28 +209,28 @@
       <div class="w-[280px] bg-[#f8fafd] border border-[#E0E0E0] rounded-lg py-3 mb-2">
         <nav class="flex flex-col gap-1 pr-3">
 
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
             <span class="material-symbols-outlined">home</span>
             <span>Home</span>
           </a>
 
           <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] cursor-pointer">
-            <span style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+            <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
             <span class="material-symbols-outlined text-sm">expand_less</span>
           </div>
 
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
             <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">F</div>
             <span class="truncate">Foundation 2026</span>
           </a>
 
           <!-- Selected / active state: inset full pill, not edge-to-edge -->
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0]">
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[#D3E3FD] text-[#0B57D0]">
             <div class="w-9 h-9 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-sm font-bold shrink-0">G</div>
             <span class="truncate font-semibold">Grouped Topic Approval Enabled</span>
           </a>
 
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
             <div class="w-9 h-9 rounded-full bg-[#1A73E8] text-white flex items-center justify-center text-sm font-bold shrink-0">D</div>
             <span class="truncate">Data Structures</span>
           </a>
@@ -240,7 +239,7 @@
             <div class="border-t border-[#DADCE0]"></div>
           </div>
 
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
             <span class="material-symbols-outlined text-[#5F6368]">person</span>
             <span>Edit profile</span>
           </a>
@@ -252,14 +251,14 @@
 
     <!-- 4. TABS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Tabs</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Tabs</h2>
       <div class="border-b border-[#E0E0E0] max-w-4xl">
         <div class="flex flex-wrap gap-y-1">
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA] group">Project Details<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#0B57D0] bg-[#F0F4F9] group" aria-selected="true">To Review<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA] group">Topic Directory<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA] group">People<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
-          <a href="#" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA]">Settings</a>
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA] group">Project Details<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#0B57D0] bg-[#F0F4F9] group" aria-selected="true">To Review<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA] group">Topic Directory<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA] group">People<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-[#0B57D0]"></div></a>
+          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="h-[3rem] pt-[0.125rem] px-[1.5rem] flex items-center justify-center relative box-border whitespace-nowrap transition-colors text-[#1F1F1F] hover:bg-[#F8F9FA]">Settings</a>
         </div>
       </div>
       <p class="text-xs text-[#5F6368] mt-2">Flush against the content edge and left-aligned — the row fills whatever width is available rather than centering or capping. Full-height 3rem tiles with 1.5rem internal padding; the active tab is Primary Blue text on a #F0F4F9 container fill with a full-width 3px Primary indicator whose top corners are rounded (rounded-t-[3px]) — the indicator is an absolutely-positioned div inside the tile, present on every tab and lit by group-aria-selected, NOT a border. Inactive tabs are on-surface text that wash #F8F9FA on hover. When tabs live inside a scrollable/sticky context (project detail pages), see Section 24's mobile scrollable-tabs variant, which adds a count badge.</p>
@@ -267,7 +266,7 @@
 
     <!-- 5. COURSE CARDS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Course Cards</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Course Cards</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
         <div class="group block rounded-lg border border-[#E0E0E0] overflow-hidden hover:shadow-md transition-shadow bg-white relative flex flex-col h-72">
@@ -275,7 +274,7 @@
           <!-- Deep-toned Header (Google Classroom Style) -->
           <div class="bg-[#37474F] p-4 relative cursor-pointer flex flex-col h-32 justify-between">
             <div>
-              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-white text-[1.125rem] font-medium truncate leading-tight group-hover:underline">Scatting class</h3>
+              <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-white text-[1.125rem] font-medium truncate leading-tight group-hover:underline">Scatting class</h3>
               <p class="text-white/80 text-[0.8125rem] mt-1">G11</p>
             </div>
           </div>
@@ -298,16 +297,16 @@
 
         </div>
       </div>
-      <p class="text-xs text-[#5F6368] mt-3">Title now carries the Google Sans chrome font, matching the Card / Section Title scale used everywhere else.</p>
+      <p class="text-xs text-[#5F6368] mt-3">Title now carries the DM Sans chrome font, matching the Card / Section Title scale used everywhere else.</p>
     </section>
 
     <!-- 6. LIST ITEMS — PROPOSAL ROWS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">List Items — Proposal Rows</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">List Items — Proposal Rows</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Section header pattern</div>
       <div class="flex items-center justify-between mb-6 max-w-4xl">
-        <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Pending Proposals</h2>
+        <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">Pending Proposals</h2>
         <span class="text-[14px] text-[#444746]">4 awaiting action</span>
       </div>
 
@@ -321,7 +320,7 @@
               <span class="material-symbols-outlined">description</span>
             </div>
             <div>
-              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="group-hover:text-[#1A73E8] transition-colors">EduPulse</h3>
+              <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="group-hover:text-[#1A73E8] transition-colors">EduPulse</h3>
               <p class="text-[14px] text-[#444746] mt-0.5">Group 1 • Submitted 2 hours ago</p>
             </div>
           </div>
@@ -340,7 +339,7 @@
               <span class="material-symbols-outlined">description</span>
             </div>
             <div>
-              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="group-hover:text-[#1A73E8] transition-colors">MMU Foodie</h3>
+              <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="group-hover:text-[#1A73E8] transition-colors">MMU Foodie</h3>
               <p class="text-[14px] text-[#444746] mt-0.5">Group 2 • Returned for revision yesterday</p>
             </div>
           </div>
@@ -359,7 +358,7 @@
               <span class="material-symbols-outlined">description</span>
             </div>
             <div>
-              <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">IMprove</h3>
+              <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem; color: var(--gm3-sys-color-on-surface, #1f1f1f);">IMprove</h3>
               <p class="text-[14px] text-[#444746] mt-0.5">Group 9 • Rejected last week</p>
             </div>
           </div>
@@ -377,7 +376,7 @@
 
     <!-- 7. STATUS COLORS & BADGES -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Status Colors & Badges</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Status Colors & Badges</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="space-y-6">
@@ -419,7 +418,7 @@
 
     <!-- 8. BUTTONS & ACTIONS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Buttons & Actions</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Buttons & Actions</h2>
       <div class="flex flex-wrap items-center gap-6">
         <button class="bg-[#1A73E8] hover:bg-[#1B66C9] hover:shadow-md text-white px-6 py-2.5 rounded-full font-medium text-[14px] transition-all">
           Create Proposal
@@ -444,7 +443,7 @@
 
     <!-- 9. INPUTS & FORMS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Inputs & Forms</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Inputs & Forms</h2>
       <div class="max-w-2xl space-y-6">
 
         <!-- Google Material Floating Label (Outlined) -->
@@ -467,7 +466,7 @@
 
     <!-- 10. COMMENTS & UPDATES FEED -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Comments & Updates Feed</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Comments & Updates Feed</h2>
 
       <!-- Classroom Stream Card -->
       <div class="border border-[#E0E0E0] rounded-lg bg-white p-4 max-w-3xl shadow-sm hover:shadow-md transition-shadow">
@@ -502,7 +501,7 @@
 
     <!-- 11. DIFF VIEWER -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Diff Viewer</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Diff Viewer</h2>
       <div class="border border-[#E0E0E0] rounded-lg bg-white font-mono text-sm overflow-hidden max-w-3xl">
         <div class="flex bg-[#FCE8E6] text-[#C5221F] border-b border-[#F9D2CE]">
           <div class="w-10 text-center py-1 border-r border-[#F9D2CE] select-none">-</div>
@@ -522,7 +521,7 @@
 
     <!-- 12. DATA TABLES -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Data Tables</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">Data Tables</h2>
       <div class="border border-[#E0E0E0] rounded-lg overflow-hidden max-w-4xl shadow-sm">
         <table class="w-full text-left">
           <thead class="border-b border-[#E0E0E0] bg-white">
@@ -548,7 +547,7 @@
 
     <!-- 13. BUTTONS — ADDITIONAL VARIANTS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">13. Buttons — Additional Variants</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">13. Buttons — Additional Variants</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Success Button (Approve actions)</div>
       <button class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-5 pr-4 py-2.5 rounded-full font-medium text-[14px] transition-colors flex items-center gap-2 shadow-sm mb-6">
@@ -590,7 +589,7 @@
 
     <!-- 14. DROPDOWN / CONTEXT MENUS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">14. Dropdown / Context Menus</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">14. Dropdown / Context Menus</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Simple Menu (icon + single label — triggered by more_vert)</div>
       <div class="w-40 bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden mb-6">
@@ -632,7 +631,7 @@
 
     <!-- 15. SELECTION CARDS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">15. Selection Cards</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">15. Selection Cards</h2>
       <p class="text-xs text-[#5F6368] mb-4 max-w-3xl">For choosing between a small number of mutually-exclusive options (proposal method, student-list mode). 10px radius — a step between the 8px card radius and the 12px section radius.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl">
         <div class="border-2 border-[#1A73E8] bg-[#F8F9FA] rounded-[10px] p-5 relative cursor-pointer flex flex-col justify-between transition-all shadow-xs">
@@ -645,7 +644,7 @@
                 <span class="material-symbols-outlined text-[14px]">check</span>
               </div>
             </div>
-            <h3 class="text-[15px] font-semibold text-[#1f1f1f]" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;">Propose to Lecturer</h3>
+            <h3 class="text-[15px] font-semibold text-[#1f1f1f]" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Propose to Lecturer</h3>
             <p class="text-[13px] text-[#5F6368] mt-1">Submit your original project proposal directly to a supervisor.</p>
           </div>
         </div>
@@ -657,7 +656,7 @@
               </div>
               <div class="w-5 h-5 rounded-full border border-[#DADCE0]"></div>
             </div>
-            <h3 class="text-[15px] font-semibold text-[#1f1f1f]" style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;">Base on a Topic</h3>
+            <h3 class="text-[15px] font-semibold text-[#1f1f1f]" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Base on a Topic</h3>
             <p class="text-[13px] text-[#5F6368] mt-1">Select from a pre-defined course topic template curated by lecturers.</p>
           </div>
         </div>
@@ -667,10 +666,10 @@
 
     <!-- 16. MODALS & DIALOGS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">16. Modals & Dialogs</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">16. Modals & Dialogs</h2>
       <div class="bg-white rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden flex flex-col border border-[#E0E0E0]">
         <div class="px-6 pt-6 pb-4 flex items-center justify-between">
-          <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">Record Progress Update</h2>
+          <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">Record Progress Update</h2>
           <button class="text-[#5F6368] hover:bg-[#F1F3F4] rounded-full p-2 transition-colors flex items-center justify-center">
             <span class="material-symbols-outlined text-[24px]">close</span>
           </button>
@@ -696,9 +695,9 @@
 
     <!-- 17. DEFINITION LIST / META INFO GRID -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">17. Definition List / Meta Info Grid</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">17. Definition List / Meta Info Grid</h2>
       <div class="bg-white border border-[#E0E0E0] rounded-lg p-6 max-w-3xl">
-        <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] text-[#1f1f1f] mb-6">Project Overview</h3>
+        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[16px] text-[#1f1f1f] mb-6">Project Overview</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           <div>
             <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-1">Group Name</div>
@@ -734,7 +733,7 @@
 
     <!-- 18. DATA CHIPS vs STATUS PILLS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">18. Data Chips vs. Status Pills</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">18. Data Chips vs. Status Pills</h2>
       <div class="flex items-center gap-6">
         <div>
           <span class="bg-[#F1F3F4] border border-[#DADCE0] text-[#3C4043] px-3 py-1 rounded-lg text-[13px] font-medium">Web App</span>
@@ -750,7 +749,7 @@
 
     <!-- 19. TIMELINE / ACTIVITY FEED -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">19. Timeline / Activity Feed</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">19. Timeline / Activity Feed</h2>
       <div class="relative ml-4 max-w-3xl">
         <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-[#E0E0E0]"></div>
         <div class="relative pl-16">
@@ -758,7 +757,7 @@
           <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
             <div class="px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start bg-[#F8F9FA] rounded-t-xl">
               <div>
-                <h3 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-[#1f1f1f]">Progress 2</h3>
+                <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-[#1f1f1f]">Progress 2</h3>
                 <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
                   <span class="material-symbols-outlined text-[16px]">calendar_today</span>
                   2026-08-20
@@ -779,10 +778,10 @@
 
     <!-- 20. COMMENTS PANEL -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">20. Comments Panel (persistent side rail)</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">20. Comments Panel (persistent side rail)</h2>
       <div class="w-[380px] bg-[#f8fafd] border border-[#E0E0E0] rounded-lg flex flex-col">
         <div class="px-6 py-4 border-b border-[#E0E0E0] flex items-center justify-between bg-white shrink-0">
-          <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; color: #1f1f1f;">Comments</h2>
+          <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; color: #1f1f1f;">Comments</h2>
           <span class="bg-[#F1F3F4] text-[#3C4043] px-2 py-0.5 rounded-full text-xs font-medium">7</span>
         </div>
         <div class="p-6 space-y-6">
@@ -829,7 +828,7 @@
 
     <!-- 21. VERSION COMPARE -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">21. Version Compare</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">21. Version Compare</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Compare toolbar</div>
       <div class="flex justify-center mb-6">
@@ -860,7 +859,7 @@
 
     <!-- 22. SPLIT-PANE APP LAYOUT -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">22. Split-Pane App Layout (70/30)</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">22. Split-Pane App Layout (70/30)</h2>
       <p class="text-xs text-[#5F6368] max-w-3xl leading-relaxed">
         Used on every project detail page (Project Details / Compare Versions / Progress Updates tabs). Structure:
         <code>main</code> is a flex row inside the white <code>rounded-tl-[28px]</code> canvas. The left pane (<code>flex-1</code>) scrolls independently and holds the sticky context header + sticky tabs + tab content.
@@ -871,7 +870,7 @@
 
     <!-- 23. PAGE HEADERS — ADDITIONAL VARIANTS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">23. Page Headers — Additional Variants</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">23. Page Headers — Additional Variants</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Full-Screen Takeover Header (editing a proposal)</div>
       <div class="bg-white border-b border-[#E0E0E0] px-6 py-3.5 flex items-center justify-between shadow-xs max-w-4xl mb-2">
@@ -881,7 +880,7 @@
           </span>
           <div class="h-5 w-[1px] bg-[#DADCE0]"></div>
           <div class="flex items-center gap-3">
-            <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-[18px] text-[#1f1f1f] font-medium">Edit Proposal — <span class="text-[#5F6368] font-normal">Pineapple das</span></h1>
+            <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[18px] text-[#1f1f1f] font-medium">Edit Proposal — <span class="text-[#5F6368] font-normal">Pineapple das</span></h1>
             <span class="bg-[#E8F0FE] text-[#1967D2] px-3 py-1 rounded-full text-xs font-medium tracking-wide">Pending</span>
           </div>
         </div>
@@ -898,7 +897,7 @@
           <span class="p-2 rounded-full text-[#5F6368] flex items-center justify-center">
             <span class="material-symbols-outlined text-[24px]">close</span>
           </span>
-          <h1 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif;" class="text-xl font-medium text-[#1f1f1f]">Class settings</h1>
+          <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-xl font-medium text-[#1f1f1f]">Class settings</h1>
         </div>
         <button class="bg-[#1A73E8] hover:bg-[#1B66C9] text-white font-medium text-sm px-6 py-2 rounded-full transition-colors">Save</button>
       </div>
@@ -906,7 +905,7 @@
 
     <!-- 24. FORMS — ADDITIONAL PATTERNS -->
     <section>
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">24. Forms — Additional Patterns</h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400; color: var(--gm3-sys-color-on-surface, #1f1f1f);" class="text-[22px] mb-6">24. Forms — Additional Patterns</h2>
 
       <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2">Standard Text Input (standalone, not floating-label)</div>
       <input type="text" value="Pineapple das" autocomplete="off" class="w-full max-w-md border border-[#DADCE0] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#3C4043] focus:outline-none focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8] transition-shadow mb-1">
@@ -1017,7 +1016,7 @@
 
     <!-- 25. KNOWN INCONSISTENCIES TO FIX IN THE ACTUAL PAGES -->
     <section class="bg-[#FCE8E6] border border-[#F9D2CE] rounded-lg p-6">
-      <h2 style="font-family: 'Google Sans', 'Google Sans Flex', Roboto, Arial, sans-serif; font-weight: 500; color: #C5221F;" class="text-[16px] mb-4 flex items-center gap-2">
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 500; color: #C5221F;" class="text-[16px] mb-4 flex items-center gap-2">
         <span class="material-symbols-outlined text-[20px]">rule</span>
         25. Known Inconsistencies To Fix
       </h2>
