@@ -1,4 +1,15 @@
 module ApplicationHelper
+  # Resolves which content tab is active on load for the pages that persist the
+  # active tab in a per-resource cookie (courses/show, projects/show, topics/show).
+  #
+  # The cookie is deliberately plain/unsigned — and only ever read through the
+  # `slugs` allowlist — so a forged value can at most land the user on the
+  # default (index 0) tab. Defaults to index 0 whenever the cookie is absent or
+  # doesn't name one of the given slugs.
+  def current_tab_index(persist_key:, slugs:)
+    slugs.index(cookies[persist_key]) || 0
+  end
+
   def format_timestamp(datetime)
     return '-' if datetime.blank?
 

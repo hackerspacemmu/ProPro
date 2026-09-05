@@ -5,12 +5,14 @@ require 'application_system_test_case'
 # check geometry, so this file drives headless Chrome, scrolls the correct
 # container, and asserts the tab bar's top stays pinned.
 #
-# The three pages differ in *where* they scroll:
-#   - courses/show: the window scrolls (no inner pane); the tab bar sticks to
-#     the viewport top (0) once the shared 3.5rem header scrolls past.
+# All three pages share the same capped-height shell: <main> is fixed at
+# calc(100vh - 3.5rem), so the WINDOW itself never scrolls — each page owns
+# its overflow internally, and the sticky tab bar pins to the top of its
+# scroll pane (56px below the viewport top, directly under the sticky shared
+# header):
+#   - courses/show: <main> is the scroll pane itself (overflow-y-auto).
 #   - projects/show & topics/show: the left pane (`.overflow-y-auto`) scrolls
-#     internally; the sticky tab bar pins to the top of that pane, which sits
-#     at the 3.5rem (56px) header height below the viewport top.
+#     internally inside <main>.
 #
 # Uses `use_transactional_tests = false` for the same reason as
 # mobile_overflow_test.rb: the app server thread can't see uncommitted rows.
@@ -95,17 +97,42 @@ class TabsStickyTest < ApplicationSystemTestCase
     JS
   end
 
-  test 'courses/show tab bar is sticky' do
-    login_as(@student)
+  def scroll_main(pixels)
+    page.execute_script("document.querySelector('main').scrollTop = #{pixels}")
+    sleep 0.1
+  end
+
+  # Populates the course with enough pending proposals to make the Overview
+  # genuinely overflow its scroll pane, and the sidebar a coordinator sees
+  # populate with content.
+  def seed_tall_overview
+    students = 20.times.map do |i|
+      s = create(:user, is_staff: false, name: "Studentside #{i}")
+      create(:enrolment, :student, user: s, course: @course)
+      proj = create(:project, course: @course, owner: s,
+                              supervisor_enrolment: @lecturer_enr, status: :pending)
+      create(:project_instance, project: proj, supervisor_enrolment: @lecturer_enr,
+                                created_by: s, status: :pending,
+                                title: "Sidebar Proposal #{i}")
+      s
+    end
+    @sidebar_students = students
+  end
+
+  test 'courses/show tab bar stays pinned to the top of its pane' do
+    seed_tall_overview
+    login_as(@coordinator)
     visit course_path(@course)
 
-    # courses/show scrolls at the window level. The shared header (3.5rem) is
-    # sticky at viewport top 0; the tab bar pins just below it at top-[3.5rem].
-    page.execute_script('window.scrollTo(0, 600)')
-    sleep 0.1
+    # courses/show's <main> is the scroll pane itself; the Overview content
+    # must genuinely overflow it for the pinning to be exercised.
+    assert page.evaluate_script(
+      "document.querySelector('main').scrollHeight > document.querySelector('main').clientHeight"
+    ), 'Overview content should overflow <main> for the tab bar to pin'
 
+    scroll_main(600)
     assert_in_delta 56, tabs_top, 1,
-                    'courses/show tab bar should stick just below the sticky header'
+                    'courses/show tab bar should pin to the top of <main> (under the sticky shared header)'
   end
 
   test 'shared header is sticky' do
@@ -125,43 +152,24 @@ class TabsStickyTest < ApplicationSystemTestCase
     assert_in_delta before, after, 1, 'header should not move when the window scrolls'
   end
 
-  test 'sidebar is sticky' do
-    # The sidebar only has sticky travel room when the page is taller than the
-    # viewport (its containing row must exceed the sidebar's own height, else
-    # it fills the row with nowhere to pin). Its sticky top is 3.5rem so it
-    # pins just below the sticky header/breadcrumb, not under it. Log in as the
-    # coordinator, who sees the most Overview content, and give the course
-    # enough pending proposals to make the page genuinely scroll past the
-    # viewport.
-    students = 20.times.map do |i|
-      s = create(:user, is_staff: false, name: "Studentside #{i}")
-      create(:enrolment, :student, user: s, course: @course)
-      proj = create(:project, course: @course, owner: s,
-                              supervisor_enrolment: @lecturer_enr, status: :pending)
-      create(:project_instance, project: proj, supervisor_enrolment: @lecturer_enr,
-                                created_by: s, status: :pending,
-                                title: "Sidebar Proposal #{i}")
-      s
-    end
-    @sidebar_students = students
+  test 'sidebar stays pinned while the pane scrolls' do
+    seed_tall_overview
 
     login_as(@coordinator)
     visit course_path(@course)
 
+    # The capped-height shell means the window itself never scrolls; all the
+    # overflow is internal to <main>. Assert that invariant, then confirm the
+    # sidebar stays put (pinned below the sticky header) while <main> scrolls.
     scroll_h = page.evaluate_script('document.documentElement.scrollHeight')
     win_h = page.evaluate_script('window.innerHeight')
-    assert_operator scroll_h, :>, win_h, 'test course should scroll past the viewport'
+    assert_operator scroll_h, :<=, win_h,
+                    'window should not scroll; <main> owns the scroll'
 
-    # Scroll partway (not all the way to the bottom): at full scroll the sticky
-    # sidebar is naturally clamped to the bottom of its containing row, so the
-    # pinning is best observed mid-scroll. Scroll ~40% of the available range.
-    scroll_to = ((scroll_h - win_h) * 0.4).round
-    page.execute_script("window.scrollTo(0, #{scroll_to})")
-    sleep 0.1
-
+    scroll_main(600)
     assert_in_delta 56, page.evaluate_script(
       "document.getElementById('app-sidebar').getBoundingClientRect().top"
-    ), 1, 'sidebar should stick just below the sticky header (top-[3.5rem])'
+    ), 1, 'sidebar should stay pinned below the sticky header while <main> scrolls'
   end
 
   test 'projects/show tab bar is sticky' do

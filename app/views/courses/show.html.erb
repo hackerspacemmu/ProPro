@@ -2,9 +2,6 @@
 
 <% breadcrumb :course, @course %>
 
-<%# Cookie is plain/unsigned on purpose: it only ever holds one of the four
-    slugs below, and tabs.find_index ignores anything else, so there is
-    nothing to forge that does more than land the user on Overview. %>
 <%
   tabs = []
   tabs << { slug: "overview", name: "Overview", partial: "courses/overview_tab" }
@@ -13,20 +10,20 @@
   tabs << { slug: "groups",   name: "Groups",   partial: "courses/groups_tab" }
 
   tab_persist_key = "propro_tab_course_#{@course.id}"
-  initial_tab_index = tabs.find_index { |t| t[:slug] == cookies[tab_persist_key] } || 0
+  initial_tab_index = current_tab_index(persist_key: tab_persist_key, slugs: tabs.map { |t| t[:slug] })
 %>
 
 <div class="text-on-surface font-['Roboto',sans-serif]">
 
   <div class="flex">
     <%= render "shared/sidebar" %>
-    <main class="flex-1 bg-white rounded-tl-panel overflow-clip min-h-[calc(100vh-3.5rem)]"
+    <main class="flex-1 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]"
           data-controller="tabs search-shortcut"
           data-tabs-persist-key-value="<%= tab_persist_key %>"
           data-tabs-active-class="text-primary-strong"
           data-tabs-inactive-class="text-on-surface-variant hover:bg-[#F8F9FA] hover:text-on-surface">
 
-      <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-[3.5rem] z-10">
+      <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-0 z-10">
         <div class="flex items-center justify-between">
           <div role="tablist" data-testid="content-tabs" class="flex flex-nowrap gap-x-2">
             <% tabs.each_with_index do |tab, index| %>

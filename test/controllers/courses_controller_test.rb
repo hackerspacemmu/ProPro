@@ -55,7 +55,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
-    assert_select 'a[href=?]', settings_course_path(@course), count: 1
+    # Two settings links intentionally coexist in the DOM: the desktop tab-row
+    # gear (hidden lg:flex) and the mobile header gear (sm:hidden). They never
+    # both show at the same width, but the controller test sees the full DOM.
+    assert_select 'a[href=?]', settings_course_path(@course), count: 2
   end
 
   test 'show displays course description in project details' do

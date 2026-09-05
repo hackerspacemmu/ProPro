@@ -12,15 +12,15 @@
   project_tab_slugs = ["details", "compare"]
   project_tab_slugs << "progress" if @course.use_progress_updates
   project_tab_persist_key = "propro_tab_project_#{@project.id}"
-  project_initial_tab = project_tab_slugs.index(cookies[project_tab_persist_key]) || 0
+  project_initial_tab = current_tab_index(persist_key: project_tab_persist_key, slugs: project_tab_slugs)
 %>
 
-<div class="text-[#3C4043] font-['Roboto',sans-serif]">
+<div class="text-on-surface font-['Roboto',sans-serif]">
   <div class="flex">
     <%= render "shared/sidebar" %>
 
     <main
-      class="flex-1 bg-[#FFFFFF] rounded-tl-[16px] flex overflow-hidden min-h-[calc(100vh-3.5rem)]"
+      class="flex-1 bg-surface rounded-tl-panel flex overflow-hidden h-[calc(100vh-var(--spacing-header))]"
       data-controller="tabs comments-drawer"
       data-tabs-persist-key-value="<%= project_tab_persist_key %>"
       data-tabs-active-class="text-[#0B57D0]"
