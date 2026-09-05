@@ -3,7 +3,7 @@
          w-[280px] shrink-0 py-3 bg-surface-tint
          fixed top-0 left-0 h-full z-50 -translate-x-full transition-transform
          duration-300 ease-out
-         lg:static lg:translate-x-0 lg:transition-none lg:h-auto
+         lg:sticky lg:top-[3.5rem] lg:translate-x-0 lg:transition-none lg:h-[calc(100vh-3.5rem)] lg:overflow-y-auto lg:self-start
        "
        data-sidebar-target="container">
   <nav class="flex flex-col gap-1 pr-3">
@@ -54,10 +54,11 @@
       <span>Edit profile</span>
     <% end %>
 
-    <span class="flex items-center gap-4 px-6 py-3.5 rounded-r-full text-on-surface text-[0.875rem] font-medium leading-[1.25rem]">
-      <span class="material-symbols-outlined text-on-surface-variant">logout</span>
-      <span>Log out</span>
-    </span>
+    <%= button_to "<span class=\"material-symbols-outlined text-on-surface-variant\">logout</span><span>Log out</span>".html_safe,
+          session_path, method: :delete,
+          form: { class: "m-0 w-full", data: { turbo_confirm: nil } },
+          class: "flex items-center gap-4 w-full text-left px-6 py-3.5 rounded-r-full text-on-surface text-[0.875rem] font-medium leading-[1.25rem] bg-transparent border-0 cursor-pointer hover:bg-white/60 transition-colors",
+          style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" %>
 
   </nav>
 </aside>

@@ -38,10 +38,6 @@
         <%= render "shared/header" %>
 
         <%= yield %>
-
-        <% unless content_for?(:no_footer) %>
-          <%= render "shared/footer" %>
-        <% end %>
       </div>
 
     </div>

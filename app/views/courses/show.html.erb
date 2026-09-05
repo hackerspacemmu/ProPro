@@ -20,15 +20,15 @@
 
   <div class="flex">
     <%= render "shared/sidebar" %>
-    <main class="flex-1 bg-white rounded-tl-panel overflow-hidden min-h-[calc(100vh-3.5rem)]"
+    <main class="flex-1 bg-white rounded-tl-panel overflow-clip min-h-[calc(100vh-3.5rem)]"
           data-controller="tabs search-shortcut"
           data-tabs-persist-key-value="<%= tab_persist_key %>"
           data-tabs-active-class="text-primary-strong"
           data-tabs-inactive-class="text-on-surface-variant hover:bg-[#F8F9FA] hover:text-on-surface">
 
-      <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0">
+      <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-[3.5rem] z-10">
         <div class="flex items-center justify-between">
-          <div role="tablist" class="flex flex-nowrap gap-x-2">
+          <div role="tablist" data-testid="content-tabs" class="flex flex-nowrap gap-x-2">
             <% tabs.each_with_index do |tab, index| %>
               <% selected = index == initial_tab_index %>
               <button type="button"
