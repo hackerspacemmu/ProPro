@@ -22,6 +22,12 @@ class CoursesController < ApplicationController
     @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
     @my_topics = @topic_list.where(owner: current_user)
 
+    # Topics Directory (topics_by_supervisor) data source — policy-scoped with
+    # search/filter applied server-side; driving both the initial render and the
+    # htmx re-render of _topics_by_supervisor_list.
+    @filtered_topic_list = filtered_topic_list
+    @topics_by_supervisor = topics_by_supervisor
+
     # set students projects
     projects_ownerships = @course.projects.approved.where(owner_type: 'User').pluck('owner_id')
 
@@ -119,6 +125,14 @@ class CoursesController < ApplicationController
                total_count: @total_group_count,
                displayed_count: @filtered_group_list.count,
                show_all: @show_all
+             }
+    elsif params[:section] == 'topics'
+      render partial: 'topics_by_supervisor_list',
+             locals: {
+               course: @course,
+               lecturers: @lecturers,
+               topics_by_supervisor: @topics_by_supervisor,
+               current_user_enrolment: @current_user_enrolment
              }
     else
       render partial: 'students_table',
@@ -910,6 +924,47 @@ class CoursesController < ApplicationController
     return nil if enrolment_ids.empty?
 
     @course.projects.supervised_by(enrolment_ids).where(owner_type: owner_type).pluck(:owner_id)
+  end
+
+  def search_topics(topic_list, query)
+    downcased_query = query.downcase
+
+    topic_list.select do |topic|
+      title_match = topic.current_title.to_s.downcase.include?(downcased_query)
+      owner_match = topic.owner_name.to_s.downcase.include?(downcased_query)
+
+      title_match || owner_match
+    end
+  end
+
+  def filtered_topic_list
+    topic_list = @topic_list
+
+    if params[:topic_filter].present? && params[:topic_filter] != 'all'
+      topic_list = topic_list.select { |topic| topic.owner_id == params[:topic_filter].to_i }
+    end
+
+    topic_list = search_topics(topic_list, params[:search_query]) if params[:search_query].present?
+
+    topic_list
+  end
+
+  # [lecturer, topics] pairs for the Topics Directory, supervisor groups A→Z by
+  # name. The current user's own group is pinned first (the "(You)" suffix is
+  # rendered by the partial); only meaningful for users who are themselves in
+  # @course.lecturers — students and coordinator-only staff get no pinned group.
+  # Topics newest-first within each group.
+  def topics_by_supervisor
+    pairs = @course.lecturers
+                   .sort_by { |lecturer| lecturer.name.to_s.downcase }
+                   .map { |lecturer| [lecturer, @filtered_topic_list.select { |topic| topic.owner_id == lecturer.id }] }
+
+    if (pinned = pairs.find { |lecturer, _topics| lecturer.id == current_user.id })
+      pairs = [pinned] + pairs.reject { |lecturer, _topics| lecturer.id == current_user.id }
+    end
+
+    pairs.each { |_lecturer, topics| topics.sort_by!(&:updated_at).reverse! }
+    pairs
   end
 
   def filtered_group_list

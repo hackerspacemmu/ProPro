@@ -1,0 +1,71 @@
+<%# Topics Directory — the browse-first Topics panel of courses/show (ADR 0013).
+    Locals: course, lecturers, topics_by_supervisor, current_user_enrolment.
+    The section carries data-controller="expandable-rows" so the supervisor
+    header toggles and the Collapse all / Expand all control keep working when
+    htmx swaps the inner #topics-by-supervisor-container (mirror of the Groups
+    tab's container swap).
+    Search (search_query) and the Topic filter (topic_filter) are sent on every
+    request; the Topics search is deliberately NOT wired to the "/" shortcut
+    (no data-search-shortcut-target). %>
+
+<section data-controller="expandable-rows">
+  <div class="flex flex-col gap-5 mb-8">
+    <% if policy(Topic.new(course: course)).create? %>
+      <div class="flex items-start">
+        <%= link_to new_course_topic_path(course),
+                    class: "inline-flex items-center justify-center gap-2 bg-[#0B57D0] text-white rounded-full px-6 py-2.5 text-sm font-medium hover:shadow-md transition-all duration-200" do %>
+          <span class="material-symbols-outlined text-[20px]">add</span>
+          Create
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="flex items-center bg-[#F1F3F4] hover:bg-[#E8EAED] rounded-full h-14 px-4 w-full transition-all duration-200">
+      <span class="material-symbols-outlined text-[#5F6368] mr-3 shrink-0">search</span>
+      <input type="text" id="topic-search" name="search_query" value="<%= params[:search_query] %>"
+             autocomplete="off"
+             placeholder="Search supervisors or topics"
+             class="bg-transparent border-none outline-none w-full text-[16px] text-[#1F1F1F] min-w-0"
+             hx-get="<%= course_url(course) %>"
+             hx-target="#topics-by-supervisor-container"
+             hx-swap="outerHTML"
+             hx-trigger="input changed delay:300ms"
+             hx-include="#topic-search, #topic-filter"
+             hx-vals='{"section": "topics"}'>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="relative w-full sm:w-[260px]">
+        <label class="absolute -top-[9px] left-3 bg-white px-1 text-[12px] text-[#5F6368]">Topic filter</label>
+        <select id="topic-filter" name="topic_filter"
+                class="appearance-none w-full border border-[#747775] bg-white rounded h-14 px-3.5 cursor-pointer hover:border-[#1F1F1F] transition-colors outline-none text-[16px] text-[#1F1F1F]"
+                hx-get="<%= course_url(course) %>"
+                hx-target="#topics-by-supervisor-container"
+                hx-swap="outerHTML"
+                hx-trigger="change"
+                hx-include="#topic-search, #topic-filter"
+                hx-vals='{"section": "topics"}'>
+          <option value="all" <%= params[:topic_filter].blank? || params[:topic_filter] == 'all' ? 'selected' : '' %>>All topics</option>
+          <% lecturers.each do |lecturer| %>
+            <option value="<%= lecturer.id %>" <%= params[:topic_filter] == lecturer.id.to_s ? 'selected' : '' %>><%= lecturer.name %></option>
+          <% end %>
+        </select>
+        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#444746] pointer-events-none">arrow_drop_down</span>
+      </div>
+
+      <div class="flex justify-center sm:justify-end">
+        <button type="button"
+                data-expandable-toggle-all
+                class="flex items-center gap-2 text-[14px] font-medium text-[#0B57D0] hover:bg-[#E9EEF6] px-3 py-2 rounded-md transition-colors">
+          <span data-expandable-all-icon class="material-symbols-outlined text-[20px]">unfold_less</span>
+          <span data-expandable-all-label>Collapse all</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <%= render "courses/topics_by_supervisor_list",
+             course: course,
+             topics_by_supervisor: topics_by_supervisor,
+             current_user_enrolment: current_user_enrolment %>
+</section>

@@ -3,415 +3,340 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Course Overview Mockup</title>
+  <title>Course Overview Mockup v3 — Project Details banner</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    /* ---- Actual design tokens from app/assets/tailwind/application.css ----
+       Reproduced here so this mockup stops drifting from what the app ships.
+       The old static mockup used raw #0b57d0 / #d3e3fd; the real Overview tab
+       code uses #1A73E8 / #E8F0FE. Both map to real tokens below — this file
+       picks the correct one per use, matching how the sidebar partial already
+       does it (bg-primary-container-alt / text-primary-strong etc). */
+    :root {
+      --color-on-surface: #3c4043;
+      --color-on-surface-strong: #1f1f1f;
+      --color-on-surface-variant: #5f6368;
+      --color-on-surface-disabled: #9aa0a6;
+      --color-surface: #ffffff;
+      --color-surface-tint: #f8fafd;
+      --color-surface-variant: #f1f3f4;
+      --color-outline: #dadce0;
+      --color-outline-variant: #e0e0e0;
+      --color-primary: #1a73e8;
+      --color-primary-strong: #0b57d0;
+      --color-primary-hover: #1b66c9;
+      --color-primary-container: #e8f0fe;
+      --color-primary-container-alt: #d3e3fd;
+      --color-success: #137333;
+      --color-success-container: #e6f4ea;
+      --color-error: #c5221f;
+      --color-error-container: #fce8e6;
+      --color-warning: #f57f17;
+      --color-warning-container: #fff8e1;
+      --radius-panel: 28px;
+      --radius-card: 8px;
+    }
+    [data-view] { display: none; }
+    [data-view].is-active { display: block; }
+    [data-pd] { display: none; }
+    [data-pd].is-active { display: block; }
+  </style>
 </head>
-<body style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 400; letter-spacing: 0; line-height: 1.25rem; color: #1f1f1f;">
+<body style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 400; letter-spacing: 0; line-height: 1.25rem; color: var(--color-on-surface-strong);">
 
-<div class="min-h-screen bg-[#f8fafd] text-[#3C4043] flex flex-col">
+<!-- ============ VIEW SWITCHER — for review only ============ -->
+<div class="sticky top-0 z-50 bg-[#202124] text-white px-4 py-2.5 flex items-center gap-4 flex-wrap text-[13px]">
+  <label class="flex items-center gap-2">
+    <span class="font-medium text-[#9aa0a6]">Preview as:</span>
+    <select id="view-switcher" class="bg-[#3c4043] text-white text-[13px] rounded px-2 py-1 border border-[#5f6368] focus:outline-none">
+      <option value="coordinator">Coordinator</option>
+      <option value="student-no-group">Student — no group yet</option>
+      <option value="student-no-proposal">Student — has group, nothing submitted</option>
+      <option value="student-pending" selected>Student — proposal pending</option>
+      <option value="student-approved">Student — project approved</option>
+      <option value="student-redo">Student — sent back for redo</option>
+      <option value="student-rejected">Student — rejected</option>
+    </select>
+  </label>
+  <label class="flex items-center gap-2">
+    <span class="font-medium text-[#9aa0a6]">Project details:</span>
+    <select id="pd-switcher" class="bg-[#3c4043] text-white text-[13px] rounded px-2 py-1 border border-[#5f6368] focus:outline-none">
+      <option value="filled" selected>Coordinator has added a brief</option>
+      <option value="empty">Nothing added yet</option>
+    </select>
+  </label>
+</div>
+
+<div class="min-h-screen bg-[var(--color-surface-tint)] text-[var(--color-on-surface)] flex flex-col">
 
   <header class="flex items-center justify-between px-4 py-3 h-[3.5rem] shrink-0">
     <div class="flex items-center gap-2">
-      <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors">
+      <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[var(--color-on-surface-variant)] transition-colors">
         <span class="material-symbols-outlined">menu</span>
       </button>
-      <span class="text-[24px] text-[#5F6368] font-medium tracking-tight">ProPro</span>
-      <span class="material-symbols-outlined text-[#5F6368] text-[20px] mx-1">chevron_right</span>
-      <span class="text-[24px] text-[#3C4043] font-normal tracking-tight">Grouped Topic Approval Enabled</span>
+      <span class="text-[24px] text-[var(--color-on-surface-variant)] font-medium tracking-tight">ProPro</span>
+      <span class="material-symbols-outlined text-[var(--color-on-surface-variant)] text-[20px] mx-1">chevron_right</span>
+      <span class="text-[24px] text-[var(--color-on-surface-strong)] font-normal tracking-tight">Grouped Topic Approval Enabled</span>
     </div>
     <div class="flex items-center gap-4 pr-2">
-      <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors" title="Project Template">
-        <span class="material-symbols-outlined">article</span>
-      </button>
-      <button class="p-2 rounded-full hover:bg-[#EEF0F4] text-[#5F6368] transition-colors" title="Settings">
-        <span class="material-symbols-outlined">settings</span>
-      </button>
-      <button class="text-[15px] font-medium text-[#5F6368] hover:text-[#3C4043] transition-colors">
-        Log out
-      </button>
+      <button class="text-[15px] font-medium text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface-strong)] transition-colors">Log out</button>
     </div>
   </header>
 
   <div class="flex flex-1 overflow-hidden h-[calc(100vh-3.5rem)]">
 
-    <aside class="w-[280px] shrink-0 py-3 overflow-y-auto">
+    <aside class="w-[280px] shrink-0 py-3 overflow-y-auto bg-[var(--color-surface-tint)]">
       <nav class="flex flex-col gap-1 pr-3">
-        <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
-          <span class="material-symbols-outlined">home</span>
-          <span>Home</span>
+        <a href="#" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full text-[var(--color-on-surface)] hover:bg-white/60" style="font-weight:500;">
+          <span class="material-symbols-outlined">home</span><span>Home</span>
         </a>
-
-        <div class="px-6 py-2 flex items-center justify-between text-[#5F6368] cursor-pointer mt-2">
-          <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+        <div class="px-6 py-2 flex items-center justify-between text-[var(--color-on-surface-variant)] cursor-pointer mt-2">
+          <span style="font-weight:500;">Enrolled</span>
           <span class="material-symbols-outlined text-sm">expand_less</span>
         </div>
-
-        <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
-          <div class="w-9 h-9 rounded-full bg-[#0b57d0] text-white flex items-center justify-center text-sm font-bold shrink-0">F</div>
-          <span class="truncate">Foundation 2026</span>
+        <a href="#" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[var(--color-primary-container-alt)] text-[var(--color-primary-strong)]" style="font-weight:600;">
+          <div class="w-9 h-9 rounded-full bg-[#e3e3e3] text-[var(--color-on-surface)] flex items-center justify-center text-sm font-bold shrink-0">G</div>
+          <span class="truncate">Grouped Topic Approval Enabled</span>
         </a>
-
-        <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-full bg-[#d3e3fd] text-[#0B57D0]">
-          <div class="w-9 h-9 rounded-full bg-[#e3e3e3] text-[#3C4043] flex items-center justify-center text-sm font-bold shrink-0">G</div>
-          <span class="truncate font-semibold">Grouped Topic Approval Enabled</span>
-        </a>
-
-        <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
-          <div class="w-9 h-9 rounded-full bg-[#0b57d0] text-white flex items-center justify-center text-sm font-bold shrink-0">D</div>
-          <span class="truncate">Data Structures</span>
-        </a>
-
-        <div class="py-2">
-          <div class="border-t border-[#c4c7c5]"></div>
-        </div>
-
-        <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full transition-colors text-[#3C4043] hover:bg-white/60">
-          <span class="material-symbols-outlined text-[#5F6368]">person</span>
-          <span>Edit profile</span>
+        <div class="py-2"><div class="border-t border-[var(--color-outline)]"></div></div>
+        <a href="#" class="flex items-center gap-4 px-6 py-3.5 rounded-r-full text-[var(--color-on-surface)] hover:bg-white/60" style="font-weight:500;">
+          <span class="material-symbols-outlined text-[var(--color-on-surface-variant)]">person</span><span>Edit profile</span>
         </a>
       </nav>
     </aside>
 
-    <main class="flex-1 bg-[#FFFFFF] rounded-tl-[28px] flex flex-col overflow-hidden shadow-[0_-1px_6px_rgba(0,0,0,0.03)]">
+    <main class="flex-1 bg-[var(--color-surface)] rounded-tl-[var(--radius-panel)] flex flex-col overflow-hidden shadow-[0_-1px_6px_rgba(0,0,0,0.03)]">
 
-      <div class="border-b border-[#c4c7c5] px-8 bg-white shrink-0 z-10">
+      <div class="border-b border-[var(--color-outline)] px-8 bg-white shrink-0 z-10">
         <div class="flex">
-          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[#0b57d0] bg-[#e9eef6] relative box-border transition-colors">
+          <a href="#" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[var(--color-primary-strong)] bg-[var(--color-primary-container)] relative box-border" style="font-weight:500;">
             Overview
-            <div class="absolute bottom-0 left-0 w-full h-[3px] bg-[#0b57d0] rounded-t-[3px]"></div>
+            <div class="absolute bottom-0 left-0 w-full h-[3px] bg-[var(--color-primary-strong)] rounded-t-[3px]"></div>
           </a>
-          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[#1F1F1F] hover:bg-[#f8fafd] transition-colors relative box-border">
-            To Review
-          </a>
-          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[#1F1F1F] hover:bg-[#f8fafd] transition-colors relative box-border">
-            Topics
-          </a>
-          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[#1F1F1F] hover:bg-[#f8fafd] transition-colors relative box-border">
-            People
-          </a>
-          <a href="#" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[#1F1F1F] hover:bg-[#f8fafd] transition-colors relative box-border">
-            Groups
-          </a>
+          <a href="#" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[var(--color-on-surface-strong)] hover:bg-[var(--color-surface-tint)] relative box-border" style="font-weight:500;">To Review</a>
+          <a href="#" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[var(--color-on-surface-strong)] hover:bg-[var(--color-surface-tint)] relative box-border" style="font-weight:500;">Topics</a>
+          <a href="#" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[var(--color-on-surface-strong)] hover:bg-[var(--color-surface-tint)] relative box-border" style="font-weight:500;">People</a>
+          <a href="#" class="flex items-center justify-center h-[3rem] pt-[0.125rem] px-[1.5rem] text-[var(--color-on-surface-strong)] hover:bg-[var(--color-surface-tint)] relative box-border" style="font-weight:500;">Groups</a>
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto bg-white">
         <div class="max-w-[800px] mx-auto px-8 py-10 pb-20">
 
-          <section id="proposal-guidelines" class="mb-4">
-            <div class="border border-[#c4c7c5] shadow-sm rounded-[10px] w-full p-6 bg-[#f8fafd]">
-              <h4 class="break-all whitespace-pre-line text-xl font-medium text-[#202124]">Project Details</h4>
-              <p class="text-[0.9rem] sm:text-[1rem] mt-3 leading-[1.5] whitespace-pre-line text-[#5F6368] break-words">
-                Welcome to the final year group project module. Please read all specifications carefully before submitting your group's proposal. All projects must be approved by the coordinator before primary research begins.
-              </p>
-              
-              <a class="text-decoration-none max-w-max text-inherit mt-6 block" href="#" target="_blank" rel="noopener noreferrer">
-                <div class="text-[#313848] w-fit flex z-0 border border-[#c4c7c5] bg-white pl-3 pr-5 py-2.5 rounded-[8px] hover:bg-[#f8fafd] transition-colors cursor-pointer">
-                  <div class="file-icon flex items-center justify-center mr-3 bg-[#e9eef6] text-[#0b57d0] rounded-[6px] w-[36px] h-[36px] shrink-0">
-                    <span class="material-symbols-outlined">folder_zip</span>
+          <!-- ============ PROJECT DETAILS — filled (Classroom-banner treatment) ============ -->
+          <section data-pd="filled" class="mb-10">
+            <div class="rounded-[var(--radius-card)] shadow-sm overflow-hidden border border-[var(--color-outline)]">
+              <div class="relative px-8 py-9 overflow-hidden" style="background: linear-gradient(135deg, #26374a 0%, #1d2b3a 100%);">
+                <h4 class="relative z-10 text-2xl font-medium text-white max-w-[70%]">Project Details</h4>
+                <p class="relative z-10 text-white/70 text-[14px] mt-1">Final Year Project — G11</p>
+                <!-- Original flat illustration (not a reproduction of any existing artwork) -->
+                <svg class="absolute right-[-10px] bottom-[-16px] w-[190px] h-[190px] opacity-95" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="140" cy="70" r="10" fill="#F9AB00"/>
+                  <circle cx="168" cy="120" r="5" fill="#F9AB00" opacity="0.7"/>
+                  <rect x="55" y="60" width="70" height="90" rx="6" fill="#E8F0FE"/>
+                  <rect x="65" y="75" width="50" height="6" rx="3" fill="#1A73E8" opacity="0.5"/>
+                  <rect x="65" y="90" width="50" height="6" rx="3" fill="#1A73E8" opacity="0.3"/>
+                  <rect x="65" y="105" width="34" height="6" rx="3" fill="#1A73E8" opacity="0.3"/>
+                  <circle cx="128" cy="128" r="30" fill="#137333"/>
+                  <path d="M114 128 L124 138 L144 116" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </div>
+              <div class="p-6 bg-[var(--color-surface-tint)]">
+                <p class="text-[0.9rem] sm:text-[1rem] leading-[1.5] whitespace-pre-line text-[var(--color-on-surface-variant)] break-words">
+                  Welcome to the final year group project module. Please read all specifications carefully before submitting your group's proposal. All projects must be approved by the coordinator before primary research begins.
+                </p>
+                <a class="text-decoration-none max-w-max text-inherit mt-5 block" href="#" target="_blank" rel="noopener noreferrer">
+                  <div class="text-[#313848] w-fit flex z-0 border border-[var(--color-outline)] bg-white pl-3 pr-5 py-2.5 rounded-[8px] hover:bg-[var(--color-surface-tint)] transition-colors cursor-pointer">
+                    <div class="flex items-center justify-center mr-3 bg-[var(--color-primary-container)] text-[var(--color-primary)] rounded-[6px] w-[36px] h-[36px] shrink-0">
+                      <span class="material-symbols-outlined">folder_zip</span>
+                    </div>
+                    <div class="flex flex-col justify-center"><span class="font-medium text-[14px]">Project_Specifications.pdf</span></div>
                   </div>
-                  <div class="flex flex-col justify-center">
-                    <span class="font-medium text-[14px]">Project_Specifications.pdf</span>
-                  </div>
-                </div>
-              </a>
+                </a>
+              </div>
             </div>
           </section>
 
-          <div class="flex justify-end mb-10">
-            <button class="flex items-center gap-2 text-[14px] font-medium text-[#0b57d0] hover:bg-[#e9eef6] px-3 py-2 rounded-md transition-colors">
-              <span class="material-symbols-outlined text-[20px]">unfold_less</span>
-              Collapse all
-            </button>
-          </div>
-
-          <div class="mb-12" id="supervised-projects">
-            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
-              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Supervised Projects</h2>
-              <div class="flex items-center gap-3">
-                <span class="text-[#0b57d0] font-medium text-[15px]">1</span>
-                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
+          <!-- ============ PROJECT DETAILS — empty, coordinator (can add) ============ -->
+          <section data-pd="empty" data-pd-role="coordinator" class="mb-10">
+            <div class="rounded-[var(--radius-card)] border border-dashed border-[var(--color-outline)] p-8">
+              <div class="flex flex-col sm:flex-row items-center gap-6">
+                <svg class="w-[96px] h-[96px] shrink-0" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="24" y="14" width="52" height="72" rx="6" fill="var(--color-surface-variant)"/>
+                  <rect x="34" y="30" width="32" height="5" rx="2.5" fill="var(--color-on-surface-disabled)"/>
+                  <rect x="34" y="42" width="32" height="5" rx="2.5" fill="var(--color-on-surface-disabled)"/>
+                  <rect x="34" y="54" width="20" height="5" rx="2.5" fill="var(--color-on-surface-disabled)"/>
+                  <circle cx="72" cy="72" r="16" fill="var(--color-primary)"/>
+                  <path d="M72 65v14M65 72h14" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                </svg>
+                <div class="text-center sm:text-left">
+                  <h3 class="text-[16px] font-medium text-[var(--color-on-surface-strong)] mb-1">No project details yet</h3>
+                  <p class="text-[14px] text-[var(--color-on-surface-variant)] max-w-[420px] mb-4">Add a description and any specification files so students know what's expected before they submit a proposal.</p>
+                  <a href="#" class="inline-flex items-center gap-2 px-5 py-2 text-[14px] font-medium text-white bg-[var(--color-primary-strong)] rounded-full hover:bg-[var(--color-primary-hover)] transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">add</span>Add details
+                  </a>
+                </div>
               </div>
             </div>
+          </section>
 
-            <div class="flex flex-col border-b border-[#c4c7c5]">
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#137333]">
+          <!-- ============ PROJECT DETAILS — empty, read-only (student/lecturer) ============ -->
+          <section data-pd="empty" data-pd-role="readonly" class="mb-10">
+            <div class="rounded-[var(--radius-card)] border border-dashed border-[var(--color-outline)] p-8">
+              <div class="flex flex-col items-center text-center gap-3">
+                <svg class="w-[72px] h-[72px]" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="24" y="14" width="52" height="72" rx="6" fill="var(--color-surface-variant)"/>
+                  <rect x="34" y="30" width="32" height="5" rx="2.5" fill="var(--color-on-surface-disabled)"/>
+                  <rect x="34" y="42" width="32" height="5" rx="2.5" fill="var(--color-on-surface-disabled)"/>
+                  <rect x="34" y="54" width="20" height="5" rx="2.5" fill="var(--color-on-surface-disabled)"/>
+                </svg>
+                <h3 class="text-[16px] font-medium text-[var(--color-on-surface-strong)]">No project details published yet</h3>
+                <p class="text-[14px] text-[var(--color-on-surface-variant)] max-w-[360px]">Check back once your coordinator adds the brief and any specification files.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ COORDINATOR VIEW ============ -->
+          <div data-view="coordinator">
+            <div class="mb-12">
+              <div class="flex flex-row items-center justify-between p-6 border-b border-[var(--color-outline)]">
+                <h2 class="text-[22px] font-normal text-[var(--color-on-surface-strong)]">Review queue</h2>
+              </div>
+              <div class="flex flex-col border-b border-[var(--color-outline)]">
+                <a href="#" class="group flex items-center justify-between py-4 px-4 hover:bg-[var(--color-surface-tint)] transition-colors cursor-pointer bg-white">
+                  <div class="flex items-center gap-4">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-primary-container)] text-[#1967D2]">
+                      <span class="material-symbols-outlined text-[20px]">assignment</span>
+                    </div>
+                    <div>
+                      <h3 class="text-[15px] font-medium text-[var(--color-on-surface-strong)] mb-0.5">4 proposals awaiting your review</h3>
+                      <p class="text-[13px] text-[var(--color-on-surface-variant)]">2 pending topics also need a decision</p>
+                    </div>
+                  </div>
+                  <span class="material-symbols-outlined text-[var(--color-on-surface-variant)]">chevron_right</span>
+                </a>
+              </div>
+            </div>
+            <p class="text-[13px] text-[var(--color-on-surface-disabled)] -mt-8 mb-12">Supervised Projects, Pending Proposals, Reviewed Proposals and Pending Topics have moved to the <span class="text-[var(--color-primary)]">To Review</span> and <span class="text-[var(--color-primary)]">Topics</span> tabs — this nudge card is optional; drop it if Project Details alone reads clearly enough.</p>
+          </div>
+
+          <!-- ============ STUDENT VIEW ============ -->
+          <div data-view="student-no-group" data-student-view>
+            <div id="my-submission-header"></div>
+            <div class="flex flex-col border-b border-[var(--color-outline)]">
+              <div class="flex flex-col items-center text-center gap-3 py-14 px-6">
+                <div class="w-12 h-12 rounded-full bg-[var(--color-surface-variant)] text-[var(--color-on-surface-variant)] flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[24px]">group_add</span>
+                </div>
+                <h3 class="text-[16px] font-medium text-[var(--color-on-surface-strong)]">You're not in a group yet</h3>
+                <p class="text-[14px] text-[var(--color-on-surface-variant)] max-w-[360px]">Join or create a group before you can put together a project proposal.</p>
+                <a href="#" class="mt-2 inline-flex items-center justify-center px-5 py-2 text-[14px] font-medium text-white bg-[var(--color-primary-strong)] rounded-full hover:bg-[var(--color-primary-hover)] transition-colors">Browse groups</a>
+              </div>
+            </div>
+          </div>
+
+          <div data-view="student-no-proposal" data-student-view>
+            <div id="my-submission-header"></div>
+            <div class="flex flex-col border-b border-[var(--color-outline)]">
+              <div class="flex flex-col items-center text-center gap-3 py-14 px-6">
+                <div class="w-12 h-12 rounded-full bg-[var(--color-surface-variant)] text-[var(--color-on-surface-variant)] flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[24px]">note_add</span>
+                </div>
+                <h3 class="text-[16px] font-medium text-[var(--color-on-surface-strong)]">No proposal submitted yet</h3>
+                <p class="text-[14px] text-[var(--color-on-surface-variant)] max-w-[360px]">Group 4 hasn't submitted a project proposal. Once it's in, you'll see its review status here.</p>
+                <a href="#" class="mt-2 inline-flex items-center justify-center px-5 py-2 text-[14px] font-medium text-white bg-[var(--color-primary-strong)] rounded-full hover:bg-[var(--color-primary-hover)] transition-colors">Create proposal</a>
+              </div>
+            </div>
+          </div>
+
+          <div data-view="student-pending" data-student-view>
+            <div id="my-submission-header"></div>
+            <div class="flex flex-col border-b border-[var(--color-outline)]">
+              <div class="group flex flex-col w-full py-3 px-4 hover:bg-[var(--color-surface-variant)] transition-colors bg-white cursor-pointer">
+                <div class="flex items-start sm:items-center gap-4 w-full min-w-0">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-surface-variant)] text-[#1967D2]">
+                    <span class="material-symbols-outlined text-[20px]">assignment</span>
+                  </div>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-[16px] mb-0.5 text-[var(--color-on-surface-strong)] truncate">EduPulse Analytics Platform</h3>
+                      <div class="flex items-center gap-2 text-[13px] text-[var(--color-on-surface-variant)]">
+                        <span>Group 4</span><span>•</span><span>Submitted 2 hours ago</span>
+                      </div>
+                    </div>
+                    <span class="bg-[var(--color-primary-container)] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap">Pending</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div data-view="student-approved" data-student-view>
+            <div id="my-submission-header"></div>
+            <div class="flex flex-col border-b border-[var(--color-outline)]">
+              <div class="group flex flex-col w-full py-3 px-4 hover:bg-[var(--color-surface-variant)] transition-colors bg-white cursor-pointer">
+                <div class="flex items-start sm:items-center gap-4 w-full min-w-0">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-surface-variant)] text-[var(--color-success)]">
                     <span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
                   </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">EduPulse Analytics Platform</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 8</span>
-                      <span>•</span>
-                      <span>Updated 2 days ago</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-[16px] mb-0.5 text-[var(--color-on-surface-strong)] truncate">EduPulse Analytics Platform</h3>
+                      <div class="flex items-center gap-2 text-[13px] text-[var(--color-on-surface-variant)]">
+                        <span>Group 4</span><span>•</span><span>Updated 2 days ago</span>
+                      </div>
                     </div>
+                    <span class="bg-[var(--color-success-container)] text-[var(--color-success)] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap">Approved</span>
                   </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E6F4EA] text-[#137333] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Approved</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="mb-12">
-            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
-              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Pending Proposals</h2>
-              <div class="flex items-center gap-3">
-                <span class="text-[#0b57d0] font-medium text-[15px]">4</span>
-                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
-              </div>
-            </div>
-
-            <div class="flex flex-col border-b border-[#c4c7c5]">
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
-                    <span class="material-symbols-outlined text-[20px]">assignment</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">EduPulse</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 1</span>
-                      <span>•</span>
-                      <span>Submitted 2 hours ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
-                    <span class="material-symbols-outlined text-[20px]">assignment</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">CLOCK 101</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 4</span>
-                      <span>•</span>
-                      <span>Submitted 5 hours ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
-                    <span class="material-symbols-outlined text-[20px]">assignment</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">MMU Study Buddy</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 7</span>
-                      <span>•</span>
-                      <span>Submitted 1 day ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
-                    <span class="material-symbols-outlined text-[20px]">assignment</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Farmer Sim</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 11</span>
-                      <span>•</span>
-                      <span>Submitted 2 days ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mb-12">
-            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
-              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Reviewed Proposals</h2>
-              <div class="flex items-center gap-3">
-                <span class="text-[#0b57d0] font-medium text-[15px]">4</span>
-                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
-              </div>
-            </div>
-
-            <div class="flex flex-col border-b border-[#c4c7c5]">
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#E65100]">
+          <div data-view="student-redo" data-student-view>
+            <div id="my-submission-header"></div>
+            <div class="flex flex-col border-b border-[var(--color-outline)]">
+              <div class="group flex flex-col w-full py-3 px-4 hover:bg-[var(--color-surface-variant)] transition-colors bg-white cursor-pointer">
+                <div class="flex items-start sm:items-center gap-4 w-full min-w-0">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-surface-variant)] text-[var(--color-warning)]">
                     <span class="material-symbols-outlined text-[20px]">history</span>
                   </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">MMU Foodie</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 2</span>
-                      <span>•</span>
-                      <span>Returned for revision yesterday</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-[16px] mb-0.5 text-[var(--color-on-surface-strong)] truncate">EduPulse Analytics Platform</h3>
+                      <div class="flex items-center gap-2 text-[13px] text-[var(--color-on-surface-variant)]">
+                        <span>Group 4</span><span>•</span><span>Returned yesterday</span>
+                      </div>
                     </div>
+                    <span class="bg-[var(--color-warning-container)] text-[var(--color-warning)] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap">Redo</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#FFF8E1] text-[#E65100] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Redo</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#E65100]">
-                    <span class="material-symbols-outlined text-[20px]">history</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Chameloeon Hunt</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 5</span>
-                      <span>•</span>
-                      <span>Returned for revision 2 days ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#FFF8E1] text-[#E65100] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Redo</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white opacity-80">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#C5221F]">
-                    <span class="material-symbols-outlined text-[20px]">block</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#747775] mb-0.5">IMprove</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 9</span>
-                      <span>•</span>
-                      <span>Rejected last week</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#FCE8E6] text-[#C5221F] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Rejected</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white opacity-80">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#C5221F]">
-                    <span class="material-symbols-outlined text-[20px]">block</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#747775] mb-0.5">Save the MEow</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Group 14</span>
-                      <span>•</span>
-                      <span>Rejected last month</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#FCE8E6] text-[#C5221F] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Rejected</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
+                <div class="mt-2 pt-2 pl-13 border-t border-dashed border-[var(--color-outline-variant)]">
+                  <p class="text-[13px] text-[var(--color-on-surface-variant)] pl-13">Your coordinator asked for changes — open the proposal to see their comments and resubmit.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div>
-            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
-              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Pending Topics</h2>
-              <div class="flex items-center gap-3">
-                <span class="text-[#0b57d0] font-medium text-[15px]">2</span>
-                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
-              </div>
-            </div>
-
-            <div class="flex flex-col border-b border-[#c4c7c5]">
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
-                    <span class="material-symbols-outlined text-[20px]">topic</span>
+          <div data-view="student-rejected" data-student-view>
+            <div id="my-submission-header"></div>
+            <div class="flex flex-col border-b border-[var(--color-outline)]">
+              <div class="group flex flex-col w-full py-3 px-4 hover:bg-[var(--color-surface-variant)] transition-colors bg-white cursor-pointer opacity-80">
+                <div class="flex items-start sm:items-center gap-4 w-full min-w-0">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-surface-variant)] text-[var(--color-error)]">
+                    <span class="material-symbols-outlined text-[20px]">block</span>
                   </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Machine Learning Optimization</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Dr. Sarah Jenkins</span>
-                      <span>•</span>
-                      <span>Proposed 4 hours ago</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-[16px] mb-0.5 text-[var(--color-on-surface-variant)] truncate">EduPulse Analytics Platform</h3>
+                      <div class="flex items-center gap-2 text-[13px] text-[var(--color-on-surface-variant)]">
+                        <span>Group 4</span><span>•</span><span>Rejected last week</span>
+                      </div>
                     </div>
+                    <span class="bg-[var(--color-error-container)] text-[var(--color-error)] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap">Rejected</span>
                   </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
-                    <span class="material-symbols-outlined text-[20px]">topic</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Blockchain in Supply Chain</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Prof. Ahmad Tariq</span>
-                      <span>•</span>
-                      <span>Proposed 1 day ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Pending</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
                 </div>
               </div>
             </div>
@@ -422,6 +347,41 @@
     </main>
   </div>
 </div>
+
+<template id="submission-header-tpl">
+  <div class="flex flex-row items-center justify-between p-6 border-b border-[var(--color-outline)]">
+    <h2 class="text-[22px] font-normal text-[var(--color-on-surface-strong)]">My Submission</h2>
+  </div>
+</template>
+
+<script>
+  const roleSwitcher = document.getElementById('view-switcher');
+  const pdSwitcher = document.getElementById('pd-switcher');
+  const views = document.querySelectorAll('[data-view]');
+  const pdBlocks = document.querySelectorAll('[data-pd]');
+  const headerTpl = document.getElementById('submission-header-tpl');
+
+  document.querySelectorAll('[data-student-view] #my-submission-header').forEach(el => {
+    el.appendChild(headerTpl.content.cloneNode(true));
+  });
+
+  function render() {
+    const role = roleSwitcher.value;
+    const pd = pdSwitcher.value;
+    views.forEach(v => v.classList.toggle('is-active', v.dataset.view === role));
+    pdBlocks.forEach(el => {
+      if (pd === 'filled') {
+        el.classList.toggle('is-active', el.dataset.pd === 'filled');
+      } else {
+        const wantsRole = role === 'coordinator' ? 'coordinator' : 'readonly';
+        el.classList.toggle('is-active', el.dataset.pd === 'empty' && el.dataset.pdRole === wantsRole);
+      }
+    });
+  }
+  roleSwitcher.addEventListener('change', render);
+  pdSwitcher.addEventListener('change', render);
+  render();
+</script>
 
 </body>
 </html>

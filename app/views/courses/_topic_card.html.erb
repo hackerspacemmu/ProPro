@@ -11,14 +11,25 @@
     else
       course_topic_path(@course, topic, from_new_project: params[:from_new_project])
     end
-  %>
 
-  <%= render "shared/row_item",
-      path: path,
-      linkable: policy(topic).show?,
-      icon: "topic",
-      title: topic_instance.title.presence || "Untitled Topic",
-      meta_parts: [topic.owner_name],
-      time_meta: "Updated #{time_ago_in_words(topic.updated_at)} ago",
-      status: status_key %>
+  hide_owner = local_assigns.fetch(:hide_owner, false)
+  render_options = {
+    path: path,
+    linkable: policy(topic).show?,
+    icon: "topic",
+    title: topic_instance.title.presence || "Untitled Topic",
+    meta_parts: hide_owner ? [] : [topic.owner_name],
+    time_meta: "Updated #{time_ago_in_words(topic.updated_at)} ago",
+    status: status_key
+  }
+
+  # Topics Directory-only: when an approved topic is unclaimed, swap its status
+  # pill for the green "Available" pill (approved is already green). Never pass
+  # pill_label: nil — _row_item's fetch(:pill_label, ...) would render an empty pill.
+  if local_assigns.fetch(:available_pill, false) && topic.available?
+    render_options[:pill_label] = "Available"
+  end
+
+  %>
+  <%= render "shared/row_item", render_options %>
 <% end %>

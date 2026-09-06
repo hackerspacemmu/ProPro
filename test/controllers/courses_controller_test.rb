@@ -317,7 +317,189 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test 'htmx topics request renders supervisor groups for the scoped topic list' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+    create_topic_on(course, bob, 'Bob Approved Topic', :approved)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, 'id="topics-by-supervisor-container"'
+    assert_includes response.body, 'Alice Lecturer'
+    assert_includes response.body, 'Bob Lecturer'
+    assert_includes response.body, 'Alice Approved Topic'
+    assert_includes response.body, 'Bob Approved Topic'
+    assert_no_match '(You)', response.body
+  end
+
+  test 'coordinator sees all statuses across supervisors in the topics directory' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+    create_topic_on(course, alice, 'Alice Pending Topic', :pending)
+    create_topic_on(course, bob, 'Bob Pending Topic', :pending)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, 'Alice Approved Topic'
+    assert_includes response.body, 'Alice Pending Topic'
+    assert_includes response.body, 'Bob Pending Topic'
+  end
+
+  test 'lecturer sees own topics of any status and others approved only in the topics directory' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+    create_topic_on(course, alice, 'Alice Pending Topic', :pending)
+    create_topic_on(course, bob, 'Bob Approved Topic', :approved)
+    create_topic_on(course, bob, 'Bob Pending Topic', :pending)
+
+    sign_in alice
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, 'Alice Approved Topic'
+    assert_includes response.body, 'Alice Pending Topic'
+    assert_includes response.body, 'Bob Approved Topic'
+    assert_no_match 'Bob Pending Topic', response.body
+  end
+
+  test 'student sees approved topics only in the topics directory' do
+    course, alice, bob = build_topic_directory_course
+    create(:enrolment, user: @student_user, course: course)
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+    create_topic_on(course, alice, 'Alice Pending Topic', :pending)
+    create_topic_on(course, bob, 'Bob Approved Topic', :approved)
+    create_topic_on(course, bob, 'Bob Pending Topic', :pending)
+
+    sign_in @student_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, 'Alice Approved Topic'
+    assert_includes response.body, 'Bob Approved Topic'
+    assert_no_match 'Alice Pending Topic', response.body
+    assert_no_match 'Bob Pending Topic', response.body
+  end
+
+  test 'supervisor filter shows only the selected supervisor group' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+    create_topic_on(course, bob, 'Bob Approved Topic', :approved)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'topics', topic_filter: alice.id.to_s }
+    assert_response :success
+    assert_includes response.body, 'Alice Approved Topic'
+    assert_includes response.body, 'Alice Lecturer'
+    assert_no_match 'Bob Approved Topic', response.body
+    assert_no_match 'Bob Lecturer', response.body
+  end
+
+  test 'topics search matches topics by title and by supervisor name, case-insensitively' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Machine Learning Basics', :approved)
+    create_topic_on(course, bob, 'Neural Networks', :approved)
+
+    sign_in @coordinator_user
+
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'topics', search_query: 'machine' }
+    assert_response :success
+    assert_includes response.body, 'Machine Learning Basics'
+    assert_no_match 'Neural Networks', response.body
+
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'topics', search_query: 'bob' }
+    assert_response :success
+    assert_includes response.body, 'Neural Networks'
+    assert_no_match 'Machine Learning Basics', response.body
+  end
+
+  test 'zero-topic supervisors still render as groups when unfiltered' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, 'Alice Approved Topic'
+    assert_includes response.body, 'Bob Lecturer'
+  end
+
+  test 'pinned (You) group renders first for the viewing lecturer' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+    create_topic_on(course, bob, 'Bob Approved Topic', :approved)
+
+    sign_in alice
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, '(You)'
+    assert response.body.index('Alice Approved Topic') < response.body.index('Bob Approved Topic')
+  end
+
+  test 'available badge: approved-unclaimed row says Available, approved-claimed keeps Approved' do
+    course, alice, bob = build_topic_directory_course
+    claimed_topic = create_topic_on(course, alice, 'Claimed Topic', :approved)
+    create_topic_on(course, alice, 'Free Topic', :approved)
+    bob_enrolment = course.enrolments.find_by(user: bob, role: :lecturer)
+    project = create(:project, course: course, supervisor_enrolment: bob_enrolment)
+    create(:project_instance, project: project, supervisor_enrolment: bob_enrolment, source_topic: claimed_topic, status: :approved)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_equal 1, response.body.scan('Available').size
+    assert_match %r{Claimed Topic[\s\S]*?Approved}, response.body
+    assert_match %r{Free Topic[\s\S]*?Available}, response.body
+  end
+
+  test 'topics tab renders the search pill, supervisor filter, and collapse-all control' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+
+    sign_in @coordinator_user
+    get course_path(course)
+    assert_response :success
+    assert_select 'input#topic-search[hx-target="#topics-by-supervisor-container"][hx-swap="outerHTML"]', count: 1
+    assert_select 'select#topic-filter[hx-target="#topics-by-supervisor-container"]', count: 1
+    assert_select 'select#topic-filter option', count: 3
+    assert_select 'select#topic-filter option[value="all"]', count: 1
+    assert_select 'input#topic-search[data-search-shortcut-target]', count: 0
+    assert_includes response.body, 'Search supervisors or topics'
+    assert_includes response.body, 'Collapse all'
+    assert_includes response.body, 'unfold_less'
+  end
+
+  test 'supervisor groups render expanded by default in the topics directory' do
+    course, alice, bob = build_topic_directory_course
+    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_select '[data-detail-row-id]', count: 1
+    assert_select '[data-detail-row-id].hidden', count: 0
+  end
+
   private
+
+  def build_topic_directory_course
+    course = create(:course)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    alice = create(:user, :staff, name: 'Alice Lecturer')
+    bob = create(:user, :staff, name: 'Bob Lecturer')
+    create(:enrolment, :lecturer, user: alice, course: course)
+    create(:enrolment, :lecturer, user: bob, course: course)
+    [course, alice, bob]
+  end
+
+  def create_topic_on(course, owner, title, status)
+    topic = create(:topic, course: course, owner: owner)
+    topic.update_column(:status, status)
+    create(:topic_instance, topic: topic, created_by: owner, title: title, status: status, version: 1)
+    topic
+  end
 
   def sign_in(user)
     post session_path, params: { email_address: user.email_address, password: 'password' }

@@ -62,7 +62,7 @@
             <span class="<%= idx.zero? ? "truncate max-w-full" : "whitespace-nowrap" %>"><%= part %></span>
           <% end %>
           <% if time_meta.present? %>
-            <span class="shrink-0">•</span>
+            <% if meta_parts.any? %><span class="shrink-0">•</span><% end %>
             <span class="whitespace-nowrap"><%= time_meta %></span>
           <% end %>
         </div>

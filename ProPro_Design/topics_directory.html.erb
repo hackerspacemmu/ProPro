@@ -102,6 +102,14 @@
 
           <!-- Stacked Action Bar -->
           <div class="flex flex-col gap-6 mb-10">
+            <!-- Create Button -->
+            <div class="flex items-start">
+              <button class="inline-flex items-center justify-center gap-2 bg-[#0b57d0] text-white rounded-[1.25rem] px-6 py-2.5 hover:shadow-md transition-all duration-200" style="font-family: 'Google Sans Flex', 'Google Sans Text', 'Google Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0;">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                Create
+              </button>
+            </div>
+            
             <!-- Top Level: Search Bar -->
             <div class="flex items-center bg-[#f1f3f4] hover:bg-[#e8eaed] rounded-full h-[56px] px-4 w-full focus-within:bg-white focus-within:shadow-[0_1px_2px_0_rgba(60,64,67,0.3),0_2px_6px_2px_rgba(60,64,67,0.15)] focus-within:hover:bg-white transition-all duration-200">
               <span class="material-symbols-outlined text-[#5F6368] mr-3">search</span>
@@ -128,6 +136,63 @@
               </button>
             </div>
           </div>
+
+          <div class="mb-12">
+            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
+              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Brandon Lim Wei Keong <span class="text-[#5F6368] font-normal">(You)</span></h2>
+              <div class="flex items-center gap-3">
+                <span class="text-[#0b57d0] font-medium text-[15px]">2</span>
+                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col border-b border-[#c4c7c5]">
+              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
+                <div class="flex items-center gap-4">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
+                    <span class="material-symbols-outlined text-[20px]">topic</span>
+                  </div>
+                  <div>
+                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Cybersecurity Analysis in IoT Environments</h3>
+                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
+                      <span>Security Center</span>
+                      <span>•</span>
+                      <span>Proposed 12 hours ago</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Available</span>
+                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
+                <div class="flex items-center gap-4">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#1967D2]">
+                    <span class="material-symbols-outlined text-[20px]">topic</span>
+                  </div>
+                  <div>
+                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Zero Trust Network Architecture</h3>
+                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
+                      <span>Security Center</span>
+                      <span>•</span>
+                      <span>Proposed 2 days ago</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="bg-[#E8F0FE] text-[#1967D2] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Available</span>
+                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
           <!-- Supervisor 1 -->
           <div class="mb-12">
@@ -393,11 +458,11 @@
                     <span class="material-symbols-outlined text-[20px]">topic</span>
                   </div>
                   <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Vehicular Ad-Hoc Networks Security</h3>
+                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Network Functions Virtualization</h3>
                     <div class="flex items-center gap-2 text-[13px] text-[#747775]">
                       <span>Networking Group</span>
                       <span>•</span>
-                      <span>Proposed 1 week ago</span>
+                      <span>Proposed last week</span>
                     </div>
                   </div>
                 </div>
@@ -407,74 +472,6 @@
                     <span class="material-symbols-outlined text-[20px]">more_vert</span>
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Supervisor 4 -->
-          <div class="mb-12">
-            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
-              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Brandon Lim Wei Keong</h2>
-              <div class="flex items-center gap-3">
-                <span class="text-[#0b57d0] font-medium text-[15px]">2</span>
-                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
-              </div>
-            </div>
-
-            <div class="flex flex-col border-b border-[#c4c7c5]">
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#137333]">
-                    <span class="material-symbols-outlined text-[20px]">topic</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Cybersecurity Analysis in IoT Environments</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Security Center</span>
-                      <span>•</span>
-                      <span>Proposed 12 hours ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E6F4EA] text-[#137333] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Available</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="group flex items-center justify-between py-3 px-4 border-t first:border-t-0 border-[#c4c7c5] hover:bg-[#f8fafd] transition-colors cursor-pointer bg-white">
-                <div class="flex items-center gap-4">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[#f1f3f4] text-[#137333]">
-                    <span class="material-symbols-outlined text-[20px]">topic</span>
-                  </div>
-                  <div>
-                    <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-medium text-[#202124] mb-0.5">Zero Trust Network Architecture</h3>
-                    <div class="flex items-center gap-2 text-[13px] text-[#747775]">
-                      <span>Security Center</span>
-                      <span>•</span>
-                      <span>Proposed 2 days ago</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="bg-[#E6F4EA] text-[#137333] px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide">Available</span>
-                  <button class="text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full flex items-center justify-center transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Supervisor 5 -->
-          <div class="mb-12">
-            <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#c4c7c5] cursor-pointer group">
-              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#202124]">Raymond Lee Wei Kang</h2>
-              <div class="flex items-center gap-3">
-                <span class="text-[#0b57d0] font-medium text-[15px]">1</span>
-                <span class="material-symbols-outlined text-[#5F6368] group-hover:text-[#202124] transition-colors">expand_less</span>
               </div>
             </div>
           </div>
@@ -482,6 +479,7 @@
         </div>
       </div>
     </main>
+
   </div>
 </div>
 

@@ -1012,7 +1012,34 @@
         </div>
       </div>
       <p class="text-xs text-[#5F6368] mt-2 max-w-3xl">On narrow viewports the persistent Comments rail (Section 22) collapses into a 4th tab carrying the same count-badge used on the panel header. Icon-only Reject/Redo buttons + a full Approve pill fill a fixed bottom bar so primary actions stay reachable while scrolling.</p>
-    </section>
+
+      <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-2 mt-6">Mobile — stacked action bar (Topics Directory)</div>
+      <div class="bg-white border border-[#E0E0E0] rounded-lg p-4 max-w-sm flex flex-col gap-4 mb-2">
+        <button class="self-start inline-flex items-center justify-center gap-2 bg-[#0B57D0] text-white rounded-full px-6 py-2 text-[14px] font-medium">
+          <span class="material-symbols-outlined text-[20px]">add</span>
+          Create
+        </button>
+        <div class="flex items-center bg-[#F1F3F4] rounded-full h-14 px-4 w-full">
+          <span class="material-symbols-outlined text-[#5F6368] mr-3">search</span>
+          <span class="text-[14px] text-[#5F6368]">Search supervisors or topics</span>
+        </div>
+        <div class="flex items-center justify-between border border-[#747775] rounded-[4px] h-14 px-3.5 w-full">
+          <span class="text-[16px] text-[#1F1F1F]">Topic filter</span>
+          <span class="material-symbols-outlined text-[#444746]">arrow_drop_down</span>
+        </div>
+        <div class="flex justify-center">
+          <button class="flex items-center gap-2 text-[14px] font-medium text-[#0B57D0] px-3 py-2 rounded-md">
+            <span class="material-symbols-outlined text-[20px]">unfold_less</span>
+            Collapse all
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-[#5F6368] mb-2 max-w-3xl">
+        The Topics Directory action bar stacks on mobile: <code>+ Create</code> stays left-aligned on its own row, the search
+        pill spans the full width, the Topic filter spans the full width beneath it, and the action button row follows below.
+        <strong>Collapse-all/Expand-all buttons are always centered on mobile screens</strong> — never left- or right-aligned.
+        On desktop the filter and Collapse all share one row split left/right (filter left, action right), with Create above the search.
+      </p>
 
     <!-- 25. KNOWN INCONSISTENCIES TO FIX IN THE ACTUAL PAGES -->
     <section class="bg-[#FCE8E6] border border-[#F9D2CE] rounded-lg p-6">
