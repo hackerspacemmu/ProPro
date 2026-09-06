@@ -91,7 +91,11 @@ class CoursesController < ApplicationController
       approved_projects: @approved_projects,
       pending_proposals: @pending_proposals,
       reviewed_proposals: @reviewed_proposals,
-      pending_topics: @pending_topics
+      pending_topics: @pending_topics,
+      course_description: @description,
+      file_link: @course.file_link,
+      submission_state: submission_state_for(@current_user_enrolment),
+      submission: @project
     )
 
     # view instances for participants_table
@@ -963,6 +967,29 @@ class CoursesController < ApplicationController
 
     pairs.each { |_lecturer, topics| topics.sort_by!(&:updated_at).reverse! }
     pairs
+  end
+
+  # :no_group only applies to grouped courses where self-grouping is live
+  # (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
+  # student submits individually with no group step, so @group being nil there is
+  # expected, not an empty state. The grouping_enabled? guard also keeps the
+  # "Browse groups" CTA out of reach of students who could not actually open the
+  # page: ProjectGroupsController#index authorizes with CoursePolicy#grouping?,
+  # which requires grouping_enabled? == true for a non-coordinator. A grouped
+  # course with self-grouping disabled (groups arrive only via CSV/Moodle import
+  # coordinated by staff) would otherwise render the CTA and let a student hit a
+  # Pundit::NotAuthorizedError (redirect to root with alert). In that state a
+  # group-less student instead gets the plain :no_proposal copy below.
+  def submission_state_for(enrolment)
+    return nil unless enrolment&.student?
+
+    if @course.grouped? && @course.grouping_enabled? && @group.nil?
+      :no_group
+    elsif @project.nil? || @current_status == 'not_submitted'
+      :no_proposal
+    else
+      @current_status.to_sym
+    end
   end
 
   def filtered_group_list

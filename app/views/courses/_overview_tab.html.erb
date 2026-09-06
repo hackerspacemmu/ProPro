@@ -4,31 +4,16 @@
     sections (per course_show.html.erb mockup). Sections collapse via the
     collapsible-sections Stimulus controller; each section's border lives on the
     section header itself. Section visibility is gated by @presenter
-    (OverviewPresenter) — hidden sections are not rendered at all. %>
+    (OverviewPresenter) — hidden sections are not rendered at all.
+    The 800px cap (§13.12) sits at this root; the shared panel on courses/show
+    keeps its own max-w-5xl px-6 padding. %>
 
 <%
   empty_state_classes = "border-b border-[#E0E0E0] py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-[#5F6368]"
 %>
 
-<section id="proposal-guidelines" class="mb-4">
-  <div class="border border-gray-200 shadow-sm rounded-[10px] w-full p-6 bg-[#f8f9fa]">
-    <h4 class="break-all whitespace-pre-line text-xl font-medium text-[#202124]">Project Details</h4>
-    <p class="text-[0.9rem] sm:text-[1rem] mt-3 leading-[1.5] whitespace-pre-line text-[#5F6368] break-words"><%= @description || "No description available for this course." %></p>
-
-    <% if @course.file_link.present? %>
-      <a class="text-decoration-none max-w-max text-inherit mt-6 block" href="<%= @course.file_link %>" target="_blank" rel="noopener noreferrer">
-        <div class="text-[#313848] w-fit flex z-0 border border-[#DADCE0] bg-white pl-3 pr-5 py-2.5 rounded-[8px] hover:bg-[#F8F9FA] transition-colors cursor-pointer">
-          <div class="file-icon flex items-center justify-center mr-3 bg-[#E8F0FE] text-[#1A73E8] rounded-[6px] w-[36px] h-[36px] shrink-0">
-            <span class="material-symbols-outlined">folder_zip</span>
-          </div>
-          <div class="flex flex-col justify-center">
-            <span class="font-medium text-[14px]"><%= File.basename(URI.parse(@course.file_link).path.presence || "") rescue @course.file_link %></span>
-          </div>
-        </div>
-      </a>
-    <% end %>
-  </div>
-</section>
+<div class="max-w-[800px] mx-auto">
+  <%= render "courses/project_details_card" %>
 
 <% if @course.solo_supervisor? %>
   <section id="supervisors-available" class="mb-10">
@@ -41,6 +26,56 @@
       </ul>
     </div>
   </section>
+<% end %>
+
+<%# My Submission — students only, single-item section (not collapsible). The
+    static header mirrors _section_header styling; rows reuse shared/_row_item
+    (E4: keeps the more_vert). Six possible submission_state values, resolved by
+    the controller. %>
+<% if @presenter.show_my_submission? %>
+  <div class="mb-12" id="my-submission">
+    <div class="flex flex-row items-center justify-between p-6 box-border border-b border-[#E0E0E0]">
+      <h2 class="text-[22px] font-normal text-[#202124]">My Submission</h2>
+    </div>
+    <% case @presenter.submission_state %>
+    <% when :no_group %>
+      <%= render "courses/my_submission_empty_state",
+            heading: "You're not in a group yet",
+            description: "Join or create a group before you can put together a project proposal.",
+            cta_label: "Browse groups",
+            cta_path: course_project_groups_path(@course) %>   <%# E2 %>
+    <% when :no_proposal %>
+      <%= render "courses/my_submission_empty_state",
+            heading: "No proposal submitted yet",
+            description: "Your group hasn't submitted a project proposal. Once it's in, you'll see its review status here.",
+            cta_label: "Create proposal",
+            cta_path: new_course_project_path(@course) %>
+    <% else %>
+      <div class="flex flex-col border-b border-[#E0E0E0]">
+        <% icon, verb =
+             case @presenter.submission_state
+             when :approved then ["assignment_turned_in", "Updated"]
+             when :pending  then ["assignment", "Submitted"]
+             when :redo     then ["history", "Returned"]
+             when :rejected then ["block", "Rejected"]
+             end %>
+        <%= render "shared/row_item",
+              path: course_project_path(@course, @presenter.submission),
+              icon: icon,
+              title: @presenter.submission.current_title,
+              meta_parts: [@presenter.submission.owner_name],
+              time_meta: "#{verb} #{time_ago_in_words(@presenter.submission.current_instance&.updated_at || @presenter.submission.updated_at)} ago",
+              status: @presenter.submission_state,
+              border_top: false do %>
+          <% if @presenter.submission_state == :redo %>
+            <div class="mt-2 pt-2 pl-13 border-t border-dashed border-[#E0E0E0]">
+              <p class="text-[13px] text-[#5F6368] pl-13">Your coordinator asked for changes — open the proposal to see their comments and resubmit.</p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 <% end %>
 
 <div data-controller="collapsible-sections">
@@ -108,4 +143,5 @@
       <% end %>
     </div>
   <% end %>
+</div>
 </div>

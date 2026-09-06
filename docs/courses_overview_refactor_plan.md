@@ -615,3 +615,399 @@ matches the existing `CoursePolicy#update?` authorization.
 **New unit test** (`test/presenters/overview_presenter_test.rb`):
 - Test `show_*?` for each role (coordinator, lecturer, student)
 - Test `any_sections?` with various data combinations
+
+---
+
+## 13. Overview tab states — Project Details banner + My Submission (2026-09-06)
+
+Extends §12's `OverviewPresenter` to own the Project Details card's three states
+(filled banner / empty-coordinator add-CTA / empty-readonly) and a new
+student-only **My Submission** section with six states. Relocates the
+`7 SCENE.svg` illustration out of `ProPro_Design/` and inline markup into `app/assets/`.
+
+The hardcoded mockup is `ProPro_Design/course_show.html.erb` (committed
+`255c0857`); the artwork is `ProPro_Design/SVG/7 SCENE.svg`. All identifiers
+re-verified below against `refactor/design` tip (`dab3976a`).
+
+### 13.1 Decision log
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| E1 | **Drop the "Review queue" nudge card** (mockup `:933-955`). | It references sections "moved to the **To Review** tab", but no To Review tab exists (4 tabs: Overview/Topics/People/Groups — §12). The four sections are already *inline on Overview* (`_overview_tab.html.erb`), the only home they have. The card is a product-density call that would mean *removing* working sections, not adding a card — out of scope. |
+| E2 | **Browse-groups CTA → `course_project_groups_path(@course)`**, *not* the course tab. | Two independent reasons the plan's `course_path(@course, tab: "groups")` is broken: (1) `ApplicationHelper#current_tab_index` reads only the persisted cookie, never `params[:tab]`, so `?tab=` is a **no-op** for landing (`application_helper.rb:9-11`, `tabs_controller.js` trusts server-rendered state, never reads a param); (2) the course Groups tab (`_groups_tab.html.erb`) is a coordinator-facing group/student table, not where students browse/join. The student-facing destination exists: `ProjectGroupsController#index` (`course_project_groups_path`), which lists confirmed groups, the current user's group, and `@ungrouped_students`, and whose sibling `create` action is how a student actually joins/creates a group (`routes.rb:81`). **Note:** the grouping feature is not shipped to `main` yet — groups today only arrive pre-formed via CSV/Moodle import — so the `:no_group` state is additionally gated on `@course.grouping_enabled?` to keep this CTA reachable (see the `submission_state_for` guard in §13.4); otherwise a group-less student in a grouped-but-not-live course would 403 on `ProjectGroupsController#index` (`authorize :grouping?` requires `grouping_enabled?` for non-coordinators). Since `grouped?` and `grouping_enabled?` are independent columns (`course.rb:37,74-81`), this guard is necessary. |
+| E3 | **Update `course_tabs_test.rb`** — it is stale vs `refactor/design`. | It asserts a "To Review" tab (deleted in §12), a text "Settings" link (now `aria-hidden` icon span, `show.html.erb:46-52`), and `visit course_path(@course, tab: 'to_review')` (param never worked — E2). Run in the same PR as the new system coverage; otherwise it fails. |
+| E4 | **My Submission rows keep the `more_vert`** from `shared/_row_item`. | The mockup rows have no overflow button, but `_row_item` hardcodes it (`shared/_row_item.html.erb:74-77`). User chose to accept rather than add a suppress-local this pass. |
+| E5 | **Illustration as a real asset via `image_tag`**, not inline DOM. | The SVG's internal `<style>` classes are a fixed, self-contained palette (`7 SCENE.svg:5-42`) never meant to track the app theme — no need for inline-DOM CSS access. Gets Propshaft fingerprinting/caching. |
+| E6 | **Extract Project Details into `_project_details_card` partial.** | Three visual states + illustration ≈ one render call; consistent with `_topic_card` / `_proposal_list_item` each being a self-contained visual unit. |
+
+### 13.2 Illustration — relocate + extract
+
+`7 SCENE.svg` is a checked-in design reference (`ProPro_Design/`); nothing in
+`app/` points at it, and the other nine `SCENE.svg` files stay put. Move it
+like a real asset (including its WSL download-marker):
+
+```bash
+mkdir -p app/assets/images/illustrations
+git mv "ProPro_Design/SVG/7 SCENE.svg" app/assets/images/illustrations/project_details_banner.svg
+git rm "ProPro_Design/SVG/7 SCENE.svg:Zone.Identifier"
+```
+
+Only the `#7` file moves; promote the others one at a time as they get wired
+into real views. Render (only in the filled state):
+
+```erb
+<%= image_tag "illustrations/project_details_banner.svg",
+      class: "absolute right-[-70px] bottom-[-70px] h-[260px] w-auto pointer-events-none select-none",
+      alt: "" %>
+```
+
+### 13.3 OverviewPresenter extension
+
+`app/presenters/overview_presenter.rb` — extend, do **not** fork into role
+partials (D4 pattern). Logging `@submission_state` is a symbol
+(`:no_group/:no_proposal/:pending/:approved/:redo/:rejected`), resolved by the
+controller (§13.4), so the presenter stays a pure view object that never
+re-derives state:
+
+```diff
+ class OverviewPresenter
+-  attr_reader :pending_proposals, :reviewed_proposals, :pending_topics
++  attr_reader :pending_proposals, :reviewed_proposals, :pending_topics, :submission
+
+-  def initialize(enrolment:, approved_projects:, pending_proposals:, reviewed_proposals:, pending_topics:)
++  def initialize(enrolment:, approved_projects:, pending_proposals:, reviewed_proposals:, pending_topics:,
++                 course_description:, file_link:, submission_state:, submission:)
+     @enrolment = enrolment
+     @approved_projects = approved_projects
+     @pending_proposals = pending_proposals
+     @reviewed_proposals = reviewed_proposals
+     @pending_topics = pending_topics
++    @course_description = course_description
++    @file_link = file_link
++    @submission_state = submission_state
++    @submission = submission
+   end
+
+   def show_supervised_projects? = !student?
+   def show_pending_proposals?    = !student?
+   def show_reviewed_proposals?   = !student?
+   def show_pending_topics?       = coordinator?
+
+   def supervised_projects = @approved_projects
+
++  # Project Details — three states
++  # Filled when EITHER description or file_link is present (matches the mockup:
++  # "there's nothing here at all" only when BOTH are blank).
++  def project_details_empty?         = @course_description.blank? && @file_link.blank?
++  def show_project_details_add_cta?  = coordinator? && project_details_empty?
++
++  # My Submission — students only
++  def show_my_submission? = student?
++  def submission_state    = @submission_state
+   ...
+```
+
+### 13.4 Controller changes (`CoursesController#show`)
+
+The controller already computes `@group`, `@project`, `@current_status`
+(`courses_controller.rb:37-46,62`) just above the presenter build (`:89-95`).
+Reuse them via a new private helper instead of re-deriving in the presenter:
+
+```diff
+     @presenter = OverviewPresenter.new(
+       enrolment: @current_user_enrolment,
+       approved_projects: @approved_projects,
+       pending_proposals: @pending_proposals,
+       reviewed_proposals: @reviewed_proposals,
+-      pending_topics: @pending_topics
++      pending_topics: @pending_topics,
++      course_description: @description,
++      file_link: @course.file_link,
++      submission_state: submission_state_for(@current_user_enrolment),
++      submission: @project
+     )
+```
+
+New private method with the other small helpers at the bottom:
+
+```ruby
+# :no_group only applies to grouped courses where self-grouping is live
+# (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
+# student submits individually with no group step, so @group being nil there is
+# expected, not an empty state. The grouping_enabled? guard also keeps the
+# "Browse groups" CTA out of reach of students who could not actually open the
+# page: ProjectGroupsController#index authorizes with CoursePolicy#grouping?,
+# which requires grouping_enabled? == true for a non-coordinator. A grouped
+# course with self-grouping disabled (groups arrive only via CSV/Moodle import
+# coordinated by staff) would otherwise render the CTA and let a student hit a
+# Pundit::NotAuthorizedError (redirect to root with alert). In that state a
+# group-less student instead gets the plain :no_proposal copy below.
+def submission_state_for(enrolment)
+  return nil unless enrolment&.student?
+
+  if @course.grouped? && @course.grouping_enabled? && @group.nil?
+    :no_group
+  elsif @project.nil? || @current_status == 'not_submitted'
+    :no_proposal
+  else
+    @current_status.to_sym
+  end
+end
+```
+
+`@current_status` already normalizes to `'not_submitted'` when there is no
+project instance (`courses_controller.rb:62`), so the `:no_proposal` branch is
+the single guard that covers both "no project row" and "project with no
+submitted instance".
+
+### 13.5 Project Details — new `_project_details_card.html.erb`
+
+`_overview_tab.html.erb` replaces the `#proposal-guidelines` block (lines
+13–31) with:
+
+```erb
+<%= render "courses/project_details_card" %>
+```
+
+The new partial holds `#proposal-guidelines` (kept so any CSS/JS anchoring on
+the id is preserved) and branches on the presenter:
+
+1. **Filled** — the classroom-banner treatment: gradient header
+   (`linear-gradient(135deg,#D3E3FD 0%,#E8F0FE 100%)`), "Project Details"
+   title + course name, `@description` paragraph, the optional file pill
+   (`folder_zip` + `File.basename(URI.parse(@course.file_link).path ...)`),
+   and the illustration image (E5). Rendered when `!project_details_empty?`
+   (either field present).
+2. **Empty + coordinator** — dashed border, inline doc icon (scale/convention
+   of the app's other inline `<svg>` icons, not extracted), "No project
+   details yet", and an **Add details** CTA → `settings_course_path(@course)`
+   (matches the existing coordinator Settings link authorization,
+   `CoursePolicy#update?`).
+3. **Empty + everyone else** — read-only dashed "No project details published
+   yet" copy, no CTA.
+
+The plan's original inline empty-state SVGs use solid hex throws directly —
+fine, they're small self-contained icons (E5 is specifically about the large
+scene illustration).
+
+### 13.6 My Submission — new section + `_my_submission_empty_state`
+
+Add to `_overview_tab.html.erb`, **after** the filled/empty Project Details
+section and **outside** the `collapsible-sections` div (single-item section;
+not collapsible). Uses the same header styling as `_section_header` but is
+*none* of its two controller modes (static header, like the mockup's
+`#my-submission-header` template `:1083-1087`):
+
+```erb
+<% if @presenter.show_my_submission? %>
+  <div class="mb-12" id="my-submission">
+    <div class="flex flex-row items-center justify-between border-b border-[#E0E0E0] p-6 -mx-6">
+      <h2 class="text-[22px] font-normal text-[#202124]">My Submission</h2>
+    </div>
+    <% case @presenter.submission_state %>
+    <% when :no_group %>
+      <%= render "courses/my_submission_empty_state",
+            icon: "group_add",
+            heading: "You're not in a group yet",
+            description: "Join or create a group before you can put together a project proposal.",
+            cta_label: "Browse groups",
+            cta_path: course_project_groups_path(@course) %>   <%# E2 %>
+    <% when :no_proposal %>
+      <%= render "courses/my_submission_empty_state",
+            icon: "note_add",
+            heading: "No proposal submitted yet",
+            description: "Your group hasn't submitted a project proposal. Once it's in, you'll see its review status here.",
+            cta_label: "Create proposal",
+            cta_path: new_course_project_path(@course) %>
+    <% else %>
+      <% icon, verb =
+           case @presenter.submission_state
+           when :approved then ["assignment_turned_in", "Updated"]
+           when :pending  then ["assignment", "Submitted"]
+           when :redo     then ["history", "Returned"]
+           when :rejected then ["block", "Rejected"]
+           end %>
+      <%= render "shared/row_item",
+            path: course_project_path(@course, @presenter.submission),
+            icon: icon,
+            title: @presenter.submission.current_title,
+            meta_parts: [@presenter.submission.owner_name],
+            time_meta: "#{verb} #{time_ago_in_words(@presenter.submission.current_instance&.updated_at || @presenter.submission.updated_at)} ago",
+            status: @presenter.submission_state do %>
+        <% if @presenter.submission_state == :redo %>
+          <div class="mt-2 pt-2 pl-13 border-t border-dashed border-[#E0E0E0]">
+            <p class="text-[13px] text-[#5F6368] pl-13">Your coordinator asked for changes — open the proposal to see their comments and resubmit.</p>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+```
+
+**Notes:**
+- `owner_name` is `Project#owner_name` (`project.rb:61-69`) — group name for a
+  grouped project, student name for a solo one — which is exactly the mockup's
+  "Group 4" / student-name meta.
+- Uses `_row_item` directly (not `_proposal_list_item`): the redo state needs
+  the extra note line, which `_row_item` already supports via its block
+  (`yield`, `_row_item.html.erb:82`), while `_proposal_list_item` forwards no
+  block (`_proposal_list_item.html.erb:10-16`). The icon/verb `case` is
+  duplicated locally rather than adding block-forwarding to
+  `_proposal_list_item` for one caller (E4 also accepted the shared more_vert).
+- The `case` assigns icon/verb in the empty-branch when the state is none of
+  the four (defensive; the controller guarantees only the six values).
+- **`border_top`:** `_row_item` defaults `border_top: true`; the My Submission
+  header already supplies its own bottom border and the wrapper is a
+  `border-b` container, so the first row would show a doubled seam. Omit the
+  `border_top:` param concern by rendering the header border + section border
+  exactly as in `_overview_tab`'s other sections — confirm visually, pass
+  `border_top: false` on row_item if a 2px seam appears.
+
+### 13.7 Reused components (no new work)
+
+| Need | Component | Evidence |
+|---|---|---|
+| Status pill palette | `shared/_row_item:8-15` | approved green / pending blue / redo amber / rejected red — byte-for-byte the mockup palette |
+| Icon/verb mapping | duplicated `case` (§13.6) | already exists once in `_proposal_list_item:1-8`; not extracted until a 3rd call site |
+| Full project card | `_project_card` / `_project_card_contents` | **not used** — bigger unit for grids; My Submission is the compact row |
+
+### 13.8 Dead code cleanup
+
+`app/views/courses/_project_details_tab.html.erb` and
+`app/views/courses/_project_status_bar.html.erb` are both **zero-reference**
+(every `render`/reference greps empty under `app/`). The status bar was the
+pre-redesign My Submission stepper (§ plan §1b). Delete both here; call out
+separately in the commit message.
+
+### 13.9 Naming / route reference
+
+| Thing | Name |
+|---|---|
+| Illustration asset | `app/assets/images/illustrations/project_details_banner.svg` |
+| Presenter methods | `project_details_empty?`, `show_project_details_add_cta?`, `show_my_submission?`, `submission_state`, `submission` |
+| Controller helper | `CoursesController#submission_state_for` |
+| New partials | `courses/_project_details_card`, `courses/_my_submission_empty_state` |
+| `submission_state` values | `:no_group` (only when `grouped? && grouping_enabled?`), `:no_proposal`, `:pending`, `:approved`, `:redo`, `:rejected` |
+| Add-details CTA | `settings_course_path(@course)` |
+| Create-proposal CTA | `new_course_project_path(@course)` |
+| Browse-groups CTA | `course_project_groups_path(@course)` — **the correct student destination (E2)** |
+| Dead code deleted | `courses/_project_details_tab.html.erb`, `courses/_project_status_bar.html.erb` |
+
+### 13.10 Tests
+
+**New presenter unit test** `test/presenters/overview_presenter_test.rb` (plain
+unit, no browser):
+- `project_details_empty?` true only when description **and** file_link blank
+- `show_project_details_add_cta?` true only for coordinator + empty
+- `show_my_submission?` true only for student
+- `submission_state` passthrough
+
+**Fix stale system test** (E3) `test/system/courses/course_tabs_test.rb`; then
+**extend / add** `test/system/courses/overview_tab_test.rb`:
+- Coordinator, no description/file_link → "Add details" CTA visible, links to `settings_course_path`
+- Student, no description/file_link → read-only empty state, **no** CTA
+- Coordinator or student with description/file_link → banner + illustration render
+- Student, grouped + grouping enabled, no group → "Browse groups" empty state → lands on `course_project_groups_path`
+- Student, grouped but grouping disabled, no group → **no** "Browse groups" CTA (falls through to create-proposal copy)
+- Student, grouped, in group, no project → "Create proposal" empty state
+- Student with pending/approved/redo/rejected project → correct row + pill; redo shows the extra note
+- Lecturer/coordinator → My Submission section absent entirely
+- Lecturer/coordinator → banner empty state shows read-only variant (no CTA) when coordinator absent
+
+### 13.11 Build order
+
+```
+illustration move → presenter extension → controller helper → project_details_card
+→ my_submission section + empty-state partial → dead-code deletion → test fixes/new
+```
+
+The presenter + controller changes must land before the partials (partials read
+`@presenter`). Dead-code deletion is independent and last.
+
+### 13.12 Responsiveness
+
+Scope and rules for the Project Details card, My Submission section, and banner
+illustration across the app's existing breakpoints. Grounded in the mockup
+(`ProPro_Design/course_show.html.erb` v5).
+
+**Target viewports (manual verification):** 360 · 640 · 768 · 1024 · 1245 · 1440.
+
+**Breakpoint philosophy:** reuse the existing breakpoint set only — `sm` (640,
+the mockup's stack point), `lg` (1024, sidebar turns static), and the existing
+chrome-independent `min-[1245px]`. No new arbitrary breakpoints for this feature.
+
+**Golden rule — no horizontal scroll at any width, ever.** Guaranteed by three
+mechanisms:
+
+1. Card-level `overflow-hidden` on the banner header clips the illustration's
+   `-70px` bleed (already in the mockup; must be in `_project_details_card`).
+2. `max-w-[800px] mx-auto` caps the Overview column inside the shared
+   `max-w-5xl mx-auto px-6 py-8` panel.
+3. The file-link chip truncates its filename (below) instead of growing the chip.
+
+**Column width — enforce the long-promised cap.** `_overview_tab.html.erb`'s
+header comment and CONTEXT.md both say "`max-w-[800px]` centered column", but
+today the only cap is the shared `max-w-5xl` panel. Add `max-w-[800px] mx-auto`
+at the Overview tab's root (its wrapper partial gets the class; the shared panel
+markup in `courses/show` is untouched). Other tabs keep `max-w-5xl`.
+
+**Filled banner — all widths:**
+
+- **Illustration: fixed crop, no responsive swap.** Always
+  `class="absolute right-[-70px] bottom-[-70px] h-[260px] w-auto pointer-events-none select-none"`;
+  never hidden, never scaled. The card's `overflow-hidden` does the cropping at
+  every width ("just crop it, do not scroll ever").
+- Header: `relative px-8 py-9 overflow-hidden`, gradient background (mockup).
+- Title/subtitle: keep `max-w-[62%]`, left-aligned, `relative z-10` (sits above
+  the art), at every width — `text-2xl font-medium` title + `text-[14px]`
+  subtitle.
+- Body (`p-6`, `--color-surface-tint`): description
+  `text-[0.9rem] sm:text-[1rem] leading-[1.5] break-words` (the mockup's only
+  `sm:` usage).
+- **File-link chip (fixes a latent overflow defect):** current code
+  (`_overview_tab.html.erb:19-28`) is `w-fit max-w-max` with an untruncated
+  filename span — a long name grows the chip past the card. New partial: cap the
+  chip at card width (`max-w-full`) and give the filename span `min-w-0 truncate`
+  (single-line ellipsis). With this, no filename can push the card wider.
+
+**Empty states — stack below `sm`, uniform padding:**
+
+- Layout: `flex flex-col sm:flex-row items-center gap-6` with
+  `text-center sm:text-left` (mockup). Below 640 everything stacks and centers.
+- Paddings uniform at all widths: card states (coordinator add-CTA, readonly)
+  `p-8`; My Submission states (`:no_group`, `:no_proposal`) `py-14 px-6`. No
+  per-breakpoint tightening.
+- Icons `shrink-0` (96 / 72 / 48px) — never squeezed by narrow widths.
+- CTA pills stay `inline-flex px-5 py-2 rounded-full`; the stacked column
+  centers them below `sm`. Not full-width.
+
+**My Submission rows (pending / approved / redo / rejected):** `shared/_row_item`
+unchanged — title truncates, meta wraps below `sm`, pill + `more_vert` stay
+`shrink-0`. The redo note (block below the row) is wrapped text; no action.
+
+**Chrome relationships:**
+
+- Settings gear already relocates to the mobile header below `sm` (existing;
+  untouched).
+- `lg` (1024): sidebar turns static; verify the 800px column + banner visually
+  at this width.
+- `min-[1245px]`: only affects projects/topics `show` (comments drawer /
+  review cards); nothing Overview-specific, verify only.
+
+**Solo-supervisor card:** already `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` —
+no change.
+
+**Automated fixed-width coverage (§13.10 extension):** add one narrow smoke case
+to `overview_tab_test.rb` following the existing `MobileOverflowTest` pattern
+(`test/system/projects/mobile_overflow_test.rb`):
+
+- `driven_by :selenium, using: :headless_chrome, screen_size: [390, 844]` and
+  `self.use_transactional_tests = false` (rack_test cannot resize the viewport
+  or measure `scrollWidth`; real-browser tests must share committed records).
+- Assert: (1) filled banner produces no horizontal overflow
+  (`documentElement.scrollWidth <= documentElement.clientWidth`); (2) the
+  illustration `img` is present; (3) one empty state stacks with its CTA; (4)
+  one My Submission row renders with its status pill.
+- The remaining widths/states are the manual dev-server pass at
+  360 · 640 · 768 · 1024 · 1245 · 1440.
