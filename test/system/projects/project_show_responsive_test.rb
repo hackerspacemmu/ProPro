@@ -52,6 +52,9 @@ class ProjectShowResponsiveTest < ApplicationSystemTestCase
 
     assert_selector '#app-sidebar[data-sidebar-target="container"]'
     assert_selector "[data-sidebar-target='backdrop']"
-    assert_selector 'button[data-sidebar-target="toggleButton"][aria-expanded="false"]'
+    # aria-expanded is controller-owned (syncExpanded), so its value is a
+    # JS-runtime concern exercised by the selenium sidebar_collapse_test —
+    # assert only the static wiring here (this class runs under rack_test).
+    assert_selector 'button[data-sidebar-target="toggleButton"][data-action="sidebar#toggle"]'
   end
 end

@@ -56,6 +56,17 @@
  *        panes; they only ever compete with pane content, never the header.
  */
 
+/*
+ * Desktop-collapsed rail: the icon tooltips must escape the aside to paint
+ * over content, so a collapsed sidebar is overflow-visible. Expanded state
+ * still needs the aside to scroll its Enrolled list, so the `lg:overflow-y-auto`
+ * utility keeps applying then. Unlayered on purpose — it must beat that
+ * laidered utility regardless of Tailwind's variant ordering.
+ */
+#app-sidebar[data-collapsed="true"] {
+  overflow: visible;
+}
+
 /* Force EasyMDE Preview Headings to restore their size */
 .editor-preview h1 {
   font-size: 2em !important;

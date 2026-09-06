@@ -406,12 +406,18 @@ its own scroll container.
 
 ---
 
-## 9. Sidebar desktop collapse — **open, not scoped yet, do not build**
+## 9. Sidebar desktop collapse — **superseded — see `sidebar_collapsable_plan.md`**
 
-This is the item to flag as undone. Don't turn it into a ticket with a diff
-the way §8 got one — there isn't yet a single decision made about *how* it
-should work, and the history here means guessing wrong is more expensive
-than usual.
+> **2026-09-06:** the desktop icon-rail collapse is now fully scoped and
+> ready to build. This section and Ticket 7 are superseded by
+> **`docs/sidebar_collapsable_plan.md`**, which answers OQ-1..OQ-5, carries
+> the markup/controller/helper/test spec, ADR-0009, and the regression
+> checklist. Do not build from the placeholder below. The original open
+> section is retained for history only (the history below is why guessing
+> wrong is expensive — read it, then build from the new doc).
+
+Everything below this line is the historical "open, not scoped yet, do not
+build" state, preserved for context.
 
 **Why this isn't a green light to just extend `sidebar_controller.js`:**
 `docs/adr/0008-app-sidebar-drawer.md` (Accepted, 2026-08-29) is the ADR that
@@ -441,7 +447,12 @@ None of Ticket 7 (below) should start until at least OQ-1, OQ-2, and OQ-3
 have real answers. OQ-4/OQ-5 can be resolved in parallel with early
 implementation but need to land before merge.
 
-### Ticket 7 — Sidebar: collapsible at every width (BLOCKED on §9's open questions)
+### Ticket 7 — Sidebar: collapsible at every width (SUPERSEDED — see `sidebar_collapsable_plan.md`)
+
+> **2026-09-06:** fully specced in `docs/sidebar_collapsable_plan.md`
+> (answers the OQ-1..OQ-3 items this ticket was gated on — controller,
+> collapsed-state markup, persistence — plus OQ-4/OQ-5). Build from that
+> doc. Historical placeholder retained below.
 
 Placeholder only. Once OQ-1–OQ-3 are answered, this ticket should specify:
 the controller (existing vs. new, per OQ-1), the collapsed-state markup
@@ -464,8 +475,8 @@ file. Do not scope hours or write a diff for this until it's unblocked.
 5 (this addendum) → independent, no blockers, do any time
 6 (this addendum) → depends on 5 landing first (for courses/show); can
                      start immediately for projects/show + topics/show
-7 (this addendum) → BLOCKED on §9 OQ-1 through OQ-3 (people decision,
-                     not implementation work)
+7 (this addendum) → superseded — see sidebar_collapsable_plan.md (was:
+                      BLOCKED on §9 OQ-1 through OQ-3)
 ```
 
 ---
@@ -476,7 +487,7 @@ file. Do not scope hours or write a diff for this until it's unblocked.
 |---|---|---|
 | OI-8 | v3 Ticket 2 (sidebar Log out) — still not implemented on `refactor/design` | **Open — undone.** Dead `<span>`, no `href`/`button_to`. Should be folded into Ticket 7's diff since it's the same file, but is small enough to land standalone sooner if Ticket 7 stays blocked a while. |
 | OI-9 | v3 Ticket 3 / §4 code sample vs. actual shipped tab mechanism | Resolved as "moot" — the branch already satisfies §0's decision via `tabs_to_cookies_refactor_plan.md`'s cookie mechanism instead. Noted here so nobody re-implements the stale "More" dropdown from v3 §4 by mistake. |
-| OI-10 | Sidebar desktop collapse — same `sidebar_controller.js` or a separate one? | **Open — undone, needs a decision.** See §9 OQ-1. This is the question raised in chat; it is not answered in this doc on purpose. |
-| OI-11 | Sidebar desktop collapse — collapsed-state visual model | **Open — undone.** See §9 OQ-2. |
-| OI-12 | Sidebar desktop collapse — persistence mechanism | **Open — undone.** See §9 OQ-3, note the direct tension with ADR-0008's explicit removal of `localStorage`. |
-| OI-13 | Sidebar desktop collapse — needs a new/amended ADR before merge | **Open — undone.** See §9 OQ-5. |
+| OI-10 | Sidebar desktop collapse — same `sidebar_controller.js` or a separate one? | **Resolved — same controller, breakpoint-aware `toggle()`.** See `sidebar_collapsable_plan.md` §5. |
+| OI-11 | Sidebar desktop collapse — collapsed-state visual model | **Resolved — icon-only 72px rail, Enrolled group hidden, tooltips.** See `sidebar_collapsable_plan.md` §2/OQ-2. |
+| OI-12 | Sidebar desktop collapse — persistence mechanism | **Resolved — plain cookie `propro_sidebar_rail_collapsed`, server-rendered initial state.** See `sidebar_collapsable_plan.md` §6. `localStorage` stays banned. |
+| OI-13 | Sidebar desktop collapse — needs a new/amended ADR before merge | **Resolved — ADR-0009 amends the ADR-0008 clause.** See `sidebar_collapsable_plan.md` §9. |

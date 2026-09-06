@@ -14,68 +14,7 @@
 "#{@lecturer.name.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
 
 <%# --- Sidebar --- %>
-<% content_for :sidebar do %>
-  <%= render_sidebar do %>
-    <div class="space-y-1 font-medium text-sm text-gray-600">
-      <a
-        href="#lecturer-name"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-          transition-colors
-        "
-      >Name</a>
-      <a
-        href="#profile-information"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-          transition-colors
-        "
-      >Profile Information</a>
-      <a
-        href="#projects"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-          transition-colors
-        "
-      >Projects</a>
-      <a
-        href="#proposals"
-        class="
-          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-          transition-colors
-        "
-      >Proposals</a>
-
-      <% if @course.toggle_topics %>
-        <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
-          <a
-            href="#full-released-topics"
-            class="
-              block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-              transition-colors
-            "
-          >Released Topics</a>
-        <% else %>
-          <a
-            href="#released-topics"
-            class="
-              block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-              transition-colors
-            "
-          >Released Topics</a>
-        <% end %>
-
-        <a
-          href="#pending-topics"
-          class="
-            block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
-            transition-colors
-          "
-        >Pending Topics</a>
-      <% end %>
-    </div>
-  <% end %>
-<% end %>
+<% content_for :sidebar, render("shared/sidebar") %>
 
 <%# --- Main Layout --- %>
 <div class="w-[95%] min-w-0 mx-auto my-0 pt-2.5">

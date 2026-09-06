@@ -49,24 +49,20 @@ export default class extends Controller {
     const expand = detail.classList.contains("hidden");
     detail.classList.toggle("hidden", !expand);
 
-    const row = this.element.querySelector(
-      `[data-row-id="${CSS.escape(id)}"]`,
-    );
+    const row = this.element.querySelector(`[data-row-id="${CSS.escape(id)}"]`);
     const chevron = row?.querySelector("[data-row-chevron]");
     if (chevron) chevron.classList.toggle("rotate-180", expand);
   }
 
   toggleAll() {
-    this.element
-      .querySelectorAll("[data-detail-row-id]")
-      .forEach((detail) => {
-        const collapsed = detail.classList.toggle("hidden");
-        const row = this.element.querySelector(
-          `[data-row-id="${CSS.escape(detail.dataset.detailRowId)}"]`,
-        );
-        const chevron = row?.querySelector("[data-row-chevron]");
-        if (chevron) chevron.classList.toggle("rotate-180", !collapsed);
-      });
+    this.element.querySelectorAll("[data-detail-row-id]").forEach((detail) => {
+      const collapsed = detail.classList.toggle("hidden");
+      const row = this.element.querySelector(
+        `[data-row-id="${CSS.escape(detail.dataset.detailRowId)}"]`,
+      );
+      const chevron = row?.querySelector("[data-row-chevron]");
+      if (chevron) chevron.classList.toggle("rotate-180", !collapsed);
+    });
 
     this.syncToggleAll();
   }

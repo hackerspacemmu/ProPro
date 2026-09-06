@@ -940,9 +940,7 @@ class CoursesController < ApplicationController
   def filtered_topic_list
     topic_list = @topic_list
 
-    if params[:topic_filter].present? && params[:topic_filter] != 'all'
-      topic_list = topic_list.select { |topic| topic.owner_id == params[:topic_filter].to_i }
-    end
+    topic_list = topic_list.select { |topic| topic.owner_id == params[:topic_filter].to_i } if params[:topic_filter].present? && params[:topic_filter] != 'all'
 
     topic_list = search_topics(topic_list, params[:search_query]) if params[:search_query].present?
 

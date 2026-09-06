@@ -416,7 +416,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'zero-topic supervisors still render as groups when unfiltered' do
-    course, alice, bob = build_topic_directory_course
+    course, alice, = build_topic_directory_course
     create_topic_on(course, alice, 'Alice Approved Topic', :approved)
 
     sign_in @coordinator_user
@@ -450,12 +450,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
     assert_response :success
     assert_equal 1, response.body.scan('Available').size
-    assert_match %r{Claimed Topic[\s\S]*?Approved}, response.body
-    assert_match %r{Free Topic[\s\S]*?Available}, response.body
+    assert_match(/Claimed Topic[\s\S]*?Approved/, response.body)
+    assert_match(/Free Topic[\s\S]*?Available/, response.body)
   end
 
   test 'topics tab renders the search pill, supervisor filter, and collapse-all control' do
-    course, alice, bob = build_topic_directory_course
+    course, alice, = build_topic_directory_course
     create_topic_on(course, alice, 'Alice Approved Topic', :approved)
 
     sign_in @coordinator_user
@@ -472,7 +472,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'supervisor groups render expanded by default in the topics directory' do
-    course, alice, bob = build_topic_directory_course
+    course, alice, = build_topic_directory_course
     create_topic_on(course, alice, 'Alice Approved Topic', :approved)
 
     sign_in @coordinator_user
