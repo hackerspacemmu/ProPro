@@ -1,4 +1,6 @@
 <% content_for :no_sidebar, true %>
+<% content_for :no_header, true %>
+<% content_for :no_footer, true %>
 <% content_for :hide_toggler, true %>
 <% content_for :hide_breadcrumbs, true %>
 <% content_for :body_class, "bg-[#f8fafd]" %>
@@ -22,37 +24,37 @@
 
   <header
     class="
-      sticky top-0 z-30 bg-white border-b border-[#E0E0E0] px-6 py-3.5 flex
-      items-center justify-between shadow-xs
+      sticky top-0 z-30 bg-white border-b border-[#E0E0E0] px-4 sm:px-6 py-3.5 flex
+      items-center justify-between gap-4 shadow-xs
     "
   >
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 min-w-0">
       <%= link_to course_topic_path(@course, @topic),
           title: "Close and return to topic",
-          class: "p-2 -ml-2 rounded-full hover:bg-[#F1F3F4] text-[#5F6368] hover:text-[#3C4043] transition-colors flex items-center justify-center" do %>
+          class: "p-2 -ml-2 rounded-full hover:bg-[#F1F3F4] text-[#5F6368] hover:text-[#3C4043] transition-colors flex items-center justify-center shrink-0" do %>
         <span class="material-symbols-outlined text-[22px]">close</span>
       <% end %>
 
-      <div class="h-5 w-[1px] bg-[#DADCE0]"></div>
+      <div class="h-5 w-[1px] bg-[#DADCE0] shrink-0"></div>
 
-      <div class="flex items-center gap-3">
-        <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[18px] text-[#1f1f1f] font-medium tracking-tight">
+      <div class="flex items-center gap-3 min-w-0">
+        <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[18px] text-[#1f1f1f] font-medium tracking-tight truncate min-w-0">
           Edit Topic — <span class="text-[#5F6368] font-normal"><%= @topic.current_title %></span>
         </h1>
-        <span class="<%= status_badge %> px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase font-['DM_Sans',Roboto,Arial,sans-serif]">
+        <span class="<%= status_badge %> px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase font-['DM_Sans',Roboto,Arial,sans-serif] shrink-0">
           <%= (@instance.status.presence || "pending").humanize %>
         </span>
       </div>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="hidden min-[1245px]:flex items-center gap-3 shrink-0">
       <%= link_to "Discard Changes",
           course_topic_path(@course, @topic),
-          class: "px-5 py-2 rounded-full text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#3C4043] font-medium text-[14px] transition-colors" %>
+          class: "px-5 py-2 rounded-full text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#3C4043] font-medium text-[14px] transition-colors whitespace-nowrap" %>
       <button
         type="submit"
         form="topic-form"
-        class="bg-[#1A73E8] hover:bg-[#1557B0] text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all flex items-center gap-2 shadow-sm"
+        class="bg-[#1A73E8] hover:bg-[#1557B0] text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all flex items-center gap-2 shadow-sm whitespace-nowrap"
       >
         <span class="material-symbols-outlined text-[18px]">check</span>
         Update Topic
@@ -60,7 +62,7 @@
     </div>
   </header>
 
-  <main class="flex-1 py-10 px-4 sm:px-6 overflow-y-auto">
+  <main class="flex-1 pt-10 pb-28 px-4 sm:px-6 min-[1245px]:pb-10 overflow-y-auto">
     <div class="max-w-4xl mx-auto space-y-8">
 
       <%= form_with model: [@course, @topic],
@@ -70,7 +72,7 @@
             html: { id: "topic-form" },
             class: "space-y-8" do |form| %>
 
-        <section class="bg-white border border-[#E0E0E0] rounded-[12px] p-8 shadow-xs space-y-8">
+        <section class="bg-white border border-[#E0E0E0] rounded-[12px] p-5 sm:p-8 shadow-xs space-y-8">
           <div class="border-b border-[#E0E0E0] pb-4">
             <h2 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight font-['DM_Sans',Roboto,Arial,sans-serif]">
               Topic Details
@@ -87,7 +89,7 @@
               input_classes: input_classes %>
         </section>
 
-        <div class="flex items-center justify-between pt-4 pb-8">
+        <div class="hidden min-[1245px]:flex items-center justify-between pt-4 pb-8">
           <%= link_to "Cancel",
               course_topic_path(@course, @topic),
               class: "text-[14px] font-medium text-[#5F6368] hover:text-[#3C4043]" %>
@@ -101,6 +103,11 @@
         </div>
 
       <% end %>
+
+      <%= render "shared/form_action_bar",
+          discard_path: course_topic_path(@course, @topic),
+          form_id: "topic-form",
+          submit_label: "Update Topic" %>
     </div>
   </main>
 </div>

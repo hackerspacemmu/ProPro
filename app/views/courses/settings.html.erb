@@ -1,4 +1,6 @@
 <% content_for :no_sidebar, true %>
+<% content_for :no_header, true %>
+<% content_for :no_footer, true %>
 <% content_for :hide_toggler, true %>
 <% content_for :hide_breadcrumbs, true %>
 <% content_for :body_class, "bg-[#f8fafd]" %>
@@ -19,7 +21,8 @@
         <% end %>
         <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-xl font-medium text-[#1f1f1f] tracking-tight">Course Settings</h1>
       </div>
-      <div>
+      <div class="flex items-center gap-3">
+        <%= link_to "Discard Changes", course_path(@course), class: "px-5 py-2 rounded-full text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#3C4043] font-medium text-[14px] transition-colors" %>
         <%= form.submit "Save", class: "bg-[#1A73E8] hover:bg-[#1B66C9] text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all shadow-sm cursor-pointer" %>
       </div>
     </header>
@@ -54,22 +57,22 @@
           <div class="space-y-6">
             <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
               <%= form.label :course_name, "Course Name", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
-              <%= form.text_field :course_name, required: true, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1" %>
+              <%= form.text_field :course_name, required: true, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1" %>
             </div>
 
             <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
               <%= form.label :course_description, "Project Details", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
-              <%= form.text_area :course_description, rows: 2, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1 resize-none overflow-hidden", data: { controller: "textarea-resize", action: "input->textarea-resize#resize" } %>
+              <%= form.text_area :course_description, rows: 2, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1 resize-none overflow-hidden", data: { controller: "textarea-resize", action: "input->textarea-resize#resize" } %>
             </div>
 
             <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
               <%= form.label :file_link, "Project File Link (URL)", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
-              <%= form.text_field :file_link, class: "w-full bg-transparent border-none p-0 text-[#1A73E8] focus:ring-0 text-[14px] mt-1 underline" %>
+              <%= form.text_field :file_link, class: "w-full bg-transparent border-none p-0 text-[#1A73E8] focus:ring-0 focus:outline-none text-[14px] mt-1 underline" %>
             </div>
 
             <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4 w-full sm:w-1/2">
               <%= form.label :starting_week, "Starting Week", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
-              <%= form.text_field :starting_week, required: true, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1" %>
+              <%= form.text_field :starting_week, required: true, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1" %>
             </div>
           </div>
         </section>
@@ -93,7 +96,7 @@
               <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4 w-full sm:w-1/2">
                 <%= form.label :supervisor_projects_limit, "Maximum Projects per Supervisor", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
                 <%= form.hidden_field :supervisor_projects_limit %>
-                <%= form.number_field :supervisor_projects_limit, id: "supervisor_projects_limit_visible", required: true, disabled: @course.supervisor_auto_calculate_enabled?, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1" %>
+                <%= form.number_field :supervisor_projects_limit, id: "supervisor_projects_limit_visible", required: true, disabled: @course.supervisor_auto_calculate_enabled?, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1" %>
               </div>
 
               <%= render "supervisor_capacity_settings", form: form, capacity_result: @capacity_result, lecturer_enrolments: @lecturer_enrolments %>
@@ -109,7 +112,7 @@
             <div class="bg-white border border-[#E0E0E0] rounded-lg overflow-hidden">
 
               <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-[#E0E0E0] hover:bg-[#F8F9FA] transition-colors">
-                <span class="text-sm font-medium text-[#3C4043] mb-2 sm:mb-0">Allow lecturers to add topics for students to base their proposals on.</span>
+                <span class="text-sm font-medium text-[#3C4043] mb-2 sm:mb-0">Allow lecturers to add topics?</span>
                 <div class="flex items-center gap-6">
                   <label class="flex items-center text-sm text-[#3C4043] cursor-pointer">
                     <%= form.radio_button :toggle_topics, true, class: "text-[#1A73E8] border-[#DADCE0] mr-2" %> Yes
@@ -171,7 +174,7 @@
               <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 hover:bg-[#F8F9FA] transition-colors">
                 <span class="text-sm font-medium text-[#3C4043] mb-2 sm:mb-0">Number of progress updates</span>
                 <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors px-3 py-1 w-full sm:w-32 mt-2 sm:mt-0">
-                  <%= form.number_field :number_of_updates, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] text-center" %>
+                  <%= form.number_field :number_of_updates, class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] text-center" %>
                 </div>
               </div>
 
@@ -284,14 +287,14 @@
                   <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
                     <%= form.label :group_min, "Minimum group size", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
                     <%= form.number_field :group_min, min: 1, placeholder: "e.g. 3",
-                          class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1",
+                          class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1",
                           data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
                   </div>
 
                   <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
                     <%= form.label :group_max, "Maximum group size", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
                     <%= form.number_field :group_max, min: 1, placeholder: "e.g. 4",
-                          class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1",
+                          class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1",
                           data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
                   </div>
                 </div>
@@ -307,7 +310,7 @@
                   <div class="flex items-center gap-3">
                     <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors px-3 py-1 w-36">
                       <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="e.g. 30" autocomplete="off"
-                             class="w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px]"
+                             class="w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px]"
                              hx-get="<%= grouping_preview_course_path(@course) %>"
                              hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
                              hx-params="student_count,course[group_min],course[group_max]"
@@ -365,13 +368,13 @@
                     <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
                       <%= form.label :grouping_opens_at, "Open from", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
                       <%= form.datetime_local_field :grouping_opens_at,
-                            class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1",
+                            class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1",
                             value: @course.grouping_opens_at&.strftime('%Y-%m-%dT%H:%M') %>
                     </div>
                     <div class="bg-[#F1F3F4] rounded-t-[4px] border-b-2 border-[#5F6368] focus-within:border-[#1A73E8] transition-colors relative pt-5 pb-2 px-4">
                       <%= form.label :grouping_closes_at, "Close at", class: "absolute top-2 left-4 text-xs font-medium text-[#5F6368]" %>
                       <%= form.datetime_local_field :grouping_closes_at,
-                            class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 text-[14px] mt-1",
+                            class: "w-full bg-transparent border-none p-0 text-[#3C4043] focus:ring-0 focus:outline-none text-[14px] mt-1",
                             value: @course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M') %>
                     </div>
                   </div>

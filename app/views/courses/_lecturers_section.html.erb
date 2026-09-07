@@ -5,7 +5,7 @@
 
 <section class="mb-14">
   <div class="flex items-center justify-between border-b border-gray-300 pb-4 mb-4">
-    <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Lecturers</h2>
+    <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;"><%= course.solo_supervisor? ? "Instructor" : "Lecturers" %></h2>
     <% if policy(course).manage_lecturers? %>
       <%= link_to add_lecturers_course_path(course),
             title: "Add Lecturer",
@@ -14,10 +14,6 @@
       <% end %>
     <% end %>
   </div>
-
-  <% if course.solo_supervisor? %>
-    <p class="text-sm text-gray-600 mb-4">Instructor: <%= lecturers.first&.name %></p>
-  <% end %>
 
   <div class="flex flex-col gap-1">
     <% lecturers.each do |lecturer| %>

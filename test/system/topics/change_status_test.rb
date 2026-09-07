@@ -39,4 +39,35 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     assert_no_selector '[data-testid="review-actions"]'
     assert_no_selector '[data-testid="approve-button"]'
   end
+
+  test 'coordinator can edit a pending topic and still change its status' do
+    login_as(@coordinator)
+    visit course_topic_path(@course, @topic)
+
+    assert_text 'Edit Topic'
+    assert_selector '[data-testid="edit-topic-button"]'
+    assert_selector '[data-testid="approve-button"]'
+  end
+
+  test 'coordinator cannot edit an approved topic' do
+    @instance.update!(status: :approved)
+    login_as(@coordinator)
+    visit course_topic_path(@course, @topic)
+
+    assert_no_text 'Edit Topic'
+    assert_no_selector '[data-testid="edit-topic-button"]'
+    assert_selector '[data-testid="approve-button"]'
+  end
+
+  test 'student screen on topic show does not offer updating a proposal based on the topic' do
+    @student = create(:user)
+    create(:enrolment, :student, user: @student, course: @course)
+    create(:project, course: @course, owner: @student)
+    @instance.update!(status: :approved)
+
+    login_as(@student)
+    visit course_topic_path(@course, @topic)
+
+    assert_no_text 'Update Proposal Based on This Topic'
+  end
 end

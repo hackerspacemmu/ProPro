@@ -14,6 +14,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show renders successfully for coordinator' do
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
@@ -55,10 +56,40 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
-    # Two settings links intentionally coexist in the DOM: the desktop tab-row
-    # gear (hidden lg:flex) and the mobile header gear (sm:hidden). They never
-    # both show at the same width, but the controller test sees the full DOM.
-    assert_select 'a[href=?]', settings_course_path(@course), count: 2
+    # Three settings links intentionally coexist in the DOM: the desktop tab-row
+    # gear (hidden lg:flex), the mobile header gear (sm:hidden), and the Overview
+    # "Add details" CTA (rendered because the fixture course has no description).
+    # The first two never show at the same width, but the controller test sees
+    # the full DOM.
+    assert_select 'a[href=?]', settings_course_path(@course), count: 3
+  end
+
+  test 'show diff: latest project version compares against the previous version' do
+    field = create(:project_template_field, project_template: @course.project_template, field_type: :textarea)
+    project = create(:project, course: @course, supervisor_enrolment: @coordinator_enrolment, status: :pending)
+    v1 = create(:project_instance, project: project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, version: 1, status: :pending, title: 'First Draft')
+    v1.project_instance_fields.create!(project_template_field_id: field.id, value: 'First draft')
+    v2 = create(:project_instance, project: project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, version: 2, status: :pending, title: 'Polished Draft')
+    v2.project_instance_fields.create!(project_template_field_id: field.id, value: 'Polished draft')
+
+    sign_in @coordinator_user
+    get course_project_path(@course, project)
+
+    assert_response :success
+    assert_match 'Version 1', response.body
+    assert_match 'Version 2 (Current)', response.body
+    assert_no_match 'Only one version exists', response.body
+  end
+
+  test 'show diff: single-version project keeps the empty compare state' do
+    project = create(:project, course: @course, supervisor_enrolment: @coordinator_enrolment, status: :pending)
+    create(:project_instance, project: project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, version: 1, status: :pending, title: 'Solo')
+
+    sign_in @coordinator_user
+    get course_project_path(@course, project)
+
+    assert_response :success
+    assert_match 'Only one version exists', response.body
   end
 
   test 'show displays course description in project details' do
@@ -70,6 +101,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show renders People and Groups tabs with matching panel set' do
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
     sign_in @student_user
     get course_path(@course)
     assert_response :success
@@ -78,6 +110,14 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select "div[data-tabs-target='panel']", count: 4
     assert_select 'button', text: 'Groups'
     assert_select 'section', text: /Students/
+  end
+
+  test 'show hides the Groups tab for solo-supervisor courses' do
+    sign_in @student_user
+    get course_path(@course)
+    assert_response :success
+    assert_select 'button', text: 'Groups', count: 0
+    assert_select "button[data-tabs-target='tab']", count: 3
   end
 
   test 'show renders supervisor capacity only for non-solo courses' do
@@ -172,6 +212,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   test 'groups tab shows confirmed groups only' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     create(:project_group, course: course, confirmed: true, group_name: 'Visible Group')
     create(:project_group, course: course, confirmed: false, group_name: 'Hidden Draft Group')
 
@@ -207,6 +249,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   test 'groups table shows the active sort icon on the default group-name column' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     create(:project_group, course: course, confirmed: true, group_name: 'Alpha')
 
     sign_in @coordinator_user
@@ -218,6 +262,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   test 'group name links to the group profile page' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     group = create(:project_group, course: course, confirmed: true, group_name: 'Link Me')
 
     sign_in @coordinator_user
@@ -238,6 +284,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   test 'student group cell links to the group profile page' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     group = create(:project_group, course: course, confirmed: true, group_name: 'Student Group')
     create(:project_group_member, user: @student_user, project_group: group)
 
@@ -305,6 +353,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'htmx table triggers swap the container via outerHTML (no nested containers)' do
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success

@@ -18,7 +18,7 @@
 <% lecturer_initials = lecturer_selected ? selected_lecturer.name.split.map(&:first).first(2).join.upcase : "" %>
 
 <section
-  class="bg-white border border-[#E0E0E0] rounded-[12px] p-8 shadow-xs space-y-6"
+  class="bg-white border border-[#E0E0E0] rounded-[12px] p-5 sm:p-8 shadow-xs space-y-6"
   <%= 'data-controller="method-picker"'.html_safe unless readonly %>
 >
   <div>
@@ -145,8 +145,11 @@
     <% end %>
   </div>
 
-  <% unless readonly %>
+  <% if !readonly && has_lecturer_choice %>
     <%= render "lecturer_picker", course: course, lecturer_capacity_info: lecturer_capacity_info %>
+  <% end %>
+
+  <% if !readonly && has_topic_choice %>
     <%= render "topic_picker", course: course, topics: topics, topic_pick_values: topic_pick_values %>
   <% end %>
 </section>

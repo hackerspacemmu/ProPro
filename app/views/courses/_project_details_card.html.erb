@@ -9,7 +9,7 @@
     the header's overflow-hidden does the clipping, never horizontal scroll. %>
 <section id="proposal-guidelines" class="mb-4">
   <% if @presenter.project_details_empty? %>
-    <div class="rounded-[8px] border border-[#DADCE0] shadow-sm w-full overflow-hidden">
+    <div class="rounded-[8px] w-full overflow-hidden">
       <div class="relative px-8 py-9 overflow-hidden" style="background: linear-gradient(135deg, #D3E3FD 0%, #E8F0FE 100%);">
         <%= image_tag "illustrations/project_details_banner.svg",
               class: "absolute right-[-70px] bottom-[-70px] h-[260px] w-auto pointer-events-none select-none",
@@ -28,7 +28,7 @@
       </div>
     </div>
   <% else %>
-    <div class="rounded-[8px] border border-[#DADCE0] shadow-sm w-full overflow-hidden">
+    <div class="rounded-[8px] w-full overflow-hidden">
       <div class="relative px-8 py-9 overflow-hidden" style="background: linear-gradient(135deg, #D3E3FD 0%, #E8F0FE 100%);">
         <%= image_tag "illustrations/project_details_banner.svg",
               class: "absolute right-[-70px] bottom-[-70px] h-[260px] w-auto pointer-events-none select-none",

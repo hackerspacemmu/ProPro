@@ -15,19 +15,6 @@
 <div class="max-w-[800px] mx-auto">
   <%= render "courses/project_details_card" %>
 
-<% if @course.solo_supervisor? %>
-  <section id="supervisors-available" class="mb-10">
-    <div class="border border-gray-200 shadow-sm rounded-[10px] w-full p-4 bg-[#f8f9fa]">
-      <header>
-        <h4 class="text-xl text-black mb-3 font-normal break-word whitespace-pre-line">Instructor: <%= @lecturers.first&.name %></h4>
-      </header>
-      <ul class="list-none p-0 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <%= render partial: "lecturers", collection: @lecturers, as: :lecturer, locals: { course: @course } %>
-      </ul>
-    </div>
-  </section>
-<% end %>
-
 <%# My Submission — students only, single-item section (not collapsible). The
     static header mirrors _section_header styling; rows reuse shared/_row_item
     (E4: keeps the more_vert). Six possible submission_state values, resolved by
@@ -39,13 +26,13 @@
     </div>
     <% case @presenter.submission_state %>
     <% when :no_group %>
-      <%= render "courses/my_submission_empty_state",
+      <%= render "shared/empty_state",
             heading: "You're not in a group yet",
             description: "Join or create a group before you can put together a project proposal.",
             cta_label: "Browse groups",
-            cta_path: course_project_groups_path(@course) %>   <%# E2 %>
+            cta_path: course_project_groups_path(@course) %>  <%# E2 %>
     <% when :no_proposal %>
-      <%= render "courses/my_submission_empty_state",
+      <%= render "shared/empty_state",
             heading: "No proposal submitted yet",
             description: "Your group hasn't submitted a project proposal. Once it's in, you'll see its review status here.",
             cta_label: "Create proposal",

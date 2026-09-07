@@ -5,7 +5,7 @@ class OverviewPresenter
   attr_reader :pending_proposals, :reviewed_proposals, :pending_topics, :submission, :submission_state
 
   def initialize(enrolment:, approved_projects:, pending_proposals:, reviewed_proposals:, pending_topics:,
-                 course_description:, file_link:, submission_state:, submission:)
+                 course_description:, file_link:, submission_state:, submission:, toggle_topics: true)
     @enrolment = enrolment
     @approved_projects = approved_projects
     @pending_proposals = pending_proposals
@@ -15,12 +15,13 @@ class OverviewPresenter
     @file_link = file_link
     @submission_state = submission_state
     @submission = submission
+    @toggle_topics = toggle_topics
   end
 
   def show_supervised_projects? = !student?
   def show_pending_proposals?    = !student?
   def show_reviewed_proposals?   = !student?
-  def show_pending_topics?       = coordinator?
+  def show_pending_topics?       = coordinator? && @toggle_topics
 
   def supervised_projects = @approved_projects
 

@@ -28,8 +28,22 @@
 
 <%# Action body — gate-driven %>
 <% if @is_coordinator && course.require_coordinator_approval && current_version == latest_version %>
-  <%# Coordinator: Approve split button + status dropdown %>
-  <div data-testid="review-actions" class="relative group w-full" data-controller="dropdown">
+  <section class="w-full">
+    <div class="flex flex-col gap-4">
+
+      <% if topic.status != "approved" %>
+        <div class="w-full">
+          <%= link_to edit_course_topic_path(course, topic),
+              data: { testid: "edit-topic-button" },
+              class: "flex items-center justify-center w-full gap-2 bg-[#1A73E8] hover:bg-[#1B66C9] hover:shadow-md text-white py-2.5 px-4 rounded-full font-medium text-[14px] transition-all" do %>
+            <%= image_tag "edit_white.svg", class: "w-4 h-4" %>
+            <span>Edit Topic</span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# Coordinator: Approve split button + status dropdown %>
+      <div data-testid="review-actions" class="relative group w-full" data-controller="dropdown">
     <div class="flex w-full shadow-sm rounded-full">
       <%= button_to change_status_course_topic_path(course, topic),
           method: :patch,
@@ -81,8 +95,10 @@
           </div>
         <% end %>
       </div>
+      </div>
     </div>
   </div>
+</section>
 <% else %>
   <%# Owner / student: Edit / Unable to Edit / Jump To Latest + propose actions %>
   <% is_member = members.include?(current_user) %>
@@ -153,14 +169,6 @@
             class: "flex items-center justify-center w-full gap-2 border border-[#DADCE0] text-[#1A73E8] hover:bg-[#F8F9FA] py-2.5 px-4 rounded-full font-medium text-[14px] transition-colors" do %>
           <span class="material-symbols-outlined text-[18px]">add</span>
           <span>Propose Based on This Topic</span>
-        <% end %>
-      <% end %>
-
-      <% if @project.present? && policy(@project).update? %>
-        <%= link_to edit_course_project_path(course, @project, topic_id: topic.id),
-          class: "flex items-center justify-center w-full gap-2 border border-[#DADCE0] text-[#1A73E8] hover:bg-[#F8F9FA] py-2.5 px-4 rounded-full font-medium text-[14px] transition-colors" do %>
-          <span class="material-symbols-outlined text-[18px]">edit</span>
-          <span>Update Proposal Based on This Topic</span>
         <% end %>
       <% end %>
 

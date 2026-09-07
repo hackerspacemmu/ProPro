@@ -10,7 +10,7 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     @coordinator_enrolment = create(:enrolment, :coordinator, user: @coordinator, course: @course)
   end
 
-  def presenter(enrolment:, description: nil, file_link: nil, submission_state: nil, submission: nil)
+  def presenter(enrolment:, description: nil, file_link: nil, submission_state: nil, submission: nil, toggle_topics: true)
     OverviewPresenter.new(
       enrolment: enrolment,
       approved_projects: [],
@@ -20,7 +20,8 @@ class OverviewPresenterTest < ActiveSupport::TestCase
       course_description: description,
       file_link: file_link,
       submission_state: submission_state,
-      submission: submission
+      submission: submission,
+      toggle_topics: toggle_topics
     )
   end
 
@@ -55,5 +56,10 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     assert presenter(enrolment: @coordinator_enrolment).show_pending_topics?
     assert_not presenter(enrolment: @student_enrolment).show_supervised_projects?
     assert_not presenter(enrolment: @student_enrolment).show_pending_topics?
+  end
+
+  test 'show_pending_topics? is gated on the topics toggle' do
+    assert_not presenter(enrolment: @coordinator_enrolment, toggle_topics: false).show_pending_topics?
+    assert presenter(enrolment: @coordinator_enrolment, toggle_topics: true).show_pending_topics?
   end
 end

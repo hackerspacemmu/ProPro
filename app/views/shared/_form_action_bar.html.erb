@@ -1,0 +1,25 @@
+<%# locals: (discard_path:, form_id:, discard_label: "Discard Changes", submit_label: "Save") %>
+
+<div
+  class="
+    fixed bottom-0 left-0 right-0 z-30 bg-[#FFFFFF] border-t border-[#E0E0E0] px-4
+    pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]
+    shadow-[0_-2px_12px_rgba(60,64,67,0.08)]
+    flex min-[1245px]:hidden
+    items-center gap-3
+  "
+>
+  <%= link_to discard_path,
+      class: "px-5 py-2.5 rounded-full border border-[#DADCE0] text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#3C4043] font-medium text-[14px] transition-colors text-center" do %>
+    <%= discard_label %>
+  <% end %>
+
+  <button
+    type="submit"
+    form="<%= form_id %>"
+    class="flex-1 bg-[#1A73E8] hover:bg-[#1557B0] text-white px-6 py-2.5 rounded-full font-medium text-[14px] transition-all flex items-center justify-center gap-2 shadow-sm"
+  >
+    <span class="material-symbols-outlined text-[18px]">check</span>
+    <%= submit_label %>
+  </button>
+</div>

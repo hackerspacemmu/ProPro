@@ -95,7 +95,8 @@ class CoursesController < ApplicationController
       course_description: @description,
       file_link: @course.file_link,
       submission_state: submission_state_for(@current_user_enrolment),
-      submission: @project
+      submission: @project,
+      toggle_topics: @course.toggle_topics
     )
 
     # view instances for participants_table

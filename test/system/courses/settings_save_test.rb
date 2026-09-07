@@ -26,8 +26,7 @@ class SettingsSaveTest < ApplicationSystemTestCase
 
     # The coursecode widget lives inside the General section of the settings
     # form, but it is formless (ADR-0010): no <form> of its own, so it cannot
-    # nest a form or roll a settings save back on generate. (Page-wide there is
-    # also the chrome header's log-out button_to form.)
+    # nest a form or roll a settings save back on generate.
     assert_selector '#course-settings-form'
     assert_selector '#course_code_form'
     assert_selector "#course_code_form a[href*='update_coursecode']"

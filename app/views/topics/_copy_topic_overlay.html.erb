@@ -16,13 +16,13 @@
   <dialog
     data-field-expand-modal-target="dialog"
     data-copy-topic-target="dialog"
-    class="w-full max-w-3xl max-h-[85vh] m-auto p-0 rounded-xl border border-[#E0E0E0] shadow-lg bg-white backdrop:bg-black/40"
+    class="w-full max-w-3xl max-h-[85dvh] m-auto p-0 rounded-xl border border-[#E0E0E0] shadow-lg bg-white backdrop:bg-black/40"
   >
     <%= turbo_frame_tag "overlay_content",
-      class: "flex flex-col h-full p-6 md:p-8 overflow-y-auto",
+      class: "flex flex-col h-full p-5 md:p-8 overflow-y-auto",
       data: { copy_topic_target: "container" } do %>
 
-      <div class="flex-none flex items-center justify-between border-b border-[#E0E0E0] pb-4 mb-4">
+      <div class="flex-none flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E0E0E0] pb-4 mb-4">
         <h3 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight font-['DM_Sans',Roboto,Arial,sans-serif]">
           Select a Topic to Copy
         </h3>

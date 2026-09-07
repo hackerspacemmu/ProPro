@@ -67,7 +67,7 @@ definitions.
 - **breadcrumb anchor / ProPro wordmark** — the first breadcrumb item: the "ProPro" wordmark link to `root_path`. Replaces the old "Dashboard" root crumb (which is no longer rendered). Desktop-only (rendered inside the `sm+` breadcrumb row). Google-Classroom-styled — bigger than the child crumbs (1.5rem/400) with a muted color that darkens on hover. Skipped (hidden) on pages under the **takeover layout**, which hide breadcrumbs.
 - **breadcrumb chevron** — the inline-SVG right-pointing separator between breadcrumb items, replacing the old textual `>`. Purely decorative.
 - **breadcrumb crumb** — any non-anchor breadcrumb item rendered by `BreadcrumbHelper#render_custom_breadcrumbs`, styled smaller than the anchor (1rem/500).
-- **takeover layout** — the chrome-less full-screen form surface (ADR-0005): `no_sidebar`, hidden toggler/breadcrumbs, a sticky action header, and a single centered form column. Shared by projects/edit, projects/new, and course settings.
+- **takeover layout** — the chrome-less full-screen form surface (ADR-0005): `no_sidebar`, `no_header`, hidden toggler/breadcrumbs, a sticky action header, and a single centered form column. Shared by projects/new, projects/edit, topics/new, topics/edit, and course settings.
 
 ## Topic forms
 
@@ -78,3 +78,4 @@ definitions.
 ## Form actions
 
 - **Discard Changes / Cancel** — the same behavior by either name: leave the form without saving.
+- **form action bar** — the shared fixed bottom toolbar on the project/topic new+edit forms (`shared/_form_action_bar.html.erb`), driven by the **takeover layout**'s mobile header. On desktop (≥1245px) the header's own inline "Discard Changes" + save buttons stay; on mobile those header buttons are hidden and the bar takes over: a bordered Discard pill plus a full-width save submit bound to the form via `form=` (safe-area padded, `min-[1245px]:hidden`). The form's in-flow Cancel/save row is also desktop-only. Mirrors the **review action bar** pattern from the show pages.

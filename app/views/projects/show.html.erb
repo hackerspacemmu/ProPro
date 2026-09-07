@@ -66,9 +66,9 @@
           <%# Panel 2: Compare Versions %>
           <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 1 ? ' hidden' : '' %>">
             <%= render "compare_versions_tab",
-            fields: @current_fields,
-            next_fields: @next_fields,
-            index: @index,
+            fields: @compare_fields,
+            next_fields: @compare_next_fields,
+            index: @compare_index,
             instances: @instances %>
           </div>
 

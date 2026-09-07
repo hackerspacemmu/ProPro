@@ -35,6 +35,14 @@
           </button>
         <% end %>
 
+        <% if policy(@course).export_csv? %>
+          <%= link_to export_csv_course_path(@course),
+                title: "Export CSV",
+                class: "inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors shrink-0" do %>
+            <span class="material-symbols-outlined">download</span>
+          <% end %>
+        <% end %>
+
         <span id="groups-loading" class="htmx-indicator text-blue-600 text-sm font-medium shrink-0"><span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span></span>
       </div>
 

@@ -34,12 +34,18 @@
           form: { class: "hidden sm:block m-0", data: { turbo_confirm: nil } },
           class: "text-[15px] font-medium text-on-surface-variant hover:text-on-surface transition-colors pr-2 bg-transparent border-0 cursor-pointer" %>
 
-    <%# Mobile only: settings gear. Guarded — header is shared by ~30 views. %>
-    <% if @course.present? %>
+    <%# Mobile only: coordinator icons. Guarded — header is shared by ~30 views. %>
+    <% if @course.present? && policy(@course).update? %>
       <%= link_to settings_course_path(@course),
             class: "sm:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-on-surface-variant transition-colors",
             aria: { label: "Course settings" } do %>
         <span class="material-symbols-outlined">settings</span>
+      <% end %>
+
+      <%= link_to edit_course_project_template_path(@course),
+            class: "sm:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-on-surface-variant transition-colors",
+            aria: { label: "Edit Project Templates" } do %>
+        <span class="material-symbols-outlined">edit_note</span>
       <% end %>
     <% end %>
   </div>

@@ -24,33 +24,43 @@ export default class extends Controller {
   ];
 
   connect() {
-    this.boundCloseLecturerOnBackdrop = this.closeOnBackdrop.bind(
-      this,
-      "lecturerDialogTarget",
-    );
-    this.boundCloseTopicOnBackdrop = this.closeOnBackdrop.bind(
-      this,
-      "topicDialogTarget",
-    );
-    this.lecturerDialogTarget.addEventListener(
-      "click",
-      this.boundCloseLecturerOnBackdrop,
-    );
-    this.topicDialogTarget.addEventListener(
-      "click",
-      this.boundCloseTopicOnBackdrop,
-    );
+    if (this.hasLecturerDialogTarget) {
+      this.boundCloseLecturerOnBackdrop = this.closeOnBackdrop.bind(
+        this,
+        "lecturerDialogTarget",
+      );
+      this.lecturerDialogTarget.addEventListener(
+        "click",
+        this.boundCloseLecturerOnBackdrop,
+      );
+    }
+
+    if (this.hasTopicDialogTarget) {
+      this.boundCloseTopicOnBackdrop = this.closeOnBackdrop.bind(
+        this,
+        "topicDialogTarget",
+      );
+      this.topicDialogTarget.addEventListener(
+        "click",
+        this.boundCloseTopicOnBackdrop,
+      );
+    }
   }
 
   disconnect() {
-    this.lecturerDialogTarget.removeEventListener(
-      "click",
-      this.boundCloseLecturerOnBackdrop,
-    );
-    this.topicDialogTarget.removeEventListener(
-      "click",
-      this.boundCloseTopicOnBackdrop,
-    );
+    if (this.hasLecturerDialogTarget) {
+      this.lecturerDialogTarget.removeEventListener(
+        "click",
+        this.boundCloseLecturerOnBackdrop,
+      );
+    }
+
+    if (this.hasTopicDialogTarget) {
+      this.topicDialogTarget.removeEventListener(
+        "click",
+        this.boundCloseTopicOnBackdrop,
+      );
+    }
   }
 
   openLecturerPicker() {

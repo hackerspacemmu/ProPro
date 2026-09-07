@@ -7,7 +7,7 @@
   tabs << { slug: "overview", name: "Overview", partial: "courses/overview_tab" }
   tabs << { slug: "topics",   name: "Topics",   partial: "courses/topic_directory_tab" }
   tabs << { slug: "people",   name: "People",   partial: "courses/people_tab" }
-  tabs << { slug: "groups",   name: "Groups",   partial: "courses/groups_tab" }
+  tabs << { slug: "groups",   name: "Groups",   partial: "courses/groups_tab" } unless @course.solo_supervisor?
 
   tab_persist_key = "propro_tab_course_#{@course.id}"
   initial_tab_index = current_tab_index(persist_key: tab_persist_key, slugs: tabs.map { |t| t[:slug] })
@@ -44,11 +44,19 @@
           </div>
 
           <% if @current_user_enrolment&.coordinator? %>
-            <%= link_to settings_course_path(@course),
+            <div class="flex items-center gap-1 shrink-0">
+              <%= link_to edit_course_project_template_path(@course),
+                    class: "hidden lg:flex h-[3rem] w-[2.5rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0",
+                    title: "Edit Project Templates" do %>
+                <span class="material-symbols-outlined">edit_note</span>
+              <% end %>
+
+              <%= link_to settings_course_path(@course),
                   class: "hidden lg:flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0",
                   title: "Settings" do %>
-              <span class="material-symbols-outlined">settings</span>
-            <% end %>
+                <span class="material-symbols-outlined">settings</span>
+              <% end %>
+            </div>
           <% end %>
         </div>
       </div>
