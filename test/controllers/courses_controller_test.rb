@@ -209,19 +209,19 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match 'Other Group', response.body
   end
 
-  test 'groups tab shows confirmed groups only' do
+  test 'groups tab shows confirmed and draft groups' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     create(:project_group, course: course, confirmed: true, group_name: 'Visible Group')
-    create(:project_group, course: course, confirmed: false, group_name: 'Hidden Draft Group')
+    create(:project_group, course: course, confirmed: false, group_name: 'Draft Group')
 
     sign_in @coordinator_user
     get course_path(course)
     assert_response :success
     assert_match 'Visible Group', response.body
-    assert_no_match 'Hidden Draft Group', response.body
+    assert_match 'Draft Group', response.body
   end
 
   test 'htmx students search reuses filtered_student_list' do
@@ -233,17 +233,17 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_match ERB::Util.html_escape(@student_user.name), response.body
   end
 
-  test 'htmx groups section renders confirmed groups only' do
+  test 'htmx groups section renders confirmed and draft groups' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
     create(:project_group, course: course, confirmed: true, group_name: 'Visible Group')
-    create(:project_group, course: course, confirmed: false, group_name: 'Hidden Draft Group')
+    create(:project_group, course: course, confirmed: false, group_name: 'Draft Group')
 
     sign_in @coordinator_user
     get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'groups' }
     assert_response :success
     assert_match 'Visible Group', response.body
-    assert_no_match 'Hidden Draft Group', response.body
+    assert_match 'Draft Group', response.body
   end
 
   test 'groups table shows the active sort icon on the default group-name column' do

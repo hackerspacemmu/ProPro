@@ -37,8 +37,9 @@ class CoursesController < ApplicationController
     if @course.grouped?
       @group = current_user.project_groups.find_by(course: @course)
       @project = @projects_by_owner[['ProjectGroup', @group.id]] if @group
-      # Groups tab data source is confirmed groups only — drafts never surface (§2.4 audit).
-      @group_list = @course.project_groups.where(confirmed: true).includes(project_group_members: :user).to_a
+      # Groups tab lists every project group, confirmed or draft — drafts are
+      # real memberships and must not vanish from the table.
+      @group_list = @course.project_groups.includes(project_group_members: :user).to_a
     else
       @group = nil
       @project = @course.projects.find_by(owner_type: 'User', owner_id: current_user.id)

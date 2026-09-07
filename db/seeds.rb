@@ -350,8 +350,8 @@ Enrolment.create!(
 )
 
 # Create Project Group
-# Roughly half the groups are confirmed (surface on the Groups tab); the rest
-# stay drafts so the confirmed-only filtering can be eyeballed.
+# Roughly half the groups are confirmed and half stay drafts; the Groups tab
+# tables both states, so the filtered/status columns can be eyeballed.
 group_1 = ProjectGroup.create!(
   group_name: 'group_1',
   course: course_with_groups,
