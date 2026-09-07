@@ -480,9 +480,9 @@ class CoursesController < ApplicationController
         flash.now[:notice] ||= 'Email restriction settings changed'
       end
     end
-    rescue StandardError => e
-      flash.now[:alert] = e.message
-    ensure
+  rescue StandardError => e
+    flash.now[:alert] = e.message
+  ensure
     render turbo_stream: [
       turbo_stream.update('flash', partial: 'courses/flash'),
       turbo_stream.replace('email_domain_restrict_form', partial: 'courses/course_email_domain_restrict_form', locals: { course: @course })
