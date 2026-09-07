@@ -2,7 +2,7 @@
 <div class="w-full" data-controller="field-expand-modal">
   <div
     class="
-      bg-white border border-[#E0E0E0] rounded-[8px] overflow-hidden
+      bg-white border border-outline-variant rounded-[8px] overflow-hidden
     "
   >
     <% sorted_fields = fields.sort_by { |f| f.project_template_field&.position || 0 } %>
@@ -36,22 +36,22 @@
 
       <% if is_markdown %>
         <%# --- Rich Text Field: stacked layout --- %>
-        <div class="py-5 px-6 border-b border-[#E0E0E0] flex flex-col gap-3 hover:bg-[#F8F9FA] transition-colors">
-          <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider">
+        <div class="py-5 px-6 border-b border-outline-variant flex flex-col gap-3 hover:bg-surface-hover transition-colors">
+          <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider">
             <%= field.project_template_field.label %>
           </div>
           <div
             class="
-              text-[15px] text-[#3C4043] leading-relaxed bg-white border border-[#E0E0E0]
+              text-[15px] text-on-surface leading-relaxed bg-white border border-outline-variant
               rounded-[4px] p-5 prose prose-sm max-w-none relative
             "
           >
-            <% if display_text.present? %><%= rendered_markdown %><% else %><span class="text-[#5F6368] italic font-normal">No content provided</span><% end %>
+            <% if display_text.present? %><%= rendered_markdown %><% else %><span class="text-on-surface-variant italic font-normal">No content provided</span><% end %>
             <button
               type="button"
               data-action="click->field-expand-modal#open"
               data-title="<%= field.project_template_field.label %>"
-              class="absolute top-3 right-3 text-[#5F6368] hover:text-[#3C4043] transition-colors bg-white/80 rounded-md p-1"
+              class="absolute top-3 right-3 text-on-surface-variant hover:text-on-surface transition-colors bg-white/80 rounded-md p-1"
               aria-label="Expand <%= field.project_template_field.label %>"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
@@ -67,19 +67,19 @@
 
       <% else %>
         <%# --- Regular Field: horizontal row --- %>
-        <div class="py-4 px-6 border-b border-[#E0E0E0] flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-[#F8F9FA] transition-colors">
-          <div class="text-[11px] font-medium text-[#5F6368] uppercase tracking-wider md:w-1/3 shrink-0 pt-1">
+        <div class="py-4 px-6 border-b border-outline-variant flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-surface-hover transition-colors">
+          <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider md:w-1/3 shrink-0 pt-1">
             <%= field.project_template_field.label %>
           </div>
-          <div class="text-[14px] text-[#3C4043] md:w-2/3 flex flex-wrap gap-2">
+          <div class="text-[14px] text-on-surface md:w-2/3 flex flex-wrap gap-2">
             <% if display_text.present? %>
               <% if is_dropdown %>
-                <span class="bg-[#F1F3F4] border border-[#DADCE0] text-[#3C4043] px-3 py-1 rounded-[4px] text-[13px] font-medium"><%= display_text %></span>
+                <span class="bg-surface-variant border border-outline text-on-surface px-3 py-1 rounded-[4px] text-[13px] font-medium"><%= display_text %></span>
               <% else %>
                 <%= display_text %>
               <% end %>
             <% else %>
-              <span class="text-[#5F6368] italic font-normal">No content provided</span>
+              <span class="text-on-surface-variant italic font-normal">No content provided</span>
             <% end %>
           </div>
         </div>
@@ -87,10 +87,10 @@
     <% end %>
 
     <% if @course.toggle_topics %>
-      <div class="p-4 bg-[#F8F9FA] rounded-b-[8px]">
-        <div class="flex items-center gap-2 text-[12px] text-[#5F6368]">
+      <div class="p-4 bg-surface-hover rounded-b-[8px]">
+        <div class="flex items-center gap-2 text-[12px] text-on-surface-variant">
           <span class="material-symbols-outlined text-[16px]">info</span>
-          <span>Based on Topic: <strong class="text-[#3C4043] font-medium"><%= based_on_topic_name || "Own Proposal" %></strong></span>
+          <span>Based on Topic: <strong class="text-on-surface font-medium"><%= based_on_topic_name || "Own Proposal" %></strong></span>
         </div>
       </div>
     <% end %>
@@ -99,17 +99,17 @@
   <%# --- FIELD EXPAND MODAL --- %>
   <dialog
     data-field-expand-modal-target="dialog"
-    class="w-full max-w-3xl max-h-[85vh] m-auto p-0 rounded-xl border border-[#E0E0E0] shadow-lg bg-white backdrop:bg-black/40"
+    class="w-full max-w-3xl max-h-[85vh] m-auto p-0 rounded-xl border border-outline-variant shadow-lg bg-white backdrop:bg-black/40"
   >
-    <div class="flex items-center justify-between px-5 py-4 border-b border-[#E0E0E0] sticky top-0 bg-white">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-outline-variant sticky top-0 bg-white">
       <h4
         data-field-expand-modal-target="title"
-        class="text-xs md:text-sm font-bold text-[#3C4043] uppercase tracking-wide"
+        class="text-xs md:text-sm font-bold text-on-surface uppercase tracking-wide"
       >Field details</h4>
       <button
         type="button"
         data-action="click->field-expand-modal#close"
-        class="text-[#5F6368] hover:text-[#3C4043] transition-colors"
+        class="text-on-surface-variant hover:text-on-surface transition-colors"
         aria-label="Close"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path

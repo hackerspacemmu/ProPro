@@ -5,7 +5,7 @@
 
 <dialog data-modal-target="dialog"
         data-action="click->modal#backdropClose"
-        class="m-auto rounded-[10px] border border-gray-200 shadow-xl p-0 w-[95%] sm:w-[85%] md:w-[75%] lg:w-[50%] max-w-3xl text-[#3C4043] font-['Roboto',sans-serif]">
+        class="m-auto rounded-[10px] border border-gray-200 shadow-xl p-0 w-[95%] sm:w-[85%] md:w-[75%] lg:w-[50%] max-w-3xl text-on-surface font-['Roboto',sans-serif]">
   <div class="p-6 max-h-[80vh] overflow-y-auto">
     <div class="flex items-start justify-between gap-4 mb-4">
       <div>
@@ -27,7 +27,7 @@
       </div>
     <% end %>
 
-    <div class="mt-4 p-3 bg-[#ebebeb] rounded-md outline outline-1 outline-[#c4c4c4] text-sm text-gray-700">
+    <div class="mt-4 p-3 bg-surface-muted rounded-md outline outline-1 outline-outline-strong text-sm text-gray-700">
       <p class="mb-2">
         Provide a CSV file in
         <%= link_to course.grouped? ? "this format (Grouped)" : "this format (Solo)",

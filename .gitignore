@@ -106,3 +106,5 @@ repomix.config.json
 
 # Ignore opencode config files
 .opencode
+
+/ProPro_Design

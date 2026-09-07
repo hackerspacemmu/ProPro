@@ -4,10 +4,10 @@
     expanded: when true, the detail row renders open (search/filter active). %>
 <% badge_classes, badge_color =
      case status.to_s
-     when "approved"      then ["bg-[#E6F4EA] text-[#137333]", "bg-[#137333]"]
-     when "pending"       then ["bg-[#E8F0FE] text-[#1967D2]", "bg-[#1967D2]"]
-     when "redo"          then ["bg-[#FEF7E0] text-[#E37400]", "bg-[#E37400]"]
-     when "rejected"      then ["bg-[#FCE8E6] text-[#C5221F]", "bg-[#C5221F]"]
+     when "approved"      then ["bg-success-container text-success", "bg-success"]
+     when "pending"       then ["bg-primary-container text-primary-soft", "bg-primary-soft"]
+     when "redo"          then ["bg-warning-container-alt text-warning-strong", "bg-warning-strong"]
+     when "rejected"      then ["bg-error-container text-error", "bg-error"]
      else                      ["bg-gray-100 text-gray-600", "bg-gray-500"]
      end %>
 

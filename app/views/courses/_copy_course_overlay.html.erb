@@ -1,7 +1,7 @@
 <%# locals: (course:, mode:, courses:) %>
 <div data-controller="overlay" data-overlay-target-course-id-value="<%= course.id %>" data-overlay-mode-value="<%= mode %>" class="relative">
   <div class="flex justify-end">
-    <button type="button" data-action="click->overlay#open" class="inline-flex items-center gap-2 border border-[#DADCE0] text-[#1A73E8] hover:bg-[#F8F9FA] px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+    <button type="button" data-action="click->overlay#open" class="inline-flex items-center gap-2 border border-outline text-primary hover:bg-surface-hover px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
       <span class="material-symbols-outlined text-[18px]">content_copy</span>
       Reuse details from another course
     </button>
@@ -13,8 +13,8 @@
     <%= turbo_frame_tag "overlay_content", class: "bg-white rounded-[28px] shadow-xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative",
         data: { overlay_target: "container" } do %>
       <div class="px-6 pt-6 pb-4 flex items-center justify-between">
-        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-[#1f1f1f]">Select a Course to Copy</h3>
-        <button type="button" data-action="click->overlay#close" class="p-2 text-[#5F6368] hover:bg-[#F1F3F4] rounded-full transition-colors flex items-center justify-center">
+        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-on-surface-strong">Select a Course to Copy</h3>
+        <button type="button" data-action="click->overlay#close" class="p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors flex items-center justify-center">
           <span class="material-symbols-outlined text-[24px]">close</span>
         </button>
       </div>
@@ -24,35 +24,35 @@
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <% courses.each do |course_item| %>
               <div data-overlay-target="card" data-action="click->overlay#selectSetting" data-overlay-source-id-param="<%= course_item.id %>"
-                  class="h-full min-h-[240px] bg-white rounded-[10px] border border-[#E0E0E0] p-6 transition-all duration-200 ease-in-out hover:border-[#1A73E8] hover:shadow-md flex flex-col justify-between cursor-pointer">
+                  class="h-full min-h-[240px] bg-white rounded-[10px] border border-outline-variant p-6 transition-all duration-200 ease-in-out hover:border-primary hover:shadow-md flex flex-col justify-between cursor-pointer">
                 <div>
                   <div class="flex items-start justify-between mb-2">
-                    <h4 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-semibold text-[#1f1f1f]">
+                    <h4 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-semibold text-on-surface-strong">
                       <%= course_item.course_name %>
                     </h4>
                   </div>
 
-                  <p class="text-[13px] text-[#5F6368] leading-relaxed line-clamp-3 mb-4">
+                  <p class="text-[13px] text-on-surface-variant leading-relaxed line-clamp-3 mb-4">
                     <%= course_item.course_description.presence || "No description available for this course." %>
                   </p>
                 </div>
 
-                <div class="pt-4 border-t border-[#E0E0E0] flex items-center gap-2">
-                  <div class="w-6 h-6 rounded-full bg-[#E1E3E1] text-[#3C4043] flex items-center justify-center text-xs font-bold shrink-0">
+                <div class="pt-4 border-t border-outline-variant flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-xs font-bold shrink-0">
                     <%= course_item.coordinators.first&.name&.first&.upcase || "?" %>
                   </div>
-                  <span class="text-xs font-medium text-[#5F6368]">
+                  <span class="text-xs font-medium text-on-surface-variant">
                     Coordinator:
-                    <span class="text-[#3C4043]"><%= course_item.coordinators.first&.name || "None" %></span>
+                    <span class="text-on-surface"><%= course_item.coordinators.first&.name || "None" %></span>
                   </span>
                 </div>
               </div>
             <% end %>
           </div>
         <% else %>
-          <div class="flex items-center gap-3 p-5 bg-white rounded-lg border border-[#E0E0E0] shadow-sm">
-            <span class="material-symbols-outlined text-[20px] text-[#5F6368]">info</span>
-            <p class="text-[14px] text-[#5F6368] font-medium m-0">
+          <div class="flex items-center gap-3 p-5 bg-white rounded-lg border border-outline-variant shadow-sm">
+            <span class="material-symbols-outlined text-[20px] text-on-surface-variant">info</span>
+            <p class="text-[14px] text-on-surface-variant font-medium m-0">
               You have no courses at the moment. Please create one.
             </p>
           </div>
@@ -62,7 +62,7 @@
       <div class="px-6 py-6 flex justify-end">
         <button type="button"
             data-action="click->overlay#close"
-            class="text-[#1A73E8] hover:bg-[#F8F9FA] px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+            class="text-primary hover:bg-surface-hover px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">
           Cancel
         </button>
       </div>

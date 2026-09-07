@@ -18,11 +18,11 @@
 
 <%# --- Data Fetching --- %>
 <% if @participant_type == 'group' %>
-  <% @project = group_project_for(@group, @course) %>
-  <% @status = group_status(@group, @course) %>
+  <% @project = group_project_for(@group, @projects_by_owner) %>
+  <% @status = group_status(@group, @projects_by_owner) %>
 <% else %>
-  <% @project = student_project_for(@student, @course) %>
-  <% @status = student_status(@student, @course) %>
+  <% @project = student_project_for(@student, @projects_by_owner) %>
+  <% @status = student_status(@student, @projects_by_owner) %>
 <% end %>
 <% @current_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>

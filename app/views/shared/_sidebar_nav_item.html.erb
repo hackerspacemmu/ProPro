@@ -26,7 +26,7 @@
     ]
   else
     row_base + [
-      active ? "rounded-r-full bg-primary-container-alt text-primary-strong font-semibold"
+      active ? "mx-3 rounded-full bg-primary-container-alt text-primary-strong font-semibold"
              : "rounded-r-full text-on-surface hover:bg-white/60"
     ]
   end
@@ -39,7 +39,7 @@
 
 <% inner = capture do %>
   <% if is_course %>
-    <div class="w-9 h-9 rounded-full <%= active ? 'bg-[#E1E3E1] text-on-surface' : 'bg-primary text-white' %> flex items-center justify-center text-sm font-bold shrink-0"><%= avatar %></div>
+    <div class="w-9 h-9 rounded-full <%= active ? 'bg-surface-variant-deep text-on-surface' : 'bg-primary text-white' %> flex items-center justify-center text-sm font-bold shrink-0"><%= avatar %></div>
   <% else %>
     <span class="material-symbols-outlined <%= icon_color %><%= active ? " #{collapse_circle}" : "" %>"><%= icon %></span>
   <% end %>

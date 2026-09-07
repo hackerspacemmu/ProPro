@@ -2,7 +2,7 @@
 
 <%# Version Selector %>
 <div class="flex items-center gap-2">
-  <span class="text-sm font-medium text-[#5F6368] whitespace-nowrap">Version:</span>
+  <span class="text-sm font-medium text-on-surface-variant whitespace-nowrap">Version:</span>
   <div class="relative flex-1 min-w-0">
     <%= select_tag nil,
         options_for_select(
@@ -19,8 +19,8 @@
           version_select_project_value: project.id,
           action: "change->version-select#navigate"
         },
-        class: "w-full bg-[#FFFFFF] border border-[#DADCE0] rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-[#3C4043] focus:outline-none focus:border-[#1A73E8] cursor-pointer appearance-none" %>
-    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#5F6368]">
+        class: "w-full bg-surface border border-outline rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary cursor-pointer appearance-none" %>
+    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-on-surface-variant">
       <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
     </div>
   </div>
@@ -34,7 +34,7 @@
       <%= button_to change_status_course_project_path(course, project, status: "approved"),
           method: :patch,
           form_class: "flex flex-1 m-0",
-          class: "flex-1 justify-center bg-[#137333] hover:bg-[#0f5c29] text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2" do %>
+          class: "flex-1 justify-center bg-success hover:bg-success-hover text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2" do %>
         <span class="material-symbols-outlined text-[18px]">check</span>
         Approve
       <% end %>
@@ -44,7 +44,7 @@
       <button
         type="button"
         data-action="click->dropdown#toggle"
-        class="bg-[#137333] hover:bg-[#0f5c29] text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center shrink-0"
+        class="bg-success hover:bg-success-hover text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center shrink-0"
       >
         <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
       </button>
@@ -52,28 +52,28 @@
 
     <div
       data-dropdown-target="menu"
-      class="absolute right-0 bottom-full mb-1.5 w-full bg-white border border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50 hidden origin-bottom min-[1245px]:top-full min-[1245px]:mt-1.5 min-[1245px]:bottom-auto min-[1245px]:mb-0 min-[1245px]:origin-top"
+      class="absolute right-0 bottom-full mb-1.5 w-full bg-white border border-outline-variant rounded-lg shadow-lg overflow-hidden z-50 hidden origin-bottom min-[1245px]:top-full min-[1245px]:mt-1.5 min-[1245px]:bottom-auto min-[1245px]:mb-0 min-[1245px]:origin-top"
     >
       <div class="py-1">
         <%= button_to change_status_course_project_path(course, project, status: "redo"),
             method: :patch,
-            class: "w-full text-left px-4 py-2.5 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors" do %>
-          <span class="material-symbols-outlined text-[18px] text-[#5F6368]">replay</span>
+            class: "w-full text-left px-4 py-2.5 hover:bg-surface-hover flex items-center gap-3 transition-colors" do %>
+          <span class="material-symbols-outlined text-[18px] text-on-surface-variant">replay</span>
           <div class="flex flex-col">
-            <span class="text-[14px] text-[#3C4043] font-medium">Request Changes</span>
-            <span class="text-xs text-[#5F6368]">Return to group for redo</span>
+            <span class="text-[14px] text-on-surface font-medium">Request Changes</span>
+            <span class="text-xs text-on-surface-variant">Return to group for redo</span>
           </div>
         <% end %>
 
-        <div class="border-t border-[#E0E0E0] my-1"></div>
+        <div class="border-t border-outline-variant my-1"></div>
 
         <%= button_to change_status_course_project_path(course, project, status: "rejected"),
             method: :patch,
-            class: "w-full text-left px-4 py-2.5 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors" do %>
-          <span class="material-symbols-outlined text-[18px] text-[#C5221F]">block</span>
+            class: "w-full text-left px-4 py-2.5 hover:bg-error-container flex items-center gap-3 transition-colors" do %>
+          <span class="material-symbols-outlined text-[18px] text-error">block</span>
           <div class="flex flex-col">
-            <span class="text-[14px] text-[#C5221F] font-medium">Reject Proposal</span>
-            <span class="text-xs text-[#C5221F]/70">Close out permanently</span>
+            <span class="text-[14px] text-error font-medium">Reject Proposal</span>
+            <span class="text-xs text-error/70">Close out permanently</span>
           </div>
         <% end %>
       </div>

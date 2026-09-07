@@ -36,6 +36,37 @@
   --color-warning: #f57f17;
   --color-warning-container: #fff8e1;
 
+  /* Neutral hover / muted surfaces */
+  --color-surface-hover: #f8f9fa;
+  --color-surface-muted: #ebebeb;
+  --color-surface-variant-hover: #e8eaed;
+  --color-surface-variant-deep: #e1e3e1;
+  --color-on-surface-muted: #747775;
+  --color-on-surface-soft: #444746;
+  --color-on-surface-muted-strong: #858585;
+  --color-file-link: #313848;
+
+  /* Outline greys */
+  --color-outline-strong: #c4c4c4;
+  --color-outline-soft: #c4c7c5;
+
+  /* Primary soft (pending-pill blue) + container variants */
+  --color-primary-soft: #1967d2;
+  --color-primary-container-hover: #e9eef6;
+  --color-primary-container-ring: #d2e3fc;
+
+  /* Warning/redo extended */
+  --color-warning-strong: #e37400;
+  --color-warning-container-alt: #fef7e0;
+  --color-warning-border: #f2de8a;
+  --color-warning-on-container: #b06000;
+
+  /* Error container border */
+  --color-error-container-border: #f9d2ce;
+
+  /* Soft shadow tint */
+  --color-shadow-soft: #b8b8b8;
+
   /* Structural */
   --radius-panel: 28px;
   --radius-card: 8px;

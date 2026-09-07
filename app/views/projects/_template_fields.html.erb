@@ -1,7 +1,7 @@
 <%# locals: (template_fields:, values:, is_approved: false) %>
 
 <% input_classes =
-     "w-full border border-[#DADCE0] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#3C4043] bg-white focus:outline-none focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8] transition-shadow" %>
+     "w-full border border-outline rounded-[6px] px-3.5 py-2.5 text-[14px] text-on-surface bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow" %>
 
 <div id="template-fields-container" class="space-y-8">
   <% template_fields.each do |field| %>
@@ -12,21 +12,21 @@
 
     <div class="space-y-1">
       <%= label_tag "fields_#{field.id}",
-        class: "block text-xs font-semibold text-[#3C4043] uppercase tracking-wide mb-1.5",
+        class: "block text-xs font-semibold text-on-surface uppercase tracking-wide mb-1.5",
         title: field.hint do %>
         <%= field.label %>
         <% if field.required && !readonly_field %>
-          <span class="text-[#C5221F]">*</span>
+          <span class="text-error">*</span>
         <% end %>
         <% if field.free_edit %>
-          <span class="ml-2 text-[10px] font-semibold text-[#1A73E8] bg-[#E8F0FE] px-2 py-0.5 rounded-full border border-[#DADCE0] uppercase tracking-tighter">
+          <span class="ml-2 text-[10px] font-semibold text-primary bg-primary-container px-2 py-0.5 rounded-full border border-outline uppercase tracking-tighter">
             Editable Post-Approval
           </span>
         <% end %>
       <% end %>
 
       <% if field.hint.present? %>
-        <div class="text-[12px] text-[#5F6368] mt-1"><%= field.hint %></div>
+        <div class="text-[12px] text-on-surface-variant mt-1"><%= field.hint %></div>
       <% end %>
 
       <% if readonly_field %>
@@ -61,7 +61,7 @@
                 class: "#{field_input_classes} appearance-none pr-10 cursor-pointer",
                 required: (field.required && !readonly_field),
                 disabled: readonly_field %>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5F6368]">
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-variant">
             <span class="material-symbols-outlined text-[20px]">expand_more</span>
           </div>
         </div>
@@ -69,15 +69,15 @@
       <% when "radio" %>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <% field.option_list.each_with_index do |option, idx| %>
-            <label class="flex items-center gap-2.5 p-3 rounded-[6px] border border-[#DADCE0] cursor-pointer hover:bg-[#F8F9FA] transition-colors has-[:checked]:border-[#1A73E8] has-[:checked]:bg-[#E8F0FE]/40 <%= 'opacity-60 pointer-events-none' if readonly_field %>">
+            <label class="flex items-center gap-2.5 p-3 rounded-[6px] border border-outline cursor-pointer hover:bg-surface-hover transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-container/40 <%= 'opacity-60 pointer-events-none' if readonly_field %>">
               <%= radio_button_tag "fields[#{field.id}]",
                     option,
                     (option.to_s == existing_value.to_s),
                     id: "field_#{field.id}_#{idx}",
                     required: (field.required && !readonly_field),
                     disabled: readonly_field,
-                    class: "h-4 w-4 text-[#1A73E8] border-[#DADCE0] focus:ring-[#1A73E8] cursor-pointer" %>
-              <span class="text-[14px] text-[#3C4043]"><%= option %></span>
+                    class: "h-4 w-4 text-primary border-outline focus:ring-primary cursor-pointer" %>
+              <span class="text-[14px] text-on-surface"><%= option %></span>
             </label>
           <% end %>
         </div>

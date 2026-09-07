@@ -1,0 +1,340 @@
+<%# Live component + token style guide. Dev-only route: /styleguide (guarded in
+    the controller and gated out of the routes unless Rails.env.development?).
+
+    Replaces the hand-copied mockup (ProPro_Design/style_guide.html.erb) with a
+    page that renders the real components. The token palette reads its values
+    straight from the compiled Tailwind @theme (--color-* CSS variables), so the
+    swatch hex labels below can never drift from what actually ships. The
+    component section renders the actual partials with representative locals —
+    the page *is* the components, not a snapshot of them. %>
+<% content_for :title, "Style Guide | ProPro" %>
+<% content_for :no_sidebar, true %>
+<% content_for :no_header, true %>
+<% content_for :no_footer, true %>
+<% content_for :hide_toggler, true %>
+<% content_for :hide_breadcrumbs, true %>
+<% content_for :body_class, "bg-surface-tint" %>
+
+<!-- Force-show the mobile-only form action bar so it renders in the demo stage
+     on desktop. The real component is min-[1245px]:hidden by design; the stage
+     scopes the override so it never affects app pages. -->
+<style>
+  .styleguide-mobile-stage .fixed { position: absolute; }
+  .styleguide-mobile-stage .min-\[1245px\]\:hidden { display: flex !important; }
+</style>
+
+<div class="min-h-screen bg-surface-tint text-on-surface font-['Roboto',sans-serif]">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+
+    <header>
+      <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem;" class="text-on-surface-strong">ProPro Design System</h1>
+      <p class="text-on-surface-variant mt-2 text-[15px] max-w-[720px]">
+        A live rendering of the real components, not a mockup. The color palette below reads its
+        values from the compiled <code class="font-mono text-xs">@theme</code> at runtime (each swatch
+        label is resolved from <code class="font-mono text-xs">var(--color-*)</code>), and every component
+        in the bottom half is the actual partial rendered with representative locals. Editing
+        <code class="font-mono text-xs">app/assets/tailwind/application.css</code> or any of the
+        partials updates this page — there is nothing hand-copied to stay in sync.
+      </p>
+      <p class="text-[13px] text-on-surface-muted mt-3">
+        Supersedes <code class="font-mono text-xs">ProPro_Design/style_guide.html.erb</code> (static
+        mockup, <code class="font-mono text-xs">--gm3-sys-color-*</code> scheme, already drifted).
+      </p>
+    </header>
+
+    <% token_groups = [
+      { name: "Text & surfaces", tokens: [
+        ["on-surface", "Primary text (body, labels)"],
+        ["on-surface-strong", "Headings & titles, one shade darker"],
+        ["on-surface-variant", "Secondary text, inactive icons"],
+        ["on-surface-muted", "Metadata (timestamps, counts)"],
+        ["on-surface-disabled", "Disabled text"],
+        ["surface", "Card / pane surface"],
+        ["surface-tint", "App canvas (page background)"],
+        ["surface-variant", "Hover fills, neutral chips"]
+      ]},
+      { name: "Neutral hover & muted surfaces", tokens: [
+        ["surface-hover", "Row hover, dropdown hover"],
+        ["surface-variant-deep", "Avatar fill (group owners, generic)"],
+        ["on-surface-soft", "Meta/timestamp text (DM Sans)"],
+        ["on-surface-muted-strong", "Darker metadata text"],
+        ["file-link", "Specification file links"]
+      ]},
+      { name: "Borders & dividers", tokens: [
+        ["outline", "Form-control borders"],
+        ["outline-variant", "Dividers, card borders"],
+        ["outline-strong", "Emphasised borders"],
+        ["outline-soft", "Subtle borders"]
+      ]},
+      { name: "Primary (blue)", tokens: [
+        ["primary", "Primary actions (Approve nav, links)"],
+        ["primary-strong", "Filled CTAs"],
+        ["primary-hover", "Hover state"],
+        ["primary-soft", "Pending-pill text"],
+        ["primary-container", "Pending pill bg, active tab tint"],
+        ["primary-container-alt", "Inset active-item pill (sidebar)"],
+        ["primary-container-ring", "Container ring"],
+        ["primary-container-hover", "Container hover"]
+      ]},
+      { name: "Status", tokens: [
+        ["success", "Approved / Available"],
+        ["success-hover", "Approved hover"],
+        ["success-container", "Approved pill bg"],
+        ["error", "Rejected / danger"],
+        ["error-hover", "Error hover"],
+        ["error-container", "Rejected pill bg"],
+        ["error-container-border", "Error banner border"],
+        ["warning", "Redo pill text"],
+        ["warning-strong", "Redo fills"],
+        ["warning-on-container", "On-container warning text"],
+        ["warning-container", "Redo pill bg"],
+        ["warning-container-alt", "Callout bg (audit notices)"],
+        ["warning-border", "Callout border"]
+      ]},
+      { name: "Shadows", tokens: [
+        ["shadow-soft", "Soft shadow tint (add-students card)"]
+      ]}
+    ] %>
+
+    <!-- 1. COLOR TOKENS -->
+    <section>
+      <div class="flex items-baseline justify-between mb-6">
+        <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong">1 · Color tokens</h2>
+        <span class="text-xs text-on-surface-variant">Hex values resolve from the compiled theme on load</span>
+      </div>
+      <% token_groups.each do |group| %>
+        <div class="mb-8">
+          <h3 class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3"><%= group[:name] %></h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+            <% group[:tokens].each do |token, usage| %>
+              <div class="styleguide-swatch-row flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full border border-outline-variant shrink-0"
+                     style="background-color: var(--color-<%= token %>)" data-styleguide-swatch></div>
+                <div class="min-w-0">
+                  <div class="font-mono text-xs text-on-surface-strong truncate">--color-<%= token %></div>
+                  <div class="text-[12px] text-on-surface-variant"><%= usage %></div>
+                </div>
+                <code class="ml-auto shrink-0 text-[11px] text-on-surface-muted font-mono" data-styleguide-hex style="visibility: hidden;">–</code>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <p class="text-[13px] text-on-surface-muted">
+        Rule: no generic Tailwind palette colors (<code class="font-mono text-xs">gray-*</code>, <code class="font-mono text-xs">red-*</code>, …) and no raw
+        hex in redesigned views — every color resolves to one of these tokens via <code class="font-mono text-xs">bg-…</code> / <code class="font-mono text-xs">text-…</code> / <code class="font-mono text-xs">border-…</code> utilities.
+      </p>
+    </section>
+
+    <!-- 2. STRUCTURAL TOKENS -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">2 · Structural tokens</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-surface border border-outline-variant rounded-lg p-6">
+          <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-4">Corner radius</div>
+          <div class="space-y-5">
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-10 bg-surface-variant border border-outline-variant" style="border-radius: var(--radius-card);"></div>
+              <span class="text-sm">--radius-card · 8px<br><span class="text-[12px] text-on-surface-variant">cards, dialogs, chips</span></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-10 bg-surface-variant border border-outline-variant" style="border-radius: var(--radius-panel);"></div>
+              <span class="text-sm">--radius-panel · 28px<br><span class="text-[12px] text-on-surface-variant">top-level panels</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-lg p-6">
+          <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-4">Header height</div>
+          <div class="flex items-center gap-3">
+            <div class="w-full bg-primary-container flex items-center justify-center" style="height: var(--spacing-header);">
+              <span class="text-[12px] font-medium text-primary">56px</span>
+            </div>
+          </div>
+          <p class="text-[12px] text-on-surface-variant mt-3">--spacing-header · generates <code class="font-mono text-xs">h-header</code>/<code class="font-mono text-xs">top-header</code></p>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-lg p-6">
+          <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-4">Comments drawer breakpoint</div>
+          <div class="flex items-center gap-3 h-16">
+            <div class="flex-1 bg-surface-variant border border-outline-variant rounded h-full flex items-center justify-center text-[12px] text-on-surface-variant">column</div>
+            <span class="w-px self-stretch bg-primary relative"><span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] font-medium text-primary whitespace-nowrap">1245px</span></span>
+            <div class="flex-1 h-full" style="outline: 2px dashed var(--color-primary); outline-offset: -2px; border-radius: var(--radius-card);"></div>
+          </div>
+          <p class="text-[12px] text-on-surface-variant mt-5">--breakpoint-comments · static column &rarr; off-canvas drawer</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TYPOGRAPHY -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">3 · Typography</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">DM Sans — UI chrome</div>
+          <div class="space-y-4">
+            <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 2.25rem; font-weight: 400; letter-spacing: 0; line-height: 2.75rem;" class="text-on-surface-strong">Display · 36/400/44</div>
+            <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1.375rem; font-weight: 400; letter-spacing: 0; line-height: 1.75rem;" class="text-on-surface-strong">Section Heading · 22/400/28</div>
+            <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 500; letter-spacing: 0; line-height: 1.5rem;" class="text-on-surface-strong">Card / Section Title · 16/500/24</div>
+            <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" class="text-on-surface">Nav / Tab / Label · 14/500/20</div>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">Roboto — reading type</div>
+          <div class="space-y-4 text-[14px]">
+            <div class="text-on-surface font-medium">Body Medium · 14/500</div>
+            <div class="text-on-surface-variant">Body Regular · 14/400 — descriptions</div>
+            <div class="text-on-surface-soft">Meta / Timestamp · 14/400 — “Group 1 • Submitted 2 hours ago”</div>
+            <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Eyebrow Label · 12/500/uppercase</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STATUS PILLS -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">4 · Status pills</h2>
+      <div class="flex flex-wrap gap-3">
+        <span class="px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-success-container text-success">Approved</span>
+        <span class="px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-primary-container text-primary-soft">Pending</span>
+        <span class="px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-warning-container text-warning">Redo</span>
+        <span class="px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-error-container text-error">Rejected</span>
+        <span class="px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-surface-variant text-on-surface-variant">Neutral</span>
+        <span class="px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-success-container text-success">Available</span>
+      </div>
+    </section>
+
+    <!-- 5. BUTTONS & ACTIONS -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">5 · Buttons & actions</h2>
+      <div class="bg-surface border border-outline-variant rounded-lg p-8 space-y-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <button type="button" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-full font-medium text-[14px] transition-all shadow-sm cursor-pointer">Save</button>
+          <button type="button" class="bg-primary-strong hover:bg-primary-hover text-white px-5 py-2 rounded-full font-medium text-[14px] transition-colors cursor-pointer">Add details</button>
+          <a href="#" class="px-5 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-variant hover:text-on-surface font-medium text-[14px] transition-colors">Discard Changes</a>
+          <div class="flex shadow-sm rounded-full w-72">
+            <button type="button" class="flex-1 justify-center bg-success hover:bg-success-hover text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2 cursor-pointer"><span class="material-symbols-outlined text-[18px]">check</span>Approve</button>
+            <div class="w-[1px] bg-white/30"></div>
+            <button type="button" class="bg-success hover:bg-success-hover text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center shrink-0 cursor-pointer"><span class="material-symbols-outlined text-[20px]">arrow_drop_down</span></button>
+          </div>
+          <button type="button" class="bg-error hover:bg-error-hover text-white px-5 py-2 rounded-full font-medium text-[14px] transition-colors cursor-pointer">Reject</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-4 pt-4 border-t border-outline-variant">
+          <button type="button" class="flex items-center gap-3 px-4 py-2.5 bg-surface border border-outline-variant rounded-lg cursor-pointer">
+            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">replay</span>
+            <span class="flex flex-col text-left">
+              <span class="text-[14px] text-on-surface font-medium">Request Changes</span>
+              <span class="text-xs text-on-surface-variant">Return to group for redo</span>
+            </span>
+          </button>
+          <button type="button" class="flex items-center gap-3 px-4 py-2.5 bg-surface border border-outline-variant rounded-lg cursor-pointer">
+            <span class="material-symbols-outlined text-[18px] text-error">block</span>
+            <span class="flex flex-col text-left">
+              <span class="text-[14px] text-error font-medium">Reject Proposal</span>
+              <span class="text-xs text-error/70">Close out permanently</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SECTION HEADERS -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">6 · Section headers <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">courses/_section_header</code> — static · section · row_id</span></h2>
+      <div class="bg-surface border border-outline-variant rounded-lg overflow-hidden divide-y divide-outline-variant">
+        <%= render "courses/section_header", title: "Static header", count: 4 %>
+        <%= render "courses/section_header", title: "Pending Proposals", count: 3, section: "pending-proposals" %>
+        <%= render "courses/section_header", title: "Kevin", count: 2, row_id: "kevin", suffix: "(You)" %>
+      </div>
+    </section>
+
+    <!-- 7. ROW ITEMS -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">7 · Row items <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">shared/_row_item</code></span></h2>
+      <div class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
+        <%= render "shared/row_item", path: "#", icon: "description", title: "Project Suggestion Engine", meta_parts: ["Kevin Mah"], time_meta: "Submitted 2 hours ago", status: "approved" %>
+        <%= render "shared/row_item", path: "#", icon: "description", title: "Real-time Group Progress Dashboard", meta_parts: ["Siti Aminah"], time_meta: "Submitted yesterday", status: "pending" %>
+        <%= render "shared/row_item", path: "#", icon: "description", title: "Accessibility-first Proctoring", meta_parts: ["Group 2"], time_meta: "Updated 3 days ago", status: "redo" %>
+        <%= render "shared/row_item", path: "#", icon: "description", title: "Auto-grading with LLM Rubrics", meta_parts: ["Group 7"], time_meta: "Updated last week", status: "rejected" %>
+        <%= render "shared/row_item", path: "#", icon: "topic", title: "Edge Computing for Rural IoT", meta_parts: ["Dr. Leong"], time_meta: "Updated 5 hours ago", status: "reviewed", pill_label: "Reviewed" %>
+        <%= render "shared/row_item", path: "#", icon: "description", title: "Block content below the row", meta_parts: ["Optional detail"], status: "pending",
+          linkable: true do %>
+          <div class="px-4 pb-3 text-[13px] text-on-surface-variant">The optional block renders below the row line — used for inline annotations.</div>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- 8. EMPTY STATES -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">8 · Empty states <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">shared/_empty_state</code></span></h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
+          <%= render "shared/empty_state", heading: "No project details published yet", description: "Check back once your coordinator adds the brief and any specification files.", illustration: "illustrations/project_details_banner.svg" %>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
+          <%= render "shared/empty_state", heading: "No project details yet", description: "Add a description and any specification files so students know what's expected before they submit a proposal.",
+              cta_label: "Add details", cta_path: "#", illustration: "illustrations/submission_empty_banner.svg" %>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. SIDEBAR NAV ITEMS -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">9 · Sidebar nav items <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">shared/_sidebar_nav_item</code></span></h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-surface border border-outline-variant rounded-lg py-3">
+          <%= render "shared/sidebar_nav_item", kind: :plain, label: "Home", icon: "home", active: true, path: "#" %>
+          <%= render "shared/sidebar_nav_item", kind: :plain, label: "Edit profile", icon: "person", path: "#" %>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-lg py-3">
+          <%= render "shared/sidebar_nav_item", kind: :course, label: "Software Engineering Project", avatar: "SE", active: true, icon_color: "", path: "#" %>
+          <%= render "shared/sidebar_nav_item", kind: :course, label: "Machine Learning Applications", avatar: "ML", path: "#" %>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. FORM ACTION BAR -->
+    <section>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">10 · Form action bar <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">shared/_form_action_bar</code> — mobile toolbar, forced visible in the stage</span></h2>
+      <div class="styleguide-mobile-stage relative bg-surface-tint border border-outline-variant rounded-lg overflow-hidden" style="min-height: 330px;">
+        <%= render "shared/form_action_bar", discard_path: "#", form_id: "styleguide-demo-form", submit_label: "Save" %>
+      </div>
+      <p class="text-[13px] text-on-surface-muted mt-3">The real component is <code class="font-mono text-xs">min-[1245px]:hidden</code> — the demo stage overrides positioning only, never app pages.</p>
+    </section>
+
+    <!-- 11. SOURCES -->
+    <section class="border-t border-outline-variant pt-6">
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-3">Where this all comes from</h2>
+      <ul class="text-[13px] text-on-surface-variant space-y-1.5 list-disc pl-5">
+        <li>Tokens: <code class="font-mono text-xs">app/assets/tailwind/application.css</code> (the <code class="font-mono text-xs">@theme</code> block)</li>
+        <li>Row items, empty states, form bars, sidebar nav: <code class="font-mono text-xs">app/views/shared/</code></li>
+        <li>Section headers: <code class="font-mono text-xs">app/views/courses/_section_header.html.erb</code></li>
+        <li>Status pills: <code class="font-mono text-xs">shared/_row_item</code> and <code class="font-mono text-xs">courses/_topic_card</code></li>
+        <li>Approve split / Request Changes / Reject: <code class="font-mono text-xs">projects/_review_actions</code></li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  // Resolve each --color-* swatch to its actual hex from the compiled theme.
+  // No hex is hardcoded anywhere on this page — labels cannot drift.
+  (function () {
+    function rgbToHex(rgb) {
+      var m = String(rgb).match(/\d+(\.\d+)?/g);
+      if (!m) return rgb;
+      return "#" + m.slice(0, 3).map(function (n) {
+        var v = Math.max(0, Math.min(255, Math.round(Number(n))));
+        return v.toString(16).padStart(2, "0");
+      }).join("").toUpperCase();
+    }
+    document.querySelectorAll("[data-styleguide-swatch]").forEach(function (chip) {
+      var row = chip.closest(".styleguide-swatch-row");
+      if (!row) return;
+      var label = row.querySelector("[data-styleguide-hex]");
+      if (label) {
+        label.textContent = rgbToHex(getComputedStyle(chip).backgroundColor);
+        label.style.visibility = "visible";
+      }
+    });
+  })();
+</script>

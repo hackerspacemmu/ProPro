@@ -7,7 +7,7 @@
     <button
       type="button"
       data-action="click->copy-topic#open"
-      class="px-4 py-2 bg-[#F1F3F4] hover:bg-[#E8EAED] text-[#3C4043] text-sm font-medium rounded-full shadow-sm transition-colors"
+      class="px-4 py-2 bg-surface-variant hover:bg-surface-variant-hover text-on-surface text-sm font-medium rounded-full shadow-sm transition-colors"
     >
       Reuse details from another topic
     </button>
@@ -16,19 +16,19 @@
   <dialog
     data-field-expand-modal-target="dialog"
     data-copy-topic-target="dialog"
-    class="w-full max-w-3xl max-h-[85dvh] m-auto p-0 rounded-xl border border-[#E0E0E0] shadow-lg bg-white backdrop:bg-black/40"
+    class="w-full max-w-3xl max-h-[85dvh] m-auto p-0 rounded-xl border border-outline-variant shadow-lg bg-white backdrop:bg-black/40"
   >
     <%= turbo_frame_tag "overlay_content",
       class: "flex flex-col h-full p-5 md:p-8 overflow-y-auto",
       data: { copy_topic_target: "container" } do %>
 
-      <div class="flex-none flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E0E0E0] pb-4 mb-4">
-        <h3 class="text-[16px] font-semibold text-[#1f1f1f] tracking-tight font-['DM_Sans',Roboto,Arial,sans-serif]">
+      <div class="flex-none flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-outline-variant pb-4 mb-4">
+        <h3 class="text-[16px] font-semibold text-on-surface-strong tracking-tight font-['DM_Sans',Roboto,Arial,sans-serif]">
           Select a Topic to Copy
         </h3>
 
         <div class="flex items-center gap-3">
-          <span class="text-xs font-semibold text-[#5F6368]">Show all topics from coordinated courses</span>
+          <span class="text-xs font-semibold text-on-surface-variant">Show all topics from coordinated courses</span>
 
           <%= form_with url: new_course_topic_path(@course), method: :get, data: { turbo_frame: "overlay_content" } do |f| %>
             <label class="relative inline-flex items-center cursor-pointer">
@@ -48,7 +48,7 @@
 
       <div class="flex-grow">
         <% if @approved_topics.present? %>
-          <div class="flex flex-col border-b border-[#E0E0E0]">
+          <div class="flex flex-col border-b border-outline-variant">
             <% @approved_topics.each do |topic| %>
               <% topic_instance = topic.topic_instances.order(:version).last %>
 
@@ -67,8 +67,8 @@
                     }
                   } do %>
                 <div class="mt-2 flex items-center justify-between gap-4">
-                  <span class="text-[10px] uppercase tracking-widest font-bold text-[#5F6368] whitespace-nowrap">Course</span>
-                  <span class="text-[11px] font-semibold text-[#137333] bg-[#E6F4EA] px-2.5 py-1 rounded-md truncate">
+                  <span class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">Course</span>
+                  <span class="text-[11px] font-semibold text-success bg-success-container px-2.5 py-1 rounded-md truncate">
                     <%= topic.course.course_name %>
                   </span>
                 </div>
@@ -76,9 +76,9 @@
             <% end %>
           </div>
         <% else %>
-          <div class="col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border border-[#E0E0E0] shadow-sm">
+          <div class="col-span-1 w-full flex items-center gap-3 p-6 bg-white rounded-xl border border-outline-variant shadow-sm">
             <%= image_tag "info.svg", class: "w-6 h-6" %>
-            <h5 class="text-sm text-[#5F6368] font-medium m-0">
+            <h5 class="text-sm text-on-surface-variant font-medium m-0">
               You don't have any approved topics yet.
             </h5>
           </div>
@@ -89,7 +89,7 @@
         <button
           type="button"
           data-action="click->field-expand-modal#close"
-          class="text-[#C5221F] hover:text-[#A50E0E] text-sm font-medium"
+          class="text-error hover:text-error-hover text-sm font-medium"
         >
           Cancel
         </button>

@@ -6,7 +6,7 @@
         data-action="sidebar#toggle"
         aria-label="Toggle sidebar"
         aria-controls="app-sidebar"
-        class="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#EEF0F4] text-on-surface-variant transition-colors">
+        class="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors">
         <span class="material-symbols-outlined">menu</span>
       </button>
     <% end %>
@@ -37,13 +37,13 @@
     <%# Mobile only: coordinator icons. Guarded — header is shared by ~30 views. %>
     <% if @course.present? && policy(@course).update? %>
       <%= link_to settings_course_path(@course),
-            class: "sm:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-on-surface-variant transition-colors",
+            class: "sm:hidden p-2 rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors",
             aria: { label: "Course settings" } do %>
         <span class="material-symbols-outlined">settings</span>
       <% end %>
 
       <%= link_to edit_course_project_template_path(@course),
-            class: "sm:hidden p-2 rounded-full hover:bg-[#EEF0F4] text-on-surface-variant transition-colors",
+            class: "sm:hidden p-2 rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors",
             aria: { label: "Edit Project Templates" } do %>
         <span class="material-symbols-outlined">edit_note</span>
       <% end %>

@@ -1,4 +1,4 @@
-<% content_for :body_class, "bg-[#f8fafd]" %>
+<% content_for :body_class, "bg-surface-tint" %>
 <% breadcrumb :project, @project %>
 
 <% content_for :title do %>
@@ -23,13 +23,13 @@
       class="flex-1 bg-surface rounded-tl-panel flex overflow-hidden h-[calc(100vh-var(--spacing-header))]"
       data-controller="tabs comments-drawer"
       data-tabs-persist-key-value="<%= project_tab_persist_key %>"
-      data-tabs-active-class="text-[#0B57D0]"
-      data-tabs-inactive-class="text-[#5F6368] hover:bg-[#F8F9FA] hover:text-[#3C4043]"
+      data-tabs-active-class="text-primary-strong"
+      data-tabs-inactive-class="text-on-surface-variant hover:bg-surface-hover hover:text-on-surface"
       data-action="keydown.esc@window->comments-drawer#closeOnEscape"
     >
 
       <%# ===== LEFT PANE ===== %>
-      <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative border-r border-[#E0E0E0]">
+      <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative border-r border-outline-variant">
 
         <%= render "project_header",
         current_instance: @current_instance,
@@ -106,7 +106,7 @@
         role="region"
         aria-label="Comments"
         class="
-          fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-[#FFFFFF] p-6
+          fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-surface p-6
           flex flex-col gap-6 overflow-y-auto shrink-0
           translate-x-full transition-transform duration-300 ease-out
           min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none

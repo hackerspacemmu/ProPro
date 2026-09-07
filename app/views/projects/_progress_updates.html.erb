@@ -7,7 +7,7 @@
       <button
         data-action="click->record-update-modal#open"
         class="
-          bg-[#1A73E8] hover:bg-[#1B66C9] text-white pl-4 pr-5 py-2.5 rounded-full
+          bg-primary hover:bg-primary-hover text-white pl-4 pr-5 py-2.5 rounded-full
           font-medium text-[14px] transition-colors flex items-center gap-2 shadow-sm
         "
       >
@@ -19,7 +19,7 @@
 
   <% if progress.any? %>
     <div class="relative ml-4 mt-8">
-      <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-[#E0E0E0]"></div>
+      <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-outline-variant"></div>
 
       <div class="space-y-8 relative">
         <% total = progress.size %>
@@ -28,37 +28,33 @@
           <div class="relative pl-16">
             <div
               class="
-                absolute left-0 top-0 w-10 h-10 rounded-full bg-[#1A73E8] border-[3px]
+                absolute left-0 top-0 w-10 h-10 rounded-full bg-primary border-[3px]
                 border-white text-white flex items-center justify-center font-medium
                 z-10 text-xs
               "
             >
-              <% if progress_update.respond_to?(:created_by) && progress_update.created_by.present? %>
-                <%= name(progress_update.created_by)[0].upcase %>
-              <% else %>
-                L1
-              <% end %>
+              L1
             </div>
 
-            <div class="bg-white border border-[#E0E0E0] rounded-xl transition-colors hover:bg-[#F8F9FA]/50">
+            <div class="bg-white border border-outline-variant rounded-xl transition-colors hover:bg-surface-hover/50">
               <div
                 class="
-                  px-5 py-4 border-b border-[#E0E0E0] flex justify-between items-start
-                  bg-[#F8F9FA] rounded-t-xl
+                  px-5 py-4 border-b border-outline-variant flex justify-between items-start
+                  bg-surface-hover rounded-t-xl
                 "
               >
                 <div>
                   <h3
                     style="font-family: 'DM Sans', Roboto, Arial, sans-serif;"
-                    class="text-[16px] font-medium text-[#1f1f1f] flex items-center gap-2"
+                    class="text-[16px] font-medium text-on-surface-strong flex items-center gap-2"
                   >
                     <% if (total - i) > weeks %>
-                      <span class="text-[#1A73E8]">Extra <%= (total - weeks - i) %></span>
+                      <span class="text-primary">Extra <%= (total - weeks - i) %></span>
                     <% else %>
                       <span>Progress <%= (total - i) %></span>
                     <% end %>
                   </h3>
-                  <p class="text-[13px] text-[#5F6368] mt-1 flex items-center gap-1.5">
+                  <p class="text-[13px] text-on-surface-variant mt-1 flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-[16px]">calendar_today</span>
                     <%= progress_update.date %>
                   </p>
@@ -68,13 +64,13 @@
                   <% rating_pill =
                     case progress_update.rating
                     when "excellent"
-                      "bg-[#E6F4EA] text-[#137333]"
+                      "bg-success-container text-success"
                     when "satisfactory"
-                      "bg-[#E8F0FE] text-[#1967D2]"
+                      "bg-primary-container text-primary-soft"
                     when "unsatisfactory"
-                      "bg-[#FFF8E1] text-[#F57F17]"
+                      "bg-warning-container text-warning"
                     else
-                      "bg-[#F1F3F4] text-[#5F6368]"
+                      "bg-surface-variant text-on-surface-variant"
                     end %>
                   <span class="<%= rating_pill %> px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">
                     <%= progress_update.rating.gsub("_", " ").titleize %>
@@ -85,7 +81,7 @@
                       <button
                         data-action="click->dropdown#toggle"
                         class="
-                          p-1.5 text-[#5F6368] hover:bg-[#E0E0E0] rounded-full
+                          p-1.5 text-on-surface-variant hover:bg-outline-variant rounded-full
                           transition-colors flex items-center justify-center
                         "
                       >
@@ -96,25 +92,25 @@
                         data-dropdown-target="menu"
                         class="
                           absolute right-0 top-full mt-1 w-40 bg-white border
-                          border-[#E0E0E0] rounded-lg shadow-lg overflow-hidden z-50
+                          border-outline-variant rounded-lg shadow-lg overflow-hidden z-50
                           hidden origin-top-right
                         "
                       >
                         <div class="py-1">
                           <%= button_to edit_course_project_progress_update_path(course, project, progress_update),
                               method: :get,
-                              class: "w-full text-left px-4 py-2 hover:bg-[#F8F9FA] flex items-center gap-3 transition-colors text-[14px] text-[#3C4043]" do %>
-                            <span class="material-symbols-outlined text-[18px] text-[#5F6368]">edit</span>
+                              class: "w-full text-left px-4 py-2 hover:bg-surface-hover flex items-center gap-3 transition-colors text-[14px] text-on-surface" do %>
+                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">edit</span>
                             Edit
                           <% end %>
 
-                          <div class="border-t border-[#E0E0E0] my-1"></div>
+                          <div class="border-t border-outline-variant my-1"></div>
 
                           <%= button_to course_project_progress_update_path(course, project, progress_update),
                               method: :delete,
                               form: { data: { turbo_confirm: "Are you sure?" } },
-                              class: "w-full text-left px-4 py-2 hover:bg-[#FCE8E6] flex items-center gap-3 transition-colors text-[14px] text-[#C5221F]" do %>
-                            <span class="material-symbols-outlined text-[18px] text-[#C5221F]">delete</span>
+                              class: "w-full text-left px-4 py-2 hover:bg-error-container flex items-center gap-3 transition-colors text-[14px] text-error" do %>
+                            <span class="material-symbols-outlined text-[18px] text-error">delete</span>
                             Delete
                           <% end %>
                         </div>
@@ -125,8 +121,8 @@
               </div>
 
               <div class="p-6">
-                <div class="text-xs font-medium text-[#5F6368] uppercase tracking-wide mb-3">Feedback</div>
-                <div class="text-[14px] text-[#3C4043] leading-relaxed prose prose-sm max-w-none">
+                <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">Feedback</div>
+                <div class="text-[14px] text-on-surface leading-relaxed prose prose-sm max-w-none">
                   <%= sanitize render_markdown(progress_update.feedback),
                   tags: %w[
                     h1 h2 h3 h4 h5 h6 p br ul ol li strong em del ins table
@@ -135,7 +131,7 @@
                   attributes: %w[href src class alt title] %>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-[#E0E0E0] text-[12px] text-[#5F6368]">
+                <div class="mt-6 pt-4 border-t border-outline-variant text-[12px] text-on-surface-variant">
                   Last updated: <%= progress_update.updated_at.strftime("%d-%m-%Y") %>
                 </div>
               </div>
@@ -149,12 +145,12 @@
   <% else %>
     <div
       class="
-        text-center py-12 border-2 border-dashed border-[#E0E0E0] rounded-xl
-        bg-[#F8F9FA]/50
+        text-center py-12 border-2 border-dashed border-outline-variant rounded-xl
+        bg-surface-hover/50
       "
     >
       <span class="material-symbols-outlined text-[48px] text-gray-300 mb-2">timeline</span>
-      <p class="text-[#5F6368] text-sm">No progress updates recorded.</p>
+      <p class="text-on-surface-variant text-sm">No progress updates recorded.</p>
     </div>
   <% end %>
 

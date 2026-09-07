@@ -8,7 +8,7 @@
   container_attrs = local_assigns[:container_attrs] || {}
   item = local_assigns.fetch(:item, :item)
 %>
-<%= tag.div(class: "flex flex-col border-b border-[#E0E0E0] #{container_classes}", **container_attrs) do %>
+<%= tag.div(class: "flex flex-col border-b border-outline-variant #{container_classes}", **container_attrs) do %>
   <% if local_assigns[:borderless_first] %>
     <% rows.each_with_index do |row, idx| %>
       <%= render partial: partial, object: row, as: item,

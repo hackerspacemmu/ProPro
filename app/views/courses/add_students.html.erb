@@ -22,7 +22,7 @@
   </h1>
   <h3
     class="
-      flex justify-center text-[#858585] text-lg sm:text-xl font-bold text-center
+      flex justify-center text-on-surface-muted-strong text-lg sm:text-xl font-bold text-center
     "
   >This course is:
     <%= @course.grouped? ? "Grouped" : "Not Grouped" %></h3>
@@ -30,11 +30,11 @@
   <div
     class="
       flex w-full justify-center flex-col rounded-[10px] py-[15px] px-[10px]
-      sm:px-[15px] mb-[20px] shadow-[0_0_20px_1px_#b8b8b8] bg-[#f8f9fa]
+      sm:px-[15px] mb-[20px] shadow-[0_0_20px_1px_var(--color-shadow-soft)] bg-surface-hover
     "
   >
-    <h5 class="flex justify-center text-center px-2"><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-    <h5 class="flex justify-center text-center px-2"><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
+    <h5 class="flex justify-center text-center px-2"><%= tag.div(flash[:alert], style: "color:var(--color-error)") if flash[:alert] %></h5>
+    <h5 class="flex justify-center text-center px-2"><%= tag.div(flash[:notice], style: "color:var(--color-success)") if flash[:notice] %></h5>
     <br>
 
     <div class="flex w-full flex-col px-2 sm:px-5">
@@ -65,8 +65,8 @@
       <% if @course.grouped? %>
         <div
           class="
-            mx-0 sm:mx-[10px] p-[10px] sm:p-[15px] bg-[#ebebeb] rounded-md outline outline-1
-            outline-[#c4c4c4] text-sm sm:text-base overflow-hidden
+            mx-0 sm:mx-[10px] p-[10px] sm:p-[15px] bg-surface-muted rounded-md outline outline-1
+            outline-outline-strong text-sm sm:text-base overflow-hidden
           "
         >
           <p>
@@ -99,8 +99,8 @@
       <% else %>
         <div
           class="
-            mx-0 sm:mx-[10px] p-[10px] sm:p-[15px] bg-[#ebebeb] rounded-md outline outline-1
-            outline-[#c4c4c4] text-sm sm:text-base overflow-hidden
+            mx-0 sm:mx-[10px] p-[10px] sm:p-[15px] bg-surface-muted rounded-md outline outline-1
+            outline-outline-strong text-sm sm:text-base overflow-hidden
           "
         >
           <p>

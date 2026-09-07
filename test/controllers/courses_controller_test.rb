@@ -160,7 +160,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(course)
     assert_response :success
-    assert_includes response.body, 'style="width: 0.0% ; background-color: #137333"'
+    assert_includes response.body, 'style="width: 0.0% ; background-color: var(--color-success)"'
     assert_no_match(/w-\[<%= ratio/, response.body)
   end
 

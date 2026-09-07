@@ -9,7 +9,7 @@
     <% if policy(course).manage_lecturers? %>
       <%= link_to add_lecturers_course_path(course),
             title: "Add Lecturer",
-            class: "inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors" do %>
+            class: "inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors" do %>
         <span class="material-symbols-outlined">person_add</span>
       <% end %>
     <% end %>
@@ -22,7 +22,7 @@
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors group gap-3 sm:gap-0">
         <div class="flex items-center gap-4 min-w-0">
-          <div class="w-9 h-9 rounded-full bg-[#E8F0FE] flex items-center justify-center text-sm font-medium text-[#1A73E8] shrink-0"><%= lecturer.name.first.upcase %></div>
+          <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-sm font-medium text-primary shrink-0"><%= lecturer.name.first.upcase %></div>
           <%= link_to participant_profile_course_path(course, lecturer.id, 'student'),
                       title: lecturer.name,
                       class: "text-sm font-medium text-gray-900 hover:underline truncate min-w-0" do %>
@@ -34,16 +34,16 @@
           <% ratio = lecturer_capacity.effective_cap.zero? ? 0 : lecturer_capacity.approved_count.to_f / lecturer_capacity.effective_cap %>
           <% color =
                case
-               when ratio >= 1.0 then "#C5221F"
-               when ratio >= 0.7 then "#F57F17"
-               else "#137333"
+               when ratio >= 1.0 then "var(--color-error)"
+               when ratio >= 0.7 then "var(--color-warning)"
+               else "var(--color-success)"
                end %>
           <% exceeding = lecturer_capacity.effective_cap.positive? && lecturer_capacity.approved_count > lecturer_capacity.effective_cap %>
           <% pending_exceeds = lecturer_capacity.approved_count + lecturer_capacity.pending_count > lecturer_capacity.effective_cap %>
 
           <div class="flex items-center gap-4 sm:ml-auto">
             <% if exceeding %>
-              <div class="flex items-center gap-1.5 text-[#C5221F]" title="Capacity exceeded">
+              <div class="flex items-center gap-1.5 text-error" title="Capacity exceeded">
                 <span class="material-symbols-outlined text-[18px]">error</span>
               </div>
             <% else %>
@@ -56,12 +56,12 @@
               </span>
             <% end %>
 
-            <div class="w-24 h-1.5 bg-[#E1E3E1] rounded-full overflow-hidden flex shrink-0">
+            <div class="w-24 h-1.5 bg-surface-variant-deep rounded-full overflow-hidden flex shrink-0">
               <% fill_width = [[ratio * 100, 100].min, 0].max.round(2) %>
               <div class="h-full rounded-full" style="width: <%= fill_width %>% ; background-color: <%= color %>"></div>
             </div>
 
-            <span class="text-sm font-medium text-[<%= color %>] w-10 text-right shrink-0">
+            <span class="text-sm font-medium w-10 text-right shrink-0" style="color: <%= color %>">
               <%= lecturer_capacity.approved_count %>/<%= lecturer_capacity.effective_cap %>
             </span>
           </div>

@@ -15,10 +15,10 @@
   section_mode = local_assigns[:section].present?
   row_mode = local_assigns[:row_id].present?
   any_mode = section_mode || row_mode
-  header_classes = "flex items-center justify-between p-6 box-border border-b border-[#E0E0E0]"
+  header_classes = "flex items-center justify-between p-6 box-border border-b border-outline-variant"
   header_classes += " cursor-pointer group" if any_mode
-  chevron_classes = "material-symbols-outlined text-[#5F6368]"
-  chevron_classes += " group-hover:text-[#202124] transition-all" if any_mode
+  chevron_classes = "material-symbols-outlined text-on-surface-variant"
+  chevron_classes += " group-hover:text-on-surface-strong transition-all" if any_mode
   if row_mode
     chevron = "expand_more"
     chevron_classes += " rotate-180"
@@ -36,9 +36,9 @@
      <% elsif row_mode %>
      data-row-id="<%= row_id %>"
      <% end %>>
-  <h2 class="truncate min-w-0 text-[22px] font-normal text-[#202124]"><%= title %><% if local_assigns[:suffix].present? %><span class="text-[#5F6368]"> <%= suffix %></span><% end %></h2>
+  <h2 class="truncate min-w-0 text-[22px] font-normal text-on-surface-strong"><%= title %><% if local_assigns[:suffix].present? %><span class="text-on-surface-variant"> <%= suffix %></span><% end %></h2>
   <div class="flex items-center gap-3 shrink-0">
-    <span class="text-[#1A73E8] font-medium text-[15px]"><%= count %></span>
+    <span class="text-primary font-medium text-[15px]"><%= count %></span>
     <span class="<%= chevron_classes %>" <%= "data-collapsible-sections-chevron=hidden" if section_mode %><%= "data-row-chevron" if row_mode %>><%= chevron %></span>
   </div>
 </div>

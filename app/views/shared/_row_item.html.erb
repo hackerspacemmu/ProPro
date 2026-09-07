@@ -7,20 +7,20 @@
 <%
   pill_bg, pill_fg =
     case status.to_s
-    when "approved" then ["bg-[#E6F4EA]", "text-[#137333]"]
-    when "pending"  then ["bg-[#E8F0FE]", "text-[#1967D2]"]
-    when "redo"     then ["bg-[#FFF8E1]", "text-[#E65100]"]
-    when "rejected" then ["bg-[#FCE8E6]", "text-[#C5221F]"]
-    else                 ["bg-[#F1F3F4]", "text-[#5F6368]"]
+    when "approved" then ["bg-success-container", "text-success"]
+    when "pending"  then ["bg-primary-container", "text-primary-soft"]
+    when "redo"     then ["bg-warning-container", "text-warning"]
+    when "rejected" then ["bg-error-container", "text-error"]
+    else                 ["bg-surface-variant", "text-on-surface-variant"]
     end
 
   icon_bg, icon_fg =
     case status.to_s
-    when "approved" then ["bg-[#F1F3F4]", "text-[#137333]"]
-    when "pending"  then ["bg-[#F1F3F4]", "text-[#1967D2]"]
-    when "redo"     then ["bg-[#F1F3F4]", "text-[#E65100]"]
-    when "rejected" then ["bg-[#F1F3F4]", "text-[#C5221F]"]
-    else                 ["bg-[#F1F3F4]", "text-[#5F6368]"]
+    when "approved" then ["bg-surface-variant", "text-success"]
+    when "pending"  then ["bg-surface-variant", "text-primary-soft"]
+    when "redo"     then ["bg-surface-variant", "text-warning"]
+    when "rejected" then ["bg-surface-variant", "text-error"]
+    else                 ["bg-surface-variant", "text-on-surface-variant"]
     end
 
   linkable = local_assigns.fetch(:linkable, true)
@@ -33,11 +33,11 @@
 
   row_classes =
     "group flex flex-col w-full py-3 px-4 " \
-    "hover:bg-[#F1F3F4] transition-colors bg-white"
-  row_classes += " border-t border-[#E0E0E0]" if border_top
+    "hover:bg-surface-variant transition-colors bg-white"
+  row_classes += " border-t border-outline-variant" if border_top
   row_classes += " opacity-80" if rejected
   row_classes += linkable ? " cursor-pointer" : " opacity-75 cursor-not-allowed"
-  title_color = rejected ? "text-[#5F6368]" : "text-[#202124]"
+  title_color = rejected ? "text-on-surface-variant" : "text-on-surface-strong"
 
   pill_span = "#{pill_bg} #{pill_fg} px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap"
 %>
@@ -56,7 +56,7 @@
       <!-- Title & Meta Parts -->
       <div class="min-w-0 flex-1">
         <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 400; letter-spacing: 0; line-height: 1.5rem;" class="mb-0.5 <%= title_color %> truncate"><%= title %></h3>
-        <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="flex items-center gap-2 text-[13px] text-[#747775] flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
+        <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="flex items-center gap-2 text-[13px] text-on-surface-muted flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
           <% meta_parts.each_with_index do |part, idx| %>
             <% unless idx.zero? %><span class="shrink-0">•</span><% end %>
             <span class="<%= idx.zero? ? "truncate max-w-full" : "whitespace-nowrap" %>"><%= part %></span>
@@ -72,7 +72,7 @@
       <div class="flex items-center gap-1 sm:gap-3 shrink-0">
         <span class="<%= pill_span %>"><%= pill_label %></span>
         <button type="button" aria-label="More actions" tabindex="-1"
-            class="hidden sm:flex text-[#5F6368] hover:bg-black/5 p-1.5 rounded-full items-center justify-center transition-colors shrink-0">
+            class="hidden sm:flex text-on-surface-variant hover:bg-black/5 p-1.5 rounded-full items-center justify-center transition-colors shrink-0">
           <span class="material-symbols-outlined text-[20px]">more_vert</span>
         </button>
       </div>

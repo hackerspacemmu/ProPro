@@ -34,4 +34,12 @@ module ApplicationHelper
     else 'bg-gray-600'
     end
   end
+
+  # Whether the Progress Updates tab is shown on a project/topic show page.
+  # Single canonical definition shared by every view (lives here rather than
+  # duplicated across ProjectsHelper/TopicsHelper). Arguments are explicit so
+  # helpers stay decoupled from controller ivars.
+  def show_progress_tab?(course:, current_instance:)
+    course.use_progress_updates && current_instance.status == 'approved'
+  end
 end

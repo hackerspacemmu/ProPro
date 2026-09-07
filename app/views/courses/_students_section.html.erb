@@ -17,7 +17,7 @@
                autocomplete="off"
                placeholder="Search students..."
                data-search-shortcut-target="input"
-               class="peer bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-[#1A73E8] focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none"
+               class="peer bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none"
                hx-get="<%= course_url(course) %>"
                hx-target="#students-table-container"
                hx-swap="outerHTML"
@@ -26,11 +26,11 @@
                hx-vals='{"section": "students"}'
                hx-indicator="#students-loading">
         <kbd aria-hidden="true"
-             class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-[#E0E0E0] bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
+             class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-outline-variant bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
       </div>
 
       <% if policy(course).manage_students? %>
-        <button type="button" data-action="modal#open" title="Add Students" class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-[#1A73E8] transition-colors shrink-0">
+        <button type="button" data-action="modal#open" title="Add Students" class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors shrink-0">
           <span class="material-symbols-outlined">person_add</span>
         </button>
       <% end %>
@@ -42,7 +42,7 @@
       <% if policy(course).manage_students? %>
         <div class="relative group z-30">
           <button type="button" disabled data-students-select-target="actions"
-                  class="inline-flex items-center px-4 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-[#1A73E8] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#1A73E8] transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                  class="inline-flex items-center px-4 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-primary hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary transition-colors disabled:opacity-50 disabled:pointer-events-none">
             <span>Actions</span>
             <span class="material-symbols-outlined text-[20px] ml-1">arrow_drop_down</span>
           </button>

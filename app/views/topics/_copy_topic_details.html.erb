@@ -3,16 +3,16 @@
     <%= f.hidden_field :source_topic_id, value: source.id, id: "overlay_source_topic_id" %>
 
     <div class="flex-none mb-6 flex items-start justify-between gap-6">
-      <h3 class="text-lg md:text-xl font-bold text-[#3C4043] leading-snug break-words max-w-[85%]">
-        Copying from <span class="text-[#1A73E8]">"<%= source.current_title %>"</span>
-        <span class="block mt-0.5 md:mt-1 text-base md:text-lg font-medium text-[#5F6368]">
-          to new topic in <span class="font-bold text-[#137333]">"<%= target.course_name %>"</span>
+      <h3 class="text-lg md:text-xl font-bold text-on-surface leading-snug break-words max-w-[85%]">
+        Copying from <span class="text-primary">"<%= source.current_title %>"</span>
+        <span class="block mt-0.5 md:mt-1 text-base md:text-lg font-medium text-on-surface-variant">
+          to new topic in <span class="font-bold text-success">"<%= target.course_name %>"</span>
         </span>
       </h3>
       <button
         type="button"
         data-action="click->copy-topic#returnToList"
-        class="text-sm font-semibold text-[#1A73E8] hover:text-[#1557B0] whitespace-nowrap mt-1 transition-colors"
+        class="text-sm font-semibold text-primary hover:text-primary-hover whitespace-nowrap mt-1 transition-colors"
       >
         ← Back
       </button>
@@ -42,11 +42,11 @@
 
             <div class="flex flex-col w-full gap-3">
               <div class="flex items-center gap-2">
-                <span class="block text-sm font-bold text-[#3C4043] uppercase tracking-wide">
+                <span class="block text-sm font-bold text-on-surface uppercase tracking-wide">
                   <%= field.label %>
                 </span>
 
-                <span class="inline-flex items-center rounded-full bg-[#E8F0FE] px-2.5 py-0.5 text-[10px] font-bold text-[#1A73E8] uppercase tracking-wider ring-1 ring-inset ring-[#D2E3FC]">
+                <span class="inline-flex items-center rounded-full bg-primary-container px-2.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider ring-1 ring-inset ring-primary-container-ring">
                   <%= field.field_type_label %>
                 </span>
               </div>
@@ -63,7 +63,7 @@
                     end
                   end
                 %>
-                <span class="text-xs font-bold text-[#5F6368] uppercase tracking-wider whitespace-nowrap sm:w-24 pt-3">
+                <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider whitespace-nowrap sm:w-24 pt-3">
                   Copy from:
                 </span>
 
@@ -72,7 +72,7 @@
                     <select name="template_field[<%= field.id %>][instance_field_id]"
                             data-action="change->copy-topic#updateDropdown"
                             data-target-field-id="fields_<%= field.id %>"
-                            class="block w-full rounded-lg border border-[#DADCE0] bg-white px-4 py-2.5 pr-10 text-sm font-medium text-[#3C4043] transition-all focus:border-[#1A73E8] focus:outline-none focus:ring-1 focus:ring-[#1A73E8] cursor-pointer shadow-sm hover:border-gray-400 appearance-none"
+                            class="block w-full rounded-lg border border-outline bg-white px-4 py-2.5 pr-10 text-sm font-medium text-on-surface transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer shadow-sm hover:border-gray-400 appearance-none"
                     >
                       <option value="">
                         <%= (valid_options.empty? && ["dropdown", "radio"].include?(field.field_type.downcase)) ? "-- No Valid Option --" : "-- Do Not Copy / Leave Blank --" %>
@@ -100,16 +100,16 @@
                       <% end %>
                     </select>
 
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#5F6368]">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-on-surface-variant">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   </div>
 
-                  <div data-copy-topic-target="preview" class="<%= 'hidden' unless show_preview %> w-full border border-[#E0E0E0] bg-[#F8F9FA] px-5 py-4 rounded-lg shadow-inner">
-                    <span class="block text-xs font-semibold text-[#5F6368] uppercase tracking-wider mb-1">Preview Content</span>
-                    <p data-copy-topic-target="value" class="text-[#3C4043] text-sm leading-relaxed font-medium">
+                  <div data-copy-topic-target="preview" class="<%= 'hidden' unless show_preview %> w-full border border-outline-variant bg-surface-hover px-5 py-4 rounded-lg shadow-inner">
+                    <span class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Preview Content</span>
+                    <p data-copy-topic-target="value" class="text-on-surface text-sm leading-relaxed font-medium">
                       <%= initial_field&.value if show_preview %>
                     </p>
                   </div>
@@ -122,11 +122,11 @@
       </ul>
     </div>
 
-    <div class="flex-none mt-6 pt-4 border-t border-[#E0E0E0] flex justify-end">
+    <div class="flex-none mt-6 pt-4 border-t border-outline-variant flex justify-end">
       <button
         type="button"
         data-action="click->copy-topic#copyTopicsDetails"
-        class="px-4 py-2 bg-[#1A73E8] hover:bg-[#1557B0] text-white text-sm font-medium rounded-full shadow-sm transition"
+        class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-full shadow-sm transition"
       >
         Copy Details
       </button>
