@@ -3,7 +3,7 @@ require 'test_helper'
 class TopicTest < ActiveSupport::TestCase
   setup do
     @course   = create(:course)
-    @lecturer = create(:user, is_staff: true)
+    @lecturer = create(:user)
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
     @topic    = create(:topic, course: @course, owner: @lecturer)

@@ -247,9 +247,9 @@ class OverviewTabMobileTest < ApplicationSystemTestCase
       course_description: 'Mobile spec for the handbook.',
       file_link: 'http://example.test/Project_Specifications_FINAL.pdf'
     )
-    student = make_user(is_staff: false)
+    student = make_user
     create(:enrolment, role: :student, user: student, course: course)
-    lecturer = make_user(is_staff: true, name: 'Alice Zane')
+    lecturer = make_user(:staff, name: 'Alice Zane')
     lecturer_enr = create(:enrolment, role: :lecturer, user: lecturer, course: course)
     project = create(:project, course: course, owner: student, owner_type: 'User',
                                supervisor_enrolment: lecturer_enr, status: :approved)
@@ -271,7 +271,7 @@ class OverviewTabMobileTest < ApplicationSystemTestCase
 
   test '390px: no-proposal empty state stacks and shows the create CTA with no overflow' do
     course = make_course
-    student = make_user(is_staff: false)
+    student = make_user
     create(:enrolment, role: :student, user: student, course: course)
 
     login_as(student)

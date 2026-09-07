@@ -11,7 +11,7 @@ class TopicCopyTopicDialogTest < ApplicationSystemTestCase
 
   setup do
     @course = create(:course, require_coordinator_approval: true, toggle_topics: true)
-    @lecturer = create(:user, is_staff: true)
+    @lecturer = create(:user, :staff)
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
     # The course factory already creates a shorttext template field (Project Title).

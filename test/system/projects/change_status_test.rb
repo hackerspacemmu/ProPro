@@ -3,9 +3,9 @@ require 'application_system_test_case'
 class ChangeStatusTest < ApplicationSystemTestCase
   setup do
     @course      = create(:course)
-    @student     = create(:user, is_staff: false)
-    @lecturer    = create(:user, is_staff: true)
-    @other_student = create(:user, is_staff: false)
+    @student     = create(:user)
+    @lecturer    = create(:user)
+    @other_student = create(:user)
 
     @student_enrolment  = create(:enrolment, user: @student, course: @course, role: :student)
     @lecturer_enrolment = create(:enrolment, user: @lecturer, course: @course, role: :lecturer)

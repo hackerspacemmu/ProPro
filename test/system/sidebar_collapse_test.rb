@@ -24,7 +24,7 @@ class SidebarCollapseTest < ApplicationSystemTestCase
     page.driver.browser.manage.delete_all_cookies
 
     @course  = create(:course)
-    @student = create(:user, is_staff: false)
+    @student = create(:user)
     create(:enrolment, :student, user: @student, course: @course)
   end
 

@@ -3,10 +3,10 @@ require 'application_system_test_case'
 class ProjectShowResponsiveTest < ApplicationSystemTestCase
   setup do
     @course      = create(:course)
-    @student     = create(:user, is_staff: false)
+    @student     = create(:user)
     @student_enr = create(:enrolment, :student, user: @student, course: @course)
 
-    @lecturer     = create(:user, is_staff: true, name: 'Alice Zane')
+    @lecturer     = create(:user, :staff, name: 'Alice Zane')
     @lecturer_enr = create(:enrolment, :lecturer, user: @lecturer, course: @course)
     create(:enrolment, :lecturer, course: @course)
     create(:enrolment, :coordinator, course: @course)

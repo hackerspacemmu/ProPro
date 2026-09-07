@@ -3,8 +3,8 @@ require 'test_helper'
 class TopicsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @course      = create(:course, require_coordinator_approval: true)
-    @lecturer    = create(:user, is_staff: true)
-    @coordinator = create(:user, is_staff: true)
+    @lecturer    = create(:user, :staff)
+    @coordinator = create(:user, :staff)
 
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)

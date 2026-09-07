@@ -20,10 +20,10 @@ class MobileOverflowTest < ApplicationSystemTestCase
     page.driver.browser.manage.window.resize_to(360, 760)
 
     @course      = create(:course, use_progress_updates: true, number_of_updates: 10)
-    @student     = create(:user, is_staff: false)
+    @student     = create(:user)
     @student_enr = create(:enrolment, :student, user: @student, course: @course)
 
-    @lecturer     = create(:user, is_staff: true, name: 'Alice Zane')
+    @lecturer     = create(:user, :staff, name: 'Alice Zane')
     @lecturer_enr = create(:enrolment, :lecturer, user: @lecturer, course: @course)
     # The enrolment factory auto-creates its own user unless one is passed, so
     # capture those implicitly-minted users for teardown explicitly.

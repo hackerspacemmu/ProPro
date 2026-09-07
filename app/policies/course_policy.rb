@@ -5,7 +5,7 @@ class CoursePolicy < ApplicationPolicy
   end
 
   def create?
-    user.is_staff
+    user.instid.blank?
   end
 
   def update?

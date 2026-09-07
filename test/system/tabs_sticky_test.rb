@@ -23,10 +23,10 @@ class TabsStickyTest < ApplicationSystemTestCase
 
   setup do
     @course  = create(:course, use_progress_updates: true, number_of_updates: 10)
-    @student = create(:user, is_staff: false)
+    @student = create(:user)
     @student_enr = create(:enrolment, :student, user: @student, course: @course)
 
-    @lecturer     = create(:user, is_staff: true, name: 'Alice Zane')
+    @lecturer     = create(:user, :staff, name: 'Alice Zane')
     @lecturer_enr = create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
     @coordinator = create(:enrolment, :coordinator, course: @course).user
@@ -107,7 +107,7 @@ class TabsStickyTest < ApplicationSystemTestCase
   # populate with content.
   def seed_tall_overview
     students = 20.times.map do |i|
-      s = create(:user, is_staff: false, name: "Studentside #{i}")
+      s = create(:user, name: "Studentside #{i}")
       create(:enrolment, :student, user: s, course: @course)
       proj = create(:project, course: @course, owner: s,
                               supervisor_enrolment: @lecturer_enr, status: :pending)

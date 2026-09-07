@@ -59,9 +59,9 @@ class FormOverflowTest < ApplicationSystemTestCase
 
   test 'project new/edit have no horizontal overflow at 360px' do
     course  = create(:course, toggle_topics: true)
-    student = create(:user, is_staff: false)
+    student = create(:user)
     create(:enrolment, :student, user: student, course: course)
-    lecturer = create(:user, is_staff: true, name: 'Alice Zane')
+    lecturer = create(:user, :staff, name: 'Alice Zane')
     create(:enrolment, :lecturer, user: lecturer, course: course)
     create(:enrolment, :lecturer, course: course)
     create(:enrolment, :coordinator, course: course)
@@ -106,7 +106,7 @@ class FormOverflowTest < ApplicationSystemTestCase
 
   test 'topic new/edit have no horizontal overflow at 360px' do
     course = create(:course, toggle_topics: true)
-    lecturer = create(:user, is_staff: true, name: 'Alice Zane')
+    lecturer = create(:user, :staff, name: 'Alice Zane')
     create(:enrolment, :lecturer, user: lecturer, course: course)
 
     login_as(lecturer)

@@ -3,10 +3,10 @@ require 'application_system_test_case'
 class ProjectFormTest < ApplicationSystemTestCase
   setup do
     @course      = create(:course)
-    @student     = create(:user, is_staff: false)
+    @student     = create(:user)
     @student_enr = create(:enrolment, :student, user: @student, course: @course)
 
-    @lecturer     = create(:user, is_staff: true, name: 'Alice Zane')
+    @lecturer     = create(:user, :staff, name: 'Alice Zane')
     @lecturer_enr = create(:enrolment, :lecturer, user: @lecturer, course: @course)
     create(:enrolment, :lecturer, course: @course)
     create(:enrolment, :coordinator, course: @course)
@@ -116,7 +116,7 @@ class ProjectFormTest < ApplicationSystemTestCase
     instance.project_instance_fields.create!(project_template_field_id: @title_field.id, value: 'Approved One')
     instance.project_instance_fields.create!(project_template_field_id: free_edit_field.id, value: 'note v1')
 
-    coordinator = create(:user, is_staff: true, name: 'Carl Coordinator')
+    coordinator = create(:user, :staff, name: 'Carl Coordinator')
     create(:enrolment, :coordinator, user: coordinator, course: @course)
 
     login_as(coordinator)
@@ -138,9 +138,9 @@ class ProjectFormTest < ApplicationSystemTestCase
 
   test 'solo-supervisor course defaults to own proposal' do
     course   = create(:course)
-    student  = create(:user, is_staff: false)
+    student  = create(:user)
     create(:enrolment, :student, user: student, course: course)
-    lecturer = create(:user, is_staff: true, name: 'Solo Sam')
+    lecturer = create(:user, :staff, name: 'Solo Sam')
     create(:enrolment, :lecturer, user: lecturer, course: course)
     solo_title_field = course.project_template.project_template_fields.first
 
