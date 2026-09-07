@@ -15,11 +15,11 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_select 'div[style*="background:#37474F"]', count: 1
-    assert_match(/illustrations\/scene_8[^"]*\.svg/, @response.body)
+    assert_match(%r{illustrations/scene_8[^"]*\.svg}, @response.body)
   end
 
   test 'cycling: three courses get three different theme colors' do
-    2.times do |i|
+    2.times do |_i|
       c = create(:course)
       c.enrolments.create!(user: @user, role: :student)
     end
@@ -30,8 +30,8 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     ['#37474F', '#1A73E8', '#5F6368'].each do |color|
       assert_match(Regexp.new("background:#{color}"), @response.body)
     end
-    ['scene_8', 'scene_5', 'scene_6'].each do |scene|
-      assert_match(/illustrations\/#{scene}[^"]*\.svg/, @response.body)
+    %w[scene_8 scene_5 scene_6].each do |scene|
+      assert_match(%r{illustrations/#{scene}[^"]*\.svg}, @response.body)
     end
   end
 
@@ -62,7 +62,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_match(/Add course/, @response.body)
-    assert_match(/href="\/courses\/new"/, @response.body)
+    assert_match(%r{href="/courses/new"}, @response.body)
   end
 
   test 'shared sidebar and header render on the dashboard' do
