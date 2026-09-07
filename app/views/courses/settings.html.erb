@@ -11,7 +11,7 @@
 
 <div class="min-h-screen bg-surface-tint text-on-surface font-['Roboto',sans-serif] flex flex-col">
 
-  <%= form_with url: handle_settings_course_path(@course), model: @course, method: :post, id: "course-settings-form", class: "flex flex-col min-h-screen" do |form| %>
+<%= form_with url: handle_settings_course_path(@course), model: @course, method: :post, id: "course-settings-form", class: "flex flex-col min-h-screen" do |form| %>
 
     <!-- Sticky Top Navigation -->
     <header class="sticky top-0 z-30 bg-white border-b border-outline-variant px-4 sm:px-6 py-3 flex items-center justify-between shadow-xs">
@@ -88,8 +88,15 @@
             <%= render "course_code_form", course: @course %>
           </div>
 
+          <!-- SUBSECTION: Email Domain Restriction -->
+          <div class="border-b border-gray-200 pb-8 mt-8">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Email Domain Restriction</h3>
+
+            <%= render "course_email_domain_restrict_form", course: @course %>
+          </div>
+
           <!-- SUBSECTION: Supervisor Capacity -->
-          <div>
+          <div class="mt-8">
             <h3 class="text-lg font-medium text-gray-800 mb-4">Supervisor Capacity</h3>
 
             <div class="space-y-6">

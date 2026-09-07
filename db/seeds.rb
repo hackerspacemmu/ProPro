@@ -151,7 +151,6 @@ student16 = User.create!(
   name: 'student16',
   has_registered: true,
   instid: '1191202136',
-  is_staff: false,
   password: 'password123'
 )
 

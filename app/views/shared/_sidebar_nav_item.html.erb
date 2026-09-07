@@ -18,30 +18,32 @@
     "group-data-[collapsed=true]/sidebar:lg:px-0"
   ]
 
+  # Active treatment (filled pill + strong color) is suppressed on the collapsed
+  # rail: at lg a collapsed sidebar is an icon-only rail, so the current-page
+  # cue is dropped rather than shrunk to a pill.
+  active_pill = "lg:group-data-[collapsed=false]/sidebar:mx-3 " \
+                "lg:group-data-[collapsed=false]/sidebar:rounded-full " \
+                "lg:group-data-[collapsed=false]/sidebar:bg-primary-container-alt " \
+                "lg:group-data-[collapsed=false]/sidebar:text-primary-strong " \
+                "lg:group-data-[collapsed=false]/sidebar:font-semibold"
+
   row_classes = if is_course
     row_base + [
       "truncate",
-      active ? "mx-3 rounded-full bg-primary-container-alt text-primary-strong font-semibold"
-             : "rounded-r-full text-on-surface hover:bg-white/60"
+      active ? active_pill : "rounded-r-full text-on-surface hover:bg-white/60"
     ]
   else
     row_base + [
-      active ? "mx-3 rounded-full bg-primary-container-alt text-primary-strong font-semibold"
-             : "rounded-r-full text-on-surface hover:bg-white/60"
+      active ? active_pill : "rounded-r-full text-on-surface hover:bg-white/60"
     ]
   end
-
-  collapse_circle = "group-data-[collapsed=true]/sidebar:lg:h-9 group-data-[collapsed=true]/sidebar:lg:w-9 " \
-                    "group-data-[collapsed=true]/sidebar:lg:rounded-full group-data-[collapsed=true]/sidebar:lg:bg-primary-container-alt " \
-                    "group-data-[collapsed=true]/sidebar:lg:flex group-data-[collapsed=true]/sidebar:lg:items-center " \
-                    "group-data-[collapsed=true]/sidebar:lg:justify-center"
 %>
 
 <% inner = capture do %>
   <% if is_course %>
     <div class="w-9 h-9 rounded-full <%= active ? 'bg-surface-variant-deep text-on-surface' : 'bg-primary text-white' %> flex items-center justify-center text-sm font-bold shrink-0"><%= avatar %></div>
   <% else %>
-    <span class="material-symbols-outlined <%= icon_color %><%= active ? " #{collapse_circle}" : "" %>"><%= icon %></span>
+    <span class="material-symbols-outlined <%= icon_color %>"><%= icon %></span>
   <% end %>
 
   <span class="<%= is_course ? 'truncate ' : '' %>group-data-[collapsed=true]/sidebar:lg:hidden"><%= label %></span>

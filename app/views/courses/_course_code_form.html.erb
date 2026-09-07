@@ -6,7 +6,7 @@
     swaps in the WHOLE template content, so any wrapper would get re-nested on every replace
     (see ADR-0010). %>
 <%= turbo_frame_tag "course_code_form" do %>
-  <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6"
+<div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 max-w-3xl mx-auto border border-gray-100 mb-6"
        data-controller="coursecode-form-handler"
        data-coursecode-form-handler-url-value="<%= update_coursecode_course_path(course) %>">
     <label for="coursecode" class="block text-sm font-medium text-gray-700">Course Join Code &amp; Invite Link (Beta)</label>
