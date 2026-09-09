@@ -12,6 +12,7 @@ jobs:
       postgres:
         image: postgres
         env:
+          POSTGRES_PASSWORD: propro_test
           POSTGRES_DB: propro_test
         ports:
           - 5432:5432
@@ -34,15 +35,18 @@ jobs:
         env:
           RAILS_ENV: test
           PG_HOST: 127.0.0.1
+          POSTGRES_PASSWORD: propro_test
 
       - name: Run tests
         run: bin/rails test
         env:
           RAILS_ENV: test
           PG_HOST: 127.0.0.1
+          POSTGRES_PASSWORD: propro_test
 
       - name: Run system tests
         run: bin/rails test:system
         env:
           RAILS_ENV: test
           PG_HOST: 127.0.0.1
+          POSTGRES_PASSWORD: propro_test
