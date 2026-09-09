@@ -6,8 +6,6 @@ on:
 
 jobs:
   test:
-jobs:
-  test:
     runs-on: ubuntu-latest
 
     services:
