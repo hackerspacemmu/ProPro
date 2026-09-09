@@ -10,14 +10,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres
         env:
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: propro_test
-        ports:
-          - 5432:5432
-        # Ensure the container is fully ready before running steps
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
