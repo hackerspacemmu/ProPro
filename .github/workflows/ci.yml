@@ -35,18 +35,18 @@ jobs:
         env:
           RAILS_ENV: test
           PGHOST: 127.0.0.1
-          POSTGRES_PASSWORD: propro_test
+          PGPASSWORD: propro_test
 
       - name: Run tests
         run: bin/rails test
         env:
           RAILS_ENV: test
           PGHOST: 127.0.0.1
-          POSTGRES_PASSWORD: propro_test
+          PGPASSWORD: propro_test
 
       - name: Run system tests
         run: bin/rails test:system
         env:
           RAILS_ENV: test
           PGHOST: 127.0.0.1
-          POSTGRES_PASSWORD: propro_test
+          PGPASSWORD: propro_test
