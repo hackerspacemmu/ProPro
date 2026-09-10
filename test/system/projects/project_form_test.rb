@@ -107,8 +107,8 @@ class ProjectFormTest < ApplicationSystemTestCase
 
   test 'approved proposal is read-only with only free-edit fields editable' do
     free_edit_field = create(:project_template_field, project_template: @course.project_template,
-                                                      label: 'Progress Notes', field_type: :textarea,
-                                                      applicable_to: :both, free_edit: true)
+                                                       label: 'Progress Notes', field_type: :textarea,
+                                                       applicable_to: :both, free_edit: true)
 
     project  = create(:project, course: @course, owner: @student, supervisor_enrolment: @lecturer_enr)
     instance = create(:project_instance, project: project, supervisor_enrolment: @lecturer_enr,
@@ -116,10 +116,7 @@ class ProjectFormTest < ApplicationSystemTestCase
     instance.project_instance_fields.create!(project_template_field_id: @title_field.id, value: 'Approved One')
     instance.project_instance_fields.create!(project_template_field_id: free_edit_field.id, value: 'note v1')
 
-    coordinator = create(:user, :staff, name: 'Carl Coordinator')
-    create(:enrolment, :coordinator, user: coordinator, course: @course)
-
-    login_as(coordinator)
+    login_as(@student)
     visit edit_course_project_path(@course, project)
 
     assert find("#fields_#{@title_field.id}").disabled?

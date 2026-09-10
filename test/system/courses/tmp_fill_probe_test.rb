@@ -50,18 +50,18 @@ class TmpFillProbeTest < ApplicationSystemTestCase
     Rails.logger.info('--- SCENARIO A: fresh load, no ?tab ---')
     visit course_path(@course)
     dump('A initial')
-    click_tab 'To Review'
-    dump('A after click To Review')
+    click_tab 'People'
+    dump('A after click People')
     click_tab 'Topics'
     dump('A after click Topics')
 
-    Rails.logger.info('--- SCENARIO B: load baked with ?tab=to_review (simulated refresh) ---')
-    visit course_path(@course, tab: 'to_review')
-    dump('B initial (baked to_review)')
+    Rails.logger.info('--- SCENARIO B: load baked with ?tab=people (simulated refresh) ---')
+    visit course_path(@course, tab: 'people')
+    dump('B initial (baked people)')
     click_tab 'Topics'
     dump('B after click Topics')
-    click_tab 'People'
-    dump('B after click People')
+    click_tab 'Overview'
+    dump('B after click Overview')
 
     assert true
   end

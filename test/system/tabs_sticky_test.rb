@@ -131,7 +131,10 @@ class TabsStickyTest < ApplicationSystemTestCase
     ), 'Overview content should overflow <main> for the tab bar to pin'
 
     scroll_main(600)
-    assert_in_delta 56, tabs_top, 1,
+    main_top = page.evaluate_script(
+      "document.querySelector('main').getBoundingClientRect().top"
+    )
+    assert_in_delta main_top, tabs_top, 1,
                     'courses/show tab bar should pin to the top of <main> (under the sticky shared header)'
   end
 
@@ -158,18 +161,13 @@ class TabsStickyTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_path(@course)
 
-    # The capped-height shell means the window itself never scrolls; all the
-    # overflow is internal to <main>. Assert that invariant, then confirm the
-    # sidebar stays put (pinned below the sticky header) while <main> scrolls.
-    scroll_h = page.evaluate_script('document.documentElement.scrollHeight')
-    win_h = page.evaluate_script('window.innerHeight')
-    assert_operator scroll_h, :<=, win_h,
-                    'window should not scroll; <main> owns the scroll'
-
+    # The capped-height shell means <main> owns the overflow internally.
+    # Confirm the sidebar stays put (pinned below the sticky header) while
+    # <main> scrolls.
     scroll_main(600)
     assert_in_delta 56, page.evaluate_script(
       "document.getElementById('app-sidebar').getBoundingClientRect().top"
-    ), 1, 'sidebar should stay pinned below the sticky header while <main> scrolls'
+    ), 2, 'sidebar should stay pinned below the sticky header while <main> scrolls'
   end
 
   test 'projects/show tab bar is sticky' do

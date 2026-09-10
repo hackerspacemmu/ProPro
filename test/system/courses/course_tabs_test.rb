@@ -23,8 +23,9 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @coordinator_user
     visit course_path(@course)
 
-    %w[Overview Topics People Groups].each { |tab| assert_text tab }
+    %w[Overview Topics People].each { |tab| assert_text tab }
     assert_no_text 'To Review'
+    assert_no_text 'Groups'
     assert_selector 'a[title="Settings"]'
   end
 
@@ -32,8 +33,9 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @lecturer_user
     visit course_path(@course)
 
-    %w[Overview Topics People Groups].each { |tab| assert_text tab }
+    %w[Overview Topics People].each { |tab| assert_text tab }
     assert_no_text 'To Review'
+    assert_no_text 'Groups'
     assert_no_selector 'a[title="Settings"]'
   end
 
@@ -41,8 +43,9 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @student_user
     visit course_path(@course)
 
-    %w[Overview Topics People Groups].each { |tab| assert_text tab }
+    %w[Overview Topics People].each { |tab| assert_text tab }
     assert_no_text 'To Review'
+    assert_no_text 'Groups'
     assert_no_selector 'a[title="Settings"]'
     assert_text 'My Submission'
     assert_link 'Create proposal', href: new_course_project_path(@course)

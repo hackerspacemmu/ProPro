@@ -202,8 +202,8 @@ class OverviewTabMobileTest < ApplicationSystemTestCase
     end
   end
 
-  def make_user(**attrs)
-    user = create(:user, **attrs)
+  def make_user(*traits, **attrs)
+    user = create(:user, *traits, **attrs)
     @users << user
     user
   end
