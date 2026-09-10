@@ -19,7 +19,7 @@ class ChangeStatusTest < ApplicationSystemTestCase
     login_as(@lecturer)
     visit course_project_path(@course, @project)
 
-    within('[data-testid="content-tabs"]') { } # ensure page loaded
+    within('[data-testid="content-tabs"]') {} # ensure page loaded
     first(:button, 'Approve').click
 
     assert_selector '[data-testid="flash-notice"]'
