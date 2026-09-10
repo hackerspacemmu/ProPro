@@ -5,50 +5,22 @@ require 'application_system_test_case'
 # clicks a tab, confirms the persist cookie was written, and reloads to assert
 # the same tab is still active. (Persistence is cookie-based — commit f6d4c6cf
 # moved it off history.replaceState/#?tab=, which the server never read anyway.)
-#
-# Uses `use_transactional_tests = false` for the same reason as
-# mobile_overflow_test.rb: a real browser hits the app on a server thread whose
-# DB connection cannot see rows uncommitted in the test's transaction.
-class CourseTabPersistenceTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [1280, 900]
-
+class CourseTabPersistenceTest < BrowserSystemTestCase
   setup do
     @course = create(:course)
     @coordinator = create(:enrolment, :coordinator, course: @course).user
   end
 
-  teardown do
-    return if @course.nil?
-
-    Course.transaction do
-      template = @course.project_template
-      template&.project_template_fields&.delete_all
-      template&.delete
-
-      @course.enrolments.delete_all
-
-      @coordinator.sessions.delete_all
-      @coordinator.otp&.delete
-
-      @course.delete
-      @coordinator.delete
-    end
-  end
-
-  def login_as(user, password: 'password')
-    super
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
-  end
-
-  # Headless Chrome intermittently drops synthetic native clicks dispatched right
-  # after load (a driver-level quirk we've seen ~50% of the time), while JS-
-  # dispatched clicks always work. This test asserts persistence semantics — the
-  # tab switch, the cookie write-back, and the reload — so it dispatches a real
-  # DOM click through the button instead of a native one.
+  # Locate the button natively (waits for it to be present/visible) but dispatch
+  # the click scripted: a freshly-launched headless Chrome worker intermittently
+  # swallows the first trusted click (reproduced under full parallelism here —
+  # the tab stayed on Overview with no event and no navigation). this.click()
+  # deterministically reaches the tabs Stimulus controller, which is the same
+  # code a user's click runs. The assert_selector below still verifies the tab
+  # genuinely switched.
   def click_tab(name)
-    find_button(name).evaluate_script('this.click()')
+    wait_for_turbo
+    find_button(name).execute_script('this.click()')
     assert_selector 'button[aria-selected="true"]', text: name
   end
 

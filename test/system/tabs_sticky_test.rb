@@ -2,25 +2,20 @@ require 'application_system_test_case'
 
 # Regression guard: the content-tab bar must be sticky on all three pages
 # that have it (courses/show, projects/show, topics/show). rack_test can't
-# check geometry, so this file drives headless Chrome, scrolls the correct
+# check geometry, so this drives headless Chrome, scrolls the correct
 # container, and asserts the tab bar's top stays pinned.
 #
 # All three pages share the same capped-height shell: <main> is fixed at
 # calc(100vh - 3.5rem), so the WINDOW itself never scrolls — each page owns
 # its overflow internally, and the sticky tab bar pins to the top of its
-# scroll pane (56px below the viewport top, directly under the sticky shared
-# header):
+# scroll pane (under the sticky shared header):
 #   - courses/show: <main> is the scroll pane itself (overflow-y-auto).
 #   - projects/show & topics/show: the left pane (`.overflow-y-auto`) scrolls
 #     internally inside <main>.
 #
-# Uses `use_transactional_tests = false` for the same reason as
-# mobile_overflow_test.rb: the app server thread can't see uncommitted rows.
-class TabsStickyTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [1280, 900]
-
+# Wherever possible these tests compare before/after geometry rather than
+# hardcoded pixel offsets, so they hold at any viewport the driver resolves to.
+class TabsStickyTest < BrowserSystemTestCase
   setup do
     @course  = create(:course, use_progress_updates: true, number_of_updates: 10)
     @student = create(:user)
@@ -46,49 +41,6 @@ class TabsStickyTest < ApplicationSystemTestCase
                                               title: 'Test Topic')
   end
 
-  teardown do
-    return if @course.nil?
-
-    Course.transaction do
-      pids = @course.projects.where(ownership_type: :student).ids
-      ProjectInstance.where(project_id: pids).find_each do |instance|
-        instance.comments.delete_all
-        instance.project_instance_fields.delete_all
-      end
-      ProjectInstance.where(project_id: pids).delete_all
-      ProgressUpdate.where(project_id: pids).delete_all
-      Project.where(id: pids).delete_all
-
-      tids = @course.topics.ids
-      TopicInstance.where(project_id: tids).find_each do |instance|
-        instance.comments.delete_all
-        instance.project_instance_fields.delete_all
-      end
-      TopicInstance.where(project_id: tids).delete_all
-      Topic.where(id: tids).delete_all
-
-      template = @course.project_template
-      template&.project_template_fields&.delete_all
-      template&.delete
-
-      @course.enrolments.delete_all
-
-      [@student, @lecturer, @coordinator, *@sidebar_students].compact.each do |user|
-        user.sessions.delete_all
-        user.otp&.delete
-        user.comments.delete_all
-      end
-
-      @course.delete
-      [@student, @lecturer, @coordinator, *@sidebar_students].compact.each(&:delete)
-    end
-  end
-
-  def login_as(user, password: 'password')
-    super
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
-  end
-
   def tabs_top
     page.evaluate_script(<<~JS)
       document.querySelector('[data-testid="content-tabs"]')
@@ -97,9 +49,21 @@ class TabsStickyTest < ApplicationSystemTestCase
     JS
   end
 
+  # Assigning scrollTop and reading it in separate evaluate round-trips races
+  # the browser's next-frame style commit, so poll until the scroll actually
+  # lands. The pane scrolls to whatever its content allows (scrollTop clamps at
+  # the max scroll) — the pin assertions only care that it MOVED.
   def scroll_main(pixels)
     page.execute_script("document.querySelector('main').scrollTop = #{pixels}")
-    sleep 0.1
+    deadline = Time.zone.now + Capybara.default_max_wait_time
+    loop do
+      top = page.evaluate_script("document.querySelector('main').scrollTop")
+      return if top.positive?
+
+      assert_operator Time.zone.now, :<, deadline,
+                      "main never scrolled from #{pixels} (stuck at #{top})"
+      sleep 0.02
+    end
   end
 
   # Populates the course with enough pending proposals to make the Overview
@@ -146,7 +110,6 @@ class TabsStickyTest < ApplicationSystemTestCase
       "document.querySelector('header').getBoundingClientRect().top"
     )
     page.execute_script('window.scrollTo(0, 600)')
-    sleep 0.1
     after = page.evaluate_script(
       "document.querySelector('header').getBoundingClientRect().top"
     )
@@ -161,13 +124,20 @@ class TabsStickyTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_path(@course)
 
-    # The capped-height shell means <main> owns the overflow internally.
-    # Confirm the sidebar stays put (pinned below the sticky header) while
-    # <main> scrolls.
-    scroll_main(600)
-    assert_in_delta 56, page.evaluate_script(
+    # The capped-height shell means <main> owns the overflow internally. Read
+    # the sidebar's position before and after the pane scrolls — it must not
+    # move, wherever it pins under the header. Viewport-independent, matching
+    # the before/after idiom the other tests in this file use.
+    before = page.evaluate_script(
       "document.getElementById('app-sidebar').getBoundingClientRect().top"
-    ), 2, 'sidebar should stay pinned below the sticky header while <main> scrolls'
+    )
+    scroll_main(600)
+    after = page.evaluate_script(
+      "document.getElementById('app-sidebar').getBoundingClientRect().top"
+    )
+
+    assert_in_delta before, after, 2,
+                    'sidebar should stay pinned while <main> scrolls'
   end
 
   test 'projects/show tab bar is sticky' do
@@ -175,11 +145,10 @@ class TabsStickyTest < ApplicationSystemTestCase
     visit course_project_path(@course, @project)
 
     # The left pane is its own scroll container; scroll it internally. The
-    # sticky tab bar must stay pinned to the pane top (56px below the viewport
-    # top, i.e. under the fixed 3.5rem page header).
+    # sticky tab bar must stay pinned to the pane top (under the fixed 3.5rem
+    # page header).
     before = tabs_top
     page.execute_script("document.querySelector('.overflow-y-auto').scrollTop = 600")
-    sleep 0.1
     after = tabs_top
 
     assert_in_delta before, after, 1,
@@ -195,7 +164,6 @@ class TabsStickyTest < ApplicationSystemTestCase
 
     before = tabs_top
     page.execute_script("document.querySelector('.overflow-y-auto').scrollTop = 600")
-    sleep 0.1
     after = tabs_top
 
     assert_in_delta before, after, 1,

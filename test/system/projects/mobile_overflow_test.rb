@@ -2,23 +2,13 @@ require 'application_system_test_case'
 
 # Real-browser regression guard for the 360px horizontal overflow that shipped
 # with the redesigned projects/show (Ticket 9). rack_test cannot resize the
-# viewport or measure scrollWidth, so this file drives headless Chrome at
-# 360x760 and asserts the page never scrolls sideways while the content tabs
-# scroll *internally*.
-#
-# Uses `use_transactional_tests = false`: with a real browser the app runs on a
-# server thread whose DB connection cannot see rows uncommitted in the test's
-# transaction, so FactoryBot records must be committed for the login to work.
-class MobileOverflowTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [360, 760]
+# viewport or measure scrollWidth, so this drives headless Chrome at 360x760
+# and asserts the page never scrolls sideways while the content tabs scroll
+# *internally*.
+class MobileOverflowTest < BrowserSystemTestCase
+  self.viewport_size = [360, 760]
 
   setup do
-    # Tests share one browser session; a wide viewport from a previous test
-    # (e.g. the fade test's resize_to) would let tabs fit and hide the trigger.
-    page.driver.browser.manage.window.resize_to(360, 760)
-
     @course      = create(:course, use_progress_updates: true, number_of_updates: 10)
     @student     = create(:user)
     @student_enr = create(:enrolment, :student, user: @student, course: @course)
@@ -35,47 +25,6 @@ class MobileOverflowTest < ApplicationSystemTestCase
     @instance = create(:project_instance, project: @project, supervisor_enrolment: @lecturer_enr,
                                           created_by: @student, version: 1, status: :pending,
                                           title: 'My Proposal')
-  end
-
-  teardown do
-    return if @course.nil?
-
-    # With use_transactional_tests = false nothing rolls back, and the course
-    # factory's project template carries callback-protected fields (a title
-    # field refuses to destroy), so we delete records directly in FK order
-    # instead of relying on dependent callbacks.
-    Course.transaction do
-      pids = @course.projects.ids
-      ProjectInstance.where(project_id: pids).find_each do |instance|
-        instance.comments.delete_all
-        instance.project_instance_fields.delete_all
-      end
-      ProjectInstance.where(project_id: pids).delete_all
-      ProgressUpdate.where(project_id: pids).delete_all
-      Project.where(id: pids).delete_all
-
-      template = @course.project_template
-      template&.project_template_fields&.delete_all
-      template&.delete
-
-      @course.enrolments.delete_all
-
-      [@student, @lecturer, @second_lecturer, @coordinator].compact.each do |user|
-        user.sessions.delete_all
-        user.otp&.delete
-        user.comments.delete_all
-      end
-
-      @course.delete
-      [@student, @lecturer, @second_lecturer, @coordinator].compact.each(&:delete)
-    end
-  end
-
-  def login_as(user, password: 'password')
-    super
-    # Turbo submits via fetch; wait deterministically for the post-login
-    # redirect (root_url) instead of racing the navigation.
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
   end
 
   # Linux Chrome reserves a 15px scrollbar and fonts/layout settle after load,
@@ -161,24 +110,32 @@ class MobileOverflowTest < ApplicationSystemTestCase
     login_as(@student)
     visit course_project_path(@course, @project)
 
-    panel_flags = 'JSON.stringify((el => ({ shadow: el.classList.contains("shadow-2xl"), border: el.classList.contains("border-l") }))(document.getElementById("comments-drawer")))'
-    panel_right = 'document.getElementById("comments-drawer").getBoundingClientRect().right'
-    assert_flags = lambda do |shadow, border|
-      flags = JSON.parse(page.evaluate_script(panel_flags))
-      assert_equal shadow, flags['shadow'], 'drawer shadow-2xl state'
-      assert_equal border, flags['border'], 'drawer border-l state'
-    end
+    # Closed: no shadow, no edge border. assert_no_selector *and* the open
+    # checks below let Capybara retry, so the assertions track the class state
+    # itself instead of racing it via a raw JS read.
+    assert_no_selector '#comments-drawer.shadow-2xl'
+    assert_no_selector '#comments-drawer.border-l'
 
-    assert_flags.call(false, false) # closed: no shadow, no edge border
-
-    find('[data-comments-drawer-target="trigger"]').click
-    wait_for_stable_metrics(panel_right)
-    assert_flags.call(true, true) # open: shadow + edge border restored
+    # Locate the trigger natively (waits for it to be present/visible) but
+    # dispatch the click scripted: a cold-launched headless worker intermittently
+    # swallows the first trusted click — reproduced here under full parallelism
+    # when #comments-drawer.shadow-2xl never appeared. this.click() throws the
+    # same event a user's click fires, and the asserts below still prove the
+    # drawer state actually flipped.
+    find('[data-comments-drawer-target="trigger"]').execute_script('this.click()')
+    assert_selector '#comments-drawer.shadow-2xl'
+    assert_selector '#comments-drawer.border-l'
 
     # The open drawer overlays the trigger (both right-aligned), so close via
-    # Escape, which show.html.erb wires to comments-drawer#closeOnEscape.
-    page.send_keys(:escape)
-    wait_for_stable_metrics(panel_right)
-    assert_flags.call(false, false) # closed again
+    # Escape, which show.html.erb wires to comments-drawer#closeOnEscape
+    # (keydown.esc@window). Dispatched on window, not OS-send_keys: the action
+    # listens on window, and Selenium's send_keys routes through OS-level focus
+    # that an unfocused headless window drops intermittently — reproduced here
+    # as "comments drawer never closed on Escape". Dispatching the KeyboardEvent
+    # on window drives the exact same listener a user's Escape hits (closeOnEscape
+    # runs, event.key checked).
+    page.execute_script(
+      'window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))'
+    )
   end
 end

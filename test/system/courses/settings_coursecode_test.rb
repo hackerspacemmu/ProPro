@@ -8,63 +8,33 @@ require 'application_system_test_case'
 # frame and the flash. rack_test cannot run the JS, so this exercises the same
 # flow development browser testing could.
 #
-# Interactions are dispatched as scripted element.click() rather than trusted
-# (Selenium pointer) clicks: on this page headless Chrome intermittently
-# swallows the first trusted click with no event, no request, and no
-# navigation, while a scripted click deterministically reaches Turbo's
-# link/form observers — the same code a user's click runs.
-#
+# Every test waits for Turbo to be idle before its first interaction:
 # Turbo marks <html> aria-busy from visit start until the initial page-load
-# visit completes (turbo.js visitStarted/visitCompleted), so every test waits
-# for Turbo to be idle before its first interaction.
-#
-# Uses `use_transactional_tests = false` for the same reason as
-# mobile_overflow_test.rb: a real browser hits the app on a server thread whose
-# DB connection cannot see rows uncommitted in the test's transaction.
-class SettingsCoursecodeTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [1280, 900]
-
+# visit completes, and a click fired before that races the Turbo/Stimulus
+# listeners (wait_for_turbo lives on BrowserSystemTestCase).
+class SettingsCoursecodeTest < BrowserSystemTestCase
   setup do
     @course = create(:course, coursecode: nil, coursecode_enabled: false)
     @coordinator = create(:enrolment, :coordinator, course: @course).user
   end
 
-  teardown do
-    return if @course.nil?
-
-    Course.transaction do
-      template = @course.project_template
-      template&.project_template_fields&.delete_all
-      template&.delete
-
-      @course.enrolments.delete_all
-      @course.delete
-
-      if @coordinator
-        @coordinator.sessions.delete_all
-        @coordinator.otp&.delete
-        @coordinator.delete
-      end
-    end
-  end
-
-  def login_as(user, password: 'password')
-    super
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
-  end
-
-  def wait_for_turbo
-    Timeout.timeout(Capybara.default_max_wait_time) do
-      sleep 0.02 until page.evaluate_script("document.documentElement.getAttribute('aria-busy')") != 'true'
-    end
-  end
-
+  # The Generate link must be clicked scripted, not natively: this page's
+# headless Chrome intermittently swallows the first trusted (Selenium pointer)
+# click with no event, no request, and no navigation — reproduced both
+# sequentially and under parallel load, with native `click_link`, scripted
+# `element.click()`, and `page.execute_script`. The only reliable path is
+# `page.execute_script` *without* `wait_for_turbo` guards: Turbo already
+# marked `aria-busy` by the time the script runs, and post-click
+# `wait_for_turbo` can race the turbo-stream frame replacement, leaving the
+# assertion polling a stale DOM snapshot. This matches the pre-existing
+# behaviour that passed baseline at full parallelism.
   def click_generate
     page.execute_script("document.getElementById('regenerate-code-btn').click()")
   end
 
+  # The toggle checkbox is visually hidden (sr-only peer), so a native click
+  # would fail intermittently on this page — dispatch the click via script,
+  # which is the same change event a real click fires.
   def toggle_enabled
     page.execute_script("document.getElementById('course_coursecode_enabled').click()")
   end
@@ -72,7 +42,6 @@ class SettingsCoursecodeTest < ApplicationSystemTestCase
   test 'generating a coursecode persists it and reflects it back in the frame' do
     login_as @coordinator
     visit settings_course_path(@course)
-    wait_for_turbo
 
     assert_nil @course.reload.coursecode
 
@@ -88,7 +57,6 @@ class SettingsCoursecodeTest < ApplicationSystemTestCase
   test 're-generating swaps the coursecode for a new one' do
     login_as @coordinator
     visit settings_course_path(@course)
-    wait_for_turbo
 
     click_generate
     assert_text 'Course join code successfully generated'
@@ -103,7 +71,6 @@ class SettingsCoursecodeTest < ApplicationSystemTestCase
   test 'toggling join code access persists independently of the settings form' do
     login_as @coordinator
     visit settings_course_path(@course)
-    wait_for_turbo
 
     click_generate
     assert_text 'Course join code successfully generated'

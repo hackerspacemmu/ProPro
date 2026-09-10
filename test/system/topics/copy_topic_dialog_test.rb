@@ -4,11 +4,7 @@ require 'application_system_test_case'
 # topics/new — opening, topic selection (turbo frame step-1 → step-2),
 # and closing after Copy Details.  Requires a real browser because the
 # interaction is driven by showModal() / Stimulus controllers.
-class TopicCopyTopicDialogTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [1280, 900]
-
+class TopicCopyTopicDialogTest < BrowserSystemTestCase
   setup do
     @course = create(:course, require_coordinator_approval: true, toggle_topics: true)
     @lecturer = create(:user, :staff)
@@ -44,31 +40,6 @@ class TopicCopyTopicDialogTest < ApplicationSystemTestCase
       project_template_field: @template_field,
       value: 'Alice'
     )
-  end
-
-  teardown do
-    return if @course.nil?
-
-    TopicInstance.where(project_id: @course.topics.ids).find_each do |inst|
-      inst.comments.delete_all
-      inst.project_instance_fields.delete_all
-    end
-    TopicInstance.where(project_id: @course.topics.ids).delete_all
-    Topic.where(course_id: @course.id).delete_all
-    @course.project_template&.project_template_fields&.delete_all
-    @course.project_template&.delete
-    @course.enrolments.delete_all
-    @lecturer&.sessions&.delete_all
-    @lecturer&.otp&.delete
-    @lecturer&.delete
-    @course.delete
-  end
-
-  # Turbo submits the login form via fetch; wait deterministically for the
-  # post-login redirect so the subsequent `visit` doesn't race it.
-  def login_as(user, password: 'password')
-    super
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
   end
 
   test 'opens dialog, shows source topic, loads step-2, and closes after copy' do

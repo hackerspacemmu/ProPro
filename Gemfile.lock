@@ -114,6 +114,10 @@ GEM
     connection_pool (2.5.3)
     crass (1.0.6)
     csv (3.3.5)
+    database_cleaner-active_record (2.2.2)
+      activerecord (>= 5.a)
+      database_cleaner-core (~> 2.0)
+    database_cleaner-core (2.1.0)
     date (3.4.1)
     debug (1.11.0)
       irb (~> 1.10)
@@ -390,6 +394,7 @@ DEPENDENCIES
   capybara
   commonmarker (~> 2.9)
   csv
+  database_cleaner-active_record
   debug
   diff-lcs
   erb-formatter (~> 0.7.3)

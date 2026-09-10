@@ -6,21 +6,11 @@ require 'application_system_test_case'
 # geometry, so this drives headless Chrome at a desktop viewport, collapses the
 # rail, and asserts width + cookie + reload persistence, then shrinks to a
 # mobile viewport and confirms the off-canvas drawer is byte-for-byte unaffected.
-#
-# Uses `use_transactional_tests = false` for the same reason as
-# mobile_overflow_test.rb / course_tab_persistence_test.rb: a real browser hits
-# the app on a server thread whose DB connection can't see uncommitted rows in
-# the test's transaction.
-class SidebarCollapseTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [1280, 900]
-
+class SidebarCollapseTest < BrowserSystemTestCase
   def setup
-    # Tests share one browser session: reset the viewport AND drop the
-    # sidebar rail-collapse cookie so one test's collapsed state can't leak
-    # into the start of another.
-    page.driver.browser.manage.window.resize_to(1280, 900)
+    # Drop the sidebar rail-collapse cookie so one test's collapsed state can't
+    # leak into the start of another (the viewport itself is reset by the base
+    # class's resize_to).
     page.driver.browser.manage.delete_all_cookies
 
     @course  = create(:course)
@@ -28,34 +18,15 @@ class SidebarCollapseTest < ApplicationSystemTestCase
     create(:enrolment, :student, user: @student, course: @course)
   end
 
-  def teardown
-    return if @course.nil?
-
-    Course.transaction do
-      template = @course.project_template
-      template&.project_template_fields&.delete_all
-      template&.delete
-
-      @course.enrolments.delete_all
-
-      @student.sessions.delete_all
-      @student.otp&.delete
-
-      @course.delete
-      @student.delete
-    end
-  end
-
-  def login_as(user, password: 'password')
-    super
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
-  end
-
-  # Headless Chrome drops ~50% of native clicks right after load (the same
-  # driver quirk course_tab_persistence_test.rb works around); a dispatched
-  # DOM click always lands.
+  # Locate the toggle natively (waits for presence/visibility) but dispatch the
+  # click scripted: a cold-launched headless worker intermittently swallows the
+  # first trusted click — reproduced under full parallelism when the rail never
+  # collapsed ("sidebar never reached 72px (stuck at 280)"). this.click() throws
+  # the same event a user's click fires; every width/state assert that follows
+  # still proves the collapse actually happened.
   def click_toggle
-    find('[data-sidebar-target="toggleButton"]').evaluate_script('this.click()')
+    wait_for_turbo
+    find('[data-sidebar-target="toggleButton"]').execute_script('this.click()')
   end
 
   def sidebar_width
@@ -78,18 +49,19 @@ class SidebarCollapseTest < ApplicationSystemTestCase
     end
   end
 
-  # The rail animates over ~200ms; poll until two consecutive reads agree
-  # before asserting any width (same idiom as mobile_overflow_test.rb).
-  def wait_for_sidebar_width
-    deadline = Time.zone.now + 5
-    previous = nil
+  # The rail animates and recomputes after resize/media-query flips, so poll
+  # until the width settles AT the expected value rather than just becoming
+  # stable: a rapid desktop→mobile resize can leave the controller briefly
+  # computing the stale collapsed width for a stable stretch, which a
+  # settle-then-assert read would swallow.
+  def wait_for_sidebar_width(expected)
+    deadline = Time.zone.now + Capybara.default_max_wait_time
     loop do
-      current = sidebar_width
-      return current if previous == current
+      width = sidebar_width
+      return width if (width - expected).abs <= 1
 
-      previous = current
       assert_operator Time.zone.now, :<, deadline,
-                      'sidebar width never settled (stuck animating?)'
+                      "sidebar never reached #{expected}px (stuck at #{width})"
       sleep 0.1
     end
   end
@@ -108,23 +80,23 @@ class SidebarCollapseTest < ApplicationSystemTestCase
 
     # Default state: expanded rail, 280px, rail reflected in aria-expanded.
     wait_for_breakpoint(desktop: true)
-    assert_in_delta 280, sidebar_width, 1
+    assert_in_delta 280, wait_for_sidebar_width(280), 1
     assert_equal 'true', aria_expanded
 
     click_toggle
-    assert_in_delta 72, wait_for_sidebar_width, 1
+    assert_in_delta 72, wait_for_sidebar_width(72), 1
     assert_includes rail_cookie, 'propro_sidebar_rail_collapsed=true'
     assert_equal 'false', aria_expanded
 
     # Server-side read: a full reload comes back collapsed — no wrong-width flash.
     visit current_url
-    assert_in_delta 72, wait_for_sidebar_width, 1
+    assert_in_delta 72, wait_for_sidebar_width(72), 1
 
     # Same cookie, mobile viewport: the drawer is governed purely by the
     # translate/backdrop mechanism; data-collapsed is inert below lg.
     page.driver.browser.manage.window.resize_to(600, 800)
     wait_for_breakpoint(desktop: false)
-    assert_in_delta 280, wait_for_sidebar_width, 1
+    assert_in_delta 280, wait_for_sidebar_width(280), 1
     assert_includes find('#app-sidebar')['class'], '-translate-x-full'
 
     click_toggle
@@ -132,10 +104,11 @@ class SidebarCollapseTest < ApplicationSystemTestCase
     assert_equal 'true', aria_expanded
     assert_selector '[data-sidebar-target="backdrop"]:not(.hidden)'
 
-    # Close via the backdrop (deterministic; Escape-close is pre-existing and
-    # covered by mobile_overflow_test.rb). Dispatch like click_toggle: headless
-    # Chrome drops ~50% of native clicks.
-    find('[data-sidebar-target="backdrop"]').evaluate_script('this.click()')
+    # Close via the backdrop (Escape-close is pre-existing and covered by
+    # mobile_overflow_test.rb). Scripted for the same cold-worker first-click
+    # reason as click_toggle: reproduced when the drawer stayed open here
+    # ("app-sidebar still showed -translate-x-full absent" after a native click).
+    find('[data-sidebar-target="backdrop"]').execute_script('this.click()')
     assert_includes find('#app-sidebar')['class'], '-translate-x-full'
     assert_selector '[data-sidebar-target="backdrop"].hidden', visible: :all
   end

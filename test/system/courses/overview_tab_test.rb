@@ -165,41 +165,12 @@ end
 # rack_test cannot resize the viewport or measure scrollWidth, so this drives
 # headless Chrome at 390x844 and asserts the golden rule — no page-level
 # horizontal overflow while the banner crop and empty-state stack behave.
-class OverviewTabMobileTest < ApplicationSystemTestCase
-  self.use_transactional_tests = false
-
-  driven_by :selenium, using: :headless_chrome, screen_size: [390, 844]
+class OverviewTabMobileTest < BrowserSystemTestCase
+  self.viewport_size = [390, 844]
 
   setup do
     @users = []
     @courses = []
-    page.driver.browser.manage.window.resize_to(390, 844)
-  end
-
-  teardown do
-    # Courses first (their projects/enrolments reference the users), then users.
-    @courses&.each do |course|
-      Course.transaction do
-        pids = course.projects.ids
-        ProjectInstance.where(project_id: pids).find_each { |i| i.project_instance_fields.delete_all }
-        ProjectInstance.where(project_id: pids).delete_all
-        Project.where(id: pids).delete_all
-
-        template = course.project_template
-        template&.project_template_fields&.delete_all
-        template&.delete
-
-        course.enrolments.delete_all
-        course.project_groups.delete_all
-        course.delete
-      end
-    end
-
-    @users&.each do |user|
-      user.sessions.delete_all
-      user.otp&.delete
-      user.delete
-    end
   end
 
   def make_user(*traits, **attrs)
@@ -212,11 +183,6 @@ class OverviewTabMobileTest < ApplicationSystemTestCase
     course = create(:course, **attrs)
     @courses << course
     course
-  end
-
-  def login_as(user, password: 'password')
-    super
-    assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
   end
 
   def wait_for_stable_metrics(script)
