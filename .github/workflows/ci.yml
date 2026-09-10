@@ -7,6 +7,22 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: propro_test
+          POSTGRES_PASSWORD: propro_test
+          POSTGRES_DB: propro_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,11 +35,17 @@ jobs:
         run: bin/rails db:schema:load
         env:
           RAILS_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: propro_test
+          PGPASSWORD: propro_test
 
       - name: Run tests
         run: bin/rails test
         env:
           RAILS_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: propro_test
+          PGPASSWORD: propro_test
 
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
@@ -35,3 +57,6 @@ jobs:
         run: bin/rails test:system
         env:
           RAILS_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: propro_test
+          PGPASSWORD: propro_test
