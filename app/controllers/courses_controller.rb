@@ -22,12 +22,6 @@ class CoursesController < ApplicationController
     @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
     @my_topics = @topic_list.where(owner: current_user)
 
-    # Topics Directory (topics_by_supervisor) data source — policy-scoped with
-    # search/filter applied server-side; driving both the initial render and the
-    # htmx re-render of _topics_by_supervisor_list.
-    @filtered_topic_list = filtered_topic_list
-    @topics_by_supervisor = topics_by_supervisor
-
     # set students projects
     projects_ownerships = @course.projects.approved.where(owner_type: 'User').pluck('owner_id')
 
@@ -37,27 +31,12 @@ class CoursesController < ApplicationController
     if @course.grouped?
       @group = current_user.project_groups.find_by(course: @course)
       @project = @projects_by_owner[['ProjectGroup', @group.id]] if @group
-      # Groups tab lists every project group, confirmed or draft — drafts are
-      # real memberships and must not vanish from the table.
       @group_list = @course.project_groups.includes(project_group_members: :user).to_a
     else
       @group = nil
       @project = @course.projects.find_by(owner_type: 'User', owner_id: current_user.id)
       @group_list = []
     end
-
-    # One map lookup, computed once: user_id => project_group for the Students
-    # section's Group column. Includes draft groups (students in a draft group
-    # still belong to it); excludes nothing that is an actual membership.
-    @student_group_map = {}
-    if @course.grouped?
-      @course.project_groups.includes(project_group_members: :user).find_each do |group|
-        group.project_group_members.each { |member| @student_group_map[member.user_id] = group }
-      end
-    end
-
-    # One map lookup for the Students section's Remove-from-course action.
-    @student_enrolment_map = @course.enrolments.where(role: :student).index_by(&:user_id)
 
     # view instances for incoming topics and my_student_projects
     @current_status = @project&.current_status || 'not_submitted'
@@ -71,34 +50,6 @@ class CoursesController < ApplicationController
       @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
       @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
-
-    # For To Review tab
-    @pending_proposals = @incoming_proposals.select { |p| p.current_status == 'pending' }
-    @reviewed_proposals = @incoming_proposals.select { |p| %w[redo rejected].include?(p.current_status) }
-    @pending_topics = if @current_user_enrolment&.coordinator?
-                        @topic_list.select do |topic|
-                          topic.lecturer? && topic.owner != current_user &&
-                            %w[pending redo rejected].include?(topic.status.to_s)
-                        end
-                      else
-                        []
-                      end
-
-    # For Supervised Projects tab (Ticket 6)
-    @approved_projects = @my_student_projects.select(&:approved?)
-
-    @presenter = OverviewPresenter.new(
-      enrolment: @current_user_enrolment,
-      approved_projects: @approved_projects,
-      pending_proposals: @pending_proposals,
-      reviewed_proposals: @reviewed_proposals,
-      pending_topics: @pending_topics,
-      course_description: @description,
-      file_link: @course.file_link,
-      submission_state: submission_state_for(@current_user_enrolment),
-      submission: @project,
-      toggle_topics: @course.toggle_topics
-    )
 
     # view instances for participants_table
     @filtered_group_list   = filtered_group_list
@@ -122,37 +73,15 @@ class CoursesController < ApplicationController
 
     return unless request.headers['HX-Request']
 
-    if params[:section] == 'groups'
-      render partial: 'groups_table',
-             locals: {
-               course: @course,
-               groups: @filtered_group_list,
-               projects_by_owner: @projects_by_owner,
-               total_count: @total_group_count,
-               displayed_count: @filtered_group_list.count,
-               show_all: @show_all
-             }
-    elsif params[:section] == 'topics'
-      render partial: 'topics_by_supervisor_list',
-             locals: {
-               course: @course,
-               lecturers: @lecturers,
-               topics_by_supervisor: @topics_by_supervisor,
-               current_user_enrolment: @current_user_enrolment
-             }
-    else
-      render partial: 'students_table',
-             locals: {
-               course: @course,
-               students: @filtered_student_list,
-               student_group_map: @student_group_map,
-               student_enrolment_map: @student_enrolment_map,
-               total_student_count: @student_list.count,
-               total_count: @total_student_count,
-               displayed_count: @filtered_student_list.count,
-               show_all: @show_all
-             }
-    end
+    render partial: 'participants_table',
+           locals: {
+             course: @course,
+             group_list: @filtered_group_list,
+             student_list: @filtered_student_list,
+             students_with_projects: @students_with_projects,
+             students_without_projects: @students_without_projects,
+             use_progress_updates: @course.use_progress_updates
+           }
     nil
   end
 
@@ -481,9 +410,9 @@ class CoursesController < ApplicationController
         flash.now[:notice] ||= 'Email restriction settings changed'
       end
     end
-  rescue StandardError => e
-    flash.now[:alert] = e.message
-  ensure
+    rescue StandardError => e
+      flash.now[:alert] = e.message
+    ensure
     render turbo_stream: [
       turbo_stream.update('flash', partial: 'courses/flash'),
       turbo_stream.replace('email_domain_restrict_form', partial: 'courses/course_email_domain_restrict_form', locals: { course: @course })
@@ -940,68 +869,6 @@ class CoursesController < ApplicationController
     return nil if enrolment_ids.empty?
 
     @course.projects.supervised_by(enrolment_ids).where(owner_type: owner_type).pluck(:owner_id)
-  end
-
-  def search_topics(topic_list, query)
-    downcased_query = query.downcase
-
-    topic_list.select do |topic|
-      title_match = topic.current_title.to_s.downcase.include?(downcased_query)
-      owner_match = topic.owner_name.to_s.downcase.include?(downcased_query)
-
-      title_match || owner_match
-    end
-  end
-
-  def filtered_topic_list
-    topic_list = @topic_list
-
-    topic_list = topic_list.select { |topic| topic.owner_id == params[:topic_filter].to_i } if params[:topic_filter].present? && params[:topic_filter] != 'all'
-
-    topic_list = search_topics(topic_list, params[:search_query]) if params[:search_query].present?
-
-    topic_list
-  end
-
-  # [lecturer, topics] pairs for the Topics Directory, supervisor groups A→Z by
-  # name. The current user's own group is pinned first (the "(You)" suffix is
-  # rendered by the partial); only meaningful for users who are themselves in
-  # @course.lecturers — students and coordinator-only staff get no pinned group.
-  # Topics newest-first within each group.
-  def topics_by_supervisor
-    pairs = @course.lecturers
-                   .sort_by { |lecturer| lecturer.name.to_s.downcase }
-                   .map { |lecturer| [lecturer, @filtered_topic_list.select { |topic| topic.owner_id == lecturer.id }] }
-
-    if (pinned = pairs.find { |lecturer, _topics| lecturer.id == current_user.id })
-      pairs = [pinned] + pairs.reject { |lecturer, _topics| lecturer.id == current_user.id }
-    end
-
-    pairs.each { |_lecturer, topics| topics.sort_by!(&:updated_at).reverse! }
-    pairs
-  end
-
-  # :no_group only applies to grouped courses where self-grouping is live
-  # (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
-  # student submits individually with no group step, so @group being nil there is
-  # expected, not an empty state. The grouping_enabled? guard also keeps the
-  # "Browse groups" CTA out of reach of students who could not actually open the
-  # page: ProjectGroupsController#index authorizes with CoursePolicy#grouping?,
-  # which requires grouping_enabled? == true for a non-coordinator. A grouped
-  # course with self-grouping disabled (groups arrive only via CSV/Moodle import
-  # coordinated by staff) would otherwise render the CTA and let a student hit a
-  # Pundit::NotAuthorizedError (redirect to root with alert). In that state a
-  # group-less student instead gets the plain :no_proposal copy below.
-  def submission_state_for(enrolment)
-    return nil unless enrolment&.student?
-
-    if @course.grouped? && @course.grouping_enabled? && @group.nil?
-      :no_group
-    elsif @project.nil? || @current_status == 'not_submitted'
-      :no_proposal
-    else
-      @current_status.to_sym
-    end
   end
 
   def filtered_group_list

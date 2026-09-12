@@ -51,88 +51,88 @@ student3 = User.create!(
 )
 
 student4 = User.create!(
-  email_address: 'brandon.lim.wei.keong@test.com',
-  name: 'Brandon Lim Wei Keong',
+  email_address: 'student4@test.com',
+  name: 'student4',
   has_registered: true,
   instid: '1191202126',
   password: 'password123'
 )
 
 student5 = User.create!(
-  email_address: 'mugilan.a.l.thirumalaisamy@test.com',
-  name: 'Mugilan A/L Thirumalaisamy',
+  email_address: 'student5@test.com',
+  name: 'student5',
   has_registered: true,
   instid: '1191202126',
   password: 'password123'
 )
 
 student6 = User.create!(
-  email_address: 'tan.zhi.kai@test.com',
-  name: 'Tan Zhi Kai',
+  email_address: 'student6@test.com',
+  name: 'student6',
   has_registered: true,
   instid: '1191202127',
   password: 'password123'
 )
 
 student7 = User.create!(
-  email_address: 'bryan.chong.jun.xiong@test.com',
-  name: 'Bryan Chong Jun Xiong',
+  email_address: 'student7@test.com',
+  name: 'student7',
   has_registered: true,
   instid: '1191202128',
   password: 'password123'
 )
 
 student8 = User.create!(
-  email_address: 'faisal.abdul-rahman.al-fattah.bin.syed.osman.bakar.zaini.al-hadi@test.com',
-  name: 'Faisal Abdul-Rahman Al-Fattah Bin Syed Osman Bakar Zaini Al-Hadi',
+  email_address: 'student8@test.com',
+  name: 'student8',
   has_registered: true,
   instid: '1191202129',
   password: 'password123'
 )
 
 student9 = User.create!(
-  email_address: 'liew.mei.ling@test.com',
-  name: 'Liew Mei Ling',
+  email_address: 'student9@test.com',
+  name: 'student9',
   has_registered: true,
   instid: '1191202130',
   password: 'password123'
 )
 
 student10 = User.create!(
-  email_address: 'koh.wei.keat@test.com',
-  name: 'Koh Wei Keat',
+  email_address: 'student10@test.com',
+  name: 'student10',
   has_registered: true,
   instid: '1191202131',
   password: 'password123'
 )
 
 student11 = User.create!(
-  email_address: 'raymond.lee.wei.kang@test.com',
-  name: 'Raymond Lee Wei Kang',
+  email_address: 'student11@test.com',
+  name: 'student11',
   has_registered: true,
   instid: '1191202132',
   password: 'password123'
 )
 
 student12 = User.create!(
-  email_address: 'kevin.chong.wei.keong@test.com',
-  name: 'Kevin Chong Wei Keong',
+  email_address: 'student12@test.com',
+  name: 'student12',
   has_registered: true,
   instid: '1191202133',
   password: 'password123'
 )
 
 student13 = User.create!(
-  email_address: 'leong.yee.ling@test.com',
-  name: 'Leong Yee Ling',
+  email_address: 'student13@test.com',
+  name: 'student13',
   has_registered: true,
   instid: '1191202133',
   password: 'password123'
 )
 
 student14 = User.create!(
-  email_address: 'muzzammil.hakim.bin.norhazimi@test.com',
-  name: 'Muzzammil Hakim bin Norhazimi',
+  email_address: 'student14@test.com',
+  name: 'student14',
   has_registered: true,
   instid: '1191202134',
   password: 'password123'
@@ -143,14 +143,6 @@ student15 = User.create!(
   name: 'student15',
   has_registered: true,
   instid: '1191202135',
-  password: 'password123'
-)
-
-student16 = User.create!(
-  email_address: 'student16@test.com',
-  name: 'student16',
-  has_registered: true,
-  instid: '1191202136',
   password: 'password123'
 )
 
@@ -350,39 +342,29 @@ Enrolment.create!(
 )
 
 # Create Project Group
-# Roughly half the groups are confirmed and half stay drafts; the Groups tab
-# tables both states, so the filtered/status columns can be eyeballed.
 group_1 = ProjectGroup.create!(
   group_name: 'group_1',
-  course: course_with_groups,
-  leader_id: student1.id,
-  confirmed: true
+  course: course_with_groups
 )
 
 group_2 = ProjectGroup.create!(
   group_name: 'group_2',
-  course: course_with_groups,
-  leader_id: student4.id,
-  confirmed: true
+  course: course_with_groups
 )
 
 group_3 = ProjectGroup.create!(
   group_name: 'group_3',
-  course: course_with_groups,
-  leader_id: student7.id,
-  confirmed: true
+  course: course_with_groups
 )
 
 group_4 = ProjectGroup.create!(
   group_name: 'group_4',
-  course: course_with_groups,
-  leader_id: student10.id
+  course: course_with_groups
 )
 
 group_5 = ProjectGroup.create!(
   group_name: 'group_5',
-  course: course_with_groups,
-  leader_id: student13.id
+  course: course_with_groups
 )
 
 # Create Project Group Members

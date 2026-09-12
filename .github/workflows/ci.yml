@@ -47,14 +47,6 @@ jobs:
           PGUSER: propro_test
           PGPASSWORD: propro_test
 
-      - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-        # No install-chromedriver: bundling its own driver (v153) mismatches the
-        # installed Chrome, breaking every system test. Selenium Manager
-        # (selenium-webdriver) resolves the matching driver at runtime instead.
-
       - name: Run system tests
         run: bin/rails test:system
         env:

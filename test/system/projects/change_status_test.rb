@@ -19,18 +19,18 @@ class ChangeStatusTest < ApplicationSystemTestCase
     login_as(@lecturer)
     visit course_project_path(@course, @project)
 
-    within('[data-testid="content-tabs"]') {} # ensure page loaded
-    first(:button, 'Approve').click
+    select 'Approved', from: 'status'
+    find('[data-testid="change-status-submit"]').click
 
     assert_selector '[data-testid="flash-notice"]'
-    assert_text 'Approved'
+    assert_selector '[data-testid="status-select"]', text: /approved/i # /i is for case sensitive
   end
 
   test 'student cannot change project status sad path' do
     login_as(@other_student)
     visit course_project_path(@course, @project)
 
-    assert_no_button 'Approve'
-    assert_no_text 'Request Changes'
+    assert_no_selector '[data-testid="status-select"]'
+    assert_no_selector '[data-testid="change-status-submit"]'
   end
 end

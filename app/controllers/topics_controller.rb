@@ -63,19 +63,6 @@ class TopicsController < ApplicationController
                                    .order(project_template_field_id: :asc)
     end
 
-    @compare_index = @index
-    @compare_fields = @current_fields
-    @compare_next_fields = @next_fields
-
-    if @index == @instances.size && @instances.size > 1
-      previous_instance = @instances[@index - 2]
-      @compare_index = @index - 1
-      @compare_fields = previous_instance.project_instance_fields
-                                         .includes(:project_template_field)
-                                         .order(project_template_field_id: :asc)
-      @compare_next_fields = @current_fields
-    end
-
     @comments = @topic.comments.order(created_at: :asc)
     @new_comment = Comment.new
     @fields = @current_fields
@@ -199,7 +186,6 @@ class TopicsController < ApplicationController
   end
 
   def change_status
-    authorize @topic, :change_status?
     current_instance = @topic.current_instance
     if current_instance
       current_instance.update!(
