@@ -1,0 +1,45 @@
+<aside id="app-sidebar"
+       class="group/sidebar
+         w-[280px] shrink-0 py-3 bg-surface-tint
+         fixed top-0 left-0 h-full z-50 -translate-x-full transition-[transform,width] duration-200 ease-out
+         lg:sticky lg:top-header lg:translate-x-0 lg:h-[calc(100vh-var(--spacing-header))] lg:self-start lg:overflow-y-auto
+         data-[collapsed=true]:lg:overflow-visible
+         data-[collapsed=true]:lg:w-[72px]"
+       data-sidebar-target="container"
+       data-collapsed="<%= sidebar_collapsed? %>">
+  <nav class="flex flex-col gap-1 pr-3">
+
+    <% home_active = current_page?(root_path) %>
+    <%= render "shared/sidebar_nav_item", kind: :plain, path: root_path, icon: "home", label: "Home", active: home_active %>
+
+    <div class="group-data-[collapsed=true]/sidebar:lg:hidden">
+      <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer">
+        <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+        <span class="material-symbols-outlined text-sm">expand_less</span>
+      </div>
+
+      <% current_user.courses.distinct.each do |course| %>
+        <%= render "shared/sidebar_nav_item",
+              kind: :course,
+              path: course_path(course),
+              label: course.course_name,
+              avatar: course.course_name.first.upcase,
+              active: (course == @course) %>
+      <% end %>
+
+      <div class="py-2">
+        <div class="border-t border-outline"></div>
+      </div>
+    </div>
+
+    <% profile_active = current_page?(user_profile_path) %>
+    <%= render "shared/sidebar_nav_item", kind: :plain, path: user_profile_path, icon: "person", label: "Edit profile", active: profile_active, icon_color: "text-on-surface-variant" %>
+
+    <%= render "shared/sidebar_nav_item", kind: :logout, path: session_path, icon: "logout", label: "Log out", active: false, icon_color: "text-on-surface-variant" %>
+
+  </nav>
+</aside>
+
+<div class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"
+     data-sidebar-target="backdrop"
+     data-action="click->sidebar#close"></div>

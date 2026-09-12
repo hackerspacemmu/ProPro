@@ -1,16 +1,16 @@
 class EnrolmentsController < ApplicationController
   def destroy
-    params.require(%i[coordinator_id course_id id])
+    params.require(%i[course_id id])
 
     current_course = Course.find(params[:course_id])
-    course_coordinators = current_course.coordinators.pluck(:id)
 
-    unless course_coordinators.include?(params[:coordinator_id].to_i)
+    # Authorization is on the authenticated user, never on a client-submitted id.
+    unless current_course.coordinator_ids.include?(current_user.id)
       redirect_back_or_to '/'
       return
     end
 
-    enrolment = Enrolment.find(params[:id])
+    enrolment = current_course.enrolments.find(params[:id])
     user_id = enrolment.user_id
 
     begin

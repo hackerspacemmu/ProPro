@@ -38,6 +38,17 @@ class ProjectsController < ApplicationController
       @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
     end
 
+    @compare_index = @index
+    @compare_fields = @current_fields
+    @compare_next_fields = @next_fields
+
+    if @index == @instances.size && @instances.size > 1
+      previous_instance = @instances[@index - 2]
+      @compare_index = @index - 1
+      @compare_fields = previous_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
+      @compare_next_fields = @current_fields
+    end
+
     @comments = @project.comments.order(created_at: :asc)
     @new_comment = Comment.new(user: current_user, location: @current_instance)
 
@@ -88,6 +99,9 @@ class ProjectsController < ApplicationController
       @lecturer_capacity_info[lc.enrolment.user_id] = lc
     end
 
+    @topic_pick_values = build_topic_pick_values(@template_fields)
+    @topics = policy_scope(@course.topics)
+
     @field_values = {}
 
     # Autofill selected topic's field values
@@ -126,6 +140,9 @@ class ProjectsController < ApplicationController
     @lecturers = @course.lecturers
     capacity_result = SupervisorCapacityCalculator.new(@course).calculate
     @lecturer_capacity_info = capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
+
+    @topic_pick_values = build_topic_pick_values(@template_fields)
+    @topics = policy_scope(@course.topics)
 
     # Load existing selected Topic_id or lecturer
     if @instance.source_topic_id.nil?
@@ -372,10 +389,10 @@ class ProjectsController < ApplicationController
       end
     end
 
-    render partial: 'project_new',
+    render partial: 'template_fields',
            locals: { template_fields: @template_fields,
-                     field_values: @field_values,
-                     input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
+                     values: @field_values,
+                     is_approved: false }
   end
 
   def selected_topic_edit
@@ -397,13 +414,28 @@ class ProjectsController < ApplicationController
       end
     end
 
-    render partial: 'project_edit',
+    render partial: 'template_fields',
            locals: { template_fields: @template_fields,
-                     existing_values: @existing_values,
-                     input_classes: 'w-full px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl text-gray-700 bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder-gray-400 text-sm sm:text-base' }
+                     values: @existing_values,
+                     is_approved: false }
   end
 
   private
+
+  def build_topic_pick_values(template_fields)
+    field_ids = template_fields.pluck(:id).map(&:to_i)
+
+    policy_scope(@course.topics).each_with_object({}) do |topic, map|
+      instance = topic.current_instance
+      next unless instance
+
+      values = instance.project_instance_fields
+                       .select { |f| field_ids.include?(f.project_template_field_id.to_i) }
+                       .to_h { |f| [f.project_template_field_id.to_i, f.value] }
+
+      map[topic.id] = values unless values.empty?
+    end
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

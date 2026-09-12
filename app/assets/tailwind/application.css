@@ -1,6 +1,103 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme {
+  /* Text & surfaces */
+  --color-on-surface: #3c4043;
+  --color-on-surface-strong: #1f1f1f;
+  --color-on-surface-variant: #5f6368;
+  --color-on-surface-disabled: #9aa0a6;
+  --color-surface: #ffffff;
+  --color-surface-tint: #f8fafd;
+  --color-surface-variant: #f1f3f4;
+
+  /* Borders */
+  --color-outline: #dadce0;
+  --color-outline-variant: #e0e0e0;
+
+  /* Primary (blue) */
+  --color-primary: #1a73e8;
+  --color-primary-strong: #0b57d0;
+  --color-primary-hover: #1b66c9;
+  --color-primary-container: #e8f0fe;
+  --color-primary-container-alt: #d3e3fd;
+
+  /* Status: success */
+  --color-success: #137333;
+  --color-success-hover: #0f5c29;
+  --color-success-container: #e6f4ea;
+
+  /* Status: error */
+  --color-error: #c5221f;
+  --color-error-hover: #a50e0e;
+  --color-error-container: #fce8e6;
+
+  /* Status: warning/redo */
+  --color-warning: #f57f17;
+  --color-warning-container: #fff8e1;
+
+  /* Neutral hover / muted surfaces */
+  --color-surface-hover: #f8f9fa;
+  --color-surface-muted: #ebebeb;
+  --color-surface-variant-hover: #e8eaed;
+  --color-surface-variant-deep: #e1e3e1;
+  --color-on-surface-muted: #747775;
+  --color-on-surface-soft: #444746;
+  --color-on-surface-muted-strong: #858585;
+  --color-file-link: #313848;
+
+  /* Outline greys */
+  --color-outline-strong: #c4c4c4;
+  --color-outline-soft: #c4c7c5;
+
+  /* Primary soft (pending-pill blue) + container variants */
+  --color-primary-soft: #1967d2;
+  --color-primary-container-hover: #e9eef6;
+  --color-primary-container-ring: #d2e3fc;
+
+  /* Warning/redo extended */
+  --color-warning-strong: #e37400;
+  --color-warning-container-alt: #fef7e0;
+  --color-warning-border: #f2de8a;
+  --color-warning-on-container: #b06000;
+
+  /* Error container border */
+  --color-error-container-border: #f9d2ce;
+
+  /* Soft shadow tint */
+  --color-shadow-soft: #b8b8b8;
+
+  /* Structural */
+  --radius-panel: 28px;
+  --radius-card: 8px;
+  --breakpoint-comments: 1245px;
+
+  /* App-shell header height (generates min-h-header / top-header / h-header). */
+  --spacing-header: 3.5rem;
+}
+
+/*
+ * Stacking order (deliberate, keep in sync):
+ *   50 — drawers and dropdowns that cover chrome: app sidebar drawer, comments
+ *        drawer, menu/review dropdowns.
+ *   40 — the fixed header AND every overlay backdrop. The header/backdrop tie
+ *        is intentional: a backdrop (e.g. for the sidebar/Comments drawers)
+ *        is meant to dim the header too while its drawer is open.
+ *   10 — in-panel sticky rows (tab bars, context headers) inside the clipped
+ *        panes; they only ever compete with pane content, never the header.
+ */
+
+/*
+ * Desktop-collapsed rail: the icon tooltips must escape the aside to paint
+ * over content, so a collapsed sidebar is overflow-visible. Expanded state
+ * still needs the aside to scroll its Enrolled list, so the `lg:overflow-y-auto`
+ * utility keeps applying then. Unlayered on purpose — it must beat that
+ * laidered utility regardless of Tailwind's variant ordering.
+ */
+#app-sidebar[data-collapsed="true"] {
+  overflow: visible;
+}
+
 /* Force EasyMDE Preview Headings to restore their size */
 .editor-preview h1 {
   font-size: 2em !important;
@@ -128,4 +225,3 @@
   text-decoration: none;
   font-weight: 500;
 }
-

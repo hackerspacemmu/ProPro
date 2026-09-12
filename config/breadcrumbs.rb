@@ -68,17 +68,6 @@ crumb :topics do |course|
   end
 end
 
-crumb :topic do |topic|
-  link topic.topic_instances.last&.title
-  if params[:lecturer_id]
-    lecturer = User.find(params[:lecturer_id])
-    parent :lecturer, topic.course, lecturer
-  elsif params[:from_new_project]
-    parent :topics, topic.course
-  else
-    parent :topics, topic.course
-  end
-end
 crumb :new_topic do |course|
   link 'New Topic', new_course_topic_path(course)
   parent :topics, course

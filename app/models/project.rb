@@ -58,6 +58,16 @@ class Project < ApplicationRecord
     current_instance&.title || title
   end
 
+  def owner_name
+    if owner.respond_to?(:name)
+      owner.name
+    elsif owner.respond_to?(:group_name)
+      owner.group_name
+    else
+      "Unknown"
+    end
+  end
+
   def editable?
     !approved?
   end

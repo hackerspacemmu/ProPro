@@ -15,14 +15,7 @@ found_text = desc_field&.value || fields.first&.value
 description_text = found_text if found_text.present?
 
 # --- Determine Owner Name ---
-owner_name =
-  if project.owner.respond_to?(:name)
-    project.owner.name
-  elsif project.owner.respond_to?(:group_name)
-    project.owner.group_name
-  else
-    "Unknown"
-  end %>
+owner_name = project.owner_name %>
 
 <div
   class="

@@ -1,18 +1,15 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "courses" %>
-<% end %>
 <% content_for :title, "Reset Password | ProPro" %>
 <% provide :no_footer, true %>
-<div class="main">
-  <div class="container">
-    <h1>Update your password</h1>
+<div class="w-[95%] mx-auto text-[28px] py-[10px] flex-auto">
+  <div class="rounded-[10px] w-full p-[15px] bg-[#f8f9fa] mb-[20px]">
+    <h1 class="text-[30px] font-bold text-black mt-0 mb-0">Update your password</h1>
 
     <%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
 
     <%= form_with url: password_path(params[:token]), method: :put do |form| %>
-      <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter new password", maxlength: 72 %><br>
-      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Repeat new password", maxlength: 72 %><br>
-      <%= form.submit "Save" %>
+      <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter new password", maxlength: 72, class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Repeat new password", maxlength: 72, class: "w-full p-2.5 border border-[#ccc] rounded box-border text-[10px] mb-2.5" %><br>
+      <%= form.submit "Save", class: "bg-[#dfdfdf] text-black py-2.5 px-[15px] border-none rounded cursor-pointer text-[10px]" %>
     <% end %>
   </div>
 </div>
