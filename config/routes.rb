@@ -17,9 +17,6 @@ Rails.application.routes.draw do
 
   root 'homescreen#show'
 
-  # Dev-only live component style guide (see app/views/styleguide/show.html.erb).
-  get 'styleguide', to: 'styleguide#show' if Rails.env.development?
-
   get 'login', to: 'sessions#new'
   resource :session
 
@@ -65,6 +62,8 @@ Rails.application.routes.draw do
         patch :change_status
       end
     end
+
+    resources :participants, only: [:index]
 
     resources :lecturers, only: %i[index show] do
       member do

@@ -1,0 +1,56 @@
+<% container_classes = "w-full py-2 px-0 mb-1" %>
+<div class="<%= container_classes %>">
+  <div class="mb-4">
+    <h4 class="text-xl text-black font-normal ml-0">Proposal Status</h4>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-8">
+
+    <%# RIGHT: Vertical Stepper %>
+    <div class="w-full md:w-64 shrink-0 pl-4">
+      <% statuses = %w[not_submitted rejected pending redo approved] %>
+      <ol class="relative border-s border-gray-200">
+        <% statuses.each do |status| %>
+          <% is_active = @current_status.to_s == status %>
+          <li class="mb-8 ms-7 step flex items-center" data-status="<%= status %>">
+            <span
+              class="
+                absolute flex items-center justify-center w-8 h-8 rounded-full -start-4 ring-4
+                ring-white <%= is_active ? 'bg-gray-300' : 'bg-gray-100' %>
+              "
+            >
+              <%= image_tag "#{status}.svg",
+              class: "w-4 h-4 #{is_active ? "opacity-100" : "opacity-30"}" %>
+            </span>
+            <h3
+              class="
+                font-medium leading-tight items-self-center
+                <%= is_active ? 'text-black' : 'text-gray-400' %>
+              "
+            >
+              <%= status.humanize %>
+            </h3>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+
+    <%# LEFT: Proposal Card %>
+    <div class="flex-1 min-w-0 max-w-[420px]">
+      <% if project %>
+        <div class="grid grid-cols-1 gap-6">
+          <%= render partial: "project_card", object: project, as: :project %>
+        </div>
+      <% else %>
+        <div class="border-t border-gray-200 pt-8 pb-4 text-center">
+          <p class="text-sm text-gray-500 mb-4">No proposal submitted yet.</p>
+          <%= link_to "Submit Proposal",
+          new_course_project_path(@course),
+          class:
+            "inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-md" %>
+        </div>
+      <% end %>
+    </div>
+
+  </div>
+</div>

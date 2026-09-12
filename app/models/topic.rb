@@ -56,23 +56,6 @@ class Topic < ApplicationRecord
     current_instance&.title || title
   end
 
-  def owner_name
-    if owner.respond_to?(:name)
-      owner.name
-    elsif owner.respond_to?(:group_name)
-      owner.group_name
-    else
-      'Unknown'
-    end
-  end
-
-  # An approved topic that no student proposal has been based on yet — the
-  # "Available" state shown on the Topics Directory rows only (NOT on
-  # topics/index or lecturers/show). Display-only; never an authorization gate.
-  def available?
-    approved? && proposed_project_instances.none?
-  end
-
   def instance_to_edit(created_by:, has_coordinator_comment:, status:)
     if rejected? || redo? || (pending? && has_coordinator_comment)
       topic_instances.build(

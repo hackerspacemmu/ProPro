@@ -1,3 +1,6 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
+<% end %>
 <% content_for :body_class, "bg-gray-50" %>
 <% participant_name =
   @participant_type == "group" ? @group.group_name : @student.name %>
@@ -18,17 +21,51 @@
 
 <%# --- Data Fetching --- %>
 <% if @participant_type == 'group' %>
-  <% @project = group_project_for(@group, @projects_by_owner) %>
-  <% @status = group_status(@group, @projects_by_owner) %>
+  <% @project = group_project_for(@group, @course) %>
+  <% @status = group_status(@group, @course) %>
 <% else %>
-  <% @project = student_project_for(@student, @projects_by_owner) %>
-  <% @status = student_status(@student, @projects_by_owner) %>
+  <% @project = student_project_for(@student, @course) %>
+  <% @status = student_status(@student, @course) %>
 <% end %>
 <% @current_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>
 
 <%# --- Sidebar --- %>
-<% content_for :sidebar, render("shared/sidebar") %>
+<% content_for :sidebar do %>
+  <%= render_sidebar do %>
+    <div class="space-y-1 font-medium text-sm text-gray-600">
+      <a
+        href="#title"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Title
+      </a>
+      <a
+        href="#profile-information"
+        class="
+          block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+          transition-colors
+        "
+      >
+        Profile Information
+      </a>
+      <% if @project.present? %>
+        <a
+          href="#current-project"
+          class="
+            block px-3 py-2 rounded-md hover:bg-gray-100 hover:text-gray-900
+            transition-colors
+          "
+        >
+          Current Project
+        </a>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
 
 <%# --- Main Layout --- %>
 <main class="w-[95%] mx-auto pt-6 flex-auto bg-gray-50">

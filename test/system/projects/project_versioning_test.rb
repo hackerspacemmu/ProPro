@@ -18,31 +18,38 @@ class ProjectVersioningTest < ApplicationSystemTestCase
     login_as(@student)
     visit course_project_path(@course, @project)
 
-    assert_selector 'select', text: /2 of 2/
+    assert_selector '[data-testid="current-version"]', text: /2 of 2/i
   end
 
-  test 'selecting version 1 navigates to previous version' do
+  test 'clicking back navigates to previous version' do
     login_as(@student)
     visit course_project_path(@course, @project)
 
-    first(:select).find('option', text: '1 of 2').select_option
+    find('[data-testid="version-back"]').click
 
-    assert_selector 'select', text: /1 of 2/
+    assert_selector '[data-testid="current-version"]', text: /1 of 2/i
   end
 
-  test 'selecting version 2 navigates to next version' do
+  test 'clicking next navigates to next version' do
     login_as(@student)
     visit course_project_path(@course, @project, version: 1)
 
-    first(:select).find('option', text: '2 of 2').select_option
+    find('[data-testid="version-next"]').click
 
-    assert_selector 'select', text: /2 of 2/
+    assert_selector '[data-testid="current-version"]', text: /2 of 2/i
   end
 
-  test 'latest version shows current label' do
+  test 'back button is disabled on version 1' do
+    login_as(@student)
+    visit course_project_path(@course, @project, version: 1)
+
+    assert_no_selector '[data-testid="version-back"]'
+  end
+
+  test 'next button is disabled on latest version' do
     login_as(@student)
     visit course_project_path(@course, @project)
 
-    assert_selector 'select', text: /Current/
+    assert_no_selector '[data-testid="version-next"]'
   end
 end

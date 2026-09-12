@@ -83,12 +83,6 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
   gem 'selenium-webdriver'
-
-  # Test-DB cleanup for the real-browser tests: the app runs on an in-process
-  # server thread that can't see uncommitted rows, so browser tests commit for
-  # real and use DatabaseCleaner's truncation strategy instead of hand-rolled
-  # per-file delete cascades.
-  gem 'database_cleaner-active_record'
 end
 
 gem 'pundit', '~> 2.5'
