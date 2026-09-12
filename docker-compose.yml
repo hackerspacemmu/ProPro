@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: propro
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: propro_staging
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U propro"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      RAILS_ENV: staging
+      DATABASE_URL: postgres://propro:${POSTGRES_PASSWORD}@db:5432/propro_staging
+    ports:
+      - "100.104.240.31:3000:80"
+    volumes:
+      - storage:/rails/storage
+
+volumes:
+  pgdata:
+  storage:

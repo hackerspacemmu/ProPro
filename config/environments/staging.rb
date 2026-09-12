@@ -9,8 +9,8 @@ Rails.application.configure do
   # Eager load code on boot for better performance and memory savings (ignored by Rake tasks).
   config.eager_load = true
 
-  # Exposes full rails error logs (staging only)
-  config.consider_all_requests_local = true
+  # Full error reports are disabled.
+  config.consider_all_requests_local = false
 
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
@@ -24,8 +24,8 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Tailscale already encrypts end-to-end and staging only runs on private box.
-  config.force_ssl = false 
+  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
@@ -37,8 +37,8 @@ Rails.application.configure do
   config.log_tags = [:request_id]
   config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
 
-  # debug logs every (including potentially personally-identifiable information!) for staging only
-  config.log_level = :debug
+  # Change to "debug" to log everything (including potentially personally-identifiable information!)
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
 
   # Prevent health checks from clogging up the logs.
   config.silence_healthcheck_path = '/up'
@@ -46,8 +46,8 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # default in process memory for staging only
-  config.cache_store = :memory_store
+  # Replace the default in-process memory cache store with a durable alternative.
+  config.cache_store = :file_store, 'tmp/cache'
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   # config.active_job.queue_adapter = :solid_queue
