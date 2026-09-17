@@ -5,7 +5,8 @@ class SettingsSaveTest < ApplicationSystemTestCase
     @course = create(:course,
                      course_name: 'Original Course Name',
                      starting_week: 1,
-                     course_description: 'Old description')
+                     course_description: 'Old description',
+                     coursecode_enabled: true)
     coordinator = create(:user)
     create(:enrolment, :coordinator, user: coordinator, course: @course)
     @coordinator = coordinator
@@ -29,7 +30,10 @@ class SettingsSaveTest < ApplicationSystemTestCase
     # nest a form or roll a settings save back on generate.
     assert_selector '#course-settings-form'
     assert_selector '#course_code_form'
-    assert_selector "#course_code_form a[href*='update_coursecode']"
+    assert_selector '#course_code_form #regenerate-code-btn'
+    assert_selector '#course_code_form #copy-code-btn'
+    assert_selector '#course_code_form [data-coursecode-form-handler-url-value*="update_coursecode"]'
+    assert_text 'only solo courses'
     assert_equal 0, page.all('#course_code_form form').count,
                  'the coursecode widget must never render a <form>'
     assert_equal 0, page.all('#course-settings-form form').count,

@@ -452,7 +452,10 @@ class CoursesController < ApplicationController
     end
 
     if params[:course]&.key?(:coursecode_enabled)
-      @course.update!(coursecode_enabled: params[:course][:coursecode_enabled])
+      enabled = ActiveModel::Type::Boolean.new.cast(params[:course][:coursecode_enabled])
+      attributes = { coursecode_enabled: enabled }
+      attributes[:coursecode] = nil unless enabled
+      @course.update!(attributes)
       flash.now[:notice] ||= 'Course join code settings updated'
     end
   rescue StandardError => e

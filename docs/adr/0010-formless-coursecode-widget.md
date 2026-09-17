@@ -67,3 +67,11 @@ mockup and like every well-known regenerate/invite-code control:
 - **Invariant:** a partial served by a Turbo Stream `replace` must have
   exactly one top-level node, and it must *be* the replacement target frame —
   any wrapper gets cloned and re-nested with every stream.
+- **Amendment 2026-09-17:** Generate / Re-Generate no longer rides a
+  `data-turbo-method` link. It calls the same `coursecode-form-handler`
+  `fetch()` path as the toggle, posting `generate=true`, so a real click can
+  never race Turbo's synthesized throwaway form. The code input and
+  Generate/Re-Generate controls render only while `coursecode_enabled` is true,
+  and switching joining to No wipes the stored `coursecode` in
+  `update_coursecode`. Endpoint, params, the `course_code_form` frame contract,
+  and `handle_settings`' whitelist are unchanged.

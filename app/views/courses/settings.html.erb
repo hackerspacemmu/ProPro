@@ -51,7 +51,7 @@
         <%= render "copy_course_overlay", course: @course, mode: "settings", courses: @courses %>
 
         <!-- SECTION 1: Class Details -->
-        <section class="bg-white border border-outline-variant rounded-[12px] p-8 shadow-xs">
+        <section class="bg-white border border-outline-variant rounded-[12px] p-8">
           <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">Class Details</h2>
 
           <div class="space-y-6">
@@ -78,7 +78,7 @@
         </section>
 
         <!-- SECTION 2: General -->
-        <section class="bg-white border border-outline-variant rounded-[12px] p-8 shadow-xs">
+        <section class="bg-white border border-outline-variant rounded-[12px] p-8">
           <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">General</h2>
 
           <!-- SUBSECTION: Coursecode -->
@@ -112,7 +112,7 @@
         </section>
 
         <!-- SECTION 3: Permissions and Rules -->
-        <section class="bg-white border border-outline-variant rounded-[12px] p-8 shadow-xs">
+        <section class="bg-white border border-outline-variant rounded-[12px] p-8">
           <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">Permissions and Rules</h2>
 
           <div class="space-y-8">
@@ -202,7 +202,7 @@
         </section>
 
         <!-- SECTION 4: Grouping (Inlined and Restyled) -->
-        <section class="bg-white border border-outline-variant rounded-[12px] p-8 shadow-xs">
+        <section class="bg-white border border-outline-variant rounded-[12px] p-8">
           <div class="space-y-8"
                data-controller="grouping-settings"
                data-grouping-settings-enabled-value="<%= @course.grouping_enabled? %>"
@@ -211,7 +211,6 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-2">
               <div>
                 <h2 class="text-3xl font-normal text-gray-800 tracking-tight">Student Self-Grouping <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800 align-middle">Beta</span></h2>
-                <p class="text-xs text-amber-600 mt-1">Group formation in ProPro is still in progress!</p>
               </div>
             </div>
 
