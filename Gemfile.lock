@@ -410,7 +410,7 @@ DEPENDENCIES
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
-  json (~> 2.12)
+  json (~> 2.21.2)
   pg
   propshaft
   puma (>= 5.0)
