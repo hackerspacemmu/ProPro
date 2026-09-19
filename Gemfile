@@ -18,6 +18,8 @@ gem 'turbo-rails'
 gem 'stimulus-rails'
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem 'jbuilder'
+# There is a breaking change between version 2 and 3 of JSON which causes an argument error
+gem 'json', '~> 2.12'
 
 # Used to differentaite text
 gem 'diff-lcs'
