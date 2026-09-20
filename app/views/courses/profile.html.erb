@@ -27,7 +27,7 @@
 <% @current_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>
 
-<%# --- Status pill palette (mirrors shared/_row_item) --- %>
+<%# --- Status pill palette (mirrors shared/_list_item) --- %>
 <%
   status_display = (@status || "not_submitted").to_s.downcase
   pill_bg, pill_fg =
@@ -122,8 +122,8 @@
               <h2 id="current-project-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Current Project</h2>
 
               <% if @project.present? && @current_instance.present? %>
-                <%= render "projects/proposal_list_item",
-                    proposal: @project,
+                <%= render "projects/list_item",
+                    project: @project,
                     path: course_project_path(@course, @project, from_participant: @participant_id, participant_type: @participant_type),
                     linkable: policy(@project).show? %>
               <% else %>
@@ -212,8 +212,8 @@
               <h2 id="current-project-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Current Project</h2>
 
               <% if @project.present? %>
-                <%= render "projects/proposal_list_item",
-                    proposal: @project,
+                <%= render "projects/list_item",
+                    project: @project,
                     path: course_project_path(@course, @project, from_participant: @participant_id, participant_type: @participant_type),
                     linkable: policy(@project).show? %>
               <% else %>

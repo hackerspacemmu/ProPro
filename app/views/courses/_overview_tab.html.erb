@@ -16,7 +16,7 @@
   <%= render "courses/project_details_card" %>
 
 <%# My Submission — students only, single-item section (not collapsible). The
-    static header mirrors _section_header styling; rows reuse shared/_row_item
+    static header mirrors _section_header styling; rows reuse shared/_list_item
     (E4: keeps the more_vert). Six possible submission_state values, resolved by
     the controller. %>
 <% if @presenter.show_my_submission? %>
@@ -46,7 +46,7 @@
              when :redo     then ["history", "Returned"]
              when :rejected then ["block", "Rejected"]
              end %>
-        <%= render "shared/row_item",
+        <%= render "shared/list_item",
               path: course_project_path(@course, @presenter.submission),
               icon: icon,
               title: @presenter.submission.current_title,
@@ -79,7 +79,7 @@
     <div class="mb-12" id="supervised-projects">
       <%= render "courses/section_header", title: "Supervised Projects", count: @presenter.supervised_projects.size, section: "supervised-projects" %>
       <% if @presenter.supervised_projects.any? %>
-        <%= render "shared/row_list", rows: @presenter.supervised_projects, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+        <%= render "shared/list", rows: @presenter.supervised_projects, partial: "projects/list_item", item: :project, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "supervised-projects" } } %>
       <% else %>
         <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="supervised-projects">
@@ -93,7 +93,7 @@
     <div class="mb-12" id="pending-proposals">
       <%= render "courses/section_header", title: "Pending Proposals", count: @presenter.pending_proposals.size, section: "pending-proposals" %>
       <% if @presenter.pending_proposals.any? %>
-        <%= render "shared/row_list", rows: @presenter.pending_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+        <%= render "shared/list", rows: @presenter.pending_proposals, partial: "projects/list_item", item: :project, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-proposals" } } %>
       <% else %>
         <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-proposals">
@@ -107,7 +107,7 @@
     <div class="mb-12" id="reviewed-proposals">
       <%= render "courses/section_header", title: "Reviewed Proposals", count: @presenter.reviewed_proposals.size, section: "reviewed-proposals" %>
       <% if @presenter.reviewed_proposals.any? %>
-        <%= render "shared/row_list", rows: @presenter.reviewed_proposals, partial: "projects/proposal_list_item", item: :proposal, borderless_first: true,
+        <%= render "shared/list", rows: @presenter.reviewed_proposals, partial: "projects/list_item", item: :project, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "reviewed-proposals" } } %>
       <% else %>
         <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="reviewed-proposals">
@@ -121,7 +121,7 @@
     <div class="mb-12" id="pending-topics">
       <%= render "courses/section_header", title: "Pending Topics", count: @presenter.pending_topics.size, section: "pending-topics" %>
       <% if @presenter.pending_topics.any? %>
-        <%= render "shared/row_list", rows: @presenter.pending_topics, partial: "courses/topic_card", item: :topic, borderless_first: true,
+        <%= render "shared/list", rows: @presenter.pending_topics, partial: "courses/topic_item", item: :topic, borderless_first: true,
             container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "pending-topics" } } %>
       <% else %>
         <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="pending-topics">

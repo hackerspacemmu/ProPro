@@ -248,14 +248,14 @@
 
     <!-- 7. ROW ITEMS -->
     <section>
-      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">7 · Row items <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">shared/_row_item</code></span></h2>
+      <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-weight: 400;" class="text-[22px] text-on-surface-strong mb-6">7 · List items <span class="text-sm text-on-surface-variant"><code class="font-mono text-xs">shared/_list_item</code></span></h2>
       <div class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
-        <%= render "shared/row_item", path: "#", icon: "description", title: "Project Suggestion Engine", meta_parts: ["Kevin Mah"], time_meta: "Submitted 2 hours ago", status: "approved" %>
-        <%= render "shared/row_item", path: "#", icon: "description", title: "Real-time Group Progress Dashboard", meta_parts: ["Siti Aminah"], time_meta: "Submitted yesterday", status: "pending" %>
-        <%= render "shared/row_item", path: "#", icon: "description", title: "Accessibility-first Proctoring", meta_parts: ["Group 2"], time_meta: "Updated 3 days ago", status: "redo" %>
-        <%= render "shared/row_item", path: "#", icon: "description", title: "Auto-grading with LLM Rubrics", meta_parts: ["Group 7"], time_meta: "Updated last week", status: "rejected" %>
-        <%= render "shared/row_item", path: "#", icon: "topic", title: "Edge Computing for Rural IoT", meta_parts: ["Dr. Leong"], time_meta: "Updated 5 hours ago", status: "reviewed", pill_label: "Reviewed" %>
-        <%= render "shared/row_item", path: "#", icon: "description", title: "Block content below the row", meta_parts: ["Optional detail"], status: "pending",
+        <%= render "shared/list_item", path: "#", icon: "description", title: "Project Suggestion Engine", meta_parts: ["Kevin Mah"], time_meta: "Submitted 2 hours ago", status: "approved" %>
+        <%= render "shared/list_item", path: "#", icon: "description", title: "Real-time Group Progress Dashboard", meta_parts: ["Siti Aminah"], time_meta: "Submitted yesterday", status: "pending" %>
+        <%= render "shared/list_item", path: "#", icon: "description", title: "Accessibility-first Proctoring", meta_parts: ["Group 2"], time_meta: "Updated 3 days ago", status: "redo" %>
+        <%= render "shared/list_item", path: "#", icon: "description", title: "Auto-grading with LLM Rubrics", meta_parts: ["Group 7"], time_meta: "Updated last week", status: "rejected" %>
+        <%= render "shared/list_item", path: "#", icon: "topic", title: "Edge Computing for Rural IoT", meta_parts: ["Dr. Leong"], time_meta: "Updated 5 hours ago", status: "reviewed", pill_label: "Reviewed" %>
+        <%= render "shared/list_item", path: "#", icon: "description", title: "Block content below the row", meta_parts: ["Optional detail"], status: "pending",
           linkable: true do %>
           <div class="px-4 pb-3 text-[13px] text-on-surface-variant">The optional block renders below the row line — used for inline annotations.</div>
         <% end %>
@@ -307,7 +307,7 @@
         <li>Tokens: <code class="font-mono text-xs">app/assets/tailwind/application.css</code> (the <code class="font-mono text-xs">@theme</code> block)</li>
         <li>Row items, empty states, form bars, sidebar nav: <code class="font-mono text-xs">app/views/shared/</code></li>
         <li>Section headers: <code class="font-mono text-xs">app/views/courses/_section_header.html.erb</code></li>
-        <li>Status pills: <code class="font-mono text-xs">shared/_row_item</code> and <code class="font-mono text-xs">courses/_topic_card</code></li>
+        <li>Status pills: <code class="font-mono text-xs">shared/_list_item</code> and <code class="font-mono text-xs">courses/_topic_item</code></li>
         <li>Approve split / Request Changes / Reject: <code class="font-mono text-xs">projects/_review_actions</code></li>
       </ul>
     </section>

@@ -188,11 +188,11 @@
               <%= render "courses/section_header", title: "Supervised Projects", count: @my_student_projects.size, section: "lecturer-supervised-projects" %>
               <% if @my_student_projects.any? %>
                 <div class="flex flex-col border-b border-outline-variant w-full" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-supervised-projects">
-                  <% @my_student_projects.each do |proposal| %>
-                    <%= render "projects/proposal_list_item",
-                        proposal: proposal,
-                        path: course_lecturer_project_path(@course, @lecturer, proposal),
-                        linkable: policy(proposal).show? %>
+                  <% @my_student_projects.each do |project| %>
+                    <%= render "projects/list_item",
+                        project: project,
+                        path: course_lecturer_project_path(@course, @lecturer, project),
+                        linkable: policy(project).show? %>
                   <% end %>
                 </div>
               <% else %>
@@ -206,7 +206,7 @@
             <div class="mb-12" id="lecturer-topics">
               <%= render "courses/section_header", title: "Topics", count: topic_rows.size, section: "lecturer-topics" %>
               <% if topic_rows.any? %>
-                <%= render "shared/row_list", rows: topic_rows, partial: "courses/topic_card", item: :topic, borderless_first: true,
+                <%= render "shared/list", rows: topic_rows, partial: "courses/topic_item", item: :topic, borderless_first: true,
                     locals: { course: @course, lecturer: @lecturer },
                     container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "lecturer-topics" } } %>
               <% else %>
@@ -221,11 +221,11 @@
               <%= render "courses/section_header", title: "Pending Proposals", count: pending_rows.size, section: "lecturer-pending-proposals" %>
               <% if pending_rows.any? %>
                 <div class="flex flex-col border-b border-outline-variant w-full" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-pending-proposals">
-                  <% pending_rows.each do |proposal| %>
-                    <%= render "projects/proposal_list_item",
-                        proposal: proposal,
-                        path: course_lecturer_project_path(@course, @lecturer, proposal),
-                        linkable: policy(proposal).show? %>
+                  <% pending_rows.each do |project| %>
+                    <%= render "projects/list_item",
+                        project: project,
+                        path: course_lecturer_project_path(@course, @lecturer, project),
+                        linkable: policy(project).show? %>
                   <% end %>
                 </div>
               <% else %>
@@ -240,11 +240,11 @@
               <%= render "courses/section_header", title: "Reviewed Proposals", count: reviewed_rows.size, section: "lecturer-reviewed-proposals" %>
               <% if reviewed_rows.any? %>
                 <div class="flex flex-col border-b border-outline-variant w-full" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-reviewed-proposals">
-                  <% reviewed_rows.each do |proposal| %>
-                    <%= render "projects/proposal_list_item",
-                        proposal: proposal,
-                        path: course_lecturer_project_path(@course, @lecturer, proposal),
-                        linkable: policy(proposal).show? %>
+                  <% reviewed_rows.each do |project| %>
+                    <%= render "projects/list_item",
+                        project: project,
+                        path: course_lecturer_project_path(@course, @lecturer, project),
+                        linkable: policy(project).show? %>
                   <% end %>
                 </div>
               <% else %>
@@ -260,7 +260,7 @@
             <div class="mb-12" id="lecturer-topics">
               <%= render "courses/section_header", title: "Topics", count: topic_rows.size, section: "lecturer-topics" %>
               <% if topic_rows.any? %>
-                <%= render "shared/row_list", rows: topic_rows, partial: "courses/topic_card", item: :topic, borderless_first: true,
+                <%= render "shared/list", rows: topic_rows, partial: "courses/topic_item", item: :topic, borderless_first: true,
                     locals: { course: @course, lecturer: @lecturer },
                     container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "lecturer-topics" } } %>
               <% else %>

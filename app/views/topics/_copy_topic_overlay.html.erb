@@ -52,7 +52,7 @@
             <% @approved_topics.each do |topic| %>
               <% topic_instance = topic.topic_instances.order(:version).last %>
 
-              <%= render "shared/row_item",
+              <%= render "shared/list_item",
                   path: new_course_topic_path(@course, source_topic_id: topic.id),
                   icon: "topic",
                   title: topic_instance.title.presence || "Untitled Topic",

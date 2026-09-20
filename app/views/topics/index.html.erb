@@ -79,7 +79,7 @@
     <%# --- Topics Grid --- %>
     <section class="topics-list mb-12" id="topics-list">
         <% if @topics.any? %>
-          <%= render "shared/row_list", rows: @topics, partial: "courses/topic_card", item: :topic %>
+          <%= render "shared/list", rows: @topics, partial: "courses/topic_item", item: :topic %>
         <% else %>
           <div
             class="

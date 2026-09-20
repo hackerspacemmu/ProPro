@@ -25,11 +25,11 @@
 
   # Topics Directory-only: when an approved topic is unclaimed, swap its status
   # pill for the green "Available" pill (approved is already green). Never pass
-  # pill_label: nil — _row_item's fetch(:pill_label, ...) would render an empty pill.
+  # pill_label: nil — _list_item's fetch(:pill_label, ...) would render an empty pill.
   if local_assigns.fetch(:available_pill, false) && topic.available?
     render_options[:pill_label] = "Available"
   end
 
   %>
-  <%= render "shared/row_item", render_options %>
+  <%= render "shared/list_item", render_options %>
 <% end %>

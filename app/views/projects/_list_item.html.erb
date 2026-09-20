@@ -1,14 +1,14 @@
-<%# Locals: proposal (required), path (optional, defaults to the plain
+<%# Locals: project (required), path (optional, defaults to the plain
     # course→project link), linkable (optional, default true). The caller may
     # override path/linkable to keep participant-scoped params (from_participant,
     # participant_type) or gate the row behind a policy. %>
 
-<% path = local_assigns[:path] || course_project_path(@course, proposal) %>
+<% path = local_assigns[:path] || course_project_path(@course, project) %>
 <% linkable = local_assigns.fetch(:linkable, true) %>
 
 <%
   icon, verb =
-    case proposal.current_status
+    case project.current_status
     when "approved" then ["assignment_turned_in", "Updated"]
     when "pending"  then ["assignment", "Submitted"]
     when "redo"     then ["history", "Returned"]
@@ -16,11 +16,11 @@
     else                 ["assignment", "Updated"]
     end %>
 
-<%= render "shared/row_item",
+<%= render "shared/list_item",
     path: path,
     icon: icon,
-    title: proposal.current_title,
-    meta_parts: [proposal.owner_name],
-    time_meta: "#{verb} #{time_ago_in_words(proposal.current_instance&.updated_at || proposal.updated_at)} ago",
-    status: proposal.current_status,
+    title: project.current_title,
+    meta_parts: [project.owner_name],
+    time_meta: "#{verb} #{time_ago_in_words(project.current_instance&.updated_at || project.updated_at)} ago",
+    status: project.current_status,
     linkable: linkable %>
