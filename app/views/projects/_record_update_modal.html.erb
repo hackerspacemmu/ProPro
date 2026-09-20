@@ -26,7 +26,7 @@
     </button>
   </div>
 
-  <%= form_with url: course_project_progress_updates_path(course, project), method: :post, local: true, class: "flex flex-col h-full" do |f| %>
+  <%= form_with scope: :progress_update, url: course_project_progress_updates_path(course, project), method: :post, class: "flex flex-col h-full" do |f| %>
     <div class="px-6 py-2 space-y-6">
       <div>
         <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Status</label>
@@ -55,7 +55,6 @@
             class: "w-full bg-white border border-outline rounded-[4px] px-4 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[14px]",
             placeholder: "Provide details on the group's progress...",
             data: { testid: "progress-feedback-textarea" } %>
-        <p class="text-xs text-on-surface-variant mt-2">Markdown formatting is supported.</p>
       </div>
 
       <div>

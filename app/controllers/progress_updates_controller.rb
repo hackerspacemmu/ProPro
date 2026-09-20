@@ -16,21 +16,18 @@ class ProgressUpdatesController < ApplicationController
   end
 
   def create
-    begin
-      ActiveRecord::Base.transaction do
-        @progress_update = ProgressUpdate.create!(
-          project: @project,
-          rating: params[:progress_update][:rating],
-          feedback: params[:progress_update][:feedback],
-          date: params[:progress_update][:date]
-        )
-      end
-    rescue StandardError
-      render :new, status: :unprocessable_entity
-      return
-    end
+    @progress_update = @project.progress_updates.build(
+      rating: params[:progress_update][:rating],
+      feedback: params[:progress_update][:feedback],
+      date: params[:progress_update][:date]
+    )
 
-    redirect_to course_project_path(@course, @project)
+    if @progress_update.save
+      redirect_to course_project_path(@course, @project)
+    else
+      @weeks = @course.number_of_updates
+      render :new, status: :unprocessable_entity
+    end
   end
 
   def update

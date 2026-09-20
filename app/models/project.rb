@@ -64,7 +64,7 @@ class Project < ApplicationRecord
     elsif owner.respond_to?(:group_name)
       owner.group_name
     else
-      "Unknown"
+      'Unknown'
     end
   end
 
