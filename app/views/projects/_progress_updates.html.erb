@@ -97,12 +97,18 @@
                         "
                       >
                         <div class="py-1">
-                          <%= button_to edit_course_project_progress_update_path(course, project, progress_update),
-                              method: :get,
-                              class: "w-full text-left px-4 py-2 hover:bg-surface-hover flex items-center gap-3 transition-colors text-[14px] text-on-surface" do %>
+                          <button
+                            type="button"
+                            data-action="click->dropdown#close click->record-update-modal#openEdit"
+                            data-rating="<%= progress_update.rating %>"
+                            data-feedback="<%= progress_update.feedback %>"
+                            data-date="<%= progress_update.date %>"
+                            data-update-url="<%= course_project_progress_update_path(course, project, progress_update) %>"
+                            class="w-full text-left px-4 py-2 hover:bg-surface-hover flex items-center gap-3 transition-colors text-[14px] text-on-surface"
+                          >
                             <span class="material-symbols-outlined text-[18px] text-on-surface-variant">edit</span>
                             Edit
-                          <% end %>
+                          </button>
 
                           <div class="border-t border-outline-variant my-1"></div>
 

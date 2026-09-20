@@ -107,23 +107,6 @@ crumb :edit_project do |project|
   parent :project, project
 end
 
-crumb :progress_update do |progress_update|
-  project = progress_update.project
-  link 'Progress Update', course_project_progress_update_path(project.course, project, progress_update)
-  parent :project, project
-end
-
-crumb :new_progress_update do |project|
-  link 'New Progress Update', new_course_project_progress_update_path(project.course, project)
-  parent :project, project
-end
-
-crumb :edit_progress_update do |progress_update|
-  project = progress_update.project
-  link 'Edit Progress Update', edit_course_project_progress_update_path(project.course, project, progress_update)
-  parent :progress_update, progress_update
-end
-
 crumb :lecturer do |course, lecturer|
   link lecturer.name, course_lecturer_path(course, lecturer)
 

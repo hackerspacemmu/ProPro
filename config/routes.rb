@@ -57,7 +57,7 @@ Rails.application.routes.draw do
         get 'selected_topic_edit', to: 'projects#selected_topic_edit'
       end
 
-      resources :progress_updates, only: %i[show edit update create new destroy]
+      resources :progress_updates, only: %i[create update destroy]
     end
 
     resources :topics, only: %i[index show edit update create new destroy] do

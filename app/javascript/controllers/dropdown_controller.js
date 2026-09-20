@@ -33,6 +33,13 @@ export default class extends Controller {
     }
   }
 
+  close() {
+    if (!this.menuTarget.classList.contains("hidden")) {
+      this.menuTarget.classList.add("hidden");
+      document.removeEventListener("click", this.boundClickOutside);
+    }
+  }
+
   clickOutside(event) {
     if (!this.element.contains(event.target)) {
       this.menuTarget.classList.add("hidden");

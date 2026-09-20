@@ -38,6 +38,7 @@ definitions.
 - **review action bar** — the mobile-only pinned bottom bar (version switcher + actions) hosting the same `_review_actions`; thumb-reachable on every tab.
 - **comments drawer** — one element, two presentations: the static sticky comments column on desktop; a backdrop-toggled off-canvas slide-in on mobile (`top-0 right-0 bottom-0` + `translate-x-full`, escaped by `min-[1245px]:translate-x-0`), opened by the comments trigger. Controlled by `comments-drawer`.
 - **comments trigger** — the mobile-only tab-bar button (chat bubble + count badge) that opens/closes the comments drawer (`aria-expanded` mirrors open state).
+- **progress update dialog** — one of the two `<dialog>`s on the Progress Updates tab, sharing the `record-update-modal` Stimulus controller behind the timeline's Record button and per-row `Edit` item: the **record dialog** (blank form, `POST` create) is `_record_update_modal`; the **edit dialog** (`_edit_update_modal`) is pre-filled by JS from the row's `data-*` attributes and posts `PATCH` to the row's update URL. Both carry `required` fields. They replace the full-page progress update forms (`progress_updates/new`, `edit`, `show`), which were deleted.
 
 ## Course show (Overview)
 

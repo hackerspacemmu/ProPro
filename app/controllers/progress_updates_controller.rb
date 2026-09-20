@@ -1,19 +1,6 @@
 class ProgressUpdatesController < ApplicationController
   before_action :access
-  before_action :supervisor_access, except: [:show]
-
-  def show
-    @progress_update = ProgressUpdate.find(params[:id])
-  end
-
-  def new
-    @progress_update = ProgressUpdate.new
-    @weeks = @course.number_of_updates
-  end
-
-  def edit
-    @progress_update = ProgressUpdate.find(params[:id])
-  end
+  before_action :supervisor_access
 
   def create
     @progress_update = @project.progress_updates.build(
@@ -22,21 +9,16 @@ class ProgressUpdatesController < ApplicationController
       date: params[:progress_update][:date]
     )
 
-    if @progress_update.save
-      redirect_to course_project_path(@course, @project)
-    else
-      @weeks = @course.number_of_updates
-      render :new, status: :unprocessable_entity
-    end
+    flash[:alert] = @progress_update.errors.full_messages.to_sentence unless @progress_update.save
+
+    redirect_to course_project_path(@course, @project)
   end
 
   def update
     @progress_update = ProgressUpdate.find(params[:id])
-    if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))
-      redirect_to course_project_path(@course, @project)
-    else
-      render :edit, status: :unprocessable_entity
-    end
+    flash[:alert] = @progress_update.errors.full_messages.to_sentence unless @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))
+
+    redirect_to course_project_path(@course, @project)
   end
 
   def destroy

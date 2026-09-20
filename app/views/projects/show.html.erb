@@ -92,6 +92,8 @@
               can_record_progress_update: policy(@project).can_record_progress_update? %>
 
               <%= render "record_update_modal", course: @course, project: @project %>
+
+              <%= render "edit_update_modal", course: @course, project: @project %>
             </div>
           <% end %>
 
