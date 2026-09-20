@@ -34,11 +34,10 @@ class ProjectTemplateField < ApplicationRecord
 
   private
 
-
   def cannot_delete_title_field
     return unless is_project_title?
 
-    errors.add(:base, "Cannot delete the Project Title field")
+    errors.add(:base, 'Cannot delete the Project Title field')
     throw :abort
   end
 

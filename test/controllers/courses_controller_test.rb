@@ -565,7 +565,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     supervisor_enrolment = create(:enrolment, :lecturer, user: supervisor, course: course)
     group = create(:project_group, course: course, confirmed: true, group_name: 'Proposal Group')
     project = create(:project, course: course, owner: group, owner_type: 'ProjectGroup',
-                     supervisor_enrolment: supervisor_enrolment, status: :approved)
+                               supervisor_enrolment: supervisor_enrolment, status: :approved)
     create(:project_instance, project: project, supervisor_enrolment: supervisor_enrolment,
                               status: :approved, title: 'Group Roster Project')
 
