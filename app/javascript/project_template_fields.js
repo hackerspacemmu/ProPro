@@ -51,7 +51,7 @@ document.addEventListener("turbo:load", function () {
       >
         <input type="hidden"
               name="project_template[project_template_fields_attributes][${index}][position]"
-              value="${index+1}"
+              value="${index + 1}"
               class="position-input">
 
         <td class="table-cell pl-16 pr-6 py-5 align-top">

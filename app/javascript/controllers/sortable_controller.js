@@ -1,8 +1,8 @@
-import { Controller } from "@hotwired/stimulus"
-import Sortable from "sortablejs"
+import { Controller } from "@hotwired/stimulus";
+import Sortable from "sortablejs";
 
 export default class extends Controller {
-  static targets = [ "list" ]
+  static targets = ["list"];
 
   connect() {
     this.sortable = Sortable.create(this.element, {
@@ -23,22 +23,23 @@ export default class extends Controller {
       scrollSpeed: 20,
       forceFallback: true,
       onMove: (evt) => {
-        if (evt.related && evt.related.closest(".sortable-disabled")) return false;
+        if (evt.related && evt.related.closest(".sortable-disabled"))
+          return false;
       },
-      onEnd: this.updatePositions.bind(this)
-    })
+      onEnd: this.updatePositions.bind(this),
+    });
   }
 
   updatePositions() {
-    const rows = this.element.querySelectorAll(".field-row")
-    
-    rows.forEach((row, index) => {
-        const positionInput = row.querySelector(".position-input")
-        if (positionInput) {
-        positionInput.value = index + 1
+    const rows = this.element.querySelectorAll(".field-row");
 
-        positionInput.dispatchEvent(new Event("change", { bubbles: true }))
-        }
-    })
+    rows.forEach((row, index) => {
+      const positionInput = row.querySelector(".position-input");
+      if (positionInput) {
+        positionInput.value = index + 1;
+
+        positionInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
   }
 }
