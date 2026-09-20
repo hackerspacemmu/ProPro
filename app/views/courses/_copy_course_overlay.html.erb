@@ -1,7 +1,7 @@
 <%# locals: (course:, mode:, courses:) %>
 <div data-controller="overlay" data-overlay-target-course-id-value="<%= course.id %>" data-overlay-mode-value="<%= mode %>" class="relative">
   <div class="flex justify-end">
-    <button type="button" data-action="click->overlay#open" class="inline-flex items-center gap-2 border border-outline text-primary hover:bg-surface-hover px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+    <button type="button" data-action="click->overlay#open" class="inline-flex items-center gap-2 px-4 py-2.5 border border-dashed border-outline text-[13.5px] font-medium rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors">
       <span class="material-symbols-outlined text-[18px]">content_copy</span>
       Reuse details from another course
     </button>

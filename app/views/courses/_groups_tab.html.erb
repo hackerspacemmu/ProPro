@@ -3,15 +3,16 @@
     here touches an ivar again. %>
 <section data-controller="modal">
 
-  <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-gray-300 pb-4 mb-4 gap-4">
-    <div class="flex items-baseline gap-4 shrink-0">
+  <div class="flex flex-col gap-4 border-b border-gray-300 pb-4 mb-4">
+
+    <div class="flex items-baseline gap-4">
       <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Groups</h2>
       <span class="text-sm font-medium text-gray-500"><%= pluralize(@total_group_count, "group") %></span>
     </div>
 
-    <div class="flex flex-col gap-3 w-full md:flex-row md:items-center md:w-auto">
-      <div class="flex items-center gap-3 w-full md:w-auto">
-        <div class="relative flex items-center flex-1 md:w-[240px]">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+        <div class="relative flex items-center w-full sm:w-[240px]">
           <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
           <input type="text" id="groups-search" name="search_query" value="<%= params[:search_query] %>"
                  autocomplete="off"
@@ -29,24 +30,6 @@
                class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-outline-variant bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
         </div>
 
-        <% if policy(@course).manage_students? %>
-          <button type="button" data-action="modal#open" title="Add Students" class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors shrink-0">
-            <span class="material-symbols-outlined">group_add</span>
-          </button>
-        <% end %>
-
-        <% if policy(@course).export_csv? %>
-          <%= link_to export_csv_course_path(@course),
-                title: "Export CSV",
-                class: "inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors shrink-0" do %>
-            <span class="material-symbols-outlined">download</span>
-          <% end %>
-        <% end %>
-
-        <span id="groups-loading" class="htmx-indicator text-blue-600 text-sm font-medium shrink-0"><span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span></span>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
         <% unless @course.solo_supervisor? %>
           <select id="lecturer-filter" name="lecturer_filter"
                   class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full sm:w-[190px] px-4 py-2 transition-all cursor-pointer outline-none"
@@ -76,6 +59,24 @@
             <option value="<%= group_status %>" <%= params[:status_filter] == group_status ? 'selected' : '' %>><%= group_status.titleize %></option>
           <% end %>
         </select>
+
+        <span id="groups-loading" class="htmx-indicator text-blue-600 text-sm font-medium shrink-0"><span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span></span>
+      </div>
+
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <% if policy(@course).manage_students? %>
+          <button type="button" data-action="modal#open" title="Add Students" class="inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors shrink-0">
+            <span class="material-symbols-outlined">group_add</span>
+          </button>
+        <% end %>
+
+        <% if policy(@course).export_csv? %>
+          <%= link_to export_csv_course_path(@course),
+                title: "Export CSV",
+                class: "inline-flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-colors shrink-0" do %>
+            <span class="material-symbols-outlined">download</span>
+          <% end %>
+        <% end %>
       </div>
     </div>
   </div>

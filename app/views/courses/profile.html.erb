@@ -1,4 +1,4 @@
-<% content_for :body_class, "bg-gray-50" %>
+<% content_for :body_class, "bg-surface-tint" %>
 <% participant_name =
   @participant_type == "group" ? @group.group_name : @student.name %>
 
@@ -27,282 +27,214 @@
 <% @current_instance = @project&.project_instances&.order(:version)&.last %>
 <% @supervisor = @project&.supervisor if @project %>
 
-<%# --- Sidebar --- %>
-<% content_for :sidebar, render("shared/sidebar") %>
+<%# --- Status pill palette (mirrors shared/_row_item) --- %>
+<%
+  status_display = (@status || "not_submitted").to_s.downcase
+  pill_bg, pill_fg =
+    case status_display
+    when "approved" then ["bg-success-container", "text-success"]
+    when "pending"  then ["bg-primary-container", "text-primary-soft"]
+    when "redo"     then ["bg-warning-container", "text-warning"]
+    when "rejected" then ["bg-error-container", "text-error"]
+    else                 ["bg-surface-variant", "text-on-surface-variant"]
+    end
+%>
 
-<%# --- Main Layout --- %>
-<main class="w-[95%] mx-auto pt-6 flex-auto bg-gray-50">
-  <div class="space-y-8">
+<div class="flex">
+  <%= render "shared/sidebar" %>
+  <main class="flex-1 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]">
 
-    <div class="flex flex-col gap-1 px-2">
+    <div class="w-[95%] max-w-5xl mx-auto pt-8 pb-16 flex flex-col min-h-full">
+      <div class="space-y-12 flex-grow">
 
-      <%# 1. The Label Row %>
-      <div class="flex items-center gap-4 mb-6">
-        <span class="text-sm font-bold text-gray-500 uppercase tracking-wider">
-          <% if @participant_type == 'group' %>
-            View Group
-          <% else %>
-            View Student
-          <% end %>
-        </span>
-        <div class="h-px bg-gray-300 flex-grow"></div>
-      </div>
+        <% if @participant_type == 'group' %>
 
-      <%# 2. The Avatar & Name Row %>
-      <div class="flex items-center gap-6">
-        <% if @participant_type == 'student' %>
-          <div
-            class="
-              w-20 h-20 bg-gray-200 text-gray-700 rounded-full flex items-center
-              justify-center text-3xl font-bold shrink-0 uppercase shadow-sm
-            "
-          >
-            <%= @student.name[0].upcase %>
-          </div>
-          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @student.name %></h1>
-        <% else %>
-          <h1 class="text-4xl font-bold text-gray-900 tracking-tight"><%= @group.group_name %></h1>
-        <% end %>
-      </div>
-    </div>
+          <%# ═══════════════ GROUP PROFILE ═══════════════ %>
+          <div>
+            <span class="block mb-4 text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">View Group</span>
 
-    <%# --- Card 1: Profile Information --- %>
-    <section
-      class="
-        bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
-      "
-    >
-      <div class="px-8 pt-8 pb-8" id="profile-information">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
+            <%# Hero: banner band + name + facts %>
+            <section aria-labelledby="group-name"
+                     class="bg-surface-tint border border-outline-variant rounded-panel overflow-hidden shadow-none">
+              <div class="h-16 sm:h-20 bg-primary-container-alt" aria-hidden="true"></div>
 
-        <div class="grid grid-cols-1 gap-y-8">
+              <div class="px-6 sm:px-8 pt-6 pb-8">
+                <h1 id="group-name" class="text-[28px] leading-9 sm:text-[36px] sm:leading-[44px] font-normal text-on-surface-strong tracking-tight font-['DM_Sans'] break-words"><%= @group.group_name %></h1>
 
-          <% if @participant_type == 'group' %>
-            <%# --- Group Logic --- %>
+                <%# Facts strip: Project Status | Supervisor %>
+                <div class="mt-8 pt-6 border-t border-outline-variant flex flex-col gap-6 sm:flex-row sm:gap-0">
+                  <div class="flex flex-col gap-2 sm:pr-10 sm:w-1/2">
+                    <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Project Status</span>
+                    <div class="flex items-center min-h-8">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide <%= pill_bg %> <%= pill_fg %>"><%= status_display.humanize %></span>
+                    </div>
+                  </div>
 
-            <%# Group Name %>
-            <div class="flex flex-col items-start gap-2">
-              <span class="font-medium text-gray-500 text-sm">Group Name</span>
-              <span class="text-gray-900 text-base font-medium"><%= @group.group_name %></span>
-            </div>
+                  <div class="flex flex-col gap-2 sm:pl-10 sm:w-1/2 relative before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-outline-variant max-sm:before:hidden">
+                    <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Supervisor</span>
+                    <div class="flex items-center min-h-8">
+                      <% if @supervisor.present? %>
+                        <div class="flex items-center gap-3">
+                          <div class="w-8 h-8 rounded-full bg-surface-variant-deep flex items-center justify-center text-[12px] font-bold text-on-surface-strong shrink-0 border border-outline-variant">
+                            <%= @supervisor.name.first.upcase %>
+                          </div>
+                          <span class="text-on-surface text-[14px] font-medium"><%= @supervisor.name %></span>
+                        </div>
+                      <% else %>
+                        <span class="text-on-surface-variant text-[14px]">—</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-            <%# Members %>
-            <div class="flex flex-col items-start gap-3">
-              <span class="font-medium text-gray-500 text-sm">Members</span>
-              <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <%# Group Members: one divided list (Classroom "People" style) %>
+            <section id="group-members" aria-labelledby="group-members-heading" class="mt-10">
+              <h2 id="group-members-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Group Members</h2>
+
+              <ul class="bg-surface border border-outline-variant rounded-card divide-y divide-outline-variant overflow-hidden shadow-none">
                 <% @members.each do |member| %>
-                  <div
-                    class="
-                      flex items-start gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200/50
-                      hover:border-gray-300 transition-colors
-                    "
-                  >
-                    <%# Profile Avatar %>
-                    <div
-                      class="
-                        w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center
-                        justify-center text-sm font-bold text-gray-700 shrink-0 shadow-sm
-                      "
-                    >
+                  <li class="flex items-center gap-4 px-4 sm:px-5 py-3.5 hover:bg-surface-hover transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-surface-variant-deep text-on-surface-strong flex items-center justify-center text-[14px] font-bold shrink-0 border border-outline-variant">
                       <%= member.user.name.first.upcase %>
                     </div>
+                    <div class="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:justify-between md:gap-4 gap-x-4">
+                      <div class="min-w-0 flex flex-col">
+                        <%= link_to participant_profile_course_path(@course, member.user.id, 'student'),
+                                    title: member.user.name,
+                                    class: "text-[14px] font-medium text-on-surface-strong truncate min-w-0" do %>
+                          <%= member.user.name %>
+                        <% end %>
+                        <% if member.user.instid.present? %>
+                          <span class="text-[12px] text-on-surface-muted font-mono mt-0.5">STUDENT ID: <%= member.user.instid %></span>
+                        <% end %>
+                      </div>
+                      <span class="text-[13px] text-on-surface-variant mt-1 md:mt-0 break-all"><%= member.user.email_address %></span>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </section>
 
-                    <div class="flex flex-col">
-                      <strong class="text-base font-semibold text-gray-900"><%= member.user.name %></strong>
+            <%# Current Project %>
+            <section id="current-project" aria-labelledby="current-project-heading" class="mt-10">
+              <h2 id="current-project-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Current Project</h2>
 
-                      <% if member.user.instid.present? %>
-                        <span class="text-gray-700 text-sm font-mono mt-0.5">STUDENT ID:
-                          <%= member.user.instid %></span>
+              <% if @project.present? && @current_instance.present? %>
+                <%= render "projects/proposal_list_item",
+                    proposal: @project,
+                    path: course_project_path(@course, @project, from_participant: @participant_id, participant_type: @participant_type),
+                    linkable: policy(@project).show? %>
+              <% else %>
+                <%= render "shared/empty_state",
+                    heading: "No project has been submitted yet.",
+                    description: "When a project is submitted, it will appear here." %>
+              <% end %>
+            </section>
+
+            <%# Back to Course %>
+            <footer class="mt-10 flex justify-start">
+              <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-variant hover:text-on-surface-strong text-[14px] font-medium transition-colors duration-150 no-underline" do %>
+                <span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1">arrow_back</span>
+                Back to Course
+              <% end %>
+            </footer>
+          </div>
+
+        <% else %>
+
+          <%# ═══════════════ STUDENT PROFILE ═══════════════ %>
+          <div>
+            <span class="block mb-4 text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">View Student</span>
+
+            <%# Hero: banner band + overlapping avatar + identity + facts %>
+            <section aria-labelledby="student-name"
+                     class="bg-surface-tint border border-outline-variant rounded-panel overflow-hidden shadow-none">
+              <div class="h-24 sm:h-28 bg-primary-container-alt" aria-hidden="true"></div>
+
+              <div class="px-6 sm:px-8 pb-8">
+                <div class="-mt-12 flex flex-col gap-4 sm:flex-row sm:gap-6">
+                  <div class="w-24 h-24 bg-surface-variant-deep text-on-surface-strong border-4 border-surface-tint rounded-full flex items-center justify-center text-4xl font-bold shrink-0 shadow-none">
+                    <%= @student.name.first.upcase %>
+                  </div>
+
+                  <div class="min-w-0 flex-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:pt-14">
+                    <div class="min-w-0">
+                      <h1 id="student-name" class="text-[28px] leading-9 sm:text-[36px] sm:leading-[44px] font-normal text-on-surface-strong tracking-tight font-['DM_Sans'] break-words"><%= @student.name %></h1>
+                      <div class="text-on-surface-variant text-[14px] mt-1 font-medium break-words">
+                        <%= @student.email_address %>
+                      </div>
+                      <% if @student.instid.present? %>
+                        <div class="text-on-surface-muted text-[13px] mt-0.5 font-mono">STUDENT ID: <%= @student.instid %></div>
                       <% end %>
-                      <p class="text-sm text-gray-900">
-                        <%= member.user.email_address %>
-                      </p>
+                    </div>
+
+                    <% if @course.coordinators.include?(Current.user) %>
+                      <%= link_to "Remove From Course",
+                          enrolment_path(coordinator_id: Current.user, course_id: @course, id: @student_enrolment),
+                          data: { turbo_method: :delete, turbo_confirm: "Are you sure?\nThe user will be removed from the COURSE.\nTheir associated PROJECT HISTORY and COMMENTS will be DELETED if they're the last member." },
+                          class: "shrink-0 self-start inline-flex items-center justify-center px-5 py-2.5 bg-surface border border-outline rounded-full text-error text-[14px] font-medium whitespace-nowrap hover:bg-error-container transition-colors no-underline shadow-none" %>
+                    <% end %>
+                  </div>
+                </div>
+
+                <%# Facts strip: Project Status | Supervisor %>
+                <div class="mt-8 pt-6 border-t border-outline-variant flex flex-col gap-6 sm:flex-row sm:gap-0">
+                  <div class="flex flex-col gap-2 sm:pr-10 sm:w-1/2">
+                    <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Project Status</span>
+                    <div class="flex items-center min-h-8">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide <%= pill_bg %> <%= pill_fg %>"><%= status_display.humanize %></span>
                     </div>
                   </div>
-                <% end %>
-              </div>
-            </div>
 
-          <% else %>
-            <%# --- Student Logic --- %>
-
-            <%# Name %>
-            <div class="flex flex-col items-start gap-2">
-              <span class="font-medium text-gray-500 text-sm">Name</span>
-              <span class="text-gray-900 text-base font-medium"><%= @student.name %></span>
-            </div>
-
-            <%# ID %>
-            <div class="flex flex-col items-start gap-2">
-              <span class="font-medium text-gray-500 text-sm">Student ID</span>
-              <span class="text-gray-900 text-base font-mono"><%= @student.instid || "-" %></span>
-            </div>
-
-            <%# Email %>
-            <div class="flex flex-col items-start gap-2">
-              <span class="font-medium text-gray-500 text-sm">Email</span>
-              <%= @student.email_address %>
-            </div>
-
-            <% if @course.coordinators.include?(Current.user) %>
-              <%= link_to "Remove From Course",
-                enrolment_path(
-                coordinator_id: Current.user, course_id: @course, id: @student_enrolment
-                ),
-                data: { turbo_method: :delete, turbo_confirm: "Are you sure?\n"\
-                "The user will be removed from the COURSE.\n"\
-                "Their associated PROJECT HISTORY and COMMENTS will be DELETED if they're the last member." },
-                class: "text-base font-semibold text-red-600 hover:text-red-900" %>
-            <% end %>
-          <% end %>
-
-          <%# --- Shared Logic (Status & Supervisor) --- %>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <%# Project Status %>
-            <div class="flex flex-col items-start gap-2">
-              <span class="font-medium text-gray-500 text-sm">Project Status</span>
-              <div>
-                <% status_display = @status || "not_submitted" %>
-                <% badge_classes =
-                  case status_display.to_s.downcase
-                  when "approved"
-                    "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
-                  when "pending"
-                    "bg-blue-50 text-blue-700 ring-1 ring-blue-600/20"
-                  when "redo"
-                    "bg-amber-50 text-amber-700 ring-1 ring-amber-600/20"
-                  when "rejected"
-                    "bg-rose-50 text-rose-700 ring-1 ring-rose-600/20"
-                  else
-                    "bg-gray-100 text-gray-700 ring-1 ring-gray-600/20"
-                  end
-                dot_classes =
-                  case status_display.to_s.downcase
-                  when "approved"
-                    "bg-emerald-500"
-                  when "pending"
-                    "bg-blue-500"
-                  when "redo"
-                    "bg-amber-500"
-                  when "rejected"
-                    "bg-rose-500"
-                  else
-                    "bg-gray-500"
-                  end %>
-                <div
-                  class="
-                    inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-2
-                    <%= badge_classes %>
-                  "
-                >
-                  <div class="w-2 h-2 rounded-full <%= dot_classes %>"></div>
-                  <span><%= status_display.humanize %></span>
-                </div>
-              </div>
-            </div>
-
-            <%# Supervisor %>
-            <% if @supervisor.present? %>
-              <div class="flex flex-col items-start gap-2">
-                <span class="font-medium text-gray-500 text-sm">Supervisor</span>
-                <div class=" flex items-center gap-3 rounded-lg -ml-2 ">
-                  <div
-                    class="
-                      w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center
-                      justify-center text-xs font-bold text-gray-700 shrink-0
-                    "
-                  >
-                    <%= @supervisor.name.first.upcase %>
+                  <div class="flex flex-col gap-2 sm:pl-10 sm:w-1/2 relative before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-outline-variant max-sm:before:hidden">
+                    <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Supervisor</span>
+                    <div class="flex items-center min-h-8">
+                      <% if @supervisor.present? %>
+                        <div class="flex items-center gap-3">
+                          <div class="w-8 h-8 rounded-full bg-surface-variant-deep flex items-center justify-center text-[12px] font-bold text-on-surface-strong shrink-0 border border-outline-variant">
+                            <%= @supervisor.name.first.upcase %>
+                          </div>
+                          <span class="text-on-surface text-[14px] font-medium"><%= @supervisor.name %></span>
+                        </div>
+                      <% else %>
+                        <span class="text-on-surface-variant text-[14px]">—</span>
+                      <% end %>
+                    </div>
                   </div>
-                  <span class="text-gray-900 text-base font-medium"><%= @supervisor.name %></span>
                 </div>
               </div>
-            <% end %>
+            </section>
+
+            <%# Current Project %>
+            <section id="current-project" aria-labelledby="current-project-heading" class="mt-10">
+              <h2 id="current-project-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Current Project</h2>
+
+              <% if @project.present? %>
+                <%= render "projects/proposal_list_item",
+                    proposal: @project,
+                    path: course_project_path(@course, @project, from_participant: @participant_id, participant_type: @participant_type),
+                    linkable: policy(@project).show? %>
+              <% else %>
+                <%= render "shared/empty_state",
+                    heading: "No project has been submitted yet.",
+                    description: "When a project is submitted, it will appear here." %>
+              <% end %>
+            </section>
+
+            <%# Back to Course %>
+            <footer class="mt-10 flex justify-start">
+              <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-variant hover:text-on-surface-strong text-[14px] font-medium transition-colors duration-150 no-underline" do %>
+                <span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1">arrow_back</span>
+                Back to Course
+              <% end %>
+            </footer>
           </div>
 
-        </div>
+        <% end %>
+
       </div>
-    </section>
-
-    <%# --- Card 2: Current Project --- %>
-    <section
-      class="
-        bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
-      "
-      id="current-project"
-    >
-      <div class=" px-8 pt-6 pb-1 flex items-center justify-between ">
-        <h2 class="text-xl font-semibold text-gray-900">Current Project</h2>
-      </div>
-
-      <% if @project.present? %>
-        <div
-          class="
-            pb-6 pt-4 px-6 grid grid-cols-1
-            sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6
-          "
-        >
-
-          <%= render partial: "courses/project_card",
-          locals: {
-            project: @project,
-            course: @course,
-            participant_id: @participant_type == "group" ? @group.id : @student.id,
-            participant_type: @participant_type,
-          } %>
-        </div>
-      <% else %>
-        <%# Empty State %>
-        <div
-          class="
-            py-12 text-center rounded-xl flex flex-col items-center justify-center gap-3
-          "
-        >
-          <div class="p-3 bg-white rounded-full shadow-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-8 w-8 text-gray-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </div>
-          <div class="text-center">
-            <p class="text-gray-900 font-medium">No project has been submitted yet.</p>
-            <p class="text-gray-500 text-sm mt-1">When a project is submitted, it will appear here.</p>
-          </div>
-        </div>
-      <% end %>
-    </section>
-
-    <%# --- Footer --- %>
-    <footer class="pt-2 pb-2 flex justify-start">
-      <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors duration-150 no-underline rounded-lg hover:bg-gray-100" do %>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 transition-transform group-hover:-translate-x-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        Back to Course
-      <% end %>
-    </footer>
-
-  </div>
-</main>
+    </div>
+  </main>
+</div>

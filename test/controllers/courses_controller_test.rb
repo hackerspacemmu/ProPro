@@ -14,6 +14,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show renders successfully for coordinator' do
+    @course.update!(grouped: true)
     create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
     sign_in @coordinator_user
     get course_path(@course)
@@ -100,10 +101,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'My test description'
   end
 
-  test 'show renders People and Groups tabs with matching panel set' do
-    create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
+  test 'show renders People and Groups tabs on a grouped course' do
+    grouped_course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: grouped_course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: grouped_course)
+    create(:enrolment, user: @student_user, course: grouped_course)
     sign_in @student_user
-    get course_path(@course)
+    get course_path(grouped_course)
     assert_response :success
 
     assert_select "button[data-tabs-target='tab']", count: 4
@@ -112,7 +116,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'section', text: /Students/
   end
 
-  test 'show hides the Groups tab for solo-supervisor courses' do
+  test 'show hides the Groups tab on a non-grouped (solo) course even with 3+ staff' do
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
     sign_in @student_user
     get course_path(@course)
     assert_response :success
@@ -295,7 +300,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group')
   end
 
-  test 'lecturers link to the profile page and show pending left of capacity' do
+  test 'lecturers link to their lecturers/show profile and show pending left of capacity' do
     course = create(:course)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
     lecturer_a = create(:user, :staff)
@@ -308,7 +313,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(course)
     assert_response :success
-    assert_select 'a[href=?]', participant_profile_course_path(course, lecturer_a.id, 'student')
+    assert_select 'a[href=?]', course_lecturer_path(course, lecturer_a)
     assert_match '1 pending', response.body
   end
 
@@ -353,6 +358,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'htmx table triggers swap the container via outerHTML (no nested containers)' do
+    @course.update!(grouped: true)
     create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
     sign_in @coordinator_user
     get course_path(@course)
@@ -529,6 +535,75 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select '[data-detail-row-id]', count: 1
     assert_select '[data-detail-row-id].hidden', count: 0
+  end
+
+  test 'group profile renders the mockup hero, facts strip and members list' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:enrolment, :lecturer, user: @lecturer_user, course: course)
+    group = create(:project_group, course: course, confirmed: true, group_name: 'Smoke Group')
+    member = create(:user, name: 'Member One', instid: '12345')
+    create(:enrolment, user: member, course: course)
+    create(:project_group_member, user: member, project_group: group)
+
+    sign_in @coordinator_user
+    get participant_profile_course_path(course, group.id, 'group')
+    assert_response :success
+    assert_match 'View Group', response.body
+    assert_select 'h1#group-name', text: 'Smoke Group'
+    assert_select 'section#group-members'
+    assert_match 'Group Members', response.body
+    assert_match 'Member One', response.body
+    assert_includes response.body, 'STUDENT ID: 12345'
+    assert_match 'No project has been submitted yet.', response.body
+  end
+
+  test 'group profile shows the supervisor and status on the project roster' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    supervisor = create(:user, :staff, name: 'Sally Supervisor')
+    supervisor_enrolment = create(:enrolment, :lecturer, user: supervisor, course: course)
+    group = create(:project_group, course: course, confirmed: true, group_name: 'Proposal Group')
+    project = create(:project, course: course, owner: group, owner_type: 'ProjectGroup',
+                     supervisor_enrolment: supervisor_enrolment, status: :approved)
+    create(:project_instance, project: project, supervisor_enrolment: supervisor_enrolment,
+                              status: :approved, title: 'Group Roster Project')
+
+    sign_in @coordinator_user
+    get participant_profile_course_path(course, group.id, 'group')
+    assert_response :success
+    assert_select 'h2#current-project-heading', text: 'Current Project'
+    assert_match 'Group Roster Project', response.body
+    assert_match 'Approved', response.body
+    assert_match 'Sally Supervisor', response.body
+    assert_no_match 'No project has been submitted yet.', response.body
+  end
+
+  test 'student profile renders the hero, facts strip and empty state' do
+    sign_in @coordinator_user
+    get participant_profile_course_path(@course, @student_user.id, 'student')
+    assert_response :success
+    assert_match 'View Student', response.body
+    assert_select 'h1#student-name', text: @student_user.name
+    assert_match @student_user.email_address, response.body
+    assert_match 'Project Status', response.body
+    assert_match 'Supervisor', response.body
+    assert_match 'No project has been submitted yet.', response.body
+    assert_match 'Remove From Course', response.body
+  end
+
+  test 'student profile shows the flat current project row for a coordinator' do
+    project = create(:project, course: @course, owner: @student_user, owner_type: 'User',
+                               supervisor_enrolment: @lecturer_enrolment, status: :approved)
+    create(:project_instance, project: project, supervisor_enrolment: @lecturer_enrolment,
+                              status: :approved, title: 'Student Flat Row')
+
+    sign_in @coordinator_user
+    get participant_profile_course_path(@course, @student_user.id, 'student')
+    assert_response :success
+    assert_select 'h2#current-project-heading', text: 'Current Project'
+    assert_match 'Student Flat Row', response.body
+    assert_no_match 'No project has been submitted yet.', response.body
   end
 
   private

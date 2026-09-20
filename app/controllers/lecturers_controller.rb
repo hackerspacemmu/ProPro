@@ -22,6 +22,9 @@ class LecturersController < ApplicationController
     @is_student = @current_user_enrolment&.student?
     @is_lecturer = @current_user_enrolment&.lecturer?
 
+    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
+
     unless @enrolment&.role.in?(%w[lecturer coordinator])
       redirect_to course_lecturers_path(@course), alert: 'Not a lecturer.'
       return

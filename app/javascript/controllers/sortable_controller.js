@@ -8,6 +8,8 @@ export default class extends Controller {
     this.sortable = Sortable.create(this.element, {
       draggable: ".field-row",
       handle: ".drag-handle",
+      filter: ".sortable-disabled",
+      preventOnFilter: true,
       animation: 150,
       ghostClass: "opacity-25",
       chosenClass: "sortable-chosen",
@@ -20,6 +22,9 @@ export default class extends Controller {
       scrollSensitivity: 100,
       scrollSpeed: 20,
       forceFallback: true,
+      onMove: (evt) => {
+        if (evt.related && evt.related.closest(".sortable-disabled")) return false;
+      },
       onEnd: this.updatePositions.bind(this)
     })
   }

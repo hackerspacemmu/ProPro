@@ -24,6 +24,8 @@ class UserController < ApplicationController
   end
 
   def edit
+    @user = Current.user
+
     if params[:user][:name].blank?
       redirect_back_or_to '/', alert: 'Name cannot be empty'
       return

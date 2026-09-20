@@ -23,7 +23,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors group gap-3 sm:gap-0">
         <div class="flex items-center gap-4 min-w-0">
           <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-sm font-medium text-primary shrink-0"><%= lecturer.name.first.upcase %></div>
-          <%= link_to participant_profile_course_path(course, lecturer.id, 'student'),
+          <%= link_to course_lecturer_path(course, lecturer),
                       title: lecturer.name,
                       class: "text-sm font-medium text-gray-900 hover:underline truncate min-w-0" do %>
             <%= lecturer.name %>

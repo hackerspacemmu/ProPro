@@ -7,7 +7,7 @@
   tabs << { slug: "overview", name: "Overview", partial: "courses/overview_tab" }
   tabs << { slug: "topics",   name: "Topics",   partial: "courses/topic_directory_tab" }
   tabs << { slug: "people",   name: "People",   partial: "courses/people_tab" }
-  tabs << { slug: "groups",   name: "Groups",   partial: "courses/groups_tab" } unless @course.solo_supervisor?
+  tabs << { slug: "groups",   name: "Groups",   partial: "courses/groups_tab" } if @course.grouped?
 
   tab_persist_key = "propro_tab_course_#{@course.id}"
   initial_tab_index = current_tab_index(persist_key: tab_persist_key, slugs: tabs.map { |t| t[:slug] })

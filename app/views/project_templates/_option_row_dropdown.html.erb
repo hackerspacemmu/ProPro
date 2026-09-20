@@ -1,7 +1,7 @@
 <div
   class="
-    group flex items-center gap-2 py-1 rounded transition-colors duration-150
-    ease-in-out hover:bg-gray-200 dropdown-option-row
+    group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant
+    transition-colors dropdown-option-row
   "
   data-field-index="<%= field_index %>"
   data-option-index="<%= option_index %>"
@@ -14,19 +14,18 @@
     placeholder="Option <%= option_index + 1 %>"
     autocomplete="dropdown-option"
     class="
-      flex-1 text-[0.8125rem] py-1 px-2 border border-transparent rounded-[3px]
-      bg-[#f8f9fa] focus:border-blue-500 focus:bg-[#f8f9fa] focus:ring-1
-      focus:ring-blue-500 focus:outline-none
+      flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md
+      bg-surface-tint focus:border-primary focus:bg-white focus:ring-1
+      focus:ring-primary focus:outline-none max-[640px]:text-[16px]
     "
   >
 
   <button
     type="button"
     class="
-      remove-option w-5 h-5 flex items-center justify-center border-none bg-gray-200
-      text-gray-500 rounded-[3px] cursor-pointer text-sm opacity-0 transition-all
-      duration-150 ease-in-out group-hover:opacity-100 hover:bg-red-500
-      hover:text-white
+      remove-option w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted
+      opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error
+      transition-all text-sm cursor-pointer
     "
   >
     ×

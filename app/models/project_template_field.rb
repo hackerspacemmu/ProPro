@@ -20,8 +20,8 @@ class ProjectTemplateField < ApplicationRecord
   FIELD_TYPE_LABELS = {
     'shorttext' => 'Short Text',
     'textarea' => 'Paragraph',
-    'dropdown' => 'Dropdown Selection',
-    'radio' => 'Selection'
+    'dropdown' => 'Dropdown',
+    'radio' => 'Radio'
   }.freeze
 
   def field_type_label

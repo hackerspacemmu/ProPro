@@ -18,15 +18,15 @@ class SettingsCoursecodeTest < BrowserSystemTestCase
   end
 
   # The Generate button must be clicked scripted, not natively: this page's
-# headless Chrome intermittently swallows the first trusted (Selenium pointer)
-# click with no event, no request, and no navigation — reproduced both
-# sequentially and under parallel load, with native `click_button`, scripted
-# `element.click()`, and `page.execute_script`. The only reliable path is
-# `page.execute_script` *without* `wait_for_turbo` guards: Turbo already
-# marked `aria-busy` by the time the script runs, and post-click
-# `wait_for_turbo` can race the turbo-stream frame replacement, leaving the
-# assertion polling a stale DOM snapshot. This matches the pre-existing
-# behaviour that passed baseline at full parallelism.
+  # headless Chrome intermittently swallows the first trusted (Selenium pointer)
+  # click with no event, no request, and no navigation — reproduced both
+  # sequentially and under parallel load, with native `click_button`, scripted
+  # `element.click()`, and `page.execute_script`. The only reliable path is
+  # `page.execute_script` *without* `wait_for_turbo` guards: Turbo already
+  # marked `aria-busy` by the time the script runs, and post-click
+  # `wait_for_turbo` can race the turbo-stream frame replacement, leaving the
+  # assertion polling a stale DOM snapshot. This matches the pre-existing
+  # behaviour that passed baseline at full parallelism.
   def click_generate
     page.execute_script("document.getElementById('regenerate-code-btn').click()")
   end

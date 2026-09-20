@@ -25,7 +25,11 @@
         <% end %>
       </div>
       <div class="flex items-center gap-1.5 min-w-0">
-        <span class="text-sm font-medium <%= student.has_registered ? "text-gray-900" : "text-gray-700" %> truncate min-w-0" title="<%= student.name %>"><%= student.name %></span>
+        <%= link_to participant_profile_course_path(course, student.id, 'student'),
+                    title: student.name,
+                    class: "text-sm font-medium #{student.has_registered ? "text-gray-900" : "text-gray-700"} truncate min-w-0" do %>
+          <%= student.name %>
+        <% end %>
         <% unless student.has_registered %>
           <span class="inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap shrink-0">
             <span class="bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border border-yellow-200 leading-none">Pending</span>

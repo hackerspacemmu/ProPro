@@ -1,376 +1,286 @@
-<% content_for :body_class, "bg-gray-50" %>
+<% content_for :body_class, "bg-surface-tint" %>
 <%# --- Breadcrumbs --- %>
 <% breadcrumb :course, @course %>
 <% breadcrumb :lecturer, @course, @lecturer %>
 
-<%# --- Decide breadcrumb path --- %>
-<% propose_path = if params[:from_edit_project].present?
-                    edit_course_project_path(@course, params[:project_id], lecturer_id: @lecturer.id)
-                  else
-                    new_course_project_path(@course, lecturer_id: @lecturer.id)
-                  end %>
-
 <% content_for :title,
-"#{@lecturer.name.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
+  "#{@lecturer.name.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
 
-<%# --- Sidebar --- %>
-<% content_for :sidebar, render("shared/sidebar") %>
+<%
+  # Access gates (reused verbatim from the pre-restyle page — CoursePolicy is
+  # untouched). unrestricted_lecturer_access? (coordinator / self / any lecturer
+  # while the course's "Lecturer views public?" lecturer_access is on) sees every
+  # section; student_can_view_lecturer? (student, gated by student_access:
+  # owner_only / own_lecturer_only / no_restriction) sees Topics only.
+  unrestricted = policy(@course).unrestricted_lecturer_access?(@lecturer)
+  student_view = policy(@course).student_can_view_lecturer?(@lecturer)
 
-<%# --- Main Layout --- %>
-<div class="w-[95%] min-w-0 mx-auto my-0 pt-2.5">
-  <div class="space-y-8">
+  if unrestricted
+    topic_rows = @course.toggle_topics ?
+      (@approved_topics + @pending_topics).sort_by(&:updated_at).reverse : []
+    pending_rows = @incoming_proposals.select { |p| p.current_status == 'pending' }
+    reviewed_rows = @incoming_proposals.select { |p| %w[redo rejected].include?(p.current_status) }
+    any_sections = @my_student_projects.any? || topic_rows.any? || pending_rows.any? || reviewed_rows.any?
+  elsif student_view
+    topic_rows = @course.toggle_topics ? @approved_topics.sort_by(&:updated_at).reverse : []
+    any_sections = topic_rows.any?
+  end
 
-    <%# --- SECTION 1: IDENTITY --- %>
-    <section class="overflow-hidden w-full" id="lecturer-name">
-      <div class="py-4 px-2">
-        <div class="flex items-center gap-4 mb-6">
-          <span
-            class="
-              text-sm font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap
-            "
-          >View Supervisor</span>
-          <div class="h-px bg-gray-300 flex-grow w-full min-w-0"></div>
-        </div>
+  # Facts strip: capacity ~ People tab but bar-first — the w-24 bar starts flush
+  # under the "Supervisor Capacity" label, then (n pending), approved/cap, and the
+  # exceeding error icon at the end (so the bar is never shifted off the label).
+  # Hidden for solo-supervisor courses (no capacity concept) and when the profile
+  # is a coordinator-only enrolment (no capacity row).
+  lecturer_capacity = @lecturer_capacity_info[@lecturer.id] unless @course.solo_supervisor?
+  show_capacity = lecturer_capacity && !lecturer_capacity.excluded?
 
-        <div
-          class="
-            flex flex-col sm:flex-row items-center sm:items-center
-            gap-4 sm:gap-6
-          "
-        >
-          <div class="flex items-center gap-4 sm:gap-6 min-w-0">
-            <div class="w-20 h-20 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center text-3xl font-bold shrink-0 uppercase">
-              <%= @lecturer.name[0].upcase %>
-            </div>
+  empty_state_classes = "border-b border-outline-variant py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-on-surface-variant"
+%>
 
-            <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 tracking-tight break-words min-w-0">
-              <%= @lecturer.name %>
-            </h1>
-          </div>
+<div class="flex">
+  <%= render "shared/sidebar" %>
+  <main class="flex-1 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]">
 
-          <%# --- Check if Student can edit project or create project --- %>
-          <% if (@project.present? && policy(@project).update?) || policy(Project.new(course: @course)).create? %>
-            <%= link_to propose_path,
-                class: "inline-flex items-center justify-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-colors" do %>
-              Propose To Lecturer
-            <% end %>
-          <% end %>
+    <div class="w-[95%] max-w-5xl mx-auto pt-8 pb-16 flex flex-col min-h-full">
+      <div class="space-y-12 flex-grow">
 
-        </div>
-      </div>
-    </section>
+        <div>
+          <span class="block mb-4 text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">View Supervisor</span>
 
-    <%# --- SECTION 2: PROFILE INFORMATION --- %>
-    <section
-      class="
-        bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden
-      "
-      id="profile-information"
-    >
-      <div
-        class="
-          px-4 md:px-8 pt-6 pb-2 flex flex-col sm:flex-row items-start sm:items-center
-          justify-between gap-2
-        "
-      >
-        <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
-        <% if @course.coordinators.include? Current.user %>
-          <div class="text-sm">
-            <% if policy(@course).demote_to_lecturer? %>
-              <%= link_to "Demote to Lecturer",
-              demote_to_lecturer_course_lecturer_path(@course, @lecturer),
-              data: {
-                turbo_method: :patch,
-              },
-              class: "text-red-600 hover:text-red-800 font-medium hover:underline" %>
-            <% elsif policy(@course).promote_to_coordinator? %>
-              <%= link_to "Promote To Coordinator",
-              promote_to_coordinator_course_lecturer_path(@course, @lecturer),
-              data: {
-                turbo_method: :patch,
-              },
-              class: "text-emerald-600 hover:text-emerald-800 font-medium hover:underline" %>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
+          <%# Hero: banner band + overlapping avatar + identity + facts strip %>
+          <section aria-labelledby="lecturer-name"
+                   class="bg-surface-tint border border-outline-variant rounded-panel overflow-hidden shadow-none">
+            <div class="h-24 sm:h-28 bg-primary-container-alt" aria-hidden="true"></div>
 
-      <div class="px-4 md:px-8 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
-          <div class="flex flex-col items-start gap-2">
-            <span class="font-bold text-sm text-black">Role</span>
-            <span
-              class="
-                inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                bg-gray-100 text-gray-800
-              "
-            >
-              <%= @enrolment&.role&.humanize || "Lecturer" %>
-            </span>
-          </div>
-          <div class="flex flex-col items-start gap-2 w-full min-w-0">
-            <span class="font-bold text-sm text-black">Email</span>
-            <a
-              href="mailto:<%= @lecturer.email_address %>"
-              class="
-                text-gray-900 hover:text-blue-600 hover:underline break-all
-              "
-            >
-              <%= @lecturer.email_address %>
-            </a>
-          </div>
-          <div class="flex flex-col items-start gap-2 col-span-1">
-            <span class="font-bold text-sm text-black">Description</span>
-            <p
-              class="
-                text-gray-900 text-base leading-relaxed whitespace-pre-line break-words w-full
-              "
-            ><%= @lecturer.description.presence || "No description provided." %>
-            </p>
-          </div>
-          <div class="flex flex-col items-start gap-2 w-full min-w-0">
-            <span class="font-bold text-sm text-black">Portfolio / MMU Directory</span>
-            <% if @lecturer.web_link.present? %>
-              <a
-                href="<%= @lecturer.web_link %>"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="
-                  text-blue-600 hover:text-blue-800 hover:underline break-all
-                "
-              >
-                <%= @lecturer.web_link %>
-              </a>
-            <% else %>
-              <span class="text-gray-500 italic">No web link provided.</span>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </section>
+            <div class="px-6 sm:px-8 pb-8">
+              <div class="-mt-12 flex flex-col gap-4 sm:flex-row sm:gap-6">
+                <div class="w-24 h-24 bg-surface-variant-deep text-on-surface-strong border-4 border-surface-tint rounded-full flex items-center justify-center text-4xl font-bold shrink-0 shadow-none">
+                  <%= @lecturer.name.first.upcase %>
+                </div>
 
-    <%# --- SECTION 3: PROJECTS & PROPOSALS --- %>
-    <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="projects"
-      >
-        <div class="px-4 md:px-8 pt-6">
-          <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
-        </div>
-        <div class="px-4 md:px-8 py-6">
-          <% if @my_student_projects.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
-              "
-            >
-              <p class="italic text-gray-500">No Projects Available</p>
-            </div>
-          <% else %>
-            <div
-              class="
-                grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
-              "
-            >
-              <%= render partial: "courses/project_card",
-              collection: @my_student_projects,
-              as: :project,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
-
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="proposals"
-      >
-
-        <div class="px-4 md:px-8 py-6">
-          <% if @incoming_proposals.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
-              "
-            >
-              <p class="text-gray-500 italic">No Incoming Proposals</p>
-            </div>
-          <% else %>
-            <div
-              class="
-                grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 w-full
-              "
-            >
-              <%= render partial: "courses/project_card",
-              collection: @incoming_proposals,
-              as: :project,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            </div>
-          <% end %>
-        </div>
-      </section>
-
-    <% elsif policy(@course).student_can_view_lecturer?(@lecturer) %>
-      <section
-        class="
-          bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-        "
-        id="student-projects"
-      >
-        <div class="px-4 md:px-8 pt-6">
-          <h2 class="text-xl font-semibold text-gray-900">Projects</h2>
-        </div>
-        <div class="px-4 md:px-8 py-6">
-          <% if @my_student_projects.empty? %>
-            <div
-              class="
-                py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-100
-              "
-            >
-              <p class="italic text-gray-500">No Projects Available</p>
-            </div>
-          <% else %>
-              <%= render "shared/row_list",
-              rows: @approved_topics,
-              partial: "courses/topic_card",
-              item: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-          <% end %>
-        </div>
-      </section>
-    <% end %>
-
-    <%# --- SECTION 4: TOPICS --- %>
-    <% if @course.toggle_topics %>
-      <% if policy(@course).unrestricted_lecturer_access?(@lecturer) %>
-        <section
-          class="
-            bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-          "
-          id="full-released-topics"
-        >
-          <div class="px-4 md:px-8 pt-4">
-            <h2 class="text-xl font-semibold text-gray-900">Released Topics</h2>
-          </div>
-          <div class="px-4 md:px-8 py-6">
-            <% if @approved_topics.empty? %>
-              <div
-                class="
-                  py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-                "
-              >
-                <p class="text-gray-500 italic">No Released Topics Available</p>
+                <div class="min-w-0 flex-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:pt-14">
+                  <div class="min-w-0">
+                    <h1 id="lecturer-name" class="text-[28px] leading-9 sm:text-[36px] sm:leading-[44px] font-normal text-on-surface-strong tracking-tight font-['DM_Sans'] break-words"><%= @lecturer.name %></h1>
+                    <div class="text-on-surface-variant text-[14px] mt-1 font-medium break-words">
+                      <%= @lecturer.email_address %>
+                    </div>
+                  </div>
+                </div>
               </div>
-            <% else %>
-              <%= render "shared/row_list",
-              rows: @approved_topics,
-              partial: "courses/topic_card",
-              item: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            <% end %>
-          </div>
-        </section>
-        <section
-          class="
-            bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-          "
-          id="pending-topics"
-        >
-          <div class="px-4 md:px-8 pt-4">
-            <h2 class="text-xl font-semibold text-gray-900">Pending Topics</h2>
-          </div>
-          <div class="px-4 md:px-8 py-6">
-            <% if @pending_topics.blank? %>
-              <div
-                class="
-                  py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-                "
-              >
-                <p class="text-gray-500 italic">No Pending Topics Available</p>
+
+              <% if show_capacity %>
+                <% ratio = lecturer_capacity.effective_cap.zero? ? 0 : lecturer_capacity.approved_count.to_f / lecturer_capacity.effective_cap %>
+                <% color =
+                     case
+                     when ratio >= 1.0 then "var(--color-error)"
+                     when ratio >= 0.7 then "var(--color-warning)"
+                     else "var(--color-success)"
+                     end %>
+                <% exceeding = lecturer_capacity.effective_cap.positive? && lecturer_capacity.approved_count > lecturer_capacity.effective_cap %>
+                <% pending_exceeds = lecturer_capacity.approved_count + lecturer_capacity.pending_count > lecturer_capacity.effective_cap %>
+                <% fill_width = [[ratio * 100, 100].min, 0].max.round(2) %>
+
+                <div class="mt-8 pt-6 border-t border-outline-variant">
+                  <span class="block text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Supervisor Capacity</span>
+                  <div class="flex items-center gap-4 mt-3">
+                    <div class="w-24 h-1.5 bg-surface-variant-deep rounded-full overflow-hidden flex shrink-0">
+                      <div class="h-full rounded-full" style="width: <%= fill_width %>% ; background-color: <%= color %>"></div>
+                    </div>
+
+                    <span class="text-sm font-medium text-right shrink-0" style="color: <%= color %>">
+                      <%= lecturer_capacity.approved_count %>/<%= lecturer_capacity.effective_cap %>
+                    </span>
+
+                    <% if lecturer_capacity.pending_count.positive? %>
+                      <span class="text-xs font-normal <%= pending_exceeds ? "text-error" : "text-on-surface-variant" %>">
+                        (<%= lecturer_capacity.pending_count %> pending)
+                      </span>
+                    <% end %>
+
+                    <% if exceeding %>
+                      <div class="flex items-center gap-1.5 text-error" title="Capacity exceeded">
+                        <span class="material-symbols-outlined text-[18px]">error</span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </section>
+        </div>
+
+        <%# Profile Information: data as on the pre-restyle card (Role, Email,
+            Description, Portfolio / MMU Directory), restyled to the profile
+            section-heading idiom. Coordinator actions (Promote/Demote) stay. %>
+        <section id="profile-information" aria-labelledby="profile-information-heading">
+          <div class="flex items-center justify-between gap-4 pb-3 mb-5 border-b border-outline-variant">
+            <h2 id="profile-information-heading" class="text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Profile Information</h2>
+            <% if @course.coordinators.include? Current.user %>
+              <div class="shrink-0 text-[14px] font-medium">
+                <% if policy(@course).demote_to_lecturer? %>
+                  <%= link_to "Demote to Lecturer",
+                      demote_to_lecturer_course_lecturer_path(@course, @lecturer),
+                      data: { turbo_method: :patch },
+                      class: "text-error hover:underline" %>
+                <% elsif policy(@course).promote_to_coordinator? %>
+                  <%= link_to "Promote To Coordinator",
+                      promote_to_coordinator_course_lecturer_path(@course, @lecturer),
+                      data: { turbo_method: :patch },
+                      class: "text-success hover:underline" %>
+                <% end %>
               </div>
-            <% else %>
-              <%= render "shared/row_list",
-              rows: @pending_topics,
-              partial: "courses/topic_card",
-              item: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
             <% end %>
+          </div>
+
+          <div class="bg-surface border border-outline-variant rounded-card overflow-hidden shadow-none">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 p-6 sm:p-8">
+              <div>
+                <span class="block text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Role</span>
+                <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium bg-surface-variant text-on-surface-strong">
+                  <%= @enrolment&.role&.humanize || "Lecturer" %>
+                </span>
+              </div>
+              <div class="min-w-0">
+                <span class="block text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Email</span>
+                <a href="mailto:<%= @lecturer.email_address %>"
+                   class="mt-2 block text-on-surface text-[14px] font-medium hover:text-primary hover:underline break-all">
+                  <%= @lecturer.email_address %>
+                </a>
+              </div>
+              <div>
+                <span class="block text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Description</span>
+                <p class="mt-2 text-on-surface text-[14px] leading-relaxed whitespace-pre-line break-words">
+                  <%= @lecturer.description.presence || "No description provided." %>
+                </p>
+              </div>
+              <div class="min-w-0">
+                <span class="block text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Portfolio / MMU Directory</span>
+                <% if @lecturer.web_link.present? %>
+                  <a href="<%= @lecturer.web_link %>"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="mt-2 block text-primary text-[14px] font-medium hover:underline break-all">
+                    <%= @lecturer.web_link %>
+                  </a>
+                <% else %>
+                  <span class="mt-2 block text-on-surface-variant text-[14px] italic">No web link provided.</span>
+                <% end %>
+              </div>
+            </div>
           </div>
         </section>
 
-      <% else %>
-        <section
-          class="
-            bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-8
-          "
-          id="released-topics"
-        >
-          <div class="px-4 md:px-8 pt-4">
-            <h2 class="text-xl font-semibold text-gray-900">Available Topics</h2>
-          </div>
-          <div class="px-4 md:px-8 py-6">
-            <% if @approved_topics.blank? %>
-              <div
-                class="
-                  py-10 text-center rounded-xl bg-gray-50 border-2 border-dashed border-gray-200
-                "
-              >
-                <p class="text-gray-500 italic">This lecturer has no available topics yet.</p>
-              </div>
-            <% else %>
-              <%= render "shared/row_list",
-              rows: @approved_topics,
-              partial: "courses/topic_card",
-              item: :topic,
-              locals: {
-                course: @course,
-                lecturer: @lecturer,
-              } %>
-            <% end %>
-          </div>
-        </section>
-      <% end %>
-    <% end %>
+        <%# Collapsible sections (Overview idioms: _section_header + collapsible-sections,
+            plain-sentence empty states, Collapse all / Expand all) %>
+        <div data-controller="collapsible-sections">
+          <% if any_sections %>
+            <div class="flex justify-end mb-10">
+              <button type="button" data-action="collapsible-sections#toggleAll" class="flex items-center gap-2 text-[14px] font-medium text-primary hover:bg-primary-container px-3 py-2 rounded-md transition-colors">
+                <span data-collapsible-sections-target="toggleAllIcon" class="material-symbols-outlined text-[20px]">unfold_less</span>
+                <span data-collapsible-sections-target="toggleAllLabel">Collapse all</span>
+              </button>
+            </div>
+          <% end %>
 
-    <footer class="pt-2 pb-2 flex justify-start">
-      <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors duration-150 no-underline rounded-lg hover:bg-gray-100" do %>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 transition-transform group-hover:-translate-x-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        Back to Lecturers
-      <% end %>
-    </footer>
+          <% if unrestricted %>
+            <%# Supervised Projects — approved projects this lecturer supervises %>
+            <div class="mb-12" id="lecturer-supervised-projects">
+              <%= render "courses/section_header", title: "Supervised Projects", count: @my_student_projects.size, section: "lecturer-supervised-projects" %>
+              <% if @my_student_projects.any? %>
+                <div class="flex flex-col border-b border-outline-variant w-full" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-supervised-projects">
+                  <% @my_student_projects.each do |proposal| %>
+                    <%= render "projects/proposal_list_item",
+                        proposal: proposal,
+                        path: course_lecturer_project_path(@course, @lecturer, proposal),
+                        linkable: policy(proposal).show? %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-supervised-projects">
+                  Approved projects supervised by this lecturer will appear here.
+                </div>
+              <% end %>
+            </div>
 
-  </div>
+            <%# Topics — one flat list (approved + draft interleaved, real status pill) %>
+            <div class="mb-12" id="lecturer-topics">
+              <%= render "courses/section_header", title: "Topics", count: topic_rows.size, section: "lecturer-topics" %>
+              <% if topic_rows.any? %>
+                <%= render "shared/row_list", rows: topic_rows, partial: "courses/topic_card", item: :topic, borderless_first: true,
+                    locals: { course: @course, lecturer: @lecturer },
+                    container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "lecturer-topics" } } %>
+              <% else %>
+                <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-topics">
+                  Topics created by this lecturer will appear here.
+                </div>
+              <% end %>
+            </div>
+
+            <%# Pending Proposals — status pending (mirrors the Overview split) %>
+            <div class="mb-12" id="lecturer-pending-proposals">
+              <%= render "courses/section_header", title: "Pending Proposals", count: pending_rows.size, section: "lecturer-pending-proposals" %>
+              <% if pending_rows.any? %>
+                <div class="flex flex-col border-b border-outline-variant w-full" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-pending-proposals">
+                  <% pending_rows.each do |proposal| %>
+                    <%= render "projects/proposal_list_item",
+                        proposal: proposal,
+                        path: course_lecturer_project_path(@course, @lecturer, proposal),
+                        linkable: policy(proposal).show? %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-pending-proposals">
+                  Proposals that are pending review will appear here.
+                </div>
+              <% end %>
+            </div>
+
+            <%# Reviewed Proposals — redo + rejected (mirrors the Overview split) %>
+            <div class="mb-12" id="lecturer-reviewed-proposals">
+              <%= render "courses/section_header", title: "Reviewed Proposals", count: reviewed_rows.size, section: "lecturer-reviewed-proposals" %>
+              <% if reviewed_rows.any? %>
+                <div class="flex flex-col border-b border-outline-variant w-full" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-reviewed-proposals">
+                  <% reviewed_rows.each do |proposal| %>
+                    <%= render "projects/proposal_list_item",
+                        proposal: proposal,
+                        path: course_lecturer_project_path(@course, @lecturer, proposal),
+                        linkable: policy(proposal).show? %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-reviewed-proposals">
+                  Proposals that were returned or rejected will appear here.
+                </div>
+              <% end %>
+            </div>
+
+          <% elsif student_view %>
+            <%# Topics only — approved topics, flat rows (the old student branch,
+                re-titled from the mislabeled "Projects" heading) %>
+            <div class="mb-12" id="lecturer-topics">
+              <%= render "courses/section_header", title: "Topics", count: topic_rows.size, section: "lecturer-topics" %>
+              <% if topic_rows.any? %>
+                <%= render "shared/row_list", rows: topic_rows, partial: "courses/topic_card", item: :topic, borderless_first: true,
+                    locals: { course: @course, lecturer: @lecturer },
+                    container_attrs: { data: { collapsible_sections_target: "body", collapsible_sections_section: "lecturer-topics" } } %>
+              <% else %>
+                <div class="<%= empty_state_classes %>" data-collapsible-sections-target="body" data-collapsible-sections-section="lecturer-topics">
+                  This lecturer has no available topics yet.
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Back to Course %>
+        <footer class="mt-10 flex justify-start">
+          <%= link_to course_path(@course), class: "group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-variant hover:text-on-surface-strong text-[14px] font-medium transition-colors duration-150 no-underline" do %>
+            <span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1">arrow_back</span>
+            Back to Course
+          <% end %>
+        </footer>
+
+      </div>
+    </div>
+  </main>
 </div>
