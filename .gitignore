@@ -103,3 +103,8 @@ yarn-debug.log*
 
 # Ignore repomix config file
 repomix.config.json
+
+# Ignore opencode config files
+.opencode
+
+/ProPro_Design

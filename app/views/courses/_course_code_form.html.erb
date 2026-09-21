@@ -1,27 +1,69 @@
+<%# locals: (course:) %>
+<%# Formless: both Generate/Re-Generate and the toggle fire their own fetch via
+    coursecode-form-handler (the same pattern as the sibling email-domain widget). There is no
+    <form> in the static DOM, so this can live anywhere inside #course-settings-form. The
+    top-level node of this partial must stay exactly <turbo-frame id="course_code_form"> —
+    Turbo Streams replace() swaps in the WHOLE template content, so any wrapper would get
+    re-nested on every replace (see ADR-0010). %>
 <%= turbo_frame_tag "course_code_form" do %>
-  <%= form_with url: update_coursecode_course_path(@course), model: @course, method: :post, data: { controller: "coursecode-form-handler" } do |form| %>
-    <%= form.label :coursecode,
-      'Course Join Code & Invite Link (Beta)',
-      class: "block text-sm font-medium text-gray-700" %>
-    <p class="mt-2 text-xs text-amber-600">
-      Use this only for individual projects. For groups, use CSV imports.
-      Group formation in ProPro coming in a future update.
-    </p>
-    <div class="mt-1 flex gap-6" >
-      <%= form.text_field :coursecode,
-        required: true,
-        readonly: true,
-        disabled: true,
-        class: "appearance-none block w-[10em] font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm" %>
-      <button id="regenerate-code-btn" type="button" data-action="click->coursecode-form-handler#generateCode" class="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-gray-800 text-sm font-medium rounded shadow-sm">
-        <%= @course.coursecode.present? ? 'Re-Generate Join Code' : 'Generate Join code' %>
-      </button>
+  <div class="space-y-6"
+       data-controller="coursecode-form-handler"
+       data-coursecode-form-handler-url-value="<%= update_coursecode_course_path(course) %>">
+
+    <!-- Toggle row -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border border-outline-variant rounded-lg hover:bg-surface-hover transition-colors">
+      <div>
+        <span class="block text-sm font-medium text-on-surface">
+          Allow joining via course code
+          <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-warning-container text-warning-on-container align-middle">Beta</span>
+          <span class="ml-1 text-xs font-normal text-on-surface-variant align-middle">(only solo courses)</span>
+        </span>
+        <span class="block text-[13px] text-on-surface-variant mt-1 leading-relaxed">
+          Use this only for individual projects. Group formation via code is coming in a future update.
+        </span>
+      </div>
+      <div class="flex items-center gap-6 mt-4 sm:mt-0 shrink-0">
+        <label class="flex items-center text-sm text-on-surface cursor-pointer">
+          <input type="radio" name="coursecode_enabled" value="true" id="coursecode_enabled_true"
+                 <%= 'checked' if course.coursecode_enabled %>
+                 class="text-primary border-outline mr-2"
+                 data-action="change->coursecode-form-handler#toggle"> Yes
+        </label>
+        <label class="flex items-center text-sm text-on-surface cursor-pointer">
+          <input type="radio" name="coursecode_enabled" value="false" id="coursecode_enabled_false"
+                 <%= 'checked' unless course.coursecode_enabled %>
+                 class="text-primary border-outline mr-2"
+                 data-action="change->coursecode-form-handler#toggle"> No
+        </label>
+      </div>
     </div>
-    <input type="hidden" name="generate" value="false" data-coursecode-form-handler-target="generateFlag">
-    <label class="inline-flex items-center cursor-pointer mt-4">
-      <%= form.check_box :coursecode_enabled, class: "sr-only peer", role: "switch", data: { action: "change->coursecode-form-handler#submitForm" } %>
-      <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500"></div>
-      <span class="ml-3 text-sm font-medium text-gray-700">Allow joining via course code</span>
-    </label>
-  <% end %>
+
+    <!-- Code display & actions (only while joining via code is enabled) -->
+    <% if course.coursecode_enabled %>
+      <div class="flex flex-col sm:flex-row gap-4 items-end">
+        <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-64 opacity-80">
+          <label for="coursecode" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Course Join Code</label>
+          <input type="text" id="coursecode" disabled readonly
+                 data-coursecode-form-handler-target="codeInput"
+                 value="<%= course.coursecode %>" placeholder="—" autocomplete="off"
+                 class="w-full bg-transparent border-none p-0 pr-8 text-on-surface font-mono focus:ring-0 focus:outline-none text-[15px] tracking-widest mt-1 cursor-default">
+          <button type="button"
+                  id="copy-code-btn"
+                  data-action="click->coursecode-form-handler#copy"
+                  aria-label="Copy course join code"
+                  class="absolute right-2 bottom-1.5 flex items-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  <%= 'disabled' if course.coursecode.blank? %>>
+            <span data-coursecode-form-handler-target="copyIcon" class="material-symbols-outlined text-[18px]">content_copy</span>
+          </button>
+        </div>
+        <button type="button"
+                id="regenerate-code-btn"
+                data-action="click->coursecode-form-handler#generate"
+                class="w-full sm:w-auto inline-flex justify-center items-center gap-2 border border-outline text-primary hover:bg-surface-hover px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">refresh</span>
+          <%= course.coursecode.present? ? 'Re-Generate Join Code' : 'Generate Join Code' %>
+        </button>
+      </div>
+    <% end %>
+  </div>
 <% end %>

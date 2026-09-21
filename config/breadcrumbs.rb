@@ -68,17 +68,6 @@ crumb :topics do |course|
   end
 end
 
-crumb :topic do |topic|
-  link topic.topic_instances.last&.title
-  if params[:lecturer_id]
-    lecturer = User.find(params[:lecturer_id])
-    parent :lecturer, topic.course, lecturer
-  elsif params[:from_new_project]
-    parent :topics, topic.course
-  else
-    parent :topics, topic.course
-  end
-end
 crumb :new_topic do |course|
   link 'New Topic', new_course_topic_path(course)
   parent :topics, course
@@ -116,23 +105,6 @@ end
 crumb :edit_project do |project|
   link 'Edit', edit_course_project_path(project.course, project)
   parent :project, project
-end
-
-crumb :progress_update do |progress_update|
-  project = progress_update.project
-  link 'Progress Update', course_project_progress_update_path(project.course, project, progress_update)
-  parent :project, project
-end
-
-crumb :new_progress_update do |project|
-  link 'New Progress Update', new_course_project_progress_update_path(project.course, project)
-  parent :project, project
-end
-
-crumb :edit_progress_update do |progress_update|
-  project = progress_update.project
-  link 'Edit Progress Update', edit_course_project_progress_update_path(project.course, project, progress_update)
-  parent :progress_update, progress_update
 end
 
 crumb :lecturer do |course, lecturer|

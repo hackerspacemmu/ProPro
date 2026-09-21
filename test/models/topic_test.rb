@@ -49,4 +49,24 @@ class TopicTest < ActiveSupport::TestCase
   test 'topic ownership_type is always lecturer' do
     assert_equal 'lecturer', @topic.ownership_type
   end
+
+  test 'available? is true for an approved topic no proposal is based on' do
+    @topic.update_column(:status, :approved)
+
+    assert @topic.available?
+  end
+
+  test 'available? is false for an approved topic a proposal is based on' do
+    @topic.update_column(:status, :approved)
+    project = create(:project, course: @course, owner: @lecturer, owner_type: 'User')
+    create(:project_instance, project: project, source_topic: @topic, status: :approved)
+
+    assert_not @topic.available?
+  end
+
+  test 'available? is false for a non-approved topic' do
+    @topic.update_column(:status, :pending)
+
+    assert_not @topic.available?
+  end
 end

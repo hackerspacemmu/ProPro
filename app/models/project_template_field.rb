@@ -20,8 +20,8 @@ class ProjectTemplateField < ApplicationRecord
   FIELD_TYPE_LABELS = {
     'shorttext' => 'Short Text',
     'textarea' => 'Paragraph',
-    'dropdown' => 'Dropdown Selection',
-    'radio' => 'Selection'
+    'dropdown' => 'Dropdown',
+    'radio' => 'Radio'
   }.freeze
 
   def field_type_label
@@ -34,11 +34,10 @@ class ProjectTemplateField < ApplicationRecord
 
   private
 
-
   def cannot_delete_title_field
     return unless is_project_title?
 
-    errors.add(:base, "Cannot delete the Project Title field")
+    errors.add(:base, 'Cannot delete the Project Title field')
     throw :abort
   end
 

@@ -1,51 +1,30 @@
 class ProgressUpdatesController < ApplicationController
   before_action :access
-  before_action :supervisor_access, except: [:show]
-
-  def show
-    @progress_update = ProgressUpdate.find(params[:id])
-  end
-
-  def new
-    @progress_update = ProgressUpdate.new
-    @weeks = @course.number_of_updates
-  end
-
-  def edit
-    @progress_update = ProgressUpdate.find(params[:id])
-  end
+  before_action :supervisor_access
 
   def create
-    begin
-      ActiveRecord::Base.transaction do
-        @progress_update = ProgressUpdate.create!(
-          project: @project,
-          rating: params[:progress_update][:rating],
-          feedback: params[:progress_update][:feedback],
-          date: params[:progress_update][:date]
-        )
-      end
-    rescue StandardError
-      render :new, status: :unprocessable_entity
-      return
-    end
+    @progress_update = @project.progress_updates.build(
+      rating: params[:progress_update][:rating],
+      feedback: params[:progress_update][:feedback],
+      date: params[:progress_update][:date]
+    )
 
-    redirect_to course_project_path(@course, @project, tab: 'progress')
+    flash[:alert] = @progress_update.errors.full_messages.to_sentence unless @progress_update.save
+
+    redirect_to course_project_path(@course, @project)
   end
 
   def update
     @progress_update = ProgressUpdate.find(params[:id])
-    if @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))
-      redirect_to course_project_path(@course, @project, tab: 'progress')
-    else
-      render :edit, status: :unprocessable_entity
-    end
+    flash[:alert] = @progress_update.errors.full_messages.to_sentence unless @progress_update.update(params.require(:progress_update).permit(:rating, :feedback, :date))
+
+    redirect_to course_project_path(@course, @project)
   end
 
   def destroy
     @progress_update = ProgressUpdate.find(params[:id])
     @progress_update.destroy
-    redirect_to course_project_path(@course, @project, tab: 'progress'), notice: 'Progress update deleted successfully.'
+    redirect_to course_project_path(@course, @project), notice: 'Progress update deleted successfully.'
   end
 
   private

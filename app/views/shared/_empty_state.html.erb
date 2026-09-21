@@ -1,0 +1,17 @@
+<%# locals: (heading:, description:, cta_label: nil, cta_path: nil, illustration: "illustrations/submission_empty_banner.svg") %>
+<%# Shared centered empty-state body: decorative illustration, headline, copy,
+    and an optional pill CTA. CTA renders only when both cta_label and cta_path
+    are present. Responsive rules (§13.12): stacks and centers the column below
+    sm, uniform py-14 px-6 padding at all widths. %>
+<div class="flex flex-col items-center text-center gap-3 py-14 px-6">
+  <%= image_tag illustration,
+        class: "h-[180px] w-auto pointer-events-none select-none",
+        alt: "" %>
+  <h3 class="text-[16px] font-medium text-on-surface-strong"><%= heading %></h3>
+  <p class="text-[14px] text-on-surface-variant max-w-[360px]"><%= description %></p>
+  <% if cta_label.present? && cta_path.present? %>
+    <%= link_to cta_path, class: "mt-2 inline-flex items-center justify-center px-5 py-2 text-[14px] font-medium text-white bg-primary-strong rounded-full hover:bg-primary-hover transition-colors" do %>
+      <%= cta_label %>
+    <% end %>
+  <% end %>
+</div>

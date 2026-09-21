@@ -4,6 +4,10 @@ class CoursePolicy < ApplicationPolicy
     enrolled
   end
 
+  def create?
+    user.instid.blank?
+  end
+
   def update?
     coordinator
   end
@@ -67,6 +71,7 @@ class CoursePolicy < ApplicationPolicy
   def grouping?
     enrolment = record.enrolments.find_by(user:)
     return true if enrolment&.coordinator?
+
     enrolment.present? && record.grouping_enabled?
   end
 

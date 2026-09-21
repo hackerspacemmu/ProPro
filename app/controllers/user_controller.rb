@@ -20,10 +20,11 @@ class UserController < ApplicationController
     redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
   end
 
-  def new
-  end
+  def new; end
 
   def edit
+    @user = Current.user
+
     if params[:user][:name].blank?
       redirect_back_or_to '/', alert: 'Name cannot be empty'
       return
@@ -117,7 +118,7 @@ class UserController < ApplicationController
     email = params.require(:email_address).strip
 
     if User.find_by(email_address: email)
-      redirect_to user_profile_path, notice: "Your email is already in the system. Check your inbox or login!"
+      redirect_to user_profile_path, notice: 'Your email is already in the system. Check your inbox or login!'
       return
     end
 
@@ -125,12 +126,12 @@ class UserController < ApplicationController
       ActiveRecord::Base.transaction do
         new_user = User.create!(
           email_address: email,
-          name: "Placeholder Username",
+          name: 'Placeholder Username',
           password: SecureRandom.base64(24),
           has_registered: false
         )
 
-        new_otp_instance = Otp.create!(
+        Otp.create!(
           user: new_user,
           token: SecureRandom.uuid
         )
@@ -148,7 +149,7 @@ class UserController < ApplicationController
       from_course: false
     ).ProPro_Invite.deliver_later
 
-    redirect_to login_path, notice: "Account created successfully. Check your inbox!"
+    redirect_to login_path, notice: 'Account created successfully. Check your inbox!'
   end
 
   def profile

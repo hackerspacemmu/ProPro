@@ -1,0 +1,20 @@
+<%# Topics panel of courses/show — an ivar→locals seam (the same pattern as the
+    other tab partials): reads the controller's ivars ONCE and passes them down
+    as locals, so the render tree below never touches an ivar again. Gated on
+    @course.toggle_topics: when on, the topics directory renders; when off, a
+    centered empty state (Topics are disabled) replaces it, with a settings CTA
+    offered to coordinators only (the settings gear itself is coordinator-only). %>
+<% if @course.toggle_topics %>
+  <%= render "courses/topics_section",
+             course: @course,
+             lecturers: @lecturers,
+             topics_by_supervisor: @topics_by_supervisor,
+             current_user_enrolment: @current_user_enrolment %>
+<% else %>
+  <%= render "shared/empty_state",
+             heading: "Topics are disabled for this course",
+             description: "This course does not allow lecturers to add topics for students to base their proposals on.",
+             illustration: "illustrations/topics_disabled_banner.svg",
+             cta_label: @current_user_enrolment&.coordinator? ? "Go to settings" : nil,
+             cta_path: @current_user_enrolment&.coordinator? ? settings_course_path(@course) : nil %>
+<% end %>

@@ -3,8 +3,8 @@ require 'application_system_test_case'
 class TopicChangeStatusTest < ApplicationSystemTestCase
   setup do
     @course      = create(:course, require_coordinator_approval: true)
-    @lecturer    = create(:user)
-    @coordinator = create(:user)
+    @lecturer    = create(:user, :staff)
+    @coordinator = create(:user, :staff)
 
     create(:enrolment, :lecturer, user: @lecturer, course: @course)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
@@ -17,19 +17,18 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_topic_path(@course, @topic)
 
-    select 'Approved', from: 'status'
-    find('[data-testid="change-status-submit"]').click
+    first('[data-testid="approve-button"]').click
 
     assert_selector '[data-testid="flash-notice"]'
-    assert_selector '[data-testid="status-select"]', text: /approved/i
+    assert_selector '[data-testid="review-actions"]'
   end
 
   test 'if coordinator approval enabled, lecturer cannot change their own topic status sad path' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic)
 
-    assert_no_selector '[data-testid="status-select"]'
-    assert_no_selector '[data-testid="change-status-submit"]'
+    assert_no_selector '[data-testid="review-actions"]'
+    assert_no_selector '[data-testid="approve-button"]'
   end
 
   test 'coordinator cannot change status when coordinator approval is not required sad path' do
@@ -37,7 +36,38 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_topic_path(@course, @topic)
 
-    assert_no_selector '[data-testid="status-select"]'
-    assert_no_selector '[data-testid="change-status-submit"]'
+    assert_no_selector '[data-testid="review-actions"]'
+    assert_no_selector '[data-testid="approve-button"]'
+  end
+
+  test 'coordinator can edit a pending topic and still change its status' do
+    login_as(@coordinator)
+    visit course_topic_path(@course, @topic)
+
+    assert_text 'Edit Topic'
+    assert_selector '[data-testid="edit-topic-button"]'
+    assert_selector '[data-testid="approve-button"]'
+  end
+
+  test 'coordinator cannot edit an approved topic' do
+    @instance.update!(status: :approved)
+    login_as(@coordinator)
+    visit course_topic_path(@course, @topic)
+
+    assert_no_text 'Edit Topic'
+    assert_no_selector '[data-testid="edit-topic-button"]'
+    assert_selector '[data-testid="approve-button"]'
+  end
+
+  test 'student screen on topic show does not offer updating a proposal based on the topic' do
+    @student = create(:user)
+    create(:enrolment, :student, user: @student, course: @course)
+    create(:project, course: @course, owner: @student)
+    @instance.update!(status: :approved)
+
+    login_as(@student)
+    visit course_topic_path(@course, @topic)
+
+    assert_no_text 'Update Proposal Based on This Topic'
   end
 end

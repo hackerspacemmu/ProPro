@@ -1,0 +1,47 @@
+<%# locals: (course:, topics:, topic_pick_values:) %>
+
+<dialog
+  data-method-picker-target="topicDialog"
+  class="rounded-[28px] shadow-xl w-full max-w-lg max-h-[85dvh] open:flex flex-col overflow-hidden m-auto backdrop:bg-black/50"
+  aria-label="Browse Topic Catalog"
+>
+  <div class="px-5 sm:px-6 pt-5 sm:pt-6 pb-4 flex items-center justify-between gap-4 shrink-0">
+    <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[20px] sm:text-[22px] font-normal text-on-surface-strong">
+      Browse Topic Catalog
+    </h2>
+    <button
+      type="button"
+      data-action="click->method-picker#closeTopic"
+      class="text-on-surface-variant hover:bg-surface-variant rounded-full p-2 transition-colors flex items-center justify-center shrink-0"
+    >
+      <span class="material-symbols-outlined text-[24px]">close</span>
+    </button>
+  </div>
+
+  <script type="application/json" data-method-picker-target="topicValues"><%= topic_pick_values.to_json.gsub("</", "<\\/").html_safe %></script>
+
+  <div class="px-5 sm:px-6 pb-6 overflow-y-auto flex-1 space-y-3">
+    <% if topics.empty? %>
+      <p class="text-[14px] text-on-surface-variant">No topics are currently available.</p>
+    <% else %>
+      <% topics.each do |topic| %>
+        <button
+          type="button"
+          data-method-picker-target="topicOption"
+          data-topic-id="<%= topic.id %>"
+          data-title="<%= topic.current_title %>"
+          data-action="click->method-picker#chooseTopic"
+          class="w-full flex items-center gap-3 p-3 rounded-[8px] border border-outline hover:border-primary hover:bg-surface-hover transition-colors text-left"
+        >
+          <div class="w-9 h-9 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px]">article</span>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[14px] font-medium text-on-surface-strong truncate"><%= topic.current_title %></div>
+            <div class="text-[12px] text-on-surface-variant truncate"><%= topic.owner_name %></div>
+          </div>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</dialog>

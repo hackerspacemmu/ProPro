@@ -1,0 +1,44 @@
+<%# Locals: title, count. Pair the header with a toggleable detail via exactly
+    one of the two controller modes:
+      section — collapsible-sections mode (Overview sections: Supervised
+                Projects, Pending Proposals, ...). Click/keydown toggles the
+                paired row list; the chevron rotates on collapse.
+      row_id  — expandable-rows mode (Topics Directory supervisor groups).
+                The header is a [data-row-id] toggle handled by the delegated
+                expandable-rows controller; the chevron [data-row-chevron]
+                keeps the up-pointing convention (expand_more rotated up while
+                open). Optional suffix renders muted after the title (e.g.
+                "(You)").
+    When neither mode is given the header is static. Both modes share the same
+    styling so the two surfaces stay visually consistent. %>
+<%
+  section_mode = local_assigns[:section].present?
+  row_mode = local_assigns[:row_id].present?
+  any_mode = section_mode || row_mode
+  header_classes = "flex items-center justify-between p-6 box-border border-b border-outline-variant"
+  header_classes += " cursor-pointer group" if any_mode
+  chevron_classes = "material-symbols-outlined text-on-surface-variant"
+  chevron_classes += " group-hover:text-on-surface-strong transition-all" if any_mode
+  if row_mode
+    chevron = "expand_more"
+    chevron_classes += " rotate-180"
+  else
+    chevron = "expand_less"
+  end
+%>
+
+<div class="<%= header_classes %>"
+     <% if section_mode %>
+     role="button" tabindex="0"
+     data-action="click->collapsible-sections#toggle keydown->collapsible-sections#onKeydown"
+     data-collapsible-sections-target="toggle"
+     data-collapsible-sections-section="<%= section %>"
+     <% elsif row_mode %>
+     data-row-id="<%= row_id %>"
+     <% end %>>
+  <h2 class="truncate min-w-0 text-[22px] font-normal text-on-surface-strong"><%= title %><% if local_assigns[:suffix].present? %><span class="text-on-surface-variant"> <%= suffix %></span><% end %></h2>
+  <div class="flex items-center gap-3 shrink-0">
+    <span class="text-primary font-medium text-[15px]"><%= count %></span>
+    <span class="<%= chevron_classes %>" <%= "data-collapsible-sections-chevron=hidden" if section_mode %><%= "data-row-chevron" if row_mode %>><%= chevron %></span>
+  </div>
+</div>

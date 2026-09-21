@@ -1,0 +1,18 @@
+<%# ivar→locals seam — reads controller ivars ONCE, then passes everything below as
+    locals. Sanctioned exception to the locals-only rule; everything rendered from
+    this partial (and from _groups_tab.html.erb) must never touch an ivar again. %>
+<%= render "courses/lecturers_section",
+           course: @course,
+           lecturers: @lecturers,
+           capacity_result: @capacity_result,
+           lecturer_capacity_info: @lecturer_capacity_info %>
+
+<%= render "courses/students_section",
+           course: @course,
+           students: @filtered_student_list,
+           student_group_map: @student_group_map,
+           student_enrolment_map: @student_enrolment_map,
+           total_student_count: @student_list.count,
+           total_count: @total_student_count,
+           displayed_count: @filtered_student_list.count,
+           show_all: @show_all %>

@@ -1,118 +1,93 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["container", "backdrop"];
+  static DESKTOP_QUERY = "(min-width: 1024px)";
+  static targets = ["container", "backdrop", "toggleButton"];
 
   connect() {
-    // if no sidebar exists on this page, do nothing.
     if (!this.hasContainerTarget) return;
-
-    this.checkResponsive();
-    this.resizeHandler = this.checkResponsive.bind(this);
-    window.addEventListener("resize", this.resizeHandler);
+    this.close();
+    this.boundOnKeydown = this.onKeydown.bind(this);
+    this.boundOnBeforeVisit = this.onBeforeVisit.bind(this);
+    document.addEventListener("keydown", this.boundOnKeydown);
+    document.addEventListener("turbo:before-visit", this.boundOnBeforeVisit);
   }
 
   disconnect() {
-    if (this.resizeHandler) {
-      window.removeEventListener("resize", this.resizeHandler);
-    }
+    if (!this.boundOnKeydown) return;
+    document.removeEventListener("keydown", this.boundOnKeydown);
+    document.removeEventListener("turbo:before-visit", this.boundOnBeforeVisit);
   }
 
-  checkResponsive() {
-    if (!this.hasContainerTarget) return; // if no sidebar return
-
-    const isDesktop = window.innerWidth >= 1024;
-
-    if (isDesktop) {
-      if (!this.containerTarget.classList.contains("lg:w-64")) {
-        this.resetToDesktopDefaults();
-      }
-      this.hideBackdrop();
-    } else {
-      const userPreferClosed =
-        localStorage.getItem("sidebar-collapsed") === "true";
-      if (userPreferClosed) {
-        this.collapse(false);
-      }
-    }
-  }
-
+  // Breakpoint-aware: below lg the sidebar is the off-canvas drawer (existing
+  // behavior, untouched); at lg+ it is a collapsible rail driven by the
+  // data-collapsed attribute (CSS variants, no width-class juggling).
   toggle() {
-    if (!this.hasContainerTarget) return; // if no sidebar return
-
-    if (this.containerTarget.clientWidth === 0) {
-      this.expand();
+    if (this.isDesktop()) {
+      this.setCollapsed(!this.isCollapsed());
+    } else if (this.isOpen()) {
+      this.close();
     } else {
-      this.collapse();
+      this.open();
     }
   }
 
-  collapse(animate = true) {
-    if (!this.hasContainerTarget) return; // if no sidebar return
-
-    if (animate) {
-      this.containerTarget.classList.add("transition-all", "duration-200");
-    }
-
-    this.containerTarget.classList.remove("lg:w-64", "lg:opacity-100");
-    this.containerTarget.classList.remove("w-64", "w-48");
-    this.containerTarget.classList.add("w-0");
-    this.containerTarget.classList.add("overflow-hidden", "opacity-0");
-
-    this.hideBackdrop();
-
-    localStorage.setItem("sidebar-collapsed", "true");
+  isDesktop() {
+    return window.matchMedia(this.constructor.DESKTOP_QUERY).matches;
   }
 
-  expand() {
-    if (!this.hasContainerTarget) return; // Safety Check
-
-    this.containerTarget.classList.add("transition-all", "duration-300");
-
-    this.containerTarget.classList.remove(
-      "w-0",
-      "overflow-hidden",
-      "opacity-0",
-    );
-    this.containerTarget.classList.add("opacity-100");
-
-    if (window.innerWidth >= 1024) {
-      this.containerTarget.classList.add("w-64", "lg:w-64", "lg:opacity-100");
-    } else {
-      this.containerTarget.classList.add("w-48");
-      this.showBackdrop();
-    }
-    localStorage.setItem("sidebar-collapsed", "false");
+  isCollapsed() {
+    return this.containerTarget.dataset.collapsed === "true";
   }
 
-  resetToDesktopDefaults() {
+  setCollapsed(value) {
+    this.containerTarget.dataset.collapsed = String(value);
+    // Same write tabs_controller.js uses for the active tab cookie (plain,
+    // samesite=lax, secure only over https): do not simplify — keep the
+    // app's one persistence convention.
+    const secure = window.location.protocol === "https:" ? "; secure" : "";
+    document.cookie = `propro_sidebar_rail_collapsed=${value}; path=/; max-age=31536000; samesite=lax${secure}`;
+    this.syncExpanded();
+  }
+
+  open() {
+    this.containerTarget.classList.remove("-translate-x-full");
+    if (this.hasBackdropTarget) {
+      this.backdropTarget.classList.remove("hidden");
+    }
+    document.body.classList.add("overflow-hidden");
+    this.syncExpanded();
+  }
+
+  close() {
     if (!this.hasContainerTarget) return;
-
-    this.containerTarget.classList.remove(
-      "w-0",
-      "overflow-hidden",
-      "opacity-0",
-    );
-    this.containerTarget.classList.add(
-      "lg:w-64",
-      "lg:opacity-100",
-      "w-64",
-      "opacity-100",
-    );
-    this.hideBackdrop();
+    this.containerTarget.classList.add("-translate-x-full");
+    if (this.hasBackdropTarget) {
+      this.backdropTarget.classList.add("hidden");
+    }
+    document.body.classList.remove("overflow-hidden");
+    this.syncExpanded();
   }
 
-  showBackdrop() {
-    if (this.hasBackdropTarget) {
-      this.backdropTarget.classList.remove("pointer-events-none", "opacity-0");
-      this.backdropTarget.classList.add("opacity-100");
+  isOpen() {
+    return !this.containerTarget.classList.contains("-translate-x-full");
+  }
+
+  onKeydown(event) {
+    if (event.key === "Escape" && this.isOpen()) {
+      this.close();
     }
   }
 
-  hideBackdrop() {
-    if (this.hasBackdropTarget) {
-      this.backdropTarget.classList.remove("opacity-100");
-      this.backdropTarget.classList.add("pointer-events-none", "opacity-0");
-    }
+  onBeforeVisit() {
+    this.close();
+  }
+
+  // aria-expanded must reflect whichever state is relevant at the current
+  // breakpoint: the mobile drawer below lg, the expanded rail at lg+.
+  syncExpanded() {
+    if (!this.hasToggleButtonTarget) return;
+    const open = this.isDesktop() ? !this.isCollapsed() : this.isOpen();
+    this.toggleButtonTarget.setAttribute("aria-expanded", String(open));
   }
 }
