@@ -36,7 +36,10 @@
         <%= text_area_tag "fields[#{field.id}]",
               existing_value,
               class: "#{input_classes} resize-none overflow-hidden leading-relaxed",
-              data: { controller: "markdown-editor" },
+              data: {
+                controller: "markdown-editor",
+                action: "text-editor:update->markdown-editor#setValue",
+              },
               rows: 2,
               placeholder: field.hint,
               required: field.required %>

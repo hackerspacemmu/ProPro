@@ -7,7 +7,7 @@
 
     <div class="flex items-baseline gap-4">
       <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Groups</h2>
-      <span class="text-sm font-medium text-gray-500"><%= pluralize(@total_group_count, "group") %></span>
+      <span class="text-sm font-medium text-gray-500"><%= pluralize(@group_list.size, "group") %></span>
     </div>
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -87,7 +87,9 @@
              projects_by_owner: @projects_by_owner,
              total_count: @total_group_count,
              displayed_count: @filtered_group_list.count,
-             show_all: @show_all %>
+             show_all: @show_all,
+             state: @group_list_state,
+             filters_active: @filters_active %>
 
   <%= render "courses/add_students_modal", course: @course %>
 </section>

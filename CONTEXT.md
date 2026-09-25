@@ -61,6 +61,14 @@ definitions.
 - **pinned (You) group** — the current viewer's own supervisor group in the topics directory, always first with a gray "(You)" suffix. Staff (lecturer/coordinator) only, pinned even at 0 topics; replaces the old "My Topics" section. Students browsing see plain A→Z with no pinned group.
 - **available badge** — on topics-directory rows only, an approved-and-unclaimed topic (`Topic#available?` = `approved? && proposed_project_instances.none?`) renders its pill as green "Available" *in place of* the "Approved" status pill (same approved-green palette — the swap is just the shared `pill_label` local, driven by `_topic_item`'s optional `available_pill:` local, default `false`). Non-available rows keep their real status pill. Always green — the mockup's blue "(You)" rows are an artifact. Display-only; never a substitute authorization gate (ADR 014).
 
+## Course show (browse tables)
+
+- **browse table** — one of the three filterable lists on `courses/show`: Groups, Students (People tab), topics directory. Each is re-rendered wholesale on every filter change, so each has to answer for itself what an absence means.
+- **base list** — a browse table's unfiltered, policy-scoped rows, held alongside its filtered form. The pair is what makes the two kinds of absence separable: the **base list** decides *which* one, never the unscoped list — a student who sees no approved topics has an empty **base list**, not a filtered one, because they filtered nothing out.
+- **empty state** — a **browse table** with nothing in it, ever: no groups created, no students enrolled, nothing available to this viewer. Blames nothing and implies no filter is at fault. Distinct from **no-matches state**; the **profile empty state** below is the same idea on a different page.
+- **no-matches state** — a **browse table** emptied by the active filters while its **base list** still holds rows. One generic pair of lines serves every filter ("No *nouns* match your current filters." + "Try adjusting your search or filters."), so there is no per-filter copy to fall out of date when a filter is added.
+- **filters active** — at least one of a **browse table**'s filters narrows the list; a select's `all` does not count. Reported to the table as a local rather than re-derived, because it outlives the state: a search that *does* match is still **filters active** and must still auto-expand rows.
+
 ## Participant profile
 
 - **participant profile** — the `courses#profile` page for one student or group, reached as `courses/profile/:participant_id/:participant_type` from the People/Groups rows (ADR 0016). Rendered in the **courses/show shell** (`bg-surface-tint`, inline `shared/sidebar` in the page's own `.flex`, `rounded-tl-panel` main — no `border-t border-l`) with content in a centered `max-w-5xl` reading column.

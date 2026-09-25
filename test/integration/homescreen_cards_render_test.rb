@@ -7,6 +7,27 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     @course.enrolments.create!(user: @user, role: :student)
   end
 
+  test 'orders courses by earliest enrolment on the homescreen and sidebar' do
+    @course.enrolments.find_by!(user: @user, role: :student).update!(created_at: 4.days.ago)
+
+    earlier_course = create(:course, course_name: 'Earlier Course')
+    create(:enrolment, user: @user, course: earlier_course, role: :student, created_at: 2.days.ago)
+    create(:enrolment, user: @user, course: earlier_course, role: :coordinator, created_at: 1.hour.ago)
+
+    later_course = create(:course, course_name: 'Later Course')
+    create(:enrolment, user: @user, course: later_course, role: :student, created_at: 1.day.ago)
+
+    post session_path, params: { email_address: @user.email_address, password: 'password' }
+    get root_path
+
+    expected_paths = [course_path(later_course), course_path(earlier_course), course_path(@course)]
+    card_paths = css_select("main a[href^='/courses/']").map { |link| link['href'] }
+    sidebar_paths = css_select("#app-sidebar a[href^='/courses/']").map { |link| link['href'] }
+
+    assert_equal expected_paths, card_paths
+    assert_equal expected_paths, sidebar_paths
+  end
+
   test 'homescreen renders themed course cards via image_tag' do
     post session_path, params: { email_address: @user.email_address, password: 'password' }
     assert_redirected_to root_path

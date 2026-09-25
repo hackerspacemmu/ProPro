@@ -1,5 +1,6 @@
 <%# Topics Directory — the browse-first Topics panel of courses/show (ADR 0013).
-    Locals: course, lecturers, topics_by_supervisor, current_user_enrolment.
+    Locals: course, lecturers, topics_by_supervisor, current_user_enrolment,
+    state, filters_active.
     The section carries data-controller="expandable-rows" so the supervisor
     header toggles and the Collapse all / Expand all control keep working when
     htmx swaps the inner #topics-by-supervisor-container (mirror of the Groups
@@ -67,5 +68,7 @@
   <%= render "courses/topics_by_supervisor_list",
              course: course,
              topics_by_supervisor: topics_by_supervisor,
-             current_user_enrolment: current_user_enrolment %>
+             current_user_enrolment: current_user_enrolment,
+             state: state,
+             filters_active: filters_active %>
 </section>
