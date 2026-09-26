@@ -105,3 +105,6 @@ gem 'sqids', '~> 0.2.2'
 gem 'acts_as_list'
 
 gem "commonmarker", "~> 2.9"
+
+#For auto linking 
+gem "rinku", require: "rails_rinku"
