@@ -3,6 +3,11 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
+  # Params that narrow a list. "all" is the selects' neutral choice and counts
+  # as inactive, as does an absent/blank param.
+  PARTICIPANT_FILTER_KEYS = %w[search_query lecturer_filter status_filter].freeze
+  TOPIC_FILTER_KEYS       = %w[search_query topic_filter].freeze
+
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
@@ -25,7 +30,7 @@ class CoursesController < ApplicationController
     # Topics Directory (topics_by_supervisor) data source — policy-scoped with
     # search/filter applied server-side; driving both the initial render and the
     # htmx re-render of _topics_by_supervisor_list.
-    @filtered_topic_list = filtered_topic_list
+    @filtered_topic_list = filtered_topic_list.to_a
     @topics_by_supervisor = topics_by_supervisor
 
     # set students projects
@@ -105,17 +110,28 @@ class CoursesController < ApplicationController
     @filtered_student_list = filtered_student_list
 
     @show_all = params[:show_all] == 'true'
+    # Counts the matches, taken before the truncation below: the table footer's
+    # "Showing X of Y" is about the current criteria, not the course total.
     @total_group_count   = @filtered_group_list.count
     @total_student_count = @filtered_student_list.count
-    @total_count = @course.grouped? ? @total_group_count : @total_student_count
-    @total_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
 
     unless @show_all
       @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold)
       @filtered_student_list = @filtered_student_list.first(Rails.application.config.participants_pagination_threshold)
     end
 
-    @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
+    # Empty vs no-matches, decided here rather than in the partials (ADR 0018).
+    # Each base is the unfiltered, policy-scoped list and is already loaded, so
+    # this costs no extra query. Computed after the truncation so the state and
+    # the list the partial receives can never disagree.
+    @group_list_state   = list_state(@group_list, @filtered_group_list)
+    @student_list_state = list_state(@student_list, @filtered_student_list)
+    @topic_list_state   = list_state(@topic_list, @filtered_topic_list)
+
+    # The filter controls sit outside the htmx-swapped containers, so the
+    # partials are told a filter is active rather than re-deriving it from params.
+    @filters_active       = filters_active?(PARTICIPANT_FILTER_KEYS)
+    @topic_filters_active = filters_active?(TOPIC_FILTER_KEYS)
 
     @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
@@ -130,7 +146,9 @@ class CoursesController < ApplicationController
                projects_by_owner: @projects_by_owner,
                total_count: @total_group_count,
                displayed_count: @filtered_group_list.count,
-               show_all: @show_all
+               show_all: @show_all,
+               state: @group_list_state,
+               filters_active: @filters_active
              }
     elsif params[:section] == 'topics'
       render partial: 'topics_by_supervisor_list',
@@ -138,7 +156,9 @@ class CoursesController < ApplicationController
                course: @course,
                lecturers: @lecturers,
                topics_by_supervisor: @topics_by_supervisor,
-               current_user_enrolment: @current_user_enrolment
+               current_user_enrolment: @current_user_enrolment,
+               state: @topic_list_state,
+               filters_active: @topic_filters_active
              }
     else
       render partial: 'students_table',
@@ -150,7 +170,9 @@ class CoursesController < ApplicationController
                total_student_count: @student_list.count,
                total_count: @total_student_count,
                displayed_count: @filtered_student_list.count,
-               show_all: @show_all
+               show_all: @show_all,
+               state: @student_list_state,
+               filters_active: @filters_active
              }
     end
     nil
@@ -868,6 +890,29 @@ class CoursesController < ApplicationController
   end
 
   # Participants Table Filters helpers
+
+  # A list renders one of three states, and only the first two are ever
+  # displayed — a non-empty list renders rows and never consults the state:
+  #
+  #   :matched    — the filter returned rows
+  #   :no_matches — the base has rows, the filter returned none
+  #   :empty      — the base itself is empty; nothing has ever existed here
+  #
+  # The base is always the unfiltered, policy-scoped list, so a viewer whose
+  # policy scope hides everything is :empty rather than a false "no matches"
+  # (a student on a course with no approved topics has not filtered anything
+  # out). Both arguments are loaded by the time this runs (ADR 0018).
+  def list_state(base_list, filtered_list)
+    return :matched if filtered_list.any?
+
+    base_list.any? ? :no_matches : :empty
+  end
+
+  # True when any of the given filter params narrows the list. "all" is the
+  # selects' neutral choice, so it does not count.
+  def filters_active?(keys)
+    keys.any? { |key| params[key].present? && params[key] != 'all' }
+  end
 
   def search_groups(group_list, query)
     downcased_query = query.downcase

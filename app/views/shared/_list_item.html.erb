@@ -2,7 +2,12 @@
     time_meta (appended to meta line as "• timestamp"), status,
     pill_label (defaults to status humanized), linkable
     (default true), link_options, border_top (default true), and an optional
-    block rendered below the row line. The status pill sits on the right. %>
+    block rendered below the row line. The status pill sits on the right.
+    Style locals (all default-preserving — omit to keep current chrome):
+    hide_more_vert (drop the action button), title_weight (default 400),
+    density (:comfortable = roomier row: p-5, hover:bg-surface-hover,
+    w-10 h-10 icon, py-1 pill), meta_first_strong (first meta part
+    font-medium text-on-surface-variant). %>
 
 <%
   pill_bg, pill_fg =
@@ -31,22 +36,33 @@
   border_top = local_assigns.fetch(:border_top, true)
   rejected = status.to_s == "rejected"
 
+  hide_more_vert = local_assigns.fetch(:hide_more_vert, false)
+  title_weight = local_assigns.fetch(:title_weight, 400)
+  dense = local_assigns.fetch(:density, :default) == :comfortable
+  meta_first_strong = local_assigns.fetch(:meta_first_strong, false)
+
+  row_padding = dense ? "p-5" : "py-3 px-4"
+  row_hover = dense ? "hover:bg-surface-hover" : "hover:bg-surface-variant"
+
   row_classes =
-    "group flex flex-col w-full py-3 px-4 " \
-    "hover:bg-surface-variant transition-colors bg-white"
+    "group flex flex-col w-full #{row_padding} " \
+    "#{row_hover} transition-colors bg-white"
   row_classes += " border-t border-outline-variant" if border_top
   row_classes += " opacity-80" if rejected
   row_classes += linkable ? " cursor-pointer" : " opacity-75 cursor-not-allowed"
   title_color = rejected ? "text-on-surface-variant" : "text-on-surface-strong"
 
-  pill_span = "#{pill_bg} #{pill_fg} px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap"
+  pill_padding = dense ? "py-1" : "py-0.5"
+  pill_span = "#{pill_bg} #{pill_fg} px-2.5 #{pill_padding} rounded text-[12px] font-medium tracking-wide whitespace-nowrap"
+
+  icon_size = dense ? "w-10 h-10" : "w-9 h-9"
 %>
 
 <% content_block = capture do %>
   <div class="flex items-start sm:items-center gap-4 w-full min-w-0">
     
     <!-- Icon Container: Stays fixed on the left -->
-    <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 <%= icon_bg %> <%= icon_fg %> mt-0.5 sm:mt-0">
+    <div class="<%= icon_size %> rounded-full flex items-center justify-center shrink-0 <%= icon_bg %> <%= icon_fg %> mt-0.5 sm:mt-0">
       <span class="material-symbols-outlined text-[20px]"><%= icon %></span>
     </div>
 
@@ -55,11 +71,15 @@
       
       <!-- Title & Meta Parts -->
       <div class="min-w-0 flex-1">
-        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: 400; letter-spacing: 0; line-height: 1.5rem;" class="mb-0.5 <%= title_color %> truncate"><%= title %></h3>
+        <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 1rem; font-weight: <%= title_weight %>; letter-spacing: 0; line-height: 1.5rem;" class="mb-0.5 <%= title_color %> truncate"><%= title %></h3>
         <div style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="flex items-center gap-2 text-[13px] text-on-surface-muted flex-wrap sm:flex-nowrap mt-0.5 sm:mt-0">
           <% meta_parts.each_with_index do |part, idx| %>
             <% unless idx.zero? %><span class="shrink-0">•</span><% end %>
-            <span class="<%= idx.zero? ? "truncate max-w-full" : "whitespace-nowrap" %>"><%= part %></span>
+            <% if idx.zero? && meta_first_strong %>
+              <span class="truncate max-w-full font-medium text-on-surface-variant"><%= part %></span>
+            <% else %>
+              <span class="<%= idx.zero? ? "truncate max-w-full" : "whitespace-nowrap" %>"><%= part %></span>
+            <% end %>
           <% end %>
           <% if time_meta.present? %>
             <% if meta_parts.any? %><span class="shrink-0">•</span><% end %>
@@ -71,10 +91,12 @@
       <!-- Pill + more actions -->
       <div class="flex items-center gap-1 sm:gap-3 shrink-0">
         <span class="<%= pill_span %>"><%= pill_label %></span>
-        <button type="button" aria-label="More actions" tabindex="-1"
-            class="hidden sm:flex text-on-surface-variant hover:bg-black/5 p-1.5 rounded-full items-center justify-center transition-colors shrink-0">
-          <span class="material-symbols-outlined text-[20px]">more_vert</span>
-        </button>
+        <% unless hide_more_vert %>
+          <button type="button" aria-label="More actions" tabindex="-1"
+              class="hidden sm:flex text-on-surface-variant hover:bg-black/5 p-1.5 rounded-full items-center justify-center transition-colors shrink-0">
+            <span class="material-symbols-outlined text-[20px]">more_vert</span>
+          </button>
+        <% end %>
       </div>
 
     </div>

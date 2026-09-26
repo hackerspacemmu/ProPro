@@ -18,7 +18,7 @@
         <span class="material-symbols-outlined text-sm">expand_less</span>
       </div>
 
-      <% current_user.courses.distinct.each do |course| %>
+      <% current_user.courses_by_earliest_enrolment.each do |course| %>
         <%= render "shared/sidebar_nav_item",
               kind: :course,
               path: course_path(course),
