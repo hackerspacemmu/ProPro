@@ -35,17 +35,21 @@ class ProjectTemplateField < ApplicationRecord
   private
 
   def cannot_delete_title_field
-    return unless is_project_title?
-
-    errors.add(:base, 'Cannot delete the Project Title field')
-    throw :abort
+    if destroyed_by_association and destroyed_by_association.active_record.name == "ProjectTemplate"
+      return
+    elsif !is_project_title?
+      errors.add(:base, 'Cannot delete the Project Title field')
+      throw :abort
+    end
   end
 
   def cannot_delete_if_in_use
-    return unless project_instance_fields.exists?
-
-    errors.add(:base, "Field “#{label}” is in use and can’t be removed")
-    throw :abort
+    if destroyed_by_association and destroyed_by_association.active_record.name == "ProjectTemplate"
+      return
+    elsif !project_instance_fields.exists?
+      errors.add(:base, "Field “#{label}” is in use and can’t be removed")
+      throw :abort
+    end
   end
 
   def force_title_required
