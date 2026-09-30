@@ -31,6 +31,10 @@
           display_text = display_text.to_s.strip
         end
 
+
+        #Re-sets display_text to use auto_link if it is not markdown(ie the long paragraph thing) since the markdown already includes implemented links
+        display_text = !is_markdown ? auto_link(sanitize(display_text), html: { class: "font-bold underline", target: "_blank", rel: "noopener" }) : display_text
+
         rendered_markdown = is_markdown && display_text.present? ? render_markdown(display_text) : nil
       %>
 
