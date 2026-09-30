@@ -1,4 +1,8 @@
-<%# --- locals: course, groups, projects_by_owner, total_count, displayed_count, show_all %>
+<%# --- locals: course, groups, projects_by_owner, total_count, displayed_count, show_all, state, filters_active %>
+<%# htmx re-render target on the Groups tab, rendered from BOTH the page path and
+    the courses#show htmx branch, so it only ever uses locals. `state` is the
+    controller's :matched / :no_matches / :empty verdict (ADR 0018); the copy
+    for each is chosen here, below. %>
 
 <div id="groups-table-container"
      class="overflow-x-auto pb-8 border border-gray-200 rounded-lg"
@@ -21,9 +25,6 @@
     </thead>
     <tbody class="divide-y divide-gray-200">
       <% if groups.present? %>
-        <% any_filter = params[:search_query].present? ||
-                        (params[:lecturer_filter].present? && params[:lecturer_filter] != 'all') ||
-                        (params[:status_filter].present? && params[:status_filter] != 'all') %>
         <% groups.each do |group| %>
           <% group_project = projects_by_owner[['ProjectGroup', group.id]]
              group_status = group_project&.current_status || 'not_submitted'
@@ -34,14 +35,13 @@
                      project: group_project,
                      status: group_status,
                      supervisor: supervisor,
-                     expanded: any_filter %>
+                     expanded: filters_active %>
         <% end %>
       <% else %>
-        <tr>
-          <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500 italic">
-            <%= params[:status_filter].present? && params[:status_filter] != 'all' ? "No groups found with #{params[:status_filter].titleize} status." : "No groups have been created yet." %>
-          </td>
-        </tr>
+        <%= render "shared/table_empty_state",
+                   colspan: 5,
+                   heading: state == :no_matches ? "No groups match your current filters." : "No groups have been created yet.",
+                   hint: state == :no_matches ? "Try adjusting your search or filters." : nil %>
       <% end %>
     </tbody>
   </table>

@@ -606,6 +606,133 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match 'No project has been submitted yet.', response.body
   end
 
+  # --- Empty vs no-matches (ADR 0018) -------------------------------------
+  #
+  # Every no-matches test asserts the *absence* of the genuinely-empty copy as
+  # well. That negative assertion is the regression guard: before the split, a
+  # search or supervisor filter that matched nothing fell through to the
+  # "nothing has ever existed here" branch and made a false claim about the
+  # course.
+
+  test 'groups table reports an empty course when no groups exist' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'groups' }
+    assert_response :success
+    assert_includes response.body, 'No groups have been created yet.'
+    assert_no_match 'No groups match your current filters.', response.body
+  end
+
+  test 'groups table reports no matches when a search empties the list' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:project_group, course: course, confirmed: true, group_name: 'Alpha Group')
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'groups', search_query: 'zzzznomatch' }
+    assert_response :success
+    assert_includes response.body, 'No groups match your current filters.'
+    assert_includes response.body, 'Try adjusting your search or filters.'
+    assert_no_match 'No groups have been created yet.', response.body
+  end
+
+  test 'groups table reports no matches when a status filter empties the list' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    create(:project_group, course: course, confirmed: true, group_name: 'Alpha Group')
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'groups', status_filter: 'approved' }
+    assert_response :success
+    assert_includes response.body, 'No groups match your current filters.'
+    assert_no_match 'No groups have been created yet.', response.body
+    # the pre-split per-filter copy is gone; one generic message serves every filter
+    assert_no_match 'No groups found with', response.body
+  end
+
+  test 'groups table reports no matches when a supervisor filter empties the list' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    idle_lecturer = create(:user, :staff)
+    create(:enrolment, :lecturer, user: idle_lecturer, course: course)
+    create(:project_group, course: course, confirmed: true, group_name: 'Alpha Group')
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'groups', lecturer_filter: idle_lecturer.id.to_s }
+    assert_response :success
+    assert_includes response.body, 'No groups match your current filters.'
+    assert_no_match 'No groups have been created yet.', response.body
+  end
+
+  test 'students table reports an empty course when no students are enrolled' do
+    course = create(:course)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'students' }
+    assert_response :success
+    assert_includes response.body, 'No students have been enrolled yet.'
+    assert_no_match 'No students match your current filters.', response.body
+  end
+
+  test 'students table reports no matches when a search empties the list' do
+    sign_in @coordinator_user
+    get course_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                              params: { section: 'students', search_query: 'zzzznomatch' }
+    assert_response :success
+    assert_includes response.body, 'No students match your current filters.'
+    assert_includes response.body, 'Try adjusting your search or filters.'
+    assert_no_match 'No students have been enrolled yet.', response.body
+  end
+
+  test 'topics directory reports an empty course when it has no lecturers' do
+    course = create(:course)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    assert_response :success
+    assert_includes response.body, 'No topics are currently available.'
+    assert_no_match 'No topics match your current filters.', response.body
+  end
+
+  test 'topics directory reports no matches when a search empties every group' do
+    course, alice, = build_topic_directory_course
+    create_topic_on(course, alice, 'Machine Learning Basics', :approved)
+
+    sign_in @coordinator_user
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'topics', search_query: 'zzzznomatch' }
+    assert_response :success
+    assert_includes response.body, 'No topics match your current filters.'
+    assert_includes response.body, 'Try adjusting your search or filters.'
+    assert_no_match 'No topics are currently available.', response.body
+  end
+
+  test 'topics a student scope hides is an empty state, never a filter miss' do
+    course, alice, = build_topic_directory_course
+    create_topic_on(course, alice, 'Unapproved Topic', :pending)
+
+    student = create(:user)
+    create(:enrolment, user: student, course: course)
+    sign_in student
+
+    # The draft is outside a student's policy scope, so the *unfiltered* list is
+    # empty. With a search active the groups are dropped and the empty branch
+    # fires — it must read as "nothing to show you", not as a filter miss, since
+    # the base is the policy-scoped list (ADR 0018).
+    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                             params: { section: 'topics', search_query: 'anything' }
+    assert_response :success
+    assert_includes response.body, 'No topics are currently available.'
+    assert_no_match 'No topics match your current filters.', response.body
+  end
+
   private
 
   def build_topic_directory_course

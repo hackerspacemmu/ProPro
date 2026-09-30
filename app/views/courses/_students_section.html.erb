@@ -1,4 +1,4 @@
-<%# --- locals: course, students, student_group_map, student_enrolment_map, total_student_count, total_count, displayed_count, show_all %>
+<%# --- locals: course, students, student_group_map, student_enrolment_map, total_student_count, total_count, displayed_count, show_all, state, filters_active %>
 <%# The students-select controller scopes this whole section: it drives the
     single-select radios, the Actions dropdown dispatch, and survives the
     htmx table swaps (delegated listeners + htmx:afterSwap reset). %>
@@ -82,7 +82,9 @@
              student_enrolment_map: student_enrolment_map,
              total_count: total_count,
              displayed_count: displayed_count,
-             show_all: show_all %>
+             show_all: show_all,
+             state: state,
+             filters_active: filters_active %>
 
   <%= render "courses/add_students_modal", course: course %>
 </section>

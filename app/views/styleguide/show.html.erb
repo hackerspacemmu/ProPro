@@ -260,6 +260,13 @@
           <div class="px-4 pb-3 text-[13px] text-on-surface-variant">The optional block renders below the row line — used for inline annotations.</div>
         <% end %>
       </div>
+      <p class="mt-4 mb-2 text-[13px] text-on-surface-variant">Roomier picker rows — <code class="font-mono text-xs">density: :comfortable</code>, <code class="font-mono text-xs">title_weight: 500</code>, <code class="font-mono text-xs">hide_more_vert: true</code>, <code class="font-mono text-xs">meta_first_strong: true</code> (used by the copy-topic modal, step 1).</p>
+      <div class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
+        <%= render "shared/list_item", path: "#", icon: "topic", title: "Edge Computing for Rural IoT", meta_parts: ["Dr. Leong", "Software Engineering Project"], time_meta: "Updated 5 hours ago", status: "approved",
+          density: :comfortable, title_weight: 500, hide_more_vert: true, meta_first_strong: true %>
+        <%= render "shared/list_item", path: "#", icon: "topic", title: "Federated Learning in Healthcare", meta_parts: ["Siti Aminah", "Machine Learning Applications"], time_meta: "Updated yesterday", status: "approved",
+          density: :comfortable, title_weight: 500, hide_more_vert: true, meta_first_strong: true %>
+      </div>
     </section>
 
     <!-- 8. EMPTY STATES -->

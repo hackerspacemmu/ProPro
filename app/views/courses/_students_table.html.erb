@@ -1,7 +1,9 @@
-<%# --- locals: course, students, student_group_map, student_enrolment_map, total_count, displayed_count, show_all %>
+<%# --- locals: course, students, student_group_map, student_enrolment_map, total_count, displayed_count, show_all, state, filters_active %>
 <%# htmx re-render target on the People tab — rendered from BOTH the page path and
     the courses#show htmx branch, so it only ever uses locals. Never reach for
-    student_status/student_project_for (see plan §5). %>
+    student_status/student_project_for (see plan §5). `state` is the controller's
+    :matched / :no_matches / :empty verdict (ADR 0018); the copy for each is
+    chosen here, below. %>
 
 <div id="students-table-container" class="overflow-x-auto border border-gray-200 rounded-lg">
   <table class="w-full min-w-[480px] table-fixed">
@@ -24,9 +26,10 @@
                      enrolment: student_enrolment_map[student.id] %>
         <% end %>
       <% else %>
-        <tr>
-          <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-500 italic">No students have been enrolled yet.</td>
-        </tr>
+        <%= render "shared/table_empty_state",
+                   colspan: 4,
+                   heading: state == :no_matches ? "No students match your current filters." : "No students have been enrolled yet.",
+                   hint: state == :no_matches ? "Try adjusting your search or filters." : nil %>
       <% end %>
     </tbody>
   </table>

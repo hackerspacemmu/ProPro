@@ -9,7 +9,9 @@
              course: @course,
              lecturers: @lecturers,
              topics_by_supervisor: @topics_by_supervisor,
-             current_user_enrolment: @current_user_enrolment %>
+             current_user_enrolment: @current_user_enrolment,
+             state: @topic_list_state,
+             filters_active: @topic_filters_active %>
 <% else %>
   <%= render "shared/empty_state",
              heading: "Topics are disabled for this course",
