@@ -1,26 +1,73 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "courses" %>
-  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
-<% end %>
-<% content_for :title, "New Lecturer | ProPro" %>
+<% content_for :title, "Claim Account | ProPro" %>
+<% content_for :no_sidebar, true %>
+<% content_for :no_header, true %>
+<% content_for :no_footer, true %>
+<% content_for :hide_toggler, true %>
+<% content_for :hide_breadcrumbs, true %>
+<% content_for :body_class, "bg-surface-tint" %>
 
-<div class="main">
-  <h1>New User</h1>
-  <br>
+<div class="min-h-screen bg-surface-tint text-on-surface font-['Roboto',sans-serif] flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full mx-auto space-y-6">
 
-  <div class="container">
-    <h5><%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %></h5>
-    <h5><%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %></h5>
-    <br>
+    <!-- Header -->
+    <header class="text-center">
+      <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: 2rem; font-weight: 400; line-height: 2.5rem;" class="text-on-surface-strong">Claim Your Account</h1>
+      <p class="text-on-surface-variant mt-1.5 text-[14px]">
+        Complete your details to set up your ProPro account.
+      </p>
+    </header>
 
-    <%= form_with url: user_handle_claim_path do |form| %>
-      <%= form.hidden_field :token, value: params[:token] %>
-      <%= form.search_field :email, value: @email, disabled: true %><br>
-      <%= form.search_field :instid, required: true, placeholder: "Institution ID" %><br>
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-      <%= form.password_field :password_confirmation, required: true, placeholder: "Enter password confirmation", maxlength: 72 %><br>
-      <%= form.search_field :name, placeholder: "Name", required: true %><br>
-    <%= form.submit "Claim Account" %>
-    <% end %>
+    <!-- Main Card Container (Flat, no shadow) -->
+    <div class="bg-surface border border-outline-variant rounded-lg p-8">
+
+      <!-- Flash Messages -->
+      <% if flash[:alert].present? %>
+        <div class="mb-6 p-4 rounded-lg bg-error-container border border-error-container-border text-error text-[13px] flex items-start gap-2.5">
+          <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
+          <div><%= flash[:alert] %></div>
+        </div>
+      <% end %>
+
+      <% if flash[:notice].present? %>
+        <div class="mb-6 p-4 rounded-lg bg-success-container text-success text-[13px] flex items-start gap-2.5">
+          <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">check_circle</span>
+          <div><%= flash[:notice] %></div>
+        </div>
+      <% end %>
+
+      <!-- Form -->
+      <%= form_with url: user_handle_claim_path, class: "space-y-5" do |form| %>
+        <%= form.hidden_field :token, value: params[:token] %>
+
+        <!-- Email Field (Read-only) -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide">Email</label>
+          <%= form.search_field :email, value: @email, disabled: true, class: "w-full px-3.5 py-2.5 bg-surface-variant text-on-surface-muted border border-outline-variant rounded-lg text-[14px] cursor-not-allowed" %>
+        </div>
+
+        <!-- Name Field -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide">Name</label>
+          <%= form.search_field :name, placeholder: "Name", required: true, class: "w-full px-3.5 py-2.5 bg-surface text-on-surface border border-outline rounded-lg text-[14px] focus:outline-none focus:border-primary transition-colors" %>
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide">Password</label>
+          <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "w-full px-3.5 py-2.5 bg-surface text-on-surface border border-outline rounded-lg text-[14px] focus:outline-none focus:border-primary transition-colors" %>
+        </div>
+
+        <!-- Password Confirmation Field -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide">Password Confirmation</label>
+          <%= form.password_field :password_confirmation, required: true, placeholder: "Enter password confirmation", maxlength: 72, class: "w-full px-3.5 py-2.5 bg-surface text-on-surface border border-outline rounded-lg text-[14px] focus:outline-none focus:border-primary transition-colors" %>
+        </div>
+
+        <!-- Submit Button (Flat, removed shadow-sm) -->
+        <div class="pt-2">
+          <%= form.submit "Claim Account", class: "w-full bg-primary hover:bg-primary-hover text-white py-2.5 rounded-full font-medium text-[14px] transition-colors cursor-pointer text-center" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

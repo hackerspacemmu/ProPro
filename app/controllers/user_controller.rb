@@ -1,5 +1,5 @@
 class UserController < ApplicationController
-  allow_unauthenticated_access only: %i[new create claim handle_claim]
+  allow_unauthenticated_access only: %i[new create claim handle_claim verify]
 
   def resend_invite
     user = User.find(params[:id])
@@ -14,13 +14,38 @@ class UserController < ApplicationController
     GeneralMailer.with(
       email_address: user.email_address,
       otp_token: otp_instance.token,
-      from_course: false
     ).ProPro_Invite.deliver_later
 
     redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
   end
 
   def new; end
+
+  def create
+    name = params[:name].strip
+    email = params[:email].strip
+
+    result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
+
+    unless result.success?
+      redirect_to user_new_path, alert: result.message
+      return
+    end
+
+    result = UserCreator.call(name: name, email: email, password: params[:password], verify_only: true)
+
+    unless result.success?
+      redirect_back_or_to user_new_path, alert: result.message
+      return
+    end
+
+    GeneralMailer.with(
+      email_address: email,
+      otp_token: result.otp_instance.token,
+    ).Signup_Verification.deliver_later
+
+    redirect_to login_path, notice: 'Account created successfully. Check your inbox!'
+  end
 
   def edit
     @user = Current.user
@@ -57,41 +82,15 @@ class UserController < ApplicationController
   end
 
   def claim
-    @email = Otp.find_by(token: params[:token]).user.email_address
+    @email = Otp.find_by(token: params[:token], verify_only: false).user.email_address
   rescue StandardError
     redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
   end
 
   def handle_claim
-    response = params.permit(:password, :password_confirmation, :name, :instid, :token)
-    return if response[:token].blank?
+    return if params[:token].blank?
 
-    if response[:password].blank?
-      redirect_back_or_to '/', alert: 'Password cannot be empty'
-      return
-    end
-
-    if response[:password_confirmation].blank?
-      redirect_back_or_to '/', alert: 'Password confirmation cannot be empty'
-      return
-    end
-
-    if response[:instid].blank?
-      redirect_back_or_to '/', alert: 'Institution ID cannot be empty'
-      return
-    end
-
-    if response[:password] != response[:password_confirmation]
-      redirect_back_or_to '/', alert: 'Passwords are not the same'
-      return
-    end
-
-    if response[:password].length > 72
-      redirect_back_or_to '/', alert: 'Password must be less than or equal to 72 characters'
-      return
-    end
-
-    otp_instance = Otp.find_by(token: response[:token])
+    otp_instance = Otp.find_by(token: params[:token], verify_only: false)
 
     unless otp_instance
       redirect_back_or_to '/', alert: 'Something went wrong'
@@ -99,57 +98,52 @@ class UserController < ApplicationController
     end
 
     user = otp_instance.user
+    name = params[:name].strip
 
-    if response[:name].blank?
-      redirect_back_or_to '/', alert: 'Name cannot be empty'
-      return
-    end
+    result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
 
-    if user.update!(has_registered: true, password: response[:password], name: response[:name].strip, instid: response[:instid].strip)
-      redirect_to '/session/new', notice: 'Account successfully claimed'
-    else
-      redirect_back_or_to '/', alert: 'Something went wrong'
-    end
-
-    user.otp.destroy
-  end
-
-  def create
-    email = params.require(:email_address).strip
-
-    if User.find_by(email_address: email)
-      redirect_to user_profile_path, notice: 'Your email is already in the system. Check your inbox or login!'
+    if !result.success?
+      redirect_back_or_to '/', alert: result.message
       return
     end
 
     begin
-      ActiveRecord::Base.transaction do
-        new_user = User.create!(
-          email_address: email,
-          name: 'Placeholder Username',
-          password: SecureRandom.base64(24),
-          has_registered: false
-        )
-
-        Otp.create!(
-          user: new_user,
-          token: SecureRandom.uuid
-        )
-      end
-    rescue StandardError => e
+      user.update!(has_registered: true, name: name, password: params[:password])
+      otp_instance.destroy
+    rescue ActiveRecord::RecordInvalid => e
       redirect_back_or_to '/', alert: e.message
+      return
+    rescue StandardError => e
+      redirect_back_or_to '/', alert: 'Something went wrong'
       return
     end
 
-    new_user = User.find_by(email_address: email)
+    redirect_to '/session/new', notice: 'Account successfully claimed'
+  end
 
-    GeneralMailer.with(
-      email_address: new_user.email_address,
-      otp_token: new_user.otp.token,
-      from_course: false
-    ).ProPro_Invite.deliver_later
+  def verify
+    return if params[:token].blank?
 
-    redirect_to login_path, notice: 'Account created successfully. Check your inbox!'
+    otp_instance = Otp.find_by(token: params[:token], verify_only: true)
+
+    unless otp_instance
+      redirect_back_or_to new_session_path, alert: 'Something went wrong'
+      return
+    end
+
+    user = otp_instance.user
+
+    begin
+      ActiveRecord::Base.transaction do
+        user.update!(has_registered: true)
+        otp_instance.destroy
+      end
+    rescue StandardError => e
+      redirect_to new_session_path, alert: 'Something went wrong'
+      return
+    end
+
+    redirect_to new_session_path, notice: 'Account successfully verified'
   end
 
   def profile

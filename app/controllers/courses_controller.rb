@@ -178,24 +178,18 @@ class CoursesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers, registered_lecturers)
+        create_lecturer_enrolments(lecturer_emails, @course)
       end
     rescue StandardError => e
       redirect_back_or_to '/', alert: e.message
       return
     end
 
-    send_invite_emails(unregistered_lecturers)
-    send_notification_emails(registered_lecturers, @course)
-
     redirect_to course_path(@course)
   end
 
   def handle_add_students
     authorize @course, :manage_students?
-
-    unregistered_students = Set[]
-    registered_students = []
 
     if params[:csv_file].blank? || params[:csv_file].content_type != 'text/csv'
       redirect_back_or_to '/', alert: 'Please provide a CSV file from ebwise'
@@ -233,10 +227,10 @@ class CoursesController < ApplicationController
 
         if @course.grouped
           student_hashmap = @course.parse_csv_grouped(csv_obj)
-          create_db_entries_grouped(student_hashmap, @course, unregistered_students, registered_students)
+          create_db_entries_grouped(student_hashmap, @course)
         else
           student_set = @course.parse_csv_solo(csv_obj)
-          create_db_entries_solo(student_set, @course, unregistered_students, registered_students)
+          create_db_entries_solo(student_set, @course)
         end
       end
     rescue StandardError => e
@@ -244,8 +238,6 @@ class CoursesController < ApplicationController
       return
     end
 
-    send_invite_emails(unregistered_students)
-    send_notification_emails(registered_students, @course)
     redirect_to course_path(@course)
   end
 
@@ -531,37 +523,37 @@ class CoursesController < ApplicationController
     @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
   end
 
-  def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)
+  def create_db_entries_grouped(hash_map, parent_course)
     hash_map.keys.each do |group|
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
 
       hash_map[group].each do |group_member|
         new_user = User.find_by(email_address: group_member[:email_address])
 
-        if new_user
-          new_user.update!(instid: group_member[:instid])
-
-          registered_students.push(group_member[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
-        else
-          new_user = User.create!(
-            email_address: group_member[:email_address],
+        if !new_user
+          result = UserCreator.call(
             name: group_member[:name],
+            email: group_member[:email_address],
             password: SecureRandom.base64(24),
-            has_registered: false,
+            verify_only: false,
             instid: group_member[:instid]
           )
 
-          new_otp_instance = Otp.create!(
-            user: new_user,
-            token: SecureRandom.uuid
-          )
+          GeneralMailer.with(
+            email_address: group_member[:email],
+            otp_token: result.otp_instance.token,
+          ).ProPro_Invite.deliver_later
 
-          unregistered_students.add(
-            {
-              email_address: group_member[:email_address],
-              otp_token: new_otp_instance.token
-            }
-          )
+          new_user = result.user
+        else
+          new_user.update!(instid: group_member[:instid])
+
+          if new_user.enrolments.where(course: parent_course).empty?
+            GeneralMailer.with(
+              course: parent_course,
+              email_address: group_member[:email]
+            ).Course_Invite_Notification.deliver_later
+          end
         end
 
         Enrolment.find_or_create_by!(
@@ -585,54 +577,34 @@ class CoursesController < ApplicationController
     end
   end
 
-  def send_invite_emails(unregistered_users)
-    unregistered_users.each do |user|
-      GeneralMailer.with(
-        email_address: user[:email_address],
-        otp_token: user[:otp_token],
-        from_course: true
-      ).ProPro_Invite.deliver_later
-    end
-  end
-
-  def send_notification_emails(registered_emails, course)
-    registered_emails.each do |email|
-      GeneralMailer.with(
-        course: course,
-        email_address: email
-      ).Course_Invite_Notification.deliver_later
-    end
-  end
-
-  def create_db_entries_solo(student_set, parent_course, unregistered_students, registered_students)
+  def create_db_entries_solo(student_set, parent_course)
     student_set.each do |student|
       new_user = User.find_by(email_address: student[:email_address])
 
-      if new_user
-        new_user.update!(instid: student[:instid])
-
-        registered_students.push(student[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
-      else
-        new_user = User.create!(
-          email_address: student[:email_address],
+      if !new_user
+        result = UserCreator.call(
           name: student[:name],
+          email: student[:email_address],
           password: SecureRandom.base64(24),
-          has_registered: false,
+          verify_only: false,
           instid: student[:instid]
         )
 
-        new_otp_instance = Otp.create!(
-          user: new_user,
-          token: SecureRandom.uuid
-        )
+        GeneralMailer.with(
+          email_address: student[:email_address],
+          otp_token: result.otp_instance.token,
+        ).ProPro_Invite.deliver_later
 
-        unregistered_students.add(
-          {
-            email_address: student[:email_address],
-            otp_token: new_otp_instance.token,
-            otp: new_otp_instance.otp
-          }
-        )
+        new_user = result.user
+      else
+        new_user.update!(instid: student[:instid])
+
+        if new_user.enrolments.where(course: parent_course).empty?
+            GeneralMailer.with(
+              course: parent_course,
+              email_address: student[:email]
+            ).Course_Invite_Notification.deliver_later
+        end
       end
 
       Enrolment.find_or_create_by!(
@@ -643,33 +615,32 @@ class CoursesController < ApplicationController
     end
   end
 
-  def create_lecturer_enrolments(lecturer_emails, parent_course, unregistered_lecturers, registered_lecturers)
+  def create_lecturer_enrolments(lecturer_emails, parent_course)
     lecturer_emails.each do |email|
       next if email.blank?
 
       new_lecturer = User.find_by(email_address: email)
 
       if !new_lecturer
-        new_lecturer = User.create!(
-          email_address: email,
+        result = UserCreator.call(
+          name: "Lecturer-#{SecureRandom.hex(2)}",
+          email: email,
           password: SecureRandom.base64(24),
-          has_registered: false,
-          name: "Lecturer-#{SecureRandom.hex(2)}"
+          verify_only: false
         )
 
-        new_otp_instance = Otp.create!(
-          user: new_lecturer,
-          token: SecureRandom.uuid
-        )
+        GeneralMailer.with(
+          email_address: email,
+          otp_token: result.otp_instance.token,
+        ).ProPro_Invite.deliver_later
 
-        unregistered_lecturers.add(
-          {
-            email_address: email,
-            otp_token: new_otp_instance.token
-          }
-        )
+        new_lecturer = result.user
+
       elsif new_lecturer.enrolments.where(course: parent_course).empty?
-        registered_lecturers.push(email)
+        GeneralMailer.with(
+          course: parent_course,
+          email_address: email
+        ).Course_Invite_Notification.deliver_later
       end
 
       Enrolment.find_or_create_by!(
