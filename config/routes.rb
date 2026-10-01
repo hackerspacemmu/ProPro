@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   post 'user/handle_claim'
   post 'user/edit'
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
+  get 'user/verify'
 
   resources :enrolments, only: [:destroy]
   post 'invite', to: 'courses#enroll_via_coursecode', as: 'invite'
