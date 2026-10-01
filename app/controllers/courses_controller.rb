@@ -185,9 +185,6 @@ class CoursesController < ApplicationController
       return
     end
 
-#send_invite_emails(unregistered_lecturers)
-#send_notification_emails(registered_lecturers, @course)
-
     redirect_to course_path(@course)
   end
 
