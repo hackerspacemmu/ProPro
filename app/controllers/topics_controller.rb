@@ -90,10 +90,13 @@ class TopicsController < ApplicationController
       return render partial: 'copy_topic_details', layout: false, locals: { source: @source_topic, target: @course }
     end
 
-    @approved_topics = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
-                            .where(course_id: Course.managed_by(current_user).select(:id))
-                            .select { |t| t.current_status == 'approved' }
-                            .sort_by(&:created_at).reverse
+    topics_scope = Topic.includes(:course, topic_instances: { project_instance_fields: :project_template_field })
+                        .where(course_id: Course.managed_by(current_user).select(:id))
+
+    topics_scope = topics_scope.where(owner: current_user) unless params[:show_all_course_topics] == 'true'
+
+    @approved_topics = topics_scope.select { |t| t.current_status == 'approved' }
+                                   .sort_by(&:created_at).reverse
 
     return if @template_fields.present?
 
