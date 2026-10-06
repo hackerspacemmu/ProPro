@@ -76,20 +76,9 @@ export default class extends Controller {
       const fieldId = targetId.replace("fields_", "");
       const fieldName = `fields[${fieldId}]`;
 
-      const existingHidden = mainForm.querySelector(
-        `input[name="source_fields[${fieldId}]"]`,
+      let mainInputs = document.querySelectorAll(
+        `#${targetId}, [name="${fieldName}"], [name^="${fieldName}["], [name*="[${fieldId}]"]`
       );
-      if (existingHidden) existingHidden.remove();
-
-      if (sourceFieldId !== "") {
-        const hiddenInput = document.createElement("input");
-        hiddenInput.type = "hidden";
-        hiddenInput.name = `source_fields[${fieldId}]`;
-        hiddenInput.value = sourceFieldId;
-        mainForm.appendChild(hiddenInput);
-      }
-
-      const mainInputs = document.querySelectorAll(`[name="${fieldName}"]`);
 
       mainInputs.forEach((mainInput) => {
         if (mainInput.type === "radio") {
@@ -104,9 +93,32 @@ export default class extends Controller {
         } else {
           mainInput.value = newValue;
           mainInput.dispatchEvent(new Event("input", { bubbles: true }));
+          mainInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+          const trix =
+            (mainInput.id ? document.querySelector(`trix-editor[input="${mainInput.id}"]`) : null) ||
+            mainInput.closest(".field-container, .form-group, div")?.querySelector("trix-editor") ||
+            mainInput.nextElementSibling?.matches?.("trix-editor") ? mainInput.nextElementSibling : null;
+
+          if (trix && trix.editor) {
+            trix.editor.loadHTML(newValue || "");
+          }
+
+          const editorWrapper = mainInput.closest("[data-controller*='editor']");
+          if (editorWrapper) {
+            const editorController = this.application.getControllerForElementAndIdentifier(
+              editorWrapper,
+              editorWrapper.dataset.controller
+            );
+            if (editorController && typeof editorController.setValue === "function") {
+              editorController.setValue(newValue);
+            }
+          }
+
           mainInput.dispatchEvent(
             new CustomEvent("text-editor:update", {
               detail: { value: newValue },
+              bubbles: true,
             }),
           );
         }
