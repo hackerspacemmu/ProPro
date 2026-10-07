@@ -18,6 +18,8 @@ gem 'turbo-rails'
 gem 'stimulus-rails'
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem 'jbuilder'
+# Allows returning free formed structs
+gem 'ostruct'
 
 # Used to differentaite text
 gem 'diff-lcs'

@@ -1,9 +1,6 @@
-<% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "tailwind", "new_tailwind" %>
-<% end %>
 <% content_for :hide_toggler, true %>
 <% content_for :hide_breadcrumbs, true %>
-<% content_for :title, "Sign In | ProPro" %>
+<% content_for :title, "Sign Up | ProPro" %>
 <% provide :no_footer, true %>
 
 <div
@@ -83,13 +80,12 @@
       </div>
     <% end %>
 
-    <%= form_with url: user_create_path, class: "space-y-5" do |form| %>
-
+    <%= form_with url: user_create_path, data: { turbo: false }, class: "space-y-5" do |form| %>
       <div>
-        <%= form.label :email_address,
+        <%= form.label :email,
                    "Email Address",
                    class: "block text-base font-semibold text-gray-700 mb-1" %>
-        <%= form.email_field :email_address,
+        <%= form.email_field :email,
                          required: true,
                          autofocus: true,
                          autocomplete: "username",
@@ -97,6 +93,50 @@
                          value: params[:email_address],
                          class:
                            "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+      </div>
+
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-x-2 mb-1">
+          <%= form.label :name,
+                     "Name",
+                     class: "block text-base font-semibold text-gray-700" %>
+        </div>
+
+        <%= form.text_field :name,
+                            required: true,
+                            placeholder: "Enter your username",
+                            class:
+                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+      </div>
+
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-x-2 mb-1">
+          <%= form.label :password,
+                     "Password",
+                     class: "block text-base font-semibold text-gray-700" %>
+        </div>
+
+        <%= form.password_field :password,
+                            required: true,
+                            autocomplete: "current-password",
+                            placeholder: "Enter your password",
+                            class:
+                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
+      </div>
+
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-x-2 mb-1">
+          <%= form.label :password_confirmation,
+                     "Password Confirmation",
+                     class: "block text-base font-semibold text-gray-700" %>
+        </div>
+
+        <%= form.password_field :password_confirmation,
+                            required: true,
+                            autocomplete: "current-password",
+                            placeholder: "Re-enter your password",
+                            class:
+                              "w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-green-400 focus:border-green-400 outline-none transition-all text-gray-900 placeholder-gray-400" %>
       </div>
 
       <div class="pt-2 mt-6">

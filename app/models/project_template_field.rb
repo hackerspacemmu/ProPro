@@ -1,5 +1,10 @@
 class ProjectTemplateField < ApplicationRecord
   belongs_to :project_template
+
+  # has to be before the lines below or else the cascade delete would've happened before the check
+  before_destroy :cannot_delete_if_in_use
+  before_destroy :cannot_delete_title_field
+
   has_many   :project_instance_fields, dependent: :destroy
 
   acts_as_list scope: :project_template, add_new_at: :bottom
@@ -14,8 +19,6 @@ class ProjectTemplateField < ApplicationRecord
   validates :position, numericality: { only_integer: true }, allow_nil: true
 
   before_validation :force_title_required
-  before_destroy :cannot_delete_if_in_use
-  before_destroy :cannot_delete_title_field
 
   FIELD_TYPE_LABELS = {
     'shorttext' => 'Short Text',
@@ -35,17 +38,21 @@ class ProjectTemplateField < ApplicationRecord
   private
 
   def cannot_delete_title_field
-    return unless is_project_title?
-
-    errors.add(:base, 'Cannot delete the Project Title field')
-    throw :abort
+    if destroyed_by_association and destroyed_by_association.active_record.name == "ProjectTemplate"
+      return
+    elsif is_project_title?
+      errors.add(:base, 'Cannot delete the Project Title field')
+      throw :abort
+    end
   end
 
   def cannot_delete_if_in_use
-    return unless project_instance_fields.exists?
-
-    errors.add(:base, "Field “#{label}” is in use and can’t be removed")
-    throw :abort
+    if destroyed_by_association and destroyed_by_association.active_record.name == "ProjectTemplate"
+      return
+    elsif project_instance_fields.exists?
+      errors.add(:base, "Field “#{label}” is in use and can’t be removed")
+      throw :abort
+    end
   end
 
   def force_title_required

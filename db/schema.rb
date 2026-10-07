@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_29_082339) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -71,6 +74,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_082339) do
     t.datetime "updated_at", null: false
     t.string "token", null: false
     t.integer "user_id", null: false
+    t.boolean "verify_only", default: false, null: false
     t.index ["user_id"], name: "index_otps_on_user_id"
   end
 
