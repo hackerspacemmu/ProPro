@@ -1,6 +1,7 @@
 module ApplicationHelper
   # Resolves which content tab is active on load for the pages that persist the
-  # active tab in a per-resource cookie (courses/show, projects/show, topics/show).
+  # active tab in a per-resource cookie (projects/show, topics/show — the course
+  # tabs dropped their cookie when they became routes).
   #
   # The cookie is deliberately plain/unsigned — and only ever read through the
   # `slugs` allowlist — so a forged value can at most land the user on the

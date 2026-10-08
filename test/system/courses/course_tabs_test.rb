@@ -2,9 +2,9 @@ require 'application_system_test_case'
 
 # Tab strip + high-level slate coverage for courses/show. The old To Review tab
 # was removed in the Overview refactor (its content moved into the Overview
-# tab), the Settings link is now a coordinator-only icon, and ?tab= is a no-op
-# on load (current_tab_index reads only the persisted cookie) — this file no
-# longer asserts any of those.
+# tab), the Settings link is now a coordinator-only icon, and the tabs are
+# route-per-tab links (ADR 0019) — this file no longer asserts any of those
+# old behaviors.
 class CourseTabsTest < ApplicationSystemTestCase
   setup do
     @course = create(:course)
@@ -104,6 +104,6 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @coordinator_user
     visit course_path(@course)
 
-    assert_selector 'button[aria-selected="true"]', text: 'Overview'
+    assert_selector 'nav[data-testid="content-tabs"] a[aria-current="page"]', text: 'Overview'
   end
 end

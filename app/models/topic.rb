@@ -68,7 +68,7 @@ class Topic < ApplicationRecord
 
   # An approved topic that no student proposal has been based on yet — the
   # "Available" state shown on the Topics Directory rows only (NOT on
-  # topics/index or lecturers/show). Display-only; never an authorization gate.
+  # lecturers/show). Display-only; never an authorization gate.
   def available?
     approved? && proposed_project_instances.none?
   end

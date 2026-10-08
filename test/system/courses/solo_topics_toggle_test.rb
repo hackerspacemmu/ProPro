@@ -1,9 +1,10 @@
 require 'application_system_test_case'
 
-# Solo instructor mode + topic-system toggleable behaviors on courses/show
-# (ADR-0006 consequences: no system coverage existed for these variants).
-# All four tabs render in the DOM; rack_test treats the non-active panels as
-# present, so tab switching is not required for these assertions.
+# Solo instructor mode + topic-system toggleable behaviors on the route-per-tab
+# course pages (ADR-0006 consequences: no system coverage existed for these
+# variants). The topics-disabled empty state lives on /courses/:id/topics, the
+# People headers on /courses/:id/people, and the Overview-only assertions stay
+# on /courses/:id.
 class SoloTopicsToggleTest < ApplicationSystemTestCase
   setup do
     @course = create(:course, toggle_topics: false)
@@ -15,7 +16,7 @@ class SoloTopicsToggleTest < ApplicationSystemTestCase
 
   test 'topics-disabled course shows the empty state instead of the directory' do
     login_as @coordinator_user
-    visit course_path(@course)
+    visit course_topics_path(@course)
 
     assert_text 'Topics are disabled for this course'
     assert_no_text 'Create'
@@ -24,14 +25,14 @@ class SoloTopicsToggleTest < ApplicationSystemTestCase
 
   test 'coordinator gets a settings CTA in the topics-disabled empty state' do
     login_as @coordinator_user
-    visit course_path(@course)
+    visit course_topics_path(@course)
 
     assert_link 'Go to settings', href: settings_course_path(@course)
   end
 
   test 'non-coordinator sees the topics-disabled empty state with no CTA' do
     login_as @lecturer_user
-    visit course_path(@course)
+    visit course_topics_path(@course)
 
     assert_text 'Topics are disabled for this course'
     assert_no_link 'Go to settings'
@@ -47,7 +48,7 @@ class SoloTopicsToggleTest < ApplicationSystemTestCase
 
   test 'solo course People tab header reads Instructor (no capacity)' do
     login_as @coordinator_user
-    visit course_path(@course)
+    visit course_people_path(@course)
 
     within '#panel-people' do
       assert_text 'Instructor'
@@ -68,7 +69,7 @@ class SoloTopicsToggleTest < ApplicationSystemTestCase
     create(:enrolment, :lecturer, user: second_lecturer, course: @course)
 
     login_as @coordinator_user
-    visit course_path(@course)
+    visit course_people_path(@course)
 
     within '#panel-people' do
       assert_text 'Lecturers'

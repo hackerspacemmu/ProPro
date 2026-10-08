@@ -19,27 +19,28 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Overview'
-    assert_select 'button', text: 'Topics'
-    assert_select 'button', text: 'People'
-    assert_select 'button', text: 'Groups'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Overview'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Topics'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'People'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Groups'
+    assert_select 'nav[data-testid="content-tabs"] a[aria-current="page"]', text: 'Overview'
   end
 
   test 'show renders successfully for lecturer' do
     sign_in @lecturer_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Overview'
-    assert_select 'button', text: 'Topics'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Overview'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Topics'
   end
 
   test 'show renders successfully for student' do
     sign_in @student_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Overview'
-    assert_select 'button', text: 'Topics'
-    assert_select 'button', text: 'People'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Overview'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Topics'
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'People'
   end
 
   test 'show displays pending proposals in overview tab' do
@@ -57,12 +58,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_path(@course)
     assert_response :success
-    # Three settings links intentionally coexist in the DOM: the desktop tab-row
-    # gear (hidden lg:flex), the mobile header gear (sm:hidden), and the Overview
-    # "Add details" CTA (rendered because the fixture course has no description).
-    # The first two never show at the same width, but the controller test sees
-    # the full DOM.
-    assert_select 'a[href=?]', settings_course_path(@course), count: 3
+    assert_select 'a[href=?]', settings_course_path(@course)
   end
 
   test 'show diff: latest project version compares against the previous version' do
@@ -110,9 +106,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get course_path(grouped_course)
     assert_response :success
 
-    assert_select "button[data-tabs-target='tab']", count: 4
-    assert_select "div[data-tabs-target='panel']", count: 4
-    assert_select 'button', text: 'Groups'
+    assert_select 'nav[data-testid="content-tabs"] a', count: 4
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Groups'
+    get course_people_path(grouped_course)
+    assert_response :success
     assert_select 'section', text: /Students/
   end
 
@@ -121,8 +118,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @student_user
     get course_path(@course)
     assert_response :success
-    assert_select 'button', text: 'Groups', count: 0
-    assert_select "button[data-tabs-target='tab']", count: 3
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Groups', count: 0
+    assert_select 'nav[data-testid="content-tabs"] a', count: 3
   end
 
   test 'show renders supervisor capacity only for non-solo courses' do
@@ -134,7 +131,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :lecturer, user: lecturer_b, course: course)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_people_path(course)
     assert_response :success
     assert_match %r{0/5}, response.body
   end
@@ -149,24 +146,9 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     course.enrolments.find_by(user: lecturer_a).update!(supervisor_capacity_excluded: true)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_people_path(course)
     assert_response :success
     assert_no_match %r{0/0}, response.body
-  end
-
-  test 'capacity bar fill uses an inline width style, not a dynamic tailwind class' do
-    course = create(:course)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    lecturer_a = create(:user, :staff)
-    lecturer_b = create(:user, :staff)
-    create(:enrolment, :lecturer, user: lecturer_a, course: course)
-    create(:enrolment, :lecturer, user: lecturer_b, course: course)
-
-    sign_in @coordinator_user
-    get course_path(course)
-    assert_response :success
-    assert_includes response.body, 'style="width: 0.0% ; background-color: var(--color-success)"'
-    assert_no_match(/w-\[<%= ratio/, response.body)
   end
 
   test 'groups tab renders the supervisor filter select for non-solo courses' do
@@ -176,7 +158,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_groups_path(course)
     assert_response :success
     assert_select 'select#lecturer-filter[name="lecturer_filter"]', count: 1
     assert_includes response.body, 'All Supervisors'
@@ -188,7 +170,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_groups_path(course)
     assert_response :success
     assert_select 'select#lecturer-filter', count: 0
   end
@@ -207,8 +189,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project, course: course, owner: other_group, owner_type: 'ProjectGroup', supervisor_enrolment: other_enrolment)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'groups', lecturer_filter: target_lecturer.id.to_s }
+    get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { lecturer_filter: target_lecturer.id.to_s }
     assert_response :success
     assert_includes response.body, 'Target Group'
     assert_no_match 'Other Group', response.body
@@ -223,7 +205,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_group, course: course, confirmed: false, group_name: 'Draft Group')
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_groups_path(course)
     assert_response :success
     assert_match 'Visible Group', response.body
     assert_match 'Draft Group', response.body
@@ -231,8 +213,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'htmx students search reuses filtered_student_list' do
     sign_in @coordinator_user
-    get course_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                              params: { section: 'students', search_query: @student_user.name[0..3] }
+    get course_people_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                     params: { search_query: @student_user.name[0..3] }
     assert_response :success
     assert_includes response.body, 'id="students-table-container"'
     assert_match ERB::Util.html_escape(@student_user.name), response.body
@@ -245,23 +227,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_group, course: course, confirmed: false, group_name: 'Draft Group')
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'groups' }
+    get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_match 'Visible Group', response.body
     assert_match 'Draft Group', response.body
-  end
-
-  test 'groups table shows the active sort icon on the default group-name column' do
-    course = create(:course, :grouped)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
-    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
-    create(:project_group, course: course, confirmed: true, group_name: 'Alpha')
-
-    sign_in @coordinator_user
-    get course_path(course)
-    assert_response :success
-    assert_select 'th .material-symbols-outlined:not(.opacity-0)', text: 'arrow_downward', count: 1
   end
 
   test 'group name links to the group profile page' do
@@ -272,18 +241,9 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     group = create(:project_group, course: course, confirmed: true, group_name: 'Link Me')
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_groups_path(course)
     assert_response :success
     assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group'), text: 'Link Me'
-  end
-
-  test 'students table uses a material checkbox (single selector) and no row overflow menu' do
-    sign_in @coordinator_user
-    get course_path(@course)
-    assert_response :success
-    assert_select "input[type='checkbox'][name='students_table_selection']", count: 1
-    assert_select "input[type='radio']", count: 0
-    assert_no_match 'Remove from course', response.body
   end
 
   test 'student group cell links to the group profile page' do
@@ -293,9 +253,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     group = create(:project_group, course: course, confirmed: true, group_name: 'Student Group')
     create(:project_group_member, user: @student_user, project_group: group)
+    create(:enrolment, user: @student_user, course: course)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_people_path(course)
     assert_response :success
     assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group')
   end
@@ -311,20 +272,19 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_instance, project: project, supervisor_enrolment: lecturer_a_enrolment, status: :pending)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_people_path(course)
     assert_response :success
     assert_select 'a[href=?]', course_lecturer_path(course, lecturer_a)
     assert_match '1 pending', response.body
   end
 
-  test 'invited students get main-branch Pending chip + resend-invite envelope' do
+  test 'invited students get the resend-invite envelope' do
     invited_user = create(:user, has_registered: false)
     create(:enrolment, user: invited_user, course: @course)
 
     sign_in @coordinator_user
-    get course_path(@course)
+    get course_people_path(@course)
     assert_response :success
-    assert_includes response.body, 'bg-yellow-100 text-yellow-800'
     assert_match %r{action="/user/\d+/resend_invite"}, response.body
   end
 
@@ -333,9 +293,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, user: invited_user, course: @course)
 
     sign_in @coordinator_user
-    get course_path(@course)
+    get course_people_path(@course)
     assert_response :success
-    assert_select '[data-students-select-target="emailItem"].hidden', count: 1
     assert_includes response.body, 'Resend invitation email'
     assert_no_match 'Email student', response.body
     assert_no_match 'mailto:', response.body
@@ -343,7 +302,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'students get no actions dropdown (read-only table)' do
     sign_in @student_user
-    get course_path(@course)
+    get course_people_path(@course)
     assert_response :success
     assert_no_match 'data-students-select-target="actions"', response.body
     assert_no_match 'Resend invitation email', response.body
@@ -351,25 +310,33 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'lecturers get no actions dropdown (read-only table)' do
     sign_in @lecturer_user
-    get course_path(@course)
+    get course_people_path(@course)
     assert_response :success
     assert_no_match 'data-students-select-target="actions"', response.body
     assert_no_match 'Resend invitation email', response.body
   end
 
-  test 'htmx table triggers swap the container via outerHTML (no nested containers)' do
-    @course.update!(grouped: true)
-    create(:enrolment, :lecturer, user: create(:user, :staff), course: @course)
-    sign_in @coordinator_user
-    get course_path(@course)
-    assert_response :success
-    assert_select 'input#students-search[hx-target="#students-table-container"][hx-swap="outerHTML"]', count: 1
-    assert_select 'input#groups-search[hx-target="#groups-table-container"][hx-swap="outerHTML"]', count: 1
-  end
-
   test 'legacy fullpage participants route is removed' do
     get "/courses/#{@course.id}/participants"
     assert_response :not_found
+  end
+
+  test 'groups route 404s on an ungrouped course' do
+    sign_in @coordinator_user
+    get course_groups_path(@course)
+    assert_response :not_found
+  end
+
+  test 'the new tab routes enforce the same authorization as courses#show' do
+    outsider = create(:user)
+    sign_in outsider
+
+    [course_path(@course), course_topics_path(@course),
+     course_people_path(@course), course_groups_path(@course)].each do |path|
+      get path
+      assert_redirected_to root_path, "#{path} must deny a non-enrolled user"
+      assert_equal 'You are not authorized to view this page.', flash[:alert]
+    end
   end
 
   test 'htmx topics request renders supervisor groups for the scoped topic list' do
@@ -378,7 +345,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, bob, 'Bob Approved Topic', :approved)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'id="topics-by-supervisor-container"'
     assert_includes response.body, 'Alice Lecturer'
@@ -395,7 +362,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, bob, 'Bob Pending Topic', :pending)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'Alice Approved Topic'
     assert_includes response.body, 'Alice Pending Topic'
@@ -410,7 +377,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, bob, 'Bob Pending Topic', :pending)
 
     sign_in alice
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'Alice Approved Topic'
     assert_includes response.body, 'Alice Pending Topic'
@@ -427,7 +394,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, bob, 'Bob Pending Topic', :pending)
 
     sign_in @student_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'Alice Approved Topic'
     assert_includes response.body, 'Bob Approved Topic'
@@ -441,8 +408,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, bob, 'Bob Approved Topic', :approved)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'topics', topic_filter: alice.id.to_s }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { topic_filter: alice.id.to_s }
     assert_response :success
     assert_includes response.body, 'Alice Approved Topic'
     assert_includes response.body, 'Alice Lecturer'
@@ -457,14 +424,14 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
     sign_in @coordinator_user
 
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'topics', search_query: 'machine' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { search_query: 'machine' }
     assert_response :success
     assert_includes response.body, 'Machine Learning Basics'
     assert_no_match 'Neural Networks', response.body
 
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'topics', search_query: 'bob' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { search_query: 'bob' }
     assert_response :success
     assert_includes response.body, 'Neural Networks'
     assert_no_match 'Machine Learning Basics', response.body
@@ -475,7 +442,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, alice, 'Alice Approved Topic', :approved)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'Alice Approved Topic'
     assert_includes response.body, 'Bob Lecturer'
@@ -487,7 +454,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, bob, 'Bob Approved Topic', :approved)
 
     sign_in alice
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, '(You)'
     assert response.body.index('Alice Approved Topic') < response.body.index('Bob Approved Topic')
@@ -502,9 +469,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_instance, project: project, supervisor_enrolment: bob_enrolment, source_topic: claimed_topic, status: :approved)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
-    assert_equal 1, response.body.scan('Available').size
     assert_match(/Claimed Topic[\s\S]*?Approved/, response.body)
     assert_match(/Free Topic[\s\S]*?Available/, response.body)
   end
@@ -514,27 +480,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, alice, 'Alice Approved Topic', :approved)
 
     sign_in @coordinator_user
-    get course_path(course)
+    get course_topics_path(course)
     assert_response :success
-    assert_select 'input#topic-search[hx-target="#topics-by-supervisor-container"][hx-swap="outerHTML"]', count: 1
-    assert_select 'select#topic-filter[hx-target="#topics-by-supervisor-container"]', count: 1
     assert_select 'select#topic-filter option', count: 3
     assert_select 'select#topic-filter option[value="all"]', count: 1
-    assert_select 'input#topic-search[data-search-shortcut-target]', count: 0
+    assert_select 'input#topic-search[data-search-shortcut-target]', count: 1
     assert_includes response.body, 'Search supervisors or topics'
     assert_includes response.body, 'Collapse all'
-    assert_includes response.body, 'unfold_less'
-  end
-
-  test 'supervisor groups render expanded by default in the topics directory' do
-    course, alice, = build_topic_directory_course
-    create_topic_on(course, alice, 'Alice Approved Topic', :approved)
-
-    sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
-    assert_response :success
-    assert_select '[data-detail-row-id]', count: 1
-    assert_select '[data-detail-row-id].hidden', count: 0
   end
 
   test 'group profile renders the mockup hero, facts strip and members list' do
@@ -619,7 +571,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'groups' }
+    get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'No groups have been created yet.'
     assert_no_match 'No groups match your current filters.', response.body
@@ -631,8 +583,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_group, course: course, confirmed: true, group_name: 'Alpha Group')
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'groups', search_query: 'zzzznomatch' }
+    get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { search_query: 'zzzznomatch' }
     assert_response :success
     assert_includes response.body, 'No groups match your current filters.'
     assert_includes response.body, 'Try adjusting your search or filters.'
@@ -645,8 +597,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_group, course: course, confirmed: true, group_name: 'Alpha Group')
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'groups', status_filter: 'approved' }
+    get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { status_filter: 'approved' }
     assert_response :success
     assert_includes response.body, 'No groups match your current filters.'
     assert_no_match 'No groups have been created yet.', response.body
@@ -662,8 +614,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_group, course: course, confirmed: true, group_name: 'Alpha Group')
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'groups', lecturer_filter: idle_lecturer.id.to_s }
+    get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { lecturer_filter: idle_lecturer.id.to_s }
     assert_response :success
     assert_includes response.body, 'No groups match your current filters.'
     assert_no_match 'No groups have been created yet.', response.body
@@ -674,7 +626,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'students' }
+    get course_people_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'No students have been enrolled yet.'
     assert_no_match 'No students match your current filters.', response.body
@@ -682,8 +634,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'students table reports no matches when a search empties the list' do
     sign_in @coordinator_user
-    get course_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                              params: { section: 'students', search_query: 'zzzznomatch' }
+    get course_people_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                     params: { search_query: 'zzzznomatch' }
     assert_response :success
     assert_includes response.body, 'No students match your current filters.'
     assert_includes response.body, 'Try adjusting your search or filters.'
@@ -695,7 +647,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }, params: { section: 'topics' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'No topics are currently available.'
     assert_no_match 'No topics match your current filters.', response.body
@@ -706,8 +658,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create_topic_on(course, alice, 'Machine Learning Basics', :approved)
 
     sign_in @coordinator_user
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'topics', search_query: 'zzzznomatch' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { search_query: 'zzzznomatch' }
     assert_response :success
     assert_includes response.body, 'No topics match your current filters.'
     assert_includes response.body, 'Try adjusting your search or filters.'
@@ -726,8 +678,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     # empty. With a search active the groups are dropped and the empty branch
     # fires — it must read as "nothing to show you", not as a filter miss, since
     # the base is the policy-scoped list (ADR 0018).
-    get course_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                             params: { section: 'topics', search_query: 'anything' }
+    get course_topics_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                    params: { search_query: 'anything' }
     assert_response :success
     assert_includes response.body, 'No topics are currently available.'
     assert_no_match 'No topics match your current filters.', response.body

@@ -17,7 +17,7 @@
     "
   >
     <div class="flex items-center gap-4 min-w-0">
-      <%= link_to course_topics_path(@course),
+      <%= link_to course_path(@course),
           title: "Close and return to topics",
           class: "p-2 -ml-2 rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center shrink-0" do %>
         <span class="material-symbols-outlined text-[22px]">close</span>
@@ -32,7 +32,7 @@
 
     <div class="hidden min-[1245px]:flex items-center gap-3 shrink-0">
       <%= link_to "Discard Changes",
-          course_topics_path(@course),
+          course_path(@course),
           class: "px-5 py-2 rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface font-medium text-[14px] transition-colors whitespace-nowrap" %>
       <button
         type="submit"
@@ -77,7 +77,7 @@
 
         <div class="hidden min-[1245px]:flex items-center justify-between pt-4 pb-8">
           <%= link_to "Cancel",
-              course_topics_path(@course),
+              course_path(@course),
               class: "text-[14px] font-medium text-on-surface-variant hover:text-on-surface" %>
           <button
             type="submit"
@@ -91,7 +91,7 @@
       <% end %>
 
       <%= render "shared/form_action_bar",
-          discard_path: course_topics_path(@course),
+          discard_path: course_path(@course),
           form_id: "topic-form",
           submit_label: "Create Topic" %>
     </div>

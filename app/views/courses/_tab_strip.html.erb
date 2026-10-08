@@ -1,0 +1,49 @@
+<%# The shared course tab strip — one element, four page hosts (Overview /
+    Topics / People / Groups; route-per-tab, ADR 0019). Plain Turbo Drive
+    links: the active tab is server-rendered as aria-current="page" and the
+    URL is the source of truth (no tabs Stimulus controller, no cookie).
+    Locals: course, active (slug), current_user_enrolment (for the coordinator
+    action slot). The Groups link only exists on grouped courses, and it also
+    doubles as the "/" shortcut's fallbackLink target. %>
+<%
+  tabs = [
+    { slug: "overview", name: "Overview", path: course_path(course) },
+    { slug: "topics",   name: "Topics",   path: course_topics_path(course) },
+    { slug: "people",   name: "People",   path: course_people_path(course) }
+  ]
+  tabs << { slug: "groups", name: "Groups", path: course_groups_path(course) } if course.grouped?
+%>
+<div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-0 z-20">
+  <div class="flex items-center justify-between">
+    <nav data-testid="content-tabs" class="flex flex-nowrap gap-x-2" aria-label="Course sections">
+      <% tabs.each do |tab| %>
+        <% selected = tab[:slug] == active %>
+        <%= link_to tab[:path],
+              id: "tab-#{tab[:slug]}",
+              "aria-current": (selected ? "page" : nil),
+              data: { search_shortcut_target: ("fallbackLink" if tab[:slug] == "groups") },
+              style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;",
+              class: "group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors #{selected ? 'text-primary-strong' : 'text-on-surface-variant hover:bg-surface-hover hover:text-on-surface'}" do %>
+          <%= tab[:name] %>
+          <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors <%= selected ? 'bg-primary-strong' : 'bg-transparent' %>"></div>
+        <% end %>
+      <% end %>
+    </nav>
+
+    <% if current_user_enrolment&.coordinator? %>
+      <div class="flex items-center gap-1 shrink-0">
+        <%= link_to edit_course_project_template_path(course),
+              class: "hidden lg:flex h-[3rem] w-[2.5rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0",
+              title: "Edit Project Templates" do %>
+          <span class="material-symbols-outlined">edit_note</span>
+        <% end %>
+
+        <%= link_to settings_course_path(course),
+            class: "hidden lg:flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0",
+            title: "Settings" do %>
+          <span class="material-symbols-outlined">settings</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

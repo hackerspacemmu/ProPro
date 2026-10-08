@@ -24,7 +24,7 @@
   <% else %>
     <% visible.each do |lecturer, topics| %>
       <div>
-        <%= render "section_header",
+        <%= render "courses/section_header",
                    title: lecturer.name,
                    count: topics.size,
                    suffix: (current_user_enrolment && current_user.id == lecturer.id) ? "(You)" : nil,
