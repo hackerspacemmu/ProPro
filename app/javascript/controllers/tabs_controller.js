@@ -1,12 +1,12 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Generic tab controller — deliberately NOT mobile_tabs_controller.js,
-// which is hard-coded to 3 named targets for the topic show page
-// and out of scope for this work.
+// Generic tab controller for the client-side tab sets on projects/show and
+// topics/show. courses/show no longer uses it — its tabs are route-per-tab
+// Turbo Drive links (ADR 0019), so the URL picks the page instead of a cookie.
 //
 // Usage:
 //   <div data-controller="tabs"
-//        data-tabs-persist-key-value="propro_tab_course_42"
+//        data-tabs-persist-key-value="propro_tab_project_42"
 //        data-tabs-active-class="..."
 //        data-tabs-inactive-class="...">
 //     <button data-tabs-target="tab" data-action="tabs#show"

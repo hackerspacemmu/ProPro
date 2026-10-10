@@ -8,6 +8,14 @@ class User < ApplicationRecord
   has_many :enrolments, dependent: :destroy
   has_many :courses, through: :enrolments
 
+  # sort cards by earliest enrolment (coordinators can have multiple).
+  def courses_by_earliest_enrolment
+    Course.joins(:enrolments)
+          .where(enrolments: { user_id: id })
+          .group('courses.id')
+          .order(Arel.sql('MIN(enrolments.created_at) DESC, courses.id DESC'))
+  end
+
   has_many :project_group_members, dependent: :destroy
   has_many :project_groups, through: :project_group_members
 

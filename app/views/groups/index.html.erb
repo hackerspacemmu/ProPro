@@ -1,0 +1,8 @@
+<%# Groups tab page (route-per-tab, ADR 0019). Only routable on grouped
+    courses — GroupsController 404s otherwise. %>
+<%= render "courses/tab_shell",
+           course: @course,
+           active: "groups",
+           current_user_enrolment: @current_user_enrolment do %>
+  <%= render "courses/groups_tab" %>
+<% end %>

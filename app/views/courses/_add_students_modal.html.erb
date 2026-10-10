@@ -17,7 +17,7 @@
       </button>
     </div>
 
-    <%= form_with url: handle_add_students_course_path, class: "w-full", method: :post do |form| %>
+    <%= form_with url: handle_add_students_course_path(course), class: "w-full", method: :post do |form| %>
       <p class="mb-3 text-sm text-gray-600">Upload CSV export from EBwise:</p>
       <div class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
         <%= form.file_field :csv_file,

@@ -67,6 +67,13 @@ Rails.application.routes.draw do
       end
     end
 
+    # Course tab routes (route-per-tab, ADR 0019): the People and Groups tabs
+    # are real pages, siblings of courses#show (Overview). `groups` deliberately
+    # coexists with the nested `project_groups` above — different resources,
+    # different helpers.
+    resources :people, only: :index
+    resources :groups, only: :index
+
     resources :lecturers, only: %i[index show] do
       member do
         patch 'promote_to_coordinator'
@@ -75,7 +82,7 @@ Rails.application.routes.draw do
 
       resources :projects, only: [:show], controller: 'projects'
 
-      resources :topics, only: %i[index show edit update create new] do
+      resources :topics, only: %i[show edit update create new] do
         member do
           patch :change_status
         end

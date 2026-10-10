@@ -6,58 +6,24 @@ class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
+  # The Overview tab — the only course tab page that lives on courses#show;
+  # Topics/People/Groups are their own routes (route-per-tab, ADR 0019), so
+  # this action loads only what the Overview content needs: the presenter and
+  # the viewer's own submission.
   def show
     authorize @course
 
-    # query for all projects_instances, owner_type and owner_id for participants table
-    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
-    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
-
-    @student_list = @course.students
     @description = @course.course_description
-    @lecturers = @course.lecturers
     @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
-    @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
-    @my_topics = @topic_list.where(owner: current_user)
-
-    # Topics Directory (topics_by_supervisor) data source — policy-scoped with
-    # search/filter applied server-side; driving both the initial render and the
-    # htmx re-render of _topics_by_supervisor_list.
-    @filtered_topic_list = filtered_topic_list
-    @topics_by_supervisor = topics_by_supervisor
-
-    # set students projects
-    projects_ownerships = @course.projects.approved.where(owner_type: 'User').pluck('owner_id')
-
-    @students_with_projects = @student_list.select { |s| projects_ownerships.include?(s.id) }
-    @students_without_projects = @student_list.reject { |s| projects_ownerships.include?(s.id) }
-
     if @course.grouped?
       @group = current_user.project_groups.find_by(course: @course)
-      @project = @projects_by_owner[['ProjectGroup', @group.id]] if @group
-      # Groups tab lists every project group, confirmed or draft — drafts are
-      # real memberships and must not vanish from the table.
-      @group_list = @course.project_groups.includes(project_group_members: :user).to_a
+      @project = @course.projects.find_by(owner_type: 'ProjectGroup', owner_id: @group.id) if @group
     else
       @group = nil
       @project = @course.projects.find_by(owner_type: 'User', owner_id: current_user.id)
-      @group_list = []
     end
-
-    # One map lookup, computed once: user_id => project_group for the Students
-    # section's Group column. Includes draft groups (students in a draft group
-    # still belong to it); excludes nothing that is an actual membership.
-    @student_group_map = {}
-    if @course.grouped?
-      @course.project_groups.includes(project_group_members: :user).find_each do |group|
-        group.project_group_members.each { |member| @student_group_map[member.user_id] = group }
-      end
-    end
-
-    # One map lookup for the Students section's Remove-from-course action.
-    @student_enrolment_map = @course.enrolments.where(role: :student).index_by(&:user_id)
 
     # view instances for incoming topics and my_student_projects
     @current_status = @project&.current_status || 'not_submitted'
@@ -71,6 +37,8 @@ class CoursesController < ApplicationController
       @my_student_projects = @course.projects.supervised_by(@current_user_enrolment).approved
       @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
+
+    @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
 
     # For To Review tab
     @pending_proposals = @incoming_proposals.select { |p| p.current_status == 'pending' }
@@ -99,61 +67,6 @@ class CoursesController < ApplicationController
       submission: @project,
       toggle_topics: @course.toggle_topics
     )
-
-    # view instances for participants_table
-    @filtered_group_list   = filtered_group_list
-    @filtered_student_list = filtered_student_list
-
-    @show_all = params[:show_all] == 'true'
-    @total_group_count   = @filtered_group_list.count
-    @total_student_count = @filtered_student_list.count
-    @total_count = @course.grouped? ? @total_group_count : @total_student_count
-    @total_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
-
-    unless @show_all
-      @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold)
-      @filtered_student_list = @filtered_student_list.first(Rails.application.config.participants_pagination_threshold)
-    end
-
-    @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
-
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
-    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
-
-    return unless request.headers['HX-Request']
-
-    if params[:section] == 'groups'
-      render partial: 'groups_table',
-             locals: {
-               course: @course,
-               groups: @filtered_group_list,
-               projects_by_owner: @projects_by_owner,
-               total_count: @total_group_count,
-               displayed_count: @filtered_group_list.count,
-               show_all: @show_all
-             }
-    elsif params[:section] == 'topics'
-      render partial: 'topics_by_supervisor_list',
-             locals: {
-               course: @course,
-               lecturers: @lecturers,
-               topics_by_supervisor: @topics_by_supervisor,
-               current_user_enrolment: @current_user_enrolment
-             }
-    else
-      render partial: 'students_table',
-             locals: {
-               course: @course,
-               students: @filtered_student_list,
-               student_group_map: @student_group_map,
-               student_enrolment_map: @student_enrolment_map,
-               total_student_count: @student_list.count,
-               total_count: @total_student_count,
-               displayed_count: @filtered_student_list.count,
-               show_all: @show_all
-             }
-    end
-    nil
   end
 
   def add_students
@@ -166,8 +79,7 @@ class CoursesController < ApplicationController
 
   def handle_add_lecturers
     authorize @course, :manage_lecturers?
-    unregistered_lecturers = Set[]
-    registered_lecturers = []
+    Set[]
 
     if params[:invited_lecturers].blank?
       redirect_back_or_to '/', alert: 'Invited lecturers cannot be empty'
@@ -530,7 +442,16 @@ class CoursesController < ApplicationController
       hash_map[group].each do |group_member|
         new_user = User.find_by(email_address: group_member[:email_address])
 
-        if !new_user
+        if new_user
+          new_user.update!(instid: group_member[:instid])
+
+          if new_user.enrolments.where(course: parent_course).empty?
+            GeneralMailer.with(
+              course: parent_course,
+              email_address: group_member[:email]
+            ).Course_Invite_Notification.deliver_later
+          end
+        else
           result = UserCreator.call(
             name: group_member[:name],
             email: group_member[:email_address],
@@ -541,19 +462,10 @@ class CoursesController < ApplicationController
 
           GeneralMailer.with(
             email_address: group_member[:email],
-            otp_token: result.otp_instance.token,
+            otp_token: result.otp_instance.token
           ).ProPro_Invite.deliver_later
 
           new_user = result.user
-        else
-          new_user.update!(instid: group_member[:instid])
-
-          if new_user.enrolments.where(course: parent_course).empty?
-            GeneralMailer.with(
-              course: parent_course,
-              email_address: group_member[:email]
-            ).Course_Invite_Notification.deliver_later
-          end
         end
 
         Enrolment.find_or_create_by!(
@@ -581,7 +493,16 @@ class CoursesController < ApplicationController
     student_set.each do |student|
       new_user = User.find_by(email_address: student[:email_address])
 
-      if !new_user
+      if new_user
+        new_user.update!(instid: student[:instid])
+
+        if new_user.enrolments.where(course: parent_course).empty?
+          GeneralMailer.with(
+            course: parent_course,
+            email_address: student[:email]
+          ).Course_Invite_Notification.deliver_later
+        end
+      else
         result = UserCreator.call(
           name: student[:name],
           email: student[:email_address],
@@ -592,19 +513,10 @@ class CoursesController < ApplicationController
 
         GeneralMailer.with(
           email_address: student[:email_address],
-          otp_token: result.otp_instance.token,
+          otp_token: result.otp_instance.token
         ).ProPro_Invite.deliver_later
 
         new_user = result.user
-      else
-        new_user.update!(instid: student[:instid])
-
-        if new_user.enrolments.where(course: parent_course).empty?
-            GeneralMailer.with(
-              course: parent_course,
-              email_address: student[:email]
-            ).Course_Invite_Notification.deliver_later
-        end
       end
 
       Enrolment.find_or_create_by!(
@@ -631,7 +543,7 @@ class CoursesController < ApplicationController
 
         GeneralMailer.with(
           email_address: email,
-          otp_token: result.otp_instance.token,
+          otp_token: result.otp_instance.token
         ).ProPro_Invite.deliver_later
 
         new_lecturer = result.user
@@ -838,123 +750,6 @@ class CoursesController < ApplicationController
     end
   end
 
-  # Participants Table Filters helpers
-
-  def search_groups(group_list, query)
-    downcased_query = query.downcase
-
-    group_list.select do |group|
-      project = participant_project(group, 'ProjectGroup')
-
-      group_name_match = group.group_name.downcase.include?(downcased_query)
-      member_match = group.project_group_members.any? do |member|
-        member.user.name.downcase.include?(downcased_query)
-      end
-      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
-
-      group_name_match || member_match || title_match
-    end
-  end
-
-  def search_students(student_list, query)
-    downcased_query = query.downcase
-
-    student_list.select do |student|
-      project = participant_project(student, 'User')
-
-      name_match  = student.name.downcase.include?(downcased_query)
-      id_match    = student.instid&.downcase&.include?(downcased_query) || false
-      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
-
-      name_match || id_match || title_match
-    end
-  end
-
-  def sort_descending?
-    params[:sort_dir] == 'desc'
-  end
-
-  def participant_project(item, owner_type)
-    @projects_by_owner[[owner_type, item.id]]
-  end
-
-  def sort_value_for_group(group)
-    project = participant_project(group, 'ProjectGroup')
-    case params[:sort_by]
-    when 'status'
-      Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
-    when 'project_title'
-      project&.current_title&.downcase || ''
-    when 'supervisor'
-      project&.supervisor&.name&.downcase || ''
-    else
-      group.group_name.downcase
-    end
-  end
-
-  def sort_value_for_student(student)
-    project = participant_project(student, 'User')
-    case params[:sort_by]
-    when 'status'
-      Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
-    when 'project_title'
-      project&.current_title&.downcase || ''
-    when 'supervisor'
-      project&.supervisor&.name&.downcase || ''
-    else
-      student.name.downcase
-    end
-  end
-
-  def supervised_owner_ids(owner_type)
-    # only filters by lecturer_enrolment_ids. No coordinator_enrolment_ids
-    return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
-
-    enrolment_ids = @course.enrolments.where(user_id: params[:lecturer_filter]).pluck(:id)
-    return nil if enrolment_ids.empty?
-
-    @course.projects.supervised_by(enrolment_ids).where(owner_type: owner_type).pluck(:owner_id)
-  end
-
-  def search_topics(topic_list, query)
-    downcased_query = query.downcase
-
-    topic_list.select do |topic|
-      title_match = topic.current_title.to_s.downcase.include?(downcased_query)
-      owner_match = topic.owner_name.to_s.downcase.include?(downcased_query)
-
-      title_match || owner_match
-    end
-  end
-
-  def filtered_topic_list
-    topic_list = @topic_list
-
-    topic_list = topic_list.select { |topic| topic.owner_id == params[:topic_filter].to_i } if params[:topic_filter].present? && params[:topic_filter] != 'all'
-
-    topic_list = search_topics(topic_list, params[:search_query]) if params[:search_query].present?
-
-    topic_list
-  end
-
-  # [lecturer, topics] pairs for the Topics Directory, supervisor groups A→Z by
-  # name. The current user's own group is pinned first (the "(You)" suffix is
-  # rendered by the partial); only meaningful for users who are themselves in
-  # @course.lecturers — students and coordinator-only staff get no pinned group.
-  # Topics newest-first within each group.
-  def topics_by_supervisor
-    pairs = @course.lecturers
-                   .sort_by { |lecturer| lecturer.name.to_s.downcase }
-                   .map { |lecturer| [lecturer, @filtered_topic_list.select { |topic| topic.owner_id == lecturer.id }] }
-
-    if (pinned = pairs.find { |lecturer, _topics| lecturer.id == current_user.id })
-      pairs = [pinned] + pairs.reject { |lecturer, _topics| lecturer.id == current_user.id }
-    end
-
-    pairs.each { |_lecturer, topics| topics.sort_by!(&:updated_at).reverse! }
-    pairs
-  end
-
   # :no_group only applies to grouped courses where self-grouping is live
   # (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
   # student submits individually with no group step, so @group being nil there is
@@ -976,35 +771,5 @@ class CoursesController < ApplicationController
     else
       @current_status.to_sym
     end
-  end
-
-  def filtered_group_list
-    group_list = @group_list
-
-    if (ids = supervised_owner_ids('ProjectGroup'))
-      group_list = group_list.select { |g| ids.include?(g.id) }
-    end
-
-    group_list = @course.groups_with_status(params[:status_filter], group_list) if params[:status_filter].present? && params[:status_filter] != 'all'
-
-    group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
-
-    sorted_list = group_list.sort_by { |group| sort_value_for_group(group) }
-    sort_descending? ? sorted_list.reverse : sorted_list
-  end
-
-  def filtered_student_list
-    student_list = @student_list
-
-    if (ids = supervised_owner_ids('User'))
-      student_list = student_list.select { |s| ids.include?(s.id) }
-    end
-
-    student_list = @course.students_with_status(params[:status_filter], student_list) if params[:status_filter].present? && params[:status_filter] != 'all'
-
-    student_list = search_students(student_list, params[:search_query]) if params[:search_query].present?
-
-    sorted_list = student_list.sort_by { |student| sort_value_for_student(student) }
-    sort_descending? ? sorted_list.reverse : sorted_list
   end
 end

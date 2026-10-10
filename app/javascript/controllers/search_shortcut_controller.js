@@ -1,28 +1,44 @@
 import { Controller } from "@hotwired/stimulus";
 
 // Global "/" shortcut, GitHub/Gmail-style: focuses the search input on the
-// current tab panel instead of opening anything new. If the current panel
-// has no search input (Overview / Topics), switches to the Groups tab first
-// — confirmed default, since Groups search matches both groups and students
-// — then focuses that input.
+// current course tab page instead of opening anything new. Each tab is its
+// own route now (route-per-tab, ADR 0019), so there is one content area per
+// page and at most one input target on it.
 //
-// Scoped to the same element as the "tabs" controller in courses/show.html.erb
-// (data-controller="tabs search-shortcut" lives on the same <main>), so every
-// DOM query below stays within this page's tab bar/panels.
+// Pages without a search input (Overview) fall back to the Groups tab's link
+// (the fallbackLink target, only present on grouped courses): clicking it
+// navigates via Turbo Drive, and the module-scope flag below survives the body
+// swap so the new page's controller focuses #groups-search after arrival. The
+// flag lives at module scope (not on the controller element) because Stimulus
+// re-connects a fresh controller instance after every Drive visit. On an
+// ungrouped course there is no fallback link — "/" is a no-op on Overview.
+//
+// Scoped to the same element as the tab shell's <main>, so every DOM query
+// below stays within this page's tab strip and content.
 //
 // Search inputs opt in with:
-//   data-search-shortcut-target="input"                 <- any tab's search box
-//   data-search-shortcut-target="input fallbackInput"    <- Groups tab's box only
+//   data-search-shortcut-target="input"        <- any tab page's search box
+//   data-search-shortcut-target="fallbackLink" <- the Groups tab link only
+let focusAfterNavigation = false;
+
 export default class extends Controller {
-  static targets = ["input", "fallbackInput"];
+  static targets = ["input", "fallbackLink"];
 
   connect() {
     this.boundOnKeydown = this.onKeydown.bind(this);
     window.addEventListener("keydown", this.boundOnKeydown);
+
+    this.boundOnTurboLoad = this.onTurboLoad.bind(this);
+    document.addEventListener("turbo:load", this.boundOnTurboLoad);
+
+    // A Drive visit may fire turbo:load before this fresh instance connects;
+    // checking here too means the flag is honored either way.
+    this.focusPendingInput();
   }
 
   disconnect() {
     window.removeEventListener("keydown", this.boundOnKeydown);
+    document.removeEventListener("turbo:load", this.boundOnTurboLoad);
   }
 
   onKeydown(event) {
@@ -34,6 +50,10 @@ export default class extends Controller {
     this.focusRelevantInput();
   }
 
+  onTurboLoad() {
+    this.focusPendingInput();
+  }
+
   isTypingTarget(target) {
     if (!target) return false;
     if (target.isContentEditable) return true;
@@ -41,7 +61,7 @@ export default class extends Controller {
   }
 
   focusRelevantInput() {
-    const input = this.currentPanelInput();
+    const input = this.inputTargets[0];
     if (input) {
       input.focus();
       return;
@@ -49,30 +69,18 @@ export default class extends Controller {
     this.jumpToFallback();
   }
 
-  currentPanelInput() {
-    const panel = this.element.querySelector(
-      '[data-tabs-target="panel"]:not(.hidden)',
-    );
-    if (!panel) return null;
-    return this.inputTargets.find((input) => panel.contains(input)) || null;
+  jumpToFallback() {
+    if (!this.hasFallbackLinkTarget) return;
+
+    focusAfterNavigation = true;
+    this.fallbackLinkTarget.click();
   }
 
-  jumpToFallback() {
-    if (!this.hasFallbackInputTarget) return;
+  focusPendingInput() {
+    if (!focusAfterNavigation) return;
+    if (!this.inputTargets.length) return;
 
-    const panels = Array.from(
-      this.element.querySelectorAll('[data-tabs-target="panel"]'),
-    );
-    const panel = this.fallbackInputTarget.closest(
-      '[data-tabs-target="panel"]',
-    );
-    const index = panels.indexOf(panel);
-    if (index === -1) return;
-
-    const tabButton = this.element.querySelectorAll('[data-tabs-target="tab"]')[
-      index
-    ];
-    tabButton?.click();
-    this.fallbackInputTarget.focus();
+    focusAfterNavigation = false;
+    this.inputTargets[0].focus();
   }
 }

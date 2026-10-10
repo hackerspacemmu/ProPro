@@ -1,6 +1,7 @@
+<%# People tab page (route-per-tab, ADR 0019). %>
 <%= render "courses/tab_shell",
            course: @course,
-           active: "overview",
+           active: "people",
            current_user_enrolment: @current_user_enrolment do %>
-  <%= render "courses/overview_tab" %>
+  <%= render "courses/people_tab" %>
 <% end %>

@@ -1,4 +1,4 @@
-<%# --- locals: course, students, student_group_map, student_enrolment_map, total_student_count, total_count, displayed_count, show_all %>
+<%# --- locals: course, students, student_group_map, student_enrolment_map, total_student_count, total_count, displayed_count, show_all, state, filters_active %>
 <%# The students-select controller scopes this whole section: it drives the
     single-select radios, the Actions dropdown dispatch, and survives the
     htmx table swaps (delegated listeners + htmx:afterSwap reset). %>
@@ -18,12 +18,11 @@
                placeholder="Search students..."
                data-search-shortcut-target="input"
                class="peer bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none"
-               hx-get="<%= course_url(course) %>"
+               hx-get="<%= course_people_url(course) %>"
                hx-target="#students-table-container"
                hx-swap="outerHTML"
                hx-trigger="input changed delay:300ms"
                hx-include="#students-search"
-               hx-vals='{"section": "students"}'
                hx-indicator="#students-loading">
         <kbd aria-hidden="true"
              class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-outline-variant bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
@@ -66,11 +65,11 @@
     <button type="button"
             title="Sort by name"
             class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center"
-            hx-get="<%= course_url(course) %>"
+            hx-get="<%= course_people_url(course) %>"
             hx-target="#students-table-container"
             hx-swap="outerHTML"
             hx-include="#students-search"
-            hx-vals='{"section": "students", "sort_by": "student_name", "sort_dir": "<%= params[:sort_dir] == 'desc' ? 'asc' : 'desc' %>"}'>
+            hx-vals='{"sort_by": "student_name", "sort_dir": "<%= params[:sort_dir] == 'desc' ? 'asc' : 'desc' %>"}'>
       <span class="material-symbols-outlined text-[20px]">sort_by_alpha</span>
     </button>
   </div>
@@ -82,7 +81,9 @@
              student_enrolment_map: student_enrolment_map,
              total_count: total_count,
              displayed_count: displayed_count,
-             show_all: show_all %>
+             show_all: show_all,
+             state: state,
+             filters_active: filters_active %>
 
   <%= render "courses/add_students_modal", course: course %>
 </section>

@@ -1,23 +1,46 @@
 class TopicsController < ApplicationController
+  include ParticipantBrowsing
+
+  # Params that narrow a list. "all" is the selects' neutral choice and counts
+  # as inactive, as does an absent/blank param.
+  TOPIC_FILTER_KEYS = %w[search_query topic_filter].freeze
+
   before_action :set_course
   before_action :set_topic, only: %i[show edit update destroy change_status]
-  before_action :toggle_topics
+  # index is the Topics tab page (route-per-tab, ADR 0019): a course with
+  # toggle_topics off renders the disabled empty state from the tab itself
+  # rather than bouncing to Overview like every other topics action does.
+  before_action :toggle_topics, except: %i[index]
 
+  # The Topics tab — /courses/:course_id/topics. Browse-first topics directory
+  # (ADR 0013), now a real route; `section=topics` htmx dispatch from
+  # courses#show moved here as the HX-Request branch below.
   def index
-    @topics = policy_scope(@course.topics)
+    authorize @course, :show?
 
-    query = params[:query].to_s.downcase
-    return unless query.present?
+    @lecturers = @course.lecturers
+    @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
+    # Topics Directory data source — policy-scoped with search/filter applied
+    # server-side; driving both the initial render and the htmx re-render of
+    # _topics_by_supervisor_list.
+    @filtered_topic_list = filtered_topic_list.to_a
+    @topics_by_supervisor = topics_by_supervisor
 
-    @topics = @topics.select do |topic|
-      latest = topic.topic_instances.order(version: :desc).first
-      title = latest&.title&.downcase
-      description = latest&.project_instance_fields
-                          &.includes(:project_template_field)
-                          &.find { |f| f.project_template_field.label.downcase.include?('description') }
-                          &.value&.downcase
-      title&.include?(query) || description&.include?(query)
-    end
+    @topic_list_state = list_state(@topic_list, @filtered_topic_list)
+    @topic_filters_active = filters_active?(TOPIC_FILTER_KEYS)
+
+    return unless request.headers['HX-Request']
+
+    render partial: 'courses/topics_by_supervisor_list',
+           locals: {
+             course: @course,
+             lecturers: @lecturers,
+             topics_by_supervisor: @topics_by_supervisor,
+             current_user_enrolment: @current_user_enrolment,
+             state: @topic_list_state,
+             filters_active: @topic_filters_active
+           }
+    nil
   end
 
   def show
@@ -119,7 +142,15 @@ class TopicsController < ApplicationController
       ActiveRecord::Base.transaction do
         status = @course.require_coordinator_approval? ? :pending : :approved
 
-        @topic = Topic.create!(course: @course, owner: current_user)
+        source_id = params[:source_topic_id].presence
+
+        status = :approved if status == :pending && source_id && @course.auto_approve_copied_topics_without_changes? && topic_unchanged_from_source?(source_id, params[:fields])
+
+        @topic = Topic.create!(
+          course: @course,
+          owner: current_user,
+          source_topic_id: source_id
+        )
 
         title_value = nil
         params[:fields]&.each do |field_id, value|
@@ -134,9 +165,14 @@ class TopicsController < ApplicationController
         )
 
         params[:fields]&.each do |field_id, value|
+          raw_source_field_id = params.dig(:source_fields, field_id.to_s).to_s
+          source_field_id =
+            raw_source_field_id.match?(/\A\d+\z/) ? raw_source_field_id.to_i : nil
+
           @instance.project_instance_fields.create!(
             project_template_field: ProjectTemplateField.find(field_id),
-            value: value
+            value: value,
+            source_field_id: source_field_id
           )
         end
       end
@@ -233,6 +269,7 @@ class TopicsController < ApplicationController
 
   def set_course
     @course = Course.find(params[:course_id])
+    @current_user_enrolment = @course.enrolments.find_by(user: current_user)
   end
 
   def toggle_topics
@@ -244,5 +281,72 @@ class TopicsController < ApplicationController
   def set_topic
     @topic = @course.topics.find_by(id: params[:id])
     redirect_to course_path(@course), alert: 'Topic not found.' if @topic.nil?
+  end
+
+  # Topics Directory filters (moved from courses#show with the tab, ADR 0019).
+
+  def search_topics(topic_list, query)
+    downcased_query = query.downcase
+
+    topic_list.select do |topic|
+      title_match = topic.current_title.to_s.downcase.include?(downcased_query)
+      owner_match = topic.owner_name.to_s.downcase.include?(downcased_query)
+
+      title_match || owner_match
+    end
+  end
+
+  def filtered_topic_list
+    topic_list = @topic_list
+
+    topic_list = topic_list.select { |topic| topic.owner_id == params[:topic_filter].to_i } if params[:topic_filter].present? && params[:topic_filter] != 'all'
+
+    topic_list = search_topics(topic_list, params[:search_query]) if params[:search_query].present?
+
+    topic_list
+  end
+
+  # [lecturer, topics] pairs for the Topics Directory, supervisor groups A→Z by
+  # name. The current user's own group is pinned first (the "(You)" suffix is
+  # rendered by the partial); only meaningful for users who are themselves in
+  # @course.lecturers — students and coordinator-only staff get no pinned group.
+  # Topics newest-first within each group.
+  def topics_by_supervisor
+    pairs = @course.lecturers
+                   .sort_by { |lecturer| lecturer.name.to_s.downcase }
+                   .map { |lecturer| [lecturer, @filtered_topic_list.select { |topic| topic.owner_id == lecturer.id }] }
+
+    if (pinned = pairs.find { |lecturer, _topics| lecturer.id == current_user.id })
+      pairs = [pinned] + pairs.reject { |lecturer, _topics| lecturer.id == current_user.id }
+    end
+
+    pairs.each { |_lecturer, topics| topics.sort_by!(&:updated_at).reverse! }
+    pairs
+  end
+
+  def topic_unchanged_from_source?(source_id, submitted_fields)
+    return false if submitted_fields.blank?
+
+    source_topic = Topic.find_by(id: source_id)
+    return false unless source_topic&.current_instance
+
+    source_fields_by_label = source_topic.current_instance.project_instance_fields
+                                         .includes(:project_template_field)
+                                         .each_with_object({}) do |field, hash|
+      label = field.project_template_field.label.to_s.downcase.strip
+      hash[label] = field.value.to_s.strip
+    end
+
+    raw_submitted = submitted_fields.to_unsafe_h
+
+    raw_submitted.all? do |field_id, value|
+      target_field = ProjectTemplateField.find_by(id: field_id)
+      return false unless target_field
+
+      target_label = target_field.label.to_s.downcase.strip
+      source_value = source_fields_by_label[target_label]
+
+      value.to_s.strip == source_value
+    end
   end
 end

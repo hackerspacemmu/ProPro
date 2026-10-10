@@ -1,0 +1,29 @@
+<%# Shared chrome for the four course tab pages (route-per-tab, ADR 0019):
+    breadcrumb + body class, the app sidebar, the capped-height <main> scroll
+    pane (search-shortcut scope), the tab strip, and the single content column
+    this page's tab renders into. Locals: course, active (slug),
+    current_user_enrolment. The content div keeps the panel-<slug> id the tab
+    pages' tests scope against. %>
+<% content_for :body_class, "bg-surface-tint" %>
+
+<% breadcrumb :course, course %>
+
+<div class="text-on-surface font-['Roboto',sans-serif]">
+
+  <div class="flex">
+    <%= render "shared/sidebar" %>
+    <main class="flex-1 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]"
+          data-controller="search-shortcut">
+
+      <%= render "courses/tab_strip",
+                 course: course,
+                 active: active,
+                 current_user_enrolment: current_user_enrolment %>
+
+      <div id="panel-<%= active %>" class="max-w-5xl mx-auto px-6 py-8">
+        <%= yield %>
+      </div>
+
+    </main>
+  </div>
+</div>

@@ -40,7 +40,7 @@ class TopicVersioningTest < BrowserSystemTestCase
     # On version 1 the server renders the dropdown with 1 of 2 selected.
     assert_selector 'select[data-controller="version-select"] option[value="1"][selected]'
 
-    first('select[data-controller="version-select"]').select('2 of 2 (Current)')
+    first('select[data-controller="version-select"]').select('2 of 2 (Latest)')
 
     assert_current_path course_topic_path(@course, @topic, version: 2), wait: Capybara.default_max_wait_time
   end
