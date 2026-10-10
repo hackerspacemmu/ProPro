@@ -4,7 +4,7 @@ class UserController < ApplicationController
   def resend_invite
     user = User.find(params[:id])
     if user.has_registered
-      redirect_back_or_to '/', alert: 'User already registered'
+      redirect_back_or_to dashboard_path, alert: 'User already registered'
       return
     end
 
@@ -16,7 +16,7 @@ class UserController < ApplicationController
       otp_token: otp_instance.token,
     ).ProPro_Invite.deliver_later
 
-    redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
+    redirect_back_or_to dashboard_path, notice: "Invitation resent to #{user.email_address}"
   end
 
   def new; end
@@ -51,16 +51,16 @@ class UserController < ApplicationController
     @user = Current.user
 
     if params[:user][:name].blank?
-      redirect_back_or_to '/', alert: 'Name cannot be empty'
+      redirect_back_or_to dashboard_path, alert: 'Name cannot be empty'
       return
     end
 
     if params[:user][:new_password].present?
       if params[:user][:new_password_confirmation].blank? or params[:user][:new_password] != params[:user][:new_password_confirmation]
-        redirect_back_or_to '/', alert: 'New passwords do not match'
+        redirect_back_or_to dashboard_path, alert: 'New passwords do not match'
         return
       elsif params[:user][:new_password].length > 72
-        redirect_back_or_to '/', alert: 'Password must be less than 72 characters'
+        redirect_back_or_to dashboard_path, alert: 'Password must be less than 72 characters'
         return
       end
     end
@@ -93,7 +93,7 @@ class UserController < ApplicationController
     otp_instance = Otp.find_by(token: params[:token], verify_only: false)
 
     unless otp_instance
-      redirect_back_or_to '/', alert: 'Something went wrong'
+      redirect_back_or_to dashboard_path, alert: 'Something went wrong'
       return
     end
 
@@ -103,7 +103,7 @@ class UserController < ApplicationController
     result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
 
     if !result.success?
-      redirect_back_or_to '/', alert: result.message
+      redirect_back_or_to dashboard_path, alert: result.message
       return
     end
 
@@ -111,10 +111,10 @@ class UserController < ApplicationController
       user.update!(has_registered: true, name: name, password: params[:password])
       otp_instance.destroy
     rescue ActiveRecord::RecordInvalid => e
-      redirect_back_or_to '/', alert: e.message
+      redirect_back_or_to dashboard_path, alert: e.message
       return
     rescue StandardError => e
-      redirect_back_or_to '/', alert: 'Something went wrong'
+      redirect_back_or_to dashboard_path, alert: 'Something went wrong'
       return
     end
 

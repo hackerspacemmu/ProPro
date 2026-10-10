@@ -18,7 +18,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     create(:enrolment, user: @user, course: later_course, role: :student, created_at: 1.day.ago)
 
     post session_path, params: { email_address: @user.email_address, password: 'password' }
-    get root_path
+    get dashboard_path
 
     expected_paths = [course_path(later_course), course_path(earlier_course), course_path(@course)]
     card_paths = css_select("main a[href^='/courses/']").map { |link| link['href'] }
@@ -30,9 +30,9 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
 
   test 'homescreen renders themed course cards via image_tag' do
     post session_path, params: { email_address: @user.email_address, password: 'password' }
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
 
-    get root_path
+    get dashboard_path
     assert_response :success
 
     assert_select 'div[style*="background:#37474F"]', count: 1
@@ -46,7 +46,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     end
 
     post session_path, params: { email_address: @user.email_address, password: 'password' }
-    get root_path
+    get dashboard_path
 
     ['#37474F', '#1A73E8', '#5F6368'].each do |color|
       assert_match(Regexp.new("background:#{color}"), @response.body)
@@ -58,7 +58,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
 
   test 'homescreen shows Courses panel with mockup join form' do
     post session_path, params: { email_address: @user.email_address, password: 'password' }
-    get root_path
+    get dashboard_path
     assert_response :success
 
     assert_select 'h2', text: 'Courses'
@@ -67,7 +67,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
 
   test 'Add course button is hidden for non-staff students' do
     post session_path, params: { email_address: @user.email_address, password: 'password' }
-    get root_path
+    get dashboard_path
     assert_response :success
 
     assert_no_match(/Add class/, @response.body)
@@ -79,7 +79,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
     @course.enrolments.create!(user: staff, role: :coordinator)
 
     post session_path, params: { email_address: staff.email_address, password: 'password' }
-    get root_path
+    get dashboard_path
     assert_response :success
 
     assert_match(/Add course/, @response.body)
@@ -88,7 +88,7 @@ class HomescreenCardsRenderTest < ActionDispatch::IntegrationTest
 
   test 'shared sidebar and header render on the dashboard' do
     post session_path, params: { email_address: @user.email_address, password: 'password' }
-    get root_path
+    get dashboard_path
     assert_response :success
 
     assert_select '#app-sidebar'

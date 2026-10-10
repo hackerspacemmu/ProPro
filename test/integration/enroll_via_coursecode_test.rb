@@ -13,7 +13,7 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
 
     # Sign in the student
     post session_path, params: { email_address: @student.email_address, password: 'password' }
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
 
     # Check initial enrolment state
     assert_not @course.students.include?(@student)
@@ -21,8 +21,8 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
     # Submit valid coursecode
     post invite_path, params: { coursecode: @course.coursecode }
 
-    # The student is redirected to '/' and sees a success message
-    assert_redirected_to '/'
+    # The student is redirected to the dashboard and sees a success message
+    assert_redirected_to dashboard_path
     assert_equal 'Successfully joined the course', flash[:notice]
 
     # Verify that an enrolment was created
@@ -34,27 +34,27 @@ class EnrollViaCoursecodeTest < ActionDispatch::IntegrationTest
 
     # Sign in the student
     post session_path, params: { email_address: @student.email_address, password: 'password' }
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
 
     # Submit valid coursecode (and again)
     post invite_path, params: { coursecode: @course.coursecode }
     post invite_path, params: { coursecode: @course.coursecode }
 
-    # The student is redirected to '/' and sees a success message
-    assert_redirected_to '/'
+    # The student is redirected to the dashboard and sees a success message
+    assert_redirected_to dashboard_path
     assert_equal 'You already joined the course', flash[:notice]
   end
 
   test 'should display error for invalid coursecode' do
     # Sign in the student
     post session_path, params: { email_address: @student.email_address, password: 'password' }
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
 
     # Run POST with an invalid course code
     post invite_path, params: { coursecode: 'INVALIDCODE123' }
 
     # Student cannot join, is redirected with an error alert
-    assert_redirected_to '/'
+    assert_redirected_to dashboard_path
     assert_equal 'Invalid course code', flash[:alert]
 
     # Check that they did not join the course

@@ -15,13 +15,13 @@
     <!-- Sticky Top Navigation -->
     <header class="sticky top-0 z-30 bg-white border-b border-outline-variant px-4 sm:px-6 py-3 flex items-center justify-between shadow-xs">
       <div class="flex items-center gap-6">
-        <%= link_to "/", title: "Close and return home", class: "p-2 -ml-2 rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" do %>
+        <%= link_to dashboard_path, title: "Close and return home", class: "p-2 -ml-2 rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" do %>
           <span class="material-symbols-outlined text-[24px]">close</span>
         <% end %>
         <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-xl font-medium text-on-surface-strong tracking-tight">Edit Profile</h1>
       </div>
       <div class="flex items-center gap-3">
-        <%= link_to "Discard Changes", "/", class: "px-5 py-2 rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface font-medium text-[14px] transition-colors" %>
+        <%= link_to "Discard Changes", dashboard_path, class: "px-5 py-2 rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface font-medium text-[14px] transition-colors" %>
         <%= form.submit "Save", class: "bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all shadow-sm cursor-pointer" %>
       </div>
     </header>

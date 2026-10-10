@@ -334,7 +334,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     [course_path(@course), course_topics_path(@course),
      course_people_path(@course), course_groups_path(@course)].each do |path|
       get path
-      assert_redirected_to root_path, "#{path} must deny a non-enrolled user"
+      assert_redirected_to dashboard_path, "#{path} must deny a non-enrolled user"
       assert_equal 'You are not authorized to view this page.', flash[:alert]
     end
   end

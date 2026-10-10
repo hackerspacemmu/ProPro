@@ -1,0 +1,202 @@
+<%# app/views/pages/showcase_test.html.erb
+    Landing mockup spike. Body-only view: expects the layout to supply <html>/<head>,
+    the viewport meta (width=device-width, initial-scale=1, viewport-fit=cover) and the
+    Roboto font link. %>
+<% content_for :title, "ProPro | Landing" %>
+<% content_for :no_sidebar, true %>
+<% content_for :no_header, true %>
+<% content_for :no_footer, true %>
+<%
+  signup_path = "#" # TODO: replace with your real sign-up route helper
+  lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+
+  play_icon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'.html_safe
+
+  icons = {
+    setup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'.html_safe,
+    propose: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>'.html_safe,
+    review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/><path d="m9 10 2 2 4-4"/></svg>'.html_safe
+  }
+
+  sections = [
+    { id: "setup", title: "Setting up your course",
+      items: ["Project templates", "Course settings", "Groups table"] },
+    { id: "propose", title: "Let your students propose their ideas",
+      items: ["Topics directory", "Supervisor capacity", "New / edit project"] },
+    { id: "review", title: "Review and give feedback to ideas proposed to you",
+      items: ["Switching versions", "Compare versions", "Approve / redo / reject"] }
+  ]
+
+  # Real landing screenshots (app/assets/images/landing/*.png), keyed by item.
+  screenshots = {
+    "Project templates" => "Project_templates.png",
+    "Course settings" => "Course_settings.png",
+    "Groups table" => "Groups.png",
+    "Topics directory" => "Topics.png",
+    "Supervisor capacity" => "Lecturers.png",
+    "New / edit project" => "Projects_New.png",
+    "Switching versions" => "Projects_show.png",
+    "Compare versions" => "Compare_Versions.png",
+    "Approve / redo / reject" => "Projects actions.png"
+  }
+%>
+
+<style>
+:root{
+  --bg:#fff; --surface:#f8f9fa; --muted:#f1f3f4; --text:#202124; --text2:#5f6368; --border:#dadce0;
+  --blue:#1a73e8; --blue-h:#1967d2; --blue-s:#e8f0fe; --green:#188038;
+  --shadow:0 1px 2px 0 rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 88px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Google Sans Flex","Google Sans",Roboto,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+/* hero */
+.hero{text-align:center;padding:96px 0 72px}
+.logo{display:inline-flex;align-items:center;gap:10px;font-size:22px;color:var(--text2);margin-bottom:28px}
+.logo b{color:var(--text);font-weight:500}
+.logo i{width:30px;height:26px;border-radius:4px;background:var(--green);display:inline-block}
+h1{font-size:clamp(40px,7vw,72px);line-height:1.1;font-weight:500;letter-spacing:-.5px;margin:0 auto 24px;max-width:900px}
+.hero p{font-size:18px;line-height:1.6;color:var(--text);max-width:760px;margin:0 auto 36px}
+.btn{display:inline-block;font:500 16px/1 inherit;font-family:inherit;border:0;border-radius:999px;background:var(--blue);color:#fff;padding:18px 44px;cursor:pointer;text-decoration:none;transition:background .2s ease}
+.btn:hover{background:var(--blue-h)}
+.btn.big{font-size:20px;padding:22px 64px;letter-spacing:.5px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+/* pills */
+.pillbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:10;display:flex;justify-content:center;padding:0 16px;margin-bottom:24px;pointer-events:none}
+.pills{pointer-events:auto;display:flex;gap:4px;background:var(--bg);border-radius:999px;box-shadow:var(--shadow);padding:6px;max-width:100%;overflow-x:auto}
+.pills a{padding:10px 24px;border-radius:999px;color:var(--text2);text-decoration:none;font-size:14px;letter-spacing:.15px;white-space:nowrap;transition:background .2s ease,color .2s ease}
+.pills a:hover{background:var(--surface);color:var(--text)}
+.pills a.on{background:var(--blue-s);color:var(--blue)}
+/* sections */
+section.feat{padding:72px 0 48px}
+.sec-head{text-align:center;max-width:760px;margin:0 auto 56px}
+.sec-head svg{width:36px;height:36px;color:var(--green);margin-bottom:20px}
+h2{font-size:clamp(30px,4.6vw,44px);line-height:1.2;font-weight:500;margin:0 0 16px}
+.sec-head p{margin:0;color:var(--text2);font-size:16px;line-height:1.6}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.media{aspect-ratio:4/3;background:var(--muted);border:1px solid var(--border);border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text2);font-size:14px;text-align:center;padding:24px}
+.media{position:relative}
+.media .media-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.media .play,.media [data-label]{position:relative;z-index:2}
+.media .play{width:48px;height:48px;border-radius:50%;background:var(--bg);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--blue)}
+.panel h3{font-size:24px;font-weight:400;margin:0 0 28px;line-height:1.3}
+.panel h3 em{font-style:normal;color:var(--green)}
+.item{position:relative;padding:4px 0 4px 20px;margin-bottom:20px;cursor:pointer;text-align:left;background:none;border:0;display:block;width:100%;font-family:inherit;color:var(--text)}
+.item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px;background:var(--border)}
+.item .fill{position:absolute;left:0;top:0;width:4px;border-radius:2px;background:var(--green);height:0}
+.item .t{font-size:18px;line-height:1.4;display:block}
+.item .body{display:none;margin-top:10px}
+.item.open .body{display:block}
+.item.open::before{background:color-mix(in srgb,var(--green) 25%,transparent)}
+.item .hint{color:var(--text2);font-size:15px;line-height:1.6;display:block}
+.item .more{display:inline-block;margin-top:12px;color:var(--blue);font-size:15px;text-decoration:none}
+.item .more:hover{color:var(--blue-h);text-decoration:underline}
+.foot{text-align:center;padding:72px 0 120px}
+@media (max-width:860px){.split{grid-template-columns:1fr;gap:32px}.hero{padding:64px 0 48px}.btn.big{padding:20px 48px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+
+<header class="hero wrap">
+  <div class="logo"><i aria-hidden="true"></i><span><b>ProPro</b></span></div>
+  <h1>Lorem ipsum dolor sit amet</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure.</p>
+  <%= link_to "SIGN UP", signup_path, class: "btn big" %>
+</header>
+
+<div class="pillbar">
+  <nav class="pills" aria-label="Sections">
+    <% sections.each_with_index do |sec, i| %>
+      <%= link_to sec[:id], "##{sec[:id]}", class: ("on" if i.zero?) %>
+    <% end %>
+  </nav>
+</div>
+
+<main class="wrap">
+  <% sections.each do |sec| %>
+    <section class="feat" id="<%= sec[:id] %>" data-sec>
+      <div class="sec-head">
+        <%= icons[sec[:id].to_sym] %>
+        <h2><%= sec[:title] %></h2>
+        <p><%= lorem %></p>
+      </div>
+      <div class="split">
+        <div class="media">
+          <%= image_tag "landing/#{screenshots[sec[:items].first]}", alt: sec[:items].first, class: "media-img", data: { media: true } %>
+          <div class="play"><%= play_icon %></div>
+          <span data-label>Screenshot / video: <%= sec[:items].first %></span>
+        </div>
+        <div class="panel">
+          <h3>Lorem ipsum <em>dolor sit amet</em></h3>
+          <% sec[:items].each_with_index do |item, i| %>
+            <button class="item<%= " open" if i.zero? %>" type="button" data-img="<%= image_path("landing/#{screenshots[item]}") %>">
+              <span class="fill"></span>
+              <span class="t"><%= item %></span>
+              <span class="body">
+                <span class="hint"><%= lorem %></span>
+                <a class="more" href="#">Lorem ipsum</a>
+              </span>
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </section>
+  <% end %>
+</main>
+
+<div class="foot"><%= link_to "SIGN UP", signup_path, class: "btn big" %></div>
+
+<script>
+(function(){
+  var DUR = 7000;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var secs = [].slice.call(document.querySelectorAll('[data-sec]'));
+
+  secs.forEach(function(sec){
+    var items = [].slice.call(sec.querySelectorAll('.item'));
+    var label = sec.querySelector('[data-label]');
+    var img = sec.querySelector('[data-media]');
+    var cur = 0, start = performance.now(), visible = false;
+    function select(i){
+      cur = i; start = performance.now();
+      items.forEach(function(it, k){
+        it.classList.toggle('open', k === i);
+        it.setAttribute('aria-expanded', k === i);
+        it.querySelector('.fill').style.height = k === i ? (reduce ? '100%' : '0') : '0';
+      });
+      label.textContent = 'Screenshot / video: ' + items[i].querySelector('.t').textContent;
+      if (img){
+        img.src = items[i].getAttribute('data-img');
+        img.alt = items[i].querySelector('.t').textContent;
+      }
+    }
+    function tick(now){
+      if (visible && !reduce){
+        var p = Math.min((now - start) / DUR, 1);
+        items[cur].querySelector('.fill').style.height = (p * 100) + '%';
+        if (p >= 1) select((cur + 1) % items.length);
+      }
+      requestAnimationFrame(tick);
+    }
+    items.forEach(function(it, i){
+      it.addEventListener('click', function(e){ if (e.target.closest('a')) return; select(i); });
+    });
+    new IntersectionObserver(function(es){
+      visible = es[0].isIntersecting;
+      if (visible) start = performance.now();
+    }, {threshold:.4}).observe(sec);
+    select(0);
+    requestAnimationFrame(tick);
+  });
+
+  var links = [].slice.call(document.querySelectorAll('.pills a'));
+  secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      if (es[0].isIntersecting) links.forEach(function(a){
+        a.classList.toggle('on', a.getAttribute('href') === '#' + s.id);
+      });
+    }, {rootMargin:'-40% 0px -50% 0px'}).observe(s);
+  });
+})();
+</script>
