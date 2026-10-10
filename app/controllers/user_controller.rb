@@ -13,39 +13,13 @@ class UserController < ApplicationController
 
     GeneralMailer.with(
       email_address: user.email_address,
-      otp_token: otp_instance.token,
+      otp_token: otp_instance.token
     ).ProPro_Invite.deliver_later
 
     redirect_back_or_to dashboard_path, notice: "Invitation resent to #{user.email_address}"
   end
 
   def new; end
-
-  def create
-    name = params[:name].strip
-    email = params[:email].strip
-
-    result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
-
-    unless result.success?
-      redirect_to user_new_path, alert: result.message
-      return
-    end
-
-    result = UserCreator.call(name: name, email: email, password: params[:password], verify_only: true)
-
-    unless result.success?
-      redirect_back_or_to user_new_path, alert: result.message
-      return
-    end
-
-    GeneralMailer.with(
-      email_address: email,
-      otp_token: result.otp_instance.token,
-    ).Signup_Verification.deliver_later
-
-    redirect_to login_path, notice: 'Account created successfully. Check your inbox!'
-  end
 
   def edit
     @user = Current.user
@@ -81,6 +55,32 @@ class UserController < ApplicationController
     redirect_to user_profile_path, notice: 'Profile updated successfully'
   end
 
+  def create
+    name = params[:name].strip
+    email = params[:email].strip
+
+    result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
+
+    unless result.success?
+      redirect_to user_new_path, alert: result.message
+      return
+    end
+
+    result = UserCreator.call(name: name, email: email, password: params[:password], verify_only: true)
+
+    unless result.success?
+      redirect_back_or_to user_new_path, alert: result.message
+      return
+    end
+
+    GeneralMailer.with(
+      email_address: email,
+      otp_token: result.otp_instance.token
+    ).Signup_Verification.deliver_later
+
+    redirect_to login_path, notice: 'Account created successfully. Check your inbox!'
+  end
+
   def claim
     @email = Otp.find_by(token: params[:token], verify_only: false).user.email_address
   rescue StandardError
@@ -102,7 +102,7 @@ class UserController < ApplicationController
 
     result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
 
-    if !result.success?
+    unless result.success?
       redirect_back_or_to dashboard_path, alert: result.message
       return
     end
@@ -113,7 +113,7 @@ class UserController < ApplicationController
     rescue ActiveRecord::RecordInvalid => e
       redirect_back_or_to dashboard_path, alert: e.message
       return
-    rescue StandardError => e
+    rescue StandardError
       redirect_back_or_to dashboard_path, alert: 'Something went wrong'
       return
     end
@@ -138,7 +138,7 @@ class UserController < ApplicationController
         user.update!(has_registered: true)
         otp_instance.destroy
       end
-    rescue StandardError => e
+    rescue StandardError
       redirect_to new_session_path, alert: 'Something went wrong'
       return
     end
