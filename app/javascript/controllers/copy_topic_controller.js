@@ -123,6 +123,19 @@ export default class extends Controller {
           );
         }
       });
+
+      const existingHidden = mainForm.querySelector(
+        `input[name="source_fields[${fieldId}]"]`,
+      );
+      if (existingHidden) existingHidden.remove();
+
+      if (sourceFieldId !== "") {
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = `source_fields[${fieldId}]`;
+        hiddenInput.value = sourceFieldId;
+        mainForm.appendChild(hiddenInput);
+      }
     });
 
     this.dialogTarget.close();

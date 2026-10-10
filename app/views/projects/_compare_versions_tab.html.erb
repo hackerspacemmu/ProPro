@@ -16,7 +16,7 @@
 
       <div class="bg-success-container text-success rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-success/30">
         <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
-        <span class="text-sm font-medium">Version <%= index + 1 %> (Current)</span>
+        <span class="text-sm font-medium">Version <%= index + 1 %> (Latest)</span>
       </div>
 
     </div>
@@ -110,8 +110,8 @@
   <% unless has_changes %>
     <div class="text-center py-16 border-2 border-dashed border-outline-variant rounded-lg bg-surface-hover/50">
       <span class="material-symbols-outlined text-[48px] text-gray-300 mx-auto mb-3">compare_arrows</span>
-      <p class="text-on-surface-variant text-sm font-medium">No field changes detected</p>
-      <p class="text-gray-400 text-xs mt-1">All fields are identical between these two versions.</p>
+      <p class="text-on-surface-variant text-sm font-medium">No changes from Source Topic</p>
+      <p class="text-gray-400 text-xs mt-1">The Topic is copied exactly.</p>
     </div>
   <% end %>
 

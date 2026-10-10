@@ -8,7 +8,7 @@
         options_for_select(
           instances.each_with_index.map do |inst, i|
             label = "#{i + 1} of #{instances.size}"
-            label += " (Current)" if i == instances.size - 1
+            label += " (Latest)" if i == instances.size - 1
             [label, i + 1]
           end,
           current_version

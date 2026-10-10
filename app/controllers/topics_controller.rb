@@ -142,7 +142,15 @@ class TopicsController < ApplicationController
       ActiveRecord::Base.transaction do
         status = @course.require_coordinator_approval? ? :pending : :approved
 
-        @topic = Topic.create!(course: @course, owner: current_user)
+        source_id = params[:source_topic_id].presence
+
+        status = :approved if status == :pending && source_id && @course.auto_approve_copied_topics_without_changes? && topic_unchanged_from_source?(source_id, params[:fields])
+
+        @topic = Topic.create!(
+          course: @course,
+          owner: current_user,
+          source_topic_id: source_id
+        )
 
         title_value = nil
         params[:fields]&.each do |field_id, value|
@@ -157,9 +165,14 @@ class TopicsController < ApplicationController
         )
 
         params[:fields]&.each do |field_id, value|
+          raw_source_field_id = params.dig(:source_fields, field_id.to_s).to_s
+          source_field_id =
+            raw_source_field_id.match?(/\A\d+\z/) ? raw_source_field_id.to_i : nil
+
           @instance.project_instance_fields.create!(
             project_template_field: ProjectTemplateField.find(field_id),
-            value: value
+            value: value,
+            source_field_id: source_field_id
           )
         end
       end
@@ -309,5 +322,31 @@ class TopicsController < ApplicationController
 
     pairs.each { |_lecturer, topics| topics.sort_by!(&:updated_at).reverse! }
     pairs
+  end
+
+  def topic_unchanged_from_source?(source_id, submitted_fields)
+    return false if submitted_fields.blank?
+
+    source_topic = Topic.find_by(id: source_id)
+    return false unless source_topic&.current_instance
+
+    source_fields_by_label = source_topic.current_instance.project_instance_fields
+                                         .includes(:project_template_field)
+                                         .each_with_object({}) do |field, hash|
+      label = field.project_template_field.label.to_s.downcase.strip
+      hash[label] = field.value.to_s.strip
+    end
+
+    raw_submitted = submitted_fields.to_unsafe_h
+
+    raw_submitted.all? do |field_id, value|
+      target_field = ProjectTemplateField.find_by(id: field_id)
+      return false unless target_field
+
+      target_label = target_field.label.to_s.downcase.strip
+      source_value = source_fields_by_label[target_label]
+
+      value.to_s.strip == source_value
+    end
   end
 end
