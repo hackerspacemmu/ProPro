@@ -77,7 +77,7 @@ export default class extends Controller {
       const fieldName = `fields[${fieldId}]`;
 
       let mainInputs = document.querySelectorAll(
-        `#${targetId}, [name="${fieldName}"], [name^="${fieldName}["], [name*="[${fieldId}]"]`
+        `#${targetId}, [name="${fieldName}"], [name^="${fieldName}["], [name*="[${fieldId}]"]`,
       );
 
       mainInputs.forEach((mainInput) => {
@@ -96,21 +96,33 @@ export default class extends Controller {
           mainInput.dispatchEvent(new Event("change", { bubbles: true }));
 
           const trix =
-            (mainInput.id ? document.querySelector(`trix-editor[input="${mainInput.id}"]`) : null) ||
-            mainInput.closest(".field-container, .form-group, div")?.querySelector("trix-editor") ||
-            mainInput.nextElementSibling?.matches?.("trix-editor") ? mainInput.nextElementSibling : null;
+            (mainInput.id
+              ? document.querySelector(`trix-editor[input="${mainInput.id}"]`)
+              : null) ||
+            mainInput
+              .closest(".field-container, .form-group, div")
+              ?.querySelector("trix-editor") ||
+            mainInput.nextElementSibling?.matches?.("trix-editor")
+              ? mainInput.nextElementSibling
+              : null;
 
           if (trix && trix.editor) {
             trix.editor.loadHTML(newValue || "");
           }
 
-          const editorWrapper = mainInput.closest("[data-controller*='editor']");
+          const editorWrapper = mainInput.closest(
+            "[data-controller*='editor']",
+          );
           if (editorWrapper) {
-            const editorController = this.application.getControllerForElementAndIdentifier(
-              editorWrapper,
-              editorWrapper.dataset.controller
-            );
-            if (editorController && typeof editorController.setValue === "function") {
+            const editorController =
+              this.application.getControllerForElementAndIdentifier(
+                editorWrapper,
+                editorWrapper.dataset.controller,
+              );
+            if (
+              editorController &&
+              typeof editorController.setValue === "function"
+            ) {
               editorController.setValue(newValue);
             }
           }
