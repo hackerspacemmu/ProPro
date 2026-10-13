@@ -16,7 +16,8 @@ Rails.application.routes.draw do
   resources :enrolments, only: [:destroy]
   post 'invite', to: 'courses#enroll_via_coursecode', as: 'invite'
 
-  root 'homescreen#show'
+  root 'landing#show'
+  get 'dashboard', to: 'homescreen#show', as: :dashboard
 
   # Dev-only live component style guide (see app/views/styleguide/show.html.erb).
   get 'styleguide', to: 'styleguide#show' if Rails.env.development?

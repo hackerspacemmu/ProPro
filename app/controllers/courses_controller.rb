@@ -82,7 +82,7 @@ class CoursesController < ApplicationController
     Set[]
 
     if params[:invited_lecturers].blank?
-      redirect_back_or_to '/', alert: 'Invited lecturers cannot be empty'
+      redirect_back_or_to dashboard_path, alert: 'Invited lecturers cannot be empty'
       return
     end
 
@@ -93,7 +93,7 @@ class CoursesController < ApplicationController
         create_lecturer_enrolments(lecturer_emails, @course)
       end
     rescue StandardError => e
-      redirect_back_or_to '/', alert: e.message
+      redirect_back_or_to dashboard_path, alert: e.message
       return
     end
 
@@ -104,14 +104,14 @@ class CoursesController < ApplicationController
     authorize @course, :manage_students?
 
     if params[:csv_file].blank? || params[:csv_file].content_type != 'text/csv'
-      redirect_back_or_to '/', alert: 'Please provide a CSV file from ebwise'
+      redirect_back_or_to dashboard_path, alert: 'Please provide a CSV file from ebwise'
       return
     end
 
     begin
       csv_obj = CSV.parse(params[:csv_file].read, headers: true, liberal_parsing: true)
     rescue StandardError
-      redirect_back_or_to '/', alert: 'CSV parsing failed'
+      redirect_back_or_to dashboard_path, alert: 'CSV parsing failed'
       return
     end
 
@@ -119,13 +119,13 @@ class CoursesController < ApplicationController
 
     columns_to_check.each do |column|
       unless csv_obj.headers.include? column
-        redirect_back_or_to '/', alert: 'CSV file missing required headers'
+        redirect_back_or_to dashboard_path, alert: 'CSV file missing required headers'
         return
       end
     end
 
     if @course.grouped && !csv_obj.headers.include?('Group')
-      redirect_back_or_to '/', alert: 'Not grouped CSV file'
+      redirect_back_or_to dashboard_path, alert: 'Not grouped CSV file'
       return
     end
 
@@ -146,7 +146,7 @@ class CoursesController < ApplicationController
         end
       end
     rescue StandardError => e
-      redirect_back_or_to '/', alert: e.message
+      redirect_back_or_to dashboard_path, alert: e.message
       return
     end
 
@@ -268,7 +268,7 @@ class CoursesController < ApplicationController
   def destroy
     authorize @course, :destroy?
     @course.destroy
-    redirect_to '/'
+    redirect_to dashboard_path
   end
 
   def profile
@@ -400,12 +400,12 @@ class CoursesController < ApplicationController
   def enroll_via_coursecode
     new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
     if new_enrolment
-      redirect_back_or_to '/', notice: 'Successfully joined the course'
+      redirect_back_or_to dashboard_path, notice: 'Successfully joined the course'
     else
-      redirect_back_or_to '/', notice: 'You already joined the course'
+      redirect_back_or_to dashboard_path, notice: 'You already joined the course'
     end
   rescue StandardError => e
-    redirect_back_or_to '/', alert: e.message
+    redirect_back_or_to dashboard_path, alert: e.message
   end
 
   def grouping_preview

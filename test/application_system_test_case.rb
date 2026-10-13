@@ -33,22 +33,22 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # parallel load the post-login redirect can occasionally blow past a single
   # wait, so bound a few attempts (exhaustion was reproduced once at 3, hence
   # 5). Idempotent: an attempt that already landed redirects the next
-  # `visit login_path` straight to root and we return early.
+  # `visit login_path` straight to the dashboard and we return early.
   def login_as(user, password: 'password')
     5.times do
       visit login_path
-      return if current_path == root_path
+      return if current_path == dashboard_path
 
       fill_in 'email_address', with: user.email_address
       fill_in 'password', with: password
       click_button 'Sign In'
-      assert_current_path root_path, wait: Capybara.default_max_wait_time * 2
+      assert_current_path dashboard_path, wait: Capybara.default_max_wait_time * 2
       return
     rescue Minitest::Assertion
       # Transient (slow redirect / busy DB under parallel load) -- try again.
     end
 
-    flunk 'login_as never landed on root after 5 attempts'
+    flunk 'login_as never landed on the dashboard after 5 attempts'
   end
 end
 

@@ -6,7 +6,7 @@ class EnrolmentsController < ApplicationController
 
     # Authorization is on the authenticated user, never on a client-submitted id.
     unless current_course.coordinator_ids.include?(current_user.id)
-      redirect_back_or_to '/'
+      redirect_back_or_to dashboard_path
       return
     end
 

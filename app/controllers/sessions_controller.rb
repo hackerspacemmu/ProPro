@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
     user = User.find_by(email_address: response[:email_address])
 
     if user && !user.has_registered
-      redirect_back_or_to '/', alert: 'Please claim your account first'
+      redirect_back_or_to dashboard_path, alert: 'Please claim your account first'
       return
     end
 

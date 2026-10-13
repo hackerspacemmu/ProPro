@@ -18,7 +18,7 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
     sign_in @lecturer
     patch change_status_course_topic_path(@course, @topic), params: { status: 'approved' }
 
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
     assert_equal 'You are not authorized to view this page.', flash[:alert]
     assert_equal 'pending', @topic.current_instance.reload.status
   end
