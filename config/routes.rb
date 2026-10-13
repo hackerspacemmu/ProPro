@@ -16,10 +16,7 @@ Rails.application.routes.draw do
   resources :enrolments, only: [:destroy]
   post 'invite', to: 'courses#enroll_via_coursecode', as: 'invite'
 
-  # Temporary landing-page JS spike. Root hosts the throwaway showcase test
-  # page; the dashboard moved to /dashboard. Delete the root line (or restore
-  # root 'homescreen#show') when the spike is done.
-  root 'pages#showcase_test'
+  root 'landing#show'
   get 'dashboard', to: 'homescreen#show', as: :dashboard
 
   # Dev-only live component style guide (see app/views/styleguide/show.html.erb).
