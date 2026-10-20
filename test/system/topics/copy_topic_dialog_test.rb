@@ -150,4 +150,36 @@ class TopicCopyTopicDialogTest < BrowserSystemTestCase
     assert_selector '#template-fields-container', wait: 3
     assert_text 'Topic Details', wait: 3
   end
+
+  test 'show page reveals the source comparison on the Compare Versions tab for a copied topic' do
+    source_description_pif = @source_instance.project_instance_fields
+                                             .find_by(project_template_field: @description_field)
+    copied = create(:topic, course: @course, owner: @lecturer, source_topic: @source_topic)
+    instance = create(:topic_instance, topic: copied, created_by: @lecturer,
+                                       version: 1, status: :pending, title: 'Copy Title')
+    instance.project_instance_fields.create!(
+      project_template_field: @description_field,
+      value: 'A changed copy',
+      source_field_id: source_description_pif.id
+    )
+
+    login_as(@lecturer)
+    visit course_topic_path(@course, copied)
+    wait_for_turbo
+
+    # Details panel: the "Copied from" indicator links back to the source.
+    assert_text 'Copied from', wait: 3
+    assert_link 'Source Topic', wait: 3
+
+    # The source-vs-current diff lives on the Compare Versions tab, first
+    # version only.
+    click_button 'Compare Versions'
+    page.execute_script("document.getElementById('tab-compare').click()") unless page.has_css?('#tab-compare[aria-selected="true"]', wait: 2)
+
+    # Diffy treatment: source-title pill ⇄ "Version 1 (Latest)" + changed rows.
+    assert_text 'Version 1 (Latest)', wait: 3
+    assert_text 'Source Topic', wait: 3
+    assert_text 'A changed copy', wait: 3
+    assert_no_text 'Only one version exists', wait: 3
+  end
 end

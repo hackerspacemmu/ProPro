@@ -57,24 +57,28 @@
 
             <%= render "topic_field_list",
             fields: @current_fields %>
-
-            <% if (@is_coordinator || @topic.owner == current_user) && @topic.source_topic.present? %>
-              <% source_instance = @topic.source_topic.current_instance %>
-              <% if source_instance.present? %>
-                <%= render "source_topic_diff",
-                          base_fields: source_instance.project_instance_fields,
-                          target_fields: @current_fields %>
-              <% end %>
-            <% end %>
           </div>
 
           <%# Panel 2: Compare Versions %>
           <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" data-tabs-target="panel" class="space-y-6<%= topic_initial_tab != 1 ? ' hidden' : '' %>">
-            <%= render "compare_versions_tab",
-            fields: @compare_fields,
-            next_fields: @compare_next_fields,
-            index: @compare_index,
-            instances: @instances %>
+            <% show_source_diff =
+              @instances.size == 1 &&
+              @topic.source_topic.present? &&
+              (@is_coordinator || @topic.owner == current_user) &&
+              @topic.source_topic.current_instance.present? %>
+            <% if show_source_diff %>
+              <% source_instance = @topic.source_topic.current_instance %>
+              <%= render "source_topic_diff",
+              base_fields: source_instance.project_instance_fields,
+              target_fields: @current_fields,
+              source_topic: @topic.source_topic %>
+            <% else %>
+              <%= render "compare_versions_tab",
+              fields: @compare_fields,
+              next_fields: @compare_next_fields,
+              index: @compare_index,
+              instances: @instances %>
+            <% end %>
           </div>
 
         </div>
