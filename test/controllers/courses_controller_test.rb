@@ -639,6 +639,31 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match 'No project has been submitted yet.', response.body
   end
 
+  test 'student profile shows their group-owned project on a grouped course' do
+    course = create(:course, :grouped)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+    supervisor = create(:user, :staff, name: 'Grouped Supervisor')
+    supervisor_enrolment = create(:enrolment, :lecturer, user: supervisor, course: course)
+
+    student = create(:user, name: 'Grouped Student')
+    create(:enrolment, user: student, course: course)
+    group = create(:project_group, course: course, confirmed: true, group_name: 'Lookup Group')
+    create(:project_group_member, user: student, project_group: group)
+    project = create(:project, course: course, owner: group, owner_type: 'ProjectGroup',
+                               supervisor_enrolment: supervisor_enrolment, status: :approved)
+    create(:project_instance, project: project, supervisor_enrolment: supervisor_enrolment,
+                              status: :approved, title: 'Group Owned Work')
+
+    sign_in @coordinator_user
+    get participant_profile_course_path(course, student.id, 'student')
+    assert_response :success
+    assert_select 'h2#current-project-heading', text: 'Current Project'
+    assert_match 'Group Owned Work', response.body
+    assert_match 'Approved', response.body
+    assert_match 'Grouped Supervisor', response.body
+    assert_no_match 'No project has been submitted yet.', response.body
+  end
+
   # --- Empty vs no-matches (ADR 0018) -------------------------------------
   #
   # Every no-matches test asserts the *absence* of the genuinely-empty copy as
