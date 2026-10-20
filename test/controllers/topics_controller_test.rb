@@ -43,7 +43,7 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match 'Version 1', response.body
-    assert_match 'Version 2 (Current)', response.body
+    assert_match 'Version 2 (Latest)', response.body
     assert_no_match 'Only one version exists', response.body
   end
 

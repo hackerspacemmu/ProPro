@@ -33,8 +33,10 @@ definitions.
 ## Project show (review + comments)
 
 - **content tabs** — the Project Details / Compare Versions / Progress Updates tab set in the sticky tab bar. Constant at every width; screensize never adds tabs. Scrolls horizontally on narrow screens with the scrollbar hidden; a **tab fade mask** (`tab-fade`) paints a trailing-edge white-to-transparent gradient only while more tabs are actually cut off.
-- **review actions** — the shared version switcher + policy-driven actions (`_review_actions`), rendered in either the review card (desktop) or the review action bar (mobile).
-- **review card** — the desktop-only Review Project card (title + Active badge) hosting `_review_actions`.
+- **review actions** — the shared version switcher + policy-driven actions (`_review_actions`), rendered in either the review card (desktop) or the review action bar (mobile). Mirrored per surface: `projects/_review_actions` and `topics/_review_actions` are parallel copies with identical chrome (chevrons + select, **status dropdown**).
+- **review card** — the desktop-only Review card (Review Project / Review Topic, no badge) hosting `_review_actions`.
+- **status dropdown** — the policy-driven trigger inside **review actions** on both project and topic show pages: one solid pill (`aria-label="Review status: …"`) whose label/icon/colour mirror the current status, opening a menu of Approve / Redo / Reject PATCHing `change_status`. Topics coordinators also get an Edit Topic link above it while the topic is unapproved. Replaces the old Approve split button ("Request Changes" / "Reject Topic" wording is gone).
+- **Submitted by** — the overview cell naming the version's creator with an "X ago" timestamp (full timestamp in `title`). On topics the name links by the creator's enrolment role in the course: lecturer/coordinator → **lecturer profile**, student → participant profile, no enrolment → plain text (topics are mainly authored by lecturers/coordinators).
 - **review action bar** — the mobile-only pinned bottom bar (version switcher + actions) hosting the same `_review_actions`; thumb-reachable on every tab.
 - **comments drawer** — one element, two presentations: the static sticky comments column on desktop; a backdrop-toggled off-canvas slide-in on mobile (`top-0 right-0 bottom-0` + `translate-x-full`, escaped by `min-[1245px]:translate-x-0`), opened by the comments trigger. Controlled by `comments-drawer`.
 - **comments trigger** — the mobile-only tab-bar button (chat bubble + count badge) that opens/closes the comments drawer (`aria-expanded` mirrors open state).
@@ -68,6 +70,12 @@ definitions.
 - **empty state** — a **browse table** with nothing in it, ever: no groups created, no students enrolled, nothing available to this viewer. Blames nothing and implies no filter is at fault. Distinct from **no-matches state**; the **profile empty state** below is the same idea on a different page.
 - **no-matches state** — a **browse table** emptied by the active filters while its **base list** still holds rows. One generic pair of lines serves every filter ("No *nouns* match your current filters." + "Try adjusting your search or filters."), so there is no per-filter copy to fall out of date when a filter is added.
 - **filters active** — at least one of a **browse table**'s filters narrows the list; a select's `all` does not count. Reported to the table as a local rather than re-derived, because it outlives the state: a search that *does* match is still **filters active** and must still auto-expand rows.
+
+## People tab (lecturers)
+
+- **lecturers section** — the People tab's supervisor half, the content of `_lecturers_section.html.erb` (locals `course`, `lecturers`, `capacity_result`, `lecturer_capacity_info`). One row per lecturer: avatar, name (a working link to the **lecturer profile**), the `(n pending)` line, and the capacity bar + `approved/cap` count. Pending is always muted; red is reserved for approved over capacity (the error icon and the `var(--color-error)` count/bar at ratio ≥ 1.0).
+- **excluded lecturer** — a lecturer the coordinator has excluded from supervisor capacity (course settings → Supervisor Capacity): no bar, no count, no pending line, and their name and avatar read as disabled (`text-on-surface-disabled`, faded avatar) while the name stays a clickable link. Sorted after every counted supervisor.
+- **remaining capacity** — `effective_cap - approved_count` for a counted lecturer; negative when they are over capacity. The display order of the lecturers section: most remaining first, ties by name case-insensitively, so over-capacity lecturers sink to the bottom of the counted group and **excluded lecturer**s follow, by name. **Solo-supervisor courses** show no capacity and keep the association's own order.
 
 ## Participant profile
 

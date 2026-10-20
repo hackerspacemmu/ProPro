@@ -38,12 +38,14 @@ class ProjectShowResponsiveTest < ApplicationSystemTestCase
     assert_selector "select[data-controller='version-select'] option", text: /1 of 1/
   end
 
-  test 'supervisor sees the Approve split-button on the latest version' do
+  test 'supervisor sees the status dropdown on the latest version' do
     login_as(@lecturer)
     visit course_project_path(@course, @project)
 
+    assert_selector 'button[aria-label^="Review status"]'
     assert_selector 'button', text: 'Approve'
-    assert_selector 'button', text: 'Request Changes'
+    assert_selector 'button', text: 'Redo'
+    assert_selector 'button', text: 'Reject'
   end
 
   test 'show page wires the sidebar drawer targets and toggle' do

@@ -1,8 +1,8 @@
 <%# locals: (project:, course:, current_instance:) %>
 
-<div class="bg-surface border border-outline-variant rounded-[8px] p-6">
-  <%# Context header: status + timestamp + title %>
-  <div class="mb-6 border-b border-outline-variant pb-6">
+<div class="bg-primary-container/40 border border-outline-variant rounded-[8px] p-6">
+  <%# Title tier: status + supervisor timestamp + title %>
+  <div class="mb-6">
     <div class="flex items-center gap-3 mb-2">
       <% status_badge =
         case current_instance.status
@@ -29,45 +29,76 @@
     </h1>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-    <% if project.owner.is_a?(ProjectGroup) %>
-      <div>
-        <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1">Group Name</div>
-        <div class="text-[14px] text-on-surface">
-          <%= link_to project.owner.group_name, participant_profile_course_path(course, project.owner.id, 'group'),
-              class: "hover:text-primary transition-colors" %>
-        </div>
-      </div>
-    <% end %>
+  <%# People row: sits directly on the card tint (no inset panel). Tint = container, white = content (chips). %>
+  <div class="space-y-5">
 
-    <div>
-      <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1">Type</div>
-      <div class="text-[14px] text-on-surface">Project</div>
+    <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.6fr)] gap-x-6 gap-y-5">
+
+      <% if project.owner.is_a?(ProjectGroup) %>
+        <!-- GROUP -->
+        <div class="min-w-0">
+          <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Group</div>
+          <%= link_to participant_profile_course_path(course, project.owner.id, 'group'), title: project.owner.group_name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
+            <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface-variant flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[18px]">group</span>
+            </span>
+            <span class="min-w-0 truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors"><%= project.owner.group_name %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% unless @course.solo_supervisor? %>
+        <!-- SUPERVISOR -->
+        <div class="min-w-0">
+          <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Supervisor</div>
+          <%= link_to course_lecturer_path(course, current_instance.supervisor), title: current_instance.supervisor.name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
+            <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">
+              <%= current_instance.supervisor.name.split.map(&:first).first(2).join.upcase %>
+            </span>
+            <span class="min-w-0 truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors"><%= current_instance.supervisor.name %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- SUBMITTED BY (version-specific) -->
+      <div class="min-w-0">
+        <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Submitted by</div>
+        <% submitter = current_instance.created_by %>
+        <% submitted_at = current_instance.created_at %>
+        <% if submitter %>
+          <%= link_to participant_profile_course_path(course, submitter.id, 'student'), title: submitter.name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
+            <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[13px] font-medium shrink-0"><%= submitter.name.first.upcase %></span>
+            <span class="min-w-0">
+              <span class="block truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors"><%= submitter.name %></span>
+              <span class="block text-[13px] text-on-surface-variant" title="<%= submitted_at&.strftime('%d %b %Y, %I:%M %p') %>"><%= time_ago_in_words(submitted_at) %> ago</span>
+            </span>
+          <% end %>
+        <% else %>
+          <div class="flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1">
+            <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[13px] font-medium shrink-0">?</span>
+            <span class="min-w-0">
+              <span class="block truncate text-[14px] font-medium text-on-surface">Unknown</span>
+              <span class="block text-[13px] text-on-surface-variant" title="<%= submitted_at&.strftime('%d %b %Y, %I:%M %p') %>"><%= time_ago_in_words(submitted_at) %> ago</span>
+            </span>
+          </div>
+        <% end %>
+      </div>
+
     </div>
 
+    <!-- OWNERS (wrapping chips, only the name is a link) -->
     <div>
-      <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-3">Owners</div>
-      <div class="space-y-3">
+      <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Owners</div>
+      <div class="flex flex-wrap gap-2">
         <% owners = project.owner.is_a?(User) ? [project.owner] : project.owner.users %>
         <% owners.each do |user| %>
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full bg-surface-variant text-on-surface flex items-center justify-center text-[13px] font-medium border border-outline-variant shrink-0"><%= user.name[0].upcase %></span>
-            <%= link_to user.name, participant_profile_course_path(course, user.id, 'student'), class: "text-[14px] text-on-surface hover:text-primary transition-colors" %>
-          </div>
+          <%= link_to participant_profile_course_path(course, user.id, 'student'), class: "inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1 hover:bg-white/80 transition-colors" do %>
+            <span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0"><%= user.name[0].upcase %></span>
+            <span class="min-w-0 truncate text-[13px] text-on-surface"><%= user.name %></span>
+          <% end %>
         <% end %>
       </div>
     </div>
 
-    <% unless @course.solo_supervisor? %>
-      <div>
-        <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-3">Supervisor</div>
-        <div class="flex items-center gap-3">
-          <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">
-            <%= current_instance.supervisor.name.split.map(&:first).first(2).join.upcase %>
-          </span>
-          <%= link_to current_instance.supervisor.name, course_lecturer_path(course, current_instance.supervisor), class: "text-[14px] text-on-surface font-medium hover:text-primary transition-colors" %>
-        </div>
-      </div>
-    <% end %>
   </div>
 </div>

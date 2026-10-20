@@ -1,7 +1,7 @@
 <%# locals: (topic:, course:, current_instance:) %>
 
-<div class="bg-surface border border-outline-variant rounded-[8px] p-6">
-  <div class="mb-6 border-b border-outline-variant pb-6">
+<div class="bg-primary-container/40 border border-outline-variant rounded-[8px] p-6">
+  <div class="mb-6">
     <div class="flex items-center gap-3 mb-2">
       <% status_badge =
         case current_instance.status
@@ -74,5 +74,39 @@
         </div>
       </div>
     <% end %>
+
+    <% submitter = current_instance.created_by %>
+    <% submitted_at = current_instance.created_at %>
+    <% submitter_enrolment = submitter ? course.enrolments.find_by(user: submitter) : nil %>
+    <div>
+      <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-3">Submitted by</div>
+      <% if submitter %>
+        <% submitter_path =
+              if submitter_enrolment&.student?
+                participant_profile_course_path(course, submitter.id, 'student')
+              elsif submitter_enrolment
+                course_lecturer_path(course, submitter)
+              end %>
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-surface-variant text-on-surface flex items-center justify-center text-[13px] font-medium border border-outline-variant shrink-0"><%= submitter.name.first.upcase %></span>
+          <span class="min-w-0">
+            <% if submitter_path %>
+              <%= link_to submitter.name, submitter_path, class: "block truncate text-[14px] font-medium text-on-surface hover:text-primary transition-colors" %>
+            <% else %>
+              <span class="block truncate text-[14px] font-medium text-on-surface"><%= submitter.name %></span>
+            <% end %>
+            <span class="block text-[13px] text-on-surface-variant" title="<%= submitted_at&.strftime('%d %b %Y, %I:%M %p') %>"><%= time_ago_in_words(submitted_at) %> ago</span>
+          </span>
+        </div>
+      <% else %>
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-surface-variant text-on-surface flex items-center justify-center text-[13px] font-medium border border-outline-variant shrink-0">?</span>
+          <span class="min-w-0">
+            <span class="block truncate text-[14px] font-medium text-on-surface">Unknown</span>
+            <span class="block text-[13px] text-on-surface-variant" title="<%= submitted_at&.strftime('%d %b %Y, %I:%M %p') %>"><%= time_ago_in_words(submitted_at) %> ago</span>
+          </span>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

@@ -74,7 +74,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match 'Version 1', response.body
-    assert_match 'Version 2 (Current)', response.body
+    assert_match 'Version 2 (Latest)', response.body
     assert_no_match 'Only one version exists', response.body
   end
 
@@ -149,6 +149,87 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get course_people_path(course)
     assert_response :success
     assert_no_match %r{0/0}, response.body
+
+    excluded_link = css_select("a[href=\"#{course_lecturer_path(course, lecturer_a)}\"]").first
+    assert_not_nil excluded_link
+    assert_includes excluded_link['class'], 'text-on-surface-disabled'
+    assert_select 'div.opacity-60', count: 1
+
+    active_link = css_select("a[href=\"#{course_lecturer_path(course, lecturer_b)}\"]").first
+    assert_not_nil active_link
+    assert_includes active_link['class'], 'text-on-surface'
+    assert_not_includes active_link['class'], 'text-on-surface-disabled'
+  end
+
+  test 'people tab sorts lecturers by remaining capacity, ties by name, excluded last' do
+    course = create(:course)
+    coordinator = create(:user)
+    create(:enrolment, :coordinator, user: coordinator, course: course)
+
+    # Created deliberately out of display order.
+    zoe = create(:user, :staff, name: 'Zoe Zebra')
+    anna = create(:user, :staff, name: 'Anna Apple')
+    bob = create(:user, :staff, name: 'Bob Banana')
+    mike = create(:user, :staff, name: 'Mike Mango')
+    carl = create(:user, :staff, name: 'Carl Cherry')
+    alice = create(:user, :staff, name: 'Alice Apricot')
+
+    create(:enrolment, :lecturer, user: zoe, course: course)
+    create(:enrolment, :lecturer, user: anna, course: course)
+    bob_enrolment = create(:enrolment, :lecturer, user: bob, course: course)
+    mike_enrolment = create(:enrolment, :lecturer, user: mike, course: course)
+    carl_enrolment = create(:enrolment, :lecturer, user: carl, course: course)
+    alice_enrolment = create(:enrolment, :lecturer, user: alice, course: course)
+
+    # Base cap is 5 (auto-calculate off): Bob 8 left, Anna and Zoe 5 left each
+    # (tie → name), Mike 6 approved against a cap of 5 → -1 (sinks to the
+    # bottom of the counted group), Alice and Carl excluded (bottom, by name).
+    bob_enrolment.update!(supervisor_capacity_offset: 3)
+    6.times { create(:project, course: course, supervisor_enrolment: mike_enrolment, status: :approved) }
+    [carl_enrolment, alice_enrolment].each { |enrolment| enrolment.update!(supervisor_capacity_excluded: true) }
+
+    sign_in coordinator
+    get course_people_path(course)
+    assert_response :success
+
+    names = ['Zoe Zebra', 'Anna Apple', 'Bob Banana', 'Mike Mango', 'Carl Cherry', 'Alice Apricot']
+    order = response.body.scan(/title="(#{names.join('|')})"/).flatten
+    assert_equal ['Bob Banana', 'Anna Apple', 'Zoe Zebra', 'Mike Mango', 'Alice Apricot', 'Carl Cherry'], order
+  end
+
+  test 'people tab leaves solo-supervisor lecturers in the association order' do
+    course = create(:course)
+    zed = create(:user, :staff, name: 'Zed Lower')
+    ada = create(:user, :staff, name: 'Ada Upper')
+    create(:enrolment, :lecturer, user: zed, course: course)
+    ada_enrolment = create(:enrolment, :lecturer, user: ada, course: course)
+    # Capacity order would be the reverse of the association's own order.
+    ada_enrolment.update!(supervisor_capacity_offset: 5)
+    assert course.solo_supervisor?
+
+    sign_in zed
+    get course_people_path(course)
+    assert_response :success
+
+    expected = course.lecturers.reload.map(&:name)
+    order = response.body.scan(/title="(Zed Lower|Ada Upper)"/).flatten
+    assert_equal expected, order
+  end
+
+  test 'people tab keeps pending text muted even when pending exceeds capacity' do
+    course = create(:course)
+    coordinator = create(:user)
+    create(:enrolment, :coordinator, user: coordinator, course: course)
+    lecturer = create(:user, :staff, name: 'Pat Pending')
+    enrolment = create(:enrolment, :lecturer, user: lecturer, course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
+    6.times { create(:project, course: course, supervisor_enrolment: enrolment, status: :pending) }
+
+    sign_in coordinator
+    get course_people_path(course)
+    assert_response :success
+    assert_select 'p.text-on-surface-muted', text: /6 pending/
+    assert_select 'p.text-error', count: 0
   end
 
   test 'groups tab renders the supervisor filter select for non-solo courses' do
