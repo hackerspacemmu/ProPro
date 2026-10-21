@@ -1,21 +1,8 @@
 module ApplicationHelper
-  # Resolves which content tab is active on load for the pages that persist the
-  # active tab in a per-resource cookie (projects/show, topics/show — the course
-  # tabs dropped their cookie when they became routes).
-  #
-  # The cookie is deliberately plain/unsigned — and only ever read through the
-  # `slugs` allowlist — so a forged value can at most land the user on the
-  # default (index 0) tab. Defaults to index 0 whenever the cookie is absent or
-  # doesn't name one of the given slugs.
-  def current_tab_index(persist_key:, slugs:)
-    slugs.index(cookies[persist_key]) || 0
-  end
-
-  # Server-side read of the sidebar rail-collapse preference, mirroring
-  # current_tab_index: plain/unsigned cookie because the value is written
-  # client-side by sidebar_controller.js (the same cookie convention
-  # tabs_controller.js uses). Only "true" means collapsed; anything else
-  # (absent, forged, "false") means expanded.
+  # Server-side read of the sidebar rail-collapse preference: plain/unsigned
+  # cookie because it is written client-side by sidebar_controller.js. Only
+  # "true" means collapsed; anything else (absent, forged, "false") means
+  # expanded.
   def sidebar_collapsed?
     cookies[:propro_sidebar_rail_collapsed] == 'true'
   end
@@ -34,13 +21,5 @@ module ApplicationHelper
     when 'approved' then 'bg-emerald-600'
     else 'bg-gray-600'
     end
-  end
-
-  # Whether the Progress Updates tab is shown on a project/topic show page.
-  # Single canonical definition shared by every view (lives here rather than
-  # duplicated across ProjectsHelper/TopicsHelper). Arguments are explicit so
-  # helpers stay decoupled from controller ivars.
-  def show_progress_tab?(course:, current_instance:)
-    course.use_progress_updates && current_instance.status == 'approved'
   end
 end

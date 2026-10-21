@@ -1,8 +1,5 @@
 require 'test_helper'
 
-# people#show — one student's participant profile (ADR 0022 phase 1). The
-# behavior that matters here is scoping/authorization; the presentation is the
-# old courses#profile student branch, moved verbatim.
 class PeopleControllerTest < ActionDispatch::IntegrationTest
   setup do
     @course = create(:course)

@@ -43,10 +43,13 @@ class TopicsController < ApplicationController
     nil
   end
 
+  include VersionBrowsing
+
   def show
     authorize @topic
 
     @instances = @topic.topic_instances.order(version: :asc)
+    load_versions(@instances)
     @owner = @topic.owner
     @status = @topic.current_instance&.status
     @is_coordinator = @course.enrolments.exists?(user: current_user, role: :coordinator)
@@ -60,44 +63,6 @@ class TopicsController < ApplicationController
                end
 
     @members = @owner.is_a?(ProjectGroup) ? @owner.users : [@owner]
-    @lecturer = User.find(params[:lecturer_id]) if params[:lecturer_id]
-
-    @index = params[:version].present? ? params[:version].to_i : @instances.size
-    @index = @instances.size if @index <= 0 || @index > @instances.size
-
-    @current_instance = @instances[@index - 1]
-
-    if @current_instance.nil?
-      redirect_to course_path(@course), alert: 'No project instance available.'
-      return
-    end
-
-    @current_fields = @current_instance.project_instance_fields
-                                       .includes(:project_template_field)
-                                       .order(project_template_field_id: :asc)
-    @latest_version = @instances.size
-    @current_version = @index
-    @next_fields = nil
-
-    if @index < @instances.size
-      @next_instance = @instances[@index]
-      @next_fields = @next_instance.project_instance_fields
-                                   .includes(:project_template_field)
-                                   .order(project_template_field_id: :asc)
-    end
-
-    @compare_index = @index
-    @compare_fields = @current_fields
-    @compare_next_fields = @next_fields
-
-    if @index == @instances.size && @instances.size > 1
-      previous_instance = @instances[@index - 2]
-      @compare_index = @index - 1
-      @compare_fields = previous_instance.project_instance_fields
-                                         .includes(:project_template_field)
-                                         .order(project_template_field_id: :asc)
-      @compare_next_fields = @current_fields
-    end
 
     @comments = @topic.comments.order(created_at: :asc)
     @new_comment = Comment.new

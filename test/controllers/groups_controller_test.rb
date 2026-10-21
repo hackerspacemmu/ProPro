@@ -1,8 +1,5 @@
 require 'test_helper'
 
-# groups#show — one group's participant profile (ADR 0022 phase 1). The
-# behavior that matters here is scoping/authorization; the presentation is the
-# old courses#profile group branch, moved verbatim.
 class GroupsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @course = create(:course, :grouped)

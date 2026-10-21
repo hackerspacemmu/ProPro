@@ -1,0 +1,36 @@
+<% content_for :title do %>
+  <%= @project.current_title.truncate(TITLE_NAME_LIMIT) %>
+  - Progress Updates | ProPro
+<% end %>
+
+<%= render layout: "projects/tab_shell",
+           locals: {
+             project: @project,
+             course: @course,
+             active: "progress",
+             current_instance: @current_instance,
+             current_version: @current_version,
+             latest_version: @latest_version,
+             instances: @instances,
+             members: @members,
+             comments: @comments,
+             new_comment: @new_comment,
+             comments_count: @comments.size
+           } do %>
+
+  <div data-controller="record-update-modal">
+    <%= render "progress_updates",
+               progress: @progress,
+               project: @project,
+               current_version: @current_version,
+               latest_version: @latest_version,
+               course: @course,
+               weeks: @weeks,
+               can_record_progress_update: policy(@project).can_record_progress_update? %>
+
+    <%= render "record_update_modal", course: @course, project: @project %>
+
+    <%= render "edit_update_modal", course: @course, project: @project %>
+  </div>
+
+<% end %>

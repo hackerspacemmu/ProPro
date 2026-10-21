@@ -1,10 +1,10 @@
 require 'application_system_test_case'
 
 # Version navigation for the topics show page is driven client-side: the
-# version `<select>` is wired to version_select_controller.js, which fires
-# `window.location.href = /courses/:course/topics/:topic?version=N`. rack_test
-# never executes JavaScript, so this class drives headless Chrome to exercise
-# the real select -> navigate behaviour.
+# version `<select>` is wired to version_select_controller.js, which navigates
+# to the current path with a new `?version=`. rack_test never executes
+# JavaScript, so this class drives headless Chrome to exercise the real
+# select -> navigate behaviour.
 class TopicVersioningTest < BrowserSystemTestCase
   setup do
     @course   = create(:course)

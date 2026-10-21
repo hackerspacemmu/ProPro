@@ -1,11 +1,14 @@
 class ProjectsController < ApplicationController
+  include VersionBrowsing
+
   before_action :set_course
   before_action :set_project, only: %i[show edit update change_status]
 
   def show
     authorize @project || Project.new(course: @course)
 
-    @instances = @project.project_instances.order(version: :asc)
+    load_versions(@project.project_instances.order(version: :asc))
+
     @owner = @project.owner
     @status = @project.status
 
@@ -17,45 +20,8 @@ class ProjectsController < ApplicationController
                  [@owner] # individual
                end
 
-    # Determine which version to show (default: newest, i.e., array length - 1)
-    @index = if params[:version].present?
-               params[:version].to_i
-             else
-               @instances.size
-             end
-
-    @index = @instances.size if @index <= 0 || @index > @instances.size
-
-    @current_instance = @instances[@index - 1]
-    @current_version = @index
-    @latest_version = @instances.size
-
-    @current_fields = @current_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-    @next_fields = nil
-
-    if @index < @instances.size
-      @next_instance = @instances[@index]
-      @next_fields = @next_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-    end
-
-    @compare_index = @index
-    @compare_fields = @current_fields
-    @compare_next_fields = @next_fields
-
-    if @index == @instances.size && @instances.size > 1
-      previous_instance = @instances[@index - 2]
-      @compare_index = @index - 1
-      @compare_fields = previous_instance.project_instance_fields.includes(:project_template_field).order(project_template_field_id: :asc)
-      @compare_next_fields = @current_fields
-    end
-
     @comments = @project.comments.order(created_at: :asc)
     @new_comment = Comment.new(user: current_user, location: @current_instance)
-
-    return unless @course.use_progress_updates
-
-    @progress = @project.progress_updates.order(date: :desc)
-    @weeks = @course.number_of_updates
   end
 
   def change_status

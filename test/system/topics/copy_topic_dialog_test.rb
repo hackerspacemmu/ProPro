@@ -173,8 +173,9 @@ class TopicCopyTopicDialogTest < BrowserSystemTestCase
 
     # The source-vs-current diff lives on the Compare Versions tab, first
     # version only.
-    click_button 'Compare Versions'
-    page.execute_script("document.getElementById('tab-compare').click()") unless page.has_css?('#tab-compare[aria-selected="true"]', wait: 2)
+    wait_for_turbo
+    find_link('Compare Versions').execute_script('this.click()')
+    assert_current_path course_topic_version_comparison_path(@course, copied), wait: Capybara.default_max_wait_time
 
     # Diffy treatment: source-title pill ⇄ "Version 1 (Latest)" + changed rows.
     assert_text 'Version 1 (Latest)', wait: 3

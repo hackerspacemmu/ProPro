@@ -1,4 +1,3 @@
-<%# locals: (current_instance:, project:, course:, current_version:, latest_version:, instances:, current_user:, members:, comments_count:, initial_tab_index:) %>
 
 <%# Flash messages %>
 <% if flash[:notice] %>
@@ -37,40 +36,39 @@
   </div>
 <% end %>
 
+<%
+  version_param = current_version && current_version != 1 ? { version: current_version } : {}
+  tabs = [
+    { slug: "details", name: "Project Details", path: course_project_path(course, project, version_param) },
+    { slug: "compare", name: "Compare Versions", path: course_project_version_comparison_path(course, project, version_param) }
+  ]
+  if course.use_progress_updates
+    tabs << { slug: "progress", name: "Progress Updates", path: course_project_progress_updates_path(course, project, version_param) }
+  end
+%>
+
 <%# Sticky Tabs %>
 <div class="border-b border-outline-variant px-8 sticky top-0 bg-surface z-20">
   <div class="flex items-center gap-3">
     <div class="relative flex-1 min-w-0" data-controller="tab-fade">
-      <div
-        role="tablist"
+      <nav
         data-testid="content-tabs"
+        aria-label="Project sections"
         data-tab-fade-target="scroller"
         class="flex flex-nowrap gap-x-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
       >
-        <%
-          project_tab_defs = []
-          project_tab_defs << { slug: "details", name: "Project Details", index: 0 }
-          project_tab_defs << { slug: "compare", name: "Compare Versions", index: 1 }
-          if course.use_progress_updates
-            project_tab_defs << { slug: "progress", name: "Progress Updates", index: 2 }
-          end
-        %>
-        <% project_tab_defs.each do |tab_def| %>
-          <% selected = tab_def[:index] == initial_tab_index %>
-          <button type="button"
-                  id="tab-<%= tab_def[:slug] %>"
-                  role="tab"
-                  aria-selected="<%= selected %>"
-                  aria-controls="panel-<%= tab_def[:slug] %>"
-                  tabindex="<%= selected ? 0 : -1 %>"
-                  data-tabs-target="tab"
-                  data-action="tabs#show"
-                  data-tabs-index-param="<%= tab_def[:index] %>"
-                  data-tabs-slug-param="<%= tab_def[:slug] %>"
-                  style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;"
-                  class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors <%= selected ? 'text-primary-strong' : 'text-on-surface-variant hover:bg-surface-hover hover:text-on-surface' %>"><%= tab_def[:name] %><div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-primary-strong"></div></button>
+        <% tabs.each do |tab| %>
+          <% selected = tab[:slug] == active %>
+          <%= link_to tab[:path],
+                id: "tab-#{tab[:slug]}",
+                "aria-current": (selected ? "page" : nil),
+                style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;",
+                class: "group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors #{selected ? 'text-primary-strong' : 'text-on-surface-variant hover:bg-surface-hover hover:text-on-surface'}" do %>
+            <%= tab[:name] %>
+            <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors <%= selected ? 'bg-primary-strong' : 'bg-transparent' %>"></div>
+          <% end %>
         <% end %>
-      </div>
+      </nav>
 
       <%# Trailing-edge fade: only shown while the strip actually overflows %>
       <div

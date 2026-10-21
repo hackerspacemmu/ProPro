@@ -28,7 +28,7 @@
      next_fields.find { |f| f.project_template_field_id == field_id }]
   end %>
 
-  <%= render "diff_grid",
+  <%= render "topics/diff_grid",
   pairs: pairs,
   empty_detail: "All fields are identical between these two versions." %>
 

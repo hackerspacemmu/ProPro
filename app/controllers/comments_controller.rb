@@ -20,12 +20,10 @@ class CommentsController < ApplicationController
 
     notify_project_comment(comment, location) if params[:comment][:source_type] == 'ProjectInstance'
 
-    case params[:comment][:source_type]
-    when 'ProjectInstance'
-      redirect_to course_project_path(location.project.course, location.project, version: location.version)
-    when 'TopicInstance'
-      redirect_to course_topic_path(location.topic.course, location.topic, version: location.version)
-    end
+    redirect_back(
+      fallback_location: comment_fallback_path(location),
+      allow_other_host: false
+    )
   end
 
   def soft_delete
@@ -33,15 +31,24 @@ class CommentsController < ApplicationController
 
     comment.update!(deleted: true) if Current.user.id == comment.user.id
 
-    case comment.location_type
-    when 'ProjectInstance'
-      redirect_to course_project_path(comment.location.project.course, comment.location.project, version: comment.location.version)
-    when 'TopicInstance'
-      redirect_to course_topic_path(comment.location.topic.course, comment.location.topic, version: comment.location.version)
-    end
+    redirect_back(
+      fallback_location: comment_fallback_path(comment.location),
+      allow_other_host: false
+    )
   end
 
   private
+
+  def comment_fallback_path(location)
+    case location
+    when ProjectInstance
+      course_project_path(location.project.course, location.project, version: location.version)
+    when TopicInstance
+      course_topic_path(location.topic.course, location.topic, version: location.version)
+    else
+      root_path
+    end
+  end
 
   def notify_project_comment(comment, project_instance)
     project = project_instance.project

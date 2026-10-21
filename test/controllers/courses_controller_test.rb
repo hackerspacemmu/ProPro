@@ -70,7 +70,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     v2.project_instance_fields.create!(project_template_field_id: field.id, value: 'Polished draft')
 
     sign_in @coordinator_user
-    get course_project_path(@course, project)
+    get course_project_version_comparison_path(@course, project)
 
     assert_response :success
     assert_match 'Version 1', response.body
@@ -83,7 +83,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:project_instance, project: project, supervisor_enrolment: @coordinator_enrolment, created_by: @student_user, version: 1, status: :pending, title: 'Solo')
 
     sign_in @coordinator_user
-    get course_project_path(@course, project)
+    get course_project_version_comparison_path(@course, project)
 
     assert_response :success
     assert_match 'Only one version exists', response.body

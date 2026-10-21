@@ -1,6 +1,3 @@
-<% content_for :body_class, "bg-surface-tint" %>
-<% breadcrumb :project, @project %>
-
 <% content_for :title do %>
   <%= @project.current_title.truncate(TITLE_NAME_LIMIT) %>
   - View
@@ -8,149 +5,32 @@
   | ProPro
 <% end %>
 
-<%
-  project_tab_slugs = ["details", "compare"]
-  project_tab_slugs << "progress" if @course.use_progress_updates
-  project_tab_persist_key = "propro_tab_project_#{@project.id}"
-  project_initial_tab = current_tab_index(persist_key: project_tab_persist_key, slugs: project_tab_slugs)
-%>
+<%= render layout: "projects/tab_shell",
+           locals: {
+             project: @project,
+             course: @course,
+             active: "details",
+             current_instance: @current_instance,
+             current_version: @current_version,
+             latest_version: @latest_version,
+             instances: @instances,
+             members: @members,
+             comments: @comments,
+             new_comment: @new_comment,
+             comments_count: @comments.size
+           } do %>
 
-<div class="text-on-surface font-['Roboto',sans-serif]">
-  <div class="flex">
-    <%= render "shared/sidebar" %>
+  <%= render "project_overview",
+             project: @project,
+             course: @course,
+             current_instance: @current_instance %>
 
-    <main
-      class="flex-1 bg-surface rounded-tl-panel flex overflow-hidden h-[calc(100vh-var(--spacing-header))]"
-      data-controller="tabs comments-drawer"
-      data-tabs-persist-key-value="<%= project_tab_persist_key %>"
-      data-tabs-active-class="text-primary-strong"
-      data-tabs-inactive-class="text-on-surface-variant hover:bg-surface-hover hover:text-on-surface"
-      data-action="keydown.esc@window->comments-drawer#closeOnEscape"
-    >
+  <%= render "project_details",
+             fields: @current_fields,
+             next_fields: @next_fields,
+             based_on_topic_name:
+               @current_instance&.source_topic&.topic_instances&.last&.title || nil,
+             index: @index,
+             instances: @instances %>
 
-      <%# ===== LEFT PANE ===== %>
-      <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative border-r border-outline-variant">
-
-        <%= render "project_header",
-        current_instance: @current_instance,
-        project: @project,
-        course: @course,
-        current_version: @current_version,
-        latest_version: @latest_version,
-        instances: @instances,
-        current_user: current_user,
-        members: @members,
-        comments_count: @comments.size,
-        initial_tab_index: project_initial_tab %>
-
-        <%# Content Panels %>
-        <div class="p-8 max-w-5xl space-y-6 pb-28 min-[1245px]:pb-8">
-
-          <%# Panel 1: Project Details %>
-          <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 0 ? ' hidden' : '' %>">
-            <%= render "project_overview",
-            project: @project,
-            course: @course,
-            current_instance: @current_instance %>
-
-            <%= render "project_details",
-            fields: @current_fields,
-            next_fields: @next_fields,
-            based_on_topic_name:
-              @current_instance&.source_topic&.topic_instances&.last&.title || nil,
-            index: @index,
-            instances: @instances %>
-
-          </div>
-
-          <%# Panel 2: Compare Versions %>
-          <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" data-tabs-target="panel" class="space-y-6<%= project_initial_tab != 1 ? ' hidden' : '' %>">
-            <%= render "compare_versions_tab",
-            fields: @compare_fields,
-            next_fields: @compare_next_fields,
-            index: @compare_index,
-            instances: @instances %>
-          </div>
-
-          <%# Panel 3: Progress Updates (conditional) %>
-          <% if @course.use_progress_updates %>
-            <div
-              id="panel-progress"
-              role="tabpanel"
-              aria-labelledby="tab-progress"
-              data-tabs-target="panel"
-              class="<%= project_initial_tab != 2 ? 'hidden' : '' %>"
-              data-controller="record-update-modal"
-            >
-              <%= render "progress_updates",
-              progress: @progress,
-              project: @project,
-              current_version: @current_version,
-              latest_version: @latest_version,
-              course: @course,
-              weeks: @weeks,
-              can_record_progress_update: policy(@project).can_record_progress_update? %>
-
-              <%= render "record_update_modal", course: @course, project: @project %>
-
-              <%= render "edit_update_modal", course: @course, project: @project %>
-            </div>
-          <% end %>
-
-        </div>
-
-      </div>
-
-      <%# ===== RIGHT PANE: review desktop-only, comments drawer ===== %>
-      <div
-        id="comments-drawer"
-        data-comments-drawer-target="panel"
-        role="region"
-        aria-label="Comments"
-        class="
-          fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-surface p-6
-          flex flex-col gap-6 overflow-y-auto shrink-0
-          translate-x-full transition-transform duration-300 ease-out
-          min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none
-          min-[1245px]:transition-none min-[1245px]:border-l-0
-        "
-      >
-        <div class="shrink-0">
-          <%= render "project_review_card",
-          project: @project,
-          course: @course,
-          current_version: @current_version,
-          latest_version: @latest_version,
-          instances: @instances,
-          members: @members %>
-        </div>
-
-        <div class="w-full flex-1 min-h-[360px]">
-          <%= render "project_comments",
-          comments: @comments,
-          new_comment: @new_comment,
-          course: @course,
-          project: @project,
-          current_instance_id: @current_instance.id,
-          current_version: @current_version,
-          latest_version: @latest_version %>
-        </div>
-      </div>
-
-      <div
-        data-comments-drawer-target="backdrop"
-        data-action="click->comments-drawer#close"
-        class="hidden fixed inset-0 bg-black/40 z-40 min-[1245px]:hidden"
-      ></div>
-
-    </main>
-  </div>
-
-  <%= render "review_action_bar",
-  project: @project,
-  course: @course,
-  current_version: @current_version,
-  latest_version: @latest_version,
-  instances: @instances,
-  members: @members %>
-</div>
+<% end %>

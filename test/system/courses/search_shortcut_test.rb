@@ -9,15 +9,18 @@ class SearchShortcutTest < BrowserSystemTestCase
   # "/" fires KeyboardEvent
   def press_slash_until
     wait_for_turbo
-    4.times do
+    deadline = Time.zone.now + Capybara.default_max_wait_time
+    loop do
       page.execute_script(
         'window.dispatchEvent(new KeyboardEvent("keydown", { key: "/", bubbles: true }))'
       )
+      wait_for_turbo
       return if yield
 
-      sleep 0.3
+      flunk "'/' never produced the expected outcome" if Time.zone.now > deadline
+
+      sleep 0.1
     end
-    flunk "'/' never produced the expected outcome"
   end
 
   # Focus on the search bar is asserted on document.activeElement

@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   root 'landing#show'
   get 'dashboard', to: 'homescreen#show', as: :dashboard
 
-  # Dev-only live component style guide (see app/views/styleguide/show.html.erb).
+  # DEV ONLY (see app/views/styleguide/show.html.erb)
   get 'styleguide', to: 'styleguide#show' if Rails.env.development?
 
   get 'login', to: 'sessions#new'
@@ -58,19 +58,18 @@ Rails.application.routes.draw do
         get 'selected_topic_edit', to: 'projects#selected_topic_edit'
       end
 
-      resources :progress_updates, only: %i[create update destroy]
+      resource :version_comparison, only: :show, controller: 'project_version_comparisons'
+
+      resources :progress_updates, only: %i[index create update destroy]
     end
 
     resources :topics, only: %i[index show edit update create new destroy] do
       member do
         patch :change_status
       end
+      resource :version_comparison, only: :show, controller: 'topic_version_comparisons'
     end
 
-    # Course tab routes (route-per-tab, ADR 0019): the People and Groups tabs
-    # are real pages, siblings of courses#show (Overview). `groups` deliberately
-    # coexists with the nested `project_groups` above — different resources,
-    # different helpers.
     resources :people, only: %i[index show]
     resources :groups, only: %i[index show]
 
@@ -78,14 +77,6 @@ Rails.application.routes.draw do
       member do
         patch 'promote_to_coordinator'
         patch 'demote_to_lecturer'
-      end
-
-      resources :projects, only: [:show], controller: 'projects'
-
-      resources :topics, only: %i[show edit update create new] do
-        member do
-          patch :change_status
-        end
       end
     end
 

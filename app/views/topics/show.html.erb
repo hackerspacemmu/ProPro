@@ -1,157 +1,30 @@
-<% content_for :body_class, "bg-surface-tint" %>
-<% breadcrumb :topic, @topic %>
-
 <% content_for :title do %>
   <%= @topic.current_title.truncate(TITLE_NAME_LIMIT) %>
   - View Topic | ProPro
 <% end %>
 
-<%
-  topic_tab_slugs = ["details", "compare"]
-  topic_tab_persist_key = "propro_tab_topic_#{@topic.id}"
-  topic_initial_tab = current_tab_index(persist_key: topic_tab_persist_key, slugs: topic_tab_slugs)
-%>
+<%= render layout: "topics/tab_shell",
+           locals: {
+             topic: @topic,
+             course: @course,
+             active: "details",
+             current_instance: @current_instance,
+             current_version: @current_version,
+             latest_version: @latest_version,
+             instances: @instances,
+             members: @members,
+             comments: @comments,
+             new_comment: @new_comment,
+             comments_count: @comments.size,
+             is_student: @is_student
+           } do %>
 
-<% has_actions =
-  @members.include?(current_user) || @current_version != @latest_version ||
-    policy(Project.new(course: @course)).create? ||
-    (@project.present? && policy(@project).update?) %>
+  <%= render "topic_overview",
+             topic: @topic,
+             course: @course,
+             current_instance: @current_instance %>
 
-<div class="text-on-surface font-['Roboto',sans-serif]">
-  <div class="flex">
-    <%= render "shared/sidebar" %>
+  <%= render "topic_field_list",
+             fields: @current_fields %>
 
-    <main
-      class="flex-1 bg-surface rounded-tl-panel flex overflow-hidden h-[calc(100vh-var(--spacing-header))]"
-      data-controller="tabs comments-drawer"
-      data-tabs-persist-key-value="<%= topic_tab_persist_key %>"
-      data-tabs-active-class="text-primary-strong"
-      data-tabs-inactive-class="text-on-surface-variant hover:bg-surface-hover hover:text-on-surface"
-      data-action="keydown.esc@window->comments-drawer#closeOnEscape"
-    >
-
-      <%# ===== LEFT PANE ===== %>
-      <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative border-r border-outline-variant">
-
-        <%= render "context_header",
-        current_instance: @current_instance,
-        topic: @topic,
-        course: @course,
-        current_version: @current_version,
-        latest_version: @latest_version,
-        instances: @instances,
-        current_user: current_user,
-        members: @members,
-        comments_count: @comments.size,
-        initial_tab_index: topic_initial_tab %>
-
-        <%# Content Panels %>
-        <div class="p-8 max-w-5xl space-y-6 pb-28 min-[1245px]:pb-8">
-
-          <%# Panel 1: Topic Details %>
-          <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" data-tabs-target="panel" class="space-y-6<%= topic_initial_tab != 0 ? ' hidden' : '' %>">
-            <%= render "topic_overview",
-            topic: @topic,
-            course: @course,
-            current_instance: @current_instance %>
-
-            <%= render "topic_field_list",
-            fields: @current_fields %>
-          </div>
-
-          <%# Panel 2: Compare Versions %>
-          <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" data-tabs-target="panel" class="space-y-6<%= topic_initial_tab != 1 ? ' hidden' : '' %>">
-            <% show_source_diff =
-              @instances.size == 1 &&
-              @topic.source_topic.present? &&
-              (@is_coordinator || @topic.owner == current_user) &&
-              @topic.source_topic.current_instance.present? %>
-            <% if show_source_diff %>
-              <% source_instance = @topic.source_topic.current_instance %>
-              <%= render "source_topic_diff",
-              base_fields: source_instance.project_instance_fields,
-              target_fields: @current_fields,
-              source_topic: @topic.source_topic %>
-            <% else %>
-              <%= render "compare_versions_tab",
-              fields: @compare_fields,
-              next_fields: @compare_next_fields,
-              index: @compare_index,
-              instances: @instances %>
-            <% end %>
-          </div>
-
-        </div>
-
-      </div>
-
-      <%# ===== RIGHT PANE: review desktop-only, comments drawer ===== %>
-      <div
-        id="comments-drawer"
-        data-comments-drawer-target="panel"
-        role="region"
-        aria-label="Comments"
-        class="
-          fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-surface p-6
-          flex flex-col gap-6 overflow-y-auto shrink-0
-          translate-x-full transition-transform duration-300 ease-out
-          min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none
-          min-[1245px]:transition-none min-[1245px]:border-l-0
-        "
-      >
-        <div class="shrink-0">
-          <%= render "topic_review_card",
-          topic: @topic,
-          course: @course,
-          current_version: @current_version,
-          latest_version: @latest_version,
-          instances: @instances,
-          members: @members %>
-        </div>
-
-        <div class="w-full flex-1 min-h-[360px]">
-          <% if !@is_student %>
-            <%= render "topic_comments",
-            comments: @comments,
-            new_comment: @new_comment,
-            course: @course,
-            topic: @topic,
-            current_instance_id: @current_instance.id,
-            current_version: @current_version,
-            latest_version: @latest_version %>
-          <% else %>
-            <section
-              class="
-                w-full flex flex-col items-center justify-center h-full min-h-[300px] bg-white
-                rounded-[8px] border border-outline-variant p-8 text-center
-              "
-            >
-              <span class="material-symbols-outlined text-[48px] text-gray-300 mb-3">lock</span>
-              <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">
-                Comments Restricted
-              </p>
-              <p class="text-xs text-gray-400">
-                Comments cannot be viewed
-              </p>
-            </section>
-          <% end %>
-        </div>
-      </div>
-
-      <div
-        data-comments-drawer-target="backdrop"
-        data-action="click->comments-drawer#close"
-        class="hidden fixed inset-0 bg-black/40 z-40 min-[1245px]:hidden"
-      ></div>
-
-    </main>
-  </div>
-
-  <%= render "review_action_bar",
-  topic: @topic,
-  course: @course,
-  current_version: @current_version,
-  latest_version: @latest_version,
-  instances: @instances,
-  members: @members %>
-</div>
+<% end %>

@@ -32,6 +32,6 @@
   [base_fields.find { |f| f.id == next_field.source_field_id }, next_field]
 end %>
 
-<%= render "diff_grid",
+<%= render "topics/diff_grid",
 pairs: pairs,
 empty_detail: "The copy matches its source topic." %>

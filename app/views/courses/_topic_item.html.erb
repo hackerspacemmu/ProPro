@@ -5,7 +5,7 @@
 
   path =
     if local_assigns[:lecturer].present?
-      course_lecturer_topic_path(course, lecturer, topic)
+      course_topic_path(course, topic)
     elsif params[:from_edit_project].present?
       course_topic_path(@course, topic, from_edit_project: true, project_id: params[:project_id])
     else

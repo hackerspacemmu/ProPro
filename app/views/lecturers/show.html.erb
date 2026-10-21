@@ -7,11 +7,6 @@
   "#{@lecturer.name.truncate(TITLE_NAME_LIMIT)} - View Supervisor | ProPro" %>
 
 <%
-  # Access gates (reused verbatim from the pre-restyle page — CoursePolicy is
-  # untouched). unrestricted_lecturer_access? (coordinator / self / any lecturer
-  # while the course's "Lecturer views public?" lecturer_access is on) sees every
-  # section; student_can_view_lecturer? (student, gated by student_access:
-  # owner_only / own_lecturer_only / no_restriction) sees Topics only.
   unrestricted = policy(@course).unrestricted_lecturer_access?(@lecturer)
   student_view = policy(@course).student_can_view_lecturer?(@lecturer)
 
@@ -26,11 +21,6 @@
     any_sections = topic_rows.any?
   end
 
-  # Facts strip: capacity ~ People tab but bar-first — the w-24 bar starts flush
-  # under the "Supervisor Capacity" label, then (n pending), approved/cap, and the
-  # exceeding error icon at the end (so the bar is never shifted off the label).
-  # Hidden for solo-supervisor courses (no capacity concept) and when the profile
-  # is a coordinator-only enrolment (no capacity row).
   lecturer_capacity = @lecturer_capacity_info[@lecturer.id] unless @course.solo_supervisor?
   show_capacity = lecturer_capacity && !lecturer_capacity.excluded?
 
@@ -191,7 +181,7 @@
                   <% @my_student_projects.each do |project| %>
                     <%= render "projects/list_item",
                         project: project,
-                        path: course_lecturer_project_path(@course, @lecturer, project),
+                        path: course_project_path(@course, project),
                         linkable: policy(project).show? %>
                   <% end %>
                 </div>
@@ -224,7 +214,7 @@
                   <% pending_rows.each do |project| %>
                     <%= render "projects/list_item",
                         project: project,
-                        path: course_lecturer_project_path(@course, @lecturer, project),
+                        path: course_project_path(@course, project),
                         linkable: policy(project).show? %>
                   <% end %>
                 </div>
@@ -243,7 +233,7 @@
                   <% reviewed_rows.each do |project| %>
                     <%= render "projects/list_item",
                         project: project,
-                        path: course_lecturer_project_path(@course, @lecturer, project),
+                        path: course_project_path(@course, project),
                         linkable: policy(project).show? %>
                   <% end %>
                 </div>

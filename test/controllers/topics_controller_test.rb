@@ -39,7 +39,7 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
     second.project_instance_fields.create!(project_template_field_id: field.id, value: 'Polished draft')
 
     sign_in @coordinator
-    get course_topic_path(@course, @topic)
+    get course_topic_version_comparison_path(@course, @topic)
 
     assert_response :success
     assert_match 'Version 1', response.body
@@ -49,7 +49,7 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
 
   test 'compare tab keeps the empty state for a single-version topic' do
     sign_in @coordinator
-    get course_topic_path(@course, @topic)
+    get course_topic_version_comparison_path(@course, @topic)
 
     assert_response :success
     assert_match 'Only one version exists', response.body
@@ -114,10 +114,9 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
     copied = build_copied_topic(source_value: 'Original text', copy_value: 'Edited text')
 
     sign_in @coordinator
-    get course_topic_path(@course, copied)
+    get course_topic_version_comparison_path(@course, copied)
 
     assert_response :success
-    assert_match 'Copied from', response.body
     assert_match 'Version 1 (Latest)', response.body
     assert_match 'Source Title', response.body
     assert_match %r{<del[^>]*>Original</del>}, response.body
@@ -136,7 +135,7 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
     )
 
     sign_in @coordinator
-    get course_topic_path(@course, copied)
+    get course_topic_version_comparison_path(@course, copied)
 
     assert_response :success
     assert_match 'Version 2 (Latest)', response.body
@@ -152,7 +151,7 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
                             status: :approved, title: 'Copy Title')
 
     sign_in other_lecturer
-    get course_topic_path(@course, copied)
+    get course_topic_version_comparison_path(@course, copied)
 
     assert_response :success
     assert_match 'Only one version exists', response.body

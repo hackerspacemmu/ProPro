@@ -6,10 +6,9 @@
   <div class="flex items-center gap-1 flex-1 min-w-0">
     <% prev_version = current_version.to_i > 1 ? current_version.to_i - 1 : nil %>
     <% next_version = current_version.to_i < instances.size ? current_version.to_i + 1 : nil %>
-    <% base_path = course_project_path(course, project) %>
 
     <% if prev_version %>
-      <%= link_to "#{base_path}?version=#{prev_version}",
+      <%= link_to "#{request.path}?version=#{prev_version}",
           class: "shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-hover transition-colors",
           aria: { label: "Previous version" } do %>
         <span class="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -32,8 +31,6 @@
           ),
           data: {
             controller: "version-select",
-            version_select_course_value: course.id,
-            version_select_project_value: project.id,
             action: "change->version-select#navigate"
           },
           class: "w-full bg-surface border border-outline rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary cursor-pointer appearance-none" %>
@@ -43,7 +40,7 @@
     </div>
 
     <% if next_version %>
-      <%= link_to "#{base_path}?version=#{next_version}",
+      <%= link_to "#{request.path}?version=#{next_version}",
           class: "shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-hover transition-colors",
           aria: { label: "Next version" } do %>
         <span class="material-symbols-outlined text-[20px]">chevron_right</span>

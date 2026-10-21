@@ -42,9 +42,8 @@ export default class extends Controller {
 
   setCollapsed(value) {
     this.containerTarget.dataset.collapsed = String(value);
-    // Same write tabs_controller.js uses for the active tab cookie (plain,
-    // samesite=lax, secure only over https): do not simplify — keep the
-    // app's one persistence convention.
+    // Plain, samesite=lax cookie, secure only over https: keep the app's one
+    // client-side persistence convention.
     const secure = window.location.protocol === "https:" ? "; secure" : "";
     document.cookie = `propro_sidebar_rail_collapsed=${value}; path=/; max-age=31536000; samesite=lax${secure}`;
     this.syncExpanded();

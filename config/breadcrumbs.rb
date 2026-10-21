@@ -112,12 +112,5 @@ end
 
 crumb :topic do |topic|
   link topic.topic_instances.last&.title
-
-  if params[:lecturer_id]
-    # From lecturer/show
-    lecturer = User.find(params[:lecturer_id])
-    parent :lecturer, topic.course, lecturer
-  else
-    parent :course, topic.course
-  end
+  parent :course, topic.course
 end

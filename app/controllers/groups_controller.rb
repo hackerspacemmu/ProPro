@@ -50,8 +50,6 @@ class GroupsController < ApplicationController
     nil
   end
 
-  # One group's participant profile (was the group branch of courses#profile,
-  # ADR 0022 phase 1). Course-scoped lookup: other-course groups 404.
   def show
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
