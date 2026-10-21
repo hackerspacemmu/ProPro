@@ -44,6 +44,7 @@ Rails.application.routes.draw do
       get  'grouping_preview'
       post 'update_coursecode'
       post 'update_email_domain'
+      post 'update_github_tracking'
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
       get 'details', to: 'courses#details'

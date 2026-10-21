@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_20_071026) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
     t.string "email_domain_restriction"
     t.boolean "email_domain_restriction_enabled", default: false, null: false
+    t.boolean "github_tracking_enabled", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
@@ -143,7 +144,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.integer "last_status_change_by"
     t.integer "last_edit_by"
     t.index ["created_by_id"], name: "index_project_instances_on_created_by_id"
-    t.index ["enrolment_id"], name: "index_project_instances_on_enrolment_id"
+    t.index ["enrolment_id"], name: "index_pdefault: false, null: falseroject_instances_on_enrolment_id"
     t.index ["project_id", "version"], name: "index_project_instances_on_project_id_and_version", unique: true
     t.index ["project_id"], name: "index_project_instances_on_project_id"
     t.index ["source_topic_id"], name: "index_project_instances_on_source_topic_id"

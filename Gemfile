@@ -107,3 +107,9 @@ gem 'sqids', '~> 0.2.2'
 gem 'acts_as_list'
 
 gem "commonmarker", "~> 2.9"
+
+#octokit used for GitHub tracking (API wrapper for GitHub REST API)
+gem "octokit"
+
+#faraday-retry is used by octokit to automatically retry API requests if a server error occurs
+gem "faraday-retry"

@@ -1,0 +1,15 @@
+<%# locals: (course:) %>
+<%= turbo_frame_tag "github_tracking_form" do %>
+  <div data-controller="github-tracking-form-handler"
+       data-github-tracking-form-handler-url-value="<%= update_github_tracking_course_path(course) %>">
+    <label class="flex flex-wrap items-start cursor-pointer mt-4">
+      <input type="checkbox" class="sr-only peer" role="switch" autocomplete="off"
+             data-github-tracking-form-handler-target="enabledToggle"
+             data-action="change->github-tracking-form-handler#toggle"
+             <%= 'checked' if course.github_tracking_enabled %>>
+      <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500 flex-shrink-0"></div>
+      <span class="ml-3 text-sm font-medium text-gray-700">Enable Tracking Commits on GitHub Repositories</span>
+      <span class="block w-full ml-14 text-xs font-normal text-gray-500 mt-0.5">Enabling this function will automatically add a Github link field in template</span>
+    </label>
+  </div>
+<% end %>

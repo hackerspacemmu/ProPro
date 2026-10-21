@@ -96,7 +96,7 @@
           </div>
 
           <!-- SUBSECTION: Supervisor Capacity -->
-          <div class="mt-8">
+          <div class="border-b border-gray-200 pb-8 mt-8">
             <h3 class="text-lg font-medium text-gray-800 mb-4">Supervisor Capacity</h3>
 
             <div class="space-y-6">
@@ -108,6 +108,12 @@
 
               <%= render "supervisor_capacity_settings", form: form, capacity_result: @capacity_result, lecturer_enrolments: @lecturer_enrolments %>
             </div>
+          </div>
+
+          <!-- SUBSECTION: Github Repo Tracking -->
+          <div class="border-b border-gray-200 pb-8 mt-8">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Github Repository Tracking</h3>
+            <%= render "course_github_tracking_form", course: @course %>
           </div>
         </section>
 

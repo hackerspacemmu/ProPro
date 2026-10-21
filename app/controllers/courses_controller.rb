@@ -3,7 +3,7 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain grouping_preview]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain update_github_tracking grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
   # The Overview tab — the only course tab page that lives on courses#show;
@@ -396,6 +396,25 @@ class CoursesController < ApplicationController
       turbo_stream.replace('email_domain_restrict_form', partial: 'courses/course_email_domain_restrict_form', locals: { course: @course })
     ]
   end
+
+  def update_github_tracking
+    authorize @course, :update?
+
+    if params[:course]&.key?(:github_tracking_enabled)
+      is_enabled = params[:course][:github_tracking_enabled] == '1'
+      @course.update!(github_tracking_enabled: is_enabled)
+      flash.now[:notice] ||= 'Github Tracking settings changed'
+      
+    end
+  rescue StandardError => e
+    flash.now[:alert] = e.message
+  ensure
+    render turbo_stream: [
+      turbo_stream.update('flash', partial: 'courses/flash'),
+      turbo_stream.replace('github_tracking_form', partial: 'courses/course_github_tracking_form', locals: { course: @course })
+    ]
+  end
+
 
   def enroll_via_coursecode
     new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
