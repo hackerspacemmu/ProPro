@@ -7,7 +7,10 @@ module CoursesHelper
   end
 
   def student_project_for(student, projects_by_owner)
-    projects_by_owner[['User', student.id]]
+    projects_by_owner[['User', student.id]] ||
+      student.project_groups
+             .filter_map { |group| projects_by_owner[['ProjectGroup', group.id]] }
+             .first
   end
 
   def group_status(group, projects_by_owner)

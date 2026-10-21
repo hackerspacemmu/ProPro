@@ -24,6 +24,7 @@ class ChangeStatusTest < ApplicationSystemTestCase
 
     assert_selector '[data-testid="flash-notice"]'
     assert_text 'Approved'
+    assert_selector 'button[aria-label^="Review status: Approved"]'
   end
 
   test 'student cannot change project status sad path' do

@@ -33,8 +33,13 @@ export default class extends Controller {
     const borders =
       parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
 
+    // The CSS max-height (max-h-40) clamps the height set below; once content
+    // exceeds it the textarea scrolls internally. Preserve scrollTop because
+    // resetting height to "auto" can make a capped textarea jump.
+    const prevScrollTop = el.scrollTop;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight + borders}px`;
+    el.scrollTop = prevScrollTop;
   }
 
   commentResize() {

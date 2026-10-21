@@ -33,7 +33,8 @@ class EnrolmentsController < ApplicationController
         enrolment.destroy!
       end
     rescue StandardError
-      redirect_to participant_profile_course_path(params[:course_id], user_id, 'student')
+      redirect_to course_person_path(params[:course_id], user_id)
+      return
     end
 
     redirect_to course_path(params[:course_id])

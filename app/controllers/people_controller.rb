@@ -4,6 +4,7 @@
 # `section=students` dispatch (same partial, same locals).
 class PeopleController < ApplicationController
   include ParticipantBrowsing
+  include CoursesHelper
 
   before_action :set_course
   before_action :authorize_course
@@ -13,10 +14,10 @@ class PeopleController < ApplicationController
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     @student_list = @course.students
-    @lecturers = @course.lecturers
 
     @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
+    @lecturers = sorted_lecturers(@course.lecturers)
 
     # One map lookup, computed once: user_id => project_group for the Students
     # section's Group column. Includes draft groups (students in a draft group
@@ -62,7 +63,42 @@ class PeopleController < ApplicationController
     nil
   end
 
+  # One student's participant profile (was the student branch of courses#profile,
+  # ADR 0022 phase 1). Course-scoped lookup: the student must be enrolled in this
+  # course, so other-course participants 404. `@course.students` includes
+  # invited (unregistered) users — they are real enrolments.
+  def show
+    projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
+    @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
+
+    @student = @course.students.find(params[:id])
+    @student_enrolment = @course.enrolments.find_by(user: @student, role: :student)
+    @project = student_project_for(@student, @projects_by_owner)
+    @status = student_status(@student, @projects_by_owner)
+    @current_instance = @project&.current_instance
+    @supervisor = @project&.supervisor if @project
+  end
+
   private
+
+  # Display order for the Lecturers section (rendered as given; the view sorts
+  # nothing). Solo-supervisor courses show no capacity, so they keep the
+  # association's own order. Otherwise: most remaining capacity first
+  # (effective_cap - approved_count, so over-capacity rows sink), ties by name
+  # case-insensitively, then excluded (and capacity-less) rows last by name.
+  def sorted_lecturers(lecturers)
+    return lecturers if @course.solo_supervisor?
+
+    ranked = lecturers.map { |lecturer| [lecturer, @lecturer_capacity_info[lecturer.id]] }
+    counted, tail = ranked.partition { |_lecturer, capacity| capacity.present? && !capacity.excluded? }
+
+    active = counted.sort_by do |lecturer, capacity|
+      [capacity.approved_count - capacity.effective_cap, lecturer.name.downcase, lecturer.id]
+    end
+    rest = tail.sort_by { |lecturer, _capacity| [lecturer.name.downcase, lecturer.id] }
+
+    (active + rest).map(&:first)
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

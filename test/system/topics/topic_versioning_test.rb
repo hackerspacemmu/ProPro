@@ -45,10 +45,19 @@ class TopicVersioningTest < BrowserSystemTestCase
     assert_current_path course_topic_path(@course, @topic, version: 2), wait: Capybara.default_max_wait_time
   end
 
-  # NOTE: The old arrow-based version card had dedicated "back disabled on
-  # version 1" and "next disabled on latest version" tests. A `<select>` has no
-  # disabled direction — it simply lists every version and highlights the
-  # current one. Those two tests have no clean dropdown equivalent and are
-  # intentionally not carried forward; the bounded option list itself prevents
-  # out-of-range navigation.
+  test 'chevron arrows flank the version select' do
+    login_as(@lecturer)
+    visit course_topic_path(@course, @topic)
+
+    assert_selector 'a[aria-label="Previous version"]'
+    assert_selector 'button[aria-label="Next version"][disabled]'
+  end
+
+  test 'previous chevron is disabled on version 1' do
+    login_as(@lecturer)
+    visit course_topic_path(@course, @topic, version: 1)
+
+    assert_selector 'button[aria-label="Previous version"][disabled]'
+    assert_selector 'a[aria-label="Next version"]'
+  end
 end

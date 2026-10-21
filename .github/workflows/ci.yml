@@ -39,6 +39,14 @@ jobs:
           PGUSER: propro_test
           PGPASSWORD: propro_test
 
+      - name: Build CSS
+        run: bin/rails tailwindcss:build
+        env:
+          RAILS_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: propro_test
+          PGPASSWORD: propro_test
+
       - name: Run tests
         run: bin/rails test
         env:
@@ -51,9 +59,6 @@ jobs:
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
-        # No install-chromedriver: bundling its own driver (v153) mismatches the
-        # installed Chrome, breaking every system test. Selenium Manager
-        # (selenium-webdriver) resolves the matching driver at runtime instead.
 
       - name: Run system tests
         run: bin/rails test:system
