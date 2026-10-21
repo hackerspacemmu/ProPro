@@ -75,16 +75,16 @@
       <%
         current_status = (topic.current_instance&.status).to_s
         status_options = [
-          { key: "approved", label: "Approve", icon: "check",  icon_color: "text-success",
+          { key: "approved", label: "Approve", status_label: "Approved", icon: "check",  icon_color: "text-success",
             solid: "bg-success hover:bg-success-hover",        tint: "bg-success-container" },
-          { key: "redo",     label: "Redo",    icon: "replay", icon_color: "text-warning",
+          { key: "redo",     label: "Redo",    status_label: "Redo",     icon: "replay", icon_color: "text-warning",
             solid: "bg-warning-strong hover:brightness-95",    tint: "bg-warning-container" },
-          { key: "rejected", label: "Reject",  icon: "block",  icon_color: "text-error",
+          { key: "rejected", label: "Reject",  status_label: "Rejected", icon: "block",  icon_color: "text-error",
             solid: "bg-error hover:bg-error-hover",            tint: "bg-error-container",
             danger: true }
         ]
         active_option = status_options.find { |o| o[:key] == current_status }
-        trigger_label = active_option ? active_option[:label] : "Pending"
+        trigger_label = active_option ? active_option[:status_label] : "Pending"
         trigger_icon  = active_option ? active_option[:icon]  : "schedule"
         trigger_solid = active_option ? active_option[:solid] : "bg-primary-strong hover:bg-primary-hover"
       %>

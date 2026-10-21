@@ -42,7 +42,7 @@ class ProjectShowResponsiveTest < ApplicationSystemTestCase
     login_as(@lecturer)
     visit course_project_path(@course, @project)
 
-    assert_selector 'button[aria-label^="Review status"]'
+    assert_selector 'button[aria-label^="Review status: Pending"]'
     assert_selector 'button', text: 'Approve'
     assert_selector 'button', text: 'Redo'
     assert_selector 'button', text: 'Reject'

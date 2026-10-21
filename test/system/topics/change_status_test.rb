@@ -21,7 +21,7 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     first('button', text: 'Approve').click
 
     assert_selector '[data-testid="flash-notice"]'
-    assert_selector 'button[aria-label^="Review status"]'
+    assert_selector 'button[aria-label^="Review status: Approved"]'
   end
 
   test 'if coordinator approval enabled, lecturer cannot change their own topic status sad path' do
@@ -55,7 +55,7 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
 
     assert_no_text 'Edit Topic'
     assert_no_selector '[data-testid="edit-topic-button"]'
-    assert_selector 'button[aria-label^="Review status"]'
+    assert_selector 'button[aria-label^="Review status: Approved"]'
   end
 
   test 'student screen on topic show does not offer updating a proposal based on the topic' do
