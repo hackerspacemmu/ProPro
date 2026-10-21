@@ -5,6 +5,7 @@
 # route doesn't either.
 class GroupsController < ApplicationController
   include ParticipantBrowsing
+  include CoursesHelper
 
   before_action :set_course
   before_action :authorize_course
@@ -47,6 +48,20 @@ class GroupsController < ApplicationController
              filters_active: @filters_active
            }
     nil
+  end
+
+  # One group's participant profile (was the group branch of courses#profile,
+  # ADR 0022 phase 1). Course-scoped lookup: other-course groups 404.
+  def show
+    projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
+    @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
+
+    @group = @course.project_groups.find(params[:id])
+    @members = @group.project_group_members.includes(:user)
+    @project = group_project_for(@group, @projects_by_owner)
+    @status = group_status(@group, @projects_by_owner)
+    @current_instance = @project&.current_instance
+    @supervisor = @project&.supervisor if @project
   end
 
   private

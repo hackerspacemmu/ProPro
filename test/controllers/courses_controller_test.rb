@@ -324,7 +324,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_groups_path(course)
     assert_response :success
-    assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group'), text: 'Link Me'
+    assert_select 'a[href=?]', course_group_path(course, group.id), text: 'Link Me'
   end
 
   test 'student group cell links to the group profile page' do
@@ -339,7 +339,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_people_path(course)
     assert_response :success
-    assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group')
+    assert_select 'a[href=?]', course_group_path(course, group.id)
   end
 
   test 'lecturers link to their lecturers/show profile and show pending left of capacity' do
@@ -410,10 +410,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'the new tab routes enforce the same authorization as courses#show' do
     outsider = create(:user)
+    group = create(:project_group, course: @course)
     sign_in outsider
 
     [course_path(@course), course_topics_path(@course),
-     course_people_path(@course), course_groups_path(@course)].each do |path|
+     course_people_path(@course), course_groups_path(@course),
+     course_person_path(@course, @student_user), course_group_path(@course, group)].each do |path|
       get path
       assert_redirected_to dashboard_path, "#{path} must deny a non-enrolled user"
       assert_equal 'You are not authorized to view this page.', flash[:alert]
@@ -568,100 +570,6 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input#topic-search[data-search-shortcut-target]', count: 1
     assert_includes response.body, 'Search supervisors or topics'
     assert_includes response.body, 'Collapse all'
-  end
-
-  test 'group profile renders the mockup hero, facts strip and members list' do
-    course = create(:course, :grouped)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    create(:enrolment, :lecturer, user: @lecturer_user, course: course)
-    group = create(:project_group, course: course, confirmed: true, group_name: 'Smoke Group')
-    member = create(:user, name: 'Member One', instid: '12345')
-    create(:enrolment, user: member, course: course)
-    create(:project_group_member, user: member, project_group: group)
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(course, group.id, 'group')
-    assert_response :success
-    assert_match 'View Group', response.body
-    assert_select 'h1#group-name', text: 'Smoke Group'
-    assert_select 'section#group-members'
-    assert_match 'Group Members', response.body
-    assert_match 'Member One', response.body
-    assert_includes response.body, 'STUDENT ID: 12345'
-    assert_match 'No project has been submitted yet.', response.body
-  end
-
-  test 'group profile shows the supervisor and status on the project roster' do
-    course = create(:course, :grouped)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    supervisor = create(:user, :staff, name: 'Sally Supervisor')
-    supervisor_enrolment = create(:enrolment, :lecturer, user: supervisor, course: course)
-    group = create(:project_group, course: course, confirmed: true, group_name: 'Proposal Group')
-    project = create(:project, course: course, owner: group, owner_type: 'ProjectGroup',
-                               supervisor_enrolment: supervisor_enrolment, status: :approved)
-    create(:project_instance, project: project, supervisor_enrolment: supervisor_enrolment,
-                              status: :approved, title: 'Group Roster Project')
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(course, group.id, 'group')
-    assert_response :success
-    assert_select 'h2#current-project-heading', text: 'Current Project'
-    assert_match 'Group Roster Project', response.body
-    assert_match 'Approved', response.body
-    assert_match 'Sally Supervisor', response.body
-    assert_no_match 'No project has been submitted yet.', response.body
-  end
-
-  test 'student profile renders the hero, facts strip and empty state' do
-    sign_in @coordinator_user
-    get participant_profile_course_path(@course, @student_user.id, 'student')
-    assert_response :success
-    assert_match 'View Student', response.body
-    assert_select 'h1#student-name', text: @student_user.name
-    assert_match @student_user.email_address, response.body
-    assert_match 'Project Status', response.body
-    assert_match 'Supervisor', response.body
-    assert_match 'No project has been submitted yet.', response.body
-    assert_match 'Remove From Course', response.body
-  end
-
-  test 'student profile shows the flat current project row for a coordinator' do
-    project = create(:project, course: @course, owner: @student_user, owner_type: 'User',
-                               supervisor_enrolment: @lecturer_enrolment, status: :approved)
-    create(:project_instance, project: project, supervisor_enrolment: @lecturer_enrolment,
-                              status: :approved, title: 'Student Flat Row')
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(@course, @student_user.id, 'student')
-    assert_response :success
-    assert_select 'h2#current-project-heading', text: 'Current Project'
-    assert_match 'Student Flat Row', response.body
-    assert_no_match 'No project has been submitted yet.', response.body
-  end
-
-  test 'student profile shows their group-owned project on a grouped course' do
-    course = create(:course, :grouped)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    supervisor = create(:user, :staff, name: 'Grouped Supervisor')
-    supervisor_enrolment = create(:enrolment, :lecturer, user: supervisor, course: course)
-
-    student = create(:user, name: 'Grouped Student')
-    create(:enrolment, user: student, course: course)
-    group = create(:project_group, course: course, confirmed: true, group_name: 'Lookup Group')
-    create(:project_group_member, user: student, project_group: group)
-    project = create(:project, course: course, owner: group, owner_type: 'ProjectGroup',
-                               supervisor_enrolment: supervisor_enrolment, status: :approved)
-    create(:project_instance, project: project, supervisor_enrolment: supervisor_enrolment,
-                              status: :approved, title: 'Group Owned Work')
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(course, student.id, 'student')
-    assert_response :success
-    assert_select 'h2#current-project-heading', text: 'Current Project'
-    assert_match 'Group Owned Work', response.body
-    assert_match 'Approved', response.body
-    assert_match 'Grouped Supervisor', response.body
-    assert_no_match 'No project has been submitted yet.', response.body
   end
 
   # --- Empty vs no-matches (ADR 0018) -------------------------------------

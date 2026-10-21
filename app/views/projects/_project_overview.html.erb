@@ -38,7 +38,7 @@
         <!-- GROUP -->
         <div class="min-w-0">
           <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Group</div>
-          <%= link_to participant_profile_course_path(course, project.owner.id, 'group'), title: project.owner.group_name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
+          <%= link_to course_group_path(course, project.owner.id), title: project.owner.group_name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
             <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface-variant flex items-center justify-center shrink-0">
               <span class="material-symbols-outlined text-[18px]">group</span>
             </span>
@@ -66,7 +66,7 @@
         <% submitter = current_instance.created_by %>
         <% submitted_at = current_instance.created_at %>
         <% if submitter %>
-          <%= link_to participant_profile_course_path(course, submitter.id, 'student'), title: submitter.name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
+          <%= link_to course_person_path(course, submitter.id), title: submitter.name, class: "group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors" do %>
             <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[13px] font-medium shrink-0"><%= submitter.name.first.upcase %></span>
             <span class="min-w-0">
               <span class="block truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors"><%= submitter.name %></span>
@@ -92,7 +92,7 @@
       <div class="flex flex-wrap gap-2">
         <% owners = project.owner.is_a?(User) ? [project.owner] : project.owner.users %>
         <% owners.each do |user| %>
-          <%= link_to participant_profile_course_path(course, user.id, 'student'), class: "inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1 hover:bg-white/80 transition-colors" do %>
+          <%= link_to course_person_path(course, user.id), class: "inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1 hover:bg-white/80 transition-colors" do %>
             <span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0"><%= user.name[0].upcase %></span>
             <span class="min-w-0 truncate text-[13px] text-on-surface"><%= user.name %></span>
           <% end %>

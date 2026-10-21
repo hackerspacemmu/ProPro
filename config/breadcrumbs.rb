@@ -49,7 +49,7 @@ end
 
 crumb :course_participant_profile do |course, participant_name|
   link participant_name, '#'
-  parent :course, course # change to :course_participants later
+  parent :course, course
 end
 
 crumb :edit_project_template do |course|
@@ -74,13 +74,6 @@ crumb :project do |project|
     lecturer = User.find(params[:lecturer_id])
     parent :lecturer, project.course, lecturer
 
-  elsif params[:from_participant] && params[:participant_type]
-    participant_name = if params[:participant_type] == 'group'
-                         ProjectGroup.find(params[:from_participant]).group_name
-                       else
-                         User.find(params[:from_participant]).name
-                       end
-    parent :course_participant_profile, project.course, participant_name
   else
     parent :course, project.course
   end

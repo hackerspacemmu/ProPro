@@ -4,6 +4,7 @@
 # `section=students` dispatch (same partial, same locals).
 class PeopleController < ApplicationController
   include ParticipantBrowsing
+  include CoursesHelper
 
   before_action :set_course
   before_action :authorize_course
@@ -60,6 +61,22 @@ class PeopleController < ApplicationController
              filters_active: @filters_active
            }
     nil
+  end
+
+  # One student's participant profile (was the student branch of courses#profile,
+  # ADR 0022 phase 1). Course-scoped lookup: the student must be enrolled in this
+  # course, so other-course participants 404. `@course.students` includes
+  # invited (unregistered) users — they are real enrolments.
+  def show
+    projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
+    @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
+
+    @student = @course.students.find(params[:id])
+    @student_enrolment = @course.enrolments.find_by(user: @student, role: :student)
+    @project = student_project_for(@student, @projects_by_owner)
+    @status = student_status(@student, @projects_by_owner)
+    @current_instance = @project&.current_instance
+    @supervisor = @project&.supervisor if @project
   end
 
   private

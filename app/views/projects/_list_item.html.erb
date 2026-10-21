@@ -1,7 +1,6 @@
 <%# Locals: project (required), path (optional, defaults to the plain
     # course→project link), linkable (optional, default true). The caller may
-    # override path/linkable to keep participant-scoped params (from_participant,
-    # participant_type) or gate the row behind a policy. %>
+    # override path/linkable to gate the row behind a policy. %>
 
 <% path = local_assigns[:path] || course_project_path(@course, project) %>
 <% linkable = local_assigns.fetch(:linkable, true) %>

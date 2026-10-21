@@ -69,7 +69,7 @@
       <div>
         <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1">Group Name</div>
         <div class="text-[14px] text-on-surface">
-          <%= link_to topic.owner.group_name, participant_profile_course_path(course, topic.owner.id, 'group'),
+          <%= link_to topic.owner.group_name, course_group_path(course, topic.owner.id),
               class: "hover:text-primary transition-colors" %>
         </div>
       </div>
@@ -83,7 +83,7 @@
       <% if submitter %>
         <% submitter_path =
               if submitter_enrolment&.student?
-                participant_profile_course_path(course, submitter.id, 'student')
+                course_person_path(course, submitter.id)
               elsif submitter_enrolment
                 course_lecturer_path(course, submitter)
               end %>

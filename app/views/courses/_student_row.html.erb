@@ -25,7 +25,7 @@
         <% end %>
       </div>
       <div class="flex items-center gap-1.5 min-w-0">
-        <%= link_to participant_profile_course_path(course, student.id, 'student'),
+        <%= link_to course_person_path(course, student.id),
                     title: student.name,
                     class: "text-sm font-medium #{student.has_registered ? "text-gray-900" : "text-gray-700"} truncate min-w-0" do %>
           <%= student.name %>
@@ -54,7 +54,7 @@
 
   <td class="px-4 py-3 text-sm align-middle truncate">
     <% if group.present? %>
-      <%= link_to participant_profile_course_path(course, group.id, 'group'),
+      <%= link_to course_group_path(course, group.id),
                   title: group.group_name,
                   class: "#{student.has_registered ? "text-gray-700" : "text-gray-500"} font-medium hover:underline truncate block w-full" do %>
         <%= group.group_name %>
