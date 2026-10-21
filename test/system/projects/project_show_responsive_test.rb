@@ -26,6 +26,11 @@ class ProjectShowResponsiveTest < ApplicationSystemTestCase
     assert_selector 'button[data-comments-drawer-target="trigger"]'
     assert_selector "[data-comments-drawer-target='panel']"
     assert_selector "[data-comments-drawer-target='backdrop']"
+    # The drag-resize handle is wired up here too; its behaviour is a
+    # JavaScript concern, so only the static wiring is asserted under
+    # rack_test (the drag itself is exercised by the selenium
+    # comments_panel_resize_test).
+    assert_selector '[role="separator"][data-comments-panel-target="handle"]'
     assert_text 'A comment from the group'
   end
 

@@ -41,25 +41,22 @@
           <% version_comments.each do |comment| %>
             <% is_current_version = comment.location_id == current_instance_id %>
 
-            <div class="flex gap-3 group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>">
-              <div
-                class="
-                  w-8 h-8 rounded-full bg-primary text-white flex items-center
-                  justify-center text-[13px] font-medium shrink-0
-                "
-              >
-                <%= comment.user.name[0].upcase %>
-              </div>
+            <div class="group <%= is_current_version ? '' : 'opacity-60 hover:opacity-100 transition-opacity duration-300' %>">
+              <%# Header row: avatar, name + time, delete. Body sits below at full width. %>
+              <div class="flex items-center gap-3 mb-1">
+                <div
+                  class="
+                    w-8 h-8 rounded-full bg-primary text-white flex items-center
+                    justify-center text-[13px] font-medium shrink-0
+                  "
+                >
+                  <%= comment.user.name[0].upcase %>
+                </div>
 
-              <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-baseline mb-1">
-                  <% if Current.user == comment.user %>
-                    <span class="text-[14px] font-medium text-success"><%= comment.user.name %></span>
-                  <% else %>
-                    <span class="text-[14px] font-medium text-on-surface"><%= comment.user.name %></span>
-                  <% end %>
+                <div class="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2">
+                  <span class="text-[14px] font-medium <%= Current.user == comment.user ? 'text-success' : 'text-on-surface' %>"><%= comment.user.name %></span>
 
-                  <span class="text-[12px] text-on-surface-variant">
+                  <span class="text-[12px] text-on-surface-variant whitespace-nowrap">
                     <% if comment.created_at > 3.days.ago %>
                       <%= time_ago_in_words(comment.created_at) %> ago
                     <% else %>
@@ -68,23 +65,23 @@
                   </span>
                 </div>
 
-                <div class="text-[14px] text-on-surface leading-relaxed break-words">
-                  <% if !comment.deleted %>
-                    <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
-                  <% else %>
-                    <span class="text-[14px] text-on-surface-variant italic">This comment was deleted</span>
+                <% if Current.user == comment.user && !comment.deleted %>
+                  <%= link_to soft_delete_comment_path(comment),
+                      data: { turbo_method: :patch, confirm: "Delete this comment?" },
+                      class: "shrink-0 text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity",
+                      title: "Delete comment" do %>
+                    <span class="material-symbols-outlined text-[16px]">close</span>
                   <% end %>
-                </div>
+                <% end %>
               </div>
 
-              <% if Current.user == comment.user && !comment.deleted %>
-                <%= link_to soft_delete_comment_path(comment),
-                    data: { turbo_method: :patch, confirm: "Delete this comment?" },
-                    class: "text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-opacity self-start mt-0.5 flex-shrink-0",
-                    title: "Delete comment" do %>
-                  <span class="material-symbols-outlined text-[16px]">close</span>
+              <div class="text-[14px] text-on-surface leading-relaxed [overflow-wrap:anywhere]">
+                <% if !comment.deleted %>
+                  <%= simple_format(comment.text, class: "mb-3 last:mb-0") %>
+                <% else %>
+                  <span class="text-[14px] text-on-surface-variant italic">This comment was deleted</span>
                 <% end %>
-              <% end %>
+              </div>
             </div>
           <% end %>
 
@@ -114,12 +111,12 @@
           class="
             border border-outline rounded-[4px] focus-within:border-primary
             focus-within:ring-1 focus-within:ring-primary transition-all bg-surface
-            flex items-center pr-1
+            flex items-end pr-1
           "
         >
           <%= form.text_area :user_comment,
                          class:
-                           "w-full bg-transparent border-none pl-3 pr-2 py-2.5 text-on-surface focus:ring-0 text-[14px] resize-none outline-none",
+                           "w-full bg-transparent border-none pl-3 pr-2 py-2.5 text-on-surface focus:ring-0 text-[14px] resize-none outline-none max-h-40 overflow-y-auto",
                          rows: 1,
                          data: {
                            controller: "textarea-resize",
@@ -129,7 +126,7 @@
                          placeholder: "Write a comment..." %>
 
           <%= form.button type: "submit",
-              class: "p-2 text-primary hover:bg-surface-hover rounded-[4px] transition-colors flex items-center justify-center shrink-0",
+              class: "p-2 mb-0.5 text-primary hover:bg-surface-hover rounded-[4px] transition-colors flex items-center justify-center shrink-0",
               title: "Send" do %>
             <span class="material-symbols-outlined text-[20px]">send</span>
           <% end %>
