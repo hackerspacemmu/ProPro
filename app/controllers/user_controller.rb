@@ -1,55 +1,40 @@
 class UserController < ApplicationController
-  allow_unauthenticated_access only: %i[new_staff new_student create]
+  allow_unauthenticated_access only: %i[new create claim handle_claim verify]
 
   def resend_invite
     user = User.find(params[:id])
     if user.has_registered
-      redirect_back_or_to '/', alert: 'User already registered'
+      redirect_back_or_to dashboard_path, alert: 'User already registered'
       return
     end
 
     # Ensure OTP exists or recreate if missing (though it should exist for unregistered users)
-    otp_instance = user.otp || Otp.create!(user: user, otp: SecureRandom.base64(8), token: SecureRandom.uuid)
+    otp_instance = user.otp || Otp.create!(user: user, token: SecureRandom.uuid)
 
     GeneralMailer.with(
       email_address: user.email_address,
-      otp_token: otp_instance.token,
-      otp: otp_instance.otp,
-      is_staff: user.is_staff
+      otp_token: otp_instance.token
     ).ProPro_Invite.deliver_later
 
-    redirect_back_or_to '/', notice: "Invitation resent to #{user.email_address}"
+    redirect_back_or_to dashboard_path, notice: "Invitation resent to #{user.email_address}"
   end
 
-  def new_student
-    @email = Otp.find_by(token: params[:token]).user.email_address
-  rescue StandardError
-    redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
-  end
-
-  def new_staff
-    @email = Otp.find_by(token: params[:token]).user.email_address
-  rescue StandardError
-    redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
-  end
+  def new; end
 
   def edit
-    unless Current.user.is_staff
-      redirect_back_or_to '/', alert: 'Only staff can edit profiles'
-      return
-    end
+    @user = Current.user
 
     if params[:user][:name].blank?
-      redirect_back_or_to '/', alert: 'Name cannot be empty'
+      redirect_back_or_to dashboard_path, alert: 'Name cannot be empty'
       return
     end
 
     if params[:user][:new_password].present?
-      if params[:user][:new_password_confirmation].blank? || (params[:user][:new_password] != params[:user][:new_password_confirmation])
-        redirect_back_or_to '/', alert: 'New passwords do not match'
+      if params[:user][:new_password_confirmation].blank? or params[:user][:new_password] != params[:user][:new_password_confirmation]
+        redirect_back_or_to dashboard_path, alert: 'New passwords do not match'
         return
       elsif params[:user][:new_password].length > 72
-        redirect_back_or_to '/', alert: 'Password must be less than 72 characters'
+        redirect_back_or_to dashboard_path, alert: 'Password must be less than 72 characters'
         return
       end
     end
@@ -71,62 +56,94 @@ class UserController < ApplicationController
   end
 
   def create
-    response = params.permit(:password, :password_confirmation, :name, :token, :otp)
-    return if response[:token].blank?
+    name = params[:name].strip
+    email = params[:email].strip
 
-    if response[:otp].blank?
-      redirect_back_or_to '/', alert: 'OTP cannot be empty'
+    result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
+
+    unless result.success?
+      redirect_to user_new_path, alert: result.message
       return
     end
 
-    if response[:password].blank?
-      redirect_back_or_to '/', alert: 'Password cannot be empty'
+    result = UserCreator.call(name: name, email: email, password: params[:password], verify_only: true)
+
+    unless result.success?
+      redirect_back_or_to user_new_path, alert: result.message
       return
     end
 
-    if response[:password_confirmation].blank?
-      redirect_back_or_to '/', alert: 'Password confirmation cannot be empty'
-      return
-    end
+    GeneralMailer.with(
+      email_address: email,
+      otp_token: result.otp_instance.token
+    ).Signup_Verification.deliver_later
 
-    if response[:password] != response[:password_confirmation]
-      redirect_back_or_to '/', alert: 'Passwords are not the same'
-      return
-    end
+    redirect_to login_path, notice: 'Account created successfully. Check your inbox!'
+  end
 
-    if response[:password].length > 72
-      redirect_back_or_to '/', alert: 'Password must be less than 72 characters'
-      return
-    end
+  def claim
+    @email = Otp.find_by(token: params[:token], verify_only: false).user.email_address
+  rescue StandardError
+    redirect_to login_path, alert: "Invalid token, perhaps you've already claimed your account? Try logging in."
+  end
 
-    otp_instance = Otp.find_by(token: response[:token], otp: response[:otp].strip)
+  def handle_claim
+    return if params[:token].blank?
+
+    otp_instance = Otp.find_by(token: params[:token], verify_only: false)
 
     unless otp_instance
-      redirect_back_or_to '/', alert: 'Something went wrong'
+      redirect_back_or_to dashboard_path, alert: 'Something went wrong'
+      return
+    end
+
+    user = otp_instance.user
+    name = params[:name].strip
+
+    result = UserDetailsValidator.call(name: name, password: params[:password], password_confirmation: params[:password_confirmation])
+
+    unless result.success?
+      redirect_back_or_to dashboard_path, alert: result.message
+      return
+    end
+
+    begin
+      user.update!(has_registered: true, name: name, password: params[:password])
+      otp_instance.destroy
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_back_or_to dashboard_path, alert: e.message
+      return
+    rescue StandardError
+      redirect_back_or_to dashboard_path, alert: 'Something went wrong'
+      return
+    end
+
+    redirect_to '/session/new', notice: 'Account successfully claimed'
+  end
+
+  def verify
+    return if params[:token].blank?
+
+    otp_instance = Otp.find_by(token: params[:token], verify_only: true)
+
+    unless otp_instance
+      redirect_back_or_to new_session_path, alert: 'Something went wrong'
       return
     end
 
     user = otp_instance.user
 
-    if response[:name].blank? && user.is_staff
-      redirect_back_or_to '/', alert: 'Name cannot be empty'
+    begin
+      ActiveRecord::Base.transaction do
+        user.update!(has_registered: true)
+        otp_instance.destroy
+      end
+    rescue StandardError
+      redirect_to new_session_path, alert: 'Something went wrong'
       return
     end
 
-    # ugly ik, whachu gonna do about it
-    if !user.is_staff
-      if user.update(has_registered: true, password: response[:password])
-        redirect_to '/session/new', notice: 'Account successfully claimed'
-      else
-        redirect_back_or_to '/', alert: 'Something went wrong'
-      end
-    elsif user.update(has_registered: true, password: response[:password], name: response[:name].strip)
-      redirect_to '/session/new', notice: 'Account successfully claimed'
-    else
-      redirect_back_or_to '/', alert: 'Something went wrong'
-    end
-
-    user.otp.destroy
+    redirect_to new_session_path, notice: 'Account successfully verified'
   end
 
   def profile

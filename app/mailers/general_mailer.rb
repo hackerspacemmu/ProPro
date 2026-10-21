@@ -1,10 +1,14 @@
 class GeneralMailer < ApplicationMailer
   def ProPro_Invite
-    @otp = params[:otp]
     @otp_token = params[:otp_token]
     @email_address = params[:email_address]
-    @is_staff = params[:is_staff]
     mail(to: @email_address, Subject: 'Invitation for ProPro')
+  end
+
+  def Signup_Verification
+    @otp_token = params[:otp_token]
+    @email_address = params[:email_address]
+    mail(to: @email_address, Subject: "Verify Your Account on ProPro")
   end
 
   def Project_Status_Updated

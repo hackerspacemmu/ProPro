@@ -3,7 +3,7 @@ require 'test_helper'
 class ProjectInstanceTest < ActiveSupport::TestCase
   setup do
     @course    = FactoryBot.create(:course)
-    @user      = FactoryBot.create(:user, is_staff: false)
+    @user      = FactoryBot.create(:user)
     @enrolment = FactoryBot.create(:enrolment, user: @user, course: @course, role: :student)
     @project   = FactoryBot.create(:project, course: @course, owner: @user, supervisor_enrolment: @enrolment)
   end

@@ -12,8 +12,8 @@ document.addEventListener("turbo:load", function () {
   const fieldTypeOptions = [
     { value: "shorttext", label: "Short Text" },
     { value: "textarea", label: "Paragraph" },
-    { value: "dropdown", label: "Dropdown Selection" },
-    { value: "radio", label: "Selection" },
+    { value: "dropdown", label: "Dropdown" },
+    { value: "radio", label: "Radio" },
   ];
 
   const applicableToOptions = [
@@ -44,29 +44,26 @@ document.addEventListener("turbo:load", function () {
   function createNewFieldHTML(index) {
     return `
       <tr
-        class="field-row group relative ..."
+        class="field-row group bg-white transition-colors hover:bg-surface-hover/60 select-none"
         data-field-index="${index}"
         data-controller="project-template-fields"
         data-is-project-title="false"
       >
-        <input type="hidden" 
-              name="project_template[project_template_fields_attributes][${index}][position]" 
-              value="${index+1}" 
+        <input type="hidden"
+              name="project_template[project_template_fields_attributes][${index}][position]"
+              value="${index + 1}"
               class="position-input">
 
-        <td class="block lg:table-cell px-6 lg:pl-16 lg:pr-6 py-5 whitespace-nowrap align-top">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Label</span>
+        <td class="table-cell pl-16 pr-6 py-5 align-top">
           <div class="relative">
-            <div class="hidden lg:flex items-center justify-end absolute -left-12 top-1/2 -translate-y-1/2 w-11 h-8">
-              <div class="drag-handle opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 flex-shrink-0" title="Drag to reorder">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
-                </svg>
+            <div class="flex items-center justify-end absolute -left-12 top-1/2 -translate-y-1/2 w-11 h-8">
+              <div class="drag-handle flex items-center justify-center p-1 flex-shrink-0 opacity-0 group-hover:opacity-100 pointer-coarse:opacity-100 transition-opacity cursor-grab active:cursor-grabbing pointer-coarse:touch-pan-y text-on-surface-muted hover:text-primary" title="Drag to reorder" oncontextmenu="return false;">
+                <span class="material-symbols-outlined text-[18px]">drag_indicator</span>
               </div>
 
               <button
                 type="button"
-                class="remove-field flex items-center justify-center w-8 h-8 text-gray-400 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-600 rounded-md transition-all flex-shrink-0"
+                class="remove-field flex items-center justify-center w-8 h-8 text-on-surface-muted opacity-60 hover:opacity-100 hover:bg-error-container hover:text-error rounded-md transition-all flex-shrink-0"
                 title="Remove Field"
                 data-action="click->project-template-fields#remove"
               >
@@ -80,98 +77,79 @@ document.addEventListener("turbo:load", function () {
               name="project_template[project_template_fields_attributes][${index}][label]"
               placeholder="e.g. Project Title"
               rows="1"
-              class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
+              class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] resize-none overflow-y-auto max-[640px]:text-[16px] [field-sizing:content]"
               data-controller="textarea-resize"
               data-action="input->textarea-resize#resize"
             ></textarea>
           </div>
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 align-top">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Hint Text</span>
+        <td class="table-cell px-6 py-5 align-top">
           <textarea
             name="project_template[project_template_fields_attributes][${index}][hint]"
-            placeholder="Instructions..."
+            placeholder="Instructions…"
             rows="1"
-            class="block w-full px-3 py-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none overflow-hidden"
+            class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface-variant resize-none overflow-y-auto max-[640px]:text-[16px] [field-sizing:content]"
             data-controller="textarea-resize"
             data-action="input->textarea-resize#resize"
           ></textarea>
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Field Type</span>
-          <select 
-            name="project_template[project_template_fields_attributes][${index}][field_type]" 
-            class="field-type-select block w-full py-2.5 pl-3 pr-2.5 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer"
-          >
-            <option value="">Select field type</option>
-            ${generateFieldTypeOptions()}
-          </select>
+        <td class="table-cell px-6 py-5 align-top">
+          <div class="relative">
+            <select
+              name="project_template[project_template_fields_attributes][${index}][field_type]"
+              class="field-type-select block w-full py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer appearance-none focus:ring-1 focus:ring-primary focus:border-primary max-[640px]:text-[16px]"
+            >
+              <option value="">Select field type</option>
+              ${generateFieldTypeOptions()}
+            </select>
+            <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">expand_more</span>
+          </div>
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Applicable To</span>
-          <select 
-            name="project_template[project_template_fields_attributes][${index}][applicable_to]"
-            class="block w-full py-2.5 pl-3 pr-8 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm cursor-pointer"
-          >
-            ${generateApplicableToOptions()}
-          </select>
+        <td class="table-cell px-6 py-5 align-top">
+          <div class="relative">
+            <select
+              name="project_template[project_template_fields_attributes][${index}][applicable_to]"
+              class="block w-full py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer appearance-none focus:ring-1 focus:ring-primary focus:border-primary max-[640px]:text-[16px]"
+            >
+              ${generateApplicableToOptions()}
+            </select>
+            <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">expand_more</span>
+          </div>
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 align-top" data-project-template-fields-target="optionsContainer">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Options</span>
-          
+        <td class="table-cell px-6 py-5 align-top" data-project-template-fields-target="optionsContainer">
           <div class="options-section hidden w-full">
             <button type="button"
-                    class="add-option-btn text-[0.8125rem] text-gray-500 bg-transparent border border-dashed border-gray-300 rounded py-2 px-3 cursor-pointer transition-all duration-150 ease-in-out w-fit hover:text-blue-600 hover:border-blue-500 hover:bg-[#f8f9fa] mt-2"
+                    class="add-option-btn text-[12.5px] text-on-surface-variant bg-transparent border border-dashed border-outline rounded-md py-1.5 px-2.5 w-fit hover:text-primary hover:border-primary transition-colors cursor-pointer mt-0.5"
                     data-field-index="${index}"
                     data-field-type="dropdown"
                     data-option-index="0">
               + Add Option
             </button>
           </div>
-
-          <div class="lg:hidden mt-3">
-            <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 bg-gray-50 active:bg-blue-50 active:border-blue-300 transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
-              <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-              </svg>
-              <span class="text-xs font-bold uppercase tracking-wider">Hold & Drag to Reorder</span>
-            </div>
-          </div>
-
-          <button type="button" class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-red-500 hover:text-red-700 font-medium bg-red-50 px-3 py-2 rounded-md">
-            <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Remove Field
-          </button>
           <input type="hidden" name="project_template[project_template_fields_attributes][${index}][_destroy]" value="0" class="destroy-flag">
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Required</span>
+        <td class="table-cell px-6 py-5 whitespace-nowrap align-top">
           <div class="flex items-center h-10">
             <input type="hidden" name="project_template[project_template_fields_attributes][${index}][required]" value="0">
             <input type="checkbox"
                   name="project_template[project_template_fields_attributes][${index}][required]"
                   value="1"
-                  class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
-            <label class="ml-2 text-sm text-gray-600 lg:hidden">Field is required</label>
+                  class="h-5 w-5 rounded border-outline accent-primary cursor-pointer">
           </div>
         </td>
 
-        <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
-          <span class="lg:hidden text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Free Edit</span>
+        <td class="table-cell px-6 py-5 whitespace-nowrap align-top">
           <div class="flex items-center h-10" title="Allow editing after approval">
             <input type="hidden" name="project_template[project_template_fields_attributes][${index}][free_edit]" value="0">
             <input type="checkbox"
                   name="project_template[project_template_fields_attributes][${index}][free_edit]"
                   value="1"
-                  class="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer">
-            <label class="ml-2 text-sm text-gray-600 lg:hidden">Editable after approval</label>
+                  class="h-5 w-5 rounded border-outline accent-success cursor-pointer">
           </div>
         </td>
       </tr>
@@ -181,7 +159,7 @@ document.addEventListener("turbo:load", function () {
   // Create dropdown option HTML (Tailwind format)
   function createDropdownOptionHTML(fieldIndex, optionIndex, optionValue = "") {
     return `
-      <div class="dropdown-option-row group flex items-center gap-2 py-1 rounded transition-colors duration-150 ease-in-out hover:bg-gray-200"
+      <div class="dropdown-option-row group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant transition-colors"
             data-field-index="${fieldIndex}"
             data-option-index="${optionIndex}">
         <input type="text"
@@ -189,8 +167,8 @@ document.addEventListener("turbo:load", function () {
                value="${optionValue}"
                placeholder="Option ${optionIndex + 1}"
                autocomplete="dropdown-option"
-               class="flex-1 text-[0.8125rem] py-1 px-2 border border-transparent rounded-[3px] bg-[#f8f9fa] focus:border-blue-500 focus:bg-[#f8f9fa] focus:ring-1 focus:ring-blue-500 focus:outline-none">
-        <button type="button" class="remove-option w-5 h-5 flex items-center justify-center border-none bg-gray-200 text-gray-500 rounded-[3px] cursor-pointer text-sm opacity-0 transition-all duration-150 ease-in-out group-hover:opacity-100 hover:bg-red-500 hover:text-white">×</button>
+               class="flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md bg-surface-tint focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-none max-[640px]:text-[16px]">
+        <button type="button" class="remove-option w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error transition-all text-sm cursor-pointer">×</button>
       </div>
     `;
   }
@@ -198,19 +176,20 @@ document.addEventListener("turbo:load", function () {
   // Create radio option HTML (Tailwind format)
   function createRadioOptionHTML(fieldIndex, optionIndex, optionValue = "") {
     return `
-      <div class="radio-option-cell group flex items-center gap-2 py-1 rounded transition-colors duration-150 ease-in-out hover:bg-gray-200"
+      <div class="radio-option-cell group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant transition-colors"
             data-field-index="${fieldIndex}"
             data-option-index="${optionIndex}">
         <input type="radio"
                name="preview_field_${fieldIndex}"
                disabled
-               class="h-4 w-4 text-gray-400 border-gray-300 focus:ring-0">
+               class="accent-primary shrink-0">
         <input type="text"
                name="project_template[project_template_fields_attributes][${fieldIndex}][options][]"
                value="${optionValue}"
                placeholder="Option ${optionIndex + 1}"
-               class="flex-1 text-[0.8125rem] py-1 px-2 border border-transparent rounded-[3px] bg-[#f8f9fa] focus:border-blue-500 focus:bg-[#f8f9fa] focus:ring-1 focus:ring-blue-500 focus:outline-none">
-        <button type="button" class="remove-option w-5 h-5 flex items-center justify-center border-none bg-gray-200 text-gray-500 rounded-[3px] cursor-pointer text-sm opacity-0 transition-all duration-150 ease-in-out group-hover:opacity-100 hover:bg-red-500 hover:text-white">×</button>
+               autocomplete="radio-option"
+               class="flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md bg-surface-tint focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-none max-[640px]:text-[16px]">
+        <button type="button" class="remove-option w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error transition-all text-sm cursor-pointer">×</button>
       </div>
     `;
   }
@@ -370,7 +349,6 @@ document.addEventListener("turbo:load", function () {
       if (btn) {
         btn.disabled = true;
         btn.title = "Cannot remove title";
-        btn.classList.add("opacity-50", "cursor-not-allowed");
       }
       const requiredCheckbox = row.querySelector(
         'input[type="checkbox"][name*="[required]"]',
@@ -380,6 +358,7 @@ document.addEventListener("turbo:load", function () {
         requiredCheckbox.disabled = true;
         requiredCheckbox.required = true;
         requiredCheckbox.title = "Title is Required";
+        requiredCheckbox.classList.add("cursor-not-allowed");
       }
     }
   });
@@ -387,13 +366,13 @@ document.addEventListener("turbo:load", function () {
   // Focus handling for visual feedback
   templateFields.addEventListener("focusin", function (e) {
     const row = e.target.closest(".field-row");
-    if (row) row.classList.add("bg-gray-50");
+    if (row) row.classList.add("bg-surface-hover");
   });
 
   templateFields.addEventListener("focusout", function (e) {
     const row = e.target.closest(".field-row");
     if (row && !row.contains(document.activeElement)) {
-      row.classList.remove("bg-gray-50");
+      row.classList.remove("bg-surface-hover");
     }
   });
 });

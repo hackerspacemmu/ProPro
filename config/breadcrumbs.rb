@@ -1,5 +1,5 @@
 crumb :root do
-  link 'Dashboard', root_path
+  link 'Dashboard', dashboard_path
 end
 
 crumb :about do
@@ -57,31 +57,9 @@ crumb :edit_project_template do |course|
   parent :course, course
 end
 
-crumb :topics do |course|
-  link 'Topics', course_topics_path(course)
-  if params[:from_new_project]
-    parent :new_project, course
-  elsif params[:from_edit_project]
-    parent :edit_project, Course.find(params[:course_id]).projects.find(params[:project_id])
-  else
-    parent :course, course
-  end
-end
-
-crumb :topic do |topic|
-  link topic.topic_instances.last&.title
-  if params[:lecturer_id]
-    lecturer = User.find(params[:lecturer_id])
-    parent :lecturer, topic.course, lecturer
-  elsif params[:from_new_project]
-    parent :topics, topic.course
-  else
-    parent :topics, topic.course
-  end
-end
 crumb :new_topic do |course|
   link 'New Topic', new_course_topic_path(course)
-  parent :topics, course
+  parent :course, course
 end
 
 crumb :edit_topic do |topic|
@@ -118,23 +96,6 @@ crumb :edit_project do |project|
   parent :project, project
 end
 
-crumb :progress_update do |progress_update|
-  project = progress_update.project
-  link 'Progress Update', course_project_progress_update_path(project.course, project, progress_update)
-  parent :project, project
-end
-
-crumb :new_progress_update do |project|
-  link 'New Progress Update', new_course_project_progress_update_path(project.course, project)
-  parent :project, project
-end
-
-crumb :edit_progress_update do |progress_update|
-  project = progress_update.project
-  link 'Edit Progress Update', edit_course_project_progress_update_path(project.course, project, progress_update)
-  parent :progress_update, progress_update
-end
-
 crumb :lecturer do |course, lecturer|
   link lecturer.name, course_lecturer_path(course, lecturer)
 
@@ -164,8 +125,7 @@ crumb :topic do |topic|
     lecturer = User.find(params[:lecturer_id])
     parent :lecturer, topic.course, lecturer
   else
-    # From topics/index
-    parent :topics, topic.course
+    parent :course, topic.course
   end
 end
 

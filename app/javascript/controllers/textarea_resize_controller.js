@@ -2,16 +2,39 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   connect() {
-    requestAnimationFrame(() => {
+    this.lastWidth = null;
+    this.resize();
+
+    // Webfonts swap in after connect and change text metrics.
+    document.fonts?.ready.then(() => {
       this.resize();
     });
+
+    // Re-measure when the column width changes (rotation, zoom, becoming
+    // visible). Guard on width: our own height change also fires the observer.
+    this.observer = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      if (width === this.lastWidth) return;
+      this.lastWidth = width;
+      this.resize();
+    });
+    this.observer.observe(this.element);
+  }
+
+  disconnect() {
+    this.observer?.disconnect();
   }
 
   resize() {
-    if (this.element.offsetParent === null) return;
+    const el = this.element;
+    if (el.offsetParent === null) return;
 
-    this.element.style.height = "auto";
-    this.element.style.height = `${this.element.scrollHeight}px`;
+    const cs = getComputedStyle(el);
+    const borders =
+      parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + borders}px`;
   }
 
   commentResize() {

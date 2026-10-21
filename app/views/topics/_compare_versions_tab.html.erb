@@ -1,0 +1,43 @@
+<% if index < instances.size %>
+
+  <div class="flex justify-center mb-8">
+    <div class="inline-flex items-center gap-4">
+
+      <div class="bg-warning-container text-warning rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-warning/30">
+        <div class="w-1.5 h-1.5 rounded-full bg-warning"></div>
+        <span class="text-sm font-medium">Version <%= index %></span>
+      </div>
+
+      <div class="text-on-surface-variant flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[20px]">sync_alt</span>
+      </div>
+
+      <div class="bg-success-container text-success rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-success/30">
+        <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+        <span class="text-sm font-medium">Version <%= index + 1 %> (Latest)</span>
+      </div>
+
+    </div>
+  </div>
+
+  <% combined_fields = (fields.to_a + next_fields.to_a) %>
+  <% sorted_fields = combined_fields.uniq(&:project_template_field_id).sort_by { |f| f.project_template_field&.position || 0 } %>
+  <% all_field_ids = sorted_fields.map(&:project_template_field_id) %>
+  <% pairs = all_field_ids.map do |field_id|
+    [fields.find { |f| f.project_template_field_id == field_id },
+     next_fields.find { |f| f.project_template_field_id == field_id }]
+  end %>
+
+  <%= render "diff_grid",
+  pairs: pairs,
+  empty_detail: "All fields are identical between these two versions." %>
+
+<% else %>
+
+  <div class="text-center py-16 border-2 border-dashed border-outline-variant rounded-lg bg-surface-hover/50">
+    <span class="material-symbols-outlined text-[48px] text-gray-300 mx-auto mb-3">compare_arrows</span>
+    <p class="text-on-surface-variant text-sm font-medium">Only one version exists</p>
+    <p class="text-gray-400 text-xs mt-1">Nothing to compare yet.</p>
+  </div>
+
+<% end %>

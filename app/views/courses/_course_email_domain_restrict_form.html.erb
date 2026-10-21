@@ -1,0 +1,35 @@
+<%# locals: (course:) %>
+<%# Formless (ADR-0010): no <form> in the static DOM, so this can live inside
+    #course-settings-form without nesting one. The toggle and the domain submit
+    each fire their own fetch via email-domain-form-handler; the controller's
+    update_email_domain action responds with turbo streams that replace() this
+    whole frame and the flash. The top-level node must stay exactly
+    <turbo-frame id="email_domain_restrict_form">. %>
+<%= turbo_frame_tag "email_domain_restrict_form" do %>
+  <div data-controller="email-domain-form-handler"
+       data-email-domain-form-handler-url-value="<%= update_email_domain_course_path(course) %>">
+    <label class="flex flex-wrap items-start cursor-pointer mt-4">
+      <input type="checkbox" class="sr-only peer" role="switch" autocomplete="off"
+             data-email-domain-form-handler-target="enabledToggle"
+             data-action="change->email-domain-form-handler#toggle"
+             <%= 'checked' if course.email_domain_restriction_enabled %>>
+      <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500 flex-shrink-0"></div>
+      <span class="ml-3 text-sm font-medium text-gray-700">Only allow emails matching ***@ [    ] to join course.</span>
+      <span class="block w-full ml-14 text-xs font-normal text-gray-500 mt-0.5">Separate multiple emails using a comma (,)</span>
+    </label>
+
+    <div class="relative mt-3">
+      <input type="text"
+             data-email-domain-form-handler-target="domainInput"
+             value="<%= course.email_domain_restriction %>"
+             placeholder="ex: gmail.com , outlook.com"
+             autocomplete="off"
+             class="appearance-none block w-full font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+      <button type="button"
+              data-action="click->email-domain-form-handler#submitDomain"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-green-500 hover:text-green-600 focus:outline-none text-lg font-bold transition-colors">
+        ✓
+      </button>
+    </div>
+  </div>
+<% end %>

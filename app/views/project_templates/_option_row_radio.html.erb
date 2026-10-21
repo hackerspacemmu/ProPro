@@ -1,18 +1,36 @@
 <div
   class="
-    flex items-center gap-[0.5em] py-[0.25em] rounded-sm transition-bg ease
-    radio-option-cell
+    group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant
+    transition-colors radio-option-cell
   "
   data-field-index="<%= field_index %>"
   data-option-index="<%= option_index %>"
 >
-  <input type="radio" name="preview_field_<%= field_index %>" disabled>
+
+  <input type="radio" name="preview_field_<%= field_index %>" disabled class="accent-primary shrink-0">
+
   <input
     type="text"
     name="project_template[project_template_fields_attributes][<%= field_index %>][options][]"
     value="<%= option_value %>"
     placeholder="Option <%= option_index + 1 %>"
     autocomplete="radio-option"
+    class="
+      flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md
+      bg-surface-tint focus:border-primary focus:bg-white focus:ring-1
+      focus:ring-primary focus:outline-none max-[640px]:text-[16px]
+    "
   >
-  <button type="button" class="remove-option">×</button>
+
+  <button
+    type="button"
+    class="
+      remove-option w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted
+      opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error
+      transition-all text-sm cursor-pointer
+    "
+  >
+    ×
+  </button>
+
 </div>

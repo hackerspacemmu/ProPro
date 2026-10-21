@@ -3,39 +3,26 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode grouping_preview]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
+  # The Overview tab — the only course tab page that lives on courses#show;
+  # Topics/People/Groups are their own routes (route-per-tab, ADR 0019), so
+  # this action loads only what the Overview content needs: the presenter and
+  # the viewer's own submission.
   def show
     authorize @course
 
-    # query for all projects_instances, owner_type and owner_id for participants table
-    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
-    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
-
-    @student_list = @course.students
     @description = @course.course_description
-    @lecturers = @course.lecturers
     @lecturer_enrolment = @course.enrolments.find_by(user: current_user, role: :lecturer)
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
-    @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
-    @my_topics = @topic_list.where(owner: current_user)
-
-    # set students projects
-    projects_ownerships = @course.projects.approved.where(owner_type: 'User').pluck('owner_id')
-
-    @students_with_projects = @student_list.select { |s| projects_ownerships.include?(s.id) }
-    @students_without_projects = @student_list.reject { |s| projects_ownerships.include?(s.id) }
-
     if @course.grouped?
       @group = current_user.project_groups.find_by(course: @course)
-      @project = @projects_by_owner[['ProjectGroup', @group.id]] if @group
-      @group_list = @course.project_groups.includes(project_group_members: :user).to_a
+      @project = @course.projects.find_by(owner_type: 'ProjectGroup', owner_id: @group.id) if @group
     else
       @group = nil
       @project = @course.projects.find_by(owner_type: 'User', owner_id: current_user.id)
-      @group_list = []
     end
 
     # view instances for incoming topics and my_student_projects
@@ -51,38 +38,35 @@ class CoursesController < ApplicationController
       @incoming_proposals = @course.projects.where(supervisor_enrolment: @current_user_enrolment).proposals
     end
 
-    # view instances for participants_table
-    @filtered_group_list   = filtered_group_list
-    @filtered_student_list = filtered_student_list
+    @topic_list = policy_scope(@course.topics, policy_scope_class: TopicPolicy::Scope)
 
-    @show_all = params[:show_all] == 'true'
-    @total_group_count   = @filtered_group_list.count
-    @total_student_count = @filtered_student_list.count
-    @total_count = @course.grouped? ? @total_group_count : @total_student_count
-    @total_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
+    # For To Review tab
+    @pending_proposals = @incoming_proposals.select { |p| p.current_status == 'pending' }
+    @reviewed_proposals = @incoming_proposals.select { |p| %w[redo rejected].include?(p.current_status) }
+    @pending_topics = if @current_user_enrolment&.coordinator?
+                        @topic_list.select do |topic|
+                          topic.lecturer? && topic.owner != current_user &&
+                            %w[pending redo rejected].include?(topic.status.to_s)
+                        end
+                      else
+                        []
+                      end
 
-    unless @show_all
-      @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold)
-      @filtered_student_list = @filtered_student_list.first(Rails.application.config.participants_pagination_threshold)
-    end
+    # For Supervised Projects tab (Ticket 6)
+    @approved_projects = @my_student_projects.select(&:approved?)
 
-    @displayed_count = @course.grouped? ? @filtered_group_list.count : @filtered_student_list.count
-
-    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
-    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
-
-    return unless request.headers['HX-Request']
-
-    render partial: 'participants_table',
-           locals: {
-             course: @course,
-             group_list: @filtered_group_list,
-             student_list: @filtered_student_list,
-             students_with_projects: @students_with_projects,
-             students_without_projects: @students_without_projects,
-             use_progress_updates: @course.use_progress_updates
-           }
-    nil
+    @presenter = OverviewPresenter.new(
+      enrolment: @current_user_enrolment,
+      approved_projects: @approved_projects,
+      pending_proposals: @pending_proposals,
+      reviewed_proposals: @reviewed_proposals,
+      pending_topics: @pending_topics,
+      course_description: @description,
+      file_link: @course.file_link,
+      submission_state: submission_state_for(@current_user_enrolment),
+      submission: @project,
+      toggle_topics: @course.toggle_topics
+    )
   end
 
   def add_students
@@ -95,11 +79,10 @@ class CoursesController < ApplicationController
 
   def handle_add_lecturers
     authorize @course, :manage_lecturers?
-    unregistered_lecturers = Set[]
-    registered_lecturers = []
+    Set[]
 
     if params[:invited_lecturers].blank?
-      redirect_back_or_to '/', alert: 'Invited lecturers cannot be empty'
+      redirect_back_or_to dashboard_path, alert: 'Invited lecturers cannot be empty'
       return
     end
 
@@ -107,15 +90,12 @@ class CoursesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        create_lecturer_enrolments(lecturer_emails, @course, unregistered_lecturers, registered_lecturers)
+        create_lecturer_enrolments(lecturer_emails, @course)
       end
     rescue StandardError => e
-      redirect_back_or_to '/', alert: e.message
+      redirect_back_or_to dashboard_path, alert: e.message
       return
     end
-
-    send_invite_emails(unregistered_lecturers)
-    send_notification_emails(registered_lecturers, @course)
 
     redirect_to course_path(@course)
   end
@@ -123,18 +103,15 @@ class CoursesController < ApplicationController
   def handle_add_students
     authorize @course, :manage_students?
 
-    unregistered_students = Set[]
-    registered_students = []
-
     if params[:csv_file].blank? || params[:csv_file].content_type != 'text/csv'
-      redirect_back_or_to '/', alert: 'Please provide a CSV file from ebwise'
+      redirect_back_or_to dashboard_path, alert: 'Please provide a CSV file from ebwise'
       return
     end
 
     begin
       csv_obj = CSV.parse(params[:csv_file].read, headers: true, liberal_parsing: true)
     rescue StandardError
-      redirect_back_or_to '/', alert: 'CSV parsing failed'
+      redirect_back_or_to dashboard_path, alert: 'CSV parsing failed'
       return
     end
 
@@ -142,13 +119,13 @@ class CoursesController < ApplicationController
 
     columns_to_check.each do |column|
       unless csv_obj.headers.include? column
-        redirect_back_or_to '/', alert: 'CSV file missing required headers'
+        redirect_back_or_to dashboard_path, alert: 'CSV file missing required headers'
         return
       end
     end
 
-    if @course.grouped && csv_obj.headers.exclude?('Group')
-      redirect_back_or_to '/', alert: 'Not grouped CSV file'
+    if @course.grouped && !csv_obj.headers.include?('Group')
+      redirect_back_or_to dashboard_path, alert: 'Not grouped CSV file'
       return
     end
 
@@ -162,30 +139,26 @@ class CoursesController < ApplicationController
 
         if @course.grouped
           student_hashmap = @course.parse_csv_grouped(csv_obj)
-          create_db_entries_grouped(student_hashmap, @course, unregistered_students, registered_students)
+          create_db_entries_grouped(student_hashmap, @course)
         else
           student_set = @course.parse_csv_solo(csv_obj)
-          create_db_entries_solo(student_set, @course, unregistered_students, registered_students)
+          create_db_entries_solo(student_set, @course)
         end
       end
     rescue StandardError => e
-      redirect_back_or_to '/', alert: e.message
+      redirect_back_or_to dashboard_path, alert: e.message
       return
     end
 
-    send_invite_emails(unregistered_students)
-    send_notification_emails(registered_students, @course)
     redirect_to course_path(@course)
   end
 
   def new
-    authorize Course.new
     @new_course = Course.new
   end
 
   def create
-    authorize Course.new
-    response = params.expect(course: %i[course_name grouped])
+    response = params.require(:course).permit(:course_name, :grouped)
 
     @new_course = Course.new(
       course_name: response[:course_name],
@@ -215,8 +188,6 @@ class CoursesController < ApplicationController
           applicable_to: 'both',
           is_project_title: true
         )
-        raise StandardError, 'Template creation failed' unless default_template.save
-
         raise StandardError, 'Template creation failed' unless default_template.save
       end
     rescue StandardError
@@ -297,7 +268,7 @@ class CoursesController < ApplicationController
   def destroy
     authorize @course, :destroy?
     @course.destroy
-    redirect_to '/'
+    redirect_to dashboard_path
   end
 
   def profile
@@ -385,7 +356,10 @@ class CoursesController < ApplicationController
     end
 
     if params[:course]&.key?(:coursecode_enabled)
-      @course.update!(coursecode_enabled: params[:course][:coursecode_enabled])
+      enabled = ActiveModel::Type::Boolean.new.cast(params[:course][:coursecode_enabled])
+      attributes = { coursecode_enabled: enabled }
+      attributes[:coursecode] = nil unless enabled
+      @course.update!(attributes)
       flash.now[:notice] ||= 'Course join code settings updated'
     end
   rescue StandardError => e
@@ -397,15 +371,41 @@ class CoursesController < ApplicationController
     ]
   end
 
+  def update_email_domain
+    authorize @course, :update?
+
+    if params[:course]&.key?(:email_domain_restriction_enabled)
+
+      is_enabled = params[:course][:email_domain_restriction_enabled] == '1'
+      domain = params[:course][:email_domain_restriction]
+
+      if params[:course][:email_domain_restriction].blank? && is_enabled
+        @course.update!(email_domain_restriction_enabled: false)
+        flash.now[:alert] ||= 'Email domain cannot be empty when domain restriction is enabled'
+      else
+        @course.update!(email_domain_restriction: domain.downcase)
+        @course.update!(email_domain_restriction_enabled: is_enabled)
+        flash.now[:notice] ||= 'Email restriction settings changed'
+      end
+    end
+  rescue StandardError => e
+    flash.now[:alert] = e.message
+  ensure
+    render turbo_stream: [
+      turbo_stream.update('flash', partial: 'courses/flash'),
+      turbo_stream.replace('email_domain_restrict_form', partial: 'courses/course_email_domain_restrict_form', locals: { course: @course })
+    ]
+  end
+
   def enroll_via_coursecode
     new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
     if new_enrolment
-      redirect_back_or_to '/', notice: 'Successfully joined the course'
+      redirect_back_or_to dashboard_path, notice: 'Successfully joined the course'
     else
-      redirect_back_or_to '/', notice: 'You already joined the course'
+      redirect_back_or_to dashboard_path, notice: 'You already joined the course'
     end
   rescue StandardError => e
-    redirect_back_or_to '/', alert: e.message
+    redirect_back_or_to dashboard_path, alert: e.message
   end
 
   def grouping_preview
@@ -444,41 +444,37 @@ class CoursesController < ApplicationController
     @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
   end
 
-  def create_db_entries_grouped(hash_map, parent_course, unregistered_students, registered_students)
-    hash_map.each_key do |group|
+  def create_db_entries_grouped(hash_map, parent_course)
+    hash_map.keys.each do |group|
       new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
 
       hash_map[group].each do |group_member|
-        new_user = User.find_by(email_address: group_member[:email_address], is_staff: false)
+        new_user = User.find_by(email_address: group_member[:email_address])
 
         if new_user
           new_user.update!(instid: group_member[:instid])
 
-          registered_students.push(group_member[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
+          if new_user.enrolments.where(course: parent_course).empty?
+            GeneralMailer.with(
+              course: parent_course,
+              email_address: group_member[:email]
+            ).Course_Invite_Notification.deliver_later
+          end
         else
-          new_user = User.create!(
-            email_address: group_member[:email_address],
+          result = UserCreator.call(
             name: group_member[:name],
+            email: group_member[:email_address],
             password: SecureRandom.base64(24),
-            has_registered: false,
-            instid: group_member[:instid],
-            is_staff: false
+            verify_only: false,
+            instid: group_member[:instid]
           )
 
-          new_otp_instance = Otp.create!(
-            user: new_user,
-            otp: SecureRandom.base64(8),
-            token: SecureRandom.uuid
-          )
+          GeneralMailer.with(
+            email_address: group_member[:email],
+            otp_token: result.otp_instance.token
+          ).ProPro_Invite.deliver_later
 
-          unregistered_students.add(
-            {
-              email_address: group_member[:email_address],
-              otp_token: new_otp_instance.token,
-              otp: new_otp_instance.otp,
-              is_staff: false
-            }
-          )
+          new_user = result.user
         end
 
         Enrolment.find_or_create_by!(
@@ -502,58 +498,34 @@ class CoursesController < ApplicationController
     end
   end
 
-  def send_invite_emails(unregistered_users)
-    unregistered_users.each do |user|
-      GeneralMailer.with(
-        email_address: user[:email_address],
-        otp_token: user[:otp_token],
-        otp: user[:otp],
-        is_staff: user[:is_staff]
-      ).ProPro_Invite.deliver_later
-    end
-  end
-
-  def send_notification_emails(registered_emails, course)
-    registered_emails.each do |email|
-      GeneralMailer.with(
-        course: course,
-        email_address: email
-      ).Course_Invite_Notification.deliver_later
-    end
-  end
-
-  def create_db_entries_solo(student_set, parent_course, unregistered_students, registered_students)
+  def create_db_entries_solo(student_set, parent_course)
     student_set.each do |student|
-      new_user = User.find_by(email_address: student[:email_address], is_staff: false)
+      new_user = User.find_by(email_address: student[:email_address])
 
       if new_user
         new_user.update!(instid: student[:instid])
 
-        registered_students.push(student[:email_address]) if new_user.enrolments.where(course: parent_course).empty?
+        if new_user.enrolments.where(course: parent_course).empty?
+          GeneralMailer.with(
+            course: parent_course,
+            email_address: student[:email]
+          ).Course_Invite_Notification.deliver_later
+        end
       else
-        new_user = User.create!(
-          email_address: student[:email_address],
+        result = UserCreator.call(
           name: student[:name],
+          email: student[:email_address],
           password: SecureRandom.base64(24),
-          has_registered: false,
-          instid: student[:instid],
-          is_staff: false
+          verify_only: false,
+          instid: student[:instid]
         )
 
-        new_otp_instance = Otp.create!(
-          user: new_user,
-          otp: SecureRandom.base64(8),
-          token: SecureRandom.uuid
-        )
+        GeneralMailer.with(
+          email_address: student[:email_address],
+          otp_token: result.otp_instance.token
+        ).ProPro_Invite.deliver_later
 
-        unregistered_students.add(
-          {
-            email_address: student[:email_address],
-            otp_token: new_otp_instance.token,
-            otp: new_otp_instance.otp,
-            is_staff: false
-          }
-        )
+        new_user = result.user
       end
 
       Enrolment.find_or_create_by!(
@@ -564,37 +536,32 @@ class CoursesController < ApplicationController
     end
   end
 
-  def create_lecturer_enrolments(lecturer_emails, parent_course, unregistered_lecturers, registered_lecturers)
+  def create_lecturer_enrolments(lecturer_emails, parent_course)
     lecturer_emails.each do |email|
       next if email.blank?
 
-      new_lecturer = User.find_by(email_address: email, is_staff: true)
+      new_lecturer = User.find_by(email_address: email)
 
       if !new_lecturer
-        new_lecturer = User.create!(
-          email_address: email,
+        result = UserCreator.call(
+          name: "Lecturer-#{SecureRandom.hex(2)}",
+          email: email,
           password: SecureRandom.base64(24),
-          has_registered: false,
-          is_staff: true,
-          name: "Lecturer-#{SecureRandom.hex(2)}"
+          verify_only: false
         )
 
-        new_otp_instance = Otp.create!(
-          user: new_lecturer,
-          otp: SecureRandom.base64(8),
-          token: SecureRandom.uuid
-        )
+        GeneralMailer.with(
+          email_address: email,
+          otp_token: result.otp_instance.token
+        ).ProPro_Invite.deliver_later
 
-        unregistered_lecturers.add(
-          {
-            email_address: email,
-            otp_token: new_otp_instance.token,
-            otp: new_otp_instance.otp,
-            is_staff: true
-          }
-        )
+        new_lecturer = result.user
+
       elsif new_lecturer.enrolments.where(course: parent_course).empty?
-        registered_lecturers.push(email)
+        GeneralMailer.with(
+          course: parent_course,
+          email_address: email
+        ).Course_Invite_Notification.deliver_later
       end
 
       Enrolment.find_or_create_by!(
@@ -792,111 +759,26 @@ class CoursesController < ApplicationController
     end
   end
 
-  # Participants Table Filters helpers
+  # :no_group only applies to grouped courses where self-grouping is live
+  # (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
+  # student submits individually with no group step, so @group being nil there is
+  # expected, not an empty state. The grouping_enabled? guard also keeps the
+  # "Browse groups" CTA out of reach of students who could not actually open the
+  # page: ProjectGroupsController#index authorizes with CoursePolicy#grouping?,
+  # which requires grouping_enabled? == true for a non-coordinator. A grouped
+  # course with self-grouping disabled (groups arrive only via CSV/Moodle import
+  # coordinated by staff) would otherwise render the CTA and let a student hit a
+  # Pundit::NotAuthorizedError (redirect to root with alert). In that state a
+  # group-less student instead gets the plain :no_proposal copy below.
+  def submission_state_for(enrolment)
+    return nil unless enrolment&.student?
 
-  def search_groups(group_list, query)
-    downcased_query = query.downcase
-
-    group_list.select do |group|
-      project = participant_project(group, 'ProjectGroup')
-
-      group_name_match = group.group_name.downcase.include?(downcased_query)
-      member_match = group.project_group_members.any? do |member|
-        member.user.name.downcase.include?(downcased_query)
-      end
-      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
-
-      group_name_match || member_match || title_match
-    end
-  end
-
-  def search_students(student_list, query)
-    downcased_query = query.downcase
-
-    student_list.select do |student|
-      project = participant_project(student, 'User')
-
-      name_match  = student.name.downcase.include?(downcased_query)
-      id_match    = student.instid&.downcase&.include?(downcased_query) || false
-      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
-
-      name_match || id_match || title_match
-    end
-  end
-
-  def sort_descending?
-    params[:sort_dir] == 'desc'
-  end
-
-  def participant_project(item, owner_type)
-    @projects_by_owner[[owner_type, item.id]]
-  end
-
-  def sort_value_for_group(group)
-    project = participant_project(group, 'ProjectGroup')
-    case params[:sort_by]
-    when 'status'
-      Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
-    when 'project_title'
-      project&.current_title&.downcase || ''
-    when 'supervisor'
-      project&.supervisor&.name&.downcase || ''
+    if @course.grouped? && @course.grouping_enabled? && @group.nil?
+      :no_group
+    elsif @project.nil? || @current_status == 'not_submitted'
+      :no_proposal
     else
-      group.group_name.downcase
+      @current_status.to_sym
     end
-  end
-
-  def sort_value_for_student(student)
-    project = participant_project(student, 'User')
-    case params[:sort_by]
-    when 'status'
-      Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
-    when 'project_title'
-      project&.current_title&.downcase || ''
-    when 'supervisor'
-      project&.supervisor&.name&.downcase || ''
-    else
-      student.name.downcase
-    end
-  end
-
-  def supervised_owner_ids(owner_type)
-    # only filters by lecturer_enrolment_ids. No coordinator_enrolment_ids
-    return nil unless params[:lecturer_filter].present? && params[:lecturer_filter] != 'all'
-
-    enrolment_ids = @course.enrolments.where(user_id: params[:lecturer_filter]).pluck(:id)
-    return nil if enrolment_ids.empty?
-
-    @course.projects.supervised_by(enrolment_ids).where(owner_type: owner_type).pluck(:owner_id)
-  end
-
-  def filtered_group_list
-    group_list = @group_list
-
-    if (ids = supervised_owner_ids('ProjectGroup'))
-      group_list = group_list.select { |g| ids.include?(g.id) }
-    end
-
-    group_list = @course.groups_with_status(params[:status_filter], group_list) if params[:status_filter].present? && params[:status_filter] != 'all'
-
-    group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
-
-    sorted_list = group_list.sort_by { |group| sort_value_for_group(group) }
-    sort_descending? ? sorted_list.reverse : sorted_list
-  end
-
-  def filtered_student_list
-    student_list = @student_list
-
-    if (ids = supervised_owner_ids('User'))
-      student_list = student_list.select { |s| ids.include?(s.id) }
-    end
-
-    student_list = @course.students_with_status(params[:status_filter], student_list) if params[:status_filter].present? && params[:status_filter] != 'all'
-
-    student_list = search_students(student_list, params[:search_query]) if params[:search_query].present?
-
-    sorted_list = student_list.sort_by { |student| sort_value_for_student(student) }
-    sort_descending? ? sorted_list.reverse : sorted_list
   end
 end

@@ -3,7 +3,7 @@ require 'test_helper'
 class TopicInstanceTest < ActiveSupport::TestCase
   setup do
     @course  = FactoryBot.create(:course)
-    @user    = FactoryBot.create(:user, is_staff: true)
+    @user    = FactoryBot.create(:user)
     @topic   = FactoryBot.create(:topic, course: @course, owner: @user)
   end
 

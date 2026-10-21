@@ -1,10 +1,13 @@
 class EnrolmentsController < ApplicationController
   def destroy
+    params.require(%i[course_id id])
+
     current_course = Course.find(params[:course_id])
     enrolment = current_course.enrolments.find(params[:id])
 
+    # Authorization is on the authenticated user, never on a client-submitted id.
     unless current_course.coordinator_ids.include?(current_user.id)
-      redirect_back fallback_location: root_path, alert: 'You are not authorized to perform this action.'
+      redirect_back_or_to dashboard_path, alert: 'You are not authorized to perform this action.'
       return
     end
 
@@ -17,7 +20,7 @@ class EnrolmentsController < ApplicationController
         result = GroupMemberRemover.new(group_member, current_user: current_user, dissolve_confirmed: true).remove!
 
         if result.blocked?
-          redirect_back fallback_location: course_path(current_course), alert: result.message
+          redirect_back_or_to course_path(current_course), alert: result.message
           return
         end
       end
@@ -26,6 +29,6 @@ class EnrolmentsController < ApplicationController
     enrolment.destroy!
     redirect_to course_path(current_course), notice: 'Student removed from course.'
   rescue ActiveRecord::RecordNotFound
-    redirect_back fallback_location: root_path, alert: 'Record not found.'
+    redirect_back_or_to dashboard_path, alert: 'Record not found.'
   end
 end

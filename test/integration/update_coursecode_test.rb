@@ -10,9 +10,13 @@ class UpdateCoursecodeTest < ActionDispatch::IntegrationTest
   test 'should generate and display a course code via update_coursecode API' do
     # Sign in the lecturer (coordinator)
     post session_path, params: { email_address: @lecturer.email_address, password: 'password' }
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
 
     assert_nil @course.coursecode
+
+    # The UI only renders the code/regenerate controls while joining via code
+    # is enabled, so enable before generating.
+    post update_coursecode_course_path(@course), params: { course: { coursecode_enabled: true } }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
 
     post update_coursecode_course_path(@course), params: { generate: true }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
 
@@ -32,7 +36,7 @@ class UpdateCoursecodeTest < ActionDispatch::IntegrationTest
   test 'should toggle the coursecode_enabled field in courses' do
     # Sign in the lecturer (coordinator)
     post session_path, params: { email_address: @lecturer.email_address, password: 'password' }
-    assert_redirected_to root_path
+    assert_redirected_to dashboard_path
 
     assert_nil @course.coursecode
     assert_equal @course.coursecode_enabled, false
@@ -46,5 +50,21 @@ class UpdateCoursecodeTest < ActionDispatch::IntegrationTest
     # The coursecode_enabled must be set to true
     @course.reload
     assert_equal @course.coursecode_enabled, true
+  end
+
+  test 'turning joining off wipes the stored coursecode' do
+    post session_path, params: { email_address: @lecturer.email_address, password: 'password' }
+    assert_redirected_to dashboard_path
+
+    post update_coursecode_course_path(@course), params: { course: { coursecode_enabled: true } }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+    post update_coursecode_course_path(@course), params: { generate: true }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+    assert_not_nil @course.reload.coursecode
+
+    post update_coursecode_course_path(@course), params: { course: { coursecode_enabled: false } }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+
+    assert_response :success
+    @course.reload
+    assert_not @course.coursecode_enabled
+    assert_nil @course.coursecode
   end
 end

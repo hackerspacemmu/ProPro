@@ -1,13 +1,15 @@
-import { Controller } from "@hotwired/stimulus"
-import Sortable from "sortablejs"
+import { Controller } from "@hotwired/stimulus";
+import Sortable from "sortablejs";
 
 export default class extends Controller {
-  static targets = [ "list" ]
+  static targets = ["list"];
 
   connect() {
     this.sortable = Sortable.create(this.element, {
       draggable: ".field-row",
       handle: ".drag-handle",
+      filter: ".sortable-disabled",
+      preventOnFilter: true,
       animation: 150,
       ghostClass: "opacity-25",
       chosenClass: "sortable-chosen",
@@ -20,20 +22,24 @@ export default class extends Controller {
       scrollSensitivity: 100,
       scrollSpeed: 20,
       forceFallback: true,
-      onEnd: this.updatePositions.bind(this)
-    })
+      onMove: (evt) => {
+        if (evt.related && evt.related.closest(".sortable-disabled"))
+          return false;
+      },
+      onEnd: this.updatePositions.bind(this),
+    });
   }
 
   updatePositions() {
-    const rows = this.element.querySelectorAll(".field-row")
-    
-    rows.forEach((row, index) => {
-        const positionInput = row.querySelector(".position-input")
-        if (positionInput) {
-        positionInput.value = index + 1
+    const rows = this.element.querySelectorAll(".field-row");
 
-        positionInput.dispatchEvent(new Event("change", { bubbles: true }))
-        }
-    })
+    rows.forEach((row, index) => {
+      const positionInput = row.querySelector(".position-input");
+      if (positionInput) {
+        positionInput.value = index + 1;
+
+        positionInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
   }
 }

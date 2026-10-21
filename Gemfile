@@ -1,13 +1,13 @@
 source 'https://rubygems.org'
-ruby '3.4.7'
+ruby '3.4.10'
 
 gem 'csv', require: false
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '>= 8.0.2'
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem 'propshaft'
-# Use sqlite3 as the database for Active Record
-gem 'sqlite3', '>= 2.1'
+# Use postgres as the database for Active Record
+gem 'pg'
 # Use the Puma web server [https://github.com/puma/puma]
 gem 'puma', '>= 5.0'
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -18,6 +18,8 @@ gem 'turbo-rails'
 gem 'stimulus-rails'
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem 'jbuilder'
+# Allows returning free formed structs
+gem 'ostruct'
 
 # Used to differentaite text
 gem 'diff-lcs'
@@ -83,6 +85,12 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
   gem 'selenium-webdriver'
+
+  # Test-DB cleanup for the real-browser tests: the app runs on an in-process
+  # server thread that can't see uncommitted rows, so browser tests commit for
+  # real and use DatabaseCleaner's truncation strategy instead of hand-rolled
+  # per-file delete cascades.
+  gem 'database_cleaner-active_record'
 end
 
 gem 'pundit', '~> 2.5'

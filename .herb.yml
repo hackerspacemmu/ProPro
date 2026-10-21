@@ -27,6 +27,10 @@ version: 0.8.7
 linter:
   enabled: true
 
+  # Patterns to exclude from linting
+  exclude:
+    - 'ProPro_Design/**/*'
+
   # # Exit with error code when diagnostics of this severity or higher are present
   # # Valid values: error (default), warning, info, hint
   # failLevel: warning

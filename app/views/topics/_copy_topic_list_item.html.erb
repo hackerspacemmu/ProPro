@@ -1,0 +1,33 @@
+<%# Copy-topic picker row: a step-1 copy-topic modal list_item rendering (mirrors
+    the domain-wrapper pattern of courses/_topic_item). Locals: topic (required),
+    border_top (passed through to shared/_list_item, default true — the caller
+    drops it on the first row so it sits flush under the sticky header). Rows
+    are always linkable approved topics loading the source-picker (step 2) via
+    the copy-topic controller. Uses shared/_list_item's picker style locals:
+    density :comfortable, title_weight 500, hide_more_vert, meta_first_strong.
+    Course name lives in the meta line (owner • course • Updated X ago), not a
+    below-row chip — that's the step-1 mockup's softer hierarchy. %>
+
+<% topic_instance = topic.topic_instances.order(:version).last %>
+
+<% if topic_instance %>
+  <%= render "shared/list_item",
+      path: new_course_topic_path(@course, source_topic_id: topic.id),
+      icon: "topic",
+      title: topic_instance.title.presence || "Untitled Topic",
+      meta_parts: [topic.owner_name, topic.course.course_name],
+      time_meta: "Updated #{time_ago_in_words(topic.updated_at)} ago",
+      status: "approved",
+      density: :comfortable,
+      title_weight: 500,
+      hide_more_vert: true,
+      meta_first_strong: true,
+      border_top: local_assigns.fetch(:border_top, true),
+      link_options: {
+        data: {
+          copy_topic_target: "card",
+          action: "click->copy-topic#selectTopic",
+          copy_topic_course_id_param: topic.id
+        }
+      } %>
+<% end %>

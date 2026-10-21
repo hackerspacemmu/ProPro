@@ -1,0 +1,89 @@
+<%# --- locals: course, group, project, status, supervisor, expanded %>
+<%# project/status/supervisor arrive as locals computed once above (table-side
+    map lookup) — this partial never looks them up itself (plan §5).
+    expanded: when true, the detail row renders open (search/filter active). %>
+<% badge_classes, badge_color =
+     case status.to_s
+     when "approved"      then ["bg-success-container text-success", "bg-success"]
+     when "pending"       then ["bg-primary-container text-primary-soft", "bg-primary-soft"]
+     when "redo"          then ["bg-warning-container-alt text-warning-strong", "bg-warning-strong"]
+     when "rejected"      then ["bg-error-container text-error", "bg-error"]
+     else                      ["bg-gray-100 text-gray-600", "bg-gray-500"]
+     end %>
+
+<tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="<%= group.id %>">
+  <td class="px-4 py-4 text-sm align-middle">
+    <%= link_to participant_profile_course_path(course, group.id, 'group'),
+                title: group.group_name || "Group #{group.id}",
+                class: "text-gray-900 font-medium hover:underline truncate block w-full" do %>
+      <%= group.group_name || "Group #{group.id}" %>
+    <% end %>
+  </td>
+  <td class="px-4 py-4 align-middle">
+    <div class="flex items-center gap-3 min-w-0">
+      <% any_pending = group.project_group_members.any? { |m| !m.user.has_registered } %>
+      <div class="flex -space-x-1.5 shrink-0">
+        <% member_count = [group.project_group_members.count, 3].min %>
+        <% group.project_group_members.first(3).each_with_index do |member, idx| %>
+          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">
+            <%= member.user.name.first.upcase %>
+            <% if idx == member_count - 1 && any_pending %>
+              <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-yellow-400 border-2 border-white"></span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <span class="text-sm text-gray-500 truncate"><%= pluralize(group.project_group_members.count, "member") %></span>
+    </div>
+  </td>
+  <td class="px-4 py-4 text-sm align-middle">
+    <% if project.present? %>
+      <% project_title = project.project_instances.order(:version).last&.title %>
+      <%= link_to course_project_path(course, project), title: project_title, class: "text-gray-900 hover:underline truncate block w-full" do %>
+        <%= project_title || "-" %>
+      <% end %>
+    <% else %>
+      <span class="text-gray-400 italic text-xs">-</span>
+    <% end %>
+  </td>
+  <td class="px-4 py-4 align-middle">
+    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium <%= badge_classes %>">
+      <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= badge_color %>"></span>
+      <%= status.to_s.titleize %>
+    </span>
+  </td>
+  <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+    <div class="flex items-center justify-between gap-2">
+      <span class="truncate min-w-0" title="<%= supervisor&.name %>"><%= supervisor&.name || "-" %></span>
+      <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0<%= expanded ? ' rotate-180' : '' %>">expand_more</span>
+    </div>
+  </td>
+</tr>
+<tr class="<%= expanded ? '' : 'hidden' %> bg-gray-50/30" data-detail-row-id="<%= group.id %>">
+  <td colspan="5" class="px-4 py-4 border-t border-gray-100">
+    <div class="pl-[10%]">
+      <div class="flex flex-col gap-4">
+        <% group.project_group_members.each do |member| %>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0"><%= member.user.name.first.upcase %></div>
+            <span class="text-sm text-gray-700 truncate min-w-0" title="<%= member.user.name %>"><%= member.user.name %></span>
+            <% unless member.user.has_registered %>
+              <span class="inline-flex items-center align-middle gap-1 ml-1 whitespace-nowrap shrink-0">
+                <span class="bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded border border-yellow-200 leading-none">Pending</span>
+                <% if policy(course).manage_students? %>
+                  <%= button_to resend_invite_path(member.user),
+                                method: :post,
+                                form: { class: "inline-flex items-center" },
+                                class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-gray-700 transition-colors",
+                                title: "Resend Invite" do %>
+                    <span class="material-symbols-outlined text-[16px]">mail</span>
+                  <% end %>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </td>
+</tr>

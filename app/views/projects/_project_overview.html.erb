@@ -1,0 +1,73 @@
+<%# locals: (project:, course:, current_instance:) %>
+
+<div class="bg-surface border border-outline-variant rounded-[8px] p-6">
+  <%# Context header: status + timestamp + title %>
+  <div class="mb-6 border-b border-outline-variant pb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <% status_badge =
+        case current_instance.status
+        when "approved"
+          "bg-success-container text-success"
+        when "rejected"
+          "bg-error-container text-error"
+        when "redo"
+          "bg-warning-container text-warning"
+        else
+          "bg-primary-container text-primary-soft"
+        end %>
+      <span class="<%= status_badge %> px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium tracking-wide">
+        <%= current_instance.status.humanize %>
+      </span>
+      <% if current_instance.last_status_change_time.present? %>
+        <span class="text-[14px] text-on-surface-variant">
+          <%= time_ago_in_words(current_instance.last_status_change_time) %> ago
+        </span>
+      <% end %>
+    </div>
+    <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[26px] text-on-surface-strong font-normal tracking-tight">
+      <%= current_instance.title %>
+    </h1>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+    <% if project.owner.is_a?(ProjectGroup) %>
+      <div>
+        <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1">Group Name</div>
+        <div class="text-[14px] text-on-surface">
+          <%= link_to project.owner.group_name, participant_profile_course_path(course, project.owner.id, 'group'),
+              class: "hover:text-primary transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1">Type</div>
+      <div class="text-[14px] text-on-surface">Project</div>
+    </div>
+
+    <div>
+      <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-3">Owners</div>
+      <div class="space-y-3">
+        <% owners = project.owner.is_a?(User) ? [project.owner] : project.owner.users %>
+        <% owners.each do |user| %>
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full bg-surface-variant text-on-surface flex items-center justify-center text-[13px] font-medium border border-outline-variant shrink-0"><%= user.name[0].upcase %></span>
+            <%= link_to user.name, participant_profile_course_path(course, user.id, 'student'), class: "text-[14px] text-on-surface hover:text-primary transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <% unless @course.solo_supervisor? %>
+      <div>
+        <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-3">Supervisor</div>
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">
+            <%= current_instance.supervisor.name.split.map(&:first).first(2).join.upcase %>
+          </span>
+          <%= link_to current_instance.supervisor.name, course_lecturer_path(course, current_instance.supervisor), class: "text-[14px] text-on-surface font-medium hover:text-primary transition-colors" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

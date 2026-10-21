@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_11_102449) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "text", null: false
@@ -50,6 +53,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_11_102449) do
     t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
     t.boolean "lecturers_can_manage_groups", default: true, null: false
+    t.string "email_domain_restriction"
+    t.boolean "email_domain_restriction_enabled", default: false, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
@@ -66,11 +71,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_11_102449) do
   end
 
   create_table "otps", force: :cascade do |t|
-    t.string "otp", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "token", null: false
     t.integer "user_id", null: false
+    t.boolean "verify_only", default: false, null: false
     t.index ["user_id"], name: "index_otps_on_user_id"
   end
 
@@ -105,9 +110,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_11_102449) do
     t.datetime "updated_at", null: false
     t.integer "recipient_id", null: false
     t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
-    t.index ["recipient_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_recipient_group_kind", unique: true, where: "status = 0 AND kind = 1"
+    t.index ["recipient_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_recipient_group_kind", unique: true, where: "((status = 0) AND (kind = 1))"
     t.index ["recipient_id"], name: "index_project_group_invites_on_recipient_id"
-    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "status = 0 AND kind = 0"
+    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "((status = 0) AND (kind = 0))"
     t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
   end
 
@@ -349,7 +354,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_11_102449) do
     t.boolean "has_registered", null: false
     t.string "instid"
     t.string "web_link"
-    t.boolean "is_staff", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "description"

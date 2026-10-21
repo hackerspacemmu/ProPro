@@ -57,6 +57,16 @@ class Project < ApplicationRecord
     current_instance&.title || title
   end
 
+  def owner_name
+    if owner.respond_to?(:name)
+      owner.name
+    elsif owner.respond_to?(:group_name)
+      owner.group_name
+    else
+      'Unknown'
+    end
+  end
+
   def editable?
     !approved?
   end
@@ -75,6 +85,11 @@ class Project < ApplicationRecord
     end
   end
 
+  # The owning ProjectGroup, when this project belongs to one.
+  def group
+    owner if owner_type == 'ProjectGroup'
+  end
+
   private
 
   def set_ownership_type
@@ -84,7 +99,7 @@ class Project < ApplicationRecord
   def project_group_must_be_confirmed
     return if owner_id.blank?
 
-    return if group.confirmed?
+    return if group&.confirmed?
 
     errors.add(:owner_id, 'cannot be a draft group')
   end

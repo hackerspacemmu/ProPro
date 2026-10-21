@@ -4,17 +4,23 @@ Rails.application.routes.draw do
   get 'terms-of-service', to: 'static_pages#terms_of_service', as: 'terms_of_service'
   get 'about', to: 'static_pages#about'
 
-  post 'user/create'
-  get 'user/new_staff', to: 'user#new_staff', as: :new_staff
-  get 'user/new_student', to: 'user#new_student', as: :new_student
+  get 'user/new', to: 'user#new'
+  get 'user/claim', to: 'user#claim', as: 'user_claim'
   get 'user/profile'
+  post 'user/create'
+  post 'user/handle_claim'
   post 'user/edit'
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
+  get 'user/verify'
 
   resources :enrolments, only: [:destroy]
   post 'invite', to: 'courses#enroll_via_coursecode', as: 'invite'
 
-  root 'homescreen#show'
+  root 'landing#show'
+  get 'dashboard', to: 'homescreen#show', as: :dashboard
+
+  # Dev-only live component style guide (see app/views/styleguide/show.html.erb).
+  get 'styleguide', to: 'styleguide#show' if Rails.env.development?
 
   get 'login', to: 'sessions#new'
   resource :session
@@ -43,6 +49,7 @@ Rails.application.routes.draw do
       post 'handle_settings'
       get  'grouping_preview'
       post 'update_coursecode'
+      post 'update_email_domain'
       get 'export_csv'
       get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
       get 'details', to: 'courses#details'
@@ -58,7 +65,7 @@ Rails.application.routes.draw do
         get 'selected_topic_edit', to: 'projects#selected_topic_edit'
       end
 
-      resources :progress_updates, only: %i[show edit update create new destroy]
+      resources :progress_updates, only: %i[create update destroy]
     end
 
     resources :topics, only: %i[index show edit update create new destroy] do
@@ -67,7 +74,12 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :participants, only: [:index]
+    # Course tab routes (route-per-tab, ADR 0019): the People and Groups tabs
+    # are real pages, siblings of courses#show (Overview). `groups` deliberately
+    # coexists with the nested `project_groups` above — different resources,
+    # different helpers.
+    resources :people, only: :index
+    resources :groups, only: :index
 
     resources :lecturers, only: %i[index show] do
       member do
@@ -77,7 +89,7 @@ Rails.application.routes.draw do
 
       resources :projects, only: [:show], controller: 'projects'
 
-      resources :topics, only: %i[index show edit update create new] do
+      resources :topics, only: %i[show edit update create new] do
         member do
           patch :change_status
         end

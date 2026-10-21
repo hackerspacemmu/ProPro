@@ -1,0 +1,16 @@
+<%# locals: (colspan:, heading:, hint: nil) %>
+<%# The one row a filtered-to-nothing table shows, in place of its body rows.
+    Two lines so a filter miss can point at the way out without naming the
+    filter (the caller owns that wording). shared/_empty_state is the
+    illustrated card for a whole page or section and cannot go inside a
+    <tbody> — this is the table-shaped counterpart, for the Groups and People
+    tables. Which of the two empty situations this is was decided by the
+    controller (`state:`); the copy is the caller's (ADR 0018). %>
+<tr>
+  <td colspan="<%= colspan %>" class="px-6 py-12 text-center">
+    <p class="text-sm text-gray-500 italic"><%= heading %></p>
+    <% if hint.present? %>
+      <p class="mt-1 text-sm text-gray-400"><%= hint %></p>
+    <% end %>
+  </td>
+</tr>
