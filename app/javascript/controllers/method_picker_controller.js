@@ -90,24 +90,23 @@ export default class extends Controller {
 
   chooseLecturer(event) {
     const option = event.currentTarget;
-    this.applyThen(
-      () => {
-        this.basedOnTopicTarget.value = `own_proposal_${option.dataset.enrolmentId}`;
-        this.activate("lecturer");
-        this.clearFields();
-      },
-      () => {
-        this.lecturerAvatarTarget.textContent = option.dataset.avatar;
-        this.lecturerNameTarget.textContent = option.dataset.name;
-        this.lecturerCapacityTarget.textContent = option.dataset.capacity;
-      },
-    );
+
+    // Switching supervisor must not touch the proposal's own fields: they are
+    // the student's content, not the recipient's. Wiping them emptied required
+    // fields behind the markdown editor, and the browser then refused to
+    // submit the form without showing a reason.
+    this.basedOnTopicTarget.value = `own_proposal_${option.dataset.enrolmentId}`;
+    this.activate("lecturer");
+    this.lecturerAvatarTarget.textContent = option.dataset.avatar;
+    this.lecturerNameTarget.textContent = option.dataset.name;
+    this.lecturerCapacityTarget.textContent = option.dataset.capacity;
+
     this.lecturerDialogTarget.close();
   }
 
   chooseTopic(event) {
     const option = event.currentTarget;
-    this.applyThen(
+    const applied = this.applyThen(
       () => {
         this.basedOnTopicTarget.value = option.dataset.topicId;
         this.activate("topic");
@@ -117,16 +116,22 @@ export default class extends Controller {
         this.topicNameTarget.textContent = option.dataset.title;
       },
     );
+
+    // Cancelled: leave the dialog open and change nothing.
+    if (!applied) return;
+
     this.topicDialogTarget.close();
   }
 
   applyThen(fn, after) {
     const proceed =
       !this.contentPresent() ||
-      window.confirm("You'll lose your current form data. Continue?");
-    if (!proceed) return;
+      window.confirm("Overwrite your current data with the topic fields?");
+    if (!proceed) return false;
+
     fn();
     after();
+    return true;
   }
 
   contentPresent() {
@@ -143,20 +148,6 @@ export default class extends Controller {
       }
     }
     return false;
-  }
-
-  clearFields() {
-    const form = this.basedOnTopicTarget.form;
-    if (!form) return;
-
-    form.querySelectorAll("[name^='fields[']").forEach((field) => {
-      if (field.disabled) return;
-      if (field.type === "radio" || field.type === "checkbox") {
-        field.checked = false;
-      } else {
-        this.setFieldValue(field, "");
-      }
-    });
   }
 
   prefillFields(topicId) {

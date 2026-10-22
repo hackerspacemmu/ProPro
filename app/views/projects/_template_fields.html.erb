@@ -47,7 +47,10 @@
         <%= text_area_tag "fields[#{field.id}]",
               existing_value,
               class: "#{field_input_classes} resize-none overflow-hidden leading-relaxed",
-              data: { controller: readonly_field ? "" : "markdown-editor" },
+              data: {
+                controller: readonly_field ? "" : "markdown-editor",
+                action: readonly_field ? "" : "text-editor:update->markdown-editor#setValue"
+              },
               rows: 2,
               placeholder: field.hint,
               required: (field.required && !readonly_field),
