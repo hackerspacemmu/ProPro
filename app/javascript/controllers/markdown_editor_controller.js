@@ -38,6 +38,14 @@ export default class extends Controller {
     // 3. Force hide the original textarea
     this.element.style.setProperty("display", "none", "important");
 
+    // 3b. The textarea is hidden, so the browser cannot show its own
+    // validation bubble for a required field ("an invalid form control is not
+    // focusable") and the submit looks dead. Surface the message on the
+    // visible editor instead.
+    this.invalidHandler = this.handleInvalid.bind(this);
+    this.element.addEventListener("invalid", this.invalidHandler);
+    this.editor.codemirror.on("change", () => this.clearInvalid());
+
     // 4. Convert rich clipboard paste (Word/Docs/Notion/ChatGPT) to markdown
     // Listener goes on codemirror — textarea is hidden, never gets paste events
     this.turndownService = this.buildTurndownService();
@@ -70,6 +78,11 @@ export default class extends Controller {
     if (this.observer) {
       this.observer.disconnect();
     }
+    if (this.invalidHandler) {
+      this.element.removeEventListener("invalid", this.invalidHandler);
+      this.invalidHandler = null;
+    }
+    this.clearInvalid();
     if (this.editor) {
       this.editor.codemirror.off("paste", this.handlePaste);
       this.editor.toTextArea();
@@ -83,6 +96,52 @@ export default class extends Controller {
     if (this.editor) {
       this.editor.value(value);
     }
+  }
+
+  // The browser fired `invalid` on the hidden textarea, meaning a required
+  // field is empty. It cannot show its own bubble here, so paint the error on
+  // the visible editor and move the caret into it.
+  handleInvalid(event) {
+    event.preventDefault();
+
+    const wrapper = this.editorWrapper();
+    const container = this.editorContainer();
+    if (!wrapper || !container) return;
+
+    wrapper.classList.add("ring-2", "ring-error", "rounded-[4px]");
+
+    if (!this.errorElement) {
+      this.errorElement = document.createElement("p");
+      this.errorElement.className = "text-[12px] text-error mt-1";
+      this.errorElement.dataset.markdownEditorError = "";
+      container.insertAdjacentElement("afterend", this.errorElement);
+    }
+    this.errorElement.textContent = this.element.validationMessage;
+
+    this.editor.codemirror.focus();
+  }
+
+  clearInvalid() {
+    if (this.errorElement) {
+      this.errorElement.remove();
+      this.errorElement = null;
+    }
+
+    this.editorWrapper()?.classList.remove(
+      "ring-2",
+      "ring-error",
+      "rounded-[4px]",
+    );
+  }
+
+  // The visible CodeMirror box inside EasyMDE's wrapper.
+  editorWrapper() {
+    return this.editor?.codemirror?.getWrapperElement() || null;
+  }
+
+  // EasyMDE's container, which holds the editor and its toolbar.
+  editorContainer() {
+    return this.editorWrapper()?.closest(".EasyMDEContainer") || null;
   }
 
   // Mirror Redcarpet's enabled extensions so paste matches typed output

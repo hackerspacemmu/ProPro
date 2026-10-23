@@ -39,7 +39,7 @@ class ProjectVersioningTest < ApplicationSystemTestCase
     assert_selector 'select', text: /2 of 2/
   end
 
-  test 'latest version shows Latest label' do
+  test 'latest version shows latest label' do
     login_as(@student)
     visit course_project_path(@course, @project)
 

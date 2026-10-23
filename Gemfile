@@ -113,3 +113,5 @@ gem "octokit"
 
 #faraday-retry is used by octokit to automatically retry API requests if a server error occurs
 gem "faraday-retry"
+#For auto linking 
+gem "rinku", require: "rails_rinku"

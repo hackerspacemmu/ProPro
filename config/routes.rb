@@ -46,7 +46,6 @@ Rails.application.routes.draw do
       post 'update_email_domain'
       post 'update_github_tracking'
       get 'export_csv'
-      get 'profile/:participant_id/:participant_type', to: 'courses#profile', as: 'participant_profile'
       get 'details', to: 'courses#details'
       post 'import_details'
     end
@@ -73,8 +72,8 @@ Rails.application.routes.draw do
     # are real pages, siblings of courses#show (Overview). `groups` deliberately
     # coexists with the nested `project_groups` above — different resources,
     # different helpers.
-    resources :people, only: :index
-    resources :groups, only: :index
+    resources :people, only: %i[index show]
+    resources :groups, only: %i[index show]
 
     resources :lecturers, only: %i[index show] do
       member do

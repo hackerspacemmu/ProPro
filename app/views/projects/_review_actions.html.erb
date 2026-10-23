@@ -3,84 +3,119 @@
 <%# Version Selector %>
 <div class="flex items-center gap-2">
   <span class="text-sm font-medium text-on-surface-variant whitespace-nowrap">Version:</span>
-  <div class="relative flex-1 min-w-0">
-    <%= select_tag nil,
-        options_for_select(
-          instances.each_with_index.map do |inst, i|
-            label = "#{i + 1} of #{instances.size}"
-            label += " (Latest)" if i == instances.size - 1
-            [label, i + 1]
-          end,
-          current_version
-        ),
-        data: {
-          controller: "version-select",
-          version_select_course_value: course.id,
-          version_select_project_value: project.id,
-          action: "change->version-select#navigate"
-        },
-        class: "w-full bg-surface border border-outline rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary cursor-pointer appearance-none" %>
-    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-on-surface-variant">
-      <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+  <div class="flex items-center gap-1 flex-1 min-w-0">
+    <% prev_version = current_version.to_i > 1 ? current_version.to_i - 1 : nil %>
+    <% next_version = current_version.to_i < instances.size ? current_version.to_i + 1 : nil %>
+    <% base_path = course_project_path(course, project) %>
+
+    <% if prev_version %>
+      <%= link_to "#{base_path}?version=#{prev_version}",
+          class: "shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-hover transition-colors",
+          aria: { label: "Previous version" } do %>
+        <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+      <% end %>
+    <% else %>
+      <button type="button" disabled class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-disabled cursor-not-allowed opacity-50" aria-label="Previous version">
+        <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+      </button>
+    <% end %>
+
+    <div class="relative flex-1 min-w-0">
+      <%= select_tag nil,
+          options_for_select(
+            instances.each_with_index.map do |inst, i|
+              label = "#{i + 1} of #{instances.size}"
+              label += " (Latest)" if i == instances.size - 1
+              [label, i + 1]
+            end,
+            current_version
+          ),
+          data: {
+            controller: "version-select",
+            version_select_course_value: course.id,
+            version_select_project_value: project.id,
+            action: "change->version-select#navigate"
+          },
+          class: "w-full bg-surface border border-outline rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary cursor-pointer appearance-none" %>
+      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-on-surface-variant">
+        <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+      </div>
     </div>
+
+    <% if next_version %>
+      <%= link_to "#{base_path}?version=#{next_version}",
+          class: "shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-hover transition-colors",
+          aria: { label: "Next version" } do %>
+        <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+      <% end %>
+    <% else %>
+      <button type="button" disabled class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-disabled cursor-not-allowed opacity-50" aria-label="Next version">
+        <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+      </button>
+    <% end %>
   </div>
 </div>
 
 <%# Action body — policy-driven %>
 <% if policy(project).change_status? && current_version == latest_version %>
-  <%# Supervisor: Approve split button + status dropdown %>
-  <div class="relative group w-full" data-controller="dropdown">
-    <div class="flex w-full shadow-sm rounded-full">
-      <%= button_to change_status_course_project_path(course, project, status: "approved"),
-          method: :patch,
-          form_class: "flex flex-1 m-0",
-          class: "flex-1 justify-center bg-success hover:bg-success-hover text-white pl-5 pr-4 py-2.5 rounded-l-full font-medium text-[14px] transition-colors flex items-center gap-2" do %>
-        <span class="material-symbols-outlined text-[18px]">check</span>
-        Approve
-      <% end %>
-
-      <div class="w-[1px] bg-white/30"></div>
-
+  <%
+    current_status = (project.current_instance&.status).to_s
+    status_options = [
+      { key: "approved", label: "Approve", status_label: "Approved", icon: "check",  icon_color: "text-success",
+        solid: "bg-success hover:bg-success-hover",        tint: "bg-success-container" },
+      { key: "redo",     label: "Redo",    status_label: "Redo",     icon: "replay", icon_color: "text-warning",
+        solid: "bg-warning-strong hover:brightness-95",    tint: "bg-warning-container" },
+      { key: "rejected", label: "Reject",  status_label: "Rejected", icon: "block",  icon_color: "text-error",
+        solid: "bg-error hover:bg-error-hover",            tint: "bg-error-container",
+        danger: true }
+    ]
+    active_option = status_options.find { |o| o[:key] == current_status }
+    trigger_label = active_option ? active_option[:status_label] : "Pending"
+    trigger_icon  = active_option ? active_option[:icon]  : "schedule"
+    trigger_solid = active_option ? active_option[:solid] : "bg-primary-strong hover:bg-primary-hover"
+  %>
+  <div class="flex flex-col gap-2 w-full">
+    <div class="relative group w-full" data-controller="dropdown">
       <button
         type="button"
         data-action="click->dropdown#toggle"
-        class="bg-success hover:bg-success-hover text-white pl-2 pr-3 py-2.5 rounded-r-full transition-colors flex items-center justify-center shrink-0"
+        aria-haspopup="true"
+        aria-label="Review status: <%= trigger_label %>. Click to change."
+        class="w-full flex items-center gap-2.5 text-white pl-5 pr-3 py-3 rounded-full shadow-sm font-medium text-[15px] transition-colors cursor-pointer <%= trigger_solid %>"
       >
-        <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+        <span class="material-symbols-outlined text-[20px]"><%= trigger_icon %></span>
+        <span class="flex-1 text-left truncate"><%= trigger_label %></span>
+        <span class="material-symbols-outlined text-[22px]">arrow_drop_down</span>
       </button>
-    </div>
 
-    <div
-      data-dropdown-target="menu"
-      class="absolute right-0 bottom-full mb-1.5 w-full bg-white border border-outline-variant rounded-lg shadow-lg overflow-hidden z-50 hidden origin-bottom min-[1245px]:top-full min-[1245px]:mt-1.5 min-[1245px]:bottom-auto min-[1245px]:mb-0 min-[1245px]:origin-top"
-    >
-      <div class="py-1">
-        <%= button_to change_status_course_project_path(course, project, status: "redo"),
-            method: :patch,
-            class: "w-full text-left px-4 py-2.5 hover:bg-surface-hover flex items-center gap-3 transition-colors" do %>
-          <span class="material-symbols-outlined text-[18px] text-on-surface-variant">replay</span>
-          <div class="flex flex-col">
-            <span class="text-[14px] text-on-surface font-medium">Request Changes</span>
-            <span class="text-xs text-on-surface-variant">Return to group for redo</span>
-          </div>
-        <% end %>
+      <div
+        data-dropdown-target="menu"
+        class="absolute right-0 bottom-full mb-1.5 w-full bg-white border border-outline-variant rounded-lg shadow-lg overflow-hidden z-50 hidden origin-bottom min-[1245px]:top-full min-[1245px]:mt-1.5 min-[1245px]:bottom-auto min-[1245px]:mb-0 min-[1245px]:origin-top"
+      >
+        <div class="py-1">
+          <% status_options.each do |opt| %>
+            <% selected = (opt[:key] == current_status) %>
 
-        <div class="border-t border-outline-variant my-1"></div>
+            <% if opt[:danger] %>
+              <div class="border-t border-outline-variant my-1"></div>
+            <% end %>
 
-        <%= button_to change_status_course_project_path(course, project, status: "rejected"),
-            method: :patch,
-            class: "w-full text-left px-4 py-2.5 hover:bg-error-container flex items-center gap-3 transition-colors" do %>
-          <span class="material-symbols-outlined text-[18px] text-error">block</span>
-          <div class="flex flex-col">
-            <span class="text-[14px] text-error font-medium">Reject Proposal</span>
-            <span class="text-xs text-error/70">Close out permanently</span>
-          </div>
-        <% end %>
+            <%= button_to change_status_course_project_path(course, project, status: opt[:key]),
+                method: :patch,
+                aria: { current: (selected ? "true" : nil) },
+                class: "w-full text-left px-4 py-2.5 #{selected ? opt[:tint] : (opt[:danger] ? 'hover:bg-error-container' : 'hover:bg-surface-hover')} flex items-center gap-3 transition-colors cursor-pointer" do %>
+              <span class="material-symbols-outlined text-[18px] <%= opt[:icon_color] %>"><%= opt[:icon] %></span>
+              <span class="flex-1 min-w-0 text-[14px] font-medium <%= opt[:danger] ? 'text-error' : 'text-on-surface' %>"><%= opt[:label] %></span>
+              <% if selected %>
+                <span class="material-symbols-outlined text-[18px] <%= opt[:icon_color] %> shrink-0">check</span>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
 <% else %>
-  <%# Student / owner: policy-driven Edit / Unable to Edit / Jump To Latest %>
   <%= render "project_actions",
   project: project,
   course: course,

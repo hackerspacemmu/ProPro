@@ -3,7 +3,7 @@ require 'securerandom'
 
 # Handles CRUD for courses
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv profile update_coursecode update_email_domain update_github_tracking grouping_preview]
+  before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv update_coursecode update_email_domain update_github_tracking grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
   # The Overview tab — the only course tab page that lives on courses#show;
@@ -269,27 +269,6 @@ class CoursesController < ApplicationController
     authorize @course, :destroy?
     @course.destroy
     redirect_to dashboard_path
-  end
-
-  def profile
-    @participant_type = params[:participant_type]
-    @participant_id = params[:participant_id]
-    @course = Course.find(params[:id])
-    @grouped = @course.grouped
-
-    @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
-    @projects_by_owner = @course.projects.index_by { |p| [p.owner_type, p.owner_id] }
-
-    if @participant_type == 'group'
-      @group = @course.project_groups.find(@participant_id)
-      @members = @group.project_group_members.includes(:user)
-    else
-      @student = User.find(@participant_id)
-      @student_enrolment = Enrolment.find_by(user: @student, course: @course)
-    end
-
-    @current_instance = @project&.project_instances&.order(:version)&.last
-    Rails.logger.info "PROFILE PARAMS: #{params.slice(:id, :participant_id, :participant_type).inspect}"
   end
 
   def export_csv

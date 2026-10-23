@@ -21,7 +21,7 @@
 
     <main
       class="flex-1 bg-surface rounded-tl-panel flex overflow-hidden h-[calc(100vh-var(--spacing-header))]"
-      data-controller="tabs comments-drawer"
+      data-controller="tabs comments-drawer comments-panel"
       data-tabs-persist-key-value="<%= project_tab_persist_key %>"
       data-tabs-active-class="text-primary-strong"
       data-tabs-inactive-class="text-on-surface-variant hover:bg-surface-hover hover:text-on-surface"
@@ -102,35 +102,56 @@
       </div>
 
       <%# ===== RIGHT PANE: review desktop-only, comments drawer ===== %>
+      <%# Resize handle for the comments panel. A sibling of the drawer (not a
+          child) so the drawer's own overflow-y-auto cannot clip it, and so it
+          sits on the panel's left edge. The left pane already carries its own
+          border-r, so the handle paints a tint instead of a second line. %>
+      <div
+        data-comments-panel-target="handle"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize comments panel"
+        aria-valuemin="320"
+        aria-valuemax="560"
+        aria-valuenow="<%= comments_panel_width %>"
+        tabindex="0"
+        title="Drag to resize (double-click to reset)"
+        class="
+          hidden min-[1245px]:block w-1.5 shrink-0 self-stretch
+          cursor-col-resize touch-none transition-colors
+          bg-transparent hover:bg-primary/20 active:bg-primary/30
+          focus-visible:bg-primary/30 focus-visible:outline-none
+        "
+      ></div>
+
       <div
         id="comments-drawer"
         data-comments-drawer-target="panel"
+        data-comments-panel-target="drawer"
         role="region"
         aria-label="Comments"
+        style="--comments-w: <%= comments_panel_width %>px"
         class="
           fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-surface p-6
           flex flex-col gap-6 overflow-y-auto shrink-0
           translate-x-full transition-transform duration-300 ease-out
           min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none
           min-[1245px]:transition-none min-[1245px]:border-l-0
+          min-[1245px]:w-[var(--comments-w,360px)] min-[1245px]:max-w-[45vw]
+          min-[1245px]:min-w-[320px]
         "
       >
-        <%= render "project_review_card",
-        project: @project,
-        course: @course,
-        current_version: @current_version,
-        latest_version: @latest_version,
-        instances: @instances,
-        members: @members %>
+        <div class="shrink-0 hidden min-[1245px]:block">
+          <%= render "project_review_card",
+          project: @project,
+          course: @course,
+          current_version: @current_version,
+          latest_version: @latest_version,
+          instances: @instances,
+          members: @members %>
+        </div>
 
-        <div
-          class="
-            w-full self-start
-            h-[600px] min-[1245px]:h-[700px]
-            min-[1245px]:sticky min-[1245px]:top-6
-            min-[1245px]:max-h-[calc(100vh-3rem)]
-          "
-        >
+        <div class="w-full flex-1 min-h-[360px]">
           <%= render "project_comments",
           comments: @comments,
           new_comment: @new_comment,

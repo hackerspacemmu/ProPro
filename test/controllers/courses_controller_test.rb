@@ -149,6 +149,87 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get course_people_path(course)
     assert_response :success
     assert_no_match %r{0/0}, response.body
+
+    excluded_link = css_select("a[href=\"#{course_lecturer_path(course, lecturer_a)}\"]").first
+    assert_not_nil excluded_link
+    assert_includes excluded_link['class'], 'text-on-surface-disabled'
+    assert_select 'div.opacity-60', count: 1
+
+    active_link = css_select("a[href=\"#{course_lecturer_path(course, lecturer_b)}\"]").first
+    assert_not_nil active_link
+    assert_includes active_link['class'], 'text-on-surface'
+    assert_not_includes active_link['class'], 'text-on-surface-disabled'
+  end
+
+  test 'people tab sorts lecturers by remaining capacity, ties by name, excluded last' do
+    course = create(:course)
+    coordinator = create(:user)
+    create(:enrolment, :coordinator, user: coordinator, course: course)
+
+    # Created deliberately out of display order.
+    zoe = create(:user, :staff, name: 'Zoe Zebra')
+    anna = create(:user, :staff, name: 'Anna Apple')
+    bob = create(:user, :staff, name: 'Bob Banana')
+    mike = create(:user, :staff, name: 'Mike Mango')
+    carl = create(:user, :staff, name: 'Carl Cherry')
+    alice = create(:user, :staff, name: 'Alice Apricot')
+
+    create(:enrolment, :lecturer, user: zoe, course: course)
+    create(:enrolment, :lecturer, user: anna, course: course)
+    bob_enrolment = create(:enrolment, :lecturer, user: bob, course: course)
+    mike_enrolment = create(:enrolment, :lecturer, user: mike, course: course)
+    carl_enrolment = create(:enrolment, :lecturer, user: carl, course: course)
+    alice_enrolment = create(:enrolment, :lecturer, user: alice, course: course)
+
+    # Base cap is 5 (auto-calculate off): Bob 8 left, Anna and Zoe 5 left each
+    # (tie → name), Mike 6 approved against a cap of 5 → -1 (sinks to the
+    # bottom of the counted group), Alice and Carl excluded (bottom, by name).
+    bob_enrolment.update!(supervisor_capacity_offset: 3)
+    6.times { create(:project, course: course, supervisor_enrolment: mike_enrolment, status: :approved) }
+    [carl_enrolment, alice_enrolment].each { |enrolment| enrolment.update!(supervisor_capacity_excluded: true) }
+
+    sign_in coordinator
+    get course_people_path(course)
+    assert_response :success
+
+    names = ['Zoe Zebra', 'Anna Apple', 'Bob Banana', 'Mike Mango', 'Carl Cherry', 'Alice Apricot']
+    order = response.body.scan(/title="(#{names.join('|')})"/).flatten
+    assert_equal ['Bob Banana', 'Anna Apple', 'Zoe Zebra', 'Mike Mango', 'Alice Apricot', 'Carl Cherry'], order
+  end
+
+  test 'people tab leaves solo-supervisor lecturers in the association order' do
+    course = create(:course)
+    zed = create(:user, :staff, name: 'Zed Lower')
+    ada = create(:user, :staff, name: 'Ada Upper')
+    create(:enrolment, :lecturer, user: zed, course: course)
+    ada_enrolment = create(:enrolment, :lecturer, user: ada, course: course)
+    # Capacity order would be the reverse of the association's own order.
+    ada_enrolment.update!(supervisor_capacity_offset: 5)
+    assert course.solo_supervisor?
+
+    sign_in zed
+    get course_people_path(course)
+    assert_response :success
+
+    expected = course.lecturers.reload.map(&:name)
+    order = response.body.scan(/title="(Zed Lower|Ada Upper)"/).flatten
+    assert_equal expected, order
+  end
+
+  test 'people tab keeps pending text muted even when pending exceeds capacity' do
+    course = create(:course)
+    coordinator = create(:user)
+    create(:enrolment, :coordinator, user: coordinator, course: course)
+    lecturer = create(:user, :staff, name: 'Pat Pending')
+    enrolment = create(:enrolment, :lecturer, user: lecturer, course: course)
+    create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
+    6.times { create(:project, course: course, supervisor_enrolment: enrolment, status: :pending) }
+
+    sign_in coordinator
+    get course_people_path(course)
+    assert_response :success
+    assert_select 'p.text-on-surface-muted', text: /6 pending/
+    assert_select 'p.text-error', count: 0
   end
 
   test 'groups tab renders the supervisor filter select for non-solo courses' do
@@ -243,7 +324,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_groups_path(course)
     assert_response :success
-    assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group'), text: 'Link Me'
+    assert_select 'a[href=?]', course_group_path(course, group.id), text: 'Link Me'
   end
 
   test 'student group cell links to the group profile page' do
@@ -258,7 +339,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in @coordinator_user
     get course_people_path(course)
     assert_response :success
-    assert_select 'a[href=?]', participant_profile_course_path(course, group.id, 'group')
+    assert_select 'a[href=?]', course_group_path(course, group.id)
   end
 
   test 'lecturers link to their lecturers/show profile and show pending left of capacity' do
@@ -329,10 +410,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'the new tab routes enforce the same authorization as courses#show' do
     outsider = create(:user)
+    group = create(:project_group, course: @course)
     sign_in outsider
 
     [course_path(@course), course_topics_path(@course),
-     course_people_path(@course), course_groups_path(@course)].each do |path|
+     course_people_path(@course), course_groups_path(@course),
+     course_person_path(@course, @student_user), course_group_path(@course, group)].each do |path|
       get path
       assert_redirected_to dashboard_path, "#{path} must deny a non-enrolled user"
       assert_equal 'You are not authorized to view this page.', flash[:alert]
@@ -487,75 +570,6 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input#topic-search[data-search-shortcut-target]', count: 1
     assert_includes response.body, 'Search supervisors or topics'
     assert_includes response.body, 'Collapse all'
-  end
-
-  test 'group profile renders the mockup hero, facts strip and members list' do
-    course = create(:course, :grouped)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    create(:enrolment, :lecturer, user: @lecturer_user, course: course)
-    group = create(:project_group, course: course, confirmed: true, group_name: 'Smoke Group')
-    member = create(:user, name: 'Member One', instid: '12345')
-    create(:enrolment, user: member, course: course)
-    create(:project_group_member, user: member, project_group: group)
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(course, group.id, 'group')
-    assert_response :success
-    assert_match 'View Group', response.body
-    assert_select 'h1#group-name', text: 'Smoke Group'
-    assert_select 'section#group-members'
-    assert_match 'Group Members', response.body
-    assert_match 'Member One', response.body
-    assert_includes response.body, 'STUDENT ID: 12345'
-    assert_match 'No project has been submitted yet.', response.body
-  end
-
-  test 'group profile shows the supervisor and status on the project roster' do
-    course = create(:course, :grouped)
-    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
-    supervisor = create(:user, :staff, name: 'Sally Supervisor')
-    supervisor_enrolment = create(:enrolment, :lecturer, user: supervisor, course: course)
-    group = create(:project_group, course: course, confirmed: true, group_name: 'Proposal Group')
-    project = create(:project, course: course, owner: group, owner_type: 'ProjectGroup',
-                               supervisor_enrolment: supervisor_enrolment, status: :approved)
-    create(:project_instance, project: project, supervisor_enrolment: supervisor_enrolment,
-                              status: :approved, title: 'Group Roster Project')
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(course, group.id, 'group')
-    assert_response :success
-    assert_select 'h2#current-project-heading', text: 'Current Project'
-    assert_match 'Group Roster Project', response.body
-    assert_match 'Approved', response.body
-    assert_match 'Sally Supervisor', response.body
-    assert_no_match 'No project has been submitted yet.', response.body
-  end
-
-  test 'student profile renders the hero, facts strip and empty state' do
-    sign_in @coordinator_user
-    get participant_profile_course_path(@course, @student_user.id, 'student')
-    assert_response :success
-    assert_match 'View Student', response.body
-    assert_select 'h1#student-name', text: @student_user.name
-    assert_match @student_user.email_address, response.body
-    assert_match 'Project Status', response.body
-    assert_match 'Supervisor', response.body
-    assert_match 'No project has been submitted yet.', response.body
-    assert_match 'Remove From Course', response.body
-  end
-
-  test 'student profile shows the flat current project row for a coordinator' do
-    project = create(:project, course: @course, owner: @student_user, owner_type: 'User',
-                               supervisor_enrolment: @lecturer_enrolment, status: :approved)
-    create(:project_instance, project: project, supervisor_enrolment: @lecturer_enrolment,
-                              status: :approved, title: 'Student Flat Row')
-
-    sign_in @coordinator_user
-    get participant_profile_course_path(@course, @student_user.id, 'student')
-    assert_response :success
-    assert_select 'h2#current-project-heading', text: 'Current Project'
-    assert_match 'Student Flat Row', response.body
-    assert_no_match 'No project has been submitted yet.', response.body
   end
 
   # --- Empty vs no-matches (ADR 0018) -------------------------------------

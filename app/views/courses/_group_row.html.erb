@@ -13,7 +13,7 @@
 
 <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="<%= group.id %>">
   <td class="px-4 py-4 text-sm align-middle">
-    <%= link_to participant_profile_course_path(course, group.id, 'group'),
+    <%= link_to course_group_path(course, group.id),
                 title: group.group_name || "Group #{group.id}",
                 class: "text-gray-900 font-medium hover:underline truncate block w-full" do %>
       <%= group.group_name || "Group #{group.id}" %>
