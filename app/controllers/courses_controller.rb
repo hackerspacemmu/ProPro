@@ -398,14 +398,13 @@ class CoursesController < ApplicationController
   end
 
   def update_github_tracking
-    authorize @course, :update?
+  authorize @course, :update?
 
-    if params[:course]&.key?(:github_tracking_enabled)
-      is_enabled = params[:course][:github_tracking_enabled] == '1'
-      @course.update!(github_tracking_enabled: is_enabled)
-      flash.now[:notice] ||= 'Github Tracking settings changed'
-      
-    end
+  if params[:course]&.key?(:github_tracking_enabled)
+    is_enabled = params[:course][:github_tracking_enabled] == '1'
+    @course.update!(github_tracking_enabled: is_enabled)
+    flash.now[:notice] = 'Github Tracking settings changed'
+  end
   rescue StandardError => e
     flash.now[:alert] = e.message
   ensure

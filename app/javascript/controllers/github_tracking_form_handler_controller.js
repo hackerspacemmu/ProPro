@@ -1,26 +1,20 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Connects to data-controller="github-tracking-form-handler"
-// Formless github tracking widget (ADR-0010): no <form> in the static
+// Connects to data-controller="email-domain-form-handler"
+// Formless email-domain restriction widget (ADR-0010): no <form> in the static
 // DOM, so it can live inside #course-settings-form without nesting one. The
-// toggle and the domain submit each fetch() the update_github_tracking endpoint
+// toggle and the domain submit each fetch() the update_email_domain endpoint
 // with a form-encoded body, then render its turbo stream (replaces the
-// github_tracking_form frame and the flash).
+// email_domain_restrict_form frame and the flash).
 export default class extends Controller {
-  static targets = ["enabledToggle", "domainInput"];
+  static targets = ["enabledToggle"];
   static values = { url: String };
-
-
-  connect() {
-    console.log("GitHub tracking controller connected successfully!");
-  }
 
   async post(body) {
     const response = await fetch(this.urlValue, {
       method: "POST",
       headers: {
-        "Accept": "text/vnd.turbo-stream.html",
-        "Content-Type": "application/x-www-form-urlencoded", // <-- Crucial so Rails parses params[:course] correctly
+        Accept: "text/vnd.turbo-stream.html",
         "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')
           ?.content,
       },
@@ -29,8 +23,6 @@ export default class extends Controller {
 
     if (response.ok) {
       window.Turbo.renderStreamMessage(await response.text());
-    } else {
-      console.error("Failed to update GitHub tracking", await response.text());
     }
   }
 
