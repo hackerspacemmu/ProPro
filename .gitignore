@@ -111,3 +111,6 @@ STUDENT_GROUPING_REFERENCE.md
 .opencode
 
 /ProPro_Design
+grouping_backend_audit.md
+grouping_backend_dump.md
+grouping_backend_raw_search.md
