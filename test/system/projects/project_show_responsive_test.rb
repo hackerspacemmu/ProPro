@@ -26,6 +26,11 @@ class ProjectShowResponsiveTest < ApplicationSystemTestCase
     assert_selector 'button[data-comments-drawer-target="trigger"]'
     assert_selector "[data-comments-drawer-target='panel']"
     assert_selector "[data-comments-drawer-target='backdrop']"
+    # The drag-resize handle is wired up here too; its behaviour is a
+    # JavaScript concern, so only the static wiring is asserted under
+    # rack_test (the drag itself is exercised by the selenium
+    # comments_panel_resize_test).
+    assert_selector '[role="separator"][data-comments-panel-target="handle"]'
     assert_text 'A comment from the group'
   end
 
@@ -38,12 +43,14 @@ class ProjectShowResponsiveTest < ApplicationSystemTestCase
     assert_selector "select[data-controller='version-select'] option", text: /1 of 1/
   end
 
-  test 'supervisor sees the Approve split-button on the latest version' do
+  test 'supervisor sees the status dropdown on the latest version' do
     login_as(@lecturer)
     visit course_project_path(@course, @project)
 
+    assert_selector 'button[aria-label^="Review status: Pending"]'
     assert_selector 'button', text: 'Approve'
-    assert_selector 'button', text: 'Request Changes'
+    assert_selector 'button', text: 'Redo'
+    assert_selector 'button', text: 'Reject'
   end
 
   test 'show page wires the sidebar drawer targets and toggle' do

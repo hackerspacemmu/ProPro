@@ -283,8 +283,6 @@ class ProjectsController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
-        raise StandardError, 'This project is locked and cannot be edited.' unless @project.editable? || is_approved
-
         @instance = @project.instance_to_edit(
           created_by: current_user,
           has_supervisor_comment: has_supervisor_comment
@@ -317,7 +315,7 @@ class ProjectsController < ApplicationController
           field.save!
         end
 
-        params[:based_on_topic] = "own_proposal_#{@course.enrolments.find_by(role: :lecturer).id}" if @course.solo_supervisor? && (!@course.toggle_topics || @course.topics.empty?)
+        params[:based_on_topic] = "own_proposal_#{@course.enrolments.find_by(role: :lecturer).id}" if !@course.toggle_topics && @course.solo_supervisor?
 
         raise StandardError, 'Please choose a lecturer or topic' if params[:based_on_topic].blank?
 
@@ -347,6 +345,8 @@ class ProjectsController < ApplicationController
 
           @instance.source_topic_id = nil
         end
+
+        raise StandardError, 'This project is locked and cannot be edited.' if is_approved && @project.supervisor_enrolment != supervisor_enrolment
 
         @instance.supervisor_enrolment = supervisor_enrolment
 

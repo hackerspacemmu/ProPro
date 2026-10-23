@@ -1,10 +1,11 @@
 <%# locals: (fields:) %>
 
-<div
-  class="
-    bg-white border border-outline-variant rounded-[8px] overflow-hidden
-  "
->
+<div class="w-full" data-controller="field-expand-modal">
+  <div
+    class="
+      bg-primary-container/40 border border-outline-variant rounded-[8px] overflow-hidden
+    "
+  >
   <% sorted_fields = fields.sort_by { |f| f.project_template_field&.position || 0 } %>
   <% sorted_fields.each do |field| %>
 
@@ -31,26 +32,45 @@
         display_text = display_text.to_s.strip
       end
 
+      #Re-sets display_text to use auto_link if it is not markdown(ie the long paragraph thing) since the markdown already includes implemented links
+      display_text = !is_markdown ? auto_link(sanitize(display_text), html: { class: "font-bold underline", target: "_blank", rel: "noopener" }) : display_text
+
       rendered_markdown = is_markdown && display_text.present? ? render_markdown(display_text) : nil
     %>
 
     <% if is_markdown %>
-      <div class="py-5 px-6 border-b border-outline-variant flex flex-col gap-3 hover:bg-surface-hover transition-colors">
+      <div class="py-5 px-6 border-b border-outline-variant flex flex-col gap-3 hover:bg-primary-container-hover transition-colors">
         <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider">
           <%= field.project_template_field.label %>
         </div>
         <div
           class="
-            text-[15px] text-on-surface leading-relaxed bg-white border border-outline-variant
-            rounded-[4px] p-5 prose prose-sm max-w-none
+            text-[15px] text-on-surface leading-relaxed bg-white/60 border border-outline-variant
+            rounded-[4px] p-5 prose prose-sm max-w-none relative
           "
         >
+        
           <% if display_text.present? %><%= rendered_markdown %><% else %><span class="text-on-surface-variant italic font-normal">No content provided</span><% end %>
+          <button
+            type="button"
+            data-action="click->field-expand-modal#open"
+            data-title="<%= field.project_template_field.label %>"
+            class="absolute top-3 right-3 text-on-surface-variant hover:text-on-surface transition-colors bg-white/80 rounded-md p-1"
+            aria-label="Expand <%= field.project_template_field.label %>"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+              /></svg>
+            <template><%= rendered_markdown %></template>
+          </button>
         </div>
       </div>
 
     <% else %>
-      <div class="py-4 px-6 border-b border-outline-variant flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-surface-hover transition-colors">
+      <div class="py-4 px-6 border-b border-outline-variant flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-primary-container-hover transition-colors">
         <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider md:w-1/3 shrink-0 pt-1">
           <%= field.project_template_field.label %>
         </div>
@@ -68,4 +88,35 @@
       </div>
     <% end %>
   <% end %>
+  </div>
+
+  <%# --- FIELD EXPAND MODAL --- %>
+  <dialog
+    data-field-expand-modal-target="dialog"
+    class="w-full max-w-3xl max-h-[85vh] m-auto p-0 rounded-xl border border-outline-variant shadow-lg bg-white backdrop:bg-black/40"
+  >
+    <div class="flex items-center justify-between px-5 py-4 border-b border-outline-variant sticky top-0 bg-white">
+      <h4
+        data-field-expand-modal-target="title"
+        class="text-xs md:text-sm font-bold text-on-surface uppercase tracking-wide"
+      >Field details</h4>
+      <button
+        type="button"
+        data-action="click->field-expand-modal#close"
+        class="text-on-surface-variant hover:text-on-surface transition-colors"
+        aria-label="Close"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          /></svg>
+      </button>
+    </div>
+    <div
+      data-field-expand-modal-target="content"
+      class="p-5 md:p-6 overflow-y-auto prose prose-sm max-w-none text-base md:text-lg"
+    ></div>
+  </dialog>
 </div>

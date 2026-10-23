@@ -155,3 +155,172 @@ class ProjectFormTest < ApplicationSystemTestCase
     assert_equal 'Solo Proposal', project.current_title
   end
 end
+
+# The proposal-method picker and the markdown description editor are both
+# JavaScript, so these need a real browser (the class above runs on rack_test).
+class ProjectFormPickerTest < BrowserSystemTestCase
+  setup do
+    @course  = create(:course)
+    @student = create(:user)
+    create(:enrolment, :student, user: @student, course: @course)
+
+    @lecturer     = create(:user, :staff, name: 'Alice Zane')
+    @lecturer_enr = create(:enrolment, :lecturer, user: @lecturer, course: @course)
+
+    @other_lecturer     = create(:user, :staff, name: 'Bob Ray')
+    @other_lecturer_enr = create(:enrolment, :lecturer, user: @other_lecturer, course: @course)
+
+    create(:enrolment, :coordinator, course: @course)
+
+    @title_field = @course.project_template.project_template_fields.first
+    @description_field = create(:project_template_field,
+                                project_template: @course.project_template,
+                                label: 'Description', field_type: :textarea,
+                                applicable_to: :both, required: true, is_project_title: false)
+  end
+
+  test 'changing the supervisor keeps the content and saves the new supervisor' do
+    project = build_project
+
+    login_as(@student)
+    visit edit_course_project_path(@course, project)
+    wait_for_turbo
+
+    open_lecturer_picker
+    script_click("button[data-method-picker-target='lecturerOption'][data-enrolment-id='#{@other_lecturer_enr.id}']")
+
+    submit_form
+
+    assert_current_path course_project_path(@course, project)
+
+    project.reload
+    assert_equal @other_lecturer, project.supervisor
+    assert_equal 'Original Title', project.current_title
+    fields = project.current_instance.project_instance_fields
+    assert_equal 'Original description', fields.find_by(project_template_field_id: @description_field.id).value
+  end
+
+  test 'picking a topic confirms, shows its text in the editor and saves it' do
+    topic   = build_topic
+    project = build_project
+
+    login_as(@student)
+    visit edit_course_project_path(@course, project)
+    wait_for_turbo
+
+    open_topic_picker
+    pick_topic(topic, accept: true)
+
+    assert confirm_message.present?
+    assert_match 'Topic description', find('.CodeMirror').text
+
+    submit_form
+
+    assert_current_path course_project_path(@course, project)
+
+    fields = project.reload.current_instance.project_instance_fields
+    assert_equal 'Topic description', fields.find_by(project_template_field_id: @description_field.id).value
+  end
+
+  test 'cancelling the topic overwrite changes nothing and keeps the dialog open' do
+    topic   = build_topic
+    project = build_project
+
+    login_as(@student)
+    visit edit_course_project_path(@course, project)
+    wait_for_turbo
+
+    open_topic_picker
+    pick_topic(topic, accept: false)
+
+    assert_selector 'dialog[open]'
+    assert_equal "own_proposal_#{@lecturer_enr.id}", based_on_topic
+    assert_equal 'Original description', description_value
+  end
+
+  test 'an empty required description shows a visible error instead of a dead submit' do
+    project = build_project(description: nil)
+
+    login_as(@student)
+    visit edit_course_project_path(@course, project)
+    wait_for_turbo
+
+    submit_form
+
+    assert_selector '[data-markdown-editor-error]', visible: true, text: /fill/i
+    assert_current_path edit_course_project_path(@course, project)
+  end
+
+  private
+
+  # Headless Chrome intermittently swallows native clicks on a freshly loaded
+  # page (the suite's known dropped-first-click race), so every interaction
+  # here is scripted -- the same approach as
+  # test/system/courses/settings_coursecode_test.rb.
+  def script_click(selector)
+    page.execute_script("document.querySelector(#{selector.inspect}).click()")
+  end
+
+  def open_lecturer_picker
+    script_click("[data-method-picker-target='lecturerSurface'] button")
+    assert_selector 'dialog[open]', wait: 3
+  end
+
+  def open_topic_picker
+    script_click("[data-method-picker-target='topicEmpty'] button")
+    assert_selector 'dialog[open]', wait: 3
+  end
+
+  # The topic overwrite asks for confirmation before it replaces the student's
+  # own values. The native modal blocks the driver, so it is replaced by a
+  # stub that records the prompt and answers it.
+  def pick_topic(topic, accept:)
+    page.execute_script(<<~JS)
+      window.__confirmMessage = null;
+      window.confirm = (message) => { window.__confirmMessage = message; return #{accept}; };
+    JS
+    script_click("button[data-method-picker-target='topicOption'][data-topic-id='#{topic.id}']")
+  end
+
+  def confirm_message
+    page.evaluate_script('window.__confirmMessage')
+  end
+
+  def based_on_topic
+    find('#based_on_topic', visible: false).value
+  end
+
+  def description_value
+    find("#fields_#{@description_field.id}", visible: false).value
+  end
+
+  def submit_form
+    script_click("#project-form button[type='submit']")
+  end
+
+  def build_project(description: 'Original description')
+    project = create(:project, course: @course, owner: @student, supervisor_enrolment: @lecturer_enr)
+    instance = create(:project_instance, project: project, supervisor_enrolment: @lecturer_enr,
+                                         created_by: @student, version: 1, status: :pending,
+                                         title: 'Original Title')
+    instance.project_instance_fields.create!(project_template_field_id: @title_field.id,
+                                             value: 'Original Title')
+    if description
+      instance.project_instance_fields.create!(project_template_field_id: @description_field.id,
+                                               value: description)
+    end
+    project
+  end
+
+  def build_topic
+    topic = create(:topic, course: @course, owner: @lecturer)
+    instance = create(:topic_instance, topic: topic, created_by: @lecturer,
+                                       version: 1, status: :approved, title: 'Topic Title')
+    instance.project_instance_fields.create!(project_template_field_id: @title_field.id,
+                                             value: 'Topic Title')
+    instance.project_instance_fields.create!(project_template_field_id: @description_field.id,
+                                             value: 'Topic description')
+    topic.update!(status: :approved)
+    topic
+  end
+end

@@ -17,18 +17,18 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_topic_path(@course, @topic)
 
-    first('[data-testid="approve-button"]').click
+    first('button[aria-label^="Review status"]').click
+    first('button', text: 'Approve').click
 
     assert_selector '[data-testid="flash-notice"]'
-    assert_selector '[data-testid="review-actions"]'
+    assert_selector 'button[aria-label^="Review status: Approved"]'
   end
 
   test 'if coordinator approval enabled, lecturer cannot change their own topic status sad path' do
     login_as(@lecturer)
     visit course_topic_path(@course, @topic)
 
-    assert_no_selector '[data-testid="review-actions"]'
-    assert_no_selector '[data-testid="approve-button"]'
+    assert_no_selector 'button[aria-label^="Review status"]'
   end
 
   test 'coordinator cannot change status when coordinator approval is not required sad path' do
@@ -36,8 +36,7 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
     login_as(@coordinator)
     visit course_topic_path(@course, @topic)
 
-    assert_no_selector '[data-testid="review-actions"]'
-    assert_no_selector '[data-testid="approve-button"]'
+    assert_no_selector 'button[aria-label^="Review status"]'
   end
 
   test 'coordinator can edit a pending topic and still change its status' do
@@ -46,7 +45,7 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
 
     assert_text 'Edit Topic'
     assert_selector '[data-testid="edit-topic-button"]'
-    assert_selector '[data-testid="approve-button"]'
+    assert_selector 'button[aria-label^="Review status"]'
   end
 
   test 'coordinator cannot edit an approved topic' do
@@ -56,7 +55,7 @@ class TopicChangeStatusTest < ApplicationSystemTestCase
 
     assert_no_text 'Edit Topic'
     assert_no_selector '[data-testid="edit-topic-button"]'
-    assert_selector '[data-testid="approve-button"]'
+    assert_selector 'button[aria-label^="Review status: Approved"]'
   end
 
   test 'student screen on topic show does not offer updating a proposal based on the topic' do
