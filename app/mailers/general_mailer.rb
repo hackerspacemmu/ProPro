@@ -8,7 +8,7 @@ class GeneralMailer < ApplicationMailer
   def Signup_Verification
     @otp_token = params[:otp_token]
     @email_address = params[:email_address]
-    mail(to: @email_address, Subject: "Verify Your Account on ProPro")
+    mail(to: @email_address, Subject: 'Verify Your Account on ProPro')
   end
 
   def Project_Status_Updated

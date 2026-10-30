@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProPro - Groups</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --spacing-header: 64px;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          borderRadius: {
+            'panel': '1rem',
+          },
+          minHeight: {
+            'header': 'var(--spacing-header)',
+          },
+          spacing: {
+            'header': 'var(--spacing-header)',
+          },
+          colors: {
+            'surface-tint': '#f8f9fa',
+            'on-surface': '#1f2937',
+            'on-surface-variant': '#4b5563',
+            'primary-strong': '#2563eb',
+            'surface-hover': '#f3f4f6',
+            'outline-variant': '#e5e7eb',
+            'primary-container': '#eff6ff',
+            'primary-soft': '#3b82f6',
+            'error-container': '#fef2f2',
+            'error': '#ef4444',
+            'warning-container-alt': '#fffbeb',
+            'warning-strong': '#f59e0b',
+            'success-container': '#f0fdf4',
+            'success': '#22c55e',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface-tint m-0 p-0 overflow-hidden">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-surface-tint flex items-center justify-between gap-3 px-4 py-2 min-h-header">
+    <div class="flex items-center gap-2 min-w-0 flex-1">
+      <button type="button"
+              data-sidebar-target="toggleButton"
+              data-action="sidebar#toggle"
+              aria-label="Toggle sidebar"
+              aria-controls="app-sidebar"
+              class="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <div class="hidden sm:flex sm:items-center sm:min-w-0">
+        <a href="/" class="shrink-0 text-[1.5rem] leading-8 font-normal text-on-surface-variant hover:text-on-surface transition-colors no-underline whitespace-nowrap" style="font-family: 'DM Sans',Roboto,Arial,sans-serif">ProPro</a>
+        <span class="material-symbols-outlined text-gray-400 mx-1 text-sm">chevron_right</span>
+        <span class="text-[15px] font-medium text-gray-900 truncate">Grouped TopicApprovalEnabled</span>
+      </div>
+
+      <span class="sm:hidden truncate text-[17px] text-on-surface font-medium min-w-0">
+        Grouped TopicApprovalEnabled
+      </span>
+    </div>
+
+    <div class="flex items-center gap-1 shrink-0">
+      <button type="button" class="hidden sm:block m-0 text-[15px] font-medium text-on-surface-variant hover:text-on-surface transition-colors pr-2 bg-transparent border-0 cursor-pointer">
+        Log out
+      </button>
+    </div>
+  </header>
+
+  <div class="text-on-surface font-['Roboto',sans-serif]">
+    <div class="flex">
+
+      <!-- Sidebar -->
+      <aside id="app-sidebar"
+             class="group/sidebar
+                    w-[280px] shrink-0 py-3 bg-surface-tint
+                    fixed top-0 left-0 h-full z-50 -translate-x-full transition-[transform,width] duration-200 ease-out
+                    lg:sticky lg:top-header lg:translate-x-0 lg:h-[calc(100vh-var(--spacing-header))] lg:self-start lg:overflow-y-auto
+                    data-[collapsed=true]:lg:overflow-visible
+                    data-[collapsed=true]:lg:w-[72px]"
+             data-sidebar-target="container"
+             data-collapsed="false">
+        <nav class="flex flex-col gap-1 pr-3 pl-3">
+
+          <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 transition-colors">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-sm font-medium">Home</span>
+          </a>
+
+          <div class="group-data-[collapsed=true]/sidebar:lg:hidden">
+            <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer">
+              <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+              <span class="material-symbols-outlined text-sm">expand_less</span>
+            </div>
+
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-blue-100 text-blue-900 transition-colors mb-1">
+              <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">G</div>
+              <span class="text-sm font-medium truncate">Grouped TopicAppr...</span>
+            </a>
+
+            <div class="py-2">
+              <div class="border-t border-outline"></div>
+            </div>
+          </div>
+
+          <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            <span class="text-sm font-medium">Edit profile</span>
+          </a>
+
+          <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-gray-100 transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">logout</span>
+            <span class="text-sm font-medium">Log out</span>
+          </a>
+
+        </nav>
+      </aside>
+
+      <div class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"
+           data-sidebar-target="backdrop"
+           data-action="click->sidebar#close"></div>
+
+      <!-- Main Shell -->
+      <main class="flex-1 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]"
+            data-controller="search-shortcut">
+
+        <!-- Tab Strip -->
+        <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-0 z-20">
+          <div class="flex items-center justify-between">
+            <nav data-testid="content-tabs" class="flex flex-nowrap gap-x-2" aria-label="Course sections">
+              <a href="#" id="tab-overview" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">
+                Overview
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent"></div>
+              </a>
+              <a href="#" id="tab-topics" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">
+                Topics
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent"></div>
+              </a>
+              <a href="#" id="tab-people" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">
+                People
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent"></div>
+              </a>
+              <a href="#" id="tab-groups" aria-current="page" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-primary-strong">
+                Groups
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-primary-strong"></div>
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Panel Content -->
+        <div id="panel-groups" class="max-w-5xl mx-auto px-6 py-8">
+          <section data-controller="modal">
+
+            <div class="flex flex-col gap-4 border-b border-gray-300 pb-4 mb-4">
+              <div class="flex items-baseline gap-4">
+                <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Groups</h2>
+                <span class="text-sm font-medium text-gray-500">6 groups</span>
+              </div>
+
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                  <div class="relative flex items-center w-full sm:w-[240px]">
+                    <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
+                    <input type="text" id="groups-search" name="search_query" autocomplete="off" placeholder="Search groups or students..." data-search-shortcut-target="input" class="peer bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none">
+                    <kbd aria-hidden="true" class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-outline-variant bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
+                  </div>
+
+                  <select id="lecturer-filter" name="lecturer_filter" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full sm:w-[190px] px-4 py-2 transition-all cursor-pointer outline-none">
+                    <option value="all" selected>All Supervisors</option>
+                  </select>
+
+                  <select id="groups-status-filter" name="status_filter" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full sm:w-[190px] px-4 py-2 transition-all cursor-pointer outline-none">
+                    <option value="all" selected>All Statuses</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending</option>
+                    <option value="redo">Redo</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="not_submitted">Not Submitted</option>
+                  </select>
+
+                  <span id="groups-loading" class="htmx-indicator text-blue-600 text-sm font-medium shrink-0 hidden">
+                    <span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end"></div>
+              </div>
+            </div>
+
+            <!-- Groups Table -->
+            <div id="groups-table-container" class="overflow-x-auto pb-8 border border-gray-200 rounded-lg" data-controller="expandable-rows">
+              <table class="w-full min-w-[650px] table-fixed">
+                <thead class="bg-white">
+                  <tr>
+                    <th class="w-[15%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">
+                      <div class="flex items-center gap-1">
+                        Group
+                        <span class="material-symbols-outlined text-[16px] text-primary">arrow_downward</span>
+                      </div>
+                    </th>
+                    <th class="w-[30%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider cursor-pointer select-none" data-expandable-toggle-all>
+                      <div class="flex items-center gap-1">
+                        Members
+                        <span data-expandable-all-icon class="material-symbols-outlined text-[16px] text-gray-400 transition-all">unfold_more</span>
+                      </div>
+                    </th>
+                    <th class="w-[20%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">
+                      <div class="flex items-center gap-1">
+                        Project Title
+                        <span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+                      </div>
+                    </th>
+                    <th class="w-[15%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">
+                      <div class="flex items-center gap-1">
+                        Status
+                        <span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+                      </div>
+                    </th>
+                    <th class="w-[20%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">
+                      <div class="flex items-center gap-1">
+                        Supervisor
+                        <span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+
+                  <!-- G001 Row -->
+                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="1">
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="G001" class="text-gray-900 font-medium hover:underline truncate block w-full">G001</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex -space-x-1.5 shrink-0">
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">M</div>
+                        </div>
+                        <span class="text-sm text-gray-500 truncate">1 member</span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <span class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-gray-500"></span>
+                        Not Submitted
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="truncate min-w-0" title="">-</span>
+                        <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0 rotate-180">expand_more</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="bg-gray-50/30" data-detail-row-id="1">
+                    <td colspan="5" class="px-4 py-4 border-t border-gray-100">
+                      <div class="pl-[10%]">
+                        <div class="flex flex-col gap-4">
+                          <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">M</div>
+                            <span class="text-sm text-gray-700 truncate min-w-0" title="Muzzammil Hakim bin Norhazimi">Muzzammil Hakim bin Norhazimi</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- group_1 Row -->
+                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="2">
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="group_1" class="text-gray-900 font-medium hover:underline truncate block w-full">group_1</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex -space-x-1.5 shrink-0">
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">S</div>
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">S</div>
+                        </div>
+                        <span class="text-sm text-gray-500 truncate">2 members</span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="Difficult Topic 1 Lecturer 2" class="text-gray-900 hover:underline truncate block w-full">Difficult Topic 1 Lecturer 2</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary-container text-primary-soft">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-primary-soft"></span>
+                        Pending
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="truncate min-w-0" title="lecturer2">lecturer2</span>
+                        <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hidden bg-gray-50/30" data-detail-row-id="2">
+                    <td colspan="5" class="px-4 py-4 border-t border-gray-100"></td>
+                  </tr>
+
+                  <!-- group_2 Row -->
+                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="3">
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="group_2" class="text-gray-900 font-medium hover:underline truncate block w-full">group_2</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex -space-x-1.5 shrink-0">
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">B</div>
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">T</div>
+                        </div>
+                        <span class="text-sm text-gray-500 truncate">2 members</span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="Difficult Group Project G..." class="text-gray-900 hover:underline truncate block w-full">Difficult Group Project G...</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-error-container text-error">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-error"></span>
+                        Rejected
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="truncate min-w-0" title="lecturer1">lecturer1</span>
+                        <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hidden bg-gray-50/30" data-detail-row-id="3">
+                    <td colspan="5" class="px-4 py-4 border-t border-gray-100"></td>
+                  </tr>
+
+                  <!-- group_3 Row -->
+                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="4">
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="group_3" class="text-gray-900 font-medium hover:underline truncate block w-full">group_3</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex -space-x-1.5 shrink-0">
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">B</div>
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">L</div>
+                        </div>
+                        <span class="text-sm text-gray-500 truncate">2 members</span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="Difficult Group Project G..." class="text-gray-900 hover:underline truncate block w-full">Difficult Group Project G...</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-warning-container-alt text-warning-strong">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-warning-strong"></span>
+                        Redo
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="truncate min-w-0" title="lecturer1">lecturer1</span>
+                        <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hidden bg-gray-50/30" data-detail-row-id="4">
+                    <td colspan="5" class="px-4 py-4 border-t border-gray-100"></td>
+                  </tr>
+
+                  <!-- group_4 Row -->
+                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="5">
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="group_4" class="text-gray-900 font-medium hover:underline truncate block w-full">group_4</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex -space-x-1.5 shrink-0">
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">K</div>
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">K</div>
+                        </div>
+                        <span class="text-sm text-gray-500 truncate">2 members</span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="Difficult Group Project G..." class="text-gray-900 hover:underline truncate block w-full">Difficult Group Project G...</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary-container text-primary-soft">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-primary-soft"></span>
+                        Pending
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="truncate min-w-0" title="lecturer1">lecturer1</span>
+                        <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hidden bg-gray-50/30" data-detail-row-id="5">
+                    <td colspan="5" class="px-4 py-4 border-t border-gray-100"></td>
+                  </tr>
+
+                  <!-- group_5 Row -->
+                  <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" data-row-id="6">
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <a href="#" title="group_5" class="text-gray-900 font-medium hover:underline truncate block w-full">group_5</a>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex -space-x-1.5 shrink-0">
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">L</div>
+                          <div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">S</div>
+                        </div>
+                        <span class="text-sm text-gray-500 truncate">2 members</span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 text-sm align-middle">
+                      <span class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    <td class="px-4 py-4 align-middle">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-gray-500"></span>
+                        Not Submitted
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600 align-middle">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="truncate min-w-0" title="">-</span>
+                        <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0">expand_more</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hidden bg-gray-50/30" data-detail-row-id="6">
+                    <td colspan="5" class="px-4 py-4 border-t border-gray-100"></td>
+                  </tr>
+
+                </tbody>
+              </table>
+
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-4 py-3 border-t border-gray-200 bg-white rounded-b-lg">
+                <span class="text-sm text-gray-500">
+                  Showing <span class="font-semibold text-gray-700">6</span> of <span class="font-semibold text-gray-700">6</span> groups
+                </span>
+              </div>
+            </div>
+
+          </section>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+</body>
+</html>

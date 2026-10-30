@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COMP6000 - Overview | ProPro</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --color-surface-tint: #f8f9fa;
+      --color-surface: #ffffff;
+      --color-surface-hover: #f1f3f4;
+      --color-surface-variant: #f1f3f4;
+      --color-on-surface: #1f1f1f;
+      --color-on-surface-strong: #1f1f1f;
+      --color-on-surface-variant: #5f6368;
+      --color-outline: #dadce0;
+      --color-outline-variant: #e0e0e0;
+      --color-primary: #1a73e8;
+      --color-primary-strong: #1967d2;
+      --color-primary-container: #d2e3fc;
+      --color-primary-container-alt: #e8f0fe;
+      --color-on-primary: #ffffff;
+      --spacing-header: 64px;
+    }
+    .bg-surface-tint { background-color: var(--color-surface-tint); }
+    .bg-surface { background-color: var(--color-surface); }
+    .bg-surface-hover { background-color: var(--color-surface-hover); }
+    .bg-surface-variant { background-color: var(--color-surface-variant); }
+    .bg-primary-container { background-color: var(--color-primary-container); }
+    .bg-primary-container-alt { background-color: var(--color-primary-container-alt); }
+    .bg-primary { background-color: var(--color-primary); }
+    .bg-primary-strong { background-color: var(--color-primary-strong); }
+    .text-on-surface { color: var(--color-on-surface); }
+    .text-on-surface-strong { color: var(--color-on-surface-strong); }
+    .text-on-surface-variant { color: var(--color-on-surface-variant); }
+    .text-primary { color: var(--color-primary); }
+    .text-primary-strong { color: var(--color-primary-strong); }
+    .border-outline { border-color: var(--color-outline); }
+    .border-outline-variant { border-color: var(--color-outline-variant); }
+    .rounded-tl-panel { border-top-left-radius: 24px; }
+  </style>
+</head>
+<body class="bg-surface-tint" style="font-family: 'Roboto', Arial, sans-serif;">
+
+  <!-- Header (shared/_header) -->
+  <header class="sticky top-0 z-40 bg-surface-tint flex items-center justify-between gap-3 px-4 py-2" style="min-height: var(--spacing-header);">
+    <div class="flex items-center gap-2 min-w-0 flex-1">
+      <button type="button" aria-label="Toggle sidebar" aria-controls="app-sidebar" class="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <div class="hidden sm:flex sm:items-center sm:min-w-0">
+        <a href="#" class="shrink-0 text-[1.5rem] leading-8 font-normal text-on-surface-variant hover:text-on-surface transition-colors no-underline whitespace-nowrap" style="font-family: 'DM Sans',Roboto,Arial,sans-serif">ProPro</a>
+        <svg class="mx-2 text-on-surface-variant/60" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <span class="text-[1rem] font-medium text-on-surface">COMP6000</span>
+      </div>
+
+      <span class="sm:hidden truncate text-[17px] text-on-surface font-medium min-w-0">COMP6000</span>
+    </div>
+
+    <div class="flex items-center gap-1 shrink-0">
+      <button class="hidden sm:block text-[15px] font-medium text-on-surface-variant hover:text-on-surface transition-colors pr-2 bg-transparent border-0 cursor-pointer">Log out</button>
+    </div>
+  </header>
+
+  <div class="text-on-surface font-['Roboto',sans-serif]">
+    <div class="flex">
+      <!-- Sidebar (shared/_sidebar) -->
+      <aside id="app-sidebar"
+             class="group/sidebar
+               w-[280px] shrink-0 py-3 bg-surface-tint
+               fixed top-0 left-0 h-full z-50 -translate-x-full transition-[transform,width] duration-200 ease-out
+               lg:sticky lg:top-header lg:translate-x-0 lg:h-[calc(100vh-var(--spacing-header))] lg:self-start lg:overflow-y-auto
+               data-[collapsed=true]:lg:overflow-visible
+               data-[collapsed=true]:lg:w-[72px]"
+             data-sidebar-target="container"
+             data-collapsed="false">
+        <nav class="flex flex-col gap-1 pr-3">
+          <a href="#" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+          </a>
+
+          <div>
+            <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer">
+              <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+              <span class="material-symbols-outlined text-sm">expand_less</span>
+            </div>
+
+            <a href="#" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full bg-white/70 text-on-surface" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="COMP6000">
+              <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold shrink-0">C</div>
+              <span class="truncate">COMP6000</span>
+            </a>
+
+            <div class="py-2">
+              <div class="border-t border-outline"></div>
+            </div>
+          </div>
+
+          <a href="#" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="Edit profile">
+            <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            <span>Edit profile</span>
+          </a>
+
+          <form class="m-0 w-full" action="#" method="post">
+            <button type="submit" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60 w-full text-left bg-transparent border-0 cursor-pointer" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="Log out">
+              <span class="material-symbols-outlined text-on-surface-variant">logout</span>
+              <span>Log out</span>
+            </button>
+          </form>
+        </nav>
+      </aside>
+
+      <div class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"></div>
+
+      <!-- Main -->
+      <main class="flex-1 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]" data-controller="search-shortcut">
+        <!-- Tab strip -->
+        <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-0 z-20">
+          <div class="flex items-center justify-between">
+            <nav data-testid="content-tabs" class="flex flex-nowrap gap-x-2" aria-label="Course sections">
+              <a href="#" id="tab-overview" aria-current="page" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-primary-strong">
+                Overview
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-primary-strong"></div>
+              </a>
+              <a href="#" id="tab-topics" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">
+                Topics
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent"></div>
+              </a>
+              <a href="#" id="tab-people" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">
+                People
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent"></div>
+              </a>
+              <a href="#" id="tab-groups" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">
+                Groups
+                <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent"></div>
+              </a>
+            </nav>
+            <div class="flex items-center gap-1 shrink-0">
+              <a href="#" class="hidden lg:flex h-[3rem] w-[2.5rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0" title="Edit Project Templates">
+                <span class="material-symbols-outlined">edit_note</span>
+              </a>
+              <a href="#" class="hidden lg:flex h-[3rem] w-[3rem] items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0" title="Settings">
+                <span class="material-symbols-outlined">settings</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-overview" class="max-w-5xl mx-auto px-6 py-8">
+          <div class="max-w-[800px] mx-auto">
+            <!-- Role Switcher -->
+            <div class="mb-6 flex items-center gap-3">
+              <label class="text-sm text-on-surface-variant">View as:</label>
+              <select id="role-switcher" class="bg-surface border border-outline rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary">
+                <option value="lecturer" selected>Lecturer / Coordinator</option>
+                <option value="student-no-project">Student (no project)</option>
+                <option value="student-pending">Student (with pending project)</option>
+              </select>
+            </div>
+
+            <!-- Project Details Card (courses/_project_details_card) -->
+            <section id="proposal-guidelines" class="mb-4">
+              <div class="rounded-[8px] w-full overflow-hidden">
+                <div class="relative px-8 py-9 overflow-hidden" style="background: linear-gradient(135deg, var(--color-primary-container-alt) 0%, var(--color-primary-container) 100%);">
+                  <svg class="absolute right-[-70px] bottom-[-70px] h-[260px] w-auto pointer-events-none select-none" viewBox="0 0 5000 3500" xmlns="http://www.w3.org/2000/svg">
+                    <style>
+                      .st0{fill:none;stroke:#66B0F0;stroke-width:6;stroke-miterlimit:10;}
+                      .st1{fill:none;stroke:#66B0F0;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st2{fill:#66B0F0;}
+                      .st3{fill:#D0F0E4;}
+                      .st4{fill:#3FB1B5;}
+                      .st5{fill:none;stroke:#FFCF2D;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st6{fill:none;stroke:#FFCF2D;stroke-width:6;stroke-miterlimit:10;}
+                      .st7{fill:#FE5244;}
+                      .st8{opacity:0.2;}
+                      .st9{fill:#FFFFFF;}
+                      .st10{fill:#E57281;}
+                      .st11{fill:none;stroke:#FFFFFF;stroke-width:6;stroke-miterlimit:10;}
+                      .st12{fill:none;stroke:#FFFFFF;stroke-width:5;stroke-miterlimit:10;}
+                      .st13{fill:none;stroke:#FFFFFF;stroke-width:5;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st14{fill:#FFFFFF;stroke:#FE5244;stroke-width:5;stroke-miterlimit:10;}
+                      .st15{fill:#FFFFFF;stroke:#9A3B82;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st16{fill:none;stroke:#9A3B82;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st17{fill:#9A3B82;}
+                      .st18{fill:#FFCF2D;}
+                      .st19{fill:#FFFFFF;stroke:#FFCF2D;stroke-width:5;stroke-miterlimit:10;}
+                      .st20{fill:none;stroke:#E57281;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st21{fill:#73325A;}
+                      .st22{fill:none;stroke:#73325A;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st23{fill:#3FB1B5;stroke:#3FB1B5;stroke-width:5;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st24{fill:#FFFFFF;stroke:#3FB1B5;stroke-width:6;stroke-miterlimit:10;}
+                      .st25{fill:#FFFFFF;stroke:#3FB1B5;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st26{fill:#A0505A;}
+                      .st27{fill:#0096A0;}
+                      .st28{fill:#FFFFFF;stroke:#FE5244;stroke-width:6;stroke-miterlimit:10;}
+                      .st29{fill:none;stroke:#FE5244;stroke-width:6;stroke-miterlimit:10;}
+                      .st30{fill:none;stroke:#FE5244;stroke-width:6;stroke-linejoin:round;stroke-miterlimit:10;}
+                      .st31{fill:#FE5244;stroke:#FFFFFF;stroke-width:6;stroke-miterlimit:10;}
+                      .st32{fill:none;stroke:#9A3B82;stroke-width:4;stroke-linecap:round;stroke-miterlimit:10;}
+                      .st33{fill:none;stroke:#FE5244;stroke-width:5;stroke-miterlimit:10;}
+                      .st34{fill:#FFFFFF;stroke:#FE5244;stroke-width:5;stroke-linejoin:round;stroke-miterlimit:10;}
+                    </style>
+                    <g>
+                      <rect x="1594.5" y="1369.7" class="st0" width="268.2" height="163.6"/>
+                      <line class="st1" x1="1594.5" y1="1414.1" x2="1862.7" y2="1414.1"/>
+                      <circle class="st2" cx="1615.5" cy="1391.9" r="4"/>
+                      <circle class="st2" cx="1631.1" cy="1391.9" r="4"/>
+                      <circle class="st2" cx="1646.6" cy="1391.9" r="4"/>
+                      <rect x="1614.9" y="1443.3" class="st3" width="41.5" height="69.9"/>
+                      <rect x="1670.9" y="1443.3" class="st4" width="41.5" height="69.9"/>
+                      <rect x="1727" y="1443.3" class="st3" width="41.5" height="69.9"/>
+                      <rect x="1783" y="1443.3" class="st4" width="41.5" height="69.9"/>
+                    </g>
+                  </svg>
+                  <h4 class="relative z-10 text-2xl font-medium max-w-[62%]" style="color: var(--color-on-surface-strong);">Project Details</h4>
+                  <p class="relative z-10 text-[14px] mt-1 max-w-[62%]" style="color: var(--color-on-surface-variant);">COMP6000</p>
+                </div>
+                <div class="p-6 bg-surface-tint">
+                  <p class="text-[0.9rem] sm:text-[1rem] leading-[1.5] whitespace-pre-line text-on-surface-variant break-words">Add a description and any specification files so students know what's expected before they submit a proposal.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- My Submission (student states) -->
+            <div id="my-submission" class="mb-12 hidden">
+              <div class="flex flex-row items-center justify-between p-6 box-border border-b border-outline-variant">
+                <h2 class="text-[22px] font-normal text-on-surface-strong">My Submission</h2>
+              </div>
+              <!-- no_group -->
+              <div id="my-submission-no-group" class="hidden">
+                <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                  <div class="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[28px] text-on-surface-variant">group</span>
+                  </div>
+                  <h3 class="text-[16px] font-medium text-on-surface mb-1">You're not in a group yet</h3>
+                  <p class="text-[14px] text-on-surface-variant mb-4 max-w-md">Join or create a group before you can put together a project proposal.</p>
+                  <a href="#" class="inline-flex items-center px-4 py-2 text-[14px] font-medium text-primary border border-primary rounded-md hover:bg-primary-container transition-colors">Browse groups</a>
+                </div>
+              </div>
+              <!-- no_proposal -->
+              <div id="my-submission-no-proposal" class="hidden">
+                <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                  <div class="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[28px] text-on-surface-variant">description</span>
+                  </div>
+                  <h3 class="text-[16px] font-medium text-on-surface mb-1">No proposal submitted yet</h3>
+                  <p class="text-[14px] text-on-surface-variant mb-4 max-w-md">Your group hasn't submitted a project proposal. Once it's in, you'll see its review status here.</p>
+                  <a href="#" class="inline-flex items-center px-4 py-2 text-[14px] font-medium text-white bg-primary-strong rounded-md hover:bg-primary-hover transition-colors">Create proposal</a>
+                </div>
+              </div>
+              <!-- pending -->
+              <div id="my-submission-pending" class="hidden">
+                <div class="flex flex-col border-b border-outline-variant">
+                  <a href="#" class="flex items-start justify-between py-4 px-4 hover:bg-surface-variant/40 transition-colors">
+                    <div class="flex items-start gap-4 min-w-0 flex-1">
+                      <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">assignment</span>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-[14px] font-medium text-on-surface truncate">Intelligent Traffic Management System</p>
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                          <span class="text-[13px] text-on-surface-variant">Team Alpha</span>
+                          <span class="text-[13px] text-on-surface-variant">•</span>
+                          <span class="text-[13px] text-on-surface-variant">Submitted 2 days ago</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class="text-[13px] font-medium px-2 py-0.5 rounded-full" style="background-color: #d2e3fc; color: #1a73e8;">Pending</span>
+                      <span class="material-symbols-outlined text-[20px] text-on-surface-variant">more_vert</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lecturer/Coordinator sections -->
+            <div id="lecturer-sections">
+              <div>
+                <div class="flex justify-end mb-10">
+                  <button type="button" class="flex items-center gap-2 text-[14px] font-medium text-primary hover:bg-primary-container px-3 py-2 rounded-md transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">unfold_less</span>
+                    <span>Collapse all</span>
+                  </button>
+                </div>
+
+                <!-- Supervised Projects -->
+                <div class="mb-12" id="supervised-projects">
+                  <div class="flex items-center justify-between p-6 box-border border-b border-outline-variant cursor-pointer group" role="button" tabindex="0">
+                    <h2 class="truncate min-w-0 text-[22px] font-normal text-on-surface-strong">Supervised Projects</h2>
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class="text-primary font-medium text-[15px]">3</span>
+                      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface-strong transition-all">expand_less</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col border-b border-outline-variant">
+                    <a href="#" class="flex items-start justify-between py-4 px-4 hover:bg-surface-variant/40 transition-colors border-b border-outline-variant/50 last:border-b-0">
+                      <div class="flex items-start gap-4 min-w-0 flex-1">
+                        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
+                          <span class="material-symbols-outlined text-[20px]">assignment</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-[14px] font-medium text-on-surface truncate">Smart Home Automation System</p>
+                          <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            <span class="text-[13px] text-on-surface-variant">Team Alpha</span>
+                            <span class="text-[13px] text-on-surface-variant">•</span>
+                            <span class="text-[13px] text-on-surface-variant">Submitted 2 days ago</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[13px] font-medium px-2 py-0.5 rounded-full" style="background-color: #d6f5e3; color: #137333;">Approved</span>
+                        <span class="material-symbols-outlined text-[20px] text-on-surface-variant">more_vert</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-start justify-between py-4 px-4 hover:bg-surface-variant/40 transition-colors border-b border-outline-variant/50 last:border-b-0">
+                      <div class="flex items-start gap-4 min-w-0 flex-1">
+                        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
+                          <span class="material-symbols-outlined text-[20px]">assignment</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-[14px] font-medium text-on-surface truncate">Machine Learning Stock Predictor</p>
+                          <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            <span class="text-[13px] text-on-surface-variant">Code Crusaders</span>
+                            <span class="text-[13px] text-on-surface-variant">•</span>
+                            <span class="text-[13px] text-on-surface-variant">Submitted 5 days ago</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[13px] font-medium px-2 py-0.5 rounded-full" style="background-color: #d2e3fc; color: #1a73e8;">Pending</span>
+                        <span class="material-symbols-outlined text-[20px] text-on-surface-variant">more_vert</span>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-start justify-between py-4 px-4 hover:bg-surface-variant/40 transition-colors border-b border-outline-variant/50 last:border-b-0">
+                      <div class="flex items-start gap-4 min-w-0 flex-1">
+                        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
+                          <span class="material-symbols-outlined text-[20px]">assignment</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-[14px] font-medium text-on-surface truncate">IoT-Based Environmental Monitoring</p>
+                          <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            <span class="text-[13px] text-on-surface-variant">Pixel Pioneers</span>
+                            <span class="text-[13px] text-on-surface-variant">•</span>
+                            <span class="text-[13px] text-on-surface-variant">Submitted 7 days ago</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[13px] font-medium px-2 py-0.5 rounded-full" style="background-color: #fde7e9; color: #d93025;">Redo</span>
+                        <span class="material-symbols-outlined text-[20px] text-on-surface-variant">more_vert</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Pending Proposals -->
+                <div class="mb-12" id="pending-proposals">
+                  <div class="flex items-center justify-between p-6 box-border border-b border-outline-variant cursor-pointer group" role="button" tabindex="0">
+                    <h2 class="truncate min-w-0 text-[22px] font-normal text-on-surface-strong">Pending Proposals</h2>
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class="text-primary font-medium text-[15px]">1</span>
+                      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface-strong transition-all">expand_less</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col border-b border-outline-variant">
+                    <a href="#" class="flex items-start justify-between py-4 px-4 hover:bg-surface-variant/40 transition-colors border-b border-outline-variant/50 last:border-b-0">
+                      <div class="flex items-start gap-4 min-w-0 flex-1">
+                        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
+                          <span class="material-symbols-outlined text-[20px]">description</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-[14px] font-medium text-on-surface truncate">AI-Powered Exam Scheduling Optimizer</p>
+                          <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            <span class="text-[13px] text-on-surface-variant">Debug Dynamos</span>
+                            <span class="text-[13px] text-on-surface-variant">•</span>
+                            <span class="text-[13px] text-on-surface-variant">Submitted 1 day ago</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[13px] font-medium px-2 py-0.5 rounded-full" style="background-color: #d2e3fc; color: #1a73e8;">Pending</span>
+                        <span class="material-symbols-outlined text-[20px] text-on-surface-variant">more_vert</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Reviewed Proposals -->
+                <div class="mb-12" id="reviewed-proposals">
+                  <div class="flex items-center justify-between p-6 box-border border-b border-outline-variant cursor-pointer group" role="button" tabindex="0">
+                    <h2 class="truncate min-w-0 text-[22px] font-normal text-on-surface-strong">Reviewed Proposals</h2>
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class="text-primary font-medium text-[15px]">0</span>
+                      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface-strong transition-all">expand_less</span>
+                    </div>
+                  </div>
+                  <div class="border-b border-outline-variant">
+                    <div class="py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-on-surface-variant">Proposals that you previously rejected and returned.</div>
+                  </div>
+                </div>
+
+                <!-- Pending Topics -->
+                <div class="mb-12" id="pending-topics">
+                  <div class="flex items-center justify-between p-6 box-border border-b border-outline-variant cursor-pointer group" role="button" tabindex="0">
+                    <h2 class="truncate min-w-0 text-[22px] font-normal text-on-surface-strong">Pending Topics</h2>
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class="text-primary font-medium text-[15px]">0</span>
+                      <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface-strong transition-all">expand_less</span>
+                    </div>
+                  </div>
+                  <div class="border-b border-outline-variant">
+                    <div class="py-3 px-4 text-[14px] font-medium leading-5 tracking-normal text-on-surface-variant">Topics that are pending review from you will appear here.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const roleSwitcher = document.getElementById('role-switcher');
+    const mySubmission = document.getElementById('my-submission');
+    const mySubmissionNoGroup = document.getElementById('my-submission-no-group');
+    const mySubmissionNoProposal = document.getElementById('my-submission-no-proposal');
+    const mySubmissionPending = document.getElementById('my-submission-pending');
+    const lecturerSections = document.getElementById('lecturer-sections');
+
+    function updateView() {
+      const role = roleSwitcher.value;
+      
+      // Hide all
+      mySubmission.classList.add('hidden');
+      mySubmissionNoGroup.classList.add('hidden');
+      mySubmissionNoProposal.classList.add('hidden');
+      mySubmissionPending.classList.add('hidden');
+      lecturerSections.classList.remove('hidden');
+      
+      if (role === 'lecturer') {
+        lecturerSections.classList.remove('hidden');
+      } else if (role === 'student-no-project') {
+        lecturerSections.classList.add('hidden');
+        mySubmission.classList.remove('hidden');
+        mySubmissionNoGroup.classList.remove('hidden');
+      } else if (role === 'student-pending') {
+        lecturerSections.classList.add('hidden');
+        mySubmission.classList.remove('hidden');
+        mySubmissionPending.classList.remove('hidden');
+      }
+    }
+
+    roleSwitcher.addEventListener('change', updateView);
+    updateView();
+  </script>
+</body>
+</html>

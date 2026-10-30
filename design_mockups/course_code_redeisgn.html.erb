@@ -1,0 +1,108 @@
+<%#
+  ============================================================================
+  DESIGN MOCKUP ONLY — hardcoded, not wired up. Handing this to the
+  implementation agent to bind to real state. Notes:
+
+  1. State shown here is "on" (coursecode_enabled? == true, coursecode present).
+     For the "off" state, swap the trigger pill's classes from
+     `bg-success-container text-success` to `bg-surface-variant text-on-surface-variant`
+     and its label from "Turned on" to "Turned off"; the row 2 code value becomes
+     "—" (or course.coursecode.presence || "—").
+
+  2. The dropdown replaces BOTH the old toggle switch and the old separate
+     Generate/Re-Generate button with one control, three items:
+       "Turned on"  -> enable joining (old checkbox-checked path)
+       "Turned off" -> disable joining (old checkbox-unchecked path)
+       "Reset"      -> regenerate the code (old link to
+                       update_coursecode_course_path(course, generate: true),
+                       data-turbo-method: :post)
+     Reset must only be interactive when coursecode_enabled? is true — when
+     off, render it inert (drop data-action / data-turbo-method, swap its
+     classes to `text-on-surface-disabled cursor-not-allowed`, no hover).
+     coursecode-form-handler_controller.js needs a `reset` action added
+     alongside the existing toggle logic; open/close state for the menu
+     itself can reuse whatever pattern the grouping-settings controller
+     already uses elsewhere on this page.
+
+  3. Reuses the app's own status-pill language (success-container / neutral
+     surface-variant, per style guide §4) for the trigger, rather than
+     copying Classroom's literal blue text — keeps it consistent with the
+     "Approved / Pending / Redo / Neutral" pills already in this codebase.
+     The chevron icon (arrow_drop_down) matches the one already used on the
+     Approve split-button in the style guide.
+
+  4. Top-level node stays exactly <turbo-frame id="course_code_form"> — do
+     not add a wrapper div outside it (Turbo Stream replace() re-nests it
+     otherwise — ADR-0010). The old bg-white/shadow/border/rounded-lg box is
+     dropped entirely: this now sits directly inside the already-boxed
+     "General" section, so it no longer needs its own card chrome.
+
+  5. coursecode / coursecode_enabled remain outside handle_settings'
+     whitelist — unchanged, this is cosmetic only.
+  ============================================================================
+%>
+<%= turbo_frame_tag "course_code_form" do %>
+  <div data-controller="coursecode-form-handler"
+       data-coursecode-form-handler-url-value="<%= update_coursecode_course_path(course) %>">
+
+    <!-- Row 1: enable/disable + reset, as one dropdown -->
+    <div class="flex items-center justify-between py-2">
+      <span class="text-sm font-medium text-on-surface">Allow joining via course code</span>
+
+      <div class="relative" data-coursecode-form-handler-target="menuWrapper">
+        <button type="button"
+                class="inline-flex items-center gap-1 pl-3 pr-2 py-1 rounded-full text-[12px] font-medium tracking-wide bg-success-container text-success hover:bg-success-container/80 transition-colors cursor-pointer"
+                data-action="click->coursecode-form-handler#toggleMenu"
+                aria-haspopup="true" aria-expanded="false">
+          Turned on
+          <span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+        </button>
+
+        <!-- Rendered open here for review only; agent wires visibility to the controller -->
+        <div class="absolute right-0 mt-1 w-40 bg-surface border border-outline-variant rounded-[8px] shadow-soft py-1 z-10"
+             data-coursecode-form-handler-target="menu">
+          <button type="button"
+                  class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-on-surface bg-primary-container/40 cursor-pointer"
+                  data-action="click->coursecode-form-handler#turnOn">
+            <span class="material-symbols-outlined text-[16px] text-primary">check</span>
+            Turned on
+          </button>
+          <button type="button"
+                  class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-on-surface-variant hover:bg-surface-hover cursor-pointer"
+                  data-action="click->coursecode-form-handler#turnOff">
+            <span class="material-symbols-outlined text-[16px] opacity-0">check</span>
+            Turned off
+          </button>
+          <div class="my-1 border-t border-outline-variant"></div>
+          <%# Enabled/"on" variant of Reset shown below. When coursecode_enabled?
+              is false, replace this button's classes with
+              "w-full flex items-center gap-2 px-3 py-2 text-[13px] text-on-surface-disabled cursor-not-allowed"
+              and drop data-turbo-method / data-action so it's inert. %>
+          <button type="button"
+                  class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-on-surface hover:bg-surface-hover cursor-pointer"
+                  data-turbo-method="post"
+                  data-action="click->coursecode-form-handler#reset">
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">refresh</span>
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: the code itself -->
+    <div class="flex items-center justify-between py-2 border-t border-outline-variant">
+      <span class="text-sm font-medium text-on-surface">Class code</span>
+      <span class="font-mono text-sm text-on-surface-muted tracking-wide">4hbs47di</span>
+      <%# course.coursecode.presence || "—" %>
+    </div>
+
+    <!-- Scope note -->
+    <div class="mt-3 flex items-start gap-2 rounded-[8px] border border-warning-border bg-warning-container-alt px-3 py-2">
+      <span class="material-symbols-outlined text-[16px] text-warning-strong mt-0.5">info</span>
+      <p class="text-[12px] text-warning-on-container leading-relaxed">
+        Use this only for individual projects. For groups, use CSV imports — group formation in ProPro is coming in a future update.
+      </p>
+    </div>
+
+  </div>
+<% end %>

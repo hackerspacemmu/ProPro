@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <!--
+    ============================================================================
+    REDESIGN: Step-2 dialog ("Copy Details")
+    - Side-by-side field layout to condense vertical height.
+    - Removed ALL CAPS shouting labels; using title/sentence case.
+    - Sticky header and sticky action footer.
+    - Previews are nested cleanly below the selection as a subtle read-only box.
+    - STRICT COLOR COMPLIANCE: No raw hex or gray-* utilities used. 
+      Everything leverages surface, outline, and on-surface tokens.
+    ============================================================================
+  -->
+  <head>
+    <title>Copy Topic — Copy Details | ProPro</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-on-surface: #3c4043;
+        --color-on-surface-strong: #1f1f1f;
+        --color-on-surface-variant: #5f6368;
+        --color-on-surface-disabled: #9aa0a6;
+        --color-on-surface-muted: #747775;
+        --color-surface: #ffffff;
+        --color-surface-tint: #f8fafd;
+        --color-surface-variant: #f1f3f4;
+        --color-surface-hover: #f8f9fa;
+        --color-surface-variant-hover: #e8eaed;
+        --color-surface-variant-deep: #e1e3e1;
+
+        --color-outline: #dadce0;
+        --color-outline-variant: #e0e0e0;
+        --color-outline-soft: #c4c7c5;
+        --color-outline-strong: #c4c4c4;
+
+        --color-primary: #1a73e8;
+        --color-primary-strong: #0b57d0;
+        --color-primary-hover: #1b66c9;
+        --color-primary-container: #e8f0fe;
+        --color-primary-container-ring: #d2e3fc;
+        --color-primary-soft: #1967d2;
+
+        --color-success: #137333;
+
+        --radius-panel: 28px;
+        --radius-card: 8px;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-surface-tint text-on-surface font-['Roboto',sans-serif] p-8">
+
+    <div class="fixed inset-0 bg-black/40 z-40"></div>
+
+    <dialog open class="relative z-50 m-auto w-full max-w-4xl max-h-[85dvh] p-0 rounded-xl border border-outline-variant shadow-xl bg-surface flex flex-col">
+      
+      <!-- Sticky Header -->
+      <div class="flex-none px-6 py-5 border-b border-outline-variant flex items-start justify-between gap-6 bg-surface/95 backdrop-blur z-10 sticky top-0 rounded-t-xl">
+        <div class="flex flex-col gap-1">
+          <h3 class="text-lg font-bold text-on-surface-strong leading-snug">
+            Copy details from <span class="text-primary">"E-Commerce Web Application"</span>
+          </h3>
+          <p class="text-sm text-on-surface-variant">
+            Mapping to new topic in <span class="font-semibold text-success">"Web Engineering"</span>
+          </p>
+        </div>
+        <button type="button" class="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover transition-colors shrink-0 mt-0.5 cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Back
+        </button>
+      </div>
+
+      <!-- Scrollable Field Mappings -->
+      <div class="flex-grow overflow-y-auto bg-surface-tint">
+        <div class="flex flex-col divide-y divide-outline-variant">
+
+          <!-- Field 1: Project Title -->
+          <div class="p-6 flex flex-col md:flex-row md:items-start gap-4 md:gap-8 bg-surface">
+            <div class="w-full md:w-1/3 shrink-0 pt-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-on-surface-strong">Project Title</span>
+                <span class="inline-flex items-center rounded bg-primary-container px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">Short Text</span>
+              </div>
+            </div>
+            <div class="w-full flex-grow flex flex-col gap-2">
+              <div class="relative w-full">
+                <select class="block w-full rounded-lg border border-outline bg-surface px-3.5 py-2 pr-10 text-sm text-on-surface transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:border-outline-strong appearance-none cursor-pointer">
+                  <option value="">Do not copy</option>
+                  <option value="1" selected>Project Title</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-on-surface-variant">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <!-- Compact Preview -->
+              <div class="bg-surface-variant rounded-md p-3 border border-outline-variant shadow-inner">
+                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Preview</p>
+                <p class="text-sm text-on-surface">E-Commerce Web Application</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Field 2: Description -->
+          <div class="p-6 flex flex-col md:flex-row md:items-start gap-4 md:gap-8 bg-surface">
+            <div class="w-full md:w-1/3 shrink-0 pt-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-on-surface-strong">Description</span>
+                <span class="inline-flex items-center rounded bg-primary-container px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">Paragraph</span>
+              </div>
+            </div>
+            <div class="w-full flex-grow flex flex-col gap-2">
+              <div class="relative w-full">
+                <select class="block w-full rounded-lg border border-outline bg-surface px-3.5 py-2 pr-10 text-sm text-on-surface transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:border-outline-strong appearance-none cursor-pointer">
+                  <option value="">Do not copy</option>
+                  <option value="2" selected>Description</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-on-surface-variant">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <!-- Compact Preview (Line clamped for large text) -->
+              <div class="bg-surface-variant rounded-md p-3 border border-outline-variant shadow-inner">
+                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Preview</p>
+                <p class="text-sm text-on-surface leading-relaxed line-clamp-3">
+                  A full-stack e-commerce platform with product catalog, shopping cart, checkout, and admin dashboard. Built with Rails and deployed on a university server.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Field 3: Tech Stack -->
+          <div class="p-6 flex flex-col md:flex-row md:items-start gap-4 md:gap-8 bg-surface">
+            <div class="w-full md:w-1/3 shrink-0 pt-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-on-surface-strong">Tech Stack</span>
+                <span class="inline-flex items-center rounded bg-primary-container px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">Dropdown</span>
+              </div>
+            </div>
+            <div class="w-full flex-grow flex flex-col gap-2">
+              <div class="relative w-full">
+                <select class="block w-full rounded-lg border border-outline bg-surface px-3.5 py-2 pr-10 text-sm text-on-surface transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:border-outline-strong appearance-none cursor-pointer">
+                  <option value="">Do not copy</option>
+                  <option value="3" selected>Tech Stack</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-on-surface-variant">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <div class="bg-surface-variant rounded-md p-3 border border-outline-variant shadow-inner">
+                <p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Preview</p>
+                <p class="text-sm text-on-surface">Ruby on Rails</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Field 4: Target Audience (No source value, Do Not Copy selected) -->
+          <div class="p-6 flex flex-col md:flex-row md:items-start gap-4 md:gap-8 bg-surface opacity-75 focus-within:opacity-100 transition-opacity">
+            <div class="w-full md:w-1/3 shrink-0 pt-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-on-surface-strong">Target Audience</span>
+                <span class="inline-flex items-center rounded bg-primary-container px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">Radio</span>
+              </div>
+            </div>
+            <div class="w-full flex-grow flex flex-col gap-2">
+              <div class="relative w-full">
+                <select class="block w-full rounded-lg border border-outline bg-surface-variant px-3.5 py-2 pr-10 text-sm text-on-surface-variant transition-all focus:bg-surface focus:text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-sm hover:border-outline-strong appearance-none cursor-pointer">
+                  <option value="" selected>-- Do not copy --</option>
+                  <option value="4">Target Audience</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-on-surface-variant">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+              <!-- Preview is completely hidden here when "Do not copy" is selected to save space -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sticky Footer -->
+      <div class="flex-none px-6 py-4 border-t border-outline-variant bg-surface-hover flex justify-end sticky bottom-0 rounded-b-xl z-10">
+        <button type="button" class="px-6 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-full shadow-sm transition-colors cursor-pointer">
+          Copy Details
+        </button>
+      </div>
+    </dialog>
+
+  </body>
+</html>

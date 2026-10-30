@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edit Project Template — ProPro (Mockup)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,-25..0" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'on-surface': 'var(--color-on-surface)',
+          'on-surface-strong': 'var(--color-on-surface-strong)',
+          'on-surface-variant': 'var(--color-on-surface-variant)',
+          'on-surface-muted': 'var(--color-on-surface-muted)',
+          'on-surface-disabled': 'var(--color-on-surface-disabled)',
+          'surface': 'var(--color-surface)',
+          'surface-tint': 'var(--color-surface-tint)',
+          'surface-variant': 'var(--color-surface-variant)',
+          'surface-hover': 'var(--color-surface-hover)',
+          'outline': 'var(--color-outline)',
+          'outline-variant': 'var(--color-outline-variant)',
+          'outline-strong': 'var(--color-outline-strong)',
+          'primary': 'var(--color-primary)',
+          'primary-strong': 'var(--color-primary-strong)',
+          'primary-hover': 'var(--color-primary-hover)',
+          'primary-soft': 'var(--color-primary-soft)',
+          'primary-container': 'var(--color-primary-container)',
+          'success': 'var(--color-success)',
+          'success-hover': 'var(--color-success-hover)',
+          'success-container': 'var(--color-success-container)',
+          'error': 'var(--color-error)',
+          'error-hover': 'var(--color-error-hover)',
+          'error-container': 'var(--color-error-container)',
+          'warning': 'var(--color-warning)',
+          'warning-strong': 'var(--color-warning-strong)',
+          'warning-container': 'var(--color-warning-container)',
+          'warning-container-alt': 'var(--color-warning-container-alt)',
+          'warning-on-container': 'var(--color-warning-on-container)',
+          'warning-border': 'var(--color-warning-border)',
+        },
+        fontFamily: {
+          dm: ['"DM Sans"', 'Roboto', 'Arial', 'sans-serif'],
+        },
+        /* NOTE: no boxShadow extension on purpose — this mockup is shadow-free. */
+      },
+    },
+  };
+</script>
+
+<style>
+  :root {
+    color-scheme: light;
+
+    /* ---- Placeholder design tokens — replace with your real --color-* values ---- */
+    --color-on-surface: #262b33;
+    --color-on-surface-strong: #14181f;
+    --color-on-surface-variant: #6b7280;
+    --color-on-surface-muted: #9aa1ac;
+    --color-on-surface-disabled: #c7cbd1;
+
+    --color-surface: #ffffff;
+    --color-surface-tint: #f7f8fa;
+    --color-surface-variant: #eef0f3;
+    --color-surface-hover: #f4f5f7;
+
+    --color-outline: #d7dbe0;
+    --color-outline-variant: #e8eaed;
+    --color-outline-strong: #b7bcc4;
+
+    --color-primary: #2f6fed;
+    --color-primary-strong: #2258c9;
+    --color-primary-hover: #2258c9;
+    --color-primary-soft: #2f6fed;
+    --color-primary-container: #e4edfe;
+
+    --color-success: #1a8a4c;
+    --color-success-hover: #146e3c;
+    --color-success-container: #e2f5e9;
+
+    --color-error: #d33a3a;
+    --color-error-hover: #b32e2e;
+    --color-error-container: #fbe6e6;
+
+    --color-warning: #b4670e;
+    --color-warning-strong: #a15b0c;
+    --color-warning-container: #fdf0dd;
+    --color-warning-container-alt: #fdf7ec;
+    --color-warning-on-container: #7a4408;
+    --color-warning-border: #f3d9a9;
+  }
+
+  /* This mockup intentionally ships one theme (matching the target product's
+     current light-only UI), so dark mode explicitly mirrors the same tokens
+     rather than inverting. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-on-surface: #262b33;
+      --color-on-surface-strong: #14181f;
+      --color-on-surface-variant: #6b7280;
+      --color-on-surface-muted: #9aa1ac;
+      --color-on-surface-disabled: #c7cbd1;
+      --color-surface: #ffffff;
+      --color-surface-tint: #f7f8fa;
+      --color-surface-variant: #eef0f3;
+      --color-surface-hover: #f4f5f7;
+      --color-outline: #d7dbe0;
+      --color-outline-variant: #e8eaed;
+      --color-outline-strong: #b7bcc4;
+      --color-primary: #2f6fed;
+      --color-primary-strong: #2258c9;
+      --color-primary-hover: #2258c9;
+      --color-primary-soft: #2f6fed;
+      --color-primary-container: #e4edfe;
+      --color-success: #1a8a4c;
+      --color-success-hover: #146e3c;
+      --color-success-container: #e2f5e9;
+      --color-error: #d33a3a;
+      --color-error-hover: #b32e2e;
+      --color-error-container: #fbe6e6;
+      --color-warning: #b4670e;
+      --color-warning-strong: #a15b0c;
+      --color-warning-container: #fdf0dd;
+      --color-warning-container-alt: #fdf7ec;
+      --color-warning-on-container: #7a4408;
+      --color-warning-border: #f3d9a9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --color-on-surface: #262b33;
+    --color-on-surface-strong: #14181f;
+    --color-on-surface-variant: #6b7280;
+    --color-on-surface-muted: #9aa1ac;
+    --color-on-surface-disabled: #c7cbd1;
+    --color-surface: #ffffff;
+    --color-surface-tint: #f7f8fa;
+    --color-surface-variant: #eef0f3;
+    --color-surface-hover: #f4f5f7;
+    --color-outline: #d7dbe0;
+    --color-outline-variant: #e8eaed;
+    --color-outline-strong: #b7bcc4;
+    --color-primary: #2f6fed;
+    --color-primary-strong: #2258c9;
+    --color-primary-hover: #2258c9;
+    --color-primary-soft: #2f6fed;
+    --color-primary-container: #e4edfe;
+    --color-success: #1a8a4c;
+    --color-success-hover: #146e3c;
+    --color-success-container: #e2f5e9;
+    --color-error: #d33a3a;
+    --color-error-hover: #b32e2e;
+    --color-error-container: #fbe6e6;
+    --color-warning: #b4670e;
+    --color-warning-strong: #a15b0c;
+    --color-warning-container: #fdf0dd;
+    --color-warning-container-alt: #fdf7ec;
+    --color-warning-on-container: #7a4408;
+    --color-warning-border: #f3d9a9;
+  }
+
+  body { font-family: 'Roboto', Arial, sans-serif; }
+
+  /* Custom select chevron (native selects, no JS) */
+  .select-shell { position: relative; display: block; }
+  @media (min-width: 1024px) {
+    .select-shell { display: inline-block; }
+  }
+  .select-shell select {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .select-shell .chevron {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  /* Checkbox accents without extra markup */
+  input[type="checkbox"].accent-primary { accent-color: var(--color-primary); }
+  input[type="checkbox"].accent-success { accent-color: var(--color-success); }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    font-size: 20px;
+    line-height: 1;
+  }
+</style>
+</head>
+
+<body class="bg-surface-tint text-on-surface">
+<div class="min-h-screen flex flex-col">
+
+  <!-- ============================================================
+       TOP BAR  (new version — unchanged apart from shadow removal)
+       ============================================================ -->
+  <header class="sticky top-0 z-30 bg-white border-b border-outline-variant px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-4 min-w-0">
+      <a href="#" title="Close and return to course settings"
+         class="p-2 -ml-2 rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[22px]">close</span>
+      </a>
+
+      <div class="h-5 w-px bg-outline shrink-0"></div>
+
+      <div class="flex items-baseline gap-2 min-w-0">
+        <h1 class="font-dm text-[18px] text-on-surface-strong font-medium tracking-tight truncate">
+          Edit Project Template
+        </h1>
+        <span class="text-on-surface-variant text-[15px] font-dm truncate hidden sm:inline">— Grouped TopicApprovalEnabled</span>
+      </div>
+    </div>
+
+    <div class="hidden min-[1245px]:flex items-center gap-2 shrink-0">
+      <a href="#" class="px-5 py-2 rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface font-medium text-[14px] transition-colors whitespace-nowrap">
+        Discard Changes
+      </a>
+      <button type="submit" form="template-form"
+              class="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all flex items-center gap-2 whitespace-nowrap">
+        <span class="material-symbols-outlined text-[18px]">check</span>
+        Save Template
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 pt-10 pb-28 px-4 sm:px-6 min-[1245px]:pb-10">
+    <div class="max-w-6xl mx-auto space-y-6">
+
+      <form id="template-form">
+
+        <section class="bg-white border border-outline-variant rounded-xl overflow-hidden">
+
+          <div class="overflow-x-auto">
+            <table class="field-table min-w-full divide-y divide-outline-variant table-fixed">
+              <thead class="bg-white border-b border-outline-variant">
+                <tr>
+                  <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[14%]">Field Label</th>
+                  <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[11%]">Description</th>
+                  <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[17%]">Type</th>
+                  <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[23%]">Applicable To</th>
+                  <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[14%]">Options</th>
+                  <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[10%]">Required</th>
+                  <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wide w-[11%]">Free Edit</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-outline-variant">
+
+                <!-- ============ Row 1 — Short Text ============ -->
+                <tr class="field-row group relative hover:bg-surface-hover/60 transition-colors">
+
+                  <!-- Field Label -->
+                  <td class="block lg:table-cell lg:pl-12 px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Field Label</span>
+                    <div class="relative">
+                      <div class="hidden lg:flex items-center justify-end absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-8">
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-muted cursor-grab" title="Drag to reorder">drag_indicator</span>
+                      </div>
+                      <input type="text" value="Project Title" placeholder="e.g. Project Title"
+                             class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface" />
+                    </div>
+                  </td>
+
+                  <!-- Description -->
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Description</span>
+                    <input type="text" placeholder="Instructions…"
+                           class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface-variant" />
+                  </td>
+
+                  <!-- Type -->
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Type</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option selected>Short Text</option>
+                        <option>Paragraph</option>
+                        <option>Dropdown</option>
+                        <option>Radio</option>
+                        <option>Checkbox</option>
+                        <option>Number</option>
+                        <option>Date</option>
+                        <option>File Upload</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <!-- Applicable To -->
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Applicable To</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option selected>Both</option>
+                        <option>Topics Only</option>
+                        <option>Own Proposals Only</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <!-- Options (+ mobile reorder / remove) -->
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Options</span>
+                    <span class="text-[13px] text-on-surface-muted">—</span>
+
+                    <div class="lg:hidden mt-3">
+                      <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-outline rounded-lg text-on-surface-variant bg-surface-tint active:bg-primary-container active:border-primary transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+                        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">Hold &amp; Drag to Reorder</span>
+                      </div>
+                    </div>
+
+                    <button type="button"
+                            class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-error hover:text-error-hover font-medium bg-error-container px-3 py-2 rounded-lg">
+                      <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove Field
+                    </button>
+                    <input type="hidden" name="field[_destroy]" value="0" class="destroy-flag" />
+                  </td>
+
+                  <!-- Required -->
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Required</span>
+                    <div class="flex items-center h-10">
+                      <input type="checkbox" checked disabled
+                             class="h-5 w-5 rounded border-outline accent-primary cursor-not-allowed" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Field is required</label>
+                    </div>
+                  </td>
+
+                  <!-- Free Edit -->
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Free Edit</span>
+                    <div class="flex items-center h-10" title="Allow editing after approval">
+                      <input type="checkbox"
+                             class="h-5 w-5 rounded border-outline accent-success cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Editable after approval</label>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- ============ Row 2 — Paragraph ============ -->
+                <tr class="field-row group relative hover:bg-surface-hover/60 transition-colors">
+
+                  <td class="block lg:table-cell lg:pl-12 px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Field Label</span>
+                    <div class="relative">
+                      <div class="hidden lg:flex items-center justify-end absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-8">
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-muted cursor-grab" title="Drag to reorder">drag_indicator</span>
+                      </div>
+                      <input type="text" value="Group Project Description" placeholder="e.g. Project Title"
+                             class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface" />
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Description</span>
+                    <input type="text" value="Describe the scope and member responsibilities"
+                           class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface-variant" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Type</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option>Short Text</option>
+                        <option selected>Paragraph</option>
+                        <option>Dropdown</option>
+                        <option>Radio</option>
+                        <option>Checkbox</option>
+                        <option>Number</option>
+                        <option>Date</option>
+                        <option>File Upload</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Applicable To</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option selected>Both</option>
+                        <option>Topics Only</option>
+                        <option>Own Proposals Only</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Options</span>
+                    <span class="text-[13px] text-on-surface-muted">—</span>
+
+                    <div class="lg:hidden mt-3">
+                      <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-outline rounded-lg text-on-surface-variant bg-surface-tint active:bg-primary-container active:border-primary transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+                        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">Hold &amp; Drag to Reorder</span>
+                      </div>
+                    </div>
+
+                    <button type="button"
+                            class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-error hover:text-error-hover font-medium bg-error-container px-3 py-2 rounded-lg">
+                      <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove Field
+                    </button>
+                    <input type="hidden" name="field[_destroy]" value="0" class="destroy-flag" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Required</span>
+                    <div class="flex items-center h-10">
+                      <input type="checkbox" checked class="h-5 w-5 rounded border-outline accent-primary cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Field is required</label>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Free Edit</span>
+                    <div class="flex items-center h-10" title="Allow editing after approval">
+                      <input type="checkbox" class="h-5 w-5 rounded border-outline accent-success cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Editable after approval</label>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- ============ Row 3 — Number ============ -->
+                <tr class="field-row group relative hover:bg-surface-hover/60 transition-colors">
+
+                  <td class="block lg:table-cell lg:pl-12 px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Field Label</span>
+                    <div class="relative">
+                      <div class="hidden lg:flex items-center justify-end absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-8">
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-muted cursor-grab" title="Drag to reorder">drag_indicator</span>
+                      </div>
+                      <input type="text" value="Team Size" placeholder="e.g. Project Title"
+                             class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface" />
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Description</span>
+                    <input type="text" placeholder="Instructions…"
+                           class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface-variant" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Type</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option>Short Text</option>
+                        <option>Paragraph</option>
+                        <option>Dropdown</option>
+                        <option>Radio</option>
+                        <option>Checkbox</option>
+                        <option selected>Number</option>
+                        <option>Date</option>
+                        <option>File Upload</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Applicable To</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option>Both</option>
+                        <option selected>Topics Only</option>
+                        <option>Own Proposals Only</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Options</span>
+                    <span class="text-[13px] text-on-surface-muted">—</span>
+
+                    <div class="lg:hidden mt-3">
+                      <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-outline rounded-lg text-on-surface-variant bg-surface-tint active:bg-primary-container active:border-primary transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+                        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">Hold &amp; Drag to Reorder</span>
+                      </div>
+                    </div>
+
+                    <button type="button"
+                            class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-error hover:text-error-hover font-medium bg-error-container px-3 py-2 rounded-lg">
+                      <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove Field
+                    </button>
+                    <input type="hidden" name="field[_destroy]" value="0" class="destroy-flag" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Required</span>
+                    <div class="flex items-center h-10">
+                      <input type="checkbox" class="h-5 w-5 rounded border-outline accent-primary cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Field is required</label>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Free Edit</span>
+                    <div class="flex items-center h-10" title="Allow editing after approval">
+                      <input type="checkbox" checked class="h-5 w-5 rounded border-outline accent-success cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Editable after approval</label>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- ============ Row 4 — Dropdown (with options) ============ -->
+                <tr class="field-row group relative hover:bg-surface-hover/60 transition-colors">
+
+                  <td class="block lg:table-cell lg:pl-12 px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Field Label</span>
+                    <div class="relative">
+                      <div class="hidden lg:flex items-center justify-end absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-8">
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-muted cursor-grab" title="Drag to reorder">drag_indicator</span>
+                      </div>
+                      <input type="text" value="Preferred Tech Stack" placeholder="e.g. Project Title"
+                             class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface" />
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Description</span>
+                    <input type="text" placeholder="Instructions…"
+                           class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface-variant" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Type</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option>Short Text</option>
+                        <option>Paragraph</option>
+                        <option selected>Dropdown</option>
+                        <option>Radio</option>
+                        <option>Checkbox</option>
+                        <option>Number</option>
+                        <option>Date</option>
+                        <option>File Upload</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Applicable To</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option selected>Both</option>
+                        <option>Topics Only</option>
+                        <option>Own Proposals Only</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <!-- Options section -->
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Options</span>
+                    <div class="flex flex-col gap-1.5">
+                      <div class="group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant transition-colors">
+                        <input type="text" value="React"
+                               class="flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md bg-surface-tint focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-none" />
+                        <button type="button" class="w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error transition-all text-sm">×</button>
+                      </div>
+                      <div class="group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant transition-colors">
+                        <input type="text" value="Rails"
+                               class="flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md bg-surface-tint focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-none" />
+                        <button type="button" class="w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error transition-all text-sm">×</button>
+                      </div>
+                      <button type="button" class="text-[12.5px] text-on-surface-variant border border-dashed border-outline rounded-md py-1.5 px-2.5 w-fit hover:text-primary hover:border-primary transition-colors mt-0.5">+ Add Option</button>
+                    </div>
+
+                    <div class="lg:hidden mt-3">
+                      <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-outline rounded-lg text-on-surface-variant bg-surface-tint active:bg-primary-container active:border-primary transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+                        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">Hold &amp; Drag to Reorder</span>
+                      </div>
+                    </div>
+
+                    <button type="button"
+                            class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-error hover:text-error-hover font-medium bg-error-container px-3 py-2 rounded-lg">
+                      <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove Field
+                    </button>
+                    <input type="hidden" name="field[_destroy]" value="0" class="destroy-flag" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Required</span>
+                    <div class="flex items-center h-10">
+                      <input type="checkbox" checked class="h-5 w-5 rounded border-outline accent-primary cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Field is required</label>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Free Edit</span>
+                    <div class="flex items-center h-10" title="Allow editing after approval">
+                      <input type="checkbox" checked class="h-5 w-5 rounded border-outline accent-success cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Editable after approval</label>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- ============ Row 5 — Radio (with options) ============ -->
+                <tr class="field-row group relative hover:bg-surface-hover/60 transition-colors">
+
+                  <td class="block lg:table-cell lg:pl-12 px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Field Label</span>
+                    <div class="relative">
+                      <div class="hidden lg:flex items-center justify-end absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-8">
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-muted cursor-grab" title="Drag to reorder">drag_indicator</span>
+                      </div>
+                      <input type="text" value="Risk Level" placeholder="e.g. Project Title"
+                             class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface" />
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Description</span>
+                    <input type="text" placeholder="Instructions…"
+                           class="block w-full px-3 py-2.5 border border-outline rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-[13.5px] text-on-surface-variant" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Type</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option>Short Text</option>
+                        <option>Paragraph</option>
+                        <option>Dropdown</option>
+                        <option selected>Radio</option>
+                        <option>Checkbox</option>
+                        <option>Number</option>
+                        <option>Date</option>
+                        <option>File Upload</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Applicable To</span>
+                    <div class="select-shell">
+                      <select class="block w-full lg:inline-block lg:w-auto lg:min-w-[100px] py-2.5 pl-3 pr-7 border border-outline rounded-lg text-[13.5px] cursor-pointer">
+                        <option>Both</option>
+                        <option>Topics Only</option>
+                        <option selected>Own Proposals Only</option>
+                      </select>
+                      <span class="chevron material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+                    </div>
+                  </td>
+
+                  <!-- Options section -->
+                  <td class="block lg:table-cell px-6 py-5 align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Options</span>
+                    <div class="flex flex-col gap-1.5">
+                      <div class="group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant transition-colors">
+                        <input type="radio" disabled class="accent-primary" />
+                        <input type="text" value="Low"
+                               class="flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md bg-surface-tint focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-none" />
+                        <button type="button" class="w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error transition-all text-sm">×</button>
+                      </div>
+                      <div class="group/opt flex items-center gap-2 py-1 px-2 rounded hover:bg-surface-variant transition-colors">
+                        <input type="radio" disabled class="accent-primary" />
+                        <input type="text" value="Medium"
+                               class="flex-1 min-w-0 text-[12.5px] py-1 px-2 border border-transparent rounded-md bg-surface-tint focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-none" />
+                        <button type="button" class="w-5 h-5 flex items-center justify-center rounded-md text-on-surface-muted opacity-0 group-hover/opt:opacity-100 hover:bg-error-container hover:text-error transition-all text-sm">×</button>
+                      </div>
+                      <button type="button" class="text-[12.5px] text-on-surface-variant border border-dashed border-outline rounded-md py-1.5 px-2.5 w-fit hover:text-primary hover:border-primary transition-colors mt-0.5">+ Add Option</button>
+                    </div>
+
+                    <div class="lg:hidden mt-3">
+                      <div class="drag-handle flex items-center justify-center w-full py-3 border-2 border-dashed border-outline rounded-lg text-on-surface-variant bg-surface-tint active:bg-primary-container active:border-primary transition-colors cursor-grab touch-pan-y" oncontextmenu="return false;">
+                        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider">Hold &amp; Drag to Reorder</span>
+                      </div>
+                    </div>
+
+                    <button type="button"
+                            class="remove-field lg:hidden mt-3 inline-flex items-center text-xs text-error hover:text-error-hover font-medium bg-error-container px-3 py-2 rounded-lg">
+                      <svg class="mr-1.5 h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove Field
+                    </button>
+                    <input type="hidden" name="field[_destroy]" value="0" class="destroy-flag" />
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Required</span>
+                    <div class="flex items-center h-10">
+                      <input type="checkbox" class="h-5 w-5 rounded border-outline accent-primary cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Field is required</label>
+                    </div>
+                  </td>
+
+                  <td class="block lg:table-cell px-6 py-5 whitespace-nowrap align-top">
+                    <span class="lg:hidden text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-1 block">Free Edit</span>
+                    <div class="flex items-center h-10" title="Allow editing after approval">
+                      <input type="checkbox" class="h-5 w-5 rounded border-outline accent-success cursor-pointer" />
+                      <label class="ml-2 text-sm text-on-surface-variant lg:hidden">Editable after approval</label>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-surface-tint border-t border-outline-variant p-4 flex flex-wrap items-center justify-between gap-3">
+            <button type="button"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 border border-outline text-[13.5px] font-medium rounded-lg text-on-surface hover:bg-surface-variant transition-colors">
+              <span class="material-symbols-outlined text-[18px] text-on-surface-variant">add</span>
+              Add New Field
+            </button>
+            <button type="button"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 border border-dashed border-outline text-[13.5px] font-medium rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors">
+              <span class="material-symbols-outlined text-[18px]">content_copy</span>
+              Reuse from another course
+            </button>
+          </div>
+
+        </section>
+
+        <!-- Desktop-only footer actions -->
+        <div class="hidden min-[1245px]:flex items-center justify-between pt-6 pb-4">
+          <a href="#" class="text-[14px] font-medium text-on-surface-variant hover:text-on-surface">Cancel</a>
+          <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-full font-medium text-[14px] transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">check</span>
+            Save Template
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Mobile sticky action bar -->
+  <div class="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-outline-variant p-3 flex items-center gap-3 min-[1245px]:hidden">
+    <a href="#" class="flex-1 text-center py-2.5 rounded-full text-on-surface-variant font-medium text-[14px]">Discard</a>
+    <button type="submit" form="template-form" class="flex-[2] bg-primary text-white py-2.5 rounded-full font-medium text-[14px] flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">check</span>
+      Save Template
+    </button>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMP6000 - Group formation | ProPro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--spacing-header:3.5rem}
+  body{font-family:'Roboto',Arial,sans-serif}
+  .dm{font-family:'DM Sans',Roboto,Arial,sans-serif}
+
+  /* Main scroll pane: dvh so mobile browser bars don't cut it off */
+  .pane{height:calc(100vh - var(--spacing-header));height:calc(100dvh - var(--spacing-header))}
+
+  /* Modal card: full screen on mobile, auto height from sm up */
+  .modal-card{height:100vh;height:100dvh}
+  @media (min-width:640px){.modal-card{height:auto}}
+
+  /* Bell popup: full-width panel under the header on mobile, anchored dropdown from sm up */
+  #bellPop{position:fixed;left:8px;right:8px;top:calc(var(--spacing-header) + 4px);max-height:70vh;overflow-y:auto}
+  @media (min-width:640px){#bellPop{position:absolute;left:auto;right:0;top:48px;width:340px;max-height:80vh}}
+
+  /* ---------- Groups table (desktop / tablet: real table, one tbody per group) ---------- */
+  #tbl tbody.grp tr.main>td{border-top:1px solid #e5e7eb}
+  #tbl tbody.grp tr.detail>td{border-top:1px solid #f3f4f6}
+  #tbl tbody.grp.invalid{background:#fffbeb}
+  #tbl tbody.grp:not(.invalid) tr.main:hover{background:#f9fafb}
+  #tbl tbody.grp:not(.invalid) tr.detail{background:rgba(249,250,251,.5)}
+
+  /* ---------- Below 640px: each group becomes its own card ---------- */
+  @media (max-width:639px){
+    input,select{font-size:16px!important}               /* stops iOS zoom on focus */
+    input[type=text],select{min-height:44px}
+    #modal button,#dlg button,#bellPop button{min-height:44px}
+    #modalFoot{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+    .modal-card{padding-top:env(safe-area-inset-top,0px)}
+    .foot-left button{flex:1 1 auto}
+
+    #tbl{display:block}
+    #tbl thead{display:none}
+    #tbl tbody.grp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;
+      padding:12px 16px;margin-bottom:12px;background:#fff;border:1px solid #e5e7eb;border-radius:8px}
+    #tbl tbody.grp.invalid{background:#fffbeb;border-color:#fde68a}
+    #tbl tr.main{display:contents}                         /* cells become grid items of the card */
+    #tbl td{display:block;padding:0!important;border:0!important;box-shadow:none!important}
+    #tbl td[data-empty]{display:none}
+    #tbl .c-g{order:1;grid-column:1}
+    #tbl .c-s{order:2;grid-column:2;justify-self:end}
+    #tbl .c-m{order:3;grid-column:1/-1}
+    #tbl tr.detail{display:block;order:4;grid-column:1/-1;padding-top:12px;border-top:1px solid #e5e7eb}
+    #tbl tr.detail.hidden{display:none}
+    #tbl .c-a{order:5;grid-column:1/-1}
+    #tbl .act-btn{width:100%;min-height:44px}
+    #tbl .cancel-link{min-height:44px}
+  }
+</style>
+<script>
+tailwind.config={theme:{extend:{
+  borderRadius:{panel:'1.75rem'},
+  minHeight:{header:'var(--spacing-header)'},
+  spacing:{header:'var(--spacing-header)'},
+  colors:{
+    'surface-tint':'#f8f9fa','surface':'#ffffff','surface-variant':'#f3f4f6','surface-variant-deep':'#e5e7eb','surface-hover':'#f3f4f6',
+    'on-surface':'#1f2937','on-surface-variant':'#4b5563','on-surface-muted':'#6b7280',
+    primary:'#2563eb','primary-strong':'#2563eb','primary-hover':'#1d4ed8','primary-container':'#eff6ff','primary-container-alt':'#dbeafe',
+    outline:'#e5e7eb','outline-variant':'#e5e7eb',
+    'error-container':'#fef2f2','success-container':'#f0fdf4',
+    'warning-container-alt':'#fffbeb','warning-strong':'#f59e0b'
+  }
+}}};
+</script>
+</head>
+<body class="bg-surface-tint text-on-surface m-0 p-0 overflow-hidden">
+
+<!-- Header (mirrors shared/_header) -->
+<header class="sticky top-0 z-40 bg-surface-tint flex items-center justify-between gap-3 px-4 py-1.5 sm:py-2 min-h-header">
+  <div class="flex items-center gap-2 min-w-0 flex-1">
+    <button id="menuBtn" type="button" aria-label="Toggle sidebar" aria-controls="app-sidebar" class="shrink-0 h-11 w-11 sm:h-10 sm:w-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <!-- Desktop only: breadcrumb row -->
+    <div class="hidden sm:flex sm:items-center sm:min-w-0">
+      <a href="#" class="dm shrink-0 text-[1.5rem] leading-8 font-normal text-on-surface-variant hover:text-on-surface transition-colors no-underline whitespace-nowrap">ProPro</a>
+      <span class="material-symbols-outlined text-gray-400 mx-1 text-sm">chevron_right</span>
+      <span class="text-[15px] font-medium text-gray-900 truncate">COMP6000</span>
+    </div>
+    <!-- Mobile only: course name -->
+    <span class="sm:hidden truncate text-[17px] text-on-surface font-medium min-w-0">COMP6000</span>
+  </div>
+  <div class="flex items-center gap-1 shrink-0">
+    <div id="bellWrap" class="relative">
+      <button id="bellBtn" type="button" aria-label="Notifications" class="relative h-11 w-11 sm:h-10 sm:w-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="bellBadge" class="hidden absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[11px] font-medium items-center justify-center"></span>
+      </button>
+      <div id="bellPop" class="hidden bg-white border border-gray-200 rounded-lg shadow-lg z-50"></div>
+    </div>
+    <!-- Desktop only: log out -->
+    <button type="button" class="hidden sm:block m-0 text-[15px] font-medium text-on-surface-variant hover:text-on-surface transition-colors pr-2 bg-transparent border-0 cursor-pointer">Log out</button>
+    <!-- Mobile only: coordinator icons -->
+    <div id="mCoord" class="flex sm:hidden items-center" style="display:none">
+      <a href="#" aria-label="Course settings" class="h-11 w-11 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors"><span class="material-symbols-outlined">settings</span></a>
+      <a href="#" aria-label="Edit Project Templates" class="h-11 w-11 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors"><span class="material-symbols-outlined">edit_note</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+  <!-- Sidebar (mirrors shared/_sidebar: off-canvas below lg, collapsible rail at lg) -->
+  <aside id="sidebar"
+         class="group/sidebar
+           w-[280px] shrink-0 py-3 bg-surface-tint overflow-y-auto
+           fixed top-0 left-0 h-full z-50 -translate-x-full transition-[transform,width] duration-200 ease-out
+           lg:sticky lg:top-header lg:translate-x-0 lg:h-[calc(100vh-var(--spacing-header))] lg:self-start lg:overflow-y-auto
+           data-[collapsed=true]:lg:overflow-visible
+           data-[collapsed=true]:lg:w-[72px]"
+         data-collapsed="false">
+    <nav id="navList" class="flex flex-col gap-1 pr-3"></nav>
+  </aside>
+  <div id="scrim" class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"></div>
+
+  <!-- Main -->
+  <main class="pane flex-1 min-w-0 bg-white rounded-tl-panel overflow-x-hidden overflow-y-auto">
+    <div class="border-b border-outline-variant px-4 sm:px-8 bg-white shrink-0 sticky top-0 z-20 flex items-center justify-between">
+      <nav class="flex flex-nowrap gap-x-2" aria-label="Course sections">
+        <a href="#" aria-current="page" class="dm text-sm font-medium h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased text-primary-strong">
+          Group formation
+          <div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] bg-primary-strong"></div>
+        </a>
+      </nav>
+      <!-- Coordinator only, sm and up (below sm the header shows them) -->
+      <div id="tabIcons" class="hidden sm:flex items-center gap-1 shrink-0"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-8">
+
+      <!-- Mockup controls (not part of the product). Collapsed by default on phones. -->
+      <details id="ctrls" open class="mb-5 sm:mb-6 border border-dashed border-gray-300 rounded-lg text-sm text-on-surface-variant">
+        <summary class="px-4 py-3 cursor-pointer select-none font-medium text-gray-900">Mockup controls</summary>
+        <div class="px-4 pb-3 grid grid-cols-1 sm:flex sm:flex-wrap sm:items-center gap-x-4 gap-y-2">
+          <label class="flex items-center justify-between sm:justify-start gap-2">View as
+            <select id="roleSel" class="min-w-0 max-w-[65%] sm:max-w-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md px-3 py-1.5 outline-none cursor-pointer">
+              <option value="none">Student, no group</option>
+              <option value="leader">Student, leader, not confirmed</option>
+              <option value="oleader">Student, leader, group over maximum</option>
+              <option value="member">Student, member, not confirmed</option>
+              <option value="cleader">Student, leader, confirmed</option>
+              <option value="cmember">Student, member, confirmed</option>
+              <option value="coord">Coordinator</option>
+              <option value="lect">Lecturer (can manage)</option>
+              <option value="lectro">Lecturer (read-only)</option>
+            </select>
+          </label>
+          <label class="flex items-center justify-between sm:justify-start gap-2">Rules
+            <select id="rulesSel" class="min-w-0 max-w-[65%] sm:max-w-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md px-3 py-1.5 outline-none cursor-pointer">
+              <option value="full">Min/max + end date</option>
+              <option value="nolimit">No size limit + end date</option>
+              <option value="nodate">Min/max, no end date</option>
+            </select>
+          </label>
+          <label class="flex items-center justify-between sm:justify-start gap-2">Table
+            <select id="tableSel" class="min-w-0 max-w-[65%] sm:max-w-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md px-3 py-1.5 outline-none cursor-pointer">
+              <option value="rows">With groups</option>
+              <option value="empty">Empty</option>
+            </select>
+          </label>
+        </div>
+      </details>
+
+      <div class="flex flex-wrap items-start justify-between gap-4 mb-5 sm:mb-6">
+        <div class="min-w-0">
+          <h1 class="dm text-2xl sm:text-3xl font-normal text-gray-900 tracking-tight">Group formation</h1>
+          <div id="rules"></div>
+        </div>
+        <div id="headBtn" class="w-full sm:w-auto"></div>
+      </div>
+
+      <div id="slot" class="mb-4 empty:hidden"></div>
+      <div id="msg" class="mb-4 empty:hidden"></div>
+
+      <!-- Browse groups -->
+      <section>
+        <div class="flex flex-col gap-4 border-b border-gray-300 pb-4 mb-4">
+          <div>
+            <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <h2 id="tableTitle" class="dm text-xl font-normal text-gray-900 tracking-tight">All groups</h2>
+              <span id="count" class="text-sm font-medium text-gray-500"></span>
+            </div>
+            <p id="tableSub" class="hidden text-sm text-gray-500 mt-1">Join a group or create a new group.</p>
+          </div>
+
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+              <div class="relative flex items-center w-full sm:w-[240px]">
+                <span class="material-symbols-outlined absolute left-3 text-gray-400 text-[18px]">search</span>
+                <input type="text" id="search" name="search_query" autocomplete="off" placeholder="Search groups or students..." class="peer bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none">
+                <kbd aria-hidden="true" class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-outline-variant bg-gray-50 text-[11px] font-mono text-gray-400 pointer-events-none select-none">/</kbd>
+              </div>
+              <select id="statusSel" name="status_filter" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent block w-full sm:w-[190px] px-4 py-2 transition-all cursor-pointer outline-none">
+                <option value="all" selected>All statuses</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="not_confirmed">Not confirmed</option>
+                <option value="invalid">Invalid size</option>
+              </select>
+            </div>
+            <div id="toolbarRight" class="flex items-center gap-3 w-full md:w-auto md:justify-end"></div>
+          </div>
+        </div>
+
+        <div id="tableBox" class="sm:overflow-x-auto sm:border sm:border-gray-200 sm:rounded-lg">
+          <table id="tbl" class="w-full table-fixed">
+            <thead class="bg-white">
+              <tr>
+                <th class="w-[14%] px-3 lg:px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">Group</th>
+                <th class="w-[34%] px-3 lg:px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">Members</th>
+                <th class="w-[24%] px-3 lg:px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none">Status</th>
+                <th class="w-[28%] px-3 lg:px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none"><span class="sr-only">Action</span></th>
+              </tr>
+            </thead>
+          </table>
+          <div class="px-0 sm:px-4 py-2 sm:py-3 sm:border-t sm:border-gray-200 sm:bg-white sm:rounded-b-lg"><span id="showing" class="text-sm text-gray-500"></span></div>
+        </div>
+
+        <div id="noMatch" class="hidden text-center py-14">
+          <p class="text-base font-medium text-gray-900">No groups match your current filters.</p>
+          <p class="text-sm text-gray-500 mt-1">Try adjusting your search or filters.</p>
+        </div>
+        <div id="emptyState" class="hidden text-center py-14 border border-gray-200 rounded-lg">
+          <p class="text-base font-medium text-gray-900">No groups yet</p>
+          <p class="text-sm text-gray-500 mt-1">Groups will appear here once they are created.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="hidden fixed inset-0 z-[60] items-center justify-center bg-black/30 sm:p-4">
+  <div class="modal-card bg-white w-full sm:max-h-[85vh] sm:max-w-lg sm:rounded-lg flex flex-col shadow-xl">
+    <div class="flex items-center justify-between gap-3 px-4 sm:px-6 pt-3 sm:pt-5 pb-2 sm:pb-3 shrink-0">
+      <h2 id="modalTitle" class="dm text-xl font-medium text-gray-900 min-w-0 break-words"></h2>
+      <button type="button" data-close="modal" aria-label="Close" class="shrink-0 h-11 w-11 sm:h-9 sm:w-9 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="modalBody" class="px-4 sm:px-6 overflow-y-auto flex-1 min-h-0"></div>
+    <div id="modalFoot" class="shrink-0 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-6 pt-3 sm:py-4 border-t border-gray-200"></div>
+  </div>
+</div>
+
+<!-- Confirmation dialog (destructive / consequential actions only) -->
+<div id="dlg" class="hidden fixed inset-0 z-[70] items-center justify-center bg-black/40 p-4">
+  <div class="bg-white w-full max-w-md rounded-lg shadow-xl flex flex-col" style="max-height:90vh;max-height:90dvh">
+    <h2 id="dlgTitle" class="dm text-xl font-medium text-gray-900 px-5 sm:px-6 pt-5 sm:pt-6 pb-3 shrink-0"></h2>
+    <div id="dlgBody" class="text-sm text-gray-600 space-y-2 px-5 sm:px-6 overflow-y-auto min-h-0 flex-1"></div>
+    <div class="flex justify-end gap-2 px-5 sm:px-6 py-4 shrink-0">
+      <button type="button" data-close="dlg" class="flex-1 sm:flex-none min-h-[44px] sm:min-h-0 px-5 py-2 rounded-full text-primary-strong hover:bg-primary-container font-medium text-sm cursor-pointer">Cancel</button>
+      <button id="dlgOk" type="button" class="flex-1 sm:flex-none min-h-[44px] sm:min-h-0 px-5 py-2 rounded-full text-white font-medium text-sm cursor-pointer"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Data (hardcoded) ---------- */
+const MAX=5, MIN=2;
+const expanded={G001:true}; // which rows show the full name list (G001 open by default)
+const groups=[
+  {id:'G001',name:'G001',status:'confirmed',approval:false,members:['Aisyah Rahman','Daniel Lim','Priya Nair','Wei Jie Tan'],proposal:'Campus Lost & Found'},
+  {id:'G002',name:'G002',status:'confirmed',approval:false,members:['Hui Min Chong','Arjun Menon','Sofia Hamid'],proposal:'Smart Campus Navigator'},
+  {id:'G003',name:'G003',status:'confirmed',approval:true,members:['Marcus Teo','Nurul Izzah'],proposal:null},
+  {id:'G004',name:'G004',status:'open',approval:false,members:['Farah Zainal','Ethan Lau','Kavitha Raj'],proposal:null},
+  {id:'G005',name:'G005',status:'open',approval:true,members:['Muhammad Hafizuddin bin Abdul Rahman Shamsuddin'],proposal:null},
+  {id:'G006',name:'G006',status:'open',approval:false,members:['Siti Balqis','Lim Kah Yee','Ravi Chandran','Tan Mei Ling','Omar Faisal','Nur Aina Sofia'],proposal:null},
+];
+/* 100 ungrouped students, alphabetical, to show how the lists cope at realistic size */
+const FN=['Aina','Hafiz','Mei Xin','Zack','Nadia','Irfan','Siti','Jun','Priya','Daniel'];
+const LN=['Sofea','Roslan','Lau','Ibrahim','Yusof','Hakim','Aziz','Tan','Kumar','Wong'];
+const ungrouped=[];
+for(let i=0;i<100;i++)ungrouped.push(FN[i%10]+' '+LN[Math.floor(i/10)]);
+ungrouped.sort((a,b)=>a.localeCompare(b));
+let notifs={
+  none:[{type:'invite',group:'G004',by:'Farah Zainal'},{type:'invite',group:'G001',by:'Aisyah Rahman'}],
+  leader:[{type:'request',who:'Nadia Yusof'}]
+};
+let requested={};
+
+/* ---------- Helpers ---------- */
+const $=id=>document.getElementById(id);
+const show=el=>{el.classList.remove('hidden');el.classList.add('flex')};
+const hide=el=>{el.classList.add('hidden');el.classList.remove('flex')};
+const role=()=>$('roleSel').value;
+const isStudent=()=>['none','leader','oleader','member','cleader','cmember'].includes(role());
+const canManage=()=>role()==='coord'||role()==='lect';
+const mineId=()=>['leader','member'].includes(role())?'G004':role()==='oleader'?'G006':['cleader','cmember'].includes(role())?'G002':null;
+const isLeader=()=>['leader','oleader','cleader'].includes(role());
+const byId=id=>groups.find(g=>g.id===id);
+
+/* Size state: ok | under | over. Invalid size (yellow rows) = under the minimum or over the maximum. */
+const sizeState=g=>{const n=g.members.length;return $('rulesSel').value==='nolimit'?'ok':n<MIN?'under':n>MAX?'over':'ok'};
+const isInvalid=g=>sizeState(g)!=='ok';
+const plural=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
+
+const T='transition-colors cursor-pointer';
+const B_FILL=`bg-primary-strong hover:bg-primary-hover text-white px-5 py-2 rounded-full font-medium text-sm ${T}`;
+const B_OUT=`px-5 py-2 rounded-full border border-gray-300 text-primary-strong hover:bg-primary-container font-medium text-sm ${T}`;
+const B_TONAL=`px-5 py-2 rounded-full bg-blue-100 text-blue-900 hover:bg-blue-200 font-medium text-sm ${T}`;
+const B_ROW=`px-3 py-1.5 rounded-full bg-blue-100 text-blue-900 hover:bg-blue-200 font-medium text-[13px] whitespace-nowrap ${T}`;
+const B_ROW_OFF='px-3 py-1.5 rounded-full bg-gray-100 text-gray-400 font-medium text-[13px] whitespace-nowrap cursor-not-allowed';
+const B_TEXT=`px-3 py-2 rounded-full text-primary-strong hover:bg-primary-container font-medium text-sm ${T}`;
+const B_SM=`px-4 py-1.5 rounded-full border border-gray-300 text-primary-strong hover:bg-primary-container font-medium text-[13px] ${T}`;
+const B_DANGER=`px-3 py-2 rounded-full text-red-600 hover:bg-error-container font-medium text-sm ${T}`;
+const TAP='min-h-[44px] sm:min-h-0';           // 44px tap target on phones only
+const FULL_M='w-full sm:w-auto';                // full width on phones, natural width from sm
+const PILL='inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide whitespace-nowrap';
+const pill=g=>g.status==='confirmed'
+  ?`<span class="${PILL} bg-success-container text-green-700">Confirmed</span>`
+  :`<span class="${PILL} bg-gray-100 text-gray-600">Not confirmed</span>`;
+/* Warning icon for the group card: fixed 16px via inline style, boxed to the 20px text line so it centres with the text */
+const WARN_ICON=`<span class="flex h-5 items-center shrink-0" aria-hidden="true"><span class="material-symbols-outlined text-amber-600" style="font-size:16px;line-height:1;width:16px;height:16px;overflow:hidden">warning</span></span>`;
+const leaderTag='<span class="text-xs text-gray-500 ml-1.5">Leader</span>';
+
+const avatar=n=>`<div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-medium text-gray-700 shrink-0">${n.charAt(0)}</div>`;
+const person=(n,tag='')=>`<div class="flex items-start gap-3 min-w-0">${avatar(n)}<span class="text-sm text-gray-700 leading-5 pt-1 break-words min-w-0">${n}${tag}</span></div>`;
+/* Chips wrap long names onto a second line instead of truncating (names are always full text) */
+const chip=(n,lead)=>`<div class="inline-flex max-w-full items-center gap-2 rounded-[20px] bg-surface border border-outline-variant pl-1 pr-3 py-1"><span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0">${n.charAt(0)}</span><span class="min-w-0 break-words text-[13px] leading-4 text-on-surface py-0.5">${n}</span>${lead?'<span class="text-[11px] text-on-surface-muted shrink-0">Leader</span>':''}</div>`;
+
+function showMsg(text,type='info'){
+  const s={
+    info:['bg-primary-container text-primary-strong','info'],
+    warn:['bg-amber-50 text-amber-700 border border-amber-200','warning'],
+    success:['bg-success-container text-green-700','check_circle'],
+    error:['bg-error-container text-red-700','error']
+  }[type];
+  $('msg').innerHTML=`<div class="flex items-start gap-3 rounded-lg px-4 py-3 text-sm ${s[0]}" role="alert">
+    <span class="material-symbols-outlined text-[20px] mt-px shrink-0">${s[1]}</span><span class="flex-1 min-w-0 break-words">${text}</span>
+    <button type="button" aria-label="Dismiss" onclick="$('msg').innerHTML=''" class="shrink-0 p-1 -m-1 opacity-70 hover:opacity-100"><span class="material-symbols-outlined text-[18px]">close</span></button></div>`;
+}
+
+/* ---------- Sidebar items (mirrors shared/_sidebar_nav_item) ---------- */
+const ROW_STYLE="font-family:'DM Sans',Roboto,Arial,sans-serif;font-size:.875rem;font-weight:500;letter-spacing:0;line-height:1.25rem;";
+function navItem({kind='plain',label,icon,avatar:av,active=false,iconColor=''}){
+  const isCourse=kind==='course';
+  const base='group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors group-data-[collapsed=true]/sidebar:lg:justify-center group-data-[collapsed=true]/sidebar:lg:px-0';
+  const pillCls='lg:group-data-[collapsed=false]/sidebar:mx-3 lg:group-data-[collapsed=false]/sidebar:rounded-full lg:group-data-[collapsed=false]/sidebar:bg-primary-container-alt lg:group-data-[collapsed=false]/sidebar:text-primary-strong lg:group-data-[collapsed=false]/sidebar:font-semibold';
+  const cls=[base,isCourse?'truncate':'',active?pillCls:'rounded-r-full text-on-surface hover:bg-white/60'].join(' ');
+  const lead=isCourse
+    ?`<div class="w-9 h-9 rounded-full ${active?'bg-surface-variant-deep text-on-surface':'bg-primary text-white'} flex items-center justify-center text-sm font-bold shrink-0">${av}</div>`
+    :`<span class="material-symbols-outlined ${iconColor}">${icon}</span>`;
+  const tip=`<span class="hidden group-data-[collapsed=true]/sidebar:lg:group-hover/item:block absolute z-50 left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap rounded-md bg-black text-white px-2 py-1 text-xs shadow-lg pointer-events-none" aria-hidden="true">${label}</span>`;
+  return `<a href="#" class="${cls}" style="${ROW_STYLE}" aria-label="${label}">${lead}<span class="${isCourse?'truncate ':''}group-data-[collapsed=true]/sidebar:lg:hidden">${label}</span>${tip}</a>`;
+}
+function renderNav(){
+  $('navList').innerHTML=
+    navItem({label:'Home',icon:'home'})+
+    `<div class="group-data-[collapsed=true]/sidebar:lg:hidden">
+      <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer" style="${ROW_STYLE}"><span>Enrolled</span><span class="material-symbols-outlined text-sm">expand_less</span></div>
+      ${navItem({kind:'course',label:'COMP6000',avatar:'C',active:true})}
+      <div class="py-2"><div class="border-t border-outline"></div></div>
+    </div>`+
+    navItem({label:'Edit profile',icon:'person',iconColor:'text-on-surface-variant'})+
+    navItem({label:'Log out',icon:'logout',iconColor:'text-on-surface-variant'});
+}
+
+/* ---------- Rules line ---------- */
+function renderRules(){
+  const v=$('rulesSel').value;
+  const size=v==='nolimit'?'No size limit':`${MIN}–${MAX} members per group`;
+  const date=v!=='nodate'?`<span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">event</span><span>Closes <span class="font-medium text-gray-900">Fri, 30 Oct 2026, 11:59 PM</span></span></span>`:'';
+  $('rules').innerHTML=`<div class="flex flex-wrap items-center gap-x-5 gap-y-1 mt-1.5 text-sm text-gray-500"><span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">group</span>${size}</span>${date}</div>`;
+}
+
+/* ---------- Header button (all roles) + bell (students) + coordinator icons ---------- */
+function renderHead(){
+  $('headBtn').innerHTML=`<button type="button" onclick="openUngrouped()" class="${B_TONAL} inline-flex items-center justify-center gap-2 ${FULL_M} ${TAP}"><span class="material-symbols-outlined text-[18px]">person_search</span>${ungrouped.length} students without a group</button>`;
+  const coord=role()==='coord';
+  $('mCoord').style.display=coord?'':'none';
+  $('tabIcons').innerHTML=coord
+    ?`<a href="#" title="Edit Project Templates" aria-label="Edit Project Templates" class="h-[3rem] w-[2.5rem] flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0"><span class="material-symbols-outlined">edit_note</span></a>
+      <a href="#" title="Course settings" aria-label="Course settings" class="h-[3rem] w-[3rem] flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors shrink-0"><span class="material-symbols-outlined">settings</span></a>`:'';
+  $('bellWrap').style.display=isStudent()?'':'none';
+  const list=notifs[role()]||[], b=$('bellBadge');
+  if(list.length){b.textContent=list.length;b.classList.remove('hidden');b.classList.add('flex')}else{b.classList.add('hidden');b.classList.remove('flex')}
+  $('bellPop').innerHTML=`<div class="dm px-4 py-3 border-b border-gray-200 font-medium text-[15px] text-gray-900">Notifications</div>`+
+    (list.length?list.map((n,i)=>`<div class="px-4 py-3 border-b border-gray-200 last:border-0">
+      <div class="flex items-start gap-3">${avatar(n.by||n.who)}<div class="min-w-0">
+        <p class="text-sm text-gray-900">${n.type==='invite'?`<span class="font-medium">${n.group}</span> invited you to join`:`<span class="font-medium">${n.who}</span> asked to join your group`}</p>
+        ${n.type==='invite'?`<p class="text-[13px] text-gray-500">Invited by ${n.by}</p>`:''}</div></div>
+      <div class="flex gap-2 mt-2 pl-10"><button type="button" onclick="acceptNotif(${i})" class="${B_SM}">Accept</button><button type="button" onclick="declineNotif(${i})" class="${B_TEXT} !py-1.5 !text-[13px]">Decline</button></div></div>`).join('')
+    :`<p class="px-4 py-6 text-sm text-gray-500">No new notifications.</p>`);
+}
+function acceptNotif(i){
+  const r=role(), n=notifs[r][i];
+  if(n.type==='invite'){notifs.none=[];$('roleSel').value='member';render();showMsg(`You joined ${n.group}. Your other invites and requests were cleared.`,'success')}
+  else{notifs[r].splice(i,1);renderHead();showMsg(`${n.who} joined your group.`,'success')}
+  $('bellPop').classList.add('hidden');
+}
+function declineNotif(i){notifs[role()].splice(i,1);renderHead()}
+
+/* ---------- Slot (students in a group). Students with no group get no card: the table is the hero. ---------- */
+const CARD='border rounded-[8px] p-4 sm:p-6';
+function renderSlot(){
+  const r=role(), el=$('slot'), nolim=$('rulesSel').value==='nolimit';
+  if(!isStudent()||r==='none'){el.innerHTML='';return}
+  const g=byId(mineId()), conf=g.status==='confirmed', lead=isLeader(), n=g.members.length, s=sizeState(g), inv=isInvalid(g);
+  /* The card always uses the Not confirmed colours (light blue), whatever the status or size */
+  const tone='bg-primary-container/40 border-outline-variant';
+  const ab=`${FULL_M} ${TAP}`;
+  let actions='';
+  if(lead&&!conf)actions=`<button type="button" onclick="tryConfirm()" class="${B_FILL} ${ab}">Confirm group</button><button type="button" onclick="openManage('${g.id}','leader')" class="${B_TEXT} ${ab}">Manage group</button>`;
+  else if(lead&&conf)actions=`<button type="button" onclick="reopen()" class="${B_OUT} ${ab}">Reopen group</button><button type="button" onclick="openManage('${g.id}','leader')" class="${B_TEXT} ${ab}">Manage group</button>`;
+  else actions=`<button type="button" onclick="leaveDialog('${g.id}')" class="${B_TEXT} ${ab}">Leave group</button>`;
+  let sub='';
+  if(conf&&inv)sub='Outside the size limits. Contact your coordinator.';
+  else if(s==='under')sub=`Needs ${plural(MIN-n,'more member')}`;
+  else if(s==='over')sub=`Over the maximum of ${MAX}`;
+  else if(!conf&&!lead)sub='Waiting for your leader to confirm.';
+  el.innerHTML=`<div class="${CARD} ${tone}"><div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+    <div class="min-w-0 md:flex-1">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1"><h2 class="dm text-xl font-medium text-gray-900">${g.name}</h2>${pill(g)}</div>
+      ${sub?`<p class="mt-1.5 text-sm leading-5 flex items-start gap-1.5 text-gray-600">${inv?WARN_ICON:''}<span class="min-w-0">${sub}</span></p>`:''}
+      <div class="mt-4 sm:mt-5">
+        <div class="flex items-baseline gap-2 mb-2"><span class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider">Members</span><span class="text-[13px] text-gray-500">${nolim?n:`${n} of ${MAX}`}</span></div>
+        <div class="flex flex-wrap gap-2">${g.members.map((m,i)=>chip(m,i===0)).join('')}</div>
+      </div>
+    </div>
+    <div class="flex flex-col sm:flex-row sm:flex-wrap md:flex-nowrap items-stretch sm:items-center gap-2 md:shrink-0">${actions}</div></div></div>`;
+}
+
+/* ---------- Table ---------- */
+function renderTableHead(){
+  const none=role()==='none';
+  $('tableTitle').textContent='All groups';
+  $('tableSub').classList.toggle('hidden',!none);
+  $('toolbarRight').innerHTML=none?`<button type="button" onclick="createGroup()" class="${B_TONAL} w-full md:w-auto ${TAP}">Create group</button>`:'';
+}
+function actionCell(g){
+  const r=role();
+  if(r==='none'){
+    const label=g.approval?'Request to join':'Join';
+    /* Greyed out (not hidden) on confirmed groups; the Confirmed pill in the same row is the reason */
+    if(g.status==='confirmed')return `<button type="button" disabled aria-disabled="true" class="act-btn ${B_ROW_OFF}">${label}</button>`;
+    if(g.members.length>=MAX)return `<span class="text-[13px] text-gray-500">Full</span>`;
+    if(requested[g.id])return `<div class="flex items-center justify-between gap-3 sm:flex-col sm:items-start sm:justify-start sm:gap-0"><span class="text-[13px] text-gray-500">Request sent</span><button type="button" onclick="cancelReq('${g.id}')" class="cancel-link text-[13px] text-primary-strong font-medium hover:underline cursor-pointer">Cancel request</button></div>`;
+    return g.approval
+      ?`<button type="button" onclick="reqJoin('${g.id}')" class="act-btn ${B_ROW}">Request to join</button>`
+      :`<button type="button" onclick="joinFail()" class="act-btn ${B_ROW}">Join</button>`;
+  }
+  if(canManage())return `<button type="button" onclick="openManage('${g.id}','staff')" class="act-btn ${B_SM}">Manage</button>`;
+  return '';
+}
+function toggleRow(id,btn){
+  expanded[id]=!expanded[id];
+  btn.closest('tbody').querySelector('tr.detail').classList.toggle('hidden',!expanded[id]);
+  btn.setAttribute('aria-expanded',expanded[id]?'true':'false');
+  btn.querySelector('.chev').classList.toggle('rotate-180',!!expanded[id]);
+}
+function renderRows(){
+  const mine=mineId(), empty=$('tableSel').value==='empty', nolim=$('rulesSel').value==='nolimit';
+  $('tableBox').classList.toggle('hidden',empty);
+  $('emptyState').classList.toggle('hidden',!empty);
+  $('noMatch').classList.add('hidden');
+  /* stats: plain text; the filter options carry the other counts */
+  const src=empty?[]:groups, conf=src.filter(g=>g.status==='confirmed').length, inv=src.filter(isInvalid).length;
+  $('count').textContent=`${conf} of ${src.length} confirmed`;
+  const o=$('statusSel').options;
+  o[0].text='All statuses';o[1].text=`Confirmed (${conf})`;o[2].text=`Not confirmed (${src.length-conf})`;o[3].text=`Invalid size (${inv})`;
+
+  document.querySelectorAll('#tbl tbody').forEach(t=>t.remove());
+  $('tbl').insertAdjacentHTML('beforeend',groups.map(g=>{
+    const n=g.members.length, own=g.id===mine, act=actionCell(g), open=!!expanded[g.id], bad=isInvalid(g);
+    const hay=(g.name+' '+g.members.join(' ')).toLowerCase();
+    const stackAv=g.members.map(m=>`<div class="relative w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[11px] font-medium text-gray-700 z-10">${m.charAt(0)}</div>`).join('');
+    const list=g.members.map(m=>`<div class="flex items-start gap-3 min-w-0">${avatar(m)}<span class="text-sm text-gray-700 leading-5 pt-1 break-words min-w-0">${m}</span></div>`).join('');
+    const countTxt=nolim?plural(n,'member'):`${n} of ${MAX} members`;
+    /* Invalid size: Material warning icon only (no tooltip, no reason text) on every breakpoint, fixed 16px */
+    const warn=bad?`<span class="inline-flex shrink-0" role="img" aria-label="Invalid size"><span class="material-symbols-outlined text-amber-600" style="font-size:16px;line-height:1;width:16px;height:16px;overflow:hidden" aria-hidden="true">warning</span></span>`:'';
+    return `<tbody class="grp${bad?' invalid':''}" data-hay="${hay}" data-status="${g.status==='confirmed'?'confirmed':'not_confirmed'}" data-flag="${bad?1:0}">
+      <tr class="main">
+        <td class="c-g px-3 lg:px-4 py-4 text-sm align-middle"><div class="text-gray-900 font-medium break-words">${g.name}</div>${own?'<div class="text-xs text-gray-500">Your group</div>':''}</td>
+        <td class="c-m px-3 lg:px-4 py-2 sm:py-4 align-middle">
+          <button type="button" onclick="toggleRow('${g.id}',this)" aria-expanded="${open}" class="flex w-full items-center gap-3 min-w-0 text-left cursor-pointer ${TAP} rounded-md">
+            <span class="flex sm:hidden xl:flex -space-x-1.5 shrink-0">${stackAv}</span>
+            <span class="flex flex-wrap items-center gap-x-1.5 min-w-0 flex-1"><span class="text-sm text-gray-500">${countTxt}</span>${warn}</span>
+            <span class="chev material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0${open?' rotate-180':''}">expand_more</span>
+          </button>
+        </td>
+        <td class="c-s px-3 lg:px-4 py-4 align-middle text-right sm:text-left">${pill(g)}</td>
+        <td class="c-a px-3 lg:px-4 py-4 text-sm text-gray-600 align-middle" ${act?'':'data-empty'}><div>${act}</div></td>
+      </tr>
+      <tr class="detail${open?'':' hidden'}"><td colspan="4" class="px-3 lg:px-4 py-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 pl-0 sm:pl-[10%]">${list}</div></td></tr>
+    </tbody>`;
+  }).join(''));
+  filterRows();
+}
+function filterRows(){
+  const q=$('search').value.trim().toLowerCase(), st=$('statusSel').value, empty=$('tableSel').value==='empty';
+  let vis=0;
+  document.querySelectorAll('#tbl tbody.grp').forEach(tb=>{
+    const okSt=st==='all'||(st==='invalid'?tb.dataset.flag==='1':tb.dataset.status===st);
+    const ok=(!q||tb.dataset.hay.includes(q))&&okSt;
+    tb.style.display=ok?'':'none'; if(ok)vis++;
+  });
+  const total=empty?0:groups.length; if(empty)vis=0;
+  $('noMatch').classList.toggle('hidden',empty||vis>0);
+  $('tableBox').classList.toggle('hidden',empty||vis===0);
+  $('showing').innerHTML=`Showing <span class="font-semibold text-gray-700">${vis}</span> of <span class="font-semibold text-gray-700">${total}</span> groups`;
+}
+
+/* ---------- Student actions ---------- */
+function createGroup(){$('roleSel').value='leader';render();showMsg('G007 created. You’re the leader.','success')}
+function tryConfirm(){
+  const g=byId(mineId()), s=sizeState(g), n=g.members.length;
+  if(s==='under')showMsg(`Needs ${plural(MIN-n,'more member')} to confirm.`,'warn');
+  else if(s==='over')showMsg(`This group has ${n} members and the maximum is ${MAX}. Remove ${plural(n-MAX,'member')} to confirm.`,'warn');
+  else showMsg('Confirming now would leave 1 student without a group. Ask them to join a group first, or add them yourself.','warn');
+}
+function reopen(){showMsg('Group reopened. Members can be changed again.','info')}
+function joinFail(){showMsg('This group filled up. Choose another group.','error')}
+function reqJoin(id){requested[id]=true;renderRows();showMsg('Request sent. The leader will be notified.','info')}
+function cancelReq(id){delete requested[id];renderRows();showMsg('Request cancelled.','info')}
+function clearReq(btn){btn.closest('section').querySelector('[data-req]').innerHTML='<p class="text-sm text-gray-500">No pending requests.</p>'}
+function inviteSent(btn){btn.outerHTML='<span class="text-[13px] text-green-700 shrink-0">Invite sent</span>'}
+
+/* ---------- Modals ---------- */
+const DONE=`${B_FILL} w-full sm:w-auto sm:ml-auto ${TAP}`;
+function openModal(title,body,left,btn){
+  $('modalTitle').textContent=title;$('modalBody').innerHTML=body;
+  $('modalFoot').innerHTML=(left?`<div class="foot-left flex flex-wrap gap-1">${left}</div>`:'')+btn;
+  $('modalBody').scrollTop=0;
+  show($('modal'));
+}
+function closeModal(k){hide($(k))}
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(!$('dlg').classList.contains('hidden'))closeModal('dlg');
+    else{closeModal('modal');$('bellPop').classList.add('hidden');if(!isDesktop())closeSidebar()}
+  }
+  if(e.key==='/'&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();$('search').focus()}
+});
+function dialog(title,body,okLabel,danger,onOk){
+  $('dlgTitle').textContent=title;$('dlgBody').innerHTML=body;
+  const ok=$('dlgOk');ok.textContent=okLabel;
+  ok.className=`flex-1 sm:flex-none min-h-[44px] sm:min-h-0 px-5 py-2 rounded-full text-white font-medium text-sm cursor-pointer ${danger?'bg-red-600 hover:bg-red-700':'bg-primary-strong hover:bg-primary-hover'}`;
+  ok.onclick=()=>{closeModal('dlg');onOk&&onOk()};
+  $('dlgBody').scrollTop=0;
+  show($('dlg'));
+}
+const section=(t,inner)=>`<section class="py-4 border-b border-gray-200 last:border-0"><h3 class="dm text-[15px] font-medium text-gray-900 mb-2">${t}</h3>${inner}</section>`;
+const INPUT_CLS='w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-md px-3 py-2 outline-none focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent';
+
+/* Browse list (ungrouped modal): full list, scrolls, search pinned at the top */
+const searchBox=target=>`<div class="sticky top-0 bg-white pb-2 z-10"><input type="text" placeholder="Search students" oninput="filterList(this,'${target}')" class="${INPUT_CLS}"></div>`;
+function filterList(input,id){const q=input.value.toLowerCase();document.querySelectorAll('#'+id+' [data-n]').forEach(r=>r.style.display=r.dataset.n.toLowerCase().includes(q)?'':'none')}
+
+/* Picker (Invite / Add): shows the first 6 matches, empty search included. Server-side `limit 6` in the real app. */
+function pickerRows(verb,gid,q){
+  const hits=ungrouped.filter(u=>u.toLowerCase().includes(q)), shown=hits.slice(0,6);
+  if(!hits.length)return `<p class="text-[13px] text-gray-500">No students match.</p>`;
+  return shown.map(u=>`<div class="flex items-center justify-between gap-3 py-1.5">${person(u)}<button type="button" onclick="${verb==='Add'?`addStudent('${gid}','${u}')`:'inviteSent(this)'}" class="${B_SM} shrink-0">${verb}</button></div>`).join('')+
+    `<p class="text-[13px] text-gray-500 pt-2">Showing ${shown.length} of ${hits.length}</p>`;
+}
+function picker(listId,verb,gid){
+  return `<input type="text" placeholder="Search by name" oninput="$('${listId}').innerHTML=pickerRows('${verb}','${gid||''}',this.value.trim().toLowerCase())" class="${INPUT_CLS} mb-2">
+    <div id="${listId}">${pickerRows(verb,gid||'','')}</div>`;
+}
+function addStudent(gid,name){
+  byId(gid).members.push(name);
+  ungrouped.splice(ungrouped.indexOf(name),1);
+  renderHead();renderRows();
+  openManage(gid,'staff',`${name} was added.`);
+}
+
+/* Manage group: leader, coordinator, lecturer.
+   Leader (not confirmed) order: Join requests, Members, Invite link, Settings, Invite student. */
+function openManage(id,mode,note=''){
+  const g=byId(id), conf=g.status==='confirmed', staff=mode==='staff', can=staff&&canManage(), n=g.members.length, full=n>=MAX;
+  const leaderEdit=!staff&&!conf;
+  let body=note?`<p class="text-[13px] text-green-700 pb-2" role="status">${note}</p>`:'';
+
+  if(leaderEdit){
+    body+=section('Join requests',`<div data-req><div class="flex items-start justify-between gap-3">${person('Nadia Yusof')}<span class="flex gap-1 shrink-0"><button type="button" onclick="clearReq(this)" class="${B_SM}">Accept</button><button type="button" onclick="clearReq(this)" class="${B_TEXT} !py-1.5 !text-[13px]">Decline</button></span></div></div>`);
+  }
+
+  const memberRows=g.members.map((m,i)=>{
+    const rm=can?`<button type="button" onclick="removeStaffDialog('${g.id}','${m}')" class="${B_DANGER} !py-1 !text-[13px]">Remove</button>`
+      :(leaderEdit&&i>0)?`<button type="button" onclick="removeDialog('${g.id}','${m}')" class="${B_DANGER} !py-1 !text-[13px]">Remove from group</button>`:'';
+    return `<div class="flex items-start justify-between gap-3 py-1.5">${person(m,i===0?leaderTag:'')}<div class="shrink-0">${rm}</div></div>`;
+  }).join('');
+  body+=section(`Members (${n} of ${MAX})`,memberRows+(conf&&!staff?`<p class="text-[13px] text-gray-500 mt-2">Reopen your group to change members.</p>`:''));
+
+  if(leaderEdit){
+    body+=section('Invite link',`<div class="flex gap-2"><input readonly value="propro.app/join/G004-8f3k2q" class="flex-1 min-w-0 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-on-surface-variant">
+      <button type="button" onclick="this.textContent='Copied'" class="${B_SM} shrink-0">Copy</button></div><p class="text-[13px] text-gray-500 mt-1.5">Link expires in 24 hours.</p>`);
+    body+=section('Settings',`<label class="flex items-center justify-between gap-4 cursor-pointer"><span class="text-sm text-gray-900">Require approval to join<span class="block text-[13px] text-gray-500">Students send a request and you accept or decline.</span></span>
+      <span class="relative inline-flex shrink-0"><input type="checkbox" class="peer sr-only"><span class="block w-10 h-6 rounded-full bg-gray-300 peer-checked:bg-primary-strong transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-4"></span></span></label>`);
+    body+=section('Invite student',picker('inviteList','Invite'));
+  }
+  if(can)body+=section('Add student',full?`<p class="text-sm text-gray-500">This group is full.</p>`:picker('addList','Add',g.id));
+
+  let left='';
+  if(leaderEdit)left=`<button type="button" onclick="deleteDialog('${g.id}')" class="${B_DANGER}">Delete group</button><button type="button" onclick="leaveDialog('${g.id}')" class="${B_TEXT}">Leave group</button>`;
+  if(can)left=`<button type="button" onclick="deleteDialog('${g.id}')" class="${B_DANGER}">Delete group</button>`+
+    (role()==='coord'&&!conf?`<button type="button" onclick="confirmForLeader('${g.id}')" class="${B_TEXT}">Confirm for leader…</button>`:'');
+  openModal(g.name,(staff?`<div class="pb-2">${pill(g)}</div>`:'')+body,left,
+    `<button type="button" onclick="closeModal('modal')" class="${DONE}">Done</button>`);
+}
+
+/* Ungrouped students: reference list only */
+function openUngrouped(){
+  const hint=canManage()?'<p class="text-[13px] text-gray-500 mb-2">To place someone, open a group with Manage and add them there.</p>':'';
+  const rows=ungrouped.map(n=>`<div data-n="${n}" class="py-2 border-b border-gray-200 last:border-0">${person(n)}</div>`).join('');
+  openModal(`Students without a group (${ungrouped.length})`,`<div class="pb-4">${hint}${searchBox('ungList')}<div id="ungList">${rows}</div></div>`,'',
+    `<button type="button" onclick="closeModal('modal')" class="${B_OUT} w-full sm:w-auto sm:ml-auto ${TAP}">Close</button>`);
+}
+
+/* ---------- Confirmation dialogs (destructive / consequential only) ---------- */
+const nameList=names=>`<div class="flex flex-col gap-2 py-1">${names.map(n=>person(n)).join('')}</div>`;
+function deleteDialog(id){
+  const g=byId(id);
+  dialog('Delete '+g.name+'?',`<p>These students will have no group:</p>${nameList(g.members)}`+
+    (g.proposal?`<p>The proposal “${g.proposal}” will be lost.</p>`:'')+`<p>This can’t be undone.</p>`,
+    'Delete group',true,()=>{closeModal('modal');if(isStudent()){$('roleSel').value='none';render()}showMsg(g.name+' was deleted.','success')});
+}
+function leaveDialog(id){
+  const g=byId(id), lead=isLeader(), last=g.members.length===1;
+  dialog('Leave '+g.name+'?',
+    last?`<p>You’re the last member, so the group will be deleted.</p>`+(g.proposal?`<p>The proposal “${g.proposal}” will be lost.</p>`:'')+`<p>This can’t be undone.</p>`
+        :lead?`<p>${g.members[1]} becomes the leader.</p>`:`<p>You can join another group while formation is open.</p>`,
+    'Leave group',last,()=>{closeModal('modal');$('roleSel').value='none';render();showMsg('You left '+g.name+'.','info')});
+}
+function removeDialog(id,name){
+  dialog('Remove '+name+'?',`<p>${name} will have no group.</p>`,'Remove from group',true,()=>{closeModal('modal');showMsg(name+' was removed from the group.','success')});
+}
+function removeStaffDialog(id,name){
+  const g=byId(id), size=g.members.length, last=size===1, under=size-1<MIN;
+  dialog('Remove '+name+'?',
+    last?`<p>${name} is the last member, so ${g.name} will be deleted.</p>`+(g.proposal?`<p>The proposal “${g.proposal}” will be lost.</p>`:'')
+        :`<p>${g.name} goes from ${size} to ${size-1} members.</p>`+(g.status==='confirmed'&&under?`<p>It becomes <span class="text-gray-900">Not confirmed</span> because it falls below the minimum of ${MIN}.</p>`:''),
+    'Remove from group',true,()=>{closeModal('modal');showMsg(name+' was removed from '+g.name+'.','success')});
+}
+function confirmForLeader(id){
+  const g=byId(id);
+  dialog('Confirm '+g.name+' for its leader?',
+    `<p>${g.name} will show as Confirmed, as if ${g.members[0]} had confirmed it. Members can’t be removed afterwards and the group can submit a proposal.</p><p>${g.members[0]} can still reopen the group.</p>`,
+    'Confirm for leader',false,()=>{closeModal('modal');showMsg(g.name+' was confirmed for '+g.members[0]+'.','success')});
+}
+
+/* ---------- Wiring ---------- */
+function render(){$('msg').innerHTML='';renderRules();renderHead();renderSlot();renderTableHead();renderRows()}
+['roleSel','rulesSel','tableSel'].forEach(id=>$(id).addEventListener('change',render));
+$('search').addEventListener('input',filterRows);
+$('statusSel').addEventListener('change',filterRows);
+$('bellBtn').addEventListener('click',e=>{e.stopPropagation();$('bellPop').classList.toggle('hidden')});
+document.addEventListener('click',e=>{if(!$('bellWrap').contains(e.target))$('bellPop').classList.add('hidden')});
+
+/* Sidebar: collapses to a rail at lg and up, slides in off-canvas below lg */
+const sb=$('sidebar'), scrim=$('scrim');
+const isDesktop=()=>window.matchMedia('(min-width:1024px)').matches;
+function closeSidebar(){sb.classList.add('-translate-x-full');scrim.classList.add('hidden')}
+$('menuBtn').addEventListener('click',()=>{
+  if(isDesktop()){sb.dataset.collapsed=sb.dataset.collapsed==='true'?'false':'true'}
+  else{const closed=sb.classList.contains('-translate-x-full');sb.classList.toggle('-translate-x-full',!closed);scrim.classList.toggle('hidden',!closed)}
+});
+scrim.addEventListener('click',closeSidebar);
+window.addEventListener('resize',()=>{if(isDesktop())closeSidebar()});
+
+/* Mockup controls start collapsed on phones so the first screen shows the real page */
+if(window.matchMedia('(max-width:639px)').matches)$('ctrls').open=false;
+
+renderNav();
+render();
+</script>
+</body>
+</html>

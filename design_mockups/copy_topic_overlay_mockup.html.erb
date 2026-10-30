@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <!--
+    ============================================================================
+    REDESIGN: Step-1 dialog ("Select a Topic to Copy")
+    - Sticky header and footer to keep context and actions always visible.
+    - Softer list item hierarchy: Course name is integrated into the metadata line.
+    - Minimalist dividers and surface-hover states for interactive row definition.
+    - Toggle control properly aligned within the header layout.
+    ============================================================================
+  -->
+  <head>
+    <title>Copy Topic — Select a Topic to Copy | ProPro</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-on-surface: #3c4043;
+        --color-on-surface-strong: #1f1f1f;
+        --color-on-surface-variant: #5f6368;
+        --color-on-surface-disabled: #9aa0a6;
+        --color-on-surface-muted: #747775;
+        --color-surface: #ffffff;
+        --color-surface-tint: #f8fafd;
+        --color-surface-variant: #f1f3f4;
+        --color-surface-hover: #f8f9fa;
+        --color-surface-variant-hover: #e8eaed;
+        --color-surface-variant-deep: #e1e3e1;
+
+        --color-outline: #dadce0;
+        --color-outline-variant: #e0e0e0;
+        --color-outline-soft: #c4c7c5;
+        --color-outline-strong: #c4c4c4;
+
+        --color-primary: #1a73e8;
+        --color-primary-strong: #0b57d0;
+        --color-primary-hover: #1b66c9;
+        --color-primary-container: #e8f0fe;
+        --color-primary-container-alt: #d3e3fd;
+        --color-primary-container-ring: #d2e3fc;
+        --color-primary-soft: #1967d2;
+
+        --color-success: #137333;
+        --color-success-hover: #0f5c29;
+        --color-success-container: #e6f4ea;
+
+        --color-error: #c5221f;
+        --color-error-hover: #a50e0e;
+        --color-error-container: #fce8e6;
+
+        --radius-panel: 28px;
+        --radius-card: 8px;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-surface-tint text-on-surface font-['Roboto',sans-serif] p-8">
+
+    <div class="fixed inset-0 bg-black/40 z-40"></div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  SCENARIO 1 — approved topics present                        ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <dialog open class="relative z-50 m-auto w-full max-w-3xl max-h-[85dvh] p-0 rounded-xl border border-outline-variant shadow-xl bg-white flex flex-col">
+      
+      <!-- Sticky Header -->
+      <div class="flex-none px-6 py-5 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/95 backdrop-blur z-10 sticky top-0 rounded-t-xl">
+        <h3 class="text-lg font-semibold text-on-surface-strong tracking-tight font-['DM_Sans',sans-serif]">
+          Select a Topic to Copy
+        </h3>
+        <div class="flex items-center gap-3">
+          <span class="text-[13px] font-medium text-on-surface-variant">Show all topics from coordinated courses</span>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" value="true" class="sr-only peer" checked>
+            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-success"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Scrollable List -->
+      <div class="flex-grow overflow-y-auto">
+        <div class="flex flex-col divide-y divide-gray-100">
+
+          <!-- Topic Row 1 -->
+          <a href="#" class="group flex items-start sm:items-center justify-between gap-4 p-5 hover:bg-surface-hover transition-colors bg-white cursor-pointer">
+            <div class="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-surface-variant text-success">
+                <span class="material-symbols-outlined text-[20px]">topic</span>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-base font-medium text-on-surface-strong truncate mb-0.5">E-Commerce Web Application</h4>
+                <div class="flex items-center gap-1.5 text-[13px] text-on-surface-muted flex-wrap">
+                  <span class="font-medium text-on-surface-variant">lecturer1</span>
+                  <span>•</span>
+                  <span>Web Engineering</span>
+                  <span>•</span>
+                  <span>Updated 3 days ago</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 ml-4">
+              <span class="bg-success-container text-success px-2.5 py-1 rounded text-xs font-medium tracking-wide">Approved</span>
+            </div>
+          </a>
+
+          <!-- Topic Row 2 -->
+          <a href="#" class="group flex items-start sm:items-center justify-between gap-4 p-5 hover:bg-surface-hover transition-colors bg-white cursor-pointer">
+            <div class="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-surface-variant text-success">
+                <span class="material-symbols-outlined text-[20px]">topic</span>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-base font-medium text-on-surface-strong truncate mb-0.5">AI Chatbot for Student Services</h4>
+                <div class="flex items-center gap-1.5 text-[13px] text-on-surface-muted flex-wrap">
+                  <span class="font-medium text-on-surface-variant">lecturer2</span>
+                  <span>•</span>
+                  <span>Artificial Intelligence</span>
+                  <span>•</span>
+                  <span>Updated 1 week ago</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 ml-4">
+              <span class="bg-success-container text-success px-2.5 py-1 rounded text-xs font-medium tracking-wide">Approved</span>
+            </div>
+          </a>
+
+          <!-- Topic Row 3 -->
+          <a href="#" class="group flex items-start sm:items-center justify-between gap-4 p-5 hover:bg-surface-hover transition-colors bg-white cursor-pointer">
+            <div class="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-surface-variant text-success">
+                <span class="material-symbols-outlined text-[20px]">topic</span>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-base font-medium text-on-surface-strong truncate mb-0.5">Smart Home IoT System</h4>
+                <div class="flex items-center gap-1.5 text-[13px] text-on-surface-muted flex-wrap">
+                  <span class="font-medium text-on-surface-variant">lecturer1</span>
+                  <span>•</span>
+                  <span>Embedded Systems</span>
+                  <span>•</span>
+                  <span>Updated 2 weeks ago</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 ml-4">
+              <span class="bg-success-container text-success px-2.5 py-1 rounded text-xs font-medium tracking-wide">Approved</span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Sticky Footer -->
+      <div class="flex-none px-6 py-4 border-t border-outline-variant bg-surface-hover flex justify-end sticky bottom-0 rounded-b-xl z-10">
+        <button type="button" class="px-5 py-2 text-on-surface-variant hover:bg-surface-variant-deep hover:text-on-surface-strong text-sm font-medium rounded-full transition-colors">
+          Cancel
+        </button>
+      </div>
+    </dialog>
+
+  </body>
+</html>
