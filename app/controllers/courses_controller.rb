@@ -743,7 +743,7 @@ class CoursesController < ApplicationController
   # student submits individually with no group step, so @group being nil there is
   # expected, not an empty state. The grouping_enabled? guard also keeps the
   # "Browse groups" CTA out of reach of students who could not actually open the
-  # page: ProjectGroupsController#index authorizes with CoursePolicy#grouping?,
+  # page: GroupFormationsController#show authorizes with CoursePolicy#grouping?,
   # which requires grouping_enabled? == true for a non-coordinator. A grouped
   # course with self-grouping disabled (groups arrive only via CSV/Moodle import
   # coordinated by staff) would otherwise render the CTA and let a student hit a

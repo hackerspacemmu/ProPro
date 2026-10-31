@@ -33,11 +33,10 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :project_group_invite_links, only: %i[show], param: :token do
-    member do
-      patch :redeem
-    end
+  resources :invite_links, only: :show, param: :token do
+    resource :redemption, only: :create, controller: 'invite_link_redemptions'
   end
+  get 'join/:token', to: redirect('/invite_links/%{token}'), as: :join
 
   resources :courses, only: %i[index show new create destroy] do
     member do
@@ -73,12 +72,16 @@ Rails.application.routes.draw do
       end
     end
 
-    # Course tab routes (route-per-tab, ADR 0019): the People and Groups tabs
-    # are real pages, siblings of courses#show (Overview). `groups` deliberately
-    # coexists with the nested `project_groups` above — different resources,
-    # different helpers.
     resources :people, only: %i[index show]
-    resources :groups, only: %i[index show]
+    resource :group_formation, only: :show
+    resources :groups, only: %i[index show create edit update destroy] do
+      resource  :confirmation,  only: %i[create destroy], controller: 'group_confirmations'
+      resource  :leader,        only: :update,            controller: 'group_leaders'
+      resource  :invite_link,   only: :create,            controller: 'group_invite_links'
+      resources :members,       only: %i[create destroy], controller: 'group_members'
+      resources :join_requests, only: %i[create update],  controller: 'group_join_requests'
+      resources :invitations,   only: %i[create update],  controller: 'group_invitations'
+    end
 
     resources :lecturers, only: %i[index show] do
       member do
@@ -96,33 +99,6 @@ Rails.application.routes.draw do
     end
 
     resource :project_template, only: %i[edit update show]
-
-    resources :project_groups, only: %i[index create destroy] do
-      member do
-        patch :confirm
-        patch :revert
-        patch :lock
-        patch :unlock
-        patch :promote_leader
-        patch :join
-        patch :generate_invite_link
-      end
-
-      collection do
-        patch :update_settings
-      end
-      
-      resources :project_group_invites, only: %i[create] do
-        collection do
-          post :direct_invite
-        end
-        member do
-          patch :accept
-          patch :decline
-        end
-      end
-      resources :members, only: %i[create destroy], controller: 'project_group_members'
-    end
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -130,6 +106,11 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get 'up' => 'rails/health#show', as: :rails_health_check
+
+  # Legacy GET redirects. Remove after one release.
+  get '/courses/:course_id/project_groups', to: redirect('/courses/%{course_id}/group_formation'), as: nil
+  get '/project_group_invite_links/:token', to: redirect('/invite_links/%{token}'), as: nil
+
   match '/404', to: 'errors#not_found', via: :all
   match '/500', to: 'errors#internal_server_error', via: :all
   match '/401', to: 'errors#unauthorized', via: :all

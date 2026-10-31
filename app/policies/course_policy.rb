@@ -79,10 +79,6 @@ class CoursePolicy < ApplicationPolicy
     enrolment.present? && record.grouping_enabled?
   end
 
-  def grouping_coordinator?
-    coordinator
-  end
-
   private
 
   def coordinator

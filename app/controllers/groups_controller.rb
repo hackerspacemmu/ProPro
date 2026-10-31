@@ -8,8 +8,9 @@ class GroupsController < ApplicationController
   include CoursesHelper
 
   before_action :set_course
-  before_action :authorize_course
-  before_action :ensure_grouped
+  before_action :authorize_course, only: %i[index show]
+  before_action :ensure_grouped, only: %i[index show]
+  before_action :set_group, only: %i[show edit update destroy]
 
   def index
     # Same preload the old courses#show carried: one query feeding the
@@ -56,12 +57,66 @@ class GroupsController < ApplicationController
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
-    @group = @course.project_groups.find(params[:id])
     @members = @group.project_group_members.includes(:user)
     @project = group_project_for(@group, @projects_by_owner)
     @status = group_status(@group, @projects_by_owner)
     @current_instance = @project&.current_instance
     @supervisor = @project&.supervisor if @project
+  end
+
+  def edit
+    authorize @group, :update?
+  end
+
+  def create
+    @group = @course.project_groups.build
+    authorize @group, :create?
+
+    leader = policy(@course).manage_groups? ? @course.students.find(params.expect(:user_id)) : current_user
+    result = GroupCreator.new(@course, leader: leader, current_user: current_user).create!
+
+    if result.created?
+      redirect_to course_group_formation_path(@course), notice: result.message
+    else
+      redirect_to course_group_formation_path(@course), alert: result.message
+    end
+  end
+
+  def update
+    authorize @group, :update?
+
+    attrs = params.expect(project_group: [:locked])
+    locked = ActiveModel::Type::Boolean.new.cast(attrs[:locked])
+
+    if locked && @group.leader_id.blank?
+      redirect_to course_group_formation_path(@course), alert: 'Assign a leader before locking this group.'
+      return
+    end
+
+    begin
+      @group.update!(locked: locked)
+    rescue StandardError => e
+      redirect_to course_group_formation_path(@course), alert: e.message
+      return
+    end
+
+    redirect_to course_group_formation_path(@course),
+                notice: locked ? 'Group is now locked.' : 'Group is now open to join.'
+  end
+
+  def destroy
+    authorize @group, :destroy?
+
+    begin
+      ActiveRecord::Base.transaction do
+        @group.destroy!
+      end
+    rescue StandardError => e
+      redirect_to course_group_formation_path(@course), alert: e.message
+      return
+    end
+
+    redirect_to course_group_formation_path(@course), notice: 'Group dissolved.'
   end
 
   private
@@ -77,5 +132,9 @@ class GroupsController < ApplicationController
 
   def ensure_grouped
     raise ActiveRecord::RecordNotFound unless @course.grouped?
+  end
+
+  def set_group
+    @group = @course.project_groups.find(params[:id])
   end
 end

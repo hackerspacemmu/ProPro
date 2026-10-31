@@ -30,7 +30,7 @@
             heading: "You're not in a group yet",
             description: "Join or create a group before you can put together a project proposal.",
             cta_label: "Browse groups",
-            cta_path: course_project_groups_path(@course) %>  <%# E2 %>
+            cta_path: course_group_formation_path(@course) %>  <%# E2 %>
     <% when :no_proposal %>
       <%= render "shared/empty_state",
             heading: "No proposal submitted yet",

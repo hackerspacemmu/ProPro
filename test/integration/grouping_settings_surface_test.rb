@@ -11,7 +11,7 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
   end
 
   test 'coordinator sees the grouping workspace status bar and the settings link' do
-    get course_project_groups_path(@course)
+    get course_group_formation_path(@course)
 
     assert_response :success
     assert_match 'Grouping settings', response.body
@@ -31,7 +31,7 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
   test 'a student sees the workspace without the settings link' do
     sign_in @student
 
-    get course_project_groups_path(@course)
+    get course_group_formation_path(@course)
 
     assert_response :success
     assert_match 'Default mode', response.body

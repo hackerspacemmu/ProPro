@@ -122,7 +122,7 @@ crumb :topic do |topic|
   end
 end
 
-crumb :project_groups do |course|
-  link 'Project Groups', course_project_groups_path(course)
+crumb :group_formation do |course|
+  link 'Group formation', course_group_formation_path(course)
   parent :course, course
 end

@@ -1,6 +1,6 @@
 <%# --- Disables footer --- %>
 <% content_for :no_footer, true %>
-<% breadcrumb :project_groups, @course %>
+<% breadcrumb :group_formation, @course %>
 
 <div id="flash">
   <%= render "courses/flash" %>
@@ -149,8 +149,7 @@
                 Students can be added after creation.
               </p>
 
-              <%= form_with url: course_project_groups_path(@course), method: :post, data: { turbo_stream: true } do %>
-                <%= hidden_field_tag :coordinator_create, "1" %>
+              <%= form_with url: course_groups_path(@course), method: :post, data: { turbo_stream: true } do %>
                 <%= hidden_field_tag :user_id, "", data: { combobox_modal_target: "hiddenInput" } %>
 
                 <div class="relative mb-3">

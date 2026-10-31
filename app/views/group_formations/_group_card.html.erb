@@ -69,14 +69,14 @@
         <% elsif group.locked? %>
           <% if policy(group).request_to_join? %>
             <%= button_to "Request to join",
-                  course_project_group_project_group_invites_path(course, group),
+                  course_group_join_requests_path(course, group),
                   method: :post,
                   class: "text-xs font-medium px-2.5 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" %>
           <% end %>
         <% elsif policy(group).join? %>
           <%= button_to "Join",
-                join_course_project_group_path(course, group),
-                method: :patch,
+                course_group_members_path(course, group),
+                method: :post,
                 class: "text-xs font-medium px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white transition-colors" %>
         <% end %>
       <% end %>
@@ -84,14 +84,14 @@
       <%# Confirm / Revert — top right, as requested %>
       <% if policy(group).confirm? && !group.confirmed? %>
         <%= button_to "Confirm",
-              confirm_course_project_group_path(course, group),
-              method: :patch,
+              course_group_confirmation_path(course, group),
+              method: :post,
               class: "text-xs font-medium px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white transition-colors",
               form: { data: { turbo_confirm: "Confirm #{group.group_name.presence || 'this group'}? Members can no longer be kicked once confirmed." } } %>
       <% elsif policy(group).revert? && group.confirmed? %>
         <%= button_to "Revert",
-              revert_course_project_group_path(course, group),
-              method: :patch,
+              course_group_confirmation_path(course, group),
+              method: :delete,
               class: "text-xs font-medium px-2.5 py-1 rounded-md border border-emerald-300 text-emerald-800 hover:bg-emerald-100 transition-colors" %>
       <% end %>
     </div>
@@ -145,7 +145,7 @@
               will_dissolve_with_data = member_count == 1 && group.project.present?
             %>
             <div class="opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0 self-start pt-0.5">
-              <%= button_to course_project_group_member_path(course, group, membership),
+              <%= button_to course_group_member_path(course, group, membership),
                   method: :delete,
                   class: "text-[11px] text-red-400 hover:text-red-600 transition-colors",
                   form: {
@@ -190,7 +190,7 @@
                       class="text-gray-400 hover:text-gray-600 text-sm" aria-label="Close">✕</button>
             </div>
 
-            <%= form_with url: course_project_group_members_path(course, group), method: :post do %>
+            <%= form_with url: course_group_members_path(course, group), method: :post do %>
               <%= hidden_field_tag :user_id, "", data: { combobox_modal_target: "hiddenInput" } %>
 
               <div class="relative mb-3">

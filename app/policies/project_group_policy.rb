@@ -12,9 +12,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def create?
-    return true if coordinator?
-
-    enrolment.present? && enrolment.student?
+    staff? || student?
   end
 
   def confirm?
@@ -35,14 +33,7 @@ class ProjectGroupPolicy < ApplicationPolicy
     grouping_window_open? && record.leader_id == user.id
   end
 
-  def lock?
-    return true if coordinator?
-
-    grouping_window_open? &&
-      record.leader_id == user.id && !record.confirmed?
-  end
-
-  def unlock?
+  def update?
     return true if coordinator?
 
     grouping_window_open? &&
@@ -73,6 +64,14 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   private
+
+  def staff?
+    manage_groups_policy.manage_groups?
+  end
+
+  def student?
+    enrolment&.student?
+  end
 
   def current_user_in_any_group?
     ProjectGroupMember.joins(:project_group)

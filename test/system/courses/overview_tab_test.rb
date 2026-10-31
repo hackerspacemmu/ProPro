@@ -80,7 +80,7 @@ class OverviewTabTest < ApplicationSystemTestCase
     assert_text "You're not in a group yet"
 
     click_link 'Browse groups'
-    assert_current_path course_project_groups_path(@course)
+    assert_current_path course_group_formation_path(@course)
   end
 
   test 'student in a grouped course with grouping disabled and no group gets the create-proposal copy' do

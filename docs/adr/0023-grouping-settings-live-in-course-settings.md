@@ -87,8 +87,9 @@ panel is deleted, and the mode vocabulary is fixed.
 
 ## Known debt (out of scope, listed only)
 
-- `project_groups#update_settings` should be deleted along with its
-  route (`patch :update_settings`).
+- ~~`project_groups#update_settings` should be deleted along with its
+  route (`patch :update_settings`).~~ Resolved by ADR 0025: the route
+  and action are deleted.
 - The grouping workspace page still carries the pre-redesign markup;
   only its settings panel was removed. A restyle to the current design
   system is separate work.
@@ -101,4 +102,4 @@ panel is deleted, and the mode vocabulary is fixed.
 - `app/services/queries/group_size_confirmability_calculator.rb` — the
   two modes' rules, and the source of the "Auto-Confirmability" name
 - `app/views/courses/settings.html.erb` — the Grouping section
-- `app/views/project_groups/index.html.erb` — the status bar
+- `app/views/group_formations/show.html.erb` — the status bar

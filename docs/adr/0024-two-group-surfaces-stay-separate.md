@@ -67,13 +67,21 @@ The naming overlap is accepted, not fixed, in this pass.
   among ~35 non-canonical routes left alone; this ADR makes the naming
   half of that deliberate.
 
+## Addendum (2026-10-31)
+
+The workspace's route is now `/courses/:course_id/group_formation`
+(`group_formations#show`), with resourceful writes on `groups`
+(ADR 0025). The old `/project_groups` GET redirects there for one
+release. The two surfaces still stay separate.
+
 ## References
 
 - ADR 0019 — course tabs are routes
 - ADR 0022 — project and topic tabs are routes; participant profiles
   are routes (its "known debt" list names this overlap)
 - ADR 0023 — grouping settings live only in Course Settings
+- ADR 0025 — group formation routes are resourceful
 - `app/controllers/groups_controller.rb` and
   `app/views/courses/_groups_tab.html.erb` — the Groups tab
-- `app/controllers/project_groups_controller.rb` and
-  `app/views/project_groups/index.html.erb` — the grouping workspace
+- `app/controllers/group_formations_controller.rb` and
+  `app/views/group_formations/show.html.erb` — the grouping workspace

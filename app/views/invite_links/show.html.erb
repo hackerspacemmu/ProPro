@@ -18,8 +18,8 @@
       </p>
 
       <%= button_to "Accept invite",
-            redeem_project_group_invite_link_path(@invite_link.token),
-            method: :patch,
+            invite_link_redemption_path(@invite_link.token),
+            method: :post,
             class: "w-full bg-[#1F78D1] text-white text-sm font-medium rounded-[3px] py-2.5 hover:bg-[#1a6abf] transition-colors" %>
     </div>
   </div>

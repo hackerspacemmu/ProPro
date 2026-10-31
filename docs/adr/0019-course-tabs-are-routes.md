@@ -96,6 +96,13 @@ Drive links — the URL is the source of truth.
   `KeyboardEvent` on `window` because OS-level `send_keys` drops keys when the
   window is unfocused (same finding as ADR 0007's Escape dispatch).
 
+## Addendum (2026-10-31)
+
+The grouping workspace is a singular route beside the tabs:
+`resource :group_formation` serves `/courses/:course_id/group_formation`
+(ADR 0025). The Groups tab remains `groups#index` at
+`/courses/:course_id/groups`; the workspace is not a tab.
+
 ## References
 
 - ADR 015 — server-rendered fragment swapping (htmx) for filter updates

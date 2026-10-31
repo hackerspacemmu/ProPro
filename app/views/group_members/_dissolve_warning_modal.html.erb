@@ -59,7 +59,7 @@
         Cancel
       </button>
       <%= button_to "Confirm remove",
-            course_project_group_member_path(member.project_group.course, member.project_group, member),
+            course_group_member_path(member.project_group.course, member.project_group, member),
             method: :delete,
             params: { dissolve_confirmed: true },
             form: { data: { turbo_stream: true } },
