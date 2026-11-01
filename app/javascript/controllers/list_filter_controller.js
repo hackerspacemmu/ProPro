@@ -38,7 +38,8 @@ export default class extends Controller {
       const textMatch = query.length === 0 || text.includes(query);
       const tagMatch = selected === "all" || tags.includes(selected);
       const match = textMatch && tagMatch;
-      const show = match && (this.limitValue === 0 || visible < this.limitValue);
+      const show =
+        match && (this.limitValue === 0 || visible < this.limitValue);
 
       item.classList.toggle("hidden", !show);
       if (match) matched += 1;
@@ -49,14 +50,21 @@ export default class extends Controller {
 
     if (this.hasShownTarget) this.shownTarget.textContent = visible;
     if (this.hasTotalTarget) this.totalTarget.textContent = matched;
-    if (this.hasNoMatchTarget) this.noMatchTarget.classList.toggle("hidden", !hasItems || matched > 0);
-    if (this.hasEmptyTarget) this.emptyTarget.classList.toggle("hidden", hasItems);
-    if (this.hasContainerTarget) this.containerTarget.classList.toggle("hidden", visible === 0);
+    if (this.hasNoMatchTarget)
+      this.noMatchTarget.classList.toggle("hidden", !hasItems || matched > 0);
+    if (this.hasEmptyTarget)
+      this.emptyTarget.classList.toggle("hidden", hasItems);
+    if (this.hasContainerTarget)
+      this.containerTarget.classList.toggle("hidden", visible === 0);
 
     this.element.dispatchEvent(
       new CustomEvent("list-filter:change", {
         bubbles: true,
-        detail: { active: query.length > 0 || selected !== "all", visible, total: matched },
+        detail: {
+          active: query.length > 0 || selected !== "all",
+          visible,
+          total: matched,
+        },
       }),
     );
   }

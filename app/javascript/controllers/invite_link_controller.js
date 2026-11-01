@@ -9,7 +9,8 @@ export default class extends Controller {
 
     const restore = () => {
       if (!this.hasButtonTarget) return;
-      this.buttonTarget.textContent = this.buttonTarget.dataset.originalLabel || "Copy link";
+      this.buttonTarget.textContent =
+        this.buttonTarget.dataset.originalLabel || "Copy link";
     };
 
     if (this.hasButtonTarget) {

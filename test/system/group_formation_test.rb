@@ -80,7 +80,7 @@ class GroupFormationTest < BrowserSystemTestCase
   def search_for(query)
     page.execute_script(
       "const input = document.querySelector('#formation-search');" \
-      "input.value = arguments[0];" \
+      'input.value = arguments[0];' \
       "input.dispatchEvent(new Event('input', { bubbles: true }));",
       query
     )

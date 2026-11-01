@@ -41,11 +41,14 @@ export default class extends Controller {
 
     this.titleTarget.textContent = title;
     this.bodyTarget.replaceChildren(
-      ...body.split("\n\n").filter(Boolean).map((text) => {
-        const p = document.createElement("p");
-        p.textContent = text;
-        return p;
-      }),
+      ...body
+        .split("\n\n")
+        .filter(Boolean)
+        .map((text) => {
+          const p = document.createElement("p");
+          p.textContent = text;
+          return p;
+        }),
     );
     this.bodyTarget.classList.toggle("hidden", body.length === 0);
     this.okTarget.textContent = okLabel;

@@ -74,7 +74,11 @@ export default class extends Controller {
     if (!row || !detail) return;
 
     const toggle = row.querySelector("[data-row-toggle]");
-    if (toggle) toggle.setAttribute("aria-expanded", detail.classList.contains("hidden") ? "false" : "true");
+    if (toggle)
+      toggle.setAttribute(
+        "aria-expanded",
+        detail.classList.contains("hidden") ? "false" : "true",
+      );
   }
 
   syncToggleAll() {
