@@ -16,7 +16,8 @@
 <% else %>
   <div id="formation-groups"
        class="sm:overflow-x-auto sm:rounded-lg sm:border sm:border-outline-variant"
-       data-controller="expandable-rows">
+       data-controller="expandable-rows"
+       data-action="turbo:before-morph-element->expandable-rows#preserveExpansion turbo:morph@document->expandable-rows#syncToggleAll">
     <table class="w-full table-fixed max-sm:block">
       <thead class="bg-surface max-sm:hidden">
         <tr>
@@ -86,11 +87,9 @@
                 </span>
                 <span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5">
                   <span class="text-sm text-on-surface-muted"><%= course.group_max.present? ? "#{count} of #{course.group_max} members" : pluralize(count, "member") %></span>
-                  <% if invalid %>
-                    <span class="material-symbols-outlined shrink-0 text-[16px] leading-none text-warning" role="img" aria-label="Invalid size">warning</span>
-                  <% end %>
                 </span>
               </button>
+              <%= render "group_formations/size_warning", group: group, course: course %>
             </td>
 
             <td class="<%= td %> text-right sm:text-left max-sm:order-2 max-sm:justify-self-end">

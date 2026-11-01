@@ -8,11 +8,11 @@
   <% end %>
 
   <dialog data-modal-target="dialog"
-          data-action="click->modal#backdropClose close->modal#reset"
+          data-action="click->modal#backdropClose close->modal#reset turbo:before-morph-attribute->modal#preserveOpen"
           aria-label="Manage <%= group_name %>"
           class="<%= GroupFormationsHelper::GROUP_DIALOG %>">
     <div class="<%= GroupFormationsHelper::GROUP_DIALOG_PANEL %>">
-      <%= turbo_frame_tag dom_id(group, :manage), target: "_top", data: { modal_target: "frame" }, class: "flex min-h-0 flex-1 flex-col" do %>
+      <%= turbo_frame_tag dom_id(group, :manage), target: "_top", refresh: "morph", data: { modal_target: "frame" }, class: "flex min-h-0 flex-1 flex-col" do %>
         <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
           <h2 class="<%= GroupFormationsHelper::GROUP_DIALOG_TITLE %>"><%= group_name %></h2>
           <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_DIALOG_CLOSE %>" aria-label="Close">

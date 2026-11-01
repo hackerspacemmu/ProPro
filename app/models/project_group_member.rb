@@ -1,4 +1,4 @@
 class ProjectGroupMember < ApplicationRecord
   belongs_to :user
-  belongs_to :project_group
+  belongs_to :project_group, touch: true
 end

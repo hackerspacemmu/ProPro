@@ -1,6 +1,4 @@
 class GroupMembersController < ApplicationController
-  include ActionView::RecordIdentifier
-
   before_action :set_course
   before_action :set_group
 
@@ -29,10 +27,6 @@ class GroupMembersController < ApplicationController
 
     authorize member, :destroy?
 
-    removed_student = member.user
-    member_dom_id = dom_id(member)
-    group_dom_id = dom_id(member.project_group)
-
     result = GroupMemberRemover.new(
       member,
       current_user: current_user,
@@ -48,26 +42,10 @@ class GroupMembersController < ApplicationController
       return
     end
 
-    respond_to do |format|
-      format.turbo_stream do
-        if result.blocked?
-          render turbo_stream: turbo_stream.remove('dissolve-warning-modal')
-        else
-          removed_node = result.dissolved? ? group_dom_id : member_dom_id
-          render turbo_stream: [
-            turbo_stream.remove(removed_node),
-            turbo_stream.append('ungrouped-students-list',
-                                partial: 'group_formations/ungrouped_student',
-                                locals: { student: removed_student }),
-            turbo_stream.remove('dissolve-warning-modal')
-          ]
-        end
-      end
-      format.html do
-        redirect_back fallback_location: course_group_formation_path(@course),
-                      **(result.blocked? ? { alert: result.message } : { notice: result.message })
-      end
-    end
+    # Turbo morphs the refreshed page and reloads its open management frame.
+    # The redirect also handles browsers without a live stream connection.
+    redirect_back fallback_location: course_group_formation_path(@course), status: :see_other,
+                  **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private

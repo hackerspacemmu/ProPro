@@ -22,6 +22,13 @@ export default class extends Controller {
     this.dialogTarget.close();
   }
 
+  preserveOpen(event) {
+    // A live page refresh should update the loaded frame without closing it.
+    if (event.target === this.dialogTarget && event.detail.attributeName === "open") {
+      event.preventDefault();
+    }
+  }
+
   reset() {
     if (!this.hasFrameTarget) return;
 

@@ -1,0 +1,7 @@
+<%# locals: (group:, course:) %>
+<% if (warning = group_size_warning(group, course)).present? %>
+  <p class="mt-2 flex items-start gap-1.5 text-sm leading-5 text-warning-strong" role="status" data-group-size-warning>
+    <span class="material-symbols-outlined mt-0.5 shrink-0 text-[16px] leading-none" aria-hidden="true">warning</span>
+    <span class="min-w-0 break-words"><%= warning %></span>
+  </p>
+<% end %>

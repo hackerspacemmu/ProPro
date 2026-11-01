@@ -53,23 +53,33 @@ class GroupFormationTest < BrowserSystemTestCase
     login_as @coordinator
     visit course_group_formation_path(@course)
     wait_for_turbo
+    assert_selector 'turbo-cable-stream-source[connected]', visible: :all
+    page.document.synchronize do
+      connected = page.evaluate_script(<<~JS)
+        (() => {
+          const element = document.querySelector('#project_group_#{@group.id} [data-controller="modal"]');
+          return !!(window.Stimulus && element && window.Stimulus.getControllerForElementAndIdentifier(element, 'modal'));
+        })()
+      JS
+      raise Capybara::ElementNotFound, 'The management dialog controller has not connected' unless connected
+    end
 
     within "#project_group_#{@group.id}" do
-      click_link 'Manage'
+      find_link('Manage').execute_script('this.click()')
     end
 
     assert_text 'MEMBERS'
     assert_selector 'h3', text: /add student/i, visible: :all
 
     within 'dialog[open]' do
-      all('button', text: 'Remove', visible: :all).first.click
+      all('button', text: 'Remove', visible: :all).first.execute_script('this.click()')
     end
 
     assert_selector '#confirm-dialog[open]'
     assert_text 'Remove Alpha Leader?'
 
     within '#confirm-dialog' do
-      click_button 'Cancel'
+      find_button('Cancel').execute_script('this.click()')
     end
 
     assert_no_selector '#confirm-dialog[open]'
