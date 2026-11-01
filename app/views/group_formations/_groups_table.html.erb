@@ -1,0 +1,152 @@
+<%# locals: (course:, groups:, my_group:, requested_group_ids:, filters_active:, list_state:, total_count:, displayed_count:, show_all:) %>
+<% manage = policy(course).manage_groups? %>
+<% th = "border-b border-outline-variant px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-on-surface-variant select-none lg:px-4" %>
+<% td = "border-t border-outline-variant px-3 py-4 align-middle lg:px-4 max-sm:block max-sm:border-0 max-sm:p-0" %>
+
+<% if groups.blank? %>
+  <div id="formation-groups" class="rounded-lg py-14 text-center <%= "border border-outline-variant" if list_state != :no_matches %>">
+    <% if list_state == :no_matches %>
+      <p class="text-base font-medium text-on-surface-strong">No groups match your current filters.</p>
+      <p class="mt-1 text-sm text-on-surface-variant">Try adjusting your search or filters.</p>
+    <% else %>
+      <p class="text-base font-medium text-on-surface-strong">No groups yet</p>
+      <p class="mt-1 text-sm text-on-surface-variant">Groups will appear here once they are created.</p>
+    <% end %>
+  </div>
+<% else %>
+  <div id="formation-groups"
+       class="sm:overflow-x-auto sm:rounded-lg sm:border sm:border-outline-variant"
+       data-controller="expandable-rows">
+    <table class="w-full table-fixed max-sm:block">
+      <thead class="bg-surface max-sm:hidden">
+        <tr>
+          <th class="w-[14%] <%= th %>">Group</th>
+          <th class="w-[34%] <%= th %>">
+            <button type="button" data-expandable-toggle-all class="inline-flex cursor-pointer items-center gap-1">
+              MEMBERS
+              <span data-expandable-all-icon class="material-symbols-outlined text-[16px] text-on-surface-variant transition-all">unfold_more</span>
+              <span data-expandable-all-label class="sr-only">Expand all</span>
+            </button>
+          </th>
+          <th class="w-[24%] <%= th %>">Status</th>
+          <th class="w-[28%] <%= th %>"><span class="sr-only">Action</span></th>
+        </tr>
+      </thead>
+
+      <% groups.each do |group| %>
+        <% members = leader_first(group.project_group_members.to_a, group) %>
+        <% count = members.size %>
+        <% invalid = group_size_state(group, course) != :ok %>
+        <% expanded = filters_active %>
+        <% own = my_group&.id == group.id %>
+
+        <% action = capture do %>
+          <% if my_group.nil? && policy(group).join? %>
+            <% label = group.locked? ? "Request to join" : "Join" %>
+            <% if group.confirmed? %>
+              <button type="button" disabled class="<%= GroupFormationsHelper::GROUP_ROW_DISABLED_BUTTON %>"><%= label %></button>
+            <% elsif group_full?(group, course) %>
+              <span class="text-[13px] text-on-surface-muted">Full</span>
+            <% elsif requested_group_ids.include?(group.id) %>
+              <span class="text-[13px] text-on-surface-muted">Request sent</span>
+            <% elsif group.locked? %>
+              <%= button_to label, course_group_join_requests_path(course, group), method: :post,
+                    form: { class: "max-sm:w-full" }, class: GroupFormationsHelper::GROUP_ROW_BUTTON %>
+            <% else %>
+              <%= button_to label, course_group_members_path(course, group), method: :post,
+                    form: { class: "max-sm:w-full" }, class: GroupFormationsHelper::GROUP_ROW_BUTTON %>
+            <% end %>
+          <% end %>
+          <% if manage %>
+            <%= render "group_formations/manage_dialog", group: group, course: course, leader: false %>
+          <% end %>
+        <% end %>
+
+        <tbody id="<%= dom_id(group) %>"
+               class="max-sm:mb-3 max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-2 max-sm:rounded-card max-sm:border max-sm:p-4 <%= invalid ? "bg-warning-container-alt max-sm:border-warning-border" : "max-sm:border-outline-variant max-sm:bg-surface" %>">
+          <tr data-row-id="<%= group.id %>" class="cursor-pointer transition-colors max-sm:contents <%= "hover:bg-surface-hover" unless invalid %>">
+            <td class="<%= td %> text-sm max-sm:order-1">
+              <div class="break-words font-medium text-on-surface-strong"><%= group.group_name.presence || "Unnamed group" %></div>
+              <% if own %><div class="text-xs text-on-surface-muted">Your group</div><% end %>
+            </td>
+
+            <td class="<%= td %> max-sm:order-3 max-sm:col-span-full">
+              <button type="button"
+                      data-row-toggle
+                      aria-expanded="<%= expanded %>"
+                      aria-controls="<%= dom_id(group, :detail) %>"
+                      class="flex w-full min-w-0 cursor-pointer items-center gap-3 rounded-md text-left max-sm:min-h-11">
+                <span class="flex shrink-0 -space-x-1.5 sm:hidden xl:flex">
+                  <% members.first(3).each do |member| %>
+                    <span class="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-surface bg-surface-variant-deep text-[11px] font-medium text-on-surface" title="<%= member.user.name %>"><%= member.user.name.presence&.first&.upcase || "?" %></span>
+                  <% end %>
+                  <% if count > 3 %>
+                    <span class="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-surface bg-surface-variant-deep text-[10px] font-medium text-on-surface">+<%= count - 3 %></span>
+                  <% end %>
+                </span>
+                <span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5">
+                  <span class="text-sm text-on-surface-muted"><%= course.group_max.present? ? "#{count} of #{course.group_max} members" : pluralize(count, "member") %></span>
+                  <% if invalid %>
+                    <span class="material-symbols-outlined shrink-0 text-[16px] leading-none text-warning" role="img" aria-label="Invalid size">warning</span>
+                  <% end %>
+                </span>
+              </button>
+            </td>
+
+            <td class="<%= td %> text-right sm:text-left max-sm:order-2 max-sm:justify-self-end">
+              <%= render "group_formations/status_pill", confirmed: group.confirmed? %>
+            </td>
+
+            <td class="<%= td %> text-sm max-sm:order-5 max-sm:col-span-full">
+              <div class="flex items-center justify-between gap-2">
+                <% if action.present? %>
+                  <div class="flex items-center gap-2 max-sm:flex-1 max-sm:flex-col max-sm:items-stretch" data-expandable-ignore>
+                    <%= action %>
+                  </div>
+                <% end %>
+                <span data-row-chevron class="material-symbols-outlined ml-auto shrink-0 text-[20px] text-on-surface-muted transition-transform duration-200 <%= "rotate-180" if expanded %>">expand_more</span>
+              </div>
+            </td>
+          </tr>
+
+          <%# Do NOT add max-sm:block / any display utility here: it overrides `hidden` (bug 1). %>
+          <tr id="<%= dom_id(group, :detail) %>"
+              data-detail-row-id="<%= group.id %>"
+              class="<%= expanded ? "" : "hidden" %> <%= "bg-surface-hover/50" unless invalid %> max-sm:order-4 max-sm:col-span-full max-sm:border-t max-sm:border-outline-variant max-sm:bg-transparent max-sm:pt-3">
+            <td colspan="4" class="border-t border-surface-variant px-3 py-4 lg:px-4 max-sm:block max-sm:border-0 max-sm:p-0">
+              <div class="flex flex-col gap-4 sm:pl-[10%]">
+                <% members.each do |member| %>
+                  <div id="<%= dom_id(member) %>" class="min-w-0">
+                    <%= render "shared/person", name: member.user.name.presence || member.user.email_address, tag: (member.user_id == group.leader_id ? "Leader" : nil) %>
+                  </div>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      <% end %>
+    </table>
+
+    <% if total_count.positive? %>
+      <div class="flex items-center justify-between gap-2 py-2 text-sm text-on-surface-muted sm:border-t sm:border-outline-variant sm:bg-surface sm:px-4 sm:py-3">
+        <span>
+          Showing <span class="font-semibold text-on-surface"><%= displayed_count %></span>
+          of <span class="font-semibold text-on-surface"><%= total_count %></span> groups
+        </span>
+
+        <% if !show_all && total_count > displayed_count %>
+          <button type="button"
+                  class="<%= GroupFormationsHelper::GROUP_TEXT_BUTTON %>"
+                  hx-get="<%= course_group_formation_url(course) %>"
+                  hx-target="#formation-groups"
+                  hx-swap="outerHTML"
+                  hx-include="#formation-search, #formation-status-filter"
+                  hx-vals='{"show_all": "true"}'
+                  hx-indicator="#formation-loading">
+            Show all <%= total_count %>
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

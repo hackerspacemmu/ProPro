@@ -1,0 +1,32 @@
+<%# locals: (students:, url:) %>
+<div data-controller="modal" class="w-full md:w-auto">
+  <button type="button" data-action="modal#open" class="<%= GroupFormationsHelper::GROUP_TONAL_BUTTON %> w-full md:w-auto">Create group</button>
+
+  <dialog data-modal-target="dialog"
+          data-action="click->modal#backdropClose"
+          aria-labelledby="create-group-dialog-title"
+          class="<%= GroupFormationsHelper::GROUP_DIALOG %>">
+    <div class="<%= GroupFormationsHelper::GROUP_DIALOG_PANEL %>">
+      <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
+        <h2 id="create-group-dialog-title" class="<%= GroupFormationsHelper::GROUP_DIALOG_TITLE %>">Create group</h2>
+        <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_DIALOG_CLOSE %>" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="<%= GroupFormationsHelper::GROUP_DIALOG_BODY %>">
+        <div class="pb-4">
+          <p class="mb-2 text-[13px] text-on-surface-muted">Pick the first student. They become the leader.</p>
+          <%= render "group_formations/student_picker",
+                     students: students,
+                     verb: "Create",
+                     url: url %>
+        </div>
+      </div>
+
+      <div class="<%= GroupFormationsHelper::GROUP_DIALOG_FOOTER %>">
+        <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_OUTLINE_BUTTON %> w-full sm:ml-auto sm:w-auto">Close</button>
+      </div>
+    </div>
+  </dialog>
+</div>

@@ -1,0 +1,26 @@
+<%# locals: (group:, course:, leader: false, label: nil) %>
+<% group_name = group.group_name.presence || "Unnamed group" %>
+<div data-controller="modal" class="max-sm:w-full">
+  <%= link_to edit_course_group_path(course, group),
+        data: { turbo_frame: dom_id(group, :manage), action: "modal#open" },
+        class: "#{leader ? GroupFormationsHelper::GROUP_TEXT_BUTTON : GroupFormationsHelper::GROUP_SMALL_BUTTON} max-sm:w-full" do %>
+    <%= label || (leader ? "Manage group" : "Manage") %>
+  <% end %>
+
+  <dialog data-modal-target="dialog"
+          data-action="click->modal#backdropClose close->modal#reset"
+          aria-label="Manage <%= group_name %>"
+          class="<%= GroupFormationsHelper::GROUP_DIALOG %>">
+    <div class="<%= GroupFormationsHelper::GROUP_DIALOG_PANEL %>">
+      <%= turbo_frame_tag dom_id(group, :manage), target: "_top", data: { modal_target: "frame" }, class: "flex min-h-0 flex-1 flex-col" do %>
+        <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
+          <h2 class="<%= GroupFormationsHelper::GROUP_DIALOG_TITLE %>"><%= group_name %></h2>
+          <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_DIALOG_CLOSE %>" aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <p class="px-4 py-10 text-center text-sm text-on-surface-muted sm:px-6">Loading…</p>
+      <% end %>
+    </div>
+  </dialog>
+</div>

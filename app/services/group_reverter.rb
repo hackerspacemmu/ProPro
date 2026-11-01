@@ -3,7 +3,7 @@ class GroupReverter
     @group = group
   end
 
-  # Leader reverts a confirmed group back to draft if the grouping window is open.
+  # Leader reverts a confirmed group to not confirmed if the grouping window is open.
   def revert!
     @group.with_lock do
       course = @group.course
@@ -35,8 +35,8 @@ class GroupReverter
     def message
       case blocked_reason
       when :window_closed then 'The grouping window is closed.'
-      when :already_draft then 'This group is already a draft.'
-      when nil then 'Group reverted to draft.'
+      when :already_draft then 'This group is already a Not Confirmed Group.'
+      when nil then 'Group status changed to not confirmed.'
       end
     end
   end

@@ -55,7 +55,7 @@ class GroupCreator
     def blocked? = !created?
 
     def message
-      return "Draft group #{group.group_name} created." if created?
+      return "Not Confirmed Group #{group.group_name} created." if created?
 
       case blocked_reason
       when :window_closed then 'The grouping window is closed.'

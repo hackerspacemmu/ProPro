@@ -65,7 +65,12 @@ class GroupsController < ApplicationController
   end
 
   def edit
-    authorize @group, :update?
+    authorize @group, :edit?
+
+    @incoming_join_requests = @group.project_group_invites.pending_for_group(@group).where(kind: :direct_request)
+    @my_group_invite_token = @group.project_group_invite_links.find_by(sender: current_user)&.token
+    @my_invited_student_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_invite).pluck(:recipient_id)
+    @ungrouped_students = ungrouped_students
   end
 
   def create
@@ -136,5 +141,13 @@ class GroupsController < ApplicationController
 
   def set_group
     @group = @course.project_groups.find(params[:id])
+  end
+
+  def ungrouped_students
+    enrolled_student_ids = @course.enrolments.where(role: :student).pluck(:user_id)
+    grouped_student_ids = ProjectGroupMember.joins(:project_group)
+                                            .where(project_groups: { course_id: @course.id })
+                                            .pluck(:user_id)
+    User.where(id: enrolled_student_ids - grouped_student_ids).order(:name)
   end
 end

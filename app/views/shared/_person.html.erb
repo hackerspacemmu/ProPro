@@ -1,0 +1,11 @@
+<%# locals: (name:, tag: nil) %>
+<% display_name = name.presence || "Unknown student" %>
+<div class="flex min-w-0 items-start gap-3">
+  <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-variant-deep text-[11px] font-medium text-on-surface" aria-hidden="true"><%= display_name.first.upcase %></span>
+  <span class="min-w-0 break-words pt-1 text-sm leading-5 text-on-surface">
+    <%= display_name %>
+    <% if tag.present? %>
+      <span class="ml-1.5 text-xs text-on-surface-muted"><%= tag %></span>
+    <% end %>
+  </span>
+</div>

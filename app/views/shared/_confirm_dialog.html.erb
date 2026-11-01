@@ -1,0 +1,17 @@
+<%# Shared destructive-action confirmation. Forms opt in with data-confirm-submit
+    plus data-confirm-title/body/ok/danger; confirm_dialog_controller listens for
+    those submissions and fills this one dialog. Body may hold several paragraphs:
+    the controller splits data-confirm-body on a blank line and builds <p> children. %>
+<dialog id="confirm-dialog"
+        data-controller="confirm-dialog"
+        aria-labelledby="confirm-dialog-title"
+        class="m-auto w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-lg border-0 bg-surface p-0 shadow-xl backdrop:bg-black/40">
+  <div class="flex max-h-[90dvh] min-h-0 flex-col">
+    <h2 id="confirm-dialog-title" data-confirm-dialog-target="title" class="shrink-0 px-5 pb-3 pt-5 font-['DM_Sans'] text-xl font-medium text-on-surface-strong sm:px-6 sm:pt-6">Are you sure?</h2>
+    <div data-confirm-dialog-target="body" class="min-h-0 flex-1 space-y-2 overflow-y-auto px-5 text-sm text-on-surface-variant sm:px-6"></div>
+    <div class="flex shrink-0 justify-end gap-2 px-5 py-4 sm:px-6">
+      <button type="button" data-action="click->confirm-dialog#cancel" class="<%= GroupFormationsHelper::GROUP_TEXT_BUTTON %> max-sm:flex-1">Cancel</button>
+      <button type="button" data-confirm-dialog-target="ok" data-action="click->confirm-dialog#confirm" class="<%= GroupFormationsHelper::GROUP_FILL_BUTTON %> max-sm:flex-1">Confirm</button>
+    </div>
+  </div>
+</dialog>

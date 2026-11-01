@@ -1,5 +1,193 @@
-<%= turbo_frame_tag dom_id(@group, :manage) do %>
-  <div class="p-4">
-    <h2 class="text-lg font-medium text-gray-900"><%= @group.group_name %></h2>
+<%= turbo_frame_tag dom_id(@group, :manage), target: "_top", class: "flex min-h-0 flex-1 flex-col" do %>
+  <% staff = policy(@course).manage_groups? %>
+  <% leader_edit = !staff && !@group.confirmed? %>
+  <% members = leader_first(@group.project_group_members.to_a, @group) %>
+  <% count = members.size %>
+  <% group_name = @group.group_name.presence || "Unnamed group" %>
+  <% membership = members.find { |member| member.user_id == current_user.id } %>
+  <% last = count == 1 %>
+  <% last_with_project = last && @group.project.present? %>
+  <% requests = @incoming_join_requests.to_a %>
+
+  <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
+    <h2 class="<%= GroupFormationsHelper::GROUP_DIALOG_TITLE %>"><%= group_name %></h2>
+    <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_DIALOG_CLOSE %>" aria-label="Close">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <div class="<%= GroupFormationsHelper::GROUP_DIALOG_BODY %>">
+    <% if staff %>
+      <div class="pb-2">
+        <%= render "group_formations/status_pill", confirmed: @group.confirmed? %>
+      </div>
+    <% end %>
+
+    <%# ----- Join requests (leader mode) ----- %>
+    <% if leader_edit %>
+      <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+        <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Join requests</h3>
+        <% if requests.any? %>
+          <% requests.each do |invite| %>
+            <div class="flex items-start justify-between gap-3 py-1.5">
+              <div class="min-w-0 flex-1"><%= render "shared/person", name: invite.sender.name %></div>
+              <div class="flex shrink-0 gap-1">
+                <%= button_to "Accept",
+                      course_group_join_request_path(@course, @group, invite),
+                      method: :patch,
+                      params: { status: "accepted" },
+                      form: { class: "inline-flex" },
+                      class: GroupFormationsHelper::GROUP_SMALL_BUTTON %>
+                <%= button_to "Decline",
+                      course_group_join_request_path(@course, @group, invite),
+                      method: :patch,
+                      params: { status: "declined" },
+                      form: { class: "inline-flex" },
+                      class: GroupFormationsHelper::GROUP_TEXT_SMALL_BUTTON %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-on-surface-muted">No pending requests.</p>
+        <% end %>
+      </section>
+    <% end %>
+
+    <%# ----- Members (both modes) ----- %>
+    <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+      <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">MEMBERS (<%= @course.group_max.present? ? "#{count} of #{@course.group_max}" : count %>)</h3>
+      <% members.each do |member| %>
+        <% name = member.user.name.presence || member.user.email_address %>
+        <% is_leader = member.user_id == @group.leader_id %>
+        <% removable = staff || (leader_edit && !is_leader) %>
+        <div id="<%= dom_id(member, :manage) %>" class="flex items-start justify-between gap-3 py-1.5">
+          <div class="min-w-0 flex-1"><%= render "shared/person", name: name, tag: (is_leader ? "Leader" : nil) %></div>
+          <% if removable %>
+            <%
+              remove_data =
+                if last_with_project
+                  { turbo_stream: true }
+                else
+                  body = last ? "#{name} is the last member, so #{group_name} will be deleted.\n\nThis can't be undone." : remove_confirm_body(@group, name, manager: staff)
+                  { confirm_submit: true, confirm_title: "Remove #{name}?", confirm_body: body, confirm_ok: "Remove from group", confirm_danger: true }
+                end
+            %>
+            <%= button_to (staff ? "Remove" : "Remove from group"),
+                  course_group_member_path(@course, @group, member),
+                  method: :delete,
+                  form: { class: "shrink-0", data: remove_data },
+                  class: GroupFormationsHelper::GROUP_DANGER_TEXT_SMALL_BUTTON %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <% if leader_edit %>
+      <%# ----- Invite link ----- %>
+      <% if policy(@group).generate_invite_link? %>
+        <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+          <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Invite link</h3>
+          <% if @my_group_invite_token.present? %>
+            <div class="flex gap-2" data-controller="invite-link">
+              <input type="text"
+                     readonly
+                     autocomplete="off"
+                     value="<%= join_url(@my_group_invite_token) %>"
+                     aria-label="Invite link"
+                     data-invite-link-target="linkField"
+                     class="min-w-0 flex-1 rounded-md border border-outline-variant bg-surface-tint px-3 py-2 text-sm text-on-surface-variant max-sm:min-h-11 max-sm:text-base">
+              <button type="button" data-invite-link-target="button" data-action="click->invite-link#copy" class="<%= GroupFormationsHelper::GROUP_SMALL_BUTTON %> shrink-0">Copy</button>
+            </div>
+            <p class="mt-1.5 text-[13px] text-on-surface-muted">Link expires 24 hours after it's generated.</p>
+          <% end %>
+          <%= button_to (@my_group_invite_token.present? ? "Generate new link" : "Generate invite link"),
+                course_group_invite_link_path(@course, @group),
+                method: :post,
+                form: { class: "mt-2 inline-flex" },
+                class: GroupFormationsHelper::GROUP_TEXT_BUTTON %>
+        </section>
+      <% end %>
+
+      <%# ----- Settings: approval switch (auto_submit) ----- %>
+      <% if policy(@group).update? %>
+        <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+          <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Settings</h3>
+          <%= form_with url: course_group_path(@course, @group), method: :patch, scope: :project_group, data: { controller: "auto-submit" } do |form| %>
+            <label class="flex cursor-pointer items-center justify-between gap-4 max-sm:min-h-11">
+              <span class="text-sm text-on-surface-strong">
+                Require approval to join
+                <span class="block text-[13px] text-on-surface-muted">Students send a request and you accept or decline.</span>
+              </span>
+              <span class="relative inline-flex shrink-0">
+                <%= form.check_box :locked,
+                      { checked: @group.locked?, class: "peer sr-only", data: { action: "change->auto-submit#submit" } },
+                      "true", "false" %>
+                <span class="block h-6 w-10 rounded-full bg-outline transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-surface after:transition-all after:content-[''] peer-checked:bg-primary-strong peer-checked:after:translate-x-4 peer-focus-visible:ring-2 peer-focus-visible:ring-primary"></span>
+              </span>
+            </label>
+          <% end %>
+        </section>
+      <% end %>
+
+      <%# ----- Invite student (leader picker) ----- %>
+      <% if policy(@group).direct_invite? %>
+        <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+          <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Invite student</h3>
+          <%= render "group_formations/student_picker",
+                     students: @ungrouped_students,
+                     verb: "Invite",
+                     url: course_group_invitations_path(@course, @group),
+                     disabled_ids: @my_invited_student_ids,
+                     limit: 6 %>
+        </section>
+      <% end %>
+    <% end %>
+
+    <%# ----- Add student (coordinator / lecturer picker) ----- %>
+    <% if staff %>
+      <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+        <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Add student</h3>
+        <% if group_full?(@group, @course) %>
+          <p class="text-sm text-on-surface-muted">This group is full.</p>
+        <% else %>
+          <%= render "group_formations/student_picker",
+                     students: @ungrouped_students,
+                     verb: "Add",
+                     url: course_group_members_path(@course, @group),
+                     limit: 6 %>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="<%= GroupFormationsHelper::GROUP_DIALOG_FOOTER %>">
+    <div class="flex flex-wrap gap-1">
+      <% if leader_edit %>
+        <% if policy(@group).destroy? %>
+          <%= button_to "Delete group",
+                course_group_path(@course, @group),
+                method: :delete,
+                form: { class: "max-sm:flex-1", data: { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true } },
+                class: "#{GroupFormationsHelper::GROUP_DANGER_TEXT_BUTTON} max-sm:w-full" %>
+        <% end %>
+        <% if membership && policy(membership).destroy? %>
+          <%= button_to "Leave group",
+                course_group_member_path(@course, @group, membership),
+                method: :delete,
+                form: { class: "max-sm:flex-1", data: last_with_project ? { turbo_stream: true } : { confirm_submit: true, confirm_title: "Leave #{group_name}?", confirm_body: leave_confirm_body(@group, leader: true, last: last), confirm_ok: "Leave group", confirm_danger: last } },
+                class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} max-sm:w-full" %>
+        <% end %>
+      <% elsif staff %>
+        <% if policy(@group).destroy? %>
+          <%= button_to "Delete group",
+                course_group_path(@course, @group),
+                method: :delete,
+                form: { class: "max-sm:flex-1", data: { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true } },
+                class: "#{GroupFormationsHelper::GROUP_DANGER_TEXT_BUTTON} max-sm:w-full" %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_FILL_BUTTON %> w-full sm:ml-auto sm:w-auto">Done</button>
   </div>
 <% end %>

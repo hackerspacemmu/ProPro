@@ -36,6 +36,7 @@ export default class extends Controller {
     const row = event.target.closest("[data-row-id]");
     if (!row) return;
     if (event.target.closest("a")) return;
+    if (event.target.closest("[data-expandable-ignore]")) return;
 
     this.toggleRow(row.dataset.rowId);
   }
@@ -52,6 +53,7 @@ export default class extends Controller {
     const row = this.element.querySelector(`[data-row-id="${CSS.escape(id)}"]`);
     const chevron = row?.querySelector("[data-row-chevron]");
     if (chevron) chevron.classList.toggle("rotate-180", expand);
+    this.syncRow(row, detail);
   }
 
   toggleAll() {
@@ -62,9 +64,17 @@ export default class extends Controller {
       );
       const chevron = row?.querySelector("[data-row-chevron]");
       if (chevron) chevron.classList.toggle("rotate-180", !collapsed);
+      this.syncRow(row, detail);
     });
 
     this.syncToggleAll();
+  }
+
+  syncRow(row, detail) {
+    if (!row || !detail) return;
+
+    const toggle = row.querySelector("[data-row-toggle]");
+    if (toggle) toggle.setAttribute("aria-expanded", detail.classList.contains("hidden") ? "false" : "true");
   }
 
   syncToggleAll() {

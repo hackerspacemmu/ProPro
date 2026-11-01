@@ -1,5 +1,5 @@
-<%# Groups tab page (route-per-tab, ADR 0019). Only routable on grouped
-    courses — GroupsController 404s otherwise. %>
+<%# Course/Groups tab page Only routable on grouped
+    courses, GroupsController 404s otherwise. %>
 <%= render "courses/tab_shell",
            course: @course,
            active: "groups",

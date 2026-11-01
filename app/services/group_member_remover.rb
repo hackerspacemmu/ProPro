@@ -96,7 +96,7 @@ class GroupMemberRemover
 
       case outcome
       when :dissolved then 'Member removed. The group had no remaining members and was dissolved.'
-      when :reverted then 'Member removed. The group no longer meets the size requirement and was reverted to draft.'
+      when :reverted then 'Member removed. The group no longer meets the size requirement and its status changed to not confirmed.'
       else 'Member removed.'
       end
     end
@@ -106,7 +106,7 @@ class GroupMemberRemover
     def blocked_message
       case blocked_reason
       when :window_closed then 'The grouping window is closed.'
-      when :group_confirmed then 'The leader can only remove members while the group is still a draft.'
+      when :group_confirmed then 'The leader can only remove members while the group is still not confirmed.'
       end
     end
   end

@@ -43,7 +43,7 @@ export default class extends Controller {
     // 1. Check for Destructive OFF State
     if (wasEnabledOriginally && !isEnabledNow) {
       const message =
-        "Are you sure you want to disable the grouping system? All draft groups will be deleted.";
+        "Are you sure you want to disable the grouping system? All Not Confirmed Groups will be deleted.";
       if (!confirm(message)) {
         event.preventDefault();
         return; // Halt execution

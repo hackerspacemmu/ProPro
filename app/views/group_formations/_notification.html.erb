@@ -1,0 +1,16 @@
+<%# locals: (avatar_name:, name:, action:, subtitle: nil, accept_url:, decline_url:) %>
+<div class="border-b border-outline-variant px-4 py-3 last:border-0">
+  <div class="flex items-start gap-3">
+    <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-variant-deep text-[11px] font-medium text-on-surface" aria-hidden="true"><%= avatar_name.to_s.first.to_s.upcase %></span>
+    <div class="min-w-0">
+      <p class="text-sm text-on-surface-strong"><span class="font-medium"><%= name %></span> <%= action %></p>
+      <% if subtitle.present? %>
+        <p class="text-[13px] text-on-surface-muted"><%= subtitle %></p>
+      <% end %>
+    </div>
+  </div>
+  <div class="mt-2 flex gap-2 pl-10">
+    <%= button_to "Accept", accept_url, method: :patch, params: { status: "accepted" }, form: { class: "inline-flex" }, class: GroupFormationsHelper::GROUP_SMALL_BUTTON %>
+    <%= button_to "Decline", decline_url, method: :patch, params: { status: "declined" }, form: { class: "inline-flex" }, class: GroupFormationsHelper::GROUP_TEXT_SMALL_BUTTON %>
+  </div>
+</div>

@@ -6,7 +6,7 @@
     pages' tests scope against. %>
 <% content_for :body_class, "bg-surface-tint" %>
 
-<% breadcrumb :course, course %>
+<% breadcrumb(local_assigns[:breadcrumb] || :course, course) %>
 
 <div class="text-on-surface font-['Roboto',sans-serif]">
 
@@ -18,7 +18,8 @@
       <%= render "courses/tab_strip",
                  course: course,
                  active: active,
-                 current_user_enrolment: current_user_enrolment %>
+                 current_user_enrolment: current_user_enrolment,
+                 tabs: local_assigns[:tabs] %>
 
       <div id="panel-<%= active %>" class="max-w-5xl mx-auto px-6 py-8">
         <%= yield %>

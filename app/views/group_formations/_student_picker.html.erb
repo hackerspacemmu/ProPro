@@ -1,0 +1,28 @@
+<%# locals: (students:, verb:, url:, disabled_ids: [], limit: 6) %>
+<div data-controller="list-filter" data-list-filter-limit-value="<%= limit %>">
+  <input type="search"
+         placeholder="Search by name"
+         autocomplete="off"
+         data-list-filter-target="input"
+         data-action="input->list-filter#filter"
+         class="mb-2 <%= GroupFormationsHelper::GROUP_INPUT %>">
+
+  <% students.each do |student| %>
+    <div data-list-filter-target="item"
+         data-list-filter-text="<%= student.name.to_s.downcase %>"
+         class="flex items-center justify-between gap-3 py-1.5">
+      <div class="min-w-0 flex-1">
+        <%= render "shared/person", name: student.name.presence || student.email_address %>
+      </div>
+      <% if disabled_ids.include?(student.id) %>
+        <span class="shrink-0 text-[13px] text-success">Invite sent</span>
+      <% else %>
+        <%= button_to verb, url, method: :post, params: { user_id: student.id }, form: { class: "shrink-0" }, class: GroupFormationsHelper::GROUP_SMALL_BUTTON %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <p data-list-filter-target="noMatch" class="hidden text-[13px] text-on-surface-muted">No students match.</p>
+  <p data-list-filter-target="empty" class="<%= "hidden" if students.any? %> text-[13px] text-on-surface-muted">No ungrouped students available.</p>
+  <p class="pt-2 text-[13px] text-on-surface-muted">Showing <span data-list-filter-target="shown"><%= [students.size, limit].min %></span> of <span data-list-filter-target="total"><%= students.size %></span></p>
+</div>

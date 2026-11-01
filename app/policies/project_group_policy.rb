@@ -33,6 +33,10 @@ class ProjectGroupPolicy < ApplicationPolicy
     grouping_window_open? && record.leader_id == user.id
   end
 
+  def edit?
+    manage_groups_policy.manage_groups? || update?
+  end
+
   def update?
     return true if coordinator?
 
