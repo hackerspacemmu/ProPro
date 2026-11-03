@@ -1,10 +1,10 @@
 <%# The shared course tab strip — one element, four page hosts (Overview /
-    Topics / People / Groups; route-per-tab, ADR 0019). Plain Turbo Drive
+    Topics / People / Groups-or-Students; route-per-tab, ADR 0019). Plain Turbo Drive
     links: the active tab is server-rendered as aria-current="page" and the
     URL is the source of truth (no tabs Stimulus controller, no cookie).
     Locals: course, active (slug), current_user_enrolment (for the coordinator
-    action slot). The Groups link only exists on grouped courses, and it also
-    doubles as the "/" shortcut's fallbackLink target. %>
+    action slot). Grouped courses show Groups; solo courses show Students. The
+    course-specific final tab also doubles as the "/" shortcut's fallback. %>
 <%
   tabs = local_assigns[:tabs]
   unless tabs
@@ -13,8 +13,13 @@
       { slug: "topics",   name: "Topics",   path: course_topics_path(course) },
       { slug: "people",   name: "People",   path: course_people_path(course) }
     ]
-    tabs << { slug: "groups", name: "Groups", path: course_groups_path(course) } if course.grouped?
+    tabs << if course.grouped?
+              { slug: "groups", name: "Groups", path: course_groups_path(course) }
+            else
+              { slug: "students", name: "Students", path: course_students_path(course) }
+            end
   end
+  fallback_slug = course.grouped? ? "groups" : "students"
 %>
 <div class="border-b border-outline-variant px-4 sm:px-8 bg-surface shrink-0 sticky top-0 z-20">
   <div class="flex items-center justify-between">
@@ -24,7 +29,7 @@
         <%= link_to tab[:path],
               id: "tab-#{tab[:slug]}",
               "aria-current": (selected ? "page" : nil),
-              data: { search_shortcut_target: ("fallbackLink" if tab[:slug] == "groups") },
+              data: { search_shortcut_target: ("fallbackLink" if tab[:slug] == fallback_slug) },
               style: "font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;",
               class: "group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors #{selected ? 'text-primary-strong' : 'text-on-surface-variant hover:bg-surface-hover hover:text-on-surface'}" do %>
           <%= tab[:name] %>

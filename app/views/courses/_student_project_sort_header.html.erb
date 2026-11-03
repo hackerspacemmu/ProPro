@@ -1,0 +1,21 @@
+<%# locals: course, column, label, width %>
+<% width ||= "w-[25%]" %>
+<% is_active = params[:sort_by] == column || (params[:sort_by].blank? && column == "student_name") %>
+<% next_dir = is_active && params[:sort_dir] == "asc" ? "desc" : "asc" %>
+<th class="<%= width %> group px-4 py-3 border-b border-outline-variant text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider select-none cursor-pointer"
+    hx-get="<%= course_students_url(course) %>"
+    hx-target="#solo-students-table-container"
+    hx-swap="outerHTML"
+    hx-trigger="click"
+    hx-include="#students-search, #students-status-filter, #students-lecturer-filter"
+    hx-vals='{"sort_by": "<%= column %>", "sort_dir": "<%= next_dir %>"}'
+    hx-indicator="#students-loading">
+  <div class="flex items-center gap-1">
+    <%= label %>
+    <% if is_active %>
+      <span class="material-symbols-outlined text-[16px] text-primary"><%= params[:sort_dir] == "desc" ? "arrow_upward" : "arrow_downward" %></span>
+    <% else %>
+      <span class="material-symbols-outlined text-[16px] text-on-surface-muted opacity-0 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+    <% end %>
+  </div>
+</th>

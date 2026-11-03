@@ -73,6 +73,7 @@ Rails.application.routes.draw do
     end
 
     resources :people, only: %i[index show]
+    resources :students, only: :index
     resource :group_formation, only: :show
     resources :groups, only: %i[index show create edit update destroy] do
       resource  :confirmation,  only: %i[create destroy], controller: 'group_confirmations'

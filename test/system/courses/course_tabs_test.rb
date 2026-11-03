@@ -23,7 +23,7 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @coordinator_user
     visit course_path(@course)
 
-    %w[Overview Topics People].each { |tab| assert_text tab }
+    %w[Overview Topics People Students].each { |tab| assert_text tab }
     assert_no_text 'To Review'
     assert_no_text 'Groups'
     assert_selector 'a[title="Settings"]'
@@ -33,7 +33,7 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @lecturer_user
     visit course_path(@course)
 
-    %w[Overview Topics People].each { |tab| assert_text tab }
+    %w[Overview Topics People Students].each { |tab| assert_text tab }
     assert_no_text 'To Review'
     assert_no_text 'Groups'
     assert_no_selector 'a[title="Settings"]'
@@ -43,7 +43,7 @@ class CourseTabsTest < ApplicationSystemTestCase
     login_as @student_user
     visit course_path(@course)
 
-    %w[Overview Topics People].each { |tab| assert_text tab }
+    %w[Overview Topics People Students].each { |tab| assert_text tab }
     assert_no_text 'To Review'
     assert_no_text 'Groups'
     assert_no_selector 'a[title="Settings"]'

@@ -119,7 +119,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get course_path(@course)
     assert_response :success
     assert_select 'nav[data-testid="content-tabs"] a', text: 'Groups', count: 0
-    assert_select 'nav[data-testid="content-tabs"] a', count: 3
+    assert_select 'nav[data-testid="content-tabs"] a', text: 'Students', count: 1
+    assert_select 'nav[data-testid="content-tabs"] a', count: 4
+
+    get course_people_path(@course)
+    assert_response :success
+    assert_select 'section', text: /Students/, count: 0
   end
 
   test 'show renders supervisor capacity only for non-solo courses' do
@@ -294,10 +299,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'htmx students search reuses filtered_student_list' do
     sign_in @coordinator_user
-    get course_people_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                                     params: { search_query: @student_user.name[0..3] }
+    get course_students_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                       params: { search_query: @student_user.name[0..3] }
     assert_response :success
-    assert_includes response.body, 'id="students-table-container"'
+    assert_includes response.body, 'id="solo-students-table-container"'
     assert_match ERB::Util.html_escape(@student_user.name), response.body
   end
 
@@ -364,7 +369,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, user: invited_user, course: @course)
 
     sign_in @coordinator_user
-    get course_people_path(@course)
+    get course_students_path(@course)
     assert_response :success
     assert_match %r{action="/user/\d+/resend_invite"}, response.body
   end
@@ -374,7 +379,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, user: invited_user, course: @course)
 
     sign_in @coordinator_user
-    get course_people_path(@course)
+    get course_students_path(@course)
     assert_response :success
     assert_includes response.body, 'Resend invitation email'
     assert_no_match 'Email student', response.body
@@ -383,7 +388,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'students get no actions dropdown (read-only table)' do
     sign_in @student_user
-    get course_people_path(@course)
+    get course_students_path(@course)
     assert_response :success
     assert_no_match 'data-students-select-target="actions"', response.body
     assert_no_match 'Resend invitation email', response.body
@@ -391,7 +396,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'lecturers get no actions dropdown (read-only table)' do
     sign_in @lecturer_user
-    get course_people_path(@course)
+    get course_students_path(@course)
     assert_response :success
     assert_no_match 'data-students-select-target="actions"', response.body
     assert_no_match 'Resend invitation email', response.body
@@ -414,7 +419,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     sign_in outsider
 
     [course_path(@course), course_topics_path(@course),
-     course_people_path(@course), course_groups_path(@course),
+     course_people_path(@course), course_students_path(@course), course_groups_path(@course),
      course_person_path(@course, @student_user), course_group_path(@course, group)].each do |path|
       get path
       assert_redirected_to dashboard_path, "#{path} must deny a non-enrolled user"
@@ -640,7 +645,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
-    get course_people_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
+    get course_students_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_includes response.body, 'No students have been enrolled yet.'
     assert_no_match 'No students match your current filters.', response.body
@@ -648,8 +653,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'students table reports no matches when a search empties the list' do
     sign_in @coordinator_user
-    get course_people_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
-                                     params: { search_query: 'zzzznomatch' }
+    get course_students_path(@course), headers: { 'HTTP_HX_REQUEST' => 'true' },
+                                       params: { search_query: 'zzzznomatch' }
     assert_response :success
     assert_includes response.body, 'No students match your current filters.'
     assert_includes response.body, 'Try adjusting your search or filters.'

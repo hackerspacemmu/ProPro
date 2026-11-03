@@ -1,6 +1,7 @@
 # Shared list-filtering helpers for the course tab pages that render a browse
-# table: the Groups tab (groups), the People tab (students half), and the Topics
-# directory (list_state / filters_active? only). Extracted from
+# table: the Groups tab, the solo Students tab, the grouped People tab's
+# students section, and the Topics directory (list_state / filters_active?
+# only). Extracted from
 # CoursesController when the tabs became real routes (ADR 0019); the code itself
 # is unchanged — it reads @course / @projects_by_owner / @group_list /
 # @student_list off the including controller.
@@ -44,7 +45,7 @@ module ParticipantBrowsing
       member_match = group.project_group_members.any? do |member|
         member.user.name.downcase.include?(downcased_query)
       end
-      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
+      title_match = participant_project_title(project)&.downcase&.include?(downcased_query) || false
 
       group_name_match || member_match || title_match
     end
@@ -58,7 +59,7 @@ module ParticipantBrowsing
 
       name_match  = student.name.downcase.include?(downcased_query)
       id_match    = student.instid&.downcase&.include?(downcased_query) || false
-      title_match = project&.current_title&.downcase&.include?(downcased_query) || false
+      title_match = participant_project_title(project)&.downcase&.include?(downcased_query) || false
 
       name_match || id_match || title_match
     end
@@ -78,7 +79,7 @@ module ParticipantBrowsing
     when 'status'
       Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
     when 'project_title'
-      project&.current_title&.downcase || ''
+      participant_project_title(project)&.downcase || ''
     when 'supervisor'
       project&.supervisor&.name&.downcase || ''
     else
@@ -92,11 +93,21 @@ module ParticipantBrowsing
     when 'status'
       Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
     when 'project_title'
-      project&.current_title&.downcase || ''
+      participant_project_title(project)&.downcase || ''
     when 'supervisor'
       project&.supervisor&.name&.downcase || ''
     else
       student.name.downcase
+    end
+  end
+
+  def participant_project_title(project)
+    return if project.blank?
+
+    if project.association(:project_instances).loaded?
+      project.project_instances.max_by(&:version)&.title
+    else
+      project.current_instance&.title
     end
   end
 
