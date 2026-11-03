@@ -25,14 +25,38 @@ module Groups
       DatabaseCleaner.clean
     end
 
-    test 'the formation group-write services lock the group row' do
+    test 'the group-write services lock the group row' do
       assert_locks_group { ApprovalToggler.new(@group, locked: true).set! }
+      assert_locks_group { Coordinator::ApprovalToggler.new(@group, locked: true).set! }
       assert_locks_group { Deleter.new(@group).delete! }
+    end
+
+    test 'coordinator group writes lock the course before the group' do
+      assert_locks_course_then_group { Coordinator::MemberRemover.new(@membership).remove! }
+      assert_locks_course_then_group { Coordinator::GroupDeleter.new(@group).delete! }
     end
 
     private
 
     def assert_locks_group(&)
+      statements = capture_sql(&)
+
+      assert statements.any? { |sql| sql.include?('FROM "project_groups"') && sql.include?('FOR UPDATE') },
+             "expected a SELECT ... FOR UPDATE on project_groups, got:\n#{statements.join("\n")}"
+    end
+
+    def assert_locks_course_then_group(&)
+      statements = capture_sql(&)
+      course_lock = statements.index { |sql| sql.include?('FROM "courses"') && sql.include?('FOR UPDATE') }
+      group_lock = statements.index { |sql| sql.include?('FROM "project_groups"') && sql.include?('FOR UPDATE') }
+
+      assert course_lock, "expected a SELECT ... FOR UPDATE on courses, got:\n#{statements.join("\n")}"
+      assert group_lock, "expected a SELECT ... FOR UPDATE on project_groups, got:\n#{statements.join("\n")}"
+      assert_operator course_lock, :<, group_lock,
+                      "expected the course lock before the group lock, got:\n#{statements.join("\n")}"
+    end
+
+    def capture_sql
       statements = []
 
       callback = lambda do |*args|
@@ -40,10 +64,8 @@ module Groups
         statements << payload[:sql] unless payload[:name] == 'SCHEMA'
       end
 
-      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &)
-
-      assert statements.any? { |sql| sql.include?('FROM "project_groups"') && sql.include?('FOR UPDATE') },
-             "expected a SELECT ... FOR UPDATE on project_groups, got:\n#{statements.join("\n")}"
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { yield }
+      statements
     end
   end
 end
