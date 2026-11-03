@@ -21,7 +21,8 @@ class GroupInviteLinkRedeemer
       return blocked(:group_full) if group_full?(group, course)
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
 
-      ProjectGroupMember.create!(user: @current_user, project_group: group)
+      return blocked(:already_grouped) unless ProjectGroupMember.add(user: @current_user, group: group)
+
       clear_conflicting_invites!(group)
 
       Result.new(redeemed: true, blocked_reason: nil, group: group)

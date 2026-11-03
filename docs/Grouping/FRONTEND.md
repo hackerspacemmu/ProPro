@@ -29,7 +29,7 @@ This pass wires the mockup into Rails/Stimulus/Tailwind conventionally. Services
 |---|---|---|---|
 | `group_browse_filter_controller.js` | `project_groups/index`, `_group_card` only | **DELETE** | Hard-codes All/Draft/Confirmed tab buttons and raw `bg-zinc-900` / `text-gray-500` class toggles. The mockup replaces tabs with a status `<select>`, a "Showing X of Y" footer and empty/no-match states. Replaced by new `list_filter_controller` (§5.2). |
 | `combobox_modal_controller.js` | `project_groups/index`, `_my_group_panel`, `_group_card` only (3 files, all rewritten) | **DELETE** | Select-one-then-submit combobox with a hidden `user_id` input. The mockup's pickers are per-row buttons ("Invite" / "Add") over a search list capped at 6. Replaced by `list_filter` (with `limit`) + plain `button_to` per row. |
-| `dissolve_warning_modal_controller.js` | `project_group_members/_dissolve_warning_modal` | **KEEP** | It is the server half of `GroupMemberRemover`'s two-step `needs_confirmation` flow (controller appends the partial into `#modals`). Restyle the partial with tokens; do not change the contract. |
+| `warning_modal_controller.js` | `group_members/_dissolve_warning_modal`, `groups/_delete_warning_modal` | **KEEP** | Generic server-appended warning `<dialog>` (opens on connect, closes on backdrop/button). It serves the `needs_confirmation` flows in `GroupMembersController` and `GroupsController`. |
 | `invite_link_controller.js` | `_my_group_panel` | **KEEP + change** | Mockup shows a "Copied" state that the controller does not have (§2). |
 | `expandable_rows_controller.js` | `courses/_groups_table`, `courses/_section_header` (Topics directory) | **KEEP + additive change** | Shared with the Groups tab and Topics directory. Changes must be additive (§2). |
 | `modal_controller.js` | `courses/_add_students_modal` and 9 other files | **KEEP** | Generic `<dialog>` open/close/backdropClose. Used for every dialog in the new page. |
@@ -230,7 +230,7 @@ These htmx ivars are the only additions to the contract. Everything else in the 
 - R4. Invite without page reload / in-place "Invite sent" (needs a turbo_stream response; Q2).
 - R5. Server-side picker search with `limit 6` (replaced in this pass by a per-open lazy frame + client-side filter).
 - R6. Specific confirm-failure messages ("Needs 1 more member", "would leave 1 student without a group"). `GroupConfirmer` only returns `window_closed`, `already_confirmed`, `size_illegal` messages.
-- R7. Succession copy "`{members[1]}` becomes the leader". `GroupMemberRemover#promote_next_leader!` picks the oldest remaining membership (`order(:created_at).first`), which is not necessarily the second name on screen. Use generic copy: **"Another member becomes the leader."** Do not recompute the rule in the view.
+- R7. Succession copy "`{members[1]}` becomes the leader". Succession picks the oldest remaining membership (`order(:created_at, :id).first`), which is not necessarily the second name on screen. Use generic copy: **"Another member becomes the leader."** Do not recompute the rule in the view.
 - R8. Mockup remove-dialog text "becomes Not confirmed because it falls below the minimum". The service reverts a confirmed group when the member **self-leaves** (any size) or when `!confirmable?` (quota-aware in Auto-Confirmability mode). Copy must say "may become Not confirmed" for kicks, and "will become Not confirmed" for a member leaving a confirmed group. The mockup's member Leave dialog omits this entirely; add it.
 - R9. "Accepting clears your other invites and requests" **is real** (`GroupInviteResponder#clear_conflicting_invites!`), so that copy stays.
 
@@ -447,7 +447,7 @@ Also test: window closed (D2), Auto-Confirmability mode (`student_list_finalised
 Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things it deliberately left alone), [F] this frontend plan, [C] found while reading the code.
 
 **Delete / cleanup**
-1. [F] Delete stale promote-to-leader: `group_leaders#update`, `resource :leader`, `ProjectGroupPolicy#promote_leader?`, the controller and its route test rows.
+1. [x] [F] Delete stale promote-to-leader: `group_leaders#update`, `resource :leader`, `ProjectGroupPolicy#promote_leader?`, the controller and its route test rows.
 2. [F] Drop `lecturers_can_manage_groups` (column default `true`, no settings UI); `CoursePolicy#manage_groups?` becomes `coordinator || lecturer`. Frontend already calls only `manage_groups?`.
 3. [R] Remove the two legacy GET redirects (`/courses/:id/project_groups`, `/project_group_invite_links/:token`) after one release, with their routing tests. Keep `join/:token`.
 4. [F] Remove `@my_group_can_confirm` from `GroupFormationsController#show` (unused once Confirm is always enabled).
@@ -462,7 +462,7 @@ Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things i
 9. [F] Cancel join request: `join_requests#destroy`, a sender-only policy query, service (mockup's "Cancel request"; UI shows "Request sent" only, no link).
 10. [F] `flash[:warning]` / `info` variants (mockup message styles; shared flash is alert/notice only).
 11. [F] Richer `GroupConfirmer` messages ("Needs 1 more member", "would leave 1 student without a group"); today only `window_closed`, `already_confirmed`, `size_illegal`.
-12. [F] Leader succession message: `GroupMemberRemover#promote_next_leader!` picks the oldest remaining membership; the UI uses generic copy because the rule is not exposed.
+12. [F] Leader succession message: succession picks the oldest remaining membership; the UI uses generic copy because the rule is not exposed.
 13. [F] Self-leave of a confirmed group reverts it; expose that in the Result so the Leave dialog can say so precisely (UI copy is generic: "may become Not confirmed").
 14. [F] Nullable/unlimited group max (`group_min`/`group_max` are required when grouping is enabled; the mockup's "No size limit" variant is not built).
 15. [F] Closed-state wording: `grouping_window_open?` is also false before the open date and when `grouping_open` is off, but the empty state says "closed by your coordinator". Optional: split copy by cause.
@@ -549,7 +549,7 @@ Cost: 9 rack_test + 5 browser + 2 guard tests. If this feels heavy, drop 14 and 
 | Row expand/collapse | (old) native `<details>` per card | Stimulus `expandable_rows` (client-side, no request); server-rendered auto-expand while filters are active |
 | Create, Join, Request to join, Confirm, Reopen, Approval lock, Generate link, Invite, Accept/Decline, Delete, Leave | Turbo Drive form (`button_to`) → controller → `redirect_to` formation page with flash (full-page visit; `members#create` uses 303) | same, new routes; Delete/Leave/Reopen/Remove behind the shared Stimulus `confirm_dialog` instead of the dead `data-confirm` |
 | Remove / kick a member | `group_members#destroy`: only grouping action with a Turbo Stream branch (remove node, append to `#ungrouped-students-list`, remove dissolve modal; `needs_confirmation` appends the dissolve warning to `#modals`; HTML fallback `redirect_back`). Old Kick used `turbo: false` | unchanged contract (§4.5); dissolve warning becomes a `<dialog>` |
-| Dissolve warning | Stimulus `dissolve_warning_modal` over a turbo_stream-appended `div` | same controller contract, `<dialog>` |
+| Warning dialog | Stimulus `warning_modal` over a turbo_stream-appended `div` | same controller contract, `<dialog>` |
 | Student pickers (invite / add / create) | Stimulus `combobox_modal` over pre-rendered rows per card | `list_filter` (`limit: 6`); Manage pickers rendered inside the lazy frame; ungrouped dialog also `list_filter` |
 | Manage dialog | did not exist (`groups#edit` was added as a stub) | native `<dialog>` + Stimulus `modal`; content from **Turbo Frame** GET `groups#edit` on every open; writes escape the frame (`_top`) and redirect |
 | Notifications (invites/requests) | server-rendered banners in the panel | server-rendered partial + Stimulus `dropdown`; Accept/Decline = PATCH forms → redirect |

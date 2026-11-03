@@ -30,4 +30,17 @@ class GroupReverterTest < ActiveSupport::TestCase
     assert_not result.reverted?
     assert_equal :already_draft, result.blocked_reason
   end
+
+  test 'blocks with has_project when the group already has a project' do
+    course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    group  = create(:project_group, course: course, confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: course)
+    Project.create!(course: course, owner: group, supervisor_enrolment: supervisor)
+
+    result = GroupReverter.new(group).revert!
+
+    assert_not result.reverted?
+    assert_equal :has_project, result.blocked_reason
+    assert group.reload.confirmed?
+  end
 end

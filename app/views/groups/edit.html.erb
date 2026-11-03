@@ -8,6 +8,11 @@
   <% last = count == 1 %>
   <% last_with_project = last && @group.project.present? %>
   <% requests = @incoming_join_requests.to_a %>
+  <% delete_data = if @group.project.present?
+                     { turbo_stream: true }
+                   else
+                     { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true }
+                   end %>
 
   <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
     <h2 class="<%= GroupFormationsHelper::GROUP_DIALOG_TITLE %>"><%= group_name %></h2>
@@ -168,7 +173,7 @@
           <%= button_to "Delete group",
                 course_group_path(@course, @group),
                 method: :delete,
-                form: { class: "max-sm:flex-1", data: { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true } },
+                form: { class: "max-sm:flex-1", data: delete_data },
                 class: "#{GroupFormationsHelper::GROUP_DANGER_TEXT_BUTTON} max-sm:w-full" %>
         <% end %>
         <% if membership && policy(membership).destroy? %>
@@ -183,7 +188,7 @@
           <%= button_to "Delete group",
                 course_group_path(@course, @group),
                 method: :delete,
-                form: { class: "max-sm:flex-1", data: { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true } },
+                form: { class: "max-sm:flex-1", data: delete_data },
                 class: "#{GroupFormationsHelper::GROUP_DANGER_TEXT_BUTTON} max-sm:w-full" %>
         <% end %>
       <% end %>

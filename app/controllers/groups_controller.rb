@@ -1,8 +1,4 @@
-# The Groups tab — /courses/:course_id/groups (route-per-tab, ADR 0019).
-# One page: the full Groups view for an enrolled user, plus the htmx branch
-# that used to be courses#show's `section=groups` dispatch (same partial, same
-# locals). 404s on an ungrouped course: the tab does not exist there, so the
-# route doesn't either.
+# Handles Groups Tab
 class GroupsController < ApplicationController
   include ParticipantBrowsing
   include CoursesHelper
@@ -13,26 +9,17 @@ class GroupsController < ApplicationController
   before_action :set_group, only: %i[show edit update destroy]
 
   def index
-    # Same preload the old courses#show carried: one query feeding the
-    # projects_by_owner map every row and the search/sort helpers read.
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
-    # Groups tab lists every project group, confirmed or draft — drafts are
-    # real memberships and must not vanish from the table.
     @group_list = @course.project_groups.includes(project_group_members: :user).to_a
 
     @filtered_group_list = filtered_group_list
     @show_all = params[:show_all] == 'true'
-    # Counts the matches, taken before the truncation below: the table footer's
-    # "Showing X of Y" is about the current criteria, not the course total.
     @total_group_count = @filtered_group_list.count
     @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold) unless @show_all
 
-    # Empty vs no-matches, decided here rather than in the partials (ADR 0018).
     @group_list_state = list_state(@group_list, @filtered_group_list)
-    # The filter controls sit outside the htmx-swapped containers, so the
-    # partials are told a filter is active rather than re-deriving it from params.
     @filters_active = filters_active?(PARTICIPANT_FILTER_KEYS)
 
     return unless request.headers['HX-Request']
@@ -51,8 +38,6 @@ class GroupsController < ApplicationController
     nil
   end
 
-  # One group's participant profile (was the group branch of courses#profile,
-  # ADR 0022 phase 1). Course-scoped lookup: other-course groups 404.
   def show
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
@@ -92,39 +77,50 @@ class GroupsController < ApplicationController
 
     attrs = params.expect(project_group: [:locked])
     locked = ActiveModel::Type::Boolean.new.cast(attrs[:locked])
-
-    if locked && @group.leader_id.blank?
-      redirect_to course_group_formation_path(@course), alert: 'Assign a leader before locking this group.'
-      return
-    end
-
-    begin
-      @group.update!(locked: locked)
-    rescue StandardError => e
-      redirect_to course_group_formation_path(@course), alert: e.message
-      return
-    end
+    result = update_approval(locked)
 
     redirect_to course_group_formation_path(@course),
-                notice: locked ? 'Group is now locked.' : 'Group is now open to join.'
+                **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   def destroy
     authorize @group, :destroy?
 
-    begin
-      ActiveRecord::Base.transaction do
-        @group.destroy!
-      end
-    rescue StandardError => e
-      redirect_to course_group_formation_path(@course), alert: e.message
+    result = delete_group
+
+    if result.needs_confirmation?
+      render turbo_stream: turbo_stream.append(
+        'modals',
+        partial: 'groups/delete_warning_modal',
+        locals: { group: @group, result: result }
+      )
       return
     end
 
-    redirect_to course_group_formation_path(@course), notice: 'Group dissolved.'
+    redirect_to course_group_formation_path(@course), notice: result.message
   end
 
   private
+
+  def update_approval(locked)
+    if coordinator?
+      Groups::Coordinator::ApprovalToggler.new(@group, locked: locked).set!
+    else
+      Groups::ApprovalToggler.new(@group, locked: locked).set!
+    end
+  end
+
+  def delete_group
+    if coordinator?
+      Groups::Coordinator::GroupDeleter.new(@group, confirm: params[:confirm] == 'true').delete!
+    else
+      Groups::Deleter.new(@group).delete!
+    end
+  end
+
+  def coordinator?
+    @course.enrolments.exists?(user_id: current_user.id, role: :coordinator)
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

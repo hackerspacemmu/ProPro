@@ -68,7 +68,7 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
     new_leader = create(:user)
     create(:enrolment, course: @course, user: new_leader, role: :student)
     create(:project_group_member, project_group: @group, user: new_leader)
-    @group.update!(leader_id: new_leader.id) # simulates promote_next_leader!/promote_leader
+    @group.update!(leader_id: new_leader.id) # simulates leader succession
 
     assert ProjectGroupInviteLink.exists?(token: old_leader_link.token)
     link = ProjectGroupInviteLink.find_by(token: old_leader_link.token)

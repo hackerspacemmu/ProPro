@@ -31,7 +31,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
       end
       within "#project_group_#{@group.id}" do
         assert_text '2 of 4 members'
-        assert_text 'Not confirmed'
+        assert_text 'Confirmed'
         assert_selector '[data-group-size-warning]', text: warning_for(2)
       end
       assert_monitor_count(2, warning: true)

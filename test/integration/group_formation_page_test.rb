@@ -158,4 +158,60 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
   def sign_in(user)
     post session_path, params: { email_address: user.email_address, password: 'password' }
   end
+
+  test 'a student leaving a not-confirmed group removes their own-group panel and table row' do
+    student = @student
+    group = @group
+    membership = create(:project_group_member, project_group: group, user: student)
+    sign_in student
+
+    get course_group_formation_path(@course)
+    assert_response :success
+    assert_match 'data-testid="my-group-panel-grouped"', response.body
+
+    delete course_group_member_path(@course, group, membership)
+
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+    assert_no_match 'data-testid="my-group-panel-grouped"', response.body
+    # groups table should not list the user as a member
+    assert_select '#formation-groups' do
+      assert_select '.min-w-0.break-words.pt-1.text-sm.leading-5.text-on-surface', text: student.name, count: 0
+    end
+  end
+
+  test 'coordinator removal does not change group status' do
+    student = @student
+    group = @group
+    membership = create(:project_group_member, project_group: group, user: student)
+    sign_in @coordinator
+
+    delete course_group_member_path(@course, group, membership)
+
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+    group.reload
+    assert_equal false, group.confirmed?
+  end
+
+  test 'a student cannot leave a group that owns a proposal' do
+    student = @student
+    group = @group
+    membership = create(:project_group_member, project_group: group, user: student)
+    group.update!(confirmed: true)
+    create(:project, course: @course, owner: group, owner_type: 'ProjectGroup',
+                     supervisor_enrolment: create(:enrolment, :lecturer, course: @course))
+    group.update_columns(confirmed: false)
+    sign_in student
+
+    delete course_group_member_path(@course, group, membership)
+
+    assert_redirected_to course_group_formation_path(@course)
+    follow_redirect!
+    assert_response :success
+    assert_match(/proposal|coordinator can remove/i, response.body)
+    assert group.project_group_members.exists?(user: student)
+  end
 end

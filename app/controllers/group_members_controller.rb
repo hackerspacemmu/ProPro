@@ -21,17 +21,14 @@ class GroupMembersController < ApplicationController
     member = @group.project_group_members.find_by(id: params[:id])
 
     if member.nil?
-      redirect_back fallback_location: course_group_formation_path(@course), alert: 'This member has already been removed.'
+      redirect_to course_group_formation_path(@course), status: :see_other,
+                                                        alert: 'This member has already been removed.'
       return
     end
 
     authorize member, :destroy?
 
-    result = GroupMemberRemover.new(
-      member,
-      current_user: current_user,
-      dissolve_confirmed: params[:dissolve_confirmed] == 'true'
-    ).remove!
+    result = remove_member(member)
 
     if result.needs_confirmation?
       render turbo_stream: turbo_stream.append(
@@ -42,13 +39,25 @@ class GroupMembersController < ApplicationController
       return
     end
 
-    # Turbo morphs the refreshed page and reloads its open management frame.
-    # The redirect also handles browsers without a live stream connection.
-    redirect_back fallback_location: course_group_formation_path(@course), status: :see_other,
-                  **(result.blocked? ? { alert: result.message } : { notice: result.message })
+    redirect_to course_group_formation_path(@course), status: :see_other,
+                                                      **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private
+
+  def remove_member(member)
+    if coordinator?
+      Groups::Coordinator::MemberRemover.new(member, confirm: params[:confirm] == 'true').remove!
+    elsif member.user_id == current_user.id
+      Groups::Leaver.new(member).leave!
+    else
+      Groups::Kicker.new(member, current_user: current_user).kick!
+    end
+  end
+
+  def coordinator?
+    @course.enrolments.exists?(user_id: current_user.id, role: :coordinator)
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

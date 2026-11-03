@@ -1,13 +1,13 @@
 <dialog
   id="dissolve-warning-modal"
-  data-controller="dissolve-warning-modal"
-  data-action="click->dissolve-warning-modal#closeOnBackdrop"
+  data-controller="warning-modal"
+  data-action="click->warning-modal#closeOnBackdrop"
   aria-labelledby="dissolve-warning-modal-title"
   class="m-auto w-[420px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-outline-variant bg-surface p-0 backdrop:bg-black/40"
 >
   <div class="flex items-center justify-between border-b border-outline-variant px-5 py-4">
     <p class="text-sm font-semibold text-on-surface-strong" id="dissolve-warning-modal-title">Remove last member?</p>
-    <button type="button" data-action="click->dissolve-warning-modal#close" class="text-on-surface-variant transition-colors hover:text-on-surface" aria-label="Close">
+    <button type="button" data-action="click->warning-modal#close" class="text-on-surface-variant transition-colors hover:text-on-surface" aria-label="Close">
       <span class="material-symbols-outlined text-[18px]">close</span>
     </button>
   </div>
@@ -17,11 +17,11 @@
   </div>
 
   <div class="flex justify-end gap-2 px-5 py-4">
-    <button type="button" data-action="click->dissolve-warning-modal#close" class="<%= GroupFormationsHelper::GROUP_OUTLINE_BUTTON %>">Cancel</button>
+    <button type="button" data-action="click->warning-modal#close" class="<%= GroupFormationsHelper::GROUP_OUTLINE_BUTTON %>">Cancel</button>
     <%= button_to "Confirm remove",
           course_group_member_path(member.project_group.course, member.project_group, member),
           method: :delete,
-          params: { dissolve_confirmed: true },
+          params: { confirm: true },
           form: { data: { turbo_stream: true } },
           class: GroupFormationsHelper::GROUP_DANGER_BUTTON %>
   </div>

@@ -14,7 +14,8 @@ class GroupMemberAdder
     return blocked(:group_full) if group_full?(course)
 
     @group.with_lock do
-      ProjectGroupMember.create!(user: @user, project_group: @group)
+      return blocked(:already_grouped) unless ProjectGroupMember.add(user: @user, group: @group)
+
       Result.new(added: true, blocked_reason: nil)
     end
   end

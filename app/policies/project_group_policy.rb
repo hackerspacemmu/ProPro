@@ -4,7 +4,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def coordinator?
-    enrolment&.coordinator?
+    record.course.enrolments.exists?(user_id: user.id, role: :coordinator)
   end
 
   def grouping_window_open?
@@ -22,13 +22,15 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def revert?
+    return false if record.project.present?
     return true if manage_groups_policy.manage_groups?
 
     record.leader_id == user.id
   end
 
   def destroy?
-    return coordinator? if record.confirmed?
+    return true if coordinator?
+    return false if record.confirmed?
 
     grouping_window_open? && record.leader_id == user.id
   end
@@ -38,13 +40,6 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def update?
-    return true if coordinator?
-
-    grouping_window_open? &&
-      record.leader_id == user.id && !record.confirmed?
-  end
-
-  def promote_leader?
     return true if coordinator?
 
     grouping_window_open? &&

@@ -21,13 +21,11 @@ class GroupRoutesTest < ActionDispatch::IntegrationTest
                    { controller: 'groups', action: 'destroy', course_id: '1', id: '2' })
   end
 
-  test 'confirmation and leadership routes' do
+  test 'confirmation and invite link routes' do
     assert_routing({ method: 'POST', path: '/courses/1/groups/2/confirmation' },
                    { controller: 'group_confirmations', action: 'create', course_id: '1', group_id: '2' })
     assert_routing({ method: 'DELETE', path: '/courses/1/groups/2/confirmation' },
                    { controller: 'group_confirmations', action: 'destroy', course_id: '1', group_id: '2' })
-    assert_routing({ method: 'PATCH', path: '/courses/1/groups/2/leader' },
-                   { controller: 'group_leaders', action: 'update', course_id: '1', group_id: '2' })
     assert_routing({ method: 'POST', path: '/courses/1/groups/2/invite_link' },
                    { controller: 'group_invite_links', action: 'create', course_id: '1', group_id: '2' })
   end
