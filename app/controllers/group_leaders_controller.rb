@@ -5,19 +5,27 @@ class GroupLeadersController < ApplicationController
   def update
     authorize @group, :promote_leader?
 
-    target_member = @group.project_group_members.find_by!(user_id: params[:user_id])
+    result = promote_leader
 
-    begin
-      @group.update!(leader_id: target_member.user_id)
-    rescue StandardError => e
-      redirect_to course_group_formation_path(@course), alert: e.message
-      return
-    end
-
-    redirect_to course_group_formation_path(@course), notice: "#{target_member.user.name} is now the group leader."
+    redirect_to course_group_formation_path(@course),
+                **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private
+
+  def promote_leader
+    target_user_id = params.expect(:user_id)
+
+    if coordinator?
+      Groups::Coordinator::LeaderPromoter.new(@group, target_user_id: target_user_id).promote!
+    else
+      Groups::LeaderPromoter.new(@group, target_user_id: target_user_id).promote!
+    end
+  end
+
+  def coordinator?
+    @course.enrolments.exists?(user_id: current_user.id, role: :coordinator)
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

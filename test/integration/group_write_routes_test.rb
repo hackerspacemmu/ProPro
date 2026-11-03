@@ -342,6 +342,80 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert @group.reload.confirmed?
   end
 
+  test 'dissolve_confirmed no longer lets a student delete a group with a proposal' do
+    project_group = @group
+    project_group.update!(confirmed: true)
+    project = create(:project, course: @course, owner: project_group, owner_type: 'ProjectGroup',
+                               supervisor_enrolment: create(:enrolment, :lecturer, course: @course))
+    project_group.update_columns(confirmed: false)
+    membership = project_group.project_group_members.find_by!(user: @member)
+    sign_in @member
+
+    %w[dissolve_confirmed confirm].each do |flag|
+      assert_no_difference ['ProjectGroup.count', 'Project.count', 'ProjectGroupMember.count'] do
+        delete course_group_member_path(@course, project_group, membership), params: { flag => true }
+      end
+
+      assert_redirected_to course_group_formation_path(@course)
+      follow_redirect!
+      assert_match(/proposal|coordinator can remove/i, response.body)
+    end
+
+    assert Project.exists?(project.id)
+  end
+
+  test 'a coordinator deleting a group with a proposal warns, then deletes on confirmation' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    project = create(:project, course: @course, owner: @group, owner_type: 'ProjectGroup',
+                               supervisor_enrolment: supervisor)
+    create(:project_instance, project: project, supervisor_enrolment: supervisor, title: 'Group Proposal')
+    sign_in @coordinator
+
+    assert_no_difference ['ProjectGroup.count', 'Project.count'] do
+      delete course_group_path(@course, @group)
+    end
+
+    assert_response :success
+    assert_equal 'text/vnd.turbo-stream.html', response.media_type
+    assert_match 'Delete group and project', response.body
+
+    assert_difference ['ProjectGroup.count', 'Project.count'], -1 do
+      delete course_group_path(@course, @group), params: { confirm: true }
+    end
+
+    assert_redirected_to course_group_formation_path(@course)
+    assert_not Project.exists?(project.id)
+  end
+
+  test 'a non-coordinator cannot confirm a project-group deletion' do
+    @group.update!(confirmed: true)
+    project = create(:project, course: @course, owner: @group, owner_type: 'ProjectGroup',
+                               supervisor_enrolment: create(:enrolment, :lecturer, course: @course))
+    sign_in @leader
+
+    assert_no_difference ['ProjectGroup.count', 'Project.count'] do
+      delete course_group_path(@course, @group), params: { confirm: true }
+    end
+
+    assert_redirected_to dashboard_path
+    assert Project.exists?(project.id)
+  end
+
+  test 'removing the last member from the group edit page returns to formation' do
+    group = create(:project_group, course: @course, leader_id: @other_student.id)
+    membership = create(:project_group_member, project_group: group, user: @other_student)
+    sign_in @coordinator
+
+    delete course_group_member_path(@course, group, membership),
+           headers: { 'HTTP_REFERER' => edit_course_group_path(@course, group) }
+
+    assert_redirected_to course_group_formation_path(@course)
+    follow_redirect!
+    assert_response :success
+    assert_not ProjectGroup.exists?(group.id)
+  end
+
   private
 
   def sign_in(user)

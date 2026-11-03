@@ -17,7 +17,9 @@ class EnrolmentsController < ApplicationController
                                                 user_id: enrolment.user_id)
 
       if group_member
-        result = GroupMemberRemover.new(group_member, current_user: current_user, dissolve_confirmed: true).remove!
+        # Enrolment removal supplies the confirmation itself for now; the shared
+        # warning path arrives with the enrolment transaction work.
+        result = Groups::Coordinator::MemberRemover.new(group_member, confirm: true).remove!
 
         if result.blocked?
           redirect_back_or_to course_path(current_course), alert: result.message

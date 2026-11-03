@@ -1,14 +1,16 @@
 class ProjectGroupMemberPolicy < ApplicationPolicy
   def destroy?
-    return true if record.user_id == user.id
-    return true if record.project_group.leader?(user)
+    group = record.project_group
 
-    CoursePolicy.new(user, record.project_group.course).manage_groups?
+    return true if coordinator?
+    return false if group.confirmed?
+
+    record.user_id == user.id || group.leader?(user)
   end
 
   private
 
-  def enrolment
-    @enrolment ||= record.project_group.course.enrolments.find_by(user:)
+  def coordinator?
+    record.project_group.course.enrolments.exists?(user_id: user.id, role: :coordinator)
   end
 end

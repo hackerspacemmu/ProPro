@@ -14,9 +14,9 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     get course_group_formation_path(@course)
 
     assert_response :success
-    assert_match 'Grouping settings', response.body
+    assert_match 'Group formation', response.body
     assert_match settings_course_path(@course), response.body
-    assert_match 'Default mode', response.body
+    assert_match '2&ndash;4 members per group', response.body
   end
 
   test 'coordinator sees the renamed mode labels on course settings' do
@@ -34,8 +34,8 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     get course_group_formation_path(@course)
 
     assert_response :success
-    assert_match 'Default mode', response.body
-    assert_no_match(/Grouping settings/, response.body)
+    assert_match 'Group formation', response.body
+    assert_match '2&ndash;4 members per group', response.body
   end
 
   private

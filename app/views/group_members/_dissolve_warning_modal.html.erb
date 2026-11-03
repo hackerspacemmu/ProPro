@@ -21,7 +21,7 @@
     <%= button_to "Confirm remove",
           course_group_member_path(member.project_group.course, member.project_group, member),
           method: :delete,
-          params: { dissolve_confirmed: true },
+          params: { confirm: true },
           form: { data: { turbo_stream: true } },
           class: GroupFormationsHelper::GROUP_DANGER_BUTTON %>
   </div>

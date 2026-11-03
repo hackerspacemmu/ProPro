@@ -29,7 +29,8 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def destroy?
-    return coordinator? if record.confirmed?
+    return true if coordinator?
+    return false if record.confirmed?
 
     grouping_window_open? && record.leader_id == user.id
   end

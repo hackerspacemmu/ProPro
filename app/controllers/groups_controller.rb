@@ -92,39 +92,51 @@ class GroupsController < ApplicationController
 
     attrs = params.expect(project_group: [:locked])
     locked = ActiveModel::Type::Boolean.new.cast(attrs[:locked])
-
-    if locked && @group.leader_id.blank?
-      redirect_to course_group_formation_path(@course), alert: 'Assign a leader before locking this group.'
-      return
-    end
-
-    begin
-      @group.update!(locked: locked)
-    rescue StandardError => e
-      redirect_to course_group_formation_path(@course), alert: e.message
-      return
-    end
+    result = update_approval(locked)
 
     redirect_to course_group_formation_path(@course),
-                notice: locked ? 'Group is now locked.' : 'Group is now open to join.'
+                **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   def destroy
     authorize @group, :destroy?
 
-    begin
-      ActiveRecord::Base.transaction do
-        @group.destroy!
-      end
-    rescue StandardError => e
-      redirect_to course_group_formation_path(@course), alert: e.message
+    result = delete_group
+
+    if result.needs_confirmation?
+      render turbo_stream: turbo_stream.append(
+        'modals',
+        partial: 'groups/delete_warning_modal',
+        locals: { group: @group, result: result }
+      )
       return
     end
 
-    redirect_to course_group_formation_path(@course), notice: 'Group dissolved.'
+    redirect_to course_group_formation_path(@course),
+                **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private
+
+  def update_approval(locked)
+    if coordinator?
+      Groups::Coordinator::ApprovalToggler.new(@group, locked: locked).set!
+    else
+      Groups::ApprovalToggler.new(@group, locked: locked).set!
+    end
+  end
+
+  def delete_group
+    if coordinator?
+      Groups::Coordinator::GroupDeleter.new(@group, confirm: params[:confirm] == 'true').delete!
+    else
+      Groups::Deleter.new(@group).delete!
+    end
+  end
+
+  def coordinator?
+    @current_user_enrolment&.coordinator?
+  end
 
   def set_course
     @course = Course.find(params[:course_id])
