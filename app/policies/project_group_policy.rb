@@ -46,13 +46,6 @@ class ProjectGroupPolicy < ApplicationPolicy
       record.leader_id == user.id && !record.confirmed?
   end
 
-  def promote_leader?
-    return true if coordinator?
-
-    grouping_window_open? &&
-      record.leader_id == user.id && !record.confirmed?
-  end
-
   def join?
     enrolment.present? && enrolment.student?
   end

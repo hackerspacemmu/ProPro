@@ -113,23 +113,6 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_redirected_to dashboard_path
   end
 
-  test 'the leader can promote a member to leader' do
-    sign_in @leader
-
-    patch course_group_leader_path(@course, @group), params: { user_id: @member.id }
-
-    assert_redirected_to course_group_formation_path(@course)
-    assert_equal @member.id, @group.reload.leader_id
-  end
-
-  test 'another student cannot promote a leader' do
-    sign_in @other_student
-
-    patch course_group_leader_path(@course, @group), params: { user_id: @member.id }
-
-    assert_redirected_to dashboard_path
-  end
-
   test 'the leader can generate an invite link' do
     sign_in @leader
 

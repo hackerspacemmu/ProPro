@@ -447,7 +447,7 @@ Also test: window closed (D2), Auto-Confirmability mode (`student_list_finalised
 Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things it deliberately left alone), [F] this frontend plan, [C] found while reading the code.
 
 **Delete / cleanup**
-1. [F] Delete stale promote-to-leader: `group_leaders#update`, `resource :leader`, `ProjectGroupPolicy#promote_leader?`, the controller and its route test rows.
+1. [x] [F] Delete stale promote-to-leader: `group_leaders#update`, `resource :leader`, `ProjectGroupPolicy#promote_leader?`, the controller and its route test rows.
 2. [F] Drop `lecturers_can_manage_groups` (column default `true`, no settings UI); `CoursePolicy#manage_groups?` becomes `coordinator || lecturer`. Frontend already calls only `manage_groups?`.
 3. [R] Remove the two legacy GET redirects (`/courses/:id/project_groups`, `/project_group_invite_links/:token`) after one release, with their routing tests. Keep `join/:token`.
 4. [F] Remove `@my_group_can_confirm` from `GroupFormationsController#show` (unused once Confirm is always enabled).
