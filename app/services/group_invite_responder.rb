@@ -24,7 +24,8 @@ class GroupInviteResponder
       return blocked(:group_confirmed) if @group.confirmed?
       return blocked(:group_full) if group_full?(course)
 
-      ProjectGroupMember.create!(user: joining_user, project_group: @group)
+      return blocked(:already_grouped) unless ProjectGroupMember.add(user: joining_user, group: @group)
+
       @invite.update!(status: :accepted)
       clear_conflicting_invites!(joining_user)
 

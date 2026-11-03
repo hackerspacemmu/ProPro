@@ -6,10 +6,6 @@ class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv update_coursecode update_email_domain grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
-  # The Overview tab — the only course tab page that lives on courses#show;
-  # Topics/People/Groups are their own routes (route-per-tab, ADR 0019), so
-  # this action loads only what the Overview content needs: the presenter and
-  # the viewer's own submission.
   def show
     authorize @course
 
@@ -52,7 +48,7 @@ class CoursesController < ApplicationController
                         []
                       end
 
-    # For Supervised Projects tab (Ticket 6)
+    # For Supervised Projects tab
     @approved_projects = @my_student_projects.select(&:approved?)
 
     @presenter = OverviewPresenter.new(
@@ -129,6 +125,8 @@ class CoursesController < ApplicationController
       return
     end
 
+    import_result = nil
+
     begin
       ActiveRecord::Base.transaction do
         # Remove the leading 'S-' from student IDs if present
@@ -139,7 +137,7 @@ class CoursesController < ApplicationController
 
         if @course.grouped
           student_hashmap = @course.parse_csv_grouped(csv_obj)
-          create_db_entries_grouped(student_hashmap, @course)
+          import_result = create_db_entries_grouped(student_hashmap, @course)
         else
           student_set = @course.parse_csv_solo(csv_obj)
           create_db_entries_solo(student_set, @course)
@@ -150,7 +148,11 @@ class CoursesController < ApplicationController
       return
     end
 
-    redirect_to course_path(@course)
+    if import_result&.skipped?
+      redirect_to course_path(@course), alert: skipped_import_summary(import_result)
+    else
+      redirect_to course_path(@course)
+    end
   end
 
   def new
@@ -424,19 +426,17 @@ class CoursesController < ApplicationController
   end
 
   def create_db_entries_grouped(hash_map, parent_course)
-    hash_map.keys.each do |group|
-      new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
-
-      hash_map[group].each do |group_member|
+    users_by_group = hash_map.transform_values do |members|
+      members.map do |group_member|
         new_user = User.find_by(email_address: group_member[:email_address])
 
         if new_user
-          new_user.update!(instid: group_member[:instid])
+          new_user.update!(instid: group_member[:instid]) if group_member[:instid].present?
 
           if new_user.enrolments.where(course: parent_course).empty?
             GeneralMailer.with(
               course: parent_course,
-              email_address: group_member[:email]
+              email_address: group_member[:email_address] || group_member[:email]
             ).Course_Invite_Notification.deliver_later
           end
         else
@@ -449,7 +449,7 @@ class CoursesController < ApplicationController
           )
 
           GeneralMailer.with(
-            email_address: group_member[:email],
+            email_address: group_member[:email_address] || group_member[:email],
             otp_token: result.otp_instance.token
           ).ProPro_Invite.deliver_later
 
@@ -462,19 +462,18 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
-        new_group_member = ProjectGroupMember.joins(:project_group).find_by(user: new_user, project_groups: { course: parent_course })
-
-        if new_group_member
-          new_group_member.update!(project_group: new_group)
-        else
-          ProjectGroupMember.create!(
-            user: new_user,
-            project_group: new_group
-          )
-        end
+        new_user
       end
     end
+
+    Groups::Coordinator::Importer.new(parent_course).import!(users_by_group)
+  end
+
+  def skipped_import_summary(result)
+    messages = result.skipped_messages
+    shown = messages.first(5)
+    shown << "and #{messages.size - shown.size} more." if messages.size > shown.size
+    shown.join(' ')
   end
 
   def create_db_entries_solo(student_set, parent_course)
@@ -738,17 +737,6 @@ class CoursesController < ApplicationController
     end
   end
 
-  # :no_group only applies to grouped courses where self-grouping is live
-  # (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
-  # student submits individually with no group step, so @group being nil there is
-  # expected, not an empty state. The grouping_enabled? guard also keeps the
-  # "Browse groups" CTA out of reach of students who could not actually open the
-  # page: GroupFormationsController#show authorizes with CoursePolicy#grouping?,
-  # which requires grouping_enabled? == true for a non-coordinator. A grouped
-  # course with self-grouping disabled (groups arrive only via CSV/Moodle import
-  # coordinated by staff) would otherwise render the CTA and let a student hit a
-  # Pundit::NotAuthorizedError (redirect to root with alert). In that state a
-  # group-less student instead gets the plain :no_proposal copy below.
   def submission_state_for(enrolment)
     return nil unless enrolment&.student?
 

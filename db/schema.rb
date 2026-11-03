@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_02_090200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -121,6 +121,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.integer "project_group_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "course_id", null: false
+    t.index ["course_id", "user_id"], name: "index_project_group_members_on_course_id_and_user_id", unique: true
     t.index ["project_group_id"], name: "index_project_group_members_on_project_group_id"
     t.index ["user_id"], name: "index_project_group_members_on_user_id"
   end
@@ -214,6 +216,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.integer "source_topic_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
+    t.index ["owner_id"], name: "index_projects_on_group_owner", unique: true, where: "((owner_type)::text = 'ProjectGroup'::text)"
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
   end
 
@@ -370,6 +373,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
   add_foreign_key "project_group_invites", "project_groups"
   add_foreign_key "project_group_invites", "users", column: "recipient_id"
   add_foreign_key "project_group_invites", "users", column: "sender_id"
+  add_foreign_key "project_group_members", "courses"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_groups", "courses"

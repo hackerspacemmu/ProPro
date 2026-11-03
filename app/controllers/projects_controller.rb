@@ -199,6 +199,9 @@ class ProjectsController < ApplicationController
 
           raise StandardError, "You're not part of a project group." unless group
 
+          # Serialises concurrent creates and a reopen. The reload also refreshes group.project.
+          group.lock!
+
           raise StandardError, 'Your group already has a project' if group.project
         else
           has_project = Current.user.solo_projects.find_by(course: @course)
@@ -255,6 +258,10 @@ class ProjectsController < ApplicationController
           )
         end
       end
+    rescue ActiveRecord::RecordNotUnique => e
+      message = e.message.include?('index_projects_on_group_owner') ? 'Your group already has a project' : e.message
+      redirect_to course_path(@course), alert: message
+      return
     rescue StandardError => e
       redirect_to course_path(@course), alert: e.message
       return

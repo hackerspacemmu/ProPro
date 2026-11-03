@@ -113,4 +113,58 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
   def sign_in(user)
     post session_path, params: { email_address: user.email_address, password: 'password' }
   end
+
+  test 'T1: student leaves not confirmed group - own group panel disappears and user not listed' do
+    student = @student
+    group = create(:project_group, course: @course, leader_id: @leader.id, confirmed: false)
+    create(:project_group_member, project_group: group, user: @leader)
+    membership = create(:project_group_member, project_group: group, user: student)
+    sign_in student
+
+    get course_group_formation_path(@course)
+    assert_response :success
+    assert_match 'data-testid="my-group-panel-grouped"', response.body
+
+    delete course_group_member_path(@course, group, membership)
+
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+    assert_no_match 'data-testid="my-group-panel-grouped"', response.body
+    # groups table should not list the user as a member
+    assert_select '#formation-groups' do
+      assert_select '.min-w-0.break-words.pt-1.text-sm.leading-5.text-on-surface', text: student.name, count: 0
+    end
+  end
+
+  test 'T2: coordinator removal does not change group status' do
+    student = @student
+    group = create(:project_group, course: @course, leader_id: @leader.id, confirmed: false)
+    create(:project_group_member, project_group: group, user: @leader)
+    membership = create(:project_group_member, project_group: group, user: student)
+    sign_in @coordinator
+
+    delete course_group_member_path(@course, group, membership)
+
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+    group.reload
+    assert_equal false, group.confirmed?
+  end
+
+  test 'T3: blocked removal shows alert' do
+    student = @student
+    group = create(:project_group, course: @course, leader_id: @leader.id, confirmed: true)
+    create(:project_group_member, project_group: group, user: @leader)
+    membership = create(:project_group_member, project_group: group, user: student)
+    sign_in student
+
+    delete course_group_member_path(@course, group, membership)
+
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+    assert_match(/The leader can only remove members|already been removed|Group formation/, response.body)
+  end
 end

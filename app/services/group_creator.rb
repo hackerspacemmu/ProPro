@@ -13,6 +13,8 @@ class GroupCreator
       return blocked(:window_closed) if self_create? && !@course.grouping_window_open?
 
       group = build_group!
+      return blocked(:already_grouped) unless group
+
       Result.new(created: true, group: group, blocked_reason: nil)
     end
   end
@@ -34,8 +36,10 @@ class GroupCreator
       course_group_sequence: next_seq,
       group_name: format('G%03d', next_seq)
     )
-    ProjectGroupMember.create!(user: @leader, project_group: group)
-    group
+    return group if ProjectGroupMember.add(user: @leader, group: group)
+
+    group.destroy!
+    nil
   end
 
   def blocked(reason)

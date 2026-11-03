@@ -15,7 +15,8 @@ class GroupJoiner
       return blocked(:group_locked) if @group.locked?
       return blocked(:group_full) if @group.project_group_members.count >= course.group_max.to_i
 
-      ProjectGroupMember.create!(user: @current_user, project_group: @group)
+      return blocked(:already_grouped) unless ProjectGroupMember.add(user: @current_user, group: @group)
+
       clear_conflicting_invites!
 
       Result.new(joined: true, blocked_reason: nil)

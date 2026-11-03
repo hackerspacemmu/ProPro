@@ -318,6 +318,30 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_redirected_to dashboard_path
   end
 
+  test 'the leader cannot reopen a group that has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+    sign_in @leader
+
+    delete course_group_confirmation_path(@course, @group)
+
+    assert_redirected_to dashboard_path
+    assert @group.reload.confirmed?
+  end
+
+  test 'a coordinator cannot reopen a group that has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+    sign_in @coordinator
+
+    delete course_group_confirmation_path(@course, @group)
+
+    assert_redirected_to dashboard_path
+    assert @group.reload.confirmed?
+  end
+
   private
 
   def sign_in(user)
