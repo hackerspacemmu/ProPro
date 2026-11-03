@@ -259,9 +259,11 @@ class ProjectsController < ApplicationController
         end
       end
     rescue ActiveRecord::RecordNotUnique => e
-      message = e.message.include?('index_projects_on_group_owner') ? 'Your group already has a project' : e.message
-      redirect_to course_path(@course), alert: message
-      return
+      if e.message.include?('index_projects_on_group_owner')
+        redirect_to course_path(@course), alert: 'Your group already has a project'
+        return
+      end
+      raise
     rescue StandardError => e
       redirect_to course_path(@course), alert: e.message
       return
