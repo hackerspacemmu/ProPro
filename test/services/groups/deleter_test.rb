@@ -34,5 +34,19 @@ module Groups
       assert result.blocked?
       assert_equal :window_closed, result.blocked_reason
     end
+
+    test 'blocks when the group owns a proposal' do
+      @group.update_columns(confirmed: true)
+      project = create(:project, course: @course, owner: @group, owner_type: 'ProjectGroup',
+                                 supervisor_enrolment: create(:enrolment, :lecturer, course: @course))
+      @group.update_columns(confirmed: false)
+
+      result = Deleter.new(@group).delete!
+
+      assert result.blocked?
+      assert_equal :has_project, result.blocked_reason
+      assert ProjectGroup.exists?(@group.id)
+      assert Project.exists?(project.id)
+    end
   end
 end

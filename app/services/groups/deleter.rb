@@ -9,6 +9,7 @@ module Groups
     def delete!
       @group.with_lock do
         return blocked(:window_closed) unless @group.course.grouping_window_open?
+        return blocked(:has_project) if @group.project.present?
         return blocked(:group_confirmed) if @group.confirmed?
 
         @group.destroy!
@@ -39,6 +40,7 @@ module Groups
 
         case blocked_reason
         when :window_closed then 'Group formation is closed.'
+        when :has_project then 'This group has a proposal, so only a coordinator can delete it.'
         when :group_confirmed then 'A confirmed group can only be deleted by a coordinator.'
         end
       end
