@@ -56,7 +56,7 @@ module Groups
                       "expected the course lock before the group lock, got:\n#{statements.join("\n")}"
     end
 
-    def capture_sql
+    def capture_sql(&)
       statements = []
 
       callback = lambda do |*args|
@@ -64,7 +64,7 @@ module Groups
         statements << payload[:sql] unless payload[:name] == 'SCHEMA'
       end
 
-      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { yield }
+      ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &)
       statements
     end
   end

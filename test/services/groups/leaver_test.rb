@@ -41,14 +41,14 @@ module Groups
       assert_not ProjectGroup.exists?(@group.id)
     end
 
-    test 'blocks when the group is confirmed' do
+    test 'blocks the leader when the group is confirmed' do
       @group.update!(confirmed: true)
 
-      result = Leaver.new(@membership).leave!
+      result = Leaver.new(@leader_membership).leave!
 
       assert result.blocked?
       assert_equal :group_confirmed, result.blocked_reason
-      assert @group.project_group_members.exists?(user: @member)
+      assert @group.project_group_members.exists?(user: @leader)
     end
 
     test 'blocks when formation is closed' do

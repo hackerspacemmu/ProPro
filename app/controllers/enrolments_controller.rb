@@ -17,8 +17,8 @@ class EnrolmentsController < ApplicationController
                                                 user_id: enrolment.user_id)
 
       if group_member
-        # Enrolment removal supplies the confirmation itself for now; the shared
-        # warning path arrives with the enrolment transaction work.
+        # Enrolment removal confirms the proposal deletion itself, so this path
+        # deletes a group with a proposal without warning.
         result = Groups::Coordinator::MemberRemover.new(group_member, confirm: true).remove!
 
         if result.blocked?

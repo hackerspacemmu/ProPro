@@ -13,6 +13,7 @@ module Groups
         member = @group.project_group_members.find_by(id: @member.id)
 
         return blocked(:already_removed) unless member
+        # Re-check inside the lock: a concurrent removal can replace the leader.
         return blocked(:not_leader) unless @group.leader?(@current_user)
         return blocked(:self_kick) if member.user_id == @current_user.id
         return blocked(:window_closed) unless @group.course.grouping_window_open?
