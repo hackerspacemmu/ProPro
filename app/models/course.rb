@@ -80,6 +80,13 @@ class Course < ApplicationRecord
     opens_ok && closes_ok
   end
 
+  def with_no_key_update_lock(&)
+    transaction do
+      lock!('FOR NO KEY UPDATE')
+      yield
+    end
+  end
+
   def disable_grouping!
     transaction do
       destroy_draft_groups

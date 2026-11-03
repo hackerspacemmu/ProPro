@@ -11,7 +11,7 @@ module Groups
       def delete!
         # Deleting a confirmed group changes the course-wide head-count, so the
         # course lock is taken before the group row.
-        @group.course.with_lock do
+        @group.course.with_no_key_update_lock do
           @group.with_lock do
             return needs_confirmation(@group.project.current_title) if @group.project.present? && !@confirm
 
@@ -37,7 +37,6 @@ module Groups
 
         def deleted? = @deleted
         def needs_confirmation? = !deleted? && project_title.present?
-        def blocked? = !deleted? && !needs_confirmation?
 
         def message
           if needs_confirmation?

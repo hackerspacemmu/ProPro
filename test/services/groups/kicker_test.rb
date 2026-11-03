@@ -38,6 +38,15 @@ module Groups
       assert_equal :self_kick, result.blocked_reason
     end
 
+    test 'blocks a member who was already removed' do
+      @membership.destroy!
+
+      result = Kicker.new(@membership, current_user: @leader).kick!
+
+      assert result.blocked?
+      assert_equal :already_removed, result.blocked_reason
+    end
+
     test 'blocks when the group is confirmed' do
       @group.update!(confirmed: true)
 

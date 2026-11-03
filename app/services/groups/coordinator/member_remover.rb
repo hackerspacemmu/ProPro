@@ -13,7 +13,7 @@ module Groups
       def remove!
         # Confirmed membership feeds the course-wide head-count, so the course
         # lock is taken before the group row.
-        @group.course.with_lock do
+        @group.course.with_no_key_update_lock do
           @group.with_lock do
             member = @group.project_group_members.find_by(id: @member.id)
             return blocked(:already_removed) unless member

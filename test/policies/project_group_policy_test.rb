@@ -26,4 +26,13 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
     @group.update!(confirmed: true)
     assert ProjectGroupPolicy.new(@coordinator, @group).destroy?
   end
+
+  test 'a coordinator with an earlier lecturer enrolment can delete a confirmed group' do
+    dual_role = create(:user)
+    create(:enrolment, :lecturer, user: dual_role, course: @course)
+    create(:enrolment, :coordinator, user: dual_role, course: @course)
+    @group.update!(confirmed: true)
+
+    assert ProjectGroupPolicy.new(dual_role, @group).destroy?
+  end
 end

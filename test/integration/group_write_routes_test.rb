@@ -347,6 +347,20 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert Project.exists?(project.id)
   end
 
+  test 'a coordinator with an earlier lecturer enrolment can delete a confirmed group' do
+    dual_role = create(:user)
+    create(:enrolment, :lecturer, user: dual_role, course: @course)
+    create(:enrolment, :coordinator, user: dual_role, course: @course)
+    @group.update!(confirmed: true)
+    sign_in dual_role
+
+    assert_difference 'ProjectGroup.count', -1 do
+      delete course_group_path(@course, @group)
+    end
+
+    assert_redirected_to course_group_formation_path(@course)
+  end
+
   test 'a coordinator deleting a group with a proposal warns, then deletes on confirmation' do
     @group.update!(confirmed: true)
     supervisor = create(:enrolment, :lecturer, course: @course)

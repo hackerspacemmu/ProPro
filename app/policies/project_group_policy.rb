@@ -4,7 +4,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def coordinator?
-    enrolment&.coordinator?
+    record.course.enrolments.exists?(user_id: user.id, role: :coordinator)
   end
 
   def grouping_window_open?

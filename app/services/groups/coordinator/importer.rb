@@ -12,7 +12,7 @@ module Groups
       def import!(rows)
         skipped = []
 
-        @course.with_lock do
+        @course.with_no_key_update_lock do
           return Result.new(blocked_reason: :not_grouped, skipped: skipped) unless @course.grouped?
 
           rows.each { |group_name, users| import_group!(group_name, users, skipped) }

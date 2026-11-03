@@ -52,9 +52,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_090200) do
     t.datetime "grouping_closes_at"
     t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
-    t.boolean "lecturers_can_manage_groups", default: true, null: false
     t.string "email_domain_restriction"
     t.boolean "email_domain_restriction_enabled", default: false, null: false
+    t.boolean "lecturers_can_manage_groups", default: true, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 
@@ -90,8 +90,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_090200) do
   end
 
   create_table "project_group_invite_links", force: :cascade do |t|
-    t.integer "project_group_id", null: false
-    t.integer "sender_id", null: false
+    t.bigint "project_group_id", null: false
+    t.bigint "sender_id", null: false
     t.string "token", null: false
     t.datetime "expires_at", null: false
     t.datetime "created_at", null: false
@@ -102,8 +102,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_090200) do
   end
 
   create_table "project_group_invites", force: :cascade do |t|
-    t.integer "project_group_id", null: false
-    t.integer "sender_id", null: false
+    t.bigint "project_group_id", null: false
+    t.bigint "sender_id", null: false
     t.integer "kind", default: 0, null: false
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false

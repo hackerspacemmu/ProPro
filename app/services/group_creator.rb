@@ -8,7 +8,7 @@ class GroupCreator
   end
 
   def create!
-    @course.with_lock do
+    @course.with_no_key_update_lock do
       return blocked(:already_grouped) if already_grouped?
       return blocked(:window_closed) if self_create? && !@course.grouping_window_open?
 
