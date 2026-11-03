@@ -27,6 +27,19 @@ export default class extends Controller {
     this.element.removeEventListener("click", this.onClick);
   }
 
+  preserveExpansion(event) {
+    const { currentElement, newElement } = event.detail;
+    if (!newElement) return;
+
+    if (currentElement.matches("[data-detail-row-id]")) {
+      newElement.classList.toggle("hidden", currentElement.classList.contains("hidden"));
+    } else if (currentElement.matches("[data-row-chevron]")) {
+      newElement.classList.toggle("rotate-180", currentElement.classList.contains("rotate-180"));
+    } else if (currentElement.matches("[data-row-toggle]")) {
+      newElement.setAttribute("aria-expanded", currentElement.getAttribute("aria-expanded"));
+    }
+  }
+
   onClick(event) {
     if (event.target.closest("[data-expandable-toggle-all]")) {
       this.toggleAll();

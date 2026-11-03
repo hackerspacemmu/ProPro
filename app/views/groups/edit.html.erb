@@ -1,4 +1,4 @@
-<%= turbo_frame_tag dom_id(@group, :manage), target: "_top", class: "flex min-h-0 flex-1 flex-col" do %>
+<%= turbo_frame_tag dom_id(@group, :manage), target: "_top", refresh: "morph", class: "flex min-h-0 flex-1 flex-col" do %>
   <% staff = policy(@course).manage_groups? %>
   <% leader_edit = !staff && !@group.confirmed? %>
   <% members = leader_first(@group.project_group_members.to_a, @group) %>
@@ -17,6 +17,7 @@
   </div>
 
   <div class="<%= GroupFormationsHelper::GROUP_DIALOG_BODY %>">
+    <%= render "group_formations/size_warning", group: @group, course: @course %>
     <% if staff %>
       <div class="pb-2">
         <%= render "group_formations/status_pill", confirmed: @group.confirmed? %>

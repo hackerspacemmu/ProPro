@@ -1,5 +1,7 @@
 <%# Course/Groups tab page Only routable on grouped
     courses, GroupsController 404s otherwise. %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
+<%= turbo_stream_from @course, :grouping %>
 <%= render "courses/tab_shell",
            course: @course,
            active: "groups",

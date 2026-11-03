@@ -7,6 +7,10 @@ class ProjectGroup < ApplicationRecord
   has_many :project_group_invites, dependent: :destroy
   has_many :project_group_invite_links, dependent: :destroy
 
+  # Membership changes touch the group. Notify both grouping pages only after
+  # the transaction commits, so counts, leadership and status refresh together.
+  after_commit :refresh_grouping_displays
+
   def revert_to_draft!
     update!(confirmed: false)
   end
@@ -28,5 +32,11 @@ class ProjectGroup < ApplicationRecord
       .new(course, students_to_group: course.unconfirmed_students_count)
       .execute
       .confirmable_size?(project_group_members.count)
+  end
+
+  private
+
+  def refresh_grouping_displays
+    Turbo::StreamsChannel.broadcast_refresh_to(course, :grouping)
   end
 end

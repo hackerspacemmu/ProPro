@@ -1,7 +1,7 @@
 <%# ivar→locals seam — the Groups panel counterpart of _people_tab.html.erb.
     Reads controller ivars ONCE and passes locals down; nothing rendered from
     here touches an ivar again. %>
-<section data-controller="modal">
+<section data-controller="modal" hx-replace-url="true">
 
   <div class="flex flex-col gap-4 border-b border-gray-300 pb-4 mb-4">
 

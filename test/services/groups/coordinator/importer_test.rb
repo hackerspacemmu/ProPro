@@ -76,7 +76,7 @@ module Groups
         result = Importer.new(@course).import!('Team A' => [@alice, @carol])
 
         assert_equal other.id, @course.project_group_members.find_by!(user_id: @carol.id).project_group_id
-        assert_equal [@carol], result.skipped.map { |entry| entry[:user] }
+        assert_equal([@carol], result.skipped.map { |entry| entry[:user] })
         assert_equal ["#{@carol.name} was already in a group and wasn't moved."], result.skipped_messages
       end
 

@@ -6,7 +6,8 @@
 
 <div id="groups-table-container"
      class="overflow-x-auto pb-8 border border-gray-200 rounded-lg"
-     data-controller="expandable-rows">
+     data-controller="expandable-rows"
+     data-action="turbo:before-morph-element->expandable-rows#preserveExpansion turbo:morph@document->expandable-rows#syncToggleAll">
   <table class="w-full min-w-[650px] table-fixed">
     <thead class="bg-white">
       <tr>

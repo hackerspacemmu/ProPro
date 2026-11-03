@@ -45,16 +45,28 @@ module GroupFormationsHelper
     group.project_group_members.map { |member| member.user.name }.compact.join(', ')
   end
 
-  # Hint under the my-group card title. Size hints are skipped in
-  # Auto-Confirmability mode (D6): the service message explains it there.
+  def group_size_warning(group, course)
+    return if group_size_state(group, course) == :ok
+
+    limits = if course.group_min.present? && course.group_max.present?
+               if course.group_min == course.group_max
+                 "the required size is #{pluralize(course.group_min, 'member')}"
+               else
+                 "the allowed size is #{course.group_min}–#{course.group_max} members"
+               end
+             elsif course.group_min.present?
+               "the minimum is #{pluralize(course.group_min, 'member')}"
+             else
+               "the maximum is #{pluralize(course.group_max, 'member')}"
+             end
+
+    "Warning: #{group.group_name.presence || 'This group'} has #{pluralize(group.project_group_members.size, 'member')}; #{limits}."
+  end
+
+  # Size warnings apply in both modes, including after a member leaves.
   def group_status_hint(group, course, leader:)
-    unless course.student_list_finalised?
-      count = group.project_group_members.size
-      state = group_size_state(group, course)
-      return 'Outside the size limits. Contact your coordinator.' if group.confirmed? && state != :ok
-      return "Needs #{pluralize(course.group_min.to_i - count, 'more member')}" if state == :under
-      return "Over the maximum of #{course.group_max}" if state == :over
-    end
+    warning = group_size_warning(group, course)
+    return warning if warning.present?
 
     'Waiting for your leader to confirm.' if !leader && !group.confirmed?
   end
