@@ -36,6 +36,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'th', text: /Project Title/
     assert_select 'th', text: /Status/
     assert_select 'th', text: /Supervisor/
+    assert_select 'kbd', text: '/', count: 0
     assert_select 'a[href=?]', course_person_path(@course, @student), text: @student.name
     assert_select 'a[href=?]', course_project_path(@course, @project), text: 'Accessible Campus Navigation'
     assert_select 'span', text: 'Approved'

@@ -15,15 +15,13 @@
                  autocomplete="off"
                  placeholder="Search students or projects..."
                  data-search-shortcut-target="input"
-                 class="peer bg-surface-tint border border-outline text-on-surface text-sm rounded-md focus:bg-surface focus:ring-2 focus:ring-primary focus:border-transparent block w-full pl-9 pr-9 py-2 transition-all outline-none"
+                 class="bg-surface-tint border border-outline text-on-surface text-sm rounded-md focus:bg-surface focus:ring-2 focus:ring-primary focus:border-transparent block w-full pl-9 pr-3 py-2 transition-all outline-none"
                  hx-get="<%= course_students_url(@course) %>"
                  hx-target="#solo-students-table-container"
                  hx-swap="outerHTML"
                  hx-trigger="input changed delay:300ms"
                  hx-include="#students-search, #students-status-filter, #students-lecturer-filter"
                  hx-indicator="#students-loading">
-          <kbd aria-hidden="true"
-               class="hidden md:flex peer-focus:hidden absolute right-3 top-1/2 -translate-y-1/2 items-center justify-center h-5 min-w-[1.25rem] px-1 rounded border border-outline-variant bg-surface text-[11px] font-mono text-on-surface-muted pointer-events-none select-none">/</kbd>
         </div>
 
         <% unless @course.solo_supervisor? %>
