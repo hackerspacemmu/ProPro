@@ -1,7 +1,7 @@
 # The People tab — /courses/:course_id/people (route-per-tab, ADR 0019).
-# One page: the Lecturers half (with the supervisor capacity strip) plus the
-# Students half, and the htmx branch that used to be courses#show's
-# `section=students` dispatch (same partial, same locals).
+# The staff directory for every course. Grouped courses retain the Students
+# section and its htmx table; solo courses use the dedicated Students tab for
+# their project-oriented student directory.
 class PeopleController < ApplicationController
   include ParticipantBrowsing
   include CoursesHelper
@@ -10,14 +10,18 @@ class PeopleController < ApplicationController
   before_action :authorize_course
 
   def index
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
+    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
+    @lecturers = sorted_lecturers(@course.lecturers)
+
+    # Solo courses have a dedicated Students tab with project-oriented columns.
+    # Their People tab is now staff-only, so it does not need any student data.
+    return unless @course.grouped?
+
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
     @student_list = @course.students
-
-    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
-    @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
-    @lecturers = sorted_lecturers(@course.lecturers)
 
     # One map lookup, computed once: user_id => project_group for the Students
     # section's Group column. Includes draft groups (students in a draft group

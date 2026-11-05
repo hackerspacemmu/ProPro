@@ -1,0 +1,7 @@
+<%# Solo-course Students tab (route-per-tab, ADR 0019). %>
+<%= render "courses/tab_shell",
+           course: @course,
+           active: "students",
+           current_user_enrolment: @current_user_enrolment do %>
+  <%= render "courses/solo_students_tab" %>
+<% end %>
