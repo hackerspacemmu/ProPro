@@ -35,4 +35,18 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
 
     assert ProjectGroupPolicy.new(dual_role, @group).destroy?
   end
+
+  test 'a formation group can be reverted' do
+    @group.update!(confirmed: true)
+
+    assert ProjectGroupPolicy.new(@leader, @group).revert?
+    assert ProjectGroupPolicy.new(@coordinator, @group).revert?
+  end
+
+  test 'an imported group cannot be reverted' do
+    @group.update!(confirmed: true, origin: :import)
+
+    assert_not ProjectGroupPolicy.new(@leader, @group).revert?
+    assert_not ProjectGroupPolicy.new(@coordinator, @group).revert?
+  end
 end

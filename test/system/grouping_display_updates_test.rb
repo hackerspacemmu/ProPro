@@ -32,7 +32,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
       within "#project_group_#{@group.id}" do
         assert_text '2 of 4 members'
         assert_text 'Confirmed'
-        assert_selector '[data-group-size-warning]', text: warning_for(2)
+        assert_selector '[data-group-size-warning][role="img"]'
       end
       assert_monitor_count(2, warning: true)
     end
@@ -44,7 +44,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
     Capybara.using_session(:formation_observer) do
       open_formation(@students.first)
       select 'Invalid size', from: 'formation-status-filter'
-      assert_selector '[data-group-size-warning]', text: warning_for(2)
+      assert_selector '[data-group-size-warning][role="img"]'
       assert_current_path(/status_filter=invalid/)
     end
     open_formation(@students.last)
@@ -165,7 +165,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
       within "#project_group_#{@group.id}" do
         assert_text "#{count} members"
         if warning
-          assert_selector '[data-group-size-warning]', text: warning_for(count)
+          assert_selector '[data-group-size-warning][role="img"]'
         else
           assert_no_selector '[data-group-size-warning]'
         end

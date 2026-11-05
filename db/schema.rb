@@ -136,6 +136,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_090200) do
     t.boolean "locked", default: false, null: false
     t.integer "leader_id"
     t.integer "course_group_sequence"
+    t.string "origin", default: "formation", null: false
     t.index ["course_id", "course_group_sequence"], name: "index_project_groups_on_course_id_and_course_group_sequence", unique: true
     t.index ["course_id"], name: "index_project_groups_on_course_id"
   end

@@ -353,37 +353,42 @@ Enrolment.create!(
 # Roughly half the groups are confirmed and half stay drafts; the Groups tab
 # tables both states, so the filtered/status columns can be eyeballed.
 group_1 = ProjectGroup.create!(
-  group_name: 'group_1',
+  group_name: 'G001',
   course: course_with_groups,
   leader_id: student1.id,
+  course_group_sequence: 1,
   confirmed: true
 )
 
 group_2 = ProjectGroup.create!(
-  group_name: 'group_2',
+  group_name: 'G002',
   course: course_with_groups,
   leader_id: student4.id,
+  course_group_sequence: 2,
   confirmed: true
 )
 
 group_3 = ProjectGroup.create!(
-  group_name: 'group_3',
+  group_name: 'G003',
   course: course_with_groups,
   leader_id: student7.id,
+  course_group_sequence: 3,
   confirmed: true
 )
 
 group_4 = ProjectGroup.create!(
-  group_name: 'group_4',
+  group_name: 'G004',
   course: course_with_groups,
   leader_id: student10.id,
+  course_group_sequence: 4,
   confirmed: true
 )
 
 group_5 = ProjectGroup.create!(
-  group_name: 'group_5',
+  group_name: 'G005',
   course: course_with_groups,
-  leader_id: student13.id
+  leader_id: student13.id,
+  course_group_sequence: 5
 )
 
 # Create Project Group Members
@@ -841,7 +846,7 @@ group_2_instance_1 = ProjectInstance.create!(
   project: group_2_project,
   version: 1,
   created_by: student4,
-  title: 'Difficult Group Project Group 2',
+  title: 'Difficult Group Project G002',
   status: :rejected,
   supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
@@ -850,7 +855,7 @@ group_3_instance_1 = ProjectInstance.create!(
   project: group_3_project,
   version: 1,
   created_by: student7,
-  title: 'Difficult Group Project Group 3',
+  title: 'Difficult Group Project G003',
   status: :redo,
   supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
@@ -859,7 +864,7 @@ group_4_instance_1 = ProjectInstance.create!(
   project: group_4_project,
   version: 1,
   created_by: student10,
-  title: 'Difficult Group Project Group 4',
+  title: 'Difficult Group Project G004',
   status: :pending,
   supervisor_enrolment: lecturer_1_lecturer_enrolment
 )
@@ -979,7 +984,7 @@ ProjectInstanceField.create!(
 ProjectInstanceField.create!(
   instance: group_2_instance_1,
   project_template_field: title_field_group,
-  value: 'Difficult Group Project Group 2'
+  value: 'Difficult Group Project G002'
 )
 
 ProjectInstanceField.create!(
@@ -991,7 +996,7 @@ ProjectInstanceField.create!(
 ProjectInstanceField.create!(
   instance: group_3_instance_1,
   project_template_field: title_field_group,
-  value: 'Difficult Group Project Group 3'
+  value: 'Difficult Group Project G003'
 )
 
 ProjectInstanceField.create!(
@@ -1003,7 +1008,7 @@ ProjectInstanceField.create!(
 ProjectInstanceField.create!(
   instance: group_4_instance_1,
   project_template_field: title_field_group,
-  value: 'Difficult Group Project Group 4'
+  value: 'Difficult Group Project G004'
 )
 
 ProjectInstanceField.create!(

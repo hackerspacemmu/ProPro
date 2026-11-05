@@ -4,5 +4,10 @@ FactoryBot.define do
     group_name { Faker::Lorem.unique.word }
     confirmed { false }
     locked { false }
+
+    trait :imported do
+      origin { :import }
+      confirmed { true }
+    end
   end
 end

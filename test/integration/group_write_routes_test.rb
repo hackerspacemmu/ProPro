@@ -413,6 +413,17 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_not ProjectGroup.exists?(group.id)
   end
 
+  test 'an imported group cannot be reopened from the formation page' do
+    @group.update!(confirmed: true, origin: :import)
+    sign_in @leader
+
+    delete course_group_confirmation_path(@course, @group)
+
+    assert_redirected_to dashboard_path
+    assert_equal 'You are not authorized to view this page.', flash[:alert]
+    assert @group.reload.confirmed?
+  end
+
   private
 
   def sign_in(user)

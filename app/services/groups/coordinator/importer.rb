@@ -37,7 +37,7 @@ module Groups
 
           # Created on first placement, so a group whose members are all skipped is never saved.
           unless group
-            group = @course.project_groups.create!(group_name: group_name, confirmed: true)
+            group = @course.project_groups.create!(group_name: group_name, confirmed: true, origin: :import)
             created = true
           end
 

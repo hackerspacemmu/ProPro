@@ -34,9 +34,9 @@
           </div>
         <% end %>
       </div>
+      <%= render "group_formations/size_warning_icon", group: group, course: course %>
       <span class="text-sm text-gray-500 truncate"><%= pluralize(group.project_group_members.size, "member") %></span>
     </div>
-    <%= render "group_formations/size_warning", group: group, course: course %>
   </td>
   <td class="px-4 py-4 text-sm align-middle">
     <% if project.present? %>

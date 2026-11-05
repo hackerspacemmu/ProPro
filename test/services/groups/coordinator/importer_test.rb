@@ -16,9 +16,18 @@ module Groups
         group = @course.project_groups.find_by!(group_name: 'Team A')
         assert_not result.blocked?
         assert group.confirmed?
+        assert group.origin_import?
         assert_equal @alice.id, group.leader_id
         assert_nil group.course_group_sequence
         assert_equal [@alice.id, @bob.id].sort, group.project_group_members.pluck(:user_id).sort
+        assert_equal [@course.id], group.project_group_members.distinct.pluck(:course_id)
+      end
+
+      test 'locks the course without a key update' do
+        statements = capture_sql { Importer.new(@course).import!('Team A' => [@alice]) }
+
+        assert statements.any? { |sql| sql.include?('FROM "courses"') && sql.include?('FOR NO KEY UPDATE') },
+               "expected a SELECT ... FOR NO KEY UPDATE on courses, got:\n#{statements.join("\n")}"
       end
 
       test 'works with the grouping window closed' do
@@ -55,6 +64,7 @@ module Groups
 
         group.reload
         assert_not group.confirmed?
+        assert group.origin_formation?
         assert_equal @alice.id, group.leader_id
         assert_equal 2, group.project_group_members.count
         assert_equal 1, @course.project_groups.where(group_name: 'Team A').count
@@ -107,6 +117,20 @@ module Groups
           result = Importer.new(@course).import!('Team A' => [@alice, @bob])
           assert_not result.skipped?
         end
+      end
+
+      private
+
+      def capture_sql(&)
+        statements = []
+
+        callback = lambda do |*args|
+          payload = args.last
+          statements << payload[:sql] unless payload[:name] == 'SCHEMA'
+        end
+
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &)
+        statements
       end
     end
   end

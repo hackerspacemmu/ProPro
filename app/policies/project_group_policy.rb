@@ -23,6 +23,7 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def revert?
     return false if record.project.present?
+    return false if record.origin_import?
     return true if manage_groups_policy.manage_groups?
 
     record.leader_id == user.id

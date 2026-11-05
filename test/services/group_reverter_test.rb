@@ -31,6 +31,18 @@ class GroupReverterTest < ActiveSupport::TestCase
     assert_equal :already_draft, result.blocked_reason
   end
 
+  test 'blocks with imported_group when the group was imported' do
+    course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    group  = create(:project_group, :imported, course: course)
+
+    result = GroupReverter.new(group).revert!
+
+    assert_not result.reverted?
+    assert_equal :imported_group, result.blocked_reason
+    assert_equal 'This group was imported, so it cannot be reopened.', result.message
+    assert group.reload.confirmed?
+  end
+
   test 'blocks with has_project when the group already has a project' do
     course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, student_list_finalised: false, group_min: 2, group_max: 4)
     group  = create(:project_group, course: course, confirmed: true)

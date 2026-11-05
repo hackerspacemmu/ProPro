@@ -85,11 +85,11 @@
                     <span class="relative z-10 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-surface bg-surface-variant-deep text-[10px] font-medium text-on-surface">+<%= count - 3 %></span>
                   <% end %>
                 </span>
+                <%= render "group_formations/size_warning_icon", group: group, course: course %>
                 <span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5">
                   <span class="text-sm text-on-surface-muted"><%= course.group_max.present? ? "#{count} of #{course.group_max} members" : pluralize(count, "member") %></span>
                 </span>
               </button>
-              <%= render "group_formations/size_warning", group: group, course: course %>
             </td>
 
             <td class="<%= td %> text-right sm:text-left max-sm:order-2 max-sm:justify-self-end">

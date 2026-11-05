@@ -37,12 +37,17 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
 
     [false, true].each do |automatic|
       @course.update!(group_min: 3, student_list_finalised: automatic)
-      [course_groups_path(@course), course_group_formation_path(@course), edit_course_group_path(@course, @group)].each do |path|
+      [course_groups_path(@course), course_group_formation_path(@course)].each do |path|
         get path
 
         assert_response :success
-        assert_select '[data-group-size-warning] span:last-child', text: 'Warning: Alpha Group has 2 members; the allowed size is 3–4 members.'
+        assert_select '[data-group-size-warning][role="img"]', count: 1
+        assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
       end
+
+      get edit_course_group_path(@course, @group)
+      assert_response :success
+      assert_select '[data-group-size-warning] span:last-child', text: 'Warning: Alpha Group has 2 members; the allowed size is 3–4 members.'
     end
   end
 
@@ -58,7 +63,8 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
       get path
 
       assert_response :success
-      assert_select '[data-group-size-warning] span:last-child', text: 'Warning: Alpha Group has 5 members; the allowed size is 2–4 members.'
+      assert_select '[data-group-size-warning][role="img"]', count: 1
+      assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
     end
   end
 
@@ -66,7 +72,8 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     sign_in @coordinator
     @course.update!(group_min: 3, group_max: 3)
     get course_group_formation_path(@course)
-    assert_select '[data-group-size-warning] span:last-child', text: 'Warning: Alpha Group has 2 members; the required size is 3 members.'
+    assert_select '[data-group-size-warning][role="img"]', count: 1
+    assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
 
     create(:project_group_member, project_group: @group, user: @student)
     [course_groups_path(@course), course_group_formation_path(@course)].each do |path|

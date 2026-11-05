@@ -1,4 +1,6 @@
 class ProjectGroup < ApplicationRecord
+  enum :origin, { formation: 'formation', import: 'import' }, prefix: true, validate: true
+
   has_many :project_group_members, dependent: :destroy
   belongs_to :course
 

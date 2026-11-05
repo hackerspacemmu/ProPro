@@ -10,6 +10,7 @@ class GroupReverter
 
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_draft) unless @group.confirmed?
+      return blocked(:imported_group) if @group.origin_import?
       return blocked(:has_project) if @group.project.present?
 
       @group.update!(confirmed: false)
@@ -37,6 +38,7 @@ class GroupReverter
       case blocked_reason
       when :window_closed then 'The grouping window is closed.'
       when :already_draft then 'This group is already a Not Confirmed Group.'
+      when :imported_group then 'This group was imported, so it cannot be reopened.'
       when :has_project then 'This group already has a proposal, so it cannot be reopened.'
       when nil then 'Group status changed to not confirmed.'
       end
