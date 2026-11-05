@@ -5,9 +5,17 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
     @course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
     @leader = create(:user)
     @coordinator = create(:user, :staff)
+    @student = create(:user)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
+    create(:enrolment, user: @student, course: @course)
     @group = create(:project_group, course: @course, leader_id: @leader.id)
     create(:project_group_member, project_group: @group, user: @leader)
+  end
+
+  test 'request_to_join? is false for a student, a leader and a coordinator' do
+    assert_not ProjectGroupPolicy.new(@student, @group).request_to_join?
+    assert_not ProjectGroupPolicy.new(@leader, @group).request_to_join?
+    assert_not ProjectGroupPolicy.new(@coordinator, @group).request_to_join?
   end
 
   test 'the leader can delete a not-confirmed group while formation is open' do

@@ -1,6 +1,6 @@
 # Leader generates/regenerates the group's shareable invite link.
 # Regenation deletes the old record and creates a new one.
-# draft groups, no email notifications, can join if locked
+# draft groups, no email notifications
 class GroupInviteLinkGenerator
   def initialize(group, current_user:)
     @group = group

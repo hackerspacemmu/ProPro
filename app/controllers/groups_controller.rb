@@ -6,7 +6,7 @@ class GroupsController < ApplicationController
   before_action :set_course
   before_action :authorize_course, only: %i[index show]
   before_action :ensure_grouped, only: %i[index show]
-  before_action :set_group, only: %i[show edit update destroy]
+  before_action :set_group, only: %i[show edit destroy]
 
   def index
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
@@ -72,17 +72,6 @@ class GroupsController < ApplicationController
     end
   end
 
-  def update
-    authorize @group, :update?
-
-    attrs = params.expect(project_group: [:locked])
-    locked = ActiveModel::Type::Boolean.new.cast(attrs[:locked])
-    result = update_approval(locked)
-
-    redirect_to course_group_formation_path(@course),
-                **(result.blocked? ? { alert: result.message } : { notice: result.message })
-  end
-
   def destroy
     authorize @group, :destroy?
 
@@ -101,14 +90,6 @@ class GroupsController < ApplicationController
   end
 
   private
-
-  def update_approval(locked)
-    if coordinator?
-      Groups::Coordinator::ApprovalToggler.new(@group, locked: locked).set!
-    else
-      Groups::ApprovalToggler.new(@group, locked: locked).set!
-    end
-  end
 
   def delete_group
     if coordinator?

@@ -68,8 +68,6 @@ module Groups
     test 'group-write services lock the group row' do
       assert_locks_group { with_group { |_group, _leader, membership| Leaver.new(membership).leave! } }
       assert_locks_group { with_group { |_group, leader, membership| Kicker.new(membership, current_user: leader).kick! } }
-      assert_locks_group { with_group { |group, _leader, _membership| ApprovalToggler.new(group, locked: true).set! } }
-      assert_locks_group { with_group { |group, _leader, _membership| Coordinator::ApprovalToggler.new(group, locked: true).set! } }
       assert_locks_group { with_group { |group, _leader, _membership| Deleter.new(group).delete! } }
     end
 

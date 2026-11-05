@@ -7,14 +7,14 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
-    @group = create(:project_group, course: @course, leader_id: @leader.id, locked: true)
+    @group = create(:project_group, course: @course, leader_id: @leader.id, confirmed: true)
     create(:project_group_member, project_group: @group, user: @leader)
 
     @student = create(:user)
     create(:enrolment, course: @course, user: @student, role: :student)
   end
 
-  test 'student requests a locked, unconfirmed group with a leader — pending direct_request created, mailer queued' do
+  test 'student requests a confirmed group with a leader — pending direct_request created, mailer queued' do
     assert_enqueued_jobs 1 do
       result = GroupDirectRequester.new(@group, current_user: @student).request!
       assert result.requested?
@@ -45,32 +45,22 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  test 'blocked when group already confirmed' do
-    create(:project_group_member, project_group: @group)
-    @group.update!(confirmed: true)
+  test 'blocked when the group is not confirmed' do
+    @group.update!(confirmed: false)
 
     result = GroupDirectRequester.new(@group, current_user: @student).request!
 
     assert result.blocked?
-    assert_equal :group_confirmed, result.blocked_reason
+    assert_equal :group_not_confirmed, result.blocked_reason
   end
 
-  test 'blocked when locked group has no leader' do
+  test 'blocked when group has no leader' do
     @group.update!(leader_id: nil)
 
     result = GroupDirectRequester.new(@group, current_user: @student).request!
 
     assert result.blocked?
     assert_equal :no_leader_assigned, result.blocked_reason
-  end
-
-  test 'blocked when group is unlocked — should join directly instead' do
-    @group.update!(locked: false)
-
-    result = GroupDirectRequester.new(@group, current_user: @student).request!
-
-    assert result.blocked?
-    assert_equal :group_unlocked, result.blocked_reason
   end
 
   test 'duplicate pending request is rescued into already_requested' do

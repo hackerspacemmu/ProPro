@@ -99,16 +99,6 @@ class GroupDirectInviterTest < ActiveSupport::TestCase
     assert_equal 1, ProjectGroupInvite.where(project_group: @group, recipient: @recipient).count
   end
 
-  # ── Edge: no locked? check at all — invites bypass lock state by design ───
-
-  test 'inviting works on a locked group — lock status is irrelevant to direct invites' do
-    @group.update!(locked: true)
-
-    result = GroupDirectInviter.new(@group, current_user: @leader, recipient: @recipient).invite!
-
-    assert result.invited?
-  end
-
   # ── Edge: leader inviting themselves — implicitly blocked via already_grouped ─
 
   test 'leader inviting themselves is blocked as already_grouped, not a distinct error' do

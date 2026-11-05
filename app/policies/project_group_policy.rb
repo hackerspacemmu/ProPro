@@ -51,8 +51,9 @@ class ProjectGroupPolicy < ApplicationPolicy
     enrolment.present? && enrolment.student?
   end
 
+  # Requests stay closed until confirmed groups can accept them.
   def request_to_join?
-    enrolment.present? && enrolment.student?
+    false
   end
 
   def generate_invite_link?

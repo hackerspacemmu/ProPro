@@ -36,7 +36,7 @@ This pass wires the mockup into Rails/Stimulus/Tailwind conventionally. Services
 | `search_shortcut_controller.js` | `courses/_tab_shell`, Groups tab search | **KEEP** | `/` focuses `data-search-shortcut-target="input"`. The mockup's own `/` keydown handler is deleted. |
 | `dropdown_controller.js` | 12 files | **KEEP** | Reused for the notifications bell popup. |
 | `sidebar_controller.js` | layout + `shared/_sidebar` | **KEEP** | The mockup's sidebar/menu code is a hand-copy of `shared/_sidebar`; use the real partial. |
-| `auto_submit_controller.js` | **0 files app-wide** | **REUSE** | Currently dead. Perfect fit for the "Require approval to join" switch (`change->auto-submit#submit`). Do not delete. |
+| `auto_submit_controller.js` | **0 files app-wide** | flag only | Currently dead. Left in place; deleting it is a separate cleanup. |
 | `grouping_settings_controller.js` | `courses/settings` | **KEEP, untouched** | Course Settings → Grouping card. Not part of this pass. |
 | `students_select_controller.js`, `sortable_controller.js` | People tab / template editor | untouched | Not grouping logic. |
 | `dynamic_form_action_controller.js` | **0 files app-wide** | flag only | Dead, but not part of project groups. Do not delete in this PR; mention in the PR description. |
@@ -122,7 +122,7 @@ When `!@course.grouping_window_open?` the page keeps its shell, h1 and rules lin
 - **Promote to leader: stale.** Build no UI for it. `group_leaders#update` (`resource :leader`), `ProjectGroupPolicy#promote_leader?` and the route are marked for deletion in the backend pass (§9). Do not delete them in this pass.
 - **Staff "Create group":** same button as the student's "Create group", copied with exact styling (tonal button, same toolbar position and classes). `ProjectGroupPolicy#create?` is now `staff? || student?` and `groups#create` does `@course.students.find(params.expect(:user_id))` for staff (a student's `user_id` is ignored), so a bare POST from staff is a 400. Same button, same styling; for `policy(@course).manage_groups?` (coordinator, or lecturer with the flag) it opens a page-level dialog with the student picker (verb "Create group") that submits `user_id` to `course_groups_path`. Students keep the plain `button_to`.
 - **Cancel join request: no backend** (`join_requests` is `only: %i[create update]`; there is no `destroy`). Render "Request sent" (from `@my_requested_group_ids`) with **no cancel link**. Flagged for a later pass (§9).
-- Lock/unlock = the "Require approval to join" switch (`locked?`), mapped 1:1.
+- There is no approval switch; not confirmed groups take direct joins.
 
 **D4. Search/filter: htmx. DECIDED.**
 The table filters server-side with htmx, following the Groups tab's structure (`hx-get` + debounce + `HX-Request` branch + re-rendered table partial + pagination threshold). The implementation is **copied and adapted into formation-specific code**, not extracted from `GroupsController`/`ParticipantBrowsing` and not shared with `courses/_groups_table`. `GroupsController#index`, `ParticipantBrowsing`, `courses/_groups_tab` and `courses/_groups_table` stay untouched. Search matches **group name and member names only** (no project title or supervisor), and the status filter is **All / Draft / Confirmed** (the group's confirmed state, not the project's status). The controller gains a small formation-only filter branch (see §4.4); `list_filter` stays only for the ungrouped dialog and pickers.
@@ -131,7 +131,7 @@ The table filters server-side with htmx, following the Groups tab's structure (`
 Each group row's action cell holds `<div data-controller="modal">` containing: a link to `edit_course_group_path(course, group)` with `data-turbo-frame="<%= dom_id(group, :manage) %>"` and `data-action="modal#open"`; a `<dialog>` (§2.2 structure); and, inside the dialog, an **empty placeholder** `turbo_frame_tag dom_id(group, :manage)` (same id as the one `groups/edit.html.erb` already renders). Clicking the link opens the dialog and fetches `groups#edit`, so the content is fresh on every open (the routes brief requires a reload on every open). The **table-row** Manage link is staff-only: rendered only when `policy(@course).manage_groups?` (coordinator, or lecturer with `lecturers_can_manage_groups`). **Leaders never see Manage on their row**; their "Manage group" button lives in the my-group card (separate partial, same lazy frame in leader mode, rendered only when `policy(group).edit?` is true for them, i.e. draft group inside the window). Never render the link when `edit?` is false: Pundit would redirect the frame request to the dashboard and the frame would show "Content missing".
 
 Frame requirements:
-1. `groups/edit.html.erb` must declare `turbo_frame_tag dom_id(@group, :manage), target: "_top"`. Every form inside it (approval switch, Remove, Delete, Invite, Add, Confirm for leader, Generate link) then performs a **full-page Turbo visit**. Without `_top`, the controllers' `redirect_to course_group_formation_path` would load the formation page into the frame, which contains the *empty* placeholder frame with the same id, so the dialog would blank out and the flash would never show.
+1. `groups/edit.html.erb` must declare `turbo_frame_tag dom_id(@group, :manage), target: "_top"`. Every form inside it (Remove, Delete, Invite, Add, Confirm for leader, Generate link) then performs a **full-page Turbo visit**. Without `_top`, the controllers' `redirect_to course_group_formation_path` would load the formation page into the frame, which contains the *empty* placeholder frame with the same id, so the dialog would blank out and the flash would never show.
 2. Stale content on reopen: additive `modal#reset` (called via `close->modal#reset` on the dialog) restores the frame's initial placeholder markup and removes `src` / `complete`, like `overlay_controller#returnToList` does for the topic copy dialog.
 3. Show a lightweight "Loading…" placeholder (token styling) in the placeholder frame.
 4. `groups#edit` must set the ivars `groups/edit.html.erb` reads (the template passes them to partials as locals). Use the **same ivar names** as `GroupFormationsController#show` so partials can be shared and §4.1 stays the only contract: `@incoming_join_requests` (pending `direct_request` for **this** group), `@my_group_invite_token` (this group's link for `current_user`, leader only), `@my_invited_student_ids`, `@ungrouped_students` (only needed when a picker renders). This duplicates the queries in `group_formations#show`; extracting a `Course` scope is a backend-pass item (§9). This is the one place in this pass where a controller action is edited.
@@ -141,7 +141,7 @@ Frame requirements:
 8. Redirect-after-action is accepted for this pass: after any action the dialog closes with the page reload and a flash.
 
 Decided by the owner:
-- **Who can open Manage (Q1). DECIDED.** Staff only on the table: coordinator **and** lecturers who can manage groups. Because `update?` is coordinator-or-draft-leader (lecturers are denied), this needs a small policy edit in this pass: add an explicit `ProjectGroupPolicy#edit?` = `manage_groups_policy.manage_groups? || update?` and change `groups#edit` to `authorize @group, :edit?`. `update?` (the approval PATCH) is left unchanged, so lecturers still cannot lock/unlock. In staff mode the dialog shows Members + Remove, Add student, Delete group (only if `destroy?`), Confirm for leader (only if `confirm?` and draft); **no** approval switch, invite link, join requests or invite picker (those are leader mode, mockup parity). The leader of a **confirmed** group has no Manage button in the card (Reopen is there instead). The leader's "Manage group" in the card opens the **same** `groups#edit` frame in leader mode. The table-row Manage link (staff) and the card Manage button (leader) are mutually exclusive by role, so `dom_id(group, :manage)` is never rendered twice on one page.
+- **Who can open Manage (Q1). DECIDED.** Staff only on the table: coordinator **and** lecturers who can manage groups. Because `update?` is coordinator-or-draft-leader (lecturers are denied), this needs a small policy edit in this pass: add an explicit `ProjectGroupPolicy#edit?` = `manage_groups_policy.manage_groups? || update?` and change `groups#edit` to `authorize @group, :edit?`. `update?` now only backs `edit?`. In staff mode the dialog shows Members + Remove, Add student, Delete group (only if `destroy?`), Confirm for leader (only if `confirm?` and draft); **no** approval switch, invite link, join requests or invite picker (those are leader mode, mockup parity). The leader of a **confirmed** group has no Manage button in the card (Reopen is there instead). The leader's "Manage group" in the card opens the **same** `groups#edit` frame in leader mode. The table-row Manage link (staff) and the card Manage button (leader) are mutually exclusive by role, so `dom_id(group, :manage)` is never rendered twice on one page.
 - **After an action in Manage (Q2). DECIDED: hard redirect.** Every form inside the frame submits with `_top`, the controller redirects to `course_group_formation_path`, the dialog is gone and the flash shows. This is a Turbo Drive visit (body replace, scroll back to top), not a literal browser reload.
 - **`lecturers_can_manage_groups` flag.** The owner is fine removing it. It has no settings UI (column default `true`), so today every lecturer can manage. The frontend only calls `policy(@course).manage_groups?`, so nothing here changes when the flag is dropped (backend pass, §9: `manage_groups?` becomes `coordinator || lecturer`).
 
@@ -154,7 +154,7 @@ The entire row is clickable (except `[data-expandable-ignore]` cells, i.e. the a
 **D8. Member detail layout.** ✱ Use the mockup's 2-column grid in the formation table. Leave the Groups tab (`courses/_group_row`, single column, truncated names) alone this pass; the two will visibly differ. Align the Groups tab in a later pass. Collapsed summary: cap the avatar stack at 3 + "+n" (matches the Groups tab) instead of the mockup's all-members stack. Drop the "Pending / Resend invite" badge in the formation table (not a user-management surface).
 
 **D9. Staff actions follow policy, not the mockup.**
-The mockup shows "Delete group" to every coordinator and lecturer and "Confirm for leader…" to coordinators only. Policies (kept as is by the routes brief, D5/D7) say: `destroy?` lets a coordinator destroy only **confirmed** groups, a leader destroy a draft inside the window, and never a lecturer; `confirm?` is `manage_groups?` or the leader; `update?` (approval switch) is coordinator or draft-leader-in-window; `edit?` (Manage dialog, new) also allows `manage_groups?` (Q1).
+The mockup shows "Delete group" to every coordinator and lecturer and "Confirm for leader…" to coordinators only. Policies (kept as is by the routes brief, D5/D7) say: `destroy?` lets a coordinator destroy only **confirmed** groups, a leader destroy a draft inside the window, and never a lecturer; `confirm?` is `manage_groups?` or the leader; `update?` is coordinator or draft-leader-in-window and now only backs `edit?`; `edit?` (Manage dialog, new) also allows `manage_groups?` (Q1).
 ✱ Gate every button with `policy(group).<action>?` (`update?`, `destroy?`, `confirm?`, `revert?`, `generate_invite_link?`, `direct_invite?`) and `policy(@course).manage_groups?` for staff Add student. In practice a coordinator sees Delete only on confirmed groups. If the owner wants coordinators to delete drafts, that is a policy change for the backend pass.
 
 **D10. Message styling.** ✱ Reuse `courses/_flash` unchanged (alert/notice only). The mockup's `warn` and `info` variants have no Rails flash key behind them; adding `flash[:warning]` is a controller change (backend pass). Known visual difference: the shared flash still uses raw red/green classes.
@@ -193,7 +193,6 @@ These htmx ivars are the only additions to the contract. Everything else in the 
 - size state and invalid flag: helper `group_size_state(group, course)` → `:ok | :under | :over` from `members.size` vs `course.group_min/max` (display only; amber row + warning icon).
 - "your group": `group.id == @my_group&.id`.
 - role predicates: see §8.
-- approval switch: `group.locked?`.
 - leader tag: **`group.leader_id`**, not "first member". The mockup tags `members[0]` as leader; in the app the leader is `leader_id` (it can differ from the oldest member after `promote_leader`). List the leader first in member lists via the helper, but tag by `leader_id`.
 
 ### 4.2 Routes and policies (post routes-refactor; UI gates must call these)
@@ -205,13 +204,12 @@ These htmx ivars are the only additions to the contract. Everything else in the 
 | Open page | GET `course_group_formation_path(c)` | `authorize @course, :grouping?` |
 | Create group (student) | POST `course_groups_path(c)` | `create?` = `staff? \|\| student?`; student's `user_id` ignored. Old display rule: only when `@my_group.nil?` and window open |
 | Create group for a student (staff) | POST `course_groups_path(c)` + `user_id` | `policy(@course).manage_groups?`; missing `user_id` = 400 (D3) |
-| Join | POST `course_group_members_path(c, g)` (no `user_id`) | `join?` (student enrolment). Display rule kept: nothing when `@my_group.present?`; `locked?` → Request, else Join; greyed out when `confirmed?` (services block `group_confirmed`) |
+| Join | POST `course_group_members_path(c, g)` (no `user_id`) | `join?` (student enrolment). Display rule kept: nothing when `@my_group.present?`; greyed out when `confirmed?` (services block `group_confirmed`) |
 | Request to join | POST `course_group_join_requests_path(c, g)` | `request_to_join?` |
 | Accept / decline request (leader) | PATCH `course_group_join_request_path(c, g, r)` + `status=accepted\|declined` | `ProjectGroupInvitePolicy#accept?/decline?` |
 | Invite student | POST `course_group_invitations_path(c, g)` + `user_id` | `direct_invite?` (leader) |
 | Accept / decline invite (recipient) | PATCH `course_group_invitation_path(c, g, i)` + `status` | `accept?/decline?` |
 | Confirm / Reopen | POST / DELETE `course_group_confirmation_path(c, g)` | `confirm?` / `revert?` (leader or `manage_groups?`) |
-| Approval switch | PATCH `course_group_path(c, g)` + `project_group[locked]=true\|false` | `update?`; lock is refused when `leader_id` is blank |
 | Manage dialog | GET `edit_course_group_path(c, g)` (frame) | `edit?` (new: `manage_groups? \|\| update?`). Table link: `manage_groups?` only. Leader card button: `edit?` for the leader |
 | Delete / dissolve | DELETE `course_group_path(c, g)` | `destroy?` |
 | Make leader | PATCH `course_group_leader_path(c, g)` + `user_id` | `promote_leader?`: **stale, no UI** |
@@ -276,7 +274,9 @@ No other controller, service, model or policy edits (the routes brief's D5/D7 po
 
 **Change (additive)**: `expandable_rows` (§2.1; `ignore` + `aria-expanded` only, no `setAll`), `invite_link` (§2.3), `modal` (`reset`, §2.2), bell wrapper gets Esc via `data-action` on `dropdown` (§2.4).
 
-**Reuse as is**: `modal`, `dropdown`, `search_shortcut`, `sidebar`, `flash`, `auto_submit` (approval switch inside the Manage frame: `form_with url: course_group_path(course, group), method: :patch, scope: :project_group, data: { controller: "auto-submit" }` with `f.check_box :locked, data: { action: "change->auto-submit#submit" }`; `groups#update` takes `params.expect(project_group: [:locked])`).
+**Reuse as is**: `modal`, `dropdown`, `search_shortcut`, `sidebar`, `flash`.
+
+**Unused**: `auto_submit` (no callers; keep it, deleting it is a separate cleanup).
 
 **Delete**: `group_browse_filter_controller.js`, `combobox_modal_controller.js`.
 
@@ -289,7 +289,7 @@ The old views were moved by the routes PR to `app/views/group_formations/` (`sho
 **Templates (long, ivars allowed, sections marked with ERB comment banners):**
 - `group_formations/show.html.erb`: shell, flash, page header + rules line, closed state (D2), bell, my-group card, toolbar, the `render "groups_table"` call, `#modals`, and the `render` calls for the dialog partials below.
 - `group_formations/_groups_table.html.erb`: the htmx re-render target (`id="formation-groups"`), desktop table + mobile cards, one `<tbody>` per filtered group (row, member grid, action cell), empty/no-match states, and the "Showing X of Y"/Show all footer. Strict locals: `groups:`, `filters_active:`, `list_state:`, `total_count:`, `show_all:`.
-- `groups/edit.html.erb`: the Manage frame content (`target: "_top"`) with leader-mode and staff-mode sections inline (join requests, members + Remove, invite link, approval switch, picker). This is frame content, not a modal shell, so it stays a template.
+- `groups/edit.html.erb`: the Manage frame content (`target: "_top"`) with leader-mode and staff-mode sections inline (join requests, members + Remove, invite link, picker). This is frame content, not a modal shell, so it stays a template.
 
 **Dialog partials (exception, strict locals):**
 
@@ -454,7 +454,7 @@ Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things i
 5. [C] `dynamic_form_action_controller.js` is unused app-wide (not grouping): delete in a separate cleanup.
 
 **Policies**
-6. [R] Policies kept as is by the routes brief: `destroy?`, `update?` (was `lock?`/`unlock?`), `promote_leader?` still use `coordinator?` rather than `manage_groups?`. Decide the intended matrix (e.g. coordinators deleting **draft** groups, lecturers deleting).
+6. [R] Policies kept as is by the routes brief: `destroy?`, `update?`, `promote_leader?` still use `coordinator?` rather than `manage_groups?`. Decide the intended matrix (e.g. coordinators deleting **draft** groups, lecturers deleting).
 7. [F] Leader of a **confirmed** group cannot open Manage (`edit?` = `manage_groups? || update?`, and `update?` needs a draft). Revisit if that read-only view is wanted.
 8. [R] One `ProjectGroupInvitePolicy` serves both kinds (`direct_request`, `direct_invite`) via explicit `:accept?` / `:decline?`; consider one policy per kind.
 
@@ -472,7 +472,7 @@ Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things i
 17. [F] `GroupFormationsController#show` and `GroupsController#edit` duplicate the ungrouped-students, pending-requests, invite-token and invited-ids queries: extract `Course` / `ProjectGroup` scopes.
 18. [R/C] Eight nested controllers repeat `set_course` / `set_group` and the same `if result.x? redirect notice else alert` branch (~10 actions): extract a concern / a `redirect_with_result` helper (services and Result classes were untouched by the routes PR).
 19. [C] `GroupMembersController#create` merges two flows (self-join vs staff add) on `params[:user_id].blank?`; consider splitting (e.g. join as its own resource) now that policies are explicit.
-20. [C] `GroupsController` serves the Groups tab (index/show, htmx) and the write resource (create/edit/update/destroy); `rescue StandardError` in `update` / `destroy` / leaders is broad: narrow it.
+20. [C] `GroupsController` serves the Groups tab (index/show, htmx) and the write resource (create/edit/destroy); `rescue StandardError` in `destroy` / leaders is broad: narrow it.
 21. [F] N+1 in the formation page (`group.project`, invites' sender/group) if the eager-load tweaks in §4.4 are skipped.
 22. [F] Server-side picker search with `limit`, only if the ungrouped list becomes too large for a lazy frame; Turbo Stream responses to keep Manage open are **not** needed (hard redirect decided).
 23. [F] Live updates for join requests/invites (the bell is only fresh on page load).
@@ -486,8 +486,8 @@ Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things i
 
 `docs/Grouping/GROUPING_ROUTES_REFACTOR.md` is implemented on the branch. Facts the frontend must respect:
 
-- The formation page is `group_formations#show` at `course_group_formation_path(c)`; `groups` is now both the Groups tab (`index`, `show`) and the write resource (`create`, `edit`, `update`, `destroy`). Do not infer URLs from the model (`redirect_to @group`, `form_with model:` without `url:`): `ProjectGroup` would resolve to `project_group_path`, which no longer exists. Scope form params under `project_group`.
-- Verb changes: join, generate invite link and redeem are POST; lock/unlock are one PATCH on `course_group_path` with `project_group[locked]`; confirm/reopen are POST/DELETE on `course_group_confirmation_path`; accept/decline are PATCH with `status=accepted|declined` (the controllers reject anything else and 404 on a wrong-kind id).
+- The formation page is `group_formations#show` at `course_group_formation_path(c)`; `groups` is now both the Groups tab (`index`, `show`) and the write resource (`create`, `edit`, `destroy`). Do not infer URLs from the model (`redirect_to @group`, `form_with model:` without `url:`): `ProjectGroup` would resolve to `project_group_path`, which no longer exists. Scope form params under `project_group`.
+- Verb changes: join, generate invite link and redeem are POST; confirm/reopen are POST/DELETE on `course_group_confirmation_path`; accept/decline are PATCH with `status=accepted|declined` (the controllers reject anything else and 404 on a wrong-kind id).
 - `join_url(token)` is the canonical shareable link; old emailed `/courses/:id/project_groups` and `/project_group_invite_links/:token` URLs redirect (GET only).
 - `groups#edit` exists but is a stub (frame with the group name only) and has no link anywhere yet; this plan builds it out (D5).
 - `grouping_coordinator?` is gone; use `manage_groups?` for "staff" and the enrolment role for "coordinator".
@@ -512,7 +512,7 @@ Conventions for every test below:
 
 1. Student with no group creates a group: lands on the formation page, sees their group marked as theirs, with Confirm available.
 2. Student joins an open group; the Join action is unavailable on a confirmed group.
-3. Student requests to join a locked group (sees "Request sent"); the leader accepts from the bell and the student appears in the group.
+3. Student joins a not confirmed group directly; join requests are closed until confirmed groups can accept them.
 4. Leader invites an ungrouped student (picker in Manage); the invitee accepts from the bell and is in the group.
 5. Leader confirms a legally sized group (row shows Confirmed) and reopens it; confirming an illegally sized group leaves it Not confirmed and shows an alert.
 6. A member leaves a draft group; the leader removes a member.
@@ -547,13 +547,12 @@ Cost: 9 rack_test + 5 browser + 2 guard tests. If this feels heavy, drop 14 and 
 | Rules line, group/ungrouped counts | server-rendered | same |
 | Search + status filter on the groups table | Stimulus `group_browse_filter` (client-side tabs + card text search) | htmx `GET` to the formation route with a formation-only filter branch; search = group + member names, status = All/Draft/Confirmed |
 | Row expand/collapse | (old) native `<details>` per card | Stimulus `expandable_rows` (client-side, no request); server-rendered auto-expand while filters are active |
-| Create, Join, Request to join, Confirm, Reopen, Approval lock, Generate link, Invite, Accept/Decline, Delete, Leave | Turbo Drive form (`button_to`) → controller → `redirect_to` formation page with flash (full-page visit; `members#create` uses 303) | same, new routes; Delete/Leave/Reopen/Remove behind the shared Stimulus `confirm_dialog` instead of the dead `data-confirm` |
+| Create, Join, Request to join, Confirm, Reopen, Generate link, Invite, Accept/Decline, Delete, Leave | Turbo Drive form (`button_to`) → controller → `redirect_to` formation page with flash (full-page visit; `members#create` uses 303) | same, new routes; Delete/Leave/Reopen/Remove behind the shared Stimulus `confirm_dialog` instead of the dead `data-confirm` |
 | Remove / kick a member | `group_members#destroy`: only grouping action with a Turbo Stream branch (remove node, append to `#ungrouped-students-list`, remove dissolve modal; `needs_confirmation` appends the dissolve warning to `#modals`; HTML fallback `redirect_back`). Old Kick used `turbo: false` | unchanged contract (§4.5); dissolve warning becomes a `<dialog>` |
 | Warning dialog | Stimulus `warning_modal` over a turbo_stream-appended `div` | same controller contract, `<dialog>` |
 | Student pickers (invite / add / create) | Stimulus `combobox_modal` over pre-rendered rows per card | `list_filter` (`limit: 6`); Manage pickers rendered inside the lazy frame; ungrouped dialog also `list_filter` |
 | Manage dialog | did not exist (`groups#edit` was added as a stub) | native `<dialog>` + Stimulus `modal`; content from **Turbo Frame** GET `groups#edit` on every open; writes escape the frame (`_top`) and redirect |
 | Notifications (invites/requests) | server-rendered banners in the panel | server-rendered partial + Stimulus `dropdown`; Accept/Decline = PATCH forms → redirect |
-| Approval switch | PATCH `lock`/`unlock` buttons | Stimulus `auto_submit` on a PATCH form |
 | Invite link copy | Stimulus `invite_link` (clipboard, client-side) | same + "Copied" state |
 | Public invite page | `invite_links#show` server-rendered; redeem = POST form → redirect | same |
 | Flash | Turbo Drive + Stimulus `flash` auto-dismiss | same |

@@ -9,7 +9,7 @@ Delete / cleanup
 [C] dynamic_form_action_controller.js is unused app-wide, so delete it separately.
 
 Policies
-6. [R] destroy?, update? (was lock?/unlock?) and promote_leader? still check coordinator? instead of manage_groups?. Decide the intended matrix, e.g. coordinators deleting draft groups, and lecturers.
+6. [R] destroy?, update? and promote_leader? still check coordinator? instead of manage_groups?. Decide the intended matrix, e.g. coordinators deleting draft groups, and lecturers.
 7. [F] The leader of a confirmed group can’t open Manage, because edit? needs a draft. Revisit if that read-only view is wanted.
 8. [R] One ProjectGroupInvitePolicy serves both invite kinds. Consider one policy per kind.
 
@@ -27,7 +27,7 @@ Refactors (no behaviour change)
 17. [F] group_formations#show and groups#edit duplicate four queries (ungrouped students, pending requests, invite token, invited ids). Extract scopes.
 18. [R/C] Eight controllers repeat set_course/set_group and the result.x? → notice else alert branch. Extract a concern or helper.
 19. [C] group_members#create merges self-join and staff-add on params[:user_id].blank?. Consider splitting it.
-20. [C] GroupsController mixes the Groups tab (htmx) with the write actions, and rescue StandardError is broad in update, destroy and leaders.
+20. [C] GroupsController mixes the Groups tab (htmx) with the write actions, and rescue StandardError is broad in destroy and leaders.
 21. [F] N+1 on group.project and invites if the eager-load tweaks are skipped.
 22. [F] Server-side picker search, only if the ungrouped list gets too big for a lazy frame. Turbo Stream “keep Manage open” is no longer needed.
 23. [F] Live updates for requests and invites. The bell is only fresh on page load.

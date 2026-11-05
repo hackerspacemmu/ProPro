@@ -1,4 +1,4 @@
-# Student requests to join a locked group.
+# Student requests to join a confirmed group.
 # Creates a pending ProjectGroupInvite (kind: direct_request)
 # Sends email to the leader
 class GroupDirectRequester
@@ -12,8 +12,7 @@ class GroupDirectRequester
 
     return blocked(:window_closed) unless course.grouping_window_open?
     return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
-    return blocked(:group_confirmed) if @group.confirmed?
-    return blocked(:group_unlocked) unless @group.locked?
+    return blocked(:group_not_confirmed) unless @group.confirmed?
     return blocked(:no_leader_assigned) if @group.leader_id.blank?
 
     invite = ProjectGroupInvite.create!(
@@ -54,8 +53,7 @@ class GroupDirectRequester
       case blocked_reason
       when :window_closed then 'The grouping window is closed.'
       when :already_grouped then 'Already in a group for this course.'
-      when :group_confirmed then 'Group already confirmed, not accepting requests.'
-      when :group_unlocked then 'Group is unlocked — join it directly instead.'
+      when :group_not_confirmed then 'Requests are for confirmed groups. Join this group instead.'
       when :already_requested then 'Already have a pending request for this group.'
       when :no_leader_assigned then "This group hasn't been assigned a leader yet."
       end

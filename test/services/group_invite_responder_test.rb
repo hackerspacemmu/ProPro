@@ -6,7 +6,7 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
-    @group = create(:project_group, course: @course, leader_id: @leader.id, locked: true)
+    @group = create(:project_group, course: @course, leader_id: @leader.id)
     create(:project_group_member, project_group: @group, user: @leader)
 
     @student = create(:user)

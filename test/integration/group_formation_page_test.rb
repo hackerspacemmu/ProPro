@@ -151,6 +151,23 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     assert_no_match(/Add student/, response.body)
   end
 
+  test 'leader manage frame has no approval switch' do
+    sign_in @leader
+    get edit_course_group_path(@course, @group)
+
+    assert_response :success
+    assert_no_match(/Require approval to join/, response.body)
+  end
+
+  test 'the groups table shows Join and never Request to join' do
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_match 'Join', response.body
+    assert_no_match(/Request to join/, response.body)
+  end
+
   test 'staff manage frame renders staff actions' do
     sign_in @coordinator
     get edit_course_group_path(@course, @group)

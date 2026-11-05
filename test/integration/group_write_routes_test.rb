@@ -52,25 +52,24 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_redirected_to dashboard_path
   end
 
-  test 'the leader can edit and lock the group' do
+  test 'the leader can open the Manage page' do
     sign_in @leader
 
     get edit_course_group_path(@course, @group)
     assert_response :success
 
-    patch course_group_path(@course, @group), params: { project_group: { locked: true } }
-    assert_redirected_to course_group_formation_path(@course)
-    assert @group.reload.locked?
+    patch course_group_path(@course, @group)
+    assert_response :not_found
   end
 
-  test 'another student cannot edit or lock the group' do
+  test 'another student cannot open the Manage page' do
     sign_in @other_student
 
     get edit_course_group_path(@course, @group)
     assert_redirected_to dashboard_path
 
-    patch course_group_path(@course, @group), params: { project_group: { locked: true } }
-    assert_redirected_to dashboard_path
+    patch course_group_path(@course, @group)
+    assert_response :not_found
   end
 
   test 'the leader can dissolve an unconfirmed group' do
@@ -180,15 +179,14 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_redirected_to dashboard_path
   end
 
-  test 'a student can request to join a locked group' do
-    @group.update!(locked: true)
+  test 'nobody can post a join request while requests are closed' do
     sign_in @other_student
 
-    assert_difference 'ProjectGroupInvite.count', 1 do
+    assert_no_difference 'ProjectGroupInvite.count' do
       post course_group_join_requests_path(@course, @group)
     end
 
-    assert_redirected_to course_group_formation_path(@course)
+    assert_redirected_to dashboard_path
   end
 
   test 'an outsider cannot request to join a group' do

@@ -80,16 +80,6 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  # ── Edge: redemption bypasses locked? entirely — a link joins a locked group ──
-
-  test 'redeeming a link joins a LOCKED group instantly, bypassing the request/approve flow' do
-    @group.update!(locked: true)
-
-    result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
-
-    assert result.redeemed?, 'confirm intentional: link redemption ignores locked? entirely'
-  end
-
   # ── Edge: clears BOTH sender-role and recipient-role pending invites course-wide ─
 
   test 'redeeming clears the redeemer\'s own pending request (sender role) course-wide' do

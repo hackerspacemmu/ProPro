@@ -15,8 +15,6 @@ class GroupRoutesTest < ActionDispatch::IntegrationTest
                    { controller: 'groups', action: 'show', course_id: '1', id: '2' })
     assert_routing({ method: 'GET', path: '/courses/1/groups/2/edit' },
                    { controller: 'groups', action: 'edit', course_id: '1', id: '2' })
-    assert_routing({ method: 'PATCH', path: '/courses/1/groups/2' },
-                   { controller: 'groups', action: 'update', course_id: '1', id: '2' })
     assert_routing({ method: 'DELETE', path: '/courses/1/groups/2' },
                    { controller: 'groups', action: 'destroy', course_id: '1', id: '2' })
   end

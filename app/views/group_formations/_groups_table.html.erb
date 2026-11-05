@@ -43,18 +43,14 @@
 
         <% action = capture do %>
           <% if my_group.nil? && policy(group).join? %>
-            <% label = group.locked? ? "Request to join" : "Join" %>
             <% if group.confirmed? %>
-              <button type="button" disabled class="<%= GroupFormationsHelper::GROUP_ROW_DISABLED_BUTTON %>"><%= label %></button>
+              <button type="button" disabled class="<%= GroupFormationsHelper::GROUP_ROW_DISABLED_BUTTON %>">Join</button>
             <% elsif group_full?(group, course) %>
               <span class="text-[13px] text-on-surface-muted">Full</span>
             <% elsif requested_group_ids.include?(group.id) %>
               <span class="text-[13px] text-on-surface-muted">Request sent</span>
-            <% elsif group.locked? %>
-              <%= button_to label, course_group_join_requests_path(course, group), method: :post,
-                    form: { class: "max-sm:w-full" }, class: GroupFormationsHelper::GROUP_ROW_BUTTON %>
             <% else %>
-              <%= button_to label, course_group_members_path(course, group), method: :post,
+              <%= button_to "Join", course_group_members_path(course, group), method: :post,
                     form: { class: "max-sm:w-full" }, class: GroupFormationsHelper::GROUP_ROW_BUTTON %>
             <% end %>
           <% end %>

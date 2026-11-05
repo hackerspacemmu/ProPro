@@ -114,27 +114,6 @@
         </section>
       <% end %>
 
-      <%# ----- Settings: approval switch (auto_submit) ----- %>
-      <% if policy(@group).update? %>
-        <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
-          <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Settings</h3>
-          <%= form_with url: course_group_path(@course, @group), method: :patch, scope: :project_group, data: { controller: "auto-submit" } do |form| %>
-            <label class="flex cursor-pointer items-center justify-between gap-4 max-sm:min-h-11">
-              <span class="text-sm text-on-surface-strong">
-                Require approval to join
-                <span class="block text-[13px] text-on-surface-muted">Students send a request and you accept or decline.</span>
-              </span>
-              <span class="relative inline-flex shrink-0">
-                <%= form.check_box :locked,
-                      { checked: @group.locked?, class: "peer sr-only", data: { action: "change->auto-submit#submit" } },
-                      "true", "false" %>
-                <span class="block h-6 w-10 rounded-full bg-outline transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-surface after:transition-all after:content-[''] peer-checked:bg-primary-strong peer-checked:after:translate-x-4 peer-focus-visible:ring-2 peer-focus-visible:ring-primary"></span>
-              </span>
-            </label>
-          <% end %>
-        </section>
-      <% end %>
-
       <%# ----- Invite student (leader picker) ----- %>
       <% if policy(@group).direct_invite? %>
         <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">

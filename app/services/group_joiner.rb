@@ -1,4 +1,4 @@
-# Direct join to an unlocked draft group. Use GroupJoinRequester for locked groups.
+# Direct join to a not confirmed group.
 class GroupJoiner
   def initialize(group, current_user:)
     @group = group
@@ -12,7 +12,6 @@ class GroupJoiner
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
       return blocked(:group_confirmed) if @group.confirmed?
-      return blocked(:group_locked) if @group.locked?
       return blocked(:group_full) if @group.project_group_members.count >= course.group_max.to_i
 
       return blocked(:already_grouped) unless ProjectGroupMember.add(user: @current_user, group: @group)
@@ -54,7 +53,6 @@ class GroupJoiner
       when :window_closed then 'The grouping window is closed.'
       when :already_grouped then 'Already in a group for this course.'
       when :group_confirmed then 'Group already confirmed, not accepting members.'
-      when :group_locked then 'Group is locked. Send a join request instead.'
       when :group_full then 'Group has reached its maximum size.'
       end
     end

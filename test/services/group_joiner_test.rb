@@ -73,15 +73,6 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert_equal :group_confirmed, result.blocked_reason
   end
 
-  test 'blocked when group locked' do
-    @group.update!(locked: true)
-
-    result = GroupJoiner.new(@group, current_user: @student).join!
-
-    assert result.blocked?
-    assert_equal :group_locked, result.blocked_reason
-  end
-
   test 'blocked when group full' do
     filler = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: filler, role: :student)
