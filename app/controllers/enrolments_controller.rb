@@ -1,36 +1,48 @@
+# Removes student enrolments, confirming first when a proposal would be deleted.
 class EnrolmentsController < ApplicationController
+  before_action :set_course_and_enrolment
+  before_action :require_coordinator
+
   def destroy
-    params.require(%i[course_id id])
+    result = Groups::Coordinator::EnrolmentRemover.new(
+      @enrolment,
+      confirm: params[:confirm] == 'true'
+    ).remove!
 
-    current_course = Course.find(params[:course_id])
-    enrolment = current_course.enrolments.find(params[:id])
-
-    # Authorization is on the authenticated user, never on a client-submitted id.
-    unless current_course.coordinator_ids.include?(current_user.id)
-      redirect_back_or_to dashboard_path, alert: 'You are not authorized to perform this action.'
-      return
+    if result.needs_confirmation?
+      redirect_to confirm_removal_enrolment_path(@enrolment, course_id: @course.id)
+    else
+      redirect_to course_path(@course), notice: result.message
     end
+  end
 
-    if current_course.grouped?
-      group_member = ProjectGroupMember.joins(:project_group)
-                                       .find_by(project_groups: { course_id: current_course.id },
-                                                user_id: enrolment.user_id)
+  def confirm_removal
+    @student = @enrolment.user
+    @membership = @course.project_group_members.find_by(user_id: @student.id)
+    @project_title = project_title_for_confirmation
+  end
 
-      if group_member
-        # Enrolment removal confirms the proposal deletion itself, so this path
-        # deletes a group with a proposal without warning.
-        result = Groups::Coordinator::MemberRemover.new(group_member, confirm: true).remove!
+  private
 
-        if result.blocked?
-          redirect_back_or_to course_path(current_course), alert: result.message
-          return
-        end
-      end
-    end
-
-    enrolment.destroy!
-    redirect_to course_path(current_course), notice: 'Student removed from course.'
+  def set_course_and_enrolment
+    @course = Course.find(params[:course_id])
+    @enrolment = @course.enrolments.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_back_or_to dashboard_path, alert: 'Record not found.'
+  end
+
+  def require_coordinator
+    return if performed?
+    return if @course.coordinator_ids.include?(current_user.id)
+
+    redirect_back_or_to dashboard_path, alert: 'You are not authorized to perform this action.'
+  end
+
+  def project_title_for_confirmation
+    group = @membership&.project_group
+    return unless group
+    return unless group.project_group_members.one?
+
+    group.project&.current_title
   end
 end

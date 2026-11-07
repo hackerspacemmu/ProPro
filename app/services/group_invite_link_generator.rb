@@ -2,6 +2,8 @@
 # Regenation deletes the old record and creates a new one.
 # draft groups, no email notifications
 class GroupInviteLinkGenerator
+  include Groups::GroupLocking
+
   def initialize(group, current_user:)
     @group = group
     @current_user = current_user
@@ -13,7 +15,7 @@ class GroupInviteLinkGenerator
     return blocked(:window_closed) unless course.grouping_window_open?
     return blocked(:group_confirmed) if @group.confirmed?
 
-    @group.with_lock do
+    result = with_group_lock(@group) do
       @group.project_group_invite_links.find_by(sender: @current_user)&.destroy!
 
       link = @group.project_group_invite_links.create!(
@@ -25,6 +27,10 @@ class GroupInviteLinkGenerator
       Result.new(generated: true, blocked_reason: nil,
                  token: link.token, expires_at: link.expires_at)
     end
+
+    return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+    result
   end
 
   private
@@ -52,6 +58,7 @@ class GroupInviteLinkGenerator
       case blocked_reason
       when :window_closed then 'The grouping window is closed.'
       when :group_confirmed then 'Group already confirmed.'
+      when :group_gone then 'This group no longer exists.'
       end
     end
   end

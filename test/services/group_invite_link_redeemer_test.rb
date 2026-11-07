@@ -28,6 +28,16 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
     assert @group.project_group_members.exists?(user_id: @redeemer_user.id)
   end
 
+  test 'blocked when the redeemer is no longer enrolled in the course' do
+    Enrolment.find_by!(user: @redeemer_user, course: @course).destroy!
+
+    result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
+
+    assert result.blocked?
+    assert_equal :not_enrolled, result.blocked_reason
+    assert_not @group.project_group_members.exists?(user_id: @redeemer_user.id)
+  end
+
   test 'blocked when link has expired' do
     @link.update!(expires_at: 1.hour.ago)
 
@@ -128,5 +138,68 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
       assert result.blocked?
       assert_equal :expired, result.blocked_reason
     end
+  end
+end
+
+class GroupInviteLinkRedeemerRaceTest < NonTransactionalTestCase
+  setup do
+    @course = create(:course, grouping_enabled: true, grouping_open: true,
+                              group_min: 2, group_max: 3, student_list_finalised: false)
+    @leader = create(:user)
+    create(:enrolment, course: @course, user: @leader, role: :student)
+    @group = create(:project_group, course: @course, leader_id: @leader.id)
+    create(:project_group_member, project_group: @group, user: @leader)
+
+    filler = create(:user)
+    create(:enrolment, course: @course, user: filler, role: :student)
+    create(:project_group_member, project_group: @group, user: filler)
+
+    @link = create(:project_group_invite_link, project_group: @group, sender: @leader,
+                                               token: 'race-token', expires_at: 1.hour.from_now)
+    @contenders = [create(:user), create(:user)]
+    @contenders.each { |user| create(:enrolment, course: @course, user: user, role: :student) }
+  end
+
+  test 'two redeemers racing for the last slot join only once' do
+    release = Queue.new
+    held = Queue.new
+    holder = Thread.new do
+      with_connection do
+        ProjectGroup.transaction do
+          ProjectGroup.lock.find(@group.id)
+          held << true
+          release.pop
+        end
+      end
+    end
+
+    held.pop
+    start = Queue.new
+    threads = @contenders.map do |user|
+      Thread.new do
+        with_connection do
+          start.pop
+          GroupInviteLinkRedeemer.new(ProjectGroupInviteLink.find(@link.id), current_user: user).redeem!
+        end
+      end
+    end
+
+    2.times { start << true }
+    wait_for_lock_waits(2)
+    release << true
+
+    results = Timeout.timeout(10) { threads.map(&:value) }
+    redeemed = results.select(&:redeemed?)
+    blocked = results.select(&:blocked?)
+
+    assert_equal 1, redeemed.length
+    assert_equal 1, blocked.length
+    assert_equal :group_full, blocked.first.blocked_reason
+    assert_equal 3, @group.project_group_members.count
+  ensure
+    release << true if release
+    (threads || []).each { |thread| thread.join(1) || thread.kill }
+    holder&.join(1)
+    holder&.kill
   end
 end

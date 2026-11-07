@@ -36,7 +36,10 @@ class GroupCreator
       course_group_sequence: next_seq,
       group_name: format('G%03d', next_seq)
     )
-    return group if ProjectGroupMember.add(user: @leader, group: group)
+    if ProjectGroupMember.add(user: @leader, group: group)
+      ProjectGroupInvite.clear_pending_for!(@leader, @course)
+      return group
+    end
 
     group.destroy!
     nil

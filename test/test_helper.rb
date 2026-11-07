@@ -2,6 +2,7 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
 require 'minitest/mock'
+require 'support/non_transactional_test_case'
 
 module ActiveSupport
   class TestCase

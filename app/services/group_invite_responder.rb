@@ -5,6 +5,8 @@
 # Accept adds the joining user as a member and clears their other pending
 # invites/requests course-wide. Decline just flips status, no state change.
 class GroupInviteResponder
+  include Groups::GroupLocking
+
   def initialize(invite, current_user:)
     @invite = invite
     @current_user = current_user
@@ -12,13 +14,14 @@ class GroupInviteResponder
   end
 
   def accept!
-    @group.with_lock do
+    result = with_group_lock(@group) do
       @invite.reload
       return blocked(:already_responded) unless @invite.pending?
 
       course = @group.course
       joining_user = joining_user_for(@invite)
 
+      return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: joining_user.id, role: :student)
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: joining_user.id)
       return blocked(:group_confirmed) if @group.confirmed?
@@ -27,12 +30,15 @@ class GroupInviteResponder
       return blocked(:already_grouped) unless ProjectGroupMember.add(user: joining_user, group: @group)
 
       @invite.update!(status: :accepted)
-      clear_conflicting_invites!(joining_user)
-
-      deliver_mailer(:accepted)
+      ProjectGroupInvite.clear_pending_for!(joining_user, course)
 
       Result.new(outcome: :accepted, blocked_reason: nil)
     end
+
+    return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+    deliver_mailer(:accepted) if result.accepted?
+    result
   end
 
   def decline!
@@ -52,15 +58,6 @@ class GroupInviteResponder
 
   def joining_user_for(invite)
     invite.direct_request? ? invite.sender : invite.recipient
-  end
-
-  # Clears the direct request and invites for the student
-  def clear_conflicting_invites!(joining_user)
-    ProjectGroupInvite
-      .where(status: :pending)
-      .where('sender_id = :id OR recipient_id = :id', id: joining_user.id)
-      .where(project_group_id: @group.course.project_groups.select(:id))
-      .destroy_all
   end
 
   def deliver_mailer(outcome)
@@ -103,11 +100,13 @@ class GroupInviteResponder
 
     def blocked_message
       case blocked_reason
+      when :not_enrolled then 'This student is no longer enrolled in this course.'
       when :window_closed then 'The grouping window is closed.'
       when :already_grouped then 'This student already joined another group.'
       when :group_confirmed then 'Group already confirmed, not accepting members.'
       when :group_full then 'Group has reached its maximum size.'
       when :already_responded then 'This has already been responded to.'
+      when :group_gone then 'This group no longer exists.'
       end
     end
   end

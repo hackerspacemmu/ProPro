@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class GroupInviteResponderTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @course = create(:course, grouping_enabled: true, grouping_open: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
@@ -26,6 +28,16 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     assert invite.reload.accepted?
   end
 
+  test 'accepting enqueues the accepted notification after the group lock' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+
+    assert_enqueued_jobs 1 do
+      result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+      assert result.accepted?
+    end
+  end
+
   # ── direct_invite: leader sent it, student is recipient ──────────────────
 
   test 'student accepts a direct_invite — recipient (the invited student) is added as member' do
@@ -37,6 +49,19 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     assert result.accepted?
     assert @group.project_group_members.exists?(user_id: @student.id)
     assert invite.reload.accepted?
+  end
+
+  test 'accept blocked when the joining student is no longer enrolled' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+    Enrolment.find_by!(user: @student, course: @course).destroy!
+
+    result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+    assert result.blocked?
+    assert_equal :not_enrolled, result.blocked_reason
+    assert invite.reload.pending?
+    assert_not @group.project_group_members.exists?(user_id: @student.id)
   end
 
   test 'declining either kind flips status without changing membership' do
@@ -123,29 +148,6 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     assert_equal :already_responded, result.blocked_reason
   end
 
-  # ── Edge: accept! reloads inside the lock — double-accept race is caught ─────
-
-  test 'concurrent double-accept — only one actually adds the member' do
-    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
-                                           kind: :direct_request, status: :pending)
-
-    results = Array.new(2) do
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          GroupInviteResponder.new(ProjectGroupInvite.find(invite.id), current_user: @leader).accept!
-        end
-      end
-    end.map(&:value)
-
-    accepted = results.select(&:accepted?)
-    blocked  = results.select(&:blocked?)
-
-    assert_equal 1, accepted.length
-    assert_equal 1, blocked.length
-    assert_equal :already_responded, blocked.first.blocked_reason
-    assert_equal 1, @group.project_group_members.where(user_id: @student.id).count
-  end
-
   # ── Edge: decline! has no with_lock, no window/confirmed gate at all ─────────
 
   test 'declining is allowed even after the grouping window has closed' do
@@ -182,5 +184,104 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
 
     assert invite.reload.accepted?, 'the invite being accepted must survive clear_conflicting_invites!'
     assert_not ProjectGroupInvite.exists?(stale_request.id)
+  end
+end
+
+class GroupInviteResponderRaceTest < NonTransactionalTestCase
+  setup do
+    @course = create(:course, grouping_enabled: true, grouping_open: true,
+                              group_min: 2, group_max: 3, student_list_finalised: false)
+    @leader = create(:user)
+    create(:enrolment, course: @course, user: @leader, role: :student)
+    @group = create(:project_group, course: @course, leader_id: @leader.id)
+    create(:project_group_member, project_group: @group, user: @leader)
+
+    @student = create(:user)
+    create(:enrolment, course: @course, user: @student, role: :student)
+  end
+
+  test 'concurrent double-accept — only one actually adds the member' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+
+    release = Queue.new
+    holder = hold_group_lock(release)
+    start = Queue.new
+
+    threads = Array.new(2) do
+      Thread.new do
+        with_connection do
+          start.pop
+          GroupInviteResponder.new(ProjectGroupInvite.find(invite.id), current_user: @leader).accept!
+        end
+      end
+    end
+
+    2.times { start << true }
+    wait_for_lock_waits(2)
+    release << true
+
+    results = Timeout.timeout(10) { threads.map(&:value) }
+    accepted = results.select(&:accepted?)
+    blocked  = results.select(&:blocked?)
+
+    assert_equal 1, accepted.length
+    assert_equal 1, blocked.length
+    assert_equal :already_responded, blocked.first.blocked_reason
+    assert_equal 1, @group.project_group_members.where(user_id: @student.id).count
+  ensure
+    release << true if release
+    (threads || []).each { |thread| thread.join(1) || thread.kill }
+    holder&.join(1)
+    holder&.kill
+  end
+
+  test 'an accept waiting on the group lock does not add a student removed from the course' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+    release = Queue.new
+    holder = hold_group_lock(release)
+    thread = nil
+
+    thread = Thread.new do
+      with_connection do
+        GroupInviteResponder.new(ProjectGroupInvite.find(invite.id), current_user: @leader).accept!
+      end
+    end
+
+    wait_for_lock_wait
+    Enrolment.find_by!(user: @student, course: @course).destroy!
+    release << true
+
+    result = Timeout.timeout(10) { thread.value }
+
+    assert result.blocked?
+    assert_equal :not_enrolled, result.blocked_reason
+    assert invite.reload.pending?
+    assert_not @group.project_group_members.exists?(user_id: @student.id)
+  ensure
+    release << true if release
+    thread&.join(1) || thread&.kill
+    holder&.join(1)
+    holder&.kill
+  end
+
+  private
+
+  def hold_group_lock(release)
+    held = Queue.new
+
+    thread = Thread.new do
+      with_connection do
+        ProjectGroup.transaction do
+          ProjectGroup.lock.find(@group.id)
+          held << true
+          release.pop
+        end
+      end
+    end
+
+    held.pop
+    thread
   end
 end

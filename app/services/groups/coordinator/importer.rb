@@ -28,6 +28,8 @@ module Groups
         created = false
 
         users.each do |user|
+          ProjectGroupInvite.clear_pending_for!(user, @course)
+
           existing = @course.project_group_members.includes(:project_group).find_by(user_id: user.id)
 
           if existing

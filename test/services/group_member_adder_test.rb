@@ -17,8 +17,6 @@ class GroupMemberAdderTest < ActiveSupport::TestCase
   end
 
   test 'coordinator adds a student directly, bypassing draft-size legality' do
-    # group_min is 3; adding one student brings this group to size 1 — illegal for
-    # confirm, but add! doesn't care, only already_grouped?/group_full? gate it.
     result = GroupMemberAdder.new(@group, user: @student, current_user: @coordinator).add!
 
     assert result.added?
@@ -35,53 +33,51 @@ class GroupMemberAdderTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  test 'blocked when group is already at group_max' do
+  test 'coordinator can add above group_max and the group status does not change' do
     2.times do
       filler = create(:user)
       create(:enrolment, course: @course, user: filler, role: :student)
       create(:project_group_member, project_group: @group, user: filler)
     end
-    # group_max: 3, currently at 3 (leader + 2 fillers)
+    assert_equal @course.group_max, @group.project_group_members.count
 
     result = GroupMemberAdder.new(@group, user: @student, current_user: @coordinator).add!
 
-    assert result.blocked?
-    assert_equal :group_full, result.blocked_reason
-  end
-
-  # ── Critical: already_grouped?/group_full? run BEFORE @group.with_lock ────────
-  # Nothing re-verifies capacity once inside the lock, so a check performed against
-  # stale state (e.g. read just before a concurrent add filled the last slot) lets
-  # add! push the group over group_max. Demonstrated deterministically below by
-  # stubbing group_full? to return the stale (false) answer a racing caller could
-  # have seen, rather than relying on real thread timing (which can't reliably
-  # reproduce a check-then-lock race in a fast, deterministic test).
-
-  test 'a stale group_full? read lets add! push the group over its group_max' do
-    2.times do
-      filler = create(:user)
-      create(:enrolment, course: @course, user: filler, role: :student)
-      create(:project_group_member, project_group: @group, user: filler)
-    end
-    assert_equal @course.group_max, @group.project_group_members.count, 'group starts exactly at capacity'
-
-    adder = GroupMemberAdder.new(@group, user: @student, current_user: @coordinator)
-    adder.define_singleton_method(:group_full?) { |_course| false } # the stale read a race would produce
-
-    result = adder.add!
-
-    assert result.added?, 'nothing inside with_lock re-checks capacity — this is the bug'
+    assert result.added?
     assert_operator @group.project_group_members.reload.count, :>, @course.group_max
+    assert_not @group.reload.confirmed?
   end
 
-  # ── Edge: no check that @user is actually enrolled as a student in the course ──
-
-  test 'CURRENT BEHAVIOR: coordinator can add a user with no enrolment in the course at all' do
-    outsider = create(:user) # deliberately not enrolled anywhere
+  test 'blocked when the user has no enrolment in the course' do
+    outsider = create(:user)
 
     result = GroupMemberAdder.new(@group, user: outsider, current_user: @coordinator).add!
 
-    assert result.added?, 'confirm intentional — no enrolment/role check exists in this service today'
-    assert @group.project_group_members.exists?(user_id: outsider.id)
+    assert result.blocked?
+    assert_equal :not_enrolled, result.blocked_reason
+    assert_not @group.project_group_members.exists?(user_id: outsider.id)
+  end
+
+  test 'blocked when the user is enrolled as a lecturer rather than a student' do
+    lecturer = create(:user)
+    create(:enrolment, course: @course, user: lecturer, role: :lecturer)
+
+    result = GroupMemberAdder.new(@group, user: lecturer, current_user: @coordinator).add!
+
+    assert result.blocked?
+    assert_equal :not_enrolled, result.blocked_reason
+  end
+
+  test 'clears the added student\'s pending invites course-wide' do
+    other_group = create(:project_group, course: @course, leader_id: @leader.id)
+    sent = create(:project_group_invite, project_group: other_group, sender: @student,
+                                         recipient: @leader, kind: :direct_request, status: :pending)
+    received = create(:project_group_invite, project_group: other_group, sender: @leader,
+                                             recipient: @student, kind: :direct_invite, status: :pending)
+
+    GroupMemberAdder.new(@group, user: @student, current_user: @coordinator).add!
+
+    assert_not ProjectGroupInvite.exists?(sent.id)
+    assert_not ProjectGroupInvite.exists?(received.id)
   end
 end

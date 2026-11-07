@@ -43,6 +43,36 @@ class ProjectGroupInviteTest < ActiveSupport::TestCase
     assert_not_includes results, declined
   end
 
+  test 'clear_pending_for! deletes the user\'s pending sent and received invites in the course' do
+    sent = create(:project_group_invite, project_group: @group, sender: @sender,
+                                         recipient: create(:user), kind: :direct_request, status: :pending)
+    received = create(:project_group_invite, project_group: @group, sender: create(:user),
+                                             recipient: @sender, kind: :direct_invite, status: :pending)
+
+    ProjectGroupInvite.clear_pending_for!(@sender, @course)
+
+    assert_not ProjectGroupInvite.exists?(sent.id)
+    assert_not ProjectGroupInvite.exists?(received.id)
+  end
+
+  test 'clear_pending_for! leaves handled invites, other users and other courses alone' do
+    accepted = create(:project_group_invite, project_group: @group, sender: @sender,
+                                             recipient: create(:user), kind: :direct_request, status: :accepted)
+    other_user = create(:project_group_invite, project_group: @group, sender: create(:user),
+                                               recipient: create(:user), kind: :direct_request, status: :pending)
+    other_course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
+    other_group = create(:project_group, course: other_course)
+    other_course_invite = create(:project_group_invite, project_group: other_group, sender: @sender,
+                                                        recipient: create(:user), kind: :direct_request,
+                                                        status: :pending)
+
+    ProjectGroupInvite.clear_pending_for!(@sender, @course)
+
+    assert ProjectGroupInvite.exists?(accepted.id)
+    assert ProjectGroupInvite.exists?(other_user.id)
+    assert ProjectGroupInvite.exists?(other_course_invite.id)
+  end
+
   test 'for_course scope returns invites scoped to course' do
     @invite.save!
     other_course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)

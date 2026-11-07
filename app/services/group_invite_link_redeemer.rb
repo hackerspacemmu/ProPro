@@ -3,6 +3,8 @@
 # branching (link kind always self-serves). Enrollment/role check lives in
 # ProjectGroupInviteLinkPolicy#redeem? (identity concern, not service).
 class GroupInviteLinkRedeemer
+  include Groups::GroupLocking
+
   def initialize(invite_link, current_user:)
     @invite_link = invite_link
     @current_user = current_user
@@ -13,9 +15,10 @@ class GroupInviteLinkRedeemer
 
     group = @invite_link.project_group
 
-    group.with_lock do
+    result = with_group_lock(group) do
       course = group.course
 
+      return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: @current_user.id, role: :student)
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:group_confirmed) if group.confirmed?
       return blocked(:group_full) if group_full?(group, course)
@@ -23,24 +26,20 @@ class GroupInviteLinkRedeemer
 
       return blocked(:already_grouped) unless ProjectGroupMember.add(user: @current_user, group: group)
 
-      clear_conflicting_invites!(group)
+      ProjectGroupInvite.clear_pending_for!(@current_user, course)
 
       Result.new(redeemed: true, blocked_reason: nil, group: group)
     end
+
+    return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+    result
   end
 
   private
 
   def group_full?(group, course)
     course.group_max.present? && group.project_group_members.count >= course.group_max
-  end
-
-  def clear_conflicting_invites!(group)
-    ProjectGroupInvite
-      .where(status: :pending)
-      .where('sender_id = :id OR recipient_id = :id', id: @current_user.id)
-      .where(project_group_id: group.course.project_groups.select(:id))
-      .destroy_all
   end
 
   def blocked(reason)
@@ -64,10 +63,12 @@ class GroupInviteLinkRedeemer
 
       case blocked_reason
       when :expired then 'This invite link has expired.'
+      when :not_enrolled then 'You are not enrolled in this course.'
       when :window_closed then 'The grouping window is closed.'
       when :group_confirmed then 'This group is already confirmed.'
       when :group_full then 'This group has reached its maximum size.'
       when :already_grouped then 'You are already in a group for this course.'
+      when :group_gone then 'This group no longer exists.'
       end
     end
   end

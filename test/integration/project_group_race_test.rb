@@ -1,13 +1,9 @@
 require 'test_helper'
 
 class ProjectGroupRaceTest < ActionDispatch::IntegrationTest
-  self.use_transactional_tests = false
-  self.fixture_table_names = []
+  include TestSupport::NonTransactional
 
   setup do
-    DatabaseCleaner.strategy = :truncation
-    DatabaseCleaner.start
-
     @course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
                                         group_min: 2, group_max: 4, student_list_finalised: false)
     @leader = create(:user)
@@ -23,11 +19,7 @@ class ProjectGroupRaceTest < ActionDispatch::IntegrationTest
     @field = @course.project_template.project_template_fields.find_by!(is_project_title: true)
   end
 
-  teardown do
-    DatabaseCleaner.clean
-  end
-
-  test 'two concurrent project creates leave one project and a friendly alert' do
+  test 'two concurrent project creates leave one project and an alert' do
     sessions = [session_for(@leader), session_for(@member)]
     release = Queue.new
     holder = hold_group_lock(release)
@@ -112,8 +104,6 @@ class ProjectGroupRaceTest < ActionDispatch::IntegrationTest
       fields: { @field.id.to_s => 'Group Project' } }
   end
 
-  def with_connection(&) = ActiveRecord::Base.connection_pool.with_connection(&)
-
   def hold_group_lock(release)
     held = Queue.new
 
@@ -129,18 +119,5 @@ class ProjectGroupRaceTest < ActionDispatch::IntegrationTest
 
     held.pop
     thread
-  end
-
-  def wait_for_lock_waits(count)
-    Timeout.timeout(5) do
-      loop do
-        waiting = ActiveRecord::Base.uncached do
-          ActiveRecord::Base.connection.select_value('SELECT count(*) FROM pg_locks WHERE NOT granted').to_i
-        end
-        return if waiting >= count
-
-        sleep 0.01
-      end
-    end
   end
 end

@@ -436,7 +436,7 @@ class CoursesController < ApplicationController
           if new_user.enrolments.where(course: parent_course).empty?
             GeneralMailer.with(
               course: parent_course,
-              email_address: group_member[:email_address] || group_member[:email]
+              email_address: group_member[:email_address]
             ).Course_Invite_Notification.deliver_later
           end
         else
@@ -449,7 +449,7 @@ class CoursesController < ApplicationController
           )
 
           GeneralMailer.with(
-            email_address: group_member[:email_address] || group_member[:email],
+            email_address: group_member[:email_address],
             otp_token: result.otp_instance.token
           ).ProPro_Invite.deliver_later
 
@@ -486,7 +486,7 @@ class CoursesController < ApplicationController
         if new_user.enrolments.where(course: parent_course).empty?
           GeneralMailer.with(
             course: parent_course,
-            email_address: student[:email]
+            email_address: student[:email_address]
           ).Course_Invite_Notification.deliver_later
         end
       else

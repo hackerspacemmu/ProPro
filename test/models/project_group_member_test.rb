@@ -35,6 +35,43 @@ class ProjectGroupMemberTest < ActiveSupport::TestCase
     assert_equal 1, ProjectGroupMember.where(user_id: @user.id).count
   end
 
+  test 'destroying a member deletes their pending direct invites for that group only' do
+    member = ProjectGroupMember.create!(user: @user, project_group: @group)
+    invited = create(:user)
+    same_group = create(:project_group_invite, project_group: @group, sender: @user,
+                                               recipient: invited, kind: :direct_invite, status: :pending)
+    other_group = create(:project_group_invite, project_group: @other_group, sender: @user,
+                                                recipient: invited, kind: :direct_invite, status: :pending)
+
+    member.destroy!
+
+    assert_not ProjectGroupInvite.exists?(same_group.id)
+    assert ProjectGroupInvite.exists?(other_group.id)
+  end
+
+  test 'destroying a member leaves handled invites and requests alone' do
+    member = ProjectGroupMember.create!(user: @user, project_group: @group)
+    accepted = create(:project_group_invite, project_group: @group, sender: @user,
+                                             recipient: create(:user), kind: :direct_invite, status: :accepted)
+    request = create(:project_group_invite, project_group: @group, sender: @user,
+                                            recipient: create(:user), kind: :direct_request, status: :pending)
+
+    member.destroy!
+
+    assert ProjectGroupInvite.exists?(accepted.id)
+    assert ProjectGroupInvite.exists?(request.id)
+  end
+
+  test 'the invite cleanup also fires when a group is destroyed' do
+    ProjectGroupMember.create!(user: @user, project_group: @group)
+    invite = create(:project_group_invite, project_group: @group, sender: @user,
+                                           recipient: create(:user), kind: :direct_invite, status: :pending)
+
+    @group.destroy!
+
+    assert_not ProjectGroupInvite.exists?(invite.id)
+  end
+
   test 'a failed add leaves the surrounding transaction usable' do
     ProjectGroupMember.create!(user: @user, project_group: @group)
 

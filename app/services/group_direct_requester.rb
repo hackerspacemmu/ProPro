@@ -10,6 +10,7 @@ class GroupDirectRequester
   def request!
     course = @group.course
 
+    return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: @current_user.id, role: :student)
     return blocked(:window_closed) unless course.grouping_window_open?
     return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
     return blocked(:group_not_confirmed) unless @group.confirmed?
@@ -51,6 +52,7 @@ class GroupDirectRequester
       return 'Join request sent.' if requested?
 
       case blocked_reason
+      when :not_enrolled then 'You are not enrolled in this course.'
       when :window_closed then 'The grouping window is closed.'
       when :already_grouped then 'Already in a group for this course.'
       when :group_not_confirmed then 'Requests are for confirmed groups. Join this group instead.'

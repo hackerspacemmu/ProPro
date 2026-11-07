@@ -24,6 +24,17 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_match(/^G\d{3}$/, group.group_name)
   end
 
+  test 'self-create clears the leader\'s pending invites course-wide' do
+    other_group = FactoryBot.create(:project_group, course: @course, leader_id: @coordinator.id)
+    invite = FactoryBot.create(:project_group_invite, project_group: other_group, sender: @student,
+                                                      recipient: @coordinator, kind: :direct_request, status: :pending)
+
+    result = GroupCreator.new(@course, leader: @student, current_user: @student).create!
+
+    assert result.created?
+    assert_not ProjectGroupInvite.exists?(invite.id)
+  end
+
   test 'self-create blocked when already grouped' do
     existing = FactoryBot.create(:project_group, course: @course, leader_id: @student.id)
     FactoryBot.create(:project_group_member, project_group: existing, user: @student)
@@ -102,21 +113,61 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_not_equal csv_group.id, result.group.id
     assert_equal 2, @course.project_groups.where(group_name: 'G001').count
   end
+end
+
+class GroupCreatorRaceTest < NonTransactionalTestCase
+  setup do
+    @course = create(:course, grouped: true, grouping_enabled: true, grouping_open: true,
+                              group_min: 2, group_max: 4, student_list_finalised: false)
+    @students = [create(:user), create(:user)]
+    @students.each { |user| create(:enrolment, course: @course, user: user, role: :student) }
+  end
 
   test 'concurrent self-creates never collide on course_group_sequence' do
-    other_student = FactoryBot.create(:user)
-    FactoryBot.create(:enrolment, course: @course, user: other_student, role: :student)
+    release = Queue.new
+    holder = hold_course_lock(release)
+    start = Queue.new
 
-    results = [@student, other_student].map do |user|
+    threads = @students.map do |user|
       Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
+        with_connection do
+          start.pop
           GroupCreator.new(Course.find(@course.id), leader: user, current_user: user).create!
         end
       end
-    end.map(&:value)
+    end
+
+    2.times { start << true }
+    wait_for_lock_waits(2)
+    release << true
+
+    results = Timeout.timeout(10) { threads.map(&:value) }
 
     assert results.all?(&:created?)
-    sequences = results.map { |r| r.group.course_group_sequence }
+    sequences = results.map { |result| result.group.course_group_sequence }
     assert_equal sequences.uniq.length, sequences.length, 'expected unique sequence numbers, got a collision'
+  ensure
+    release << true if release
+    (threads || []).each { |thread| thread.join(1) || thread.kill }
+    holder&.join(1)
+    holder&.kill
+  end
+
+  private
+
+  def hold_course_lock(release)
+    held = Queue.new
+
+    thread = Thread.new do
+      with_connection do
+        @course.with_no_key_update_lock do
+          held << true
+          release.pop
+        end
+      end
+    end
+
+    held.pop
+    thread
   end
 end

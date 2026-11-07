@@ -29,6 +29,14 @@ class ProjectGroupInvite < ApplicationRecord
 
   scope :pending_for_group, ->(group)   { where(project_group: group, status: :pending) }
   scope :for_course,        ->(course)  { joins(:project_group).where(project_groups: { course_id: course.id }) }
+  # Deletes every pending invite/request involving the user in the course.
+  def self.clear_pending_for!(user, course)
+    pending
+      .where(project_group_id: course.project_groups.select(:id))
+      .where('sender_id = :id OR recipient_id = :id', id: user.id)
+      .delete_all
+  end
+
   scope :sent_by,           ->(user)    { where(sender: user) }
   scope :sent_to,           ->(user)    { where(recipient: user) }
 end

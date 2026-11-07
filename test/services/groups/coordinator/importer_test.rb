@@ -110,6 +110,20 @@ module Groups
         assert_equal 1, result.skipped.size
       end
 
+      test 'clears pending invites for every imported student, including skipped ones' do
+        other = create(:project_group, course: @course, group_name: 'Team B', leader_id: @carol.id)
+        create(:project_group_member, project_group: other, user: @carol)
+        placed_invite = create(:project_group_invite, project_group: other, sender: @alice,
+                                                      recipient: @carol, kind: :direct_request)
+        skipped_invite = create(:project_group_invite, project_group: other, sender: @carol,
+                                                       recipient: @alice, kind: :direct_invite)
+
+        Importer.new(@course).import!('Team A' => [@alice, @carol])
+
+        assert_not ProjectGroupInvite.exists?(placed_invite.id)
+        assert_not ProjectGroupInvite.exists?(skipped_invite.id)
+      end
+
       test 'importing the same CSV twice changes nothing' do
         Importer.new(@course).import!('Team A' => [@alice, @bob])
 

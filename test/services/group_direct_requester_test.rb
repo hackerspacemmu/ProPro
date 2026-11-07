@@ -26,6 +26,16 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
     assert_equal @leader.id, invite.recipient_id
   end
 
+  test 'blocked when the requester is no longer enrolled in the course' do
+    Enrolment.find_by!(user: @student, course: @course).destroy!
+
+    assert_no_difference('ProjectGroupInvite.count') do
+      result = GroupDirectRequester.new(@group, current_user: @student).request!
+      assert result.blocked?
+      assert_equal :not_enrolled, result.blocked_reason
+    end
+  end
+
   test 'blocked when window closed' do
     @course.update!(grouping_open: false)
 
@@ -72,18 +82,58 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
     assert_equal :already_requested, result.blocked_reason
     assert_equal 1, ProjectGroupInvite.where(project_group: @group, sender: @student).count
   end
+end
 
-  # ── Edge: no with_lock — relies entirely on the DB unique partial index ───────
+class GroupDirectRequesterRaceTest < NonTransactionalTestCase
+  setup do
+    @course = create(:course, grouping_enabled: true, grouping_open: true,
+                              group_min: 2, group_max: 3, student_list_finalised: false)
+    @leader = create(:user)
+    create(:enrolment, course: @course, user: @leader, role: :student)
+    @group = create(:project_group, course: @course, leader_id: @leader.id, confirmed: true)
+    create(:project_group_member, project_group: @group, user: @leader)
+
+    @student = create(:user)
+    create(:enrolment, course: @course, user: @student, role: :student)
+  end
 
   test 'concurrent duplicate requests — DB unique index catches the race, not app logic' do
-    results = Array.new(2) do
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          GroupDirectRequester.new(ProjectGroup.find(@group.id), current_user: @student).request!
+    start = Queue.new
+    passed_validation = Queue.new
+    resume = Queue.new
+    threads = []
+
+    subscriber = lambda do |*args|
+      sql = args.last[:sql]
+      next unless sql.include?('FROM "project_group_invites"') && sql.include?('LIMIT')
+
+      passed_validation << true
+      resume.pop
+    end
+
+    ActiveSupport::Notifications.subscribed(subscriber, 'sql.active_record') do
+      threads = Array.new(2) do
+        Thread.new do
+          with_connection do
+            start.pop
+            GroupDirectRequester.new(ProjectGroup.find(@group.id), current_user: @student).request!
+          end
         end
       end
-    end.map(&:value)
 
+      2.times { start << true }
+      2.times { passed_validation.pop }
+      2.times { resume << true }
+      results = Timeout.timeout(10) { threads.map(&:value) }
+      run_assertions(results)
+    end
+  ensure
+    (threads || []).each { |thread| thread.join(1) || thread.kill }
+  end
+
+  private
+
+  def run_assertions(results)
     requested = results.select(&:requested?)
     blocked   = results.select(&:blocked?)
 

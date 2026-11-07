@@ -234,6 +234,8 @@ class ProjectsController < ApplicationController
           supervisor_enrolment: supervisor_enrolment
         )
 
+        ProjectGroupInvite.pending_for_group(group).delete_all if @course.grouped?
+
         # Get title
         title_value = nil
         params[:fields]&.each do |field_id, value|

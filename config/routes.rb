@@ -13,7 +13,11 @@ Rails.application.routes.draw do
   post 'user/:id/resend_invite', to: 'user#resend_invite', as: :resend_invite
   get 'user/verify'
 
-  resources :enrolments, only: [:destroy]
+  resources :enrolments, only: [:destroy] do
+    member do
+      get :confirm_removal
+    end
+  end
   post 'invite', to: 'courses#enroll_via_coursecode', as: 'invite'
 
   root 'landing#show'

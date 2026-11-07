@@ -36,6 +36,33 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @lecturer, project.supervisor
   end
 
+  test 'creating a group project clears the group pending invites and requests' do
+    course = create(:course, grouped: true, group_min: 2, group_max: 4,
+                             grouping_enabled: true, grouping_open: true, student_list_finalised: false)
+    leader = create(:user)
+    create(:enrolment, :student, user: leader, course: course)
+    group = create(:project_group, course: course, confirmed: true, leader_id: leader.id)
+    create(:project_group_member, project_group: group, user: leader)
+    lecturer = create(:enrolment, :lecturer, course: course)
+    field = course.project_template.project_template_fields.find_by!(is_project_title: true)
+    requester = create(:user)
+    create(:enrolment, :student, user: requester, course: course)
+    invite = create(:project_group_invite, project_group: group, sender: leader, recipient: requester,
+                                           kind: :direct_invite, status: :pending)
+    request = create(:project_group_invite, project_group: group, sender: requester, recipient: leader,
+                                            kind: :direct_request, status: :pending)
+
+    sign_in leader
+    post course_projects_path(course), params: {
+      based_on_topic: "own_proposal_#{lecturer.id}",
+      fields: { field.id.to_s => 'Group Project' }
+    }
+
+    assert Project.exists?(owner: group)
+    assert_not ProjectGroupInvite.exists?(invite.id)
+    assert_not ProjectGroupInvite.exists?(request.id)
+  end
+
   private
 
   def build_project
