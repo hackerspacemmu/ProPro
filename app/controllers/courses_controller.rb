@@ -240,12 +240,9 @@ class CoursesController < ApplicationController
           raise StandardError, result.errors.join("\n") unless result.updated?
         end
 
-        if @course.grouping_enabled? && !grouping_enabled_param
-          @course.disable_grouping!
-        elsif @course.grouping_enabled? && @course.student_list_finalised? && !student_list_param
-          @course.revert_to_default_mode!
-        else
-          @course.update!(
+        # Lock prevents any race conditions for any group enrolment changes
+        @course.with_no_key_update_lock do
+          unless @course.update(
             grouping_enabled: grouping_enabled_param,
             student_list_finalised: student_list_param,
             group_min: params[:course][:group_min].presence,
@@ -254,6 +251,8 @@ class CoursesController < ApplicationController
             grouping_opens_at: params[:course][:grouping_opens_at].presence,
             grouping_closes_at: params[:course][:grouping_closes_at].presence
           )
+            raise StandardError, @course.errors.full_messages.join(', ')
+          end
         end
       end
     rescue StandardError => e

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_08_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_08_092000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -133,9 +133,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_08_090000) do
     t.datetime "updated_at", null: false
     t.boolean "confirmed", default: false, null: false
     t.integer "leader_id"
-    t.integer "course_group_sequence"
     t.string "origin", default: "formation", null: false
-    t.index ["course_id", "course_group_sequence"], name: "index_project_groups_on_course_id_and_course_group_sequence", unique: true
+    t.index ["course_id", "group_name"], name: "index_project_groups_on_course_id_and_group_name", unique: true
     t.index ["course_id"], name: "index_project_groups_on_course_id"
   end
 

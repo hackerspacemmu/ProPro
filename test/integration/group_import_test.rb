@@ -12,7 +12,7 @@ class GroupImportTest < ActionDispatch::IntegrationTest
     sign_in @coordinator
   end
 
-  test 'imported groups are confirmed, led and sequenced for project creation' do
+  test 'imported groups are confirmed, led and ready for project creation' do
     import_csv <<~CSV
       Group,Last name,ID number,Email address
       Team A,Alpha,S-1001,alice-team-a@example.com
@@ -27,7 +27,6 @@ class GroupImportTest < ActionDispatch::IntegrationTest
 
     [team_a, team_b].each do |group|
       assert group.confirmed?
-      assert_nil group.course_group_sequence
       assert group.leader_id.present?
       assert_equal [@course.id], group.project_group_members.distinct.pluck(:course_id)
     end

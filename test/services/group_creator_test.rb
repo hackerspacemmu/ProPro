@@ -33,7 +33,13 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_equal @student.id, group.leader_id
     assert_equal 1, group.project_group_members.count
     assert_equal @student.id, group.project_group_members.first.user_id
-    assert_match(/^G\d{3}$/, group.group_name)
+    assert_equal 'Tmp001', group.group_name
+  end
+
+  test 'the success message names the group' do
+    result = GroupCreator.new(@course, leader: @student, current_user: @student).create!
+
+    assert_equal 'Group Tmp001 created.', result.message
   end
 
   test 'self-create clears the leader\'s pending invites course-wide' do
@@ -85,15 +91,25 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  test 'sequential creates get unique, incrementing sequence numbers' do
+  test 'sequential creates get incrementing temporary names' do
     other_student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: other_student, role: :student)
 
     result_a = GroupCreator.new(@course, leader: @student, current_user: @student).create!
     result_b = GroupCreator.new(@course, leader: other_student, current_user: other_student).create!
 
-    assert_not_equal result_a.group.course_group_sequence, result_b.group.course_group_sequence
-    assert_equal result_a.group.course_group_sequence + 1, result_b.group.course_group_sequence
+    assert_equal 'Tmp001', result_a.group.group_name
+    assert_equal 'Tmp002', result_b.group.group_name
+  end
+
+  test 'deleting the first group frees its temporary number' do
+    result_a = GroupCreator.new(@course, leader: @student, current_user: @student).create!
+    assert_equal 'Tmp001', result_a.group.group_name
+    result_a.group.destroy!
+
+    result_b = GroupCreator.new(@course, leader: @student, current_user: @student).create!
+
+    assert_equal 'Tmp001', result_b.group.group_name
   end
 
   test 'failure creating membership rolls back the group, no orphan row' do
@@ -115,15 +131,14 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_equal outsider.id, result.group.leader_id
   end
 
-  test 'auto-generated group_name silently duplicates an existing CSV-imported group_name' do
-    csv_group = FactoryBot.create(:project_group, course: @course, group_name: 'G001', course_group_sequence: nil)
+  test 'a temporary name is independent of an imported G number' do
+    create(:project_group, :imported, course: @course, group_name: 'G001')
 
     result = GroupCreator.new(@course, leader: @student, current_user: @student).create!
 
     assert result.created?
-    assert_equal 'G001', result.group.group_name
-    assert_not_equal csv_group.id, result.group.id
-    assert_equal 2, @course.project_groups.where(group_name: 'G001').count
+    assert_equal 'Tmp001', result.group.group_name
+    assert_equal 1, @course.project_groups.where(group_name: 'G001').count
   end
 end
 
@@ -135,7 +150,7 @@ class GroupCreatorRaceTest < NonTransactionalTestCase
     @students.each { |user| create(:enrolment, course: @course, user: user, role: :student) }
   end
 
-  test 'concurrent self-creates never collide on course_group_sequence' do
+  test 'concurrent self-creates never collide on group name' do
     release = Queue.new
     holder = hold_course_lock(release)
     start = Queue.new
@@ -156,8 +171,8 @@ class GroupCreatorRaceTest < NonTransactionalTestCase
     results = Timeout.timeout(10) { threads.map(&:value) }
 
     assert results.all?(&:created?)
-    sequences = results.map { |result| result.group.course_group_sequence }
-    assert_equal sequences.uniq.length, sequences.length, 'expected unique sequence numbers, got a collision'
+    names = results.map { |result| result.group.group_name }
+    assert_equal names.uniq.length, names.length, 'expected unique group names, got a collision'
   ensure
     release << true if release
     (threads || []).each { |thread| thread.join(1) || thread.kill }

@@ -704,7 +704,154 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match 'No topics match your current filters.', response.body
   end
 
+  # --- Course settings save ------------------------------------------------
+
+  test 'handle_settings saves a mode switch and field edits in one save' do
+    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
+                                       group_min: 2, group_max: 4, grouping_open: true)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    post handle_settings_course_path(course),
+         params: { course: settings_params(course, student_list_finalised: 'false', group_min: '3',
+                                                   group_max: '5', grouping_open: 'false') }
+
+    assert_redirected_to settings_course_path(course)
+    course.reload
+    assert_not course.student_list_finalised?
+    assert_equal 3, course.group_min
+    assert_equal 5, course.group_max
+    assert_not course.grouping_open?
+  end
+
+  test 'handle_settings re-renders with errors and changes nothing when the save is invalid' do
+    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
+                                       group_min: 2, group_max: 4, grouping_open: true)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    post handle_settings_course_path(course),
+         params: { course: settings_params(course, student_list_finalised: 'false', group_min: '5',
+                                                   group_max: '3') }
+
+    assert_response :unprocessable_entity
+    assert_match 'must be greater than or equal to minimum', response.body
+    course.reload
+    assert course.student_list_finalised?
+    assert_equal 2, course.group_min
+    assert_equal 4, course.group_max
+  end
+
+  test 'handle_settings disabling grouping keeps every group and clears the grouping window' do
+    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
+                                       group_min: 2, group_max: 4, grouping_open: true)
+    not_confirmed = create(:project_group, course: course, confirmed: false)
+    confirmed = create(:project_group, course: course, confirmed: true)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    post handle_settings_course_path(course),
+         params: { course: settings_params(course, grouping_enabled: 'false', grouping_open: 'false',
+                                                   group_min: '', group_max: '') }
+
+    assert_redirected_to settings_course_path(course)
+    course.reload
+    assert_not course.grouping_enabled?
+    assert_not course.grouping_open?
+    assert_not course.student_list_finalised?
+    assert ProjectGroup.exists?(not_confirmed.id)
+    assert ProjectGroup.exists?(confirmed.id)
+  end
+
+  test 'handle_settings leaving Prevent leftover students keeps every group' do
+    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
+                                       group_min: 2, group_max: 4)
+    not_confirmed = create(:project_group, course: course, confirmed: false)
+    confirmed = create(:project_group, course: course, confirmed: true)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    post handle_settings_course_path(course),
+         params: { course: settings_params(course, student_list_finalised: 'false') }
+
+    assert_redirected_to settings_course_path(course)
+    course.reload
+    assert_not course.student_list_finalised?
+    assert course.grouping_enabled?
+    assert ProjectGroup.exists?(not_confirmed.id)
+    assert ProjectGroup.exists?(confirmed.id)
+  end
+
+  test 'handle_settings can switch Prevent leftover students back on' do
+    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
+                                       group_min: 2, group_max: 4)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    post handle_settings_course_path(course),
+         params: { course: settings_params(course, student_list_finalised: 'true') }
+
+    assert_redirected_to settings_course_path(course)
+    assert course.reload.student_list_finalised?
+  end
+
+  test 'handle_settings locks the course before saving grouping settings' do
+    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
+                                       group_min: 2, group_max: 4)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+    statements = capture_sql do
+      post handle_settings_course_path(course),
+           params: { course: settings_params(course, group_min: '3', group_max: '5') }
+    end
+
+    lock = statements.index { |sql| sql.include?('FROM "courses"') && sql.include?('FOR NO KEY UPDATE') }
+    update = statements.index { |sql| sql.include?('UPDATE "courses"') && sql.include?('"group_min"') }
+
+    assert lock, "expected a SELECT ... FOR NO KEY UPDATE on courses, got:\n#{statements.join("\n")}"
+    assert update, "expected an UPDATE on courses, got:\n#{statements.join("\n")}"
+    assert_operator lock, :<, update, "expected the course lock before the course update, got:\n#{statements.join("\n")}"
+  end
+
   private
+
+  def capture_sql(&)
+    statements = []
+
+    callback = lambda do |*args|
+      payload = args.last
+      statements << payload[:sql] unless payload[:name] == 'SCHEMA'
+    end
+
+    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &)
+    statements
+  end
+
+  def settings_params(course, overrides = {})
+    {
+      course_name: course.course_name,
+      course_description: course.course_description,
+      supervisor_projects_limit: course.supervisor_projects_limit,
+      require_coordinator_approval: course.require_coordinator_approval.to_s,
+      auto_approve_copied_topics_without_changes: course.auto_approve_copied_topics_without_changes.to_s,
+      starting_week: course.starting_week,
+      use_progress_updates: course.use_progress_updates.to_s,
+      number_of_updates: course.number_of_updates,
+      lecturer_access: course.lecturer_access.to_s,
+      student_access: course.student_access,
+      file_link: course.file_link,
+      toggle_topics: course.toggle_topics.to_s,
+      supervisor_auto_calculate_enabled: '0',
+      grouping_enabled: course.grouping_enabled?.to_s,
+      student_list_finalised: course.student_list_finalised?.to_s,
+      group_min: course.group_min.to_s,
+      group_max: course.group_max.to_s,
+      grouping_open: course.grouping_open?.to_s,
+      grouping_opens_at: course.grouping_opens_at&.strftime('%Y-%m-%dT%H:%M'),
+      grouping_closes_at: course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M')
+    }.merge(overrides)
+  end
 
   def build_topic_directory_course
     course = create(:course)

@@ -55,4 +55,31 @@ class GroupReverterTest < ActiveSupport::TestCase
     assert_equal :has_project, result.blocked_reason
     assert group.reload.confirmed?
   end
+
+  test 'reopening gives the group the lowest free temporary number' do
+    course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    group = create(:project_group, course: course, group_name: 'G002', confirmed: true)
+
+    result = GroupReverter.new(group).revert!
+
+    assert result.reverted?
+    assert_equal 'Tmp001', group.reload.group_name
+  end
+
+  test 'reopening frees the confirmed number for the next confirmation' do
+    course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    create(:project_group, course: course, group_name: 'G001', confirmed: true)
+    group = create(:project_group, course: course, group_name: 'G002', confirmed: true)
+    create_list(:project_group_member, 3, project_group: group)
+
+    GroupReverter.new(group).revert!
+    assert_equal 'Tmp001', group.reload.group_name
+
+    result = GroupConfirmer.new(group).confirm!
+
+    assert result.confirmed?
+    assert_equal 'G002', group.reload.group_name
+  end
 end

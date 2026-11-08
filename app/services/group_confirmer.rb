@@ -16,7 +16,7 @@ class GroupConfirmer
 
         return blocked(:size_illegal) unless @group.confirmable?
 
-        @group.update!(confirmed: true)
+        @group.update!(confirmed: true, group_name: course.lowest_free_confirmed_group_name(excluding: @group))
         Result.new(confirmed: true, blocked_reason: nil)
       end
     end

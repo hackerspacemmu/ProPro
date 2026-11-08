@@ -16,7 +16,7 @@ class GroupReverter
         return blocked(:imported_group) if @group.origin_import?
         return blocked(:has_project) if @group.project.present?
 
-        @group.update!(confirmed: false)
+        @group.update!(confirmed: false, group_name: course.lowest_free_tmp_group_name)
         Result.new(reverted: true, blocked_reason: nil)
       end
     end

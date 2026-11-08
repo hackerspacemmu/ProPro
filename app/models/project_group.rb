@@ -9,6 +9,8 @@ class ProjectGroup < ApplicationRecord
   has_many :project_group_invites, dependent: :destroy
   has_many :project_group_invite_links, dependent: :destroy
 
+  validates :group_name, presence: true, uniqueness: { scope: :course_id }
+
   # Membership changes touch the group. Notify both grouping pages only after
   # the transaction commits, so counts, leadership and status refresh together.
   after_commit :refresh_grouping_displays

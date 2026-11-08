@@ -107,62 +107,6 @@ class CourseGroupingSettingsTest < ActiveSupport::TestCase
     assert_not course.grouping_window_open?
   end
 
-  # disable_grouping!
-
-  test 'disable_grouping! sets grouping_enabled to false' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
-    course.disable_grouping!
-    assert_not course.reload.grouping_enabled?
-  end
-
-  test 'disable_grouping! resets student_list_finalised to false' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
-    course.disable_grouping!
-    assert_not course.reload.student_list_finalised?
-  end
-
-  test 'disable_grouping! destroys draft project_groups' do
-    course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
-    draft = create(:project_group, course: course, confirmed: false)
-    course.disable_grouping!
-    assert_not ProjectGroup.exists?(draft.id)
-  end
-
-  test 'disable_grouping! preserves confirmed project_groups' do
-    course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
-    confirmed = create(:project_group, course: course, confirmed: true)
-    course.disable_grouping!
-    assert ProjectGroup.exists?(confirmed.id)
-  end
-
-  # revert_to_default_mode!
-
-  test 'revert_to_default_mode! sets student_list_finalised to false' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
-    course.revert_to_default_mode!
-    assert_not course.reload.student_list_finalised?
-  end
-
-  test 'revert_to_default_mode! leaves grouping_enabled true' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
-    course.revert_to_default_mode!
-    assert course.reload.grouping_enabled?
-  end
-
-  test 'revert_to_default_mode! destroys draft project_groups' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
-    draft = create(:project_group, course: course, confirmed: false)
-    course.revert_to_default_mode!
-    assert_not ProjectGroup.exists?(draft.id)
-  end
-
-  test 'revert_to_default_mode! does not destroy confirmed project_groups' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
-    confirmed = create(:project_group, course: course, confirmed: true)
-    course.revert_to_default_mode!
-    assert ProjectGroup.exists?(confirmed.id)
-  end
-
   test 'grouping_window_open? returns false when grouping_open is false' do
     course = build(:course, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 4)
     assert_not course.grouping_window_open?
@@ -172,11 +116,5 @@ class CourseGroupingSettingsTest < ActiveSupport::TestCase
     course = build(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4,
                             grouping_opens_at: nil, grouping_closes_at: nil)
     assert course.grouping_window_open?
-  end
-
-  test 'disable_grouping! sets grouping_open to false' do
-    course = create(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
-    course.disable_grouping!
-    assert_not course.reload.grouping_open?
   end
 end

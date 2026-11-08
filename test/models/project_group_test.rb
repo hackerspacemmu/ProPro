@@ -63,4 +63,20 @@ class ProjectGroupTest < ActiveSupport::TestCase
     assert_not group.valid?
     assert group.errors.added?(:origin, :inclusion, value: 'unknown')
   end
+
+  test 'rejects a group name already used in the same course' do
+    course = create(:course, :grouped)
+    create(:project_group, course: course, group_name: 'G001')
+    duplicate = build(:project_group, course: course, group_name: 'G001')
+
+    assert_not duplicate.valid?
+    assert duplicate.errors.added?(:group_name, :taken, value: 'G001')
+  end
+
+  test 'allows the same group name in different courses' do
+    create(:project_group, course: create(:course, :grouped), group_name: 'G001')
+    other = build(:project_group, course: create(:course, :grouped), group_name: 'G001')
+
+    assert other.valid?
+  end
 end

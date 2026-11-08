@@ -31,11 +31,9 @@ class GroupCreator
   end
 
   def build_group!
-    next_seq = @course.project_groups.maximum(:course_group_sequence).to_i + 1
     group = @course.project_groups.create!(
       leader_id: @leader.id,
-      course_group_sequence: next_seq,
-      group_name: format('G%03d', next_seq)
+      group_name: @course.lowest_free_tmp_group_name
     )
     if ProjectGroupMember.add(user: @leader, group: group)
       ProjectGroupInvite.clear_pending_for!(@leader, @course)
@@ -63,7 +61,7 @@ class GroupCreator
     def blocked? = !created?
 
     def message
-      return "Not Confirmed Group #{group.group_name} created." if created?
+      return "Group #{group.group_name} created." if created?
 
       case blocked_reason
       when :not_grouped then 'This course does not use groups.'

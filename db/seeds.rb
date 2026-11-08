@@ -356,7 +356,6 @@ group_1 = ProjectGroup.create!(
   group_name: 'G001',
   course: course_with_groups,
   leader_id: student1.id,
-  course_group_sequence: 1,
   confirmed: true
 )
 
@@ -364,7 +363,6 @@ group_2 = ProjectGroup.create!(
   group_name: 'G002',
   course: course_with_groups,
   leader_id: student4.id,
-  course_group_sequence: 2,
   confirmed: true
 )
 
@@ -372,7 +370,6 @@ group_3 = ProjectGroup.create!(
   group_name: 'G003',
   course: course_with_groups,
   leader_id: student7.id,
-  course_group_sequence: 3,
   confirmed: true
 )
 
@@ -380,15 +377,13 @@ group_4 = ProjectGroup.create!(
   group_name: 'G004',
   course: course_with_groups,
   leader_id: student10.id,
-  course_group_sequence: 4,
   confirmed: true
 )
 
 group_5 = ProjectGroup.create!(
-  group_name: 'G005',
+  group_name: 'Tmp001',
   course: course_with_groups,
-  leader_id: student13.id,
-  course_group_sequence: 5
+  leader_id: student13.id
 )
 
 # Create Project Group Members

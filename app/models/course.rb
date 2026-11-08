@@ -29,6 +29,9 @@ class Course < ApplicationRecord
 
   enum :student_access, { owner_only: 0, own_lecturer_only: 1, no_restriction: 2 }
 
+  TMP_GROUP_PREFIX = 'Tmp'.freeze
+  CONFIRMED_GROUP_PREFIX = 'G'.freeze
+
   scope :managed_by, ->(user) { joins(:enrolments).where(enrolments: { user_id: user.id, role: %i[lecturer coordinator] }).distinct }
   scope :by_coursecode, ->(code) { where(coursecode: code) }
 
@@ -106,24 +109,13 @@ class Course < ApplicationRecord
     end
   end
 
-  def disable_grouping!
-    transaction do
-      destroy_draft_groups
-      update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
-    end
+  # Callers hold the course lock, so two writers cannot pick the same number.
+  def lowest_free_tmp_group_name
+    lowest_free_group_name(TMP_GROUP_PREFIX)
   end
 
-  # NOTE: Called when coordinator switches from student_list_finalised mode back to default mode.
-  # Confirmed groups stay. Draft groups are destroyed.
-  def revert_to_default_mode!
-    transaction do
-      destroy_draft_groups
-      update!(student_list_finalised: false)
-    end
-  end
-
-  def enable_auto_confirmability_mode!
-    update!(student_list_finalised: true)
+  def lowest_free_confirmed_group_name(excluding: nil)
+    lowest_free_group_name(CONFIRMED_GROUP_PREFIX, excluding: excluding)
   end
 
   def unconfirmed_students_count
@@ -214,10 +206,11 @@ class Course < ApplicationRecord
 
   private
 
-  def destroy_draft_groups
-    project_groups.where(confirmed: false).find_each do |group|
-      group.destroy!
-    end
+  def lowest_free_group_name(prefix, excluding: nil)
+    taken = project_groups.where.not(id: excluding&.id).pluck(:group_name).to_set
+    number = 1
+    number += 1 while taken.include?(format("#{prefix}%03d", number))
+    format("#{prefix}%03d", number)
   end
 
   def null_number_of_updates_if_not_used

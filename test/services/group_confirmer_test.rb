@@ -68,4 +68,32 @@ class GroupConfirmerTest < ActiveSupport::TestCase
     assert_not result.confirmed?
     assert_equal :already_confirmed, result.blocked_reason
   end
+
+  test 'confirming a temporary group gives it the lowest free confirmed number' do
+    course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    create(:project_group, course: course, group_name: 'G001', confirmed: true)
+    create(:project_group, course: course, group_name: 'G003', confirmed: true)
+    group = create(:project_group, course: course, group_name: 'Tmp002')
+    create_list(:project_group_member, 3, project_group: group)
+
+    result = GroupConfirmer.new(group).confirm!
+
+    assert result.confirmed?
+    assert_equal 'G002', group.reload.group_name
+  end
+
+  test 'a not-confirmed group with a confirmed-style name ignores its own name' do
+    course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    create(:project_group, course: course, group_name: 'G001', confirmed: true)
+    create(:project_group, course: course, group_name: 'G002', confirmed: true)
+    group = create(:project_group, course: course, group_name: 'G003')
+    create_list(:project_group_member, 3, project_group: group)
+
+    result = GroupConfirmer.new(group).confirm!
+
+    assert result.confirmed?
+    assert_equal 'G003', group.reload.group_name
+  end
 end

@@ -10,7 +10,7 @@ module Groups
         @carol = create(:user)
       end
 
-      test 'creates a confirmed group with the first member as leader and no sequence' do
+      test 'creates a confirmed group with the first member as leader and the imported name' do
         result = Importer.new(@course).import!('Team A' => [@alice, @bob])
 
         group = @course.project_groups.find_by!(group_name: 'Team A')
@@ -18,9 +18,17 @@ module Groups
         assert group.confirmed?
         assert group.origin_import?
         assert_equal @alice.id, group.leader_id
-        assert_nil group.course_group_sequence
         assert_equal [@alice.id, @bob.id].sort, group.project_group_members.pluck(:user_id).sort
         assert_equal [@course.id], group.project_group_members.distinct.pluck(:course_id)
+      end
+
+      test 'confirming never renames an imported group' do
+        Importer.new(@course).import!('Team A' => [@alice, @bob, @carol])
+
+        group = @course.project_groups.find_by!(group_name: 'Team A')
+        GroupConfirmer.new(group).confirm!
+
+        assert_equal 'Team A', group.reload.group_name
       end
 
       test 'locks the course without a key update' do
