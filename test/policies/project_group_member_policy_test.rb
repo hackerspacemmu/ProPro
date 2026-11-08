@@ -35,11 +35,11 @@ class ProjectGroupMemberPolicyTest < ActiveSupport::TestCase
     assert_not ProjectGroupMemberPolicy.new(create(:user), @membership).destroy?
   end
 
-  test 'a lecturer cannot remove members even when they can manage groups' do
+  test 'a lecturer cannot remove members' do
     lecturer = create(:user, :staff)
     create(:enrolment, :lecturer, user: lecturer, course: @course)
 
-    assert CoursePolicy.new(lecturer, @course).manage_groups?
+    assert_not CoursePolicy.new(lecturer, @course).manage_groups?
     assert_not ProjectGroupMemberPolicy.new(lecturer, @membership).destroy?
   end
 end

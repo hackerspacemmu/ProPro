@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_05_112406) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_08_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,7 +54,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_05_112406) do
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
     t.string "email_domain_restriction"
     t.boolean "email_domain_restriction_enabled", default: false, null: false
-    t.boolean "lecturers_can_manage_groups", default: true, null: false
     t.index ["coursecode"], name: "index_courses_on_coursecode", unique: true
   end
 

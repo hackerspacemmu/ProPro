@@ -57,4 +57,31 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
     assert_not ProjectGroupPolicy.new(@leader, @group).revert?
     assert_not ProjectGroupPolicy.new(@coordinator, @group).revert?
   end
+
+  test 'a lecturer cannot create, confirm, revert or edit a group' do
+    lecturer = create(:user, :staff)
+    create(:enrolment, :lecturer, user: lecturer, course: @course)
+
+    assert_not ProjectGroupPolicy.new(lecturer, @group).create?
+    assert_not ProjectGroupPolicy.new(lecturer, @group).confirm?
+    assert_not ProjectGroupPolicy.new(lecturer, @group).revert?
+    assert_not ProjectGroupPolicy.new(lecturer, @group).edit?
+  end
+
+  test 'a coordinator can create, confirm, revert and edit a group' do
+    assert ProjectGroupPolicy.new(@coordinator, @group).create?
+    assert ProjectGroupPolicy.new(@coordinator, @group).confirm?
+    assert ProjectGroupPolicy.new(@coordinator, @group).revert?
+    assert ProjectGroupPolicy.new(@coordinator, @group).edit?
+  end
+
+  test 'a student leader can confirm and revert their own group' do
+    leader = create(:user)
+    create(:enrolment, user: leader, course: @course)
+    group = create(:project_group, course: @course, leader_id: leader.id)
+    create(:project_group_member, project_group: group, user: leader)
+
+    assert ProjectGroupPolicy.new(leader, group).confirm?
+    assert ProjectGroupPolicy.new(leader, group).revert?
+  end
 end

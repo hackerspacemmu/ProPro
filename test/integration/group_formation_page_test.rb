@@ -84,14 +84,20 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'coordinator and managing lecturer see Manage on the table' do
-    [@coordinator, @lecturer].each do |user|
-      sign_in user
-      get course_group_formation_path(@course)
+  test 'a coordinator sees Manage on the table' do
+    sign_in @coordinator
+    get course_group_formation_path(@course)
 
-      assert_response :success
-      assert_match edit_course_group_path(@course, @group), response.body
-    end
+    assert_response :success
+    assert_match edit_course_group_path(@course, @group), response.body
+  end
+
+  test 'a lecturer does not see Manage on the table' do
+    sign_in @lecturer
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_no_match edit_course_group_path(@course, @group), response.body
   end
 
   test 'htmx search matches member names and swaps only the table' do

@@ -25,7 +25,7 @@ class CoursePolicy < ApplicationPolicy
   end
 
   def manage_groups?
-    coordinator || (lecturer && record.lecturers_can_manage_groups?)
+    coordinator
   end
 
   def export_csv?

@@ -6,6 +6,8 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
                                         group_min: 2, group_max: 4, student_list_finalised: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
+    @lecturer = create(:user, :staff)
+    create(:enrolment, :lecturer, user: @lecturer, course: @course)
 
     @leader = create(:user)
     create(:enrolment, :student, user: @leader, course: @course)
@@ -29,6 +31,16 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to course_group_formation_path(@course)
     assert_equal @other_student.id, ProjectGroup.order(:created_at).last.leader_id
+  end
+
+  test 'a lecturer cannot create a group for a chosen student' do
+    sign_in @lecturer
+
+    assert_no_difference 'ProjectGroup.count' do
+      post course_groups_path(@course), params: { user_id: @other_student.id }
+    end
+
+    assert_redirected_to dashboard_path
   end
 
   test 'a student create ignores user_id and leads their own group' do
@@ -60,6 +72,20 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
 
     patch course_group_path(@course, @group)
     assert_response :not_found
+  end
+
+  test 'a lecturer cannot open the Manage page' do
+    sign_in @lecturer
+
+    get edit_course_group_path(@course, @group)
+    assert_redirected_to dashboard_path
+  end
+
+  test 'a coordinator can open the Manage page' do
+    sign_in @coordinator
+
+    get edit_course_group_path(@course, @group)
+    assert_response :success
   end
 
   test 'another student cannot open the Manage page' do
@@ -147,6 +173,16 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to course_group_formation_path(@course)
+  end
+
+  test 'a lecturer cannot add a student to a group' do
+    sign_in @lecturer
+
+    assert_no_difference '@group.project_group_members.count' do
+      post course_group_members_path(@course, @group), params: { user_id: @other_student.id }
+    end
+
+    assert_redirected_to dashboard_path
   end
 
   test 'a student cannot add a student by sending user_id' do

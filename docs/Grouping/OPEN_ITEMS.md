@@ -3,7 +3,7 @@ Backend pass to-do (single list). Tags: [R] left alone by the routes brief, [F] 
 Delete / cleanup
 
 [x] [F] Delete stale promote-to-leader: group_leaders#update, resource :leader, promote_leader?, and their routing-test rows.
-[F] Drop lecturers_can_manage_groups. manage_groups? becomes coordinator || lecturer.
+[x] [F] Drop lecturers_can_manage_groups. manage_groups? is coordinator-only.
 [R] Remove the two legacy GET redirects after one release (/courses/:id/project_groups, /project_group_invite_links/:token). Keep join/:token.
 [F] Remove @my_group_can_confirm from group_formations#show, since Confirm is now always enabled.
 [C] dynamic_form_action_controller.js is unused app-wide, so delete it separately.
