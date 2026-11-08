@@ -16,7 +16,7 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match 'Group formation', response.body
     assert_match settings_course_path(@course), response.body
-    assert_match '2&ndash;4 members per group', response.body
+    assert_match '2–4 members per group', response.body
   end
 
   test 'coordinator sees the renamed mode labels on course settings' do
@@ -28,6 +28,15 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     assert_match 'Grouping mode', response.body
   end
 
+  test 'the workspace explains an unlimited group size' do
+    @course.update!(group_min: nil, group_max: nil)
+
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_match 'No group size limit', response.body
+  end
+
   test 'a student sees the workspace without the settings link' do
     sign_in @student
 
@@ -35,7 +44,7 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match 'Group formation', response.body
-    assert_match '2&ndash;4 members per group', response.body
+    assert_match '2–4 members per group', response.body
   end
 
   private

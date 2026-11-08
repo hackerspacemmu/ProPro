@@ -20,6 +20,14 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
     create(:enrolment, course: @course, user: @redeemer_user, role: :student)
   end
 
+  test 'valid link is not blocked as full when the course has no size limits' do
+    @course.update_columns(group_min: nil, group_max: nil)
+
+    result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
+
+    assert result.redeemed?
+  end
+
   test 'valid unexpired link grants instant membership, no approval step' do
     result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
 
@@ -158,6 +166,57 @@ class GroupInviteLinkRedeemerRaceTest < NonTransactionalTestCase
                                                token: 'race-token', expires_at: 1.hour.from_now)
     @contenders = [create(:user), create(:user)]
     @contenders.each { |user| create(:enrolment, course: @course, user: user, role: :student) }
+    @redeemer_user = @contenders.first
+  end
+
+  test 'a link that expires while the redeemer waits is refused' do
+    release = Queue.new
+    holder = hold_group_lock(release)
+    thread = redeemer_thread(@redeemer_user)
+
+    wait_for_lock_wait
+    @link.update_column(:expires_at, 1.hour.ago)
+    release << true
+
+    result = Timeout.timeout(10) { thread.value }
+
+    assert result.blocked?
+    assert_equal :expired, result.blocked_reason
+    assert_not @group.project_group_members.exists?(user_id: @redeemer_user.id)
+  ensure
+    release << true if release
+    thread&.join(1)
+    thread&.kill
+    holder&.join(1)
+    holder&.kill
+  end
+
+  test 'a link replaced while the redeemer waits is refused' do
+    release = Queue.new
+    mutation = Queue.new
+    holder = hold_group_lock(release) do
+      mutation.pop
+      ProjectGroupInviteLink.where(id: @link.id).delete_all
+      create(:project_group_invite_link, project_group: @group, sender: @leader,
+                                         token: 'replacement-token', expires_at: 1.hour.from_now)
+    end
+    thread = redeemer_thread(@redeemer_user)
+
+    wait_for_lock_wait
+    mutation << true
+    release << true
+
+    result = Timeout.timeout(10) { thread.value }
+
+    assert result.blocked?
+    assert_equal :expired, result.blocked_reason
+    assert_not @group.project_group_members.exists?(user_id: @redeemer_user.id)
+  ensure
+    release << true if release
+    thread&.join(1)
+    thread&.kill
+    holder&.join(1)
+    holder&.kill
   end
 
   test 'two redeemers racing for the last slot join only once' do
@@ -201,5 +260,33 @@ class GroupInviteLinkRedeemerRaceTest < NonTransactionalTestCase
     (threads || []).each { |thread| thread.join(1) || thread.kill }
     holder&.join(1)
     holder&.kill
+  end
+
+  private
+
+  def redeemer_thread(user)
+    Thread.new do
+      with_connection do
+        GroupInviteLinkRedeemer.new(ProjectGroupInviteLink.find(@link.id), current_user: user).redeem!
+      end
+    end
+  end
+
+  def hold_group_lock(release)
+    held = Queue.new
+
+    thread = Thread.new do
+      with_connection do
+        ProjectGroup.transaction do
+          ProjectGroup.lock.find(@group.id)
+          held << true
+          yield if block_given?
+          release.pop
+        end
+      end
+    end
+
+    held.pop
+    thread
   end
 end

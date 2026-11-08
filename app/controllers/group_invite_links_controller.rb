@@ -1,5 +1,8 @@
 class GroupInviteLinksController < ApplicationController
+  include RequiresGroupedCourse
+
   before_action :set_course
+  before_action :ensure_grouped
   before_action :set_group
 
   def create

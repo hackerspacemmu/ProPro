@@ -80,7 +80,7 @@
       <div class="mt-1.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-on-surface-muted">
         <span class="inline-flex items-center gap-1.5">
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">group</span>
-          <%= @course.group_min %>&ndash;<%= @course.group_max %> members per group
+          <%= group_size_summary(@course) %>
         </span>
         <% if @course.grouping_closes_at.present? %>
           <span class="inline-flex items-center gap-1.5">

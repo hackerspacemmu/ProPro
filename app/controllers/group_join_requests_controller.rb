@@ -1,5 +1,8 @@
 class GroupJoinRequestsController < ApplicationController
+  include RequiresGroupedCourse
+
   before_action :set_course
+  before_action :ensure_grouped
   before_action :set_group
   before_action :set_invite, only: :update
 

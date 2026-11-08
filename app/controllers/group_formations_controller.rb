@@ -1,14 +1,14 @@
 class GroupFormationsController < ApplicationController
+  include RequiresGroupedCourse
+
   before_action :set_course
+  before_action :ensure_grouped
 
   def show
     authorize @course, :grouping?
 
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
-    @my_group = @course.project_groups
-                       .includes(project_group_members: :user)
-                       .joins(:project_group_members)
-                       .find_by(project_group_members: { user_id: current_user.id })
+    @my_group = @course.group_for(current_user)
 
     @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? && @my_group.confirmable?
 
@@ -21,12 +21,7 @@ class GroupFormationsController < ApplicationController
     @groups = @course.project_groups
                      .includes(:project, project_group_members: :user)
                      .order(:created_at)
-    enrolled_student_ids = @course.enrolments.where(role: :student).pluck(:user_id)
-    grouped_student_ids = ProjectGroupMember.joins(:project_group)
-                                            .where(project_groups: { course_id: @course.id })
-                                            .pluck(:user_id)
-    ungrouped_ids = enrolled_student_ids - grouped_student_ids
-    @ungrouped_students = User.where(id: ungrouped_ids).order(:name)
+    @ungrouped_students = @course.ungrouped_students
 
     @filtered_groups = filtered_groups
     @filters_active = formation_filters_active?

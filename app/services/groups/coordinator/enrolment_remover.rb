@@ -17,6 +17,8 @@ module Groups
 
           next Result.new(outcome: :needs_confirmation, project_title: member_result.project_title) if member_result&.needs_confirmation?
 
+          # The membership may already be gone, or its group deleted while we
+          # waited; either way the course enrolment still has to be removed.
           ProjectGroupInvite.clear_pending_for!(@enrolment.user, @course)
           @enrolment.destroy!
           Result.new(outcome: :removed, group_deleted: member_result&.group_deleted? || false)

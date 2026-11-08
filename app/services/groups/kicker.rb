@@ -2,6 +2,8 @@ module Groups
   # Removes a member at the leader's request. Only while formation is open and
   # the group is not confirmed; a leader cannot kick themselves.
   class Kicker
+    include Groups::GroupLocking
+
     def initialize(member, current_user:)
       @member = member
       @current_user = current_user
@@ -9,7 +11,7 @@ module Groups
     end
 
     def kick!
-      @group.with_lock do
+      result = with_group_lock(@group) do
         member = @group.project_group_members.find_by(id: @member.id)
 
         return blocked(:already_removed) unless member
@@ -22,6 +24,10 @@ module Groups
         member.destroy!
         Result.new(removed: true)
       end
+
+      return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+      result
     end
 
     private
@@ -51,6 +57,7 @@ module Groups
         when :self_kick then 'You cannot remove yourself from the group.'
         when :window_closed then 'Group formation is closed.'
         when :group_confirmed then 'The leader can only remove members while the group is not confirmed.'
+        when :group_gone then 'This group no longer exists.'
         end
       end
     end

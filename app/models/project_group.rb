@@ -13,27 +13,18 @@ class ProjectGroup < ApplicationRecord
   # the transaction commits, so counts, leadership and status refresh together.
   after_commit :refresh_grouping_displays
 
-  def revert_to_draft!
-    update!(confirmed: false)
-  end
-
-  def pending_requests
-    project_group_invites.pending
-  end
-
-  def has_project?
-    project.exists?
-  end
-
   def leader?(user)
     leader_id == user.id
   end
 
   def confirmable?
+    count = project_group_members.count
+    return course.size_within_limits?(count) unless course.student_list_finalised?
+
     Queries::GroupSizeConfirmabilityCalculator
       .new(course, students_to_group: course.unconfirmed_students_count)
       .execute
-      .confirmable_size?(project_group_members.count)
+      .confirmable_size?(count)
   end
 
   private

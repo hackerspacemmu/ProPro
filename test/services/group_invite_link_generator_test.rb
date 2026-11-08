@@ -10,11 +10,12 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
     create(:project_group_member, project_group: @group, user: @leader)
   end
 
-  test 'leader generates a link — created with a token and 24h expiry' do
+  test 'leader generates a link — created with a 16-byte token and 24h expiry' do
     result = GroupInviteLinkGenerator.new(@group, current_user: @leader).generate!
 
     assert result.generated?
     assert result.token.present?
+    assert_equal 16, Base64.urlsafe_decode64(result.token).bytesize
     assert_in_delta 24.hours.from_now, result.expires_at, 5.seconds
 
     link = @group.project_group_invite_links.find_by(sender: @leader)
@@ -30,7 +31,7 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
     assert_not ProjectGroupInviteLink.exists?(token: first.token)
   end
 
-  test 'regenerating does not touch another sender\'s link' do
+  test 'generating a link replaces every link for the group' do
     other_member = create(:user)
     create(:enrolment, course: @course, user: other_member, role: :student)
     create(:project_group_member, project_group: @group, user: other_member)
@@ -38,7 +39,8 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
 
     GroupInviteLinkGenerator.new(@group, current_user: @leader).generate!
 
-    assert ProjectGroupInviteLink.exists?(token: other_link.token)
+    assert_not ProjectGroupInviteLink.exists?(token: other_link.token)
+    assert_equal 1, @group.project_group_invite_links.count
   end
 
   test 'blocked when window closed' do
@@ -73,5 +75,92 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
     assert ProjectGroupInviteLink.exists?(token: old_leader_link.token)
     link = ProjectGroupInviteLink.find_by(token: old_leader_link.token)
     assert_not link.expires_at.past?
+  end
+end
+
+class GroupInviteLinkGeneratorRaceTest < NonTransactionalTestCase
+  setup do
+    @course = create(:course, grouping_enabled: true, grouping_open: true,
+                              group_min: 2, group_max: 4, student_list_finalised: false)
+    @leader = create(:user)
+    create(:enrolment, course: @course, user: @leader, role: :student)
+    @group = create(:project_group, course: @course, leader_id: @leader.id)
+    create(:project_group_member, project_group: @group, user: @leader)
+  end
+
+  test 'the window closing while the generator waits blocks it' do
+    release = Queue.new
+    holder = hold_group_lock(release)
+    thread = generator_thread
+
+    wait_for_lock_wait
+    @course.update_column(:grouping_open, false)
+    release << true
+
+    result = Timeout.timeout(10) { thread.value }
+
+    assert result.blocked?
+    assert_equal :window_closed, result.blocked_reason
+    assert_equal 0, @group.project_group_invite_links.count
+  ensure
+    release << true if release
+    thread&.join(1)
+    thread&.kill
+    holder&.join(1)
+    holder&.kill
+  end
+
+  test 'the group becoming confirmed while the generator waits blocks it' do
+    release = Queue.new
+    mutation = Queue.new
+    holder = hold_group_lock(release) do
+      mutation.pop
+      @group.update_column(:confirmed, true)
+    end
+    thread = generator_thread
+
+    wait_for_lock_wait
+    mutation << true
+    release << true
+
+    result = Timeout.timeout(10) { thread.value }
+
+    assert result.blocked?
+    assert_equal :group_confirmed, result.blocked_reason
+    assert_equal 0, @group.project_group_invite_links.count
+  ensure
+    release << true if release
+    thread&.join(1)
+    thread&.kill
+    holder&.join(1)
+    holder&.kill
+  end
+
+  private
+
+  def generator_thread
+    Thread.new do
+      with_connection do
+        GroupInviteLinkGenerator.new(ProjectGroup.find(@group.id), current_user: @leader).generate!
+      end
+    end
+  end
+
+  def hold_group_lock(release)
+    held = Queue.new
+
+    thread = Thread.new do
+      with_connection do
+        ProjectGroup.transaction do
+          ProjectGroup.lock.find(@group.id)
+          held << true
+          yield if block_given?
+          release.pop
+        end
+      end
+    end
+
+    held.pop
+    thread
   end
 end

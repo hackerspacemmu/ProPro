@@ -11,17 +11,19 @@ class GroupInviteLinkRedeemer
   end
 
   def redeem!
-    return blocked(:expired) if @invite_link.expires_at.past?
-
     group = @invite_link.project_group
 
     result = with_group_lock(group) do
+      # Regenerating a link deletes this row, and expiry can pass while we wait.
+      link = ProjectGroupInviteLink.find_by(id: @invite_link.id)
+      return blocked(:expired) if link.nil? || link.expires_at.past?
+
       course = group.course
 
       return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: @current_user.id, role: :student)
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:group_confirmed) if group.confirmed?
-      return blocked(:group_full) if group_full?(group, course)
+      return blocked(:group_full) if course.group_full?(group.project_group_members.count)
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
 
       return blocked(:already_grouped) unless ProjectGroupMember.add(user: @current_user, group: group)
@@ -37,10 +39,6 @@ class GroupInviteLinkRedeemer
   end
 
   private
-
-  def group_full?(group, course)
-    course.group_max.present? && group.project_group_members.count >= course.group_max
-  end
 
   def blocked(reason)
     Result.new(redeemed: false, blocked_reason: reason, group: nil)

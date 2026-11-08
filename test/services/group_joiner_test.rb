@@ -15,6 +15,15 @@ class GroupJoinerTest < ActiveSupport::TestCase
     FactoryBot.create(:project_group_member, project_group: @group, user: @leader)
   end
 
+  test 'join succeeds when the course has no size limits' do
+    @course.update_columns(group_min: nil, group_max: nil)
+
+    result = GroupJoiner.new(@group, current_user: @student).join!
+
+    assert result.joined?
+    assert @group.project_group_members.exists?(user_id: @student.id)
+  end
+
   test 'join succeeds, adds member' do
     result = GroupJoiner.new(@group, current_user: @student).join!
 

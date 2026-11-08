@@ -99,6 +99,18 @@ class GroupDirectInviterTest < ActiveSupport::TestCase
     assert_equal 1, ProjectGroupInvite.where(project_group: @group, recipient: @recipient).count
   end
 
+  test 'an unrelated RecordInvalid propagates instead of becoming already_invited' do
+    invalid = ProjectGroupInvite.new
+    invalid.errors.add(:project_group, :blank)
+    error = ActiveRecord::RecordInvalid.new(invalid)
+
+    ProjectGroupInvite.stub(:create!, ->(*, **) { raise error }) do
+      assert_raises(ActiveRecord::RecordInvalid) do
+        GroupDirectInviter.new(@group, current_user: @leader, recipient: @recipient).invite!
+      end
+    end
+  end
+
   # ── Edge: leader inviting themselves — implicitly blocked via already_grouped ─
 
   test 'leader inviting themselves is blocked as already_grouped, not a distinct error' do
@@ -126,8 +138,8 @@ class GroupDirectInviterTest < ActiveSupport::TestCase
 
   # ── Contrast with GroupJoiner: nil group_max IS treated as unlimited here ────
 
-  test 'nil group_max is treated as unlimited, not zero capacity' do
-    @course.update_columns(group_max: nil) # bypasses course validation to isolate this service's logic
+  test 'blank group limits are treated as unlimited' do
+    @course.update_columns(group_min: nil, group_max: nil)
 
     result = GroupDirectInviter.new(@group, current_user: @leader, recipient: @recipient).invite!
 

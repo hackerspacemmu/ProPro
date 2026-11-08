@@ -2,12 +2,14 @@ module Groups
   # Deletes a not-confirmed group on its leader's request while formation is
   # open.
   class Deleter
+    include Groups::GroupLocking
+
     def initialize(group)
       @group = group
     end
 
     def delete!
-      @group.with_lock do
+      result = with_group_lock(@group) do
         return blocked(:window_closed) unless @group.course.grouping_window_open?
         return blocked(:has_project) if @group.project.present?
         return blocked(:group_confirmed) if @group.confirmed?
@@ -15,6 +17,10 @@ module Groups
         @group.destroy!
         Result.new(deleted: true)
       end
+
+      return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+      result
     end
 
     private
@@ -42,6 +48,7 @@ module Groups
         when :window_closed then 'Group formation is closed.'
         when :has_project then 'This group has a proposal, so only a coordinator can delete it.'
         when :group_confirmed then 'A confirmed group can only be deleted by a coordinator.'
+        when :group_gone then 'This group no longer exists.'
         end
       end
     end

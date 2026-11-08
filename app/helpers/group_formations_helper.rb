@@ -27,14 +27,22 @@ module GroupFormationsHelper
 
   def group_size_state(group, course)
     count = group.project_group_members.size
-    return :under if course.group_min.present? && count < course.group_min.to_i
-    return :over if course.group_max.present? && count > course.group_max.to_i
+    return :under if count < course.effective_group_min
+    return :over if course.group_max.present? && count > course.group_max
 
     :ok
   end
 
   def group_full?(group, course)
-    course.group_max.present? && group.project_group_members.size >= course.group_max.to_i
+    course.group_full?(group.project_group_members.size)
+  end
+
+  def group_size_summary(course)
+    return 'No group size limit' if course.group_min.blank? && course.group_max.blank?
+    return "#{course.group_min}–#{course.group_max} members per group" if course.group_min.present? && course.group_max.present?
+    return "At least #{pluralize(course.group_min, 'member')} per group" if course.group_min.present?
+
+    "Up to #{pluralize(course.group_max, 'member')} per group"
   end
 
   def leader_first(members, group)

@@ -15,7 +15,7 @@ class GroupDirectInviter
     return blocked(:invalid_recipient) unless recipient_enrolment&.student?
     return blocked(:window_closed) unless course.grouping_window_open?
     return blocked(:group_confirmed) if @group.confirmed?
-    return blocked(:group_full) if group_full?(course)
+    return blocked(:group_full) if course.group_full?(@group.project_group_members.count)
     return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @recipient.id)
 
     invite = ProjectGroupInvite.create!(
@@ -29,15 +29,16 @@ class GroupDirectInviter
     GeneralMailer.with(invite: invite).Group_Direct_Invite_Notification.deliver_later
 
     Result.new(invited: true, blocked_reason: nil)
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordInvalid => e
+    raise unless e.record.errors.of_kind?(:recipient_id, :taken)
+
+    blocked(:already_invited)
+  rescue ActiveRecord::RecordNotUnique
+    # The pending-invite unique index is the race backstop.
     blocked(:already_invited)
   end
 
   private
-
-  def group_full?(course)
-    course.group_max.present? && @group.project_group_members.count >= course.group_max
-  end
 
   def blocked(reason)
     Result.new(invited: false, blocked_reason: reason)

@@ -10,17 +10,17 @@ class GroupInviteLinkGenerator
   end
 
   def generate!
-    course = @group.course
-
-    return blocked(:window_closed) unless course.grouping_window_open?
-    return blocked(:group_confirmed) if @group.confirmed?
-
     result = with_group_lock(@group) do
-      @group.project_group_invite_links.find_by(sender: @current_user)&.destroy!
+      course = @group.course
+
+      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:group_confirmed) if @group.confirmed?
+
+      @group.project_group_invite_links.destroy_all
 
       link = @group.project_group_invite_links.create!(
         sender: @current_user,
-        token: SecureRandom.urlsafe_base64(8),
+        token: SecureRandom.urlsafe_base64(16),
         expires_at: 24.hours.from_now
       )
 

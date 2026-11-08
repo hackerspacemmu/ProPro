@@ -27,7 +27,12 @@ class GroupDirectRequester
     GeneralMailer.with(invite: invite).Group_Direct_Request_Notification.deliver_later
 
     Result.new(requested: true, blocked_reason: nil)
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordInvalid => e
+    raise unless e.record.errors.of_kind?(:sender_id, :taken)
+
+    blocked(:already_requested)
+  rescue ActiveRecord::RecordNotUnique
+    # The pending-request unique index is the race backstop.
     blocked(:already_requested)
   end
 

@@ -38,16 +38,6 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
     assert_not solo.reload.confirmed?
   end
 
-  # ── pending_requests ──────────────────────────────────────────────────────
-
-  test 'pending_requests returns only pending request invites' do
-    pending  = create(:project_group_invite, project_group: @group, sender: @carol, status: :pending)
-    declined = create(:project_group_invite, project_group: @group, sender: create(:user), status: :declined)
-
-    assert_includes     @group.pending_requests, pending
-    assert_not_includes @group.pending_requests, declined
-  end
-
   # ── leader? helper ────────────────────────────────────────────────────────
 
   test 'leader? returns true for group leader' do

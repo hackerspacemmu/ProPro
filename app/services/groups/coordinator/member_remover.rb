@@ -4,6 +4,8 @@ module Groups
     # Removing the last member of a group that owns a proposal needs an explicit
     # confirmation because the group and proposal are deleted together.
     class MemberRemover
+      include Groups::GroupLocking
+
       def initialize(member, confirm: false)
         @member = member
         @group = member.project_group
@@ -13,8 +15,8 @@ module Groups
       def remove!
         # Confirmed membership feeds the course-wide head-count, so the course
         # lock is taken before the group row.
-        @group.course.with_no_key_update_lock do
-          @group.with_lock do
+        result = @group.course.with_no_key_update_lock do
+          with_group_lock(@group) do
             member = @group.project_group_members.find_by(id: @member.id)
             return blocked(:already_removed) unless member
 
@@ -33,6 +35,10 @@ module Groups
             Result.new(outcome: :removed)
           end
         end
+
+        return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+        result
       end
 
       private
@@ -78,7 +84,10 @@ module Groups
         private
 
         def blocked_message
-          'This member has already been removed.' if blocked_reason == :already_removed
+          case blocked_reason
+          when :already_removed then 'This member has already been removed.'
+          when :group_gone then 'This group no longer exists.'
+          end
         end
       end
     end

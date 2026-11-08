@@ -195,7 +195,7 @@ class ProjectsController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         if @course.grouped?
-          group = current_user.project_groups.find_by(course: @course)
+          group = @course.group_for(current_user)
 
           raise StandardError, "You're not part of a project group." unless group
 

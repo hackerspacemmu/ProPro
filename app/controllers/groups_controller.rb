@@ -2,10 +2,11 @@
 class GroupsController < ApplicationController
   include ParticipantBrowsing
   include CoursesHelper
+  include RequiresGroupedCourse
 
   before_action :set_course
   before_action :authorize_course, only: %i[index show]
-  before_action :ensure_grouped, only: %i[index show]
+  before_action :ensure_grouped
   before_action :set_group, only: %i[show edit destroy]
 
   def index
@@ -55,7 +56,7 @@ class GroupsController < ApplicationController
     @incoming_join_requests = @group.project_group_invites.pending_for_group(@group).where(kind: :direct_request)
     @my_group_invite_token = @group.project_group_invite_links.find_by(sender: current_user)&.token
     @my_invited_student_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_invite).pluck(:recipient_id)
-    @ungrouped_students = ungrouped_students
+    @ungrouped_students = @course.ungrouped_students
   end
 
   def create
@@ -86,7 +87,7 @@ class GroupsController < ApplicationController
       return
     end
 
-    redirect_to course_group_formation_path(@course), notice: result.message
+    redirect_to course_group_formation_path(@course), **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private
@@ -112,19 +113,7 @@ class GroupsController < ApplicationController
     authorize @course, :show?
   end
 
-  def ensure_grouped
-    raise ActiveRecord::RecordNotFound unless @course.grouped?
-  end
-
   def set_group
     @group = @course.project_groups.find(params[:id])
-  end
-
-  def ungrouped_students
-    enrolled_student_ids = @course.enrolments.where(role: :student).pluck(:user_id)
-    grouped_student_ids = ProjectGroupMember.joins(:project_group)
-                                            .where(project_groups: { course_id: @course.id })
-                                            .pluck(:user_id)
-    User.where(id: enrolled_student_ids - grouped_student_ids).order(:name)
   end
 end

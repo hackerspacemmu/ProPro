@@ -82,6 +82,18 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
     assert_equal :already_requested, result.blocked_reason
     assert_equal 1, ProjectGroupInvite.where(project_group: @group, sender: @student).count
   end
+
+  test 'an unrelated RecordInvalid propagates instead of becoming already_requested' do
+    invalid = ProjectGroupInvite.new
+    invalid.errors.add(:project_group, :blank)
+    error = ActiveRecord::RecordInvalid.new(invalid)
+
+    ProjectGroupInvite.stub(:create!, ->(*, **) { raise error }) do
+      assert_raises(ActiveRecord::RecordInvalid) do
+        GroupDirectRequester.new(@group, current_user: @student).request!
+      end
+    end
+  end
 end
 
 class GroupDirectRequesterRaceTest < NonTransactionalTestCase

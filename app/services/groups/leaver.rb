@@ -2,13 +2,15 @@ module Groups
   # Removes a member who is leaving their own group. A confirmed group keeps
   # every member, and a group that owns a proposal is never left here.
   class Leaver
+    include Groups::GroupLocking
+
     def initialize(member)
       @member = member
       @group = member.project_group
     end
 
     def leave!
-      @group.with_lock do
+      result = with_group_lock(@group) do
         member = @group.project_group_members.find_by(id: @member.id)
 
         return blocked(:already_removed) unless member
@@ -27,6 +29,10 @@ module Groups
         promote_next_leader! if was_leader
         Result.new(outcome: :removed)
       end
+
+      return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+      result
     end
 
     private
@@ -71,6 +77,7 @@ module Groups
         when :window_closed then 'Group formation is closed.'
         when :group_confirmed then 'You cannot leave a confirmed group.'
         when :has_project then 'This group has a proposal, so only a coordinator can remove members.'
+        when :group_gone then 'This group no longer exists.'
         end
       end
     end

@@ -46,9 +46,9 @@ class Course < ApplicationRecord
   validates :coursecode, uniqueness: { message: 'has already been taken' }, allow_nil: true
   validates :auto_approve_copied_topics_without_changes, inclusion: { in: [true, false], message: 'must be true or false' }
 
-  # group_min and group_max are required whenever grouping is enabled
-  validates :group_min, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
-  validates :group_max, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
+  # Prevent leftover students needs both limits to build a legal distribution.
+  validates :group_min, presence: { message: 'is required when Prevent leftover students is on' }, if: :student_list_finalised?
+  validates :group_max, presence: { message: 'is required when Prevent leftover students is on' }, if: :student_list_finalised?
   validates :group_min, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }, allow_nil: true
 
   validates :group_max,
@@ -69,6 +69,25 @@ class Course < ApplicationRecord
     sqids = Sqids.new(alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', min_length: 6)
     self.coursecode = sqids.encode([id, SecureRandom.random_number(1_000_000_000)])
     save!
+  end
+
+  def effective_group_min = group_min || 1
+
+  def group_full?(member_count)
+    group_max.present? && member_count >= group_max
+  end
+
+  def size_within_limits?(member_count)
+    member_count >= effective_group_min && (group_max.nil? || member_count <= group_max)
+  end
+
+  def group_for(user)
+    project_groups.joins(:project_group_members)
+                  .find_by(project_group_members: { user_id: user.id })
+  end
+
+  def ungrouped_students
+    students.where.not(id: project_group_members.select(:user_id)).order(:name)
   end
 
   def grouping_window_open?

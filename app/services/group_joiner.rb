@@ -15,7 +15,7 @@ class GroupJoiner
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
       return blocked(:group_confirmed) if @group.confirmed?
-      return blocked(:group_full) if @group.project_group_members.count >= course.group_max.to_i
+      return blocked(:group_full) if course.group_full?(@group.project_group_members.count)
 
       return blocked(:already_grouped) unless ProjectGroupMember.add(user: @current_user, group: @group)
 

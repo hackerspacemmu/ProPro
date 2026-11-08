@@ -32,7 +32,7 @@ class LecturersController < ApplicationController
 
     # set current user's projects for Propose to Lecturer
     @project = if @course.grouped?
-                 group = current_user.project_groups.find_by(course: @course)
+                 group = @course.group_for(current_user)
                  @course.projects.find_by(owner: group) if group
                else
                  @course.projects.find_by(owner: current_user)

@@ -12,6 +12,18 @@ class GroupCreatorTest < ActiveSupport::TestCase
     FactoryBot.create(:enrolment, course: @course, user: @coordinator, role: :coordinator)
   end
 
+  test 'blocked when the course does not use groups' do
+    course = FactoryBot.create(:course, grouped: false)
+    student = FactoryBot.create(:user)
+    FactoryBot.create(:enrolment, course: course, user: student, role: :student)
+
+    result = GroupCreator.new(course, leader: student, current_user: student).create!
+
+    assert result.blocked?
+    assert_equal :not_grouped, result.blocked_reason
+    assert_equal 0, course.project_groups.count
+  end
+
   test 'self-create succeeds, becomes sole leader+member' do
     result = GroupCreator.new(@course, leader: @student, current_user: @student).create!
 

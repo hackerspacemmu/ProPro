@@ -14,7 +14,7 @@ class CoursesController < ApplicationController
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
     if @course.grouped?
-      @group = current_user.project_groups.find_by(course: @course)
+      @group = @course.group_for(current_user)
       @project = @course.projects.find_by(owner_type: 'ProjectGroup', owner_id: @group.id) if @group
     else
       @group = nil

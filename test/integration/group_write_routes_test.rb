@@ -411,6 +411,43 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_not ProjectGroup.exists?(group.id)
   end
 
+  test 'every group route 404s on an ungrouped course' do
+    ungrouped = create(:course)
+    create(:enrolment, :coordinator, user: @coordinator, course: ungrouped)
+    group = create(:project_group, course: ungrouped, leader_id: @leader.id)
+    membership = create(:project_group_member, project_group: group, user: @leader)
+    join_request = create(:project_group_invite, project_group: group, sender: @member,
+                                                 recipient: @leader, kind: :direct_request,
+                                                 status: :pending)
+    invitation = create(:project_group_invite, project_group: group, sender: @leader,
+                                               recipient: @member, kind: :direct_invite,
+                                               status: :pending)
+    sign_in @coordinator
+
+    requests = [
+      -> { get course_group_formation_path(ungrouped) },
+      -> { get course_groups_path(ungrouped) },
+      -> { get course_group_path(ungrouped, group) },
+      -> { get edit_course_group_path(ungrouped, group) },
+      -> { post course_groups_path(ungrouped), params: { user_id: @member.id } },
+      -> { delete course_group_path(ungrouped, group) },
+      -> { post course_group_confirmation_path(ungrouped, group) },
+      -> { delete course_group_confirmation_path(ungrouped, group) },
+      -> { post course_group_invite_link_path(ungrouped, group) },
+      -> { post course_group_members_path(ungrouped, group) },
+      -> { delete course_group_member_path(ungrouped, group, membership) },
+      -> { post course_group_join_requests_path(ungrouped, group) },
+      -> { patch course_group_join_request_path(ungrouped, group, join_request), params: { status: 'accepted' } },
+      -> { post course_group_invitations_path(ungrouped, group) },
+      -> { patch course_group_invitation_path(ungrouped, group, invitation), params: { status: 'accepted' } }
+    ]
+
+    requests.each do |request|
+      request.call
+      assert_response :not_found
+    end
+  end
+
   test 'an imported group cannot be reopened from the formation page' do
     @group.update!(confirmed: true, origin: :import)
     sign_in @leader

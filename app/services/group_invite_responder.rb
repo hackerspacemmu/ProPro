@@ -25,7 +25,7 @@ class GroupInviteResponder
       return blocked(:window_closed) unless course.grouping_window_open?
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: joining_user.id)
       return blocked(:group_confirmed) if @group.confirmed?
-      return blocked(:group_full) if group_full?(course)
+      return blocked(:group_full) if course.group_full?(@group.project_group_members.count)
 
       return blocked(:already_grouped) unless ProjectGroupMember.add(user: joining_user, group: @group)
 
@@ -51,10 +51,6 @@ class GroupInviteResponder
   end
 
   private
-
-  def group_full?(course)
-    course.group_max.present? && @group.project_group_members.count >= course.group_max
-  end
 
   def joining_user_for(invite)
     invite.direct_request? ? invite.sender : invite.recipient
