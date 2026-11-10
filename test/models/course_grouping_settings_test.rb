@@ -41,15 +41,6 @@ class CourseGroupingSettingsTest < ActiveSupport::TestCase
     assert course.valid?
   end
 
-  test 'grouping window dates are valid when closes_at is in the future' do
-    course = build(:course,
-                   grouping_enabled: true,
-                   group_min: 2,
-                   group_max: 4,
-                   grouping_closes_at: 1.day.from_now)
-    assert course.valid?
-  end
-
   # grouping_window_open?
 
   test 'grouping_window_open? returns false when grouping is disabled' do

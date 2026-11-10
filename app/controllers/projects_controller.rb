@@ -302,7 +302,7 @@ class ProjectsController < ApplicationController
       event: 'project_proposal_created',
       properties: {
         grouped_course: @course.grouped?,
-        proposal_source: topic ? 'topic' : 'own_proposal'
+        proposal_source: @instance.source_topic_id ? 'topic' : 'own_proposal'
       }
     )
 

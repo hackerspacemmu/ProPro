@@ -64,6 +64,18 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     assert @course.reload.grouping_window_open?
   end
 
+  test 'settings shows the stored end date and remove control when the window has closed' do
+    closes_at = 1.day.ago.change(sec: 0)
+    @course.update!(grouping_closes_at: closes_at)
+
+    get settings_course_path(@course)
+
+    assert_response :success
+    assert_match 'Remove date', response.body
+    assert_select '[data-grouping-settings-target="windowFields"].hidden', count: 0
+    assert_select "input#course_grouping_closes_at[value='#{closes_at.strftime('%Y-%m-%dT%H:%M')}']"
+  end
+
   test 'the workspace explains an unlimited group size' do
     @course.update!(group_min: nil, group_max: nil)
 

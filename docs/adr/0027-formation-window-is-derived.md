@@ -13,8 +13,10 @@ Grouping section of Course Settings exposed an "Open from" date and a
 mode-card picker ("Default" / "Auto-Confirmability"), names that did not
 match what coordinators were actually deciding.
 
-The owner confirmed no production course has grouping enabled, so the
-stored flag could be removed without a data migration.
+The only production course with grouping on is a disposable testing
+course the owner is willing to delete, so no data migration preserves
+the old closed state. Courses with grouping on and no end date are open
+once the columns drop.
 
 ## Decision
 
@@ -45,8 +47,10 @@ date.**
 - ADR 0026's "before it opens" case no longer exists; the Groups tab
   shows unconfirmed groups only when grouping is disabled or the end date
   has passed.
-- No data migration was needed because no production course had grouping
-  enabled.
+- The old closed state is not preserved for the testing course with
+  grouping on and no end date; it becomes open once the columns drop. The
+  owner accepts this and may delete the course. No data migration was
+  written.
 
 ## References
 

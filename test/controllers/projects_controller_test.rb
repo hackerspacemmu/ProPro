@@ -63,6 +63,41 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_not ProjectGroupInvite.exists?(request.id)
   end
 
+  test 'creating an own proposal redirects and records the chosen supervisor' do
+    title_field = @course.project_template.project_template_fields.find_by!(is_project_title: true)
+
+    sign_in @student
+    post course_projects_path(@course), params: {
+      based_on_topic: "own_proposal_#{@lecturer_enr.id}",
+      fields: { title_field.id.to_s => 'Own Proposal Title' }
+    }
+
+    project = Project.find_by!(course: @course, owner: @student)
+    instance = project.project_instances.last
+
+    assert_redirected_to course_project_path(@course, project)
+    assert_equal @lecturer_enr, instance.supervisor_enrolment
+    assert_nil instance.source_topic_id
+  end
+
+  test 'creating a proposal based on a topic redirects and records the source topic' do
+    topic = create(:topic, course: @course, owner: @lecturer)
+    title_field = @course.project_template.project_template_fields.find_by!(is_project_title: true)
+
+    sign_in @student
+    post course_projects_path(@course), params: {
+      based_on_topic: topic.id.to_s,
+      fields: { title_field.id.to_s => 'Topic Proposal Title' }
+    }
+
+    project = Project.find_by!(course: @course, owner: @student)
+    instance = project.project_instances.last
+
+    assert_redirected_to course_project_path(@course, project)
+    assert_equal @lecturer_enr, instance.supervisor_enrolment
+    assert_equal topic.id, instance.source_topic_id
+  end
+
   test 'new redirects to course overview when student in a grouped course has no group' do
     course = create(:course, grouped: true, grouping_enabled: true)
     student = create(:user)

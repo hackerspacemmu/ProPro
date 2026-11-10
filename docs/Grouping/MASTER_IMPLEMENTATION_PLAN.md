@@ -11,7 +11,7 @@ Branch `feat/student-grouping-crud`. Revision 11: records the Grouping settings 
 - TODO (in order): the rest of P4 (B10, B11, B12, I6, O3, O6, R11), then P4c. BLOCKED: P5 (D2). Later: P6, P7, P8.
 - Remaining owner decision: Q5/D2 (other reviewer). P4c UX items are listed at that pass. "Tmp" label stays.
 - Run 2026-11-10, all green: overview presenter, overview-tab and grouping-display system tests, formation-page integration (5, includes the two F3 dialog tests), groups-tab manage (2), groups/projects/courses controllers, coordinator Confirmer/Reopener services, course model. D30 restated five tests (the two explain tests visit the Groups tab with the window closed; the joining/leaving display-update tests assert the not-confirmed group stays off the Groups tab while open; the last-member-removal test confirms the group first). The full suite and the app are otherwise unrun. Read-only production checks and T23 are the owner's, before deploy.
-- Run 2026-11-10 (Grouping settings UI pass, ADR 0027): 103 targeted model/presenter/controller/integration tests green; the Grouping switches/end-date browser tests green; overview-tab, grouping-display, formation and groups-tab system tests green (35). Broad grouping run: 327 runs, 0 failures, 3 pre-existing `ProjectsController#create` `NameError` errors (`topic` undefined at line 305, unrelated). Rubocop clean on the new files.
+- Run 2026-11-10 (Grouping settings UI pass, ADR 0027): 103 targeted model/presenter/controller/integration tests green; the Grouping switches/end-date browser tests green; overview-tab, grouping-display, formation and groups-tab system tests green (35). Broad grouping run: 327 runs, 0 failures, 3 `ProjectsController#create` `NameError` errors (`topic` undefined at line 305) introduced by the PostHog commit `a7a1b0b2` and fixed by B16. Re-run after B16: 334 runs, 0 failures, 0 errors. Rubocop clean on the new files.
 
 ## How agents use this doc
 
@@ -253,6 +253,7 @@ Done items (kept for reference, no action):
 | B9 | Member reloaded inside the lock; successor ordered by `created_at, id` |
 | B14 (High) | Group lock in project creation plus partial unique index (D22); friendly error on `RecordNotUnique` |
 | B15 | Coordinator detection uses `exists?(role: :coordinator)` in `GroupsController` and `ProjectGroupPolicy` |
+| B16 (High) | `ProjectsController#create` PostHog payload read the block-local `topic`, so every successful create raised `NameError` after commit; now reads `@instance.source_topic_id`. Regression tests cover own and topic-based proposals and assert the redirect plus `source_topic` |
 | O9 | `project_group_must_be_confirmed` is `on: :create`; reopen blocked with a project (T14) |
 | O15 | Backfill confirms every not-confirmed group that already has a project, in every course (general rule). Covers course 3's 4 groups |
 | C1 to C3 | Importer, backfill, skip-and-report (section 2c) |
@@ -452,6 +453,7 @@ Not checked:
 - Whether the suite passes. P1b also changed `db/seeds.rb` and `_group_row`, `_groups_table`, `_size_warning_icon`, which the brief did not list; not reviewed.
 - Before deploying P1b: read-only fingerprint check (groups with no sequence that are not fingerprint groups should be 0; was 353 fingerprint groups on 2026-11-02) and T23. Course 3's 4 groups are fingerprint groups, so they become `import`.
 - Before deploying P2b: locked groups (and locked not-confirmed groups) and pending join requests on confirmed vs not-confirmed groups; the migration deletes all pending requests silently.
+- Before deploying ADR 0027: course 3 is the only production course with grouping on. Its `grouping_open` was false and it had no dates, so it is closed before the drop and open after. The owner accepts this and may delete the course; do not add a data migration or `ignored_columns` to preserve the old state.
 - Production runs Rails 8.1.4, the branch lockfile has 8.0.2: rebase onto main and run migrations there before merging to main.
 
 Production, read-only (2026-11-02; course 3 on 2026-11-03):
@@ -460,7 +462,7 @@ Production, read-only (2026-11-02; course 3 on 2026-11-03):
 - Import-fingerprint groups: 353 in 14 courses. 349 in 13 grouping-off courses (1, 133, 170, 232, 233, 234, 235, 298, 364, 399, 430, 463, 496; course 298 has 110), confirmed by the backfill. 4 in course 3 (grouping on), which already have a project, so the project rule confirms them (O15).
 - Leaderless groups with members: 350 in 13 courses, all fingerprint groups, so the fingerprint rule is reliable and no app-created group is leaderless.
 - Course 234: 3 fingerprint groups with no members (old importer leftovers); the backfill confirms them, harmless.
-- Course 3 "Sandbox Group Approved Topic": the team's live testing course (about 6 people), so it is kept. Grouping on, no end date (window open under ADR 0027); 4 groups with 1, 2, 3 and 3 members, all with a project.
+- Course 3 "Sandbox Group Approved Topic": the team's live testing course (about 6 people). Grouping on, `grouping_open` was false and there were no dates (closed before ADR 0027, open after); the owner accepts this and may delete the course. 4 groups with 1, 2, 3 and 3 members, all with a project.
 
 ## 9. Code conventions and quality
 

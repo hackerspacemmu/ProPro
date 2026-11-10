@@ -2,7 +2,7 @@
 class RemoveGroupingWindowFlagsFromCourses < ActiveRecord::Migration[8.0]
   def change
     change_table :courses, bulk: true do |t|
-      t.remove :grouping_open, type: :boolean
+      t.remove :grouping_open, type: :boolean, default: false, null: false
       t.remove :grouping_opens_at, type: :datetime
     end
   end

@@ -35,11 +35,10 @@ class OverviewPresenter
   def project_details_empty?        = @course_description.blank? && @file_link.blank?
   def show_project_details_add_cta? = coordinator? && project_details_empty?
 
-  # coordinator/lecturer with grouping enabled.
   def show_group_formation?
     return false unless coordinator? || lecturer?
 
-    @course&.grouped? && @course.grouping_enabled?
+    @course.present? && @course.grouped? && @course.grouping_enabled?
   end
 
   # Student My Group: student in a grouped course with group present
