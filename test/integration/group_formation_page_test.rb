@@ -36,18 +36,23 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     sign_in @coordinator
 
     [false, true].each do |automatic|
-      @course.update!(group_min: 3, student_list_finalised: automatic)
-      [course_groups_path(@course), course_group_formation_path(@course)].each do |path|
-        get path
+      @course.update!(group_min: 3, student_list_finalised: automatic, grouping_open: true)
+      get course_group_formation_path(@course)
 
-        assert_response :success
-        assert_select '[data-group-size-warning][role="img"]', count: 1
-        assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
-      end
+      assert_response :success
+      assert_select '[data-group-size-warning][role="img"]', count: 1
+      assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
 
       get edit_course_group_path(@course, @group)
       assert_response :success
       assert_select '[data-group-size-warning] span:last-child', text: 'Warning: Alpha Group has 2 members; the allowed size is 3–4 members.'
+
+      @course.update!(grouping_open: false)
+      get course_groups_path(@course)
+
+      assert_response :success
+      assert_select '[data-group-size-warning][role="img"]', count: 1
+      assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
     end
   end
 
@@ -59,13 +64,18 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
       create(:project_group_member, project_group: @group, user: user)
     end
 
-    [course_groups_path(@course), course_group_formation_path(@course)].each do |path|
-      get path
+    get course_group_formation_path(@course)
 
-      assert_response :success
-      assert_select '[data-group-size-warning][role="img"]', count: 1
-      assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
-    end
+    assert_response :success
+    assert_select '[data-group-size-warning][role="img"]', count: 1
+    assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
+
+    @course.update!(grouping_open: false)
+    get course_groups_path(@course)
+
+    assert_response :success
+    assert_select '[data-group-size-warning][role="img"]', count: 1
+    assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
   end
 
   test 'equal limits show the required size and a legal group has no warning' do
@@ -181,6 +191,29 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match 'Add student', response.body
     assert_no_match(/Generate invite link/, response.body)
+  end
+
+  test 'coordinator confirm-anyway dialog states the broken minimum' do
+    @course.update!(group_min: 3)
+    small = create(:project_group, course: @course, group_name: 'Tmp001', leader_id: @student.id)
+    create(:project_group_member, project_group: small, user: @student)
+
+    sign_in @coordinator
+    get edit_course_group_path(@course, small)
+
+    assert_response :success
+    assert_match 'This group has 1 member; the minimum is 3.', response.body
+  end
+
+  test 'coordinator confirm-anyway dialog states the broken maximum' do
+    @course.update!(group_min: 1, group_max: 1)
+
+    sign_in @coordinator
+    get edit_course_group_path(@course, @group)
+
+    assert_response :success
+    assert_match 'This group has 2 members; the maximum is 1.', response.body
+    assert_no_match(/the minimum is/, response.body)
   end
 
   private

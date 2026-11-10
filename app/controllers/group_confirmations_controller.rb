@@ -8,28 +8,40 @@ class GroupConfirmationsController < ApplicationController
   def create
     authorize @group, :confirm?
 
-    result = GroupConfirmer.new(@group).confirm!
+    result = if policy(@course).manage_groups?
+               Groups::Coordinator::Confirmer.new(@group).confirm!
+             else
+               GroupConfirmer.new(@group).confirm!
+             end
 
     if result.confirmed?
-      redirect_to course_group_formation_path(@course), notice: result.message
+      redirect_to return_target, notice: result.message
     else
-      redirect_to course_group_formation_path(@course), alert: result.message
+      redirect_to return_target, alert: result.message
     end
   end
 
   def destroy
     authorize @group, :revert?
 
-    result = GroupReverter.new(@group).revert!
+    result = if policy(@course).manage_groups?
+               Groups::Coordinator::Reopener.new(@group).reopen!
+             else
+               GroupReverter.new(@group).revert!
+             end
 
     if result.reverted?
-      redirect_to course_group_formation_path(@course), notice: result.message
+      redirect_to return_target, notice: result.message
     else
-      redirect_to course_group_formation_path(@course), alert: result.message
+      redirect_to return_target, alert: result.message
     end
   end
 
   private
+
+  def return_target
+    url_from(params[:return_to]) || course_group_formation_path(@course)
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

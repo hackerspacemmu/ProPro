@@ -1,15 +1,16 @@
 # ProPro Grouping: Master Implementation Plan
 
-Branch `feat/student-grouping-crud`. Revision 9, compressed: no decision, status or scope changed; revision history, superseded text and duplicated tables removed (full history is in git). Requirements/wording source of truth: the "ProPro: Grouping" spec doc. Service conventions: `docs/Abstraction/service_classes.md`. Test conventions: `docs/testing.md`. Code conventions: section 9. Plan statuses were last reconciled at `acaae256`.
+Branch `feat/student-grouping-crud`. Revision 10: records the UI gap analysis answers (`docs/Grouping/UI_GAP_ANALYSIS.md`), D30 adopted (ADR 0026), D27 amended to lowest-free naming, D31 expiry set to 24 hours; statuses reconciled at `4bb76b57`. Requirements/wording source of truth: the "ProPro: Grouping" spec doc. Service conventions: `docs/Abstraction/service_classes.md`. Test conventions: `docs/testing.md`. Code conventions: section 9.
 
-**Status check needed.** Branch HEAD (`13f5a33`) is past that point. Commits `cc99ea0`, `7b4fb2b` (locked removal), `ffe8c9a` (no-key-update locks on group CRUD), `78953f3` (unreferenced controllers/services removed), `1a81641` (manage_groups? coordinator-only), `13f5a33` (Tmp/G naming, sequence column removed) touch P2b, P3a and P4 items. Statuses below are NOT yet updated for them. Reconcile before assigning work.
+**Statuses reconciled at `4bb76b57`.** Commits `cc99ea0` + `7b4fb2b` (D28, both parts, migrations included), `ffe8c9a` + `78953f3b` (P3a locks/services), `1a81641` (D10: column dropped, `manage_groups?` kept as the coordinator-only check), `13f5a33` (D27 amended: lowest-free naming, sequence column dropped, unique `(course_id, group_name)` index; D13 also landed) already shipped the work below. The P4b UI pass (coordinator Confirmer/Reopener, O11, O14, D30 UI) is built in the working tree, **uncommitted**, with its tests. Reconciled by reading; the grouping test files were run afterwards (all green, see the snapshot).
 
 ## 0. Snapshot
 
-- DONE: P0, P0b, P1, P1b (origin column, Importer, backfill, reopen guard), P2 (+B15, R13).
-- TODO (in order): P2b, P3a, P4, P4b, P4c. BLOCKED: P5 (D2). Later: P6, P7, P8.
-- Open decisions: section 1h (D30, request expiry, Q5/D2, imported-group UX, UX items from D27 to D29, "Tmp" label).
-- Not run: the suite and the app were never run for any item. Read-only production checks and T23 are the owner's, before deploy.
+- DONE: P0, P0b, P1, P1b (origin column, Importer, backfill, reopen guard), P2 (+B15, R13), P2b, P3a, and the P4 items landed in `13f5a33`/`1a81641` (D27 amended, D13, I11, I12, O5/D10, B7).
+- WIP (built, uncommitted in the working tree, tests included): P4b — `Groups::Coordinator::Confirmer`/`Reopener`, O4 policies, O11, O14 and the D30/Overview/Groups-tab UI (`docs/Grouping/UI_GAP_ANALYSIS.md` work list).
+- TODO (in order): the rest of P4 (B10, B11, B12, I6, O3, O6, E8, R11), then P4c. BLOCKED: P5 (D2). Later: P6, P7, P8.
+- Remaining owner decision: Q5/D2 (other reviewer). P4c UX items are listed at that pass. "Tmp" label stays.
+- Run 2026-11-10, all green: overview presenter, overview-tab and grouping-display system tests, formation-page integration, groups/projects/courses controllers, coordinator Confirmer/Reopener services, course model. D30 restated five tests (the two explain tests visit the Groups tab with the window closed; the joining/leaving display-update tests assert the not-confirmed group stays off the Groups tab while open; the last-member-removal test confirms the group first). The full suite and the app are otherwise unrun. Read-only production checks and T23 are the owner's, before deploy.
 
 ## How agents use this doc
 
@@ -25,7 +26,7 @@ Branch `feat/student-grouping-crud`. Revision 9, compressed: no decision, status
 
 ## 1. Decision register
 
-D1 to D5, D6 to D13, D15, D18 to D29, Origin and D31 are decided. D30 is PROPOSED. D2 belongs to another reviewer. D17 is superseded by D27 and D14, D16 do not exist.
+D1 to D31 are decided (D30 via ADR 0026; D27 amended to lowest-free naming; D31 expiry is 24 hours). D2 belongs to another reviewer. D17 is superseded by D27 and D14, D16 do not exist.
 
 | ID | Decision | Status |
 |---|---|---|
@@ -38,7 +39,7 @@ D1 to D5, D6 to D13, D15, D18 to D29, Origin and D31 are decided. D30 is PROPOSE
 | D7 | Self-leave only while not confirmed and window open; in a confirmed group nobody self-leaves, leader included (below) | DECIDED |
 | D8 | Name services by user action, Moodle-style (map in 1b) | DECIDED |
 | D9 | A group with a proposal can never be reopened, coordinators included (below) | DECIDED |
-| D10 | Drop `lecturers_can_manage_groups`, delete `manage_groups?` (below) | DECIDED |
+| D10 | Drop `lecturers_can_manage_groups`; `manage_groups?` becomes the coordinator-only check (below) | DECIDED |
 | D11 | Coordinator removal and enrolment removal are one path (below) | DECIDED |
 | D12 | Formation (student) vs coordinator service layers (below) | DECIDED |
 | D13 | Mode switches no longer delete not-confirmed groups (below) | DECIDED |
@@ -52,12 +53,12 @@ D1 to D5, D6 to D13, D15, D18 to D29, Origin and D31 are decided. D30 is PROPOSE
 | D24 | `ProjectGroupMember` `after_destroy` deletes that user's pending `direct_invite` records for that group (also fires on `dependent: :destroy`). No withdraw feature for invites/requests (E4, E5) | DECIDED |
 | D25 | `ensure_grouped` on every group controller action. `Groups::Creator` and `Groups::Coordinator::Importer` check `grouped?` (the only places groups are created); other services act on an existing group (E3) | DECIDED |
 | D26 | No promote-leader. The leader changes only by succession (earliest remaining member by `created_at, id`) when the leader leaves, is kicked or is removed. Staff choose the leader at group creation; an imported group's leader is its first CSV member (C1). Deleted: `GroupLeadersController`, the `resource :leader` route, `ProjectGroupPolicy#promote_leader?`, both promoter services, their tests, the routing-test row, and the two integration tests using `course_group_leader_path` (follow-up commit to P2, done). T26's promotion race test dropped. ADRs 0022/0025 still list `promote_leader` as history | DECIDED |
-| D27 | Naming: not-confirmed groups are `Tmp###` from a per-course counter, never reused. Confirm gives the lowest free `G###`; Reopen releases it and gives a new `Tmp###`. Imported groups keep CSV names and take no number. A freed G number can be reused. Names are display only: every URL, invite, request and link token uses the group id (`/courses/3/groups/4812`). No naming migration (existing groups are all confirmed and keep G numbers; course 3 too). Counter (supersedes D17) is a column on `courses`, incremented under the course lock, starts at 0 everywhere; the name and how `course_group_sequence` stores the G number are settled in P4. Confirmer and Reopener rename the group in one transaction under the course lock; unique `(course_id, group_name)` stays. If a generated name is taken (imported CSV `G003`), Creator takes the next number. "Tmp" label stays for now | DECIDED |
+| D27 | Naming (amended; supersedes the counter): not-confirmed groups are `Tmp###`, confirmed groups `G###`, both **lowest free in the course**, assigned under the course lock in one transaction with the status change. Confirm gives the lowest free `G###`; Reopen releases it and gives a new `Tmp###`. Imported groups keep CSV names and take no number. Names are display only: every URL, invite, request and link token uses the group id. Unique `(course_id, group_name)` index (I11); if a generated name is taken (imported CSV `G003`), Creator takes the next number. No naming migration (existing groups are all confirmed and keep G numbers). "Tmp" label stays for now | DECIDED (amended) |
 | D28 | Joining: not-confirmed groups take direct joins; confirmed groups take requests, invites and links. No approval toggle; `locked` column dropped as its own PR (below) | DECIDED |
 | D29 | Accepting a request, invite or link into a confirmed group reopens it and notifies every member. A project freezes membership and clears pending requests and invites. Imported groups are never reopened by students (below) | DECIDED |
 | Origin | `origin` column on groups, values `formation` / `import`, default `formation` (below) | DECIDED |
-| D30 | Groups tab shows unconfirmed groups only when formation is off (below) | PROPOSED |
-| D31 | Lifecycle of pending join requests (below) | DECIDED; expiry OPEN |
+| D30 | Groups tab lists unconfirmed groups only while the formation window is not open (ADR 0026) | DECIDED |
+| D31 | Lifecycle of pending join requests (below); expiry is 24 hours | DECIDED |
 
 ### D6: coordinators and status
 
@@ -95,6 +96,7 @@ Reopening a group that owns a project blurs formation vs management and leaves t
 - Already landed in P2: `ProjectGroupMemberPolicy#destroy?` denies lecturers. Remaining work is P4.
 - Lecturers get the same read-only closed message as students (1d).
 - `ProjectGroupPolicy#update?` stays until this removal (only `edit?` uses it).
+- Landed in `1a81641`: column dropped (migration `20261108090000`), OPEN_ITEMS updated, tests flipped. Amendment: `CoursePolicy#manage_groups?` stays as the coordinator-only gate instead of being deleted — every call site now means "coordinator".
 
 ### D11: one removal path
 
@@ -115,7 +117,7 @@ Today `EnrolmentsController#destroy` passes `dissolve_confirmed: true`, so remov
 
 ### D13: mode switches keep not-confirmed groups
 
-`disable_grouping!` and `revert_to_default_mode!` no longer call `destroy_draft_groups`; delete it and flip the two "destroys" tests in `course_grouping_settings_test.rb` (lines 112, 140) (T17). Leftover groups can sit around after grouping is off, so the O11 banner covers that. They keep Tmp names (D27). Where they show depends on D30. Spec line and plan text change.
+`disable_grouping!` and `revert_to_default_mode!` no longer call `destroy_draft_groups`; delete it and flip the two "destroys" tests in `course_grouping_settings_test.rb` (lines 112, 140) (T17). Leftover groups can sit around after grouping is off, so the O11 banner covers that. They keep Tmp names (D27). Where they show is settled by D30. Landed in `13f5a33` (mode methods and `destroy_draft_groups` deleted; tests updated). Spec line and plan text change.
 
 ### D28: joining (built in P2b, two PRs)
 
@@ -140,15 +142,16 @@ Today `EnrolmentsController#destroy` passes `dissolve_confirmed: true`, so remov
 - Backfill stamps `import` using the fingerprint, once, in the same migration that assigns leaders (before its confirm step, because the fingerprint reads `confirmed`). The Importer sets `origin: import` on every group it creates. Built in P1b: column, enum (`origin_import?`, `origin_formation?`), Importer stamp, backfill stamp, Reopen guard.
 - Imported groups are always confirmed and have no student actions at all. Coordinators can still add, remove and delete; nobody can reopen. Course 3's 4 groups are fingerprint groups, so they become `import`.
 - Guards so far: only Reopen (service `:imported_group`, policy `reopen?` false). Every other student write service already refuses a confirmed group. The rest arrive with P4c. The UI hides the buttons.
-- UX still open: what a student in an imported group sees on group formation (1h).
+- UX decided: students in imported groups see the normal confirmed-group rendering (slim My Group line, read-only formation view); no special copy. P4c's origin-hiding pass may revisit.
 
-### D30: Groups tab content (PROPOSED, nothing built until decided)
+### D30: Groups tab content (DECIDED, ADR 0026)
 
-Unconfirmed groups appear on the Groups tab only when formation is off. If adopted:
+Unconfirmed groups appear on the Groups tab only while the formation window is not open (closed by date, grouping disabled, or before it opens). While the window is open the tab is confirmed-only; coordinators manage unconfirmed groups on the formation page. Built in P4b:
 
-- O11 banner, yellow rows, quiet "Not confirmed" pill and "Not confirmed" filter (decided assuming unconfirmed groups sit on the Groups tab) change.
-- "Students keep the Groups tab" changes: a student in an unconfirmed group no longer sees it there while formation is open. Where coordinators see unconfirmed groups while formation is open needs a decision.
-- O11, O14, O7, O8 depend on it; `groups_with_status` changes; ADR 0024 (two surfaces) needs a superseding ADR.
+- O11 banner, amber rows, quiet "Not confirmed" pill and "Not confirmed" filter apply only while the window is not open; unconfirmed groups are hidden while it is open (both sentences — unconfirmed groups and ungrouped students — share one banner).
+- A student in an unconfirmed group no longer sees it on the Groups tab while formation is open; My Group on the Overview keeps their context.
+- The Groups-tab Manage dialog gains a coordinator Status section (Confirm / Reopen); the tab is read-only for students and lecturers.
+- O11, O14, O7, O8 are settled on this; `groups_with_status` changed; ADR 0024's read-mostly characterisation is amended by ADR 0026.
 
 ### D31: lifecycle of pending join requests
 
@@ -158,7 +161,7 @@ Why: nothing cleared a pending request when a coordinator adds the student, a gr
 - A pending request is deleted silently (no email) when: the student lands in any group (direct join, accepted invite/request, redeemed link, coordinator add; one shared method, B8, P3a); the group is reopened (P4b); a project is created on the group (P3a); the student leaves the course (O2, P3a); the group is deleted (already true, `dependent: :destroy`).
 - At accept time the responder re-checks the student is still enrolled and ungrouped (B6, R10, P3a).
 - Declining keeps its row with status declined. No withdraw feature (E5).
-- **Expiry OPEN:** a time limit (invite links use 24 hours) or clear all pending requests at window close. Recommended: time limit (also covers long-open windows). Needed before P4c.
+- **Expiry DECIDED:** 24 hours, matching invite links; an expired request cannot be accepted. Needed before P4c (now unblocked).
 - At the D28 deploy a data migration deletes every pending request (P2b); otherwise a student with a pending request on a not-confirmed group would see "Request sent" where Join should be.
 
 ## 1b. State model and service map
@@ -174,7 +177,7 @@ Imported groups (`origin: import`): always confirmed, no student actions.
 
 | Current | Proposed | Notes |
 |---|---|---|
-| `GroupCreator` | `Groups::Creator#create!` | Course lock, names Tmp### from counter (D27), checks `grouped?` (D25) |
+| `GroupCreator` | `Groups::Creator#create!` | Course lock, names Tmp### lowest free (D27), checks `grouped?` (D25) |
 | `GroupJoiner` | `Groups::Joiner#join!` | Direct joins, not-confirmed groups |
 | `GroupDirectRequester` | `Groups::JoinRequester#request!` | Confirmed groups only; closed by policy P2b to P4c |
 | `GroupDirectInviter` | `Groups::Inviter#invite!` | Drops `direct_` (I4) |
@@ -208,37 +211,35 @@ Imported groups (`origin: import`): always confirmed, no student actions.
 
 ## 1d. Entry points, gates, empty states
 
-Entry points: the Groups tab is the only nav entry; a "Group formation" button on the Groups tab while grouping is enabled; Overview says "Find or create a group" (students) or shows a summary card (coordinators), linking straight to formation; keep the normal tab strip on the formation page; no formation entry after close.
+Entry points: the Groups tab is the only nav entry; a "Group formation" button on the Groups tab while the window is open; Overview says "Find or create a group" (students) or shows a static Group formation block (coordinators and lecturers, not a summary card), linking straight to formation; keep the normal tab strip on the formation page; no formation entry after close.
 
 | State | What shows |
 |---|---|
-| Grouping off | No button. Students see the closed message; coordinators see the settings empty state |
-| On, window starts later | "Group formation opens on {date}", no button |
+| Grouping off | No button. Students see the closed message; the staff formation block is hidden |
+| On, window starts later | Staff formation block hidden until the window opens; no "opens on {date}" state |
 | Open, student without group | "Find or create a group" to formation, plus Groups tab button |
 | Open, student in a group | Group status line with a link to formation |
 | Window ended | Closed message, no formation button. Coordinators get the banner if groups are unconfirmed |
 
-Overview empty states: `_project_details_card` already splits coordinator/non-coordinator copy (coordinator has a Settings button); add the same kind of presenter flag for grouping.
+Overview empty states: `_project_details_card` already splits coordinator/non-coordinator copy (coordinator has a Settings button); the formation block follows the same split.
 
-- Coordinator: "Group formation is closed. Enable it to let students form groups." + Settings button.
+- Coordinator: "Group formation is closed." + Settings button; the attention banner replaces the block when unconfirmed groups or ungrouped students exist. No "Enable it" copy.
 - Student: "Group formation is closed. Contact your coordinator if you are not in a group yet."
-- Lecturer: same as student minus the contact line.
+- Lecturer: the formation block with the non-coordinator copy, no Settings, no banner.
 - "Closed" has two causes (grouping off, window passed); both end at the settings page, so one message works. This also fixes the "Browse groups" CTA that led to a closed page.
 
 Formation page after close: `group_formations/show.html.erb` (~lines 101-105) already renders a read-only empty state ("Grouping is closed by your coordinator", "Your existing groups are still visible on the Groups tab"). Gaps: wrong heading when the window simply ended by date, and no status for the student's own group. Replace with the closed message and add the own-group status line.
 
 ## 1h. Open decisions and unfinished checks
 
-Decisions for the owner:
+Resolved and recorded above: D30 (DECIDED, ADR 0026), request expiry (D31, 24 hours), imported-group UX (normal confirmed-group rendering), the D27 naming amendment, and the UI questions settled in `docs/Grouping/UI_GAP_ANALYSIS.md`. "Tmp" label stays.
 
-1. **D30** (Groups tab content). Blocks O11, O14, O7, O8 and the UI side of P4b.
-2. **Request expiry** (D31). Recommended: time limit. Blocks P4c.
-3. **Q5 / D2** confirmed-group cap in prevent-leftover mode. Other reviewer; blocks P5, T10.
-4. **Imported-group UX** on group formation (what students with no actions see). Needed before `origin` UI hiding (P4c).
-5. **UX items reopened by D27 to D29**, to be listed at the UX pass.
-6. **"Tmp" label**: stays for now.
+Still for the owner:
 
-Unfinished, not decisions: confirm no group route looks a group up by name (unverified); the read-only production checks in section 8; T23 backfill dry run.
+1. **Q5 / D2** confirmed-group cap in prevent-leftover mode. Other reviewer; blocks P5, T10.
+2. **D28/D29 UX items** (request/invite surfaces on confirmed groups) — listed at the P4c UX pass.
+
+Unfinished, not decisions: the read-only production checks in section 8; T23 backfill dry run.
 
 ## 2. Bug register
 
@@ -261,9 +262,9 @@ Open:
 | ID | Sev | Where / problem | Fix | Phase | Status |
 |---|---|---|---|---|---|
 | B5 | Med | `Queries::GroupSizeConfirmabilityCalculator#confirmable_size?` does not implement the quota model (N=10, min 2, max 5: spec gives 5+5, code also confirms a 2 or 4) | Depends on D2 | P5 | BLOCKED |
-| B6 | Med | `GroupMemberAdder#add!`: `already_grouped`/`group_full` checked before `with_lock`; no enrolment/role check in the service (controller guards with `@course.students.find`); does not clear pending invites/requests | Checks inside the lock, require enrolled student, call shared cleanup (B8). Responder re-checks enrolment and ungrouped at accept (D31, R10) | P3a | TODO |
-| B7 | Med | `GroupJoiner#join!`: `group_max.to_i` makes nil max 0, so every group reads full; others use `group_max.present? &&` | Same nil handling everywhere (D3) | P4 | TODO |
-| B8 | Med | Clearing conflicting invites done three ways: Joiner clears only own requests, Redeemer/Responder sent or received, Adder none. Spec: after joining anywhere, other pending invites/requests disappear | One method (e.g. `ProjectGroupInvite.clear_pending_for!(user, course)`) in all four; also clears a student's pending requests whenever they land in any group (coordinator add included); runs when a request into a confirmed group is accepted (D29) | P3a | TODO |
+| B6 | Med | `GroupMemberAdder#add!`: `already_grouped`/`group_full` checked before `with_lock`; no enrolment/role check in the service (controller guards with `@course.students.find`); does not clear pending invites/requests | Checks inside the lock, require enrolled student, call shared cleanup (B8). Responder re-checks enrolment and ungrouped at accept (D31, R10) | P3a | DONE (`ffe8c9a`) |
+| B7 | Med | `GroupJoiner#join!`: `group_max.to_i` makes nil max 0, so every group reads full; others use `group_max.present? &&` | Same nil handling everywhere (D3) | P4 | DONE (`Course#group_full?`) |
+| B8 | Med | Clearing conflicting invites done three ways: Joiner clears only own requests, Redeemer/Responder sent or received, Adder none. Spec: after joining anywhere, other pending invites/requests disappear | One method (e.g. `ProjectGroupInvite.clear_pending_for!(user, course)`) in all four; also clears a student's pending requests whenever they land in any group (coordinator add included); runs when a request into a confirmed group is accepted (D29) | P3a | DONE (`ProjectGroupInvite.clear_pending_for!`) |
 | B10 | Low | Generator: window/confirmed checks outside lock; Redeemer: expiry outside lock; generator replaces only same-sender links (two live links after leader change); token 8 bytes | Checks inside lock, replace all links of the group, 16-byte token | P4 | TODO |
 | B11 | Low | `rescue StandardError => e` then `alert: e.message` leaks internals; `GroupDirectInviter`/`Requester` map any `RecordInvalid` to `:already_invited`/`:already_requested` | Remove broad rescues; rescue `RecordNotUnique` or the specific validation. (Controller rescues went with R12/D26/D28.) | P4 | TODO |
 | B12 | Low | `ProjectGroup#has_project?` calls `.exists?` on a `has_one` (raises); unused. D9 needs a working check (T14 says `has_project?` works: verify before touching) | Delete or replace, test-first | P4 | TODO |
@@ -284,17 +285,17 @@ Open:
 
 | ID | Sev | Finding | Fix | Phase | Status |
 |---|---|---|---|---|---|
-| O2 | Med | `EnrolmentsController#destroy` passes `dissolve_confirmed: true`: removing the last student silently deletes group and proposal; removal and `enrolment.destroy!` not in one transaction; the student's pending invites/requests stay; `GroupInviteResponder#accept!` has no enrolment check | One transaction; drop `dissolve_confirmed` (server-side warning, D23); call `Groups::Coordinator::MemberRemover` (the current `confirm: true` is a P2 shim, remove it); course lock then group (D20, D21); clear pending invites and requests with the shared helper (B8, D31); enrolment check inside the lock in Responder and Adder (B6, R10); removed leader replaced by earliest member (T20) | P3a | TODO |
+| O2 | Med | `EnrolmentsController#destroy` passes `dissolve_confirmed: true`: removing the last student silently deletes group and proposal; removal and `enrolment.destroy!` not in one transaction; the student's pending invites/requests stay; `GroupInviteResponder#accept!` has no enrolment check | One transaction; drop `dissolve_confirmed` (server-side warning, D23); call `Groups::Coordinator::MemberRemover` (the current `confirm: true` is a P2 shim, remove it); course lock then group (D20, D21); clear pending invites and requests with the shared helper (B8, D31); enrolment check inside the lock in Responder and Adder (B6, R10); removed leader replaced by earliest member (T20) | P3a | DONE (`ffe8c9a`: `Groups::Coordinator::EnrolmentRemover`, confirm-removal step) |
 | O3 | Med | `handle_settings`: when Prevent leftover students is switched off, the elsif branch only reverts mode and skips the else update, so min, max, open flag and dates edited in the same save are dropped. `Course#enable_auto_confirmability_mode!` unused. Transitions live in the controller inside `rescue StandardError` showing `e.message` | Save grouping settings under the course lock in `handle_settings`, mode switch and field updates in one update (D21, R11). Test the combined save | P4 | TODO |
-| O4 | Med | `ProjectGroupPolicy#confirm?`/`#revert?` true for anyone with `manage_groups?`, contradicting the old spec; no staff Confirm/Reopen button found in searched views (reachable by direct request); `GroupConfirmer` still blocks when the window is closed | Policies follow D6 (coordinator via `Coordinator::` services; lecturers/students cannot call, T15); `reopen?` false with a project (D9) | P4b | TODO |
-| O5 | Low | `courses.lecturers_can_manage_groups` default true, no UI, OPEN_ITEMS.md [F] says drop | D10: delete `manage_groups?` (11 sites), migration drops column, update OPEN_ITEMS.md; flip the lecturer test (T31) | P4 | TODO |
+| O4 | Med | `ProjectGroupPolicy#confirm?`/`#revert?` true for anyone with `manage_groups?`, contradicting the old spec; no coordinator Confirm/Reopen button found in searched views (reachable by direct request); `GroupConfirmer` still blocks when the window is closed | Policies follow D6 (coordinator via `Coordinator::` services; lecturers/students cannot call, T15); `reopen?` false with a project (D9) | P4b | WIP (built, uncommitted) |
+| O5 | Low | `courses.lecturers_can_manage_groups` default true, no UI, OPEN_ITEMS.md [F] says drop | D10: delete `manage_groups?` (11 sites), migration drops column, update OPEN_ITEMS.md; flip the lecturer test (T31) | P4 | DONE (`1a81641`; `manage_groups?` stays as the coordinator-only gate) |
 | O6 | Low | Same lookups written several times: user's group (5 places), ungrouped students (3), name search (2) | `Course#group_for(user)`, `Course#ungrouped_students` (I6), one name-match helper | P4 | TODO |
 | O7 | Low | Course (229 lines) owns `disable_grouping!`, `revert_to_default_mode!`, `unconfirmed_students_count`, `groups_with_status`, `parse_csv_grouped` | Move only when touched: settings transitions to O3's service, `groups_with_status` next to `ParticipantBrowsing`, CSV parsing with import. `disable_grouping!`/`revert_to_default_mode!` stop calling `destroy_draft_groups` (D13) | P7 | TODO |
 | O8 | Low | `GroupsController` serves the Groups tab and the writes (ADR 0024, 0025) | Intentional; no action beyond O6 | - | WONTFIX |
-| O11 | Med | After students cannot act, not-confirmed groups can sit with no student able to confirm them, also after grouping is off (D13) | Banner and rows (below) | P4b | TODO |
-| O14 | Med | Overview `submission_state_for` returns `:no_proposal` for a student whose group has no project, so they see "Create proposal", which validation rejects. A student with no group in a closed-window course sees "Browse groups" leading to a closed page. `ProjectsController#new` only checks for an existing project; `create` fails later | Overview shows "waiting for your group to be confirmed" for that student. CTA reads "Find or create a group" and follows 1d. `ProjectsController#new` redirects a student with no confirmed group to Overview with the same message | P4b | TODO |
+| O11 | Med | After students cannot act, not-confirmed groups can sit with no student able to confirm them, also after grouping is off (D13) | Banner and rows (below) | P4b | WIP (built, uncommitted) |
+| O14 | Med | Overview `submission_state_for` returns `:no_proposal` for a student whose group has no project, so they see "Create proposal", which validation rejects. A student with no group in a closed-window course sees "Browse groups" leading to a closed page. `ProjectsController#new` only checks for an existing project; `create` fails later | Overview hides My Submission for a not-confirmed group; the My Group card carries the hint. CTA reads "Find or create a group" and follows 1d. `ProjectsController#new` redirects a student with no confirmed group to Overview with an explanatory flash | P4b | WIP (built, uncommitted) |
 
-**O11 banner and rows:** show when students can't act (window closed or grouping off) and not-confirmed groups exist; coordinators only. Copy: "Group formation is closed. 3 groups are not confirmed, so their members cannot submit a proposal. Review and confirm them." Singular: "1 group is not confirmed...". Add the ungrouped-student count when closed. Yellow rows only in that state, quiet "Not confirmed" pill otherwise. Add "Not confirmed" to the existing status filter. Also flags imported groups in grouping-on courses for the coordinator to confirm (groups with a project are confirmed by the backfill, so never listed).
+**O11 banner and rows:** show when students can't act (window not open: closed, disabled or before open) and not-confirmed groups exist; coordinators only. Copy: "Group formation is closed. 3 groups are not confirmed, so their members cannot submit a proposal. Review and confirm them." Singular: "1 group is not confirmed...". Add the ungrouped-student count when closed. Yellow rows only in that state, quiet "Not confirmed" pill otherwise. Add "Not confirmed" to the existing status filter. Also flags imported groups in grouping-on courses for the coordinator to confirm (groups with a project are confirmed by the backfill, so never listed).
 
 ### 2c. CSV import (not owned by grouping, still blocking)
 
@@ -319,13 +320,13 @@ Scope: grouping writes only. Vocabulary: a row lock serialises concurrent reques
 | ID | Race | Fix | Phase | Status |
 |---|---|---|---|---|
 | R1 | Student in two groups of one course | Unique `(course_id, user_id)` (B3) | P1b | DONE |
-| R2 | Group exceeds max: only Adder checks outside the lock (coordinators can override max anyway, so low) | Adder checks inside the lock (B6) | P3a | TODO |
-| R3 | Two groups confirm at once (write skew on N): Confirmer locks only its group but `confirmable?` reads the course-wide `unconfirmed_students_count` | Course lock first, then group, in every writer of N (D21); calculator untouched (D2). Only matters in prevent-leftover mode but always taken. Accepts into confirmed groups also take it (D29) | P3a | TODO |
+| R2 | Group exceeds max: only Adder checks outside the lock (coordinators can override max anyway, so low) | Adder checks inside the lock (B6) | P3a | DONE (`ffe8c9a`) |
+| R3 | Two groups confirm at once (write skew on N): Confirmer locks only its group but `confirmable?` reads the course-wide `unconfirmed_students_count` | Course lock first, then group, in every writer of N (D21); calculator untouched (D2). Only matters in prevent-leftover mode but always taken. Accepts into confirmed groups also take it (D29) | P3a | DONE (`ffe8c9a`) |
 | R4, R5 | Two projects for one group; Reopen vs project creation | Group lock in project creation plus partial unique index (D22, B14) | P1b | DONE |
-| R6 | Group number collision | Tmp counter (D27); Confirm assigns lowest free G### under the course lock; Importer also takes the course lock; unique `(course_id, group_name)` | P4 | TODO |
+| R6 | Group number collision | Lowest-free naming under the course lock (D27 amended); unique `(course_id, group_name)` index; Importer also takes the course lock | P4 | DONE (`13f5a33`) |
 | R7 | Duplicate pending invite/request | Partial unique indexes plus `rescue RecordNotUnique`; B11 narrows the rescue | - | OK |
-| R8 | Checks outside the lock (Generator, Redeemer, Adder) | B6, B10 | P3a, P4 | TODO |
-| R9 | Waiter on a deleted group: `with_lock` reloads and raises `RecordNotFound` (controller handling not checked) | One shared helper rescues it after `with_lock`, returns `:group_gone` | P3a | TODO |
+| R8 | Checks outside the lock (Generator, Redeemer, Adder) | B6, B10 | P3a, P4 | PARTIAL (Adder done, `ffe8c9a`; Generator/Redeemer open, B10) |
+| R9 | Waiter on a deleted group: `with_lock` reloads and raises `RecordNotFound` (controller handling not checked) | One shared helper rescues it after `with_lock`, returns `:group_gone` | P3a | DONE (`Groups::GroupLocking::GROUP_GONE`) |
 | R10 | Enrolment removal vs join: not one transaction; Adder and Responder have no enrolment check | O2: one transaction, course lock first; joining services check enrolment inside the lock | P3a | TODO |
 | R11 | Settings change vs concurrent join/confirm | A join racing a settings save equals the action landing a second earlier: accepted. Settings saved under the course lock in `handle_settings` (O3, D21) | P4 | ACCEPTED |
 | R12 | Group writes outside services (`GroupsController#update`/`#destroy`) | Group delete service; the toggle services are deleted in P2b | P2 | DONE |
@@ -334,8 +335,8 @@ Scope: grouping writes only. Vocabulary: a row lock serialises concurrent reques
 | ID | Sev | Edge case | Decision | Phase | Status |
 |---|---|---|---|---|---|
 | E1, E2 | High, Med | `dissolve_confirmed` param skipped the warning; coordinator delete of a confirmed group deleted the project silently | D23 (T28) | P2 | DONE |
-| E3 | Med | `ensure_grouped` only on `GroupsController#index`/`#show`; coordinator/lecturer paths have no window check, so a group could be created in a solo course (unverified) | D25: `ensure_grouped` on every group controller action; Creator and Importer check `grouped?` (T30) | P4 | TODO |
-| E4 | Med | Invites from a member/leader who has left or been kicked stay acceptable (policy checks only the recipient). Pending requests keep the old leader as `recipient_id`, but `accept?` uses the current leader | D24 callback (T29) | P3a | TODO |
+| E3 | Med | `ensure_grouped` only on `GroupsController#index`/`#show`; coordinator/lecturer paths have no window check, so a group could be created in a solo course (unverified) | D25: `ensure_grouped` on every group controller action; Creator and Importer check `grouped?` (T30) | P4 | DONE (`78953f3b`: `RequiresGroupedCourse` concern + service checks) |
+| E4 | Med | Invites from a member/leader who has left or been kicked stay acceptable (policy checks only the recipient). Pending requests keep the old leader as `recipient_id`, but `accept?` uses the current leader | D24 callback (T29) | P3a | DONE (`ProjectGroupMember` `after_destroy`) |
 | E5 | - | No withdraw for invites/requests | Not wanted | - | DROPPED |
 | E6 | Low | `deliver_later` passes the invite by GlobalID; `clear_conflicting_invites!` and `dissolve!` delete invites so a queued "new join request" email can fail with `DeserializationError`; Responder enqueues mail inside `with_lock`; whether solid_queue enqueues inside the transaction was not checked | Enqueue after the lock block commits; discard the mail job on `DeserializationError` | P3a | TODO |
 | E7 | Low | `User has_many :project_group_members, dependent: :destroy` (and enrolment deletes) bypass succession/empty-group cleanup; `project_groups.leader_id` FK to users has no `ON DELETE`, so deleting a leader's user errors. Unverified whether user deletion is a real path | Check; if real, route it through `Coordinator::MemberRemover` | P3a | OPEN |
@@ -353,13 +354,13 @@ Scope: grouping writes only. Vocabulary: a row lock serialises concurrent reques
 | I4 | `direct_request`/`direct_invite`, `GroupDirectInviter`/`Requester`, mailer `Group_Direct_*`: `direct_` looks vestigial since links got their own table | Rename enum to request/invite and services to match (keep integers, rename only) | P7 | TODO |
 | I5 | Mailer actions capitalised (`Group_Direct_Invite_Notification`) | snake_case | P7 | TODO |
 | I6 | "Ungrouped students" computed in `GroupFormationsController#show`, `GroupsController#ungrouped_students`, `groups/edit` | `Course#ungrouped_students` | P4 | TODO |
-| I7 | Dead code: `ProjectGroup#revert_to_draft!`, `#pending_requests` (test only) | Delete (and the test) | P4 | TODO |
+| I7 | Dead code: `ProjectGroup#revert_to_draft!`, `#pending_requests` (test only) | Delete (and the test) | P4 | DONE (`78953f3b`) |
 | I9 | `GroupConfirmer` typo ("comfirms"); mixed "Not Confirmed" capitalisation | Wording pass | P7 | TODO |
 | I10 | `GroupFormationsController` loads all groups and filters in Ruby via `helpers.group_size_state` | Leave until perf matters | - | WONTFIX for now |
-| I11 | `group_name` has no uniqueness (no index, no validation) though the importer uses it as identity. Production has no duplicates | Unique index `(course_id, group_name)` plus `validates :group_name, uniqueness: { scope: :course_id }`; Confirmer/Reopener rename in one transaction under the course lock (D27) | P4 | TODO |
-| I12 | `course_group_sequence` has exactly one reader (`GroupCreator`); nothing displays or sorts by it (table sorts on the `group_name` string) | Keep column and its unique index as the stored value; comment that nothing else reads it; Importer leaves it nil; how it stores the G number is settled in P4 (D27) | P4 | TODO |
-| I13 | `GroupCreator` uses `MAX(sequence)+1`, ignoring names held by imported groups (CSV `G003` vs generated `G003`) | Under the course lock increment the counter; if the generated name is taken take the next (T21). Applies to Tmp numbers; G numbers are the lowest free | P4 | TODO |
-| I14 | Numbers reused when the highest group is deleted, gaps otherwise; names already appear in sent emails | Counter: Tmp numbers never reused; visible gaps (Tmp001, Tmp003) are intended; a freed G number can be reused (D27) | P4 | TODO |
+| I11 | `group_name` has no uniqueness (no index, no validation) though the importer uses it as identity. Production has no duplicates | Unique index `(course_id, group_name)` plus `validates :group_name, uniqueness: { scope: :course_id }`; Confirmer/Reopener rename in one transaction under the course lock (D27) | P4 | DONE (`13f5a33`: index + validation) |
+| I12 | `course_group_sequence` had exactly one reader (`GroupCreator`); nothing displays or sorts by it (table sorts on the `group_name` string) | Column removed in `13f5a33` (D27 amended to lowest-free naming) | P4 | DONE |
+| I13 | `GroupCreator` used `MAX(sequence)+1`, ignoring names held by imported groups (CSV `G003` vs generated `G003`) | Lowest-free naming (D27 amended); if the generated name is taken, Creator takes the next number (T21) | P4 | DONE (`13f5a33`) |
+| I14 | Numbers reused when the highest group is deleted, gaps otherwise; names already appear in sent emails | Lowest-free naming (D27 amended): a freed number is taken by the next group that needs it; names stay display-only | P4 | DONE (`13f5a33`) |
 
 ### 3b. Naming audit outcome
 
@@ -373,7 +374,7 @@ Do after D1. Pure rename, no behaviour change. `rename_column` keeps data; sched
 |---|---|---|
 | `courses.student_list_finalised` | Prevent leftover students (`prevent_leftover_students`) | column, Course validation/methods, calculator `finalised:`, `grouping_settings_controller.js`, `courses/settings.html.erb`, `courses_controller.rb`, ~50 test references |
 | `Course#enable_auto_confirmability_mode!`, `revert_to_default_mode!`, "Auto-Confirmability"/"Default mode" | Prevent leftover students on/off | model, controller, docs |
-| "draft" (`:already_draft`, `status_filter=draft`, Project validation "cannot be a draft group", comments; `destroy_draft_groups` is deleted in D13) | not confirmed | models, services, controller, view option value, tests |
+| "draft" (`:already_draft`, `status_filter=draft`, Project validation "cannot be a draft group", comments; `destroy_draft_groups` is deleted in D13) | not confirmed | models, services, controller, view option value, tests. The new Overview/Groups-tab banner and filter links keep the existing `draft` param value until this pass |
 | "dissolved" in user text ("Group dissolved.", "...was dissolved.") | deleted | remover and groups controller messages (internal `:dissolved` may stay) |
 | "The grouping window is closed." | "Group formation is closed." | all services (via locale file) |
 | "Not Confirmed Group G001 created.", "already a Not Confirmed Group", "Group status changed to not confirmed." | "Group Tmp001 created.", "already not confirmed", "Group reopened." | creator, reverter |
@@ -387,33 +388,33 @@ Do after D1. Pure rename, no behaviour change. `rename_column` keeps data; sched
 
 Existing: 3 system tests (real Chrome: htmx search, lazy Manage frame, `<dialog>` confirm), 28 integration tests in `group_write_routes_test.rb` (permissions, redirects, DB state, never page content), removal and group-write service tests, `GroupWriteLockTest` (non-transactional, threaded). Older thread tests are transactional and may be vacuous (2d).
 
-DONE: T1 to T3 (rack_test: after leave/removal the pages update; blocked removal alerts), T4 (removal services incl. I8 residual), T6 (second membership in a course raises `RecordNotUnique`), T13, T14, T22, T25, T26 (leader-promotion race dropped, D26; approval-toggle part goes with P2b), T28, T32, T33. T5 DROPPED (D7). T36 WIP (reopen refusal DONE).
+DONE: T1 to T3 (rack_test: after leave/removal the pages update; blocked removal alerts), T4 (removal services incl. I8 residual), T6 (second membership in a course raises `RecordNotUnique`), T9, T13, T14, T17, T21, T22, T25, T26 (leader-promotion race dropped, D26; approval-toggle part goes with P2b), T28, T30, T31, T32, T33, T37. T5 DROPPED (D7). T24 DROPPED (D27 amended: counter removed). T36 WIP (reopen refusal DONE).
 
 | ID | Test | Type | Phase | Status |
 |---|---|---|---|---|
 | T7 | Races in **non-transactional** classes: create vs join, join to two groups, Redeemer last slot, Confirmer double submit, Remover double removal, two groups confirming at once (R3, T27). Canary per race test: remove the `with_lock` or unique index it relies on, confirm the test fails | unit (threads) | P3a | TODO |
 | T8 | Replace the two tests in `group_member_adder_test.rb` that assert known bugs ("this is the bug", "CURRENT BEHAVIOR") with regression tests; move the Joiner, Responder, Creator, Requester thread tests into the non-transactional class and run the canary on each | unit | P3a | TODO |
-| T9 | nil `group_max` across Joiner/Redeemer/Responder/Inviter/Adder (D3) | unit | P4 | TODO |
+| T9 | nil `group_max` across Joiner/Redeemer/Responder/Inviter/Adder (D3) | unit | P4 | DONE (all use `Course#group_full?`) |
 | T10 | Property test: random confirm orders under prevent-leftover never leave an ungroupable student set (D2) | unit | P5 | TODO |
 | T11 | Happy-path rack_test system tests: create, join open group, request and accept, invite and accept, invite link, confirm and reopen, coordinator add. Text/DOM; `data-testid` only where markup breaks a test | system | P8 | TODO |
 | T12 | Use `with_clues` in browser tests in `group_formation_test.rb` | system | P8 | TODO |
-| T15 | D6: `Coordinator::Confirmer` confirms undersized/oversized groups with window closed; `Coordinator::Reopener` works with window closed and is blocked with a proposal; lecturer and student cannot call them; student leader still cannot confirm an illegal size | unit + policy | P4b | TODO |
+| T15 | D6: `Coordinator::Confirmer` confirms undersized/oversized groups with window closed; `Coordinator::Reopener` works with window closed and is blocked with a proposal; lecturer and student cannot call them; student leader still cannot confirm an illegal size | unit + policy | P4b | WIP (built, uncommitted) |
 | T16 | `Coordinator::MemberAdder` adds above max; status unchanged; size warning shows | unit | P3a | TODO |
-| T17 | D13: `disable_grouping!` and `revert_to_default_mode!` keep not-confirmed groups (flip the two "destroys" tests) | model | P4 | TODO |
-| T18 | O14: student in a not-confirmed group sees no "Create proposal"; `ProjectsController#new` redirects a student with no confirmed group; closed message differs for coordinator, lecturer, student; CTA only when formation is open | rack_test system | P4b | TODO |
-| T19 | O11: banner and yellow rows only when students cannot act and not-confirmed groups exist; singular/plural; ungrouped count; "Not confirmed" filter; coordinators only | rack_test system | P4b | TODO |
+| T17 | D13: `disable_grouping!` and `revert_to_default_mode!` keep not-confirmed groups (flip the two "destroys" tests) | model | P4 | DONE (`13f5a33`) |
+| T18 | O14: student in a not-confirmed group sees no "Create proposal"; `ProjectsController#new` redirects a student with no confirmed group; closed message differs for coordinator, lecturer, student; CTA only when formation is open | rack_test system | P4b | WIP (built, uncommitted) |
+| T19 | O11: banner and yellow rows only when students cannot act and not-confirmed groups exist; singular/plural; ungrouped count; "Not confirmed" filter; coordinators only | rack_test system | P4b | WIP (built, uncommitted) |
 | T20 | O2/D11: enrolment removal of a last member with a proposal warns and deletes nothing until confirmed (server-side); removal and `enrolment.destroy!` share a transaction; removed leader replaced by earliest member; pending invites cleared | integration | P3a | TODO |
-| T21 | I11, I13: duplicate group name rejected; Creator takes the next number when a generated name is taken by an imported group; two concurrent creates give two names; Tmp numbers never reused after delete (a freed G number can be, T34) | model + unit (threads, non-transactional) | P4 | TODO |
+| T21 | I11, I13: duplicate group name rejected; Creator takes the next number when a generated name is taken by an imported group; two concurrent creates give two names (lowest-free under the course lock, D27 amended) | model + unit (threads, non-transactional) | P4 | DONE (naming tests, `13f5a33`; threads part covered by `GroupWriteLockTest`) |
 | T23 | P1b backfill on a restored production copy: idempotent; leaders given to every group with members and none; only fingerprint groups confirmed, only in grouping-off courses; grouping-on courses untouched except groups with a project. On the 2026-11-02 data it prints "Confirmed 349 imported groups and 4 groups that already have a project; assigned a leader to 350 groups"; afterwards no leaderless group has members, no fingerprint group is unconfirmed in a grouping-off course, no group with a project is unconfirmed. Re-run counts before deploying | migration (manual) | P1b | OPEN (owner, before deploy) |
-| T24 | Tmp counter migration: column starts at 0 everywhere (existing groups are all confirmed and keep G numbers); idempotent | migration (manual) | P4 | TODO |
+| T24 | Tmp counter migration: column starts at 0 everywhere (existing groups are all confirmed and keep G numbers); idempotent | migration (manual) | P4 | DROPPED (D27 amended: counter removed, `13f5a33`) |
 | T27 | R3: two groups confirming at once under prevent-leftover are never both confirmed when only one fits; Reopener, Importer, enrolment removal and settings saved in `handle_settings` take the course lock | unit (threads, non-transactional) | P3a | TODO |
 | T29 | E4/D24: removing a member by any path (service and `dependent: :destroy`) deletes that user's pending `direct_invite` records for that group, leaves other groups' invites alone | model | P3a | TODO |
-| T30 | E3/D25: every group controller returns 404 on a non-grouped course; Creator and Importer return blocked | integration | P4 | TODO |
-| T31 | D10: flip `group_formation_page_test.rb` lines 80-81: a lecturer sees no Manage controls | integration | P4 | TODO |
-| T34 | D27: new group named Tmp### from the counter, number never reused after delete; Confirm gives lowest free G###; Reopen releases it and gives a new Tmp###; imported groups keep CSV name and take no number; links and tokens resolve by group id | model + unit (threads, non-transactional) | P4, P4b | TODO |
+| T30 | E3/D25: every group controller returns 404 on a non-grouped course; Creator and Importer return blocked | integration | P4 | DONE (`78953f3b`) |
+| T31 | D10: flip `group_formation_page_test.rb` lines 80-81: a lecturer sees no Manage controls | integration | P4 | DONE (`1a81641`) |
+| T34 | D27: new group named Tmp### (lowest free); Confirm gives lowest free G###; Reopen releases it and gives a new Tmp###; imported groups keep CSV name and take no number; links and tokens resolve by group id | model + unit (threads, non-transactional) | P4, P4b | PARTIAL (naming DONE, `13f5a33`; reopen part built, uncommitted) |
 | T35 | D28/D29: not-confirmed group takes direct joins; confirmed group takes requests, invites, links, and accepting any reopens it and notifies every member; a group with a project takes no new members and its pending requests/invites are cleared; imported groups closed to students | unit + integration | P4c | TODO |
 | T36 | Origin: imported group has no student action (service and policy refuse, UI hides buttons); coordinators can still add, remove, delete; nobody can reopen. Reopen refusal done in P1b; other guards with P4c | unit + policy + integration | P1b, P4c | WIP |
-| T37 | D28: no join request can be created (`request_to_join?` false for everyone; requester refuses a not-confirmed group with `:group_not_confirmed`); migration deletes only pending requests and is a no-op the second time (manual dry run); Manage page has no approval switch; table never says "Request to join"; `PATCH` on the group path is gone | unit + policy + integration + migration (manual) | P2b | TODO |
+| T37 | D28: no join request can be created (`request_to_join?` false for everyone; requester refuses a not-confirmed group with `:group_not_confirmed`); migration deletes only pending requests and is a no-op the second time (manual dry run); Manage page has no approval switch; table never says "Request to join"; `PATCH` on the group path is gone | unit + policy + integration + migration (manual) | P2b | DONE (`cc99ea0`) |
 | T38 | D31: a student's pending requests are deleted when they land in any group (coordinator add included), leave the course, or a project is created on the group; a group's are deleted on reopen; accept re-checks enrolment and ungrouped; expiry once decided | unit + model | P3a, P4b, P4c | TODO |
 
 ## 6. Phases (in order)
@@ -424,11 +425,11 @@ DONE: T1 to T3 (rack_test: after leave/removal the pages update; blocked removal
 | P1 | B1, B2, I8, T1 to T3 | - | Tests pass | DONE |
 | P1b | C1 to C3, O9, B3 (R1), B14 (R4, R5), T6, T13, T14, T22, T25; `Groups::Coordinator::Importer`, `course_id` + unique index, D9 reopen block, project group lock + unique index, `origin` column; all member inserts via `ProjectGroupMember.add`. Backfill migration is a separate PR (T23 pending) | Rebase onto main (deferred) | Grouped-CSV course can create a project; imported groups confirmed with first member as leader and no sequence; import doesn't move grouped students; reopen blocked with a project; no group gets two projects; member uniqueness in DB | DONE |
 | P2 | `Leaver`, `Kicker`, `Coordinator::MemberRemover`, B9, T4; group delete service (R12, T26); server-side confirmation (E1, E2, D23, T28); `ProjectGroupMemberPolicy#destroy?` change (D7, T32); I8 residual; `ProjectGroupPolicy#destroy?` for coordinators; course lock in `Coordinator::MemberRemover` and `GroupDeleter` (D21); D26 deletions; R13, B15, T33 | D7 | Removal services fully covered; no controller writes a group directly; nobody self-leaves a confirmed group; no lock deadlock | DONE |
-| P2b | D28 cleanup in two PRs (brief `D28_APPROVAL_TOGGLE_REMOVAL.md`). **Part 1:** delete both `ApprovalToggler` services, `GroupsController#update` and route, Manage switch, table request button, lock gates in Joiner and requester; close join requests (`request_to_join?` false; requester refuses a not-confirmed group with `:group_not_confirmed`); data migration deletes every pending request (D31); T37. **Part 2:** drop `project_groups.locked` | P1b | Nothing reads or writes `locked`; no request can be created; pending requests deleted; column dropped in its own PR | TODO |
-| P3a | B6, B8, O2, R2, R3 (course lock in confirmers, T27), R9 (`:group_gone`), R10, E4 (T29), E6, E7 check, T7, T8, T16, T20, non-transactional race test class; B13 (proposed, own commit). D31: shared cleanup clears a student's pending requests when they land in any group (coordinator add included) or leave the course, project creation clears the group's pending requests and invites, Responder re-checks enrolment and ungrouped at accept (T38) | P2b | One shared invite-cleanup method; coordinator removal and enrolment removal are one path with warning and transaction; race tests truly concurrent | TODO |
-| P4 | B7, B10, B11, B12, I6, I7, I11 to I14, O3, O5, O6, E3, E8, R6, R11; D13 (delete `destroy_draft_groups`); D27 Tmp counter; name index; settings under the course lock; T9, T17, T21, T24, T30, T31 | D3 | Small backend fixes in; dead code gone; `manage_groups?` and its column gone (D10); numbers never reused | TODO |
-| P4b | D6 `Coordinator::Confirmer`/`Reopener`, O4 policies (with D9 condition), O11 banner, O14 Overview; numbering (Confirm gives lowest free G###, Reopen releases it and gives new Tmp###); reopen deletes the group's pending requests (D31); T15, T18, T19, T34, T38 | D6, D13, P4 | Coordinator confirm/reopen in place; banner and gates behave as in 1d and O11 | TODO |
-| P4c | D29: `JoinRequester` and its policy allow confirmed groups (flip the P2b policy line); accepting a request, invite or link into a confirmed group reopens it under the course lock, notifies every member, runs the shared cleanup; project freezes membership; `origin` guards in every student write service; request expiry once decided; T35, T36, T38 | P3a, P4, P4b, expiry decided | Confirmed groups take members per D29; imported groups stay closed; no stale request can add a student | TODO |
+| P2b | D28 cleanup in two PRs (brief `D28_APPROVAL_TOGGLE_REMOVAL.md`). **Part 1:** delete both `ApprovalToggler` services, `GroupsController#update` and route, Manage switch, table request button, lock gates in Joiner and requester; close join requests (`request_to_join?` false; requester refuses a not-confirmed group with `:group_not_confirmed`); data migration deletes every pending request (D31); T37. **Part 2:** drop `project_groups.locked` | P1b | Nothing reads or writes `locked`; no request can be created; pending requests deleted; column dropped in its own PR | DONE (`cc99ea0`, `7b4fb2b`; T37) |
+| P3a | B6, B8, O2, R2, R3 (course lock in confirmers, T27), R9 (`:group_gone`), R10, E4 (T29), E6, E7 check, T7, T8, T16, T20, non-transactional race test class; B13 (proposed, own commit). D31: shared cleanup clears a student's pending requests when they land in any group (coordinator add included) or leave the course, project creation clears the group's pending requests and invites, Responder re-checks enrolment and ungrouped at accept (T38) | P2b | One shared invite-cleanup method; coordinator removal and enrolment removal are one path with warning and transaction; race tests truly concurrent | DONE (services/locks/cleanup landed `ffe8c9a`, `78953f3b`; E7 and B13 stay OPEN; race-test canary discipline unverified) |
+| P4 | B7, B10, B11, B12, I6, I7, I11 to I14, O3, O5, O6, E3, E8, R6, R11; D13 (delete `destroy_draft_groups`); D27 naming; name index; settings under the course lock; T9, T17, T21, T24, T30, T31 | D3 | Small backend fixes in; dead code gone; `manage_groups?` and its column gone (D10); numbers never reused | PARTIAL (landed: B7, I7, I11–I14, O5, E3, R6, D13, D27 naming, T9/T17/T21/T30/T31; open: B10, B11, B12, I6, O3, O6, E8, R11) |
+| P4b | D6 `Coordinator::Confirmer`/`Reopener`, O4 policies (with D9 condition), O11 banner, O14 Overview; numbering (lowest-free, D27 amended); reopen deletes the group's pending requests (D31); T15, T18, T19, T34, T38; D30 UI (`UI_GAP_ANALYSIS.md` work list) | D6, D13, P4 | Coordinator confirm/reopen in place; banner and gates behave as in 1d and O11 | WIP (built, uncommitted, tests included) |
+| P4c | D29: `JoinRequester` and its policy allow confirmed groups (flip the P2b policy line); accepting a request, invite or link into a confirmed group reopens it under the course lock, notifies every member, runs the shared cleanup; project freezes membership; `origin` guards in every student write service; request expiry (24 hours, D31); T35, T36, T38 | P3a, P4, P4b | Confirmed groups take members per D29; imported groups stay closed; no stale request can add a student | TODO |
 | P5 | B5, T10 | D2 | Calculator matches chosen model; spec updated if D2 chose (b) | BLOCKED |
 | P6 | I1 to I3 | P1 to P5 | One shared result class; messages in one locale file; behaviour unchanged | TODO |
 | P7 | Section 4 renames, I4, I5, I9, O7, `Groups::` move | D1, D4, P6 | No old terms in app/, db/schema.rb, test/, docs/; suite green | TODO |

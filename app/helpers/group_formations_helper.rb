@@ -4,6 +4,8 @@ module GroupFormationsHelper
   GROUP_FILL_BUTTON = "#{BTN} bg-primary-strong px-5 py-2 text-sm text-white hover:bg-primary-hover".freeze
   GROUP_OUTLINE_BUTTON = "#{BTN} border border-outline px-5 py-2 text-sm text-primary-strong hover:bg-primary-container".freeze
   GROUP_TONAL_BUTTON = "#{BTN} bg-primary-container-alt px-5 py-2 text-sm text-primary-strong hover:bg-primary-container-ring".freeze
+  GROUP_SECONDARY_BUTTON = "#{BTN} border border-outline-variant bg-surface px-4 py-1.5 text-[13px] text-on-surface hover:bg-surface-variant".freeze
+  GROUP_WARNING_BUTTON = "#{BTN} border border-warning-border bg-surface px-4 py-1.5 text-[13px] text-warning-on-container hover:bg-warning-container-alt".freeze
   GROUP_ROW_BUTTON = "#{BTN} bg-primary-container-alt px-3 py-1.5 text-[13px] whitespace-nowrap text-primary-strong hover:bg-primary-container-ring max-sm:w-full".freeze
   GROUP_ROW_DISABLED_BUTTON = "#{BTN} bg-surface-variant px-3 py-1.5 text-[13px] whitespace-nowrap text-on-surface-disabled max-sm:w-full".freeze
   GROUP_SMALL_BUTTON = "#{BTN} border border-outline px-4 py-1.5 text-[13px] text-primary-strong hover:bg-primary-container".freeze

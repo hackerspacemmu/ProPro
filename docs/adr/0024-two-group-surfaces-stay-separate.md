@@ -1,7 +1,8 @@
 # ADR 0024 — The course Groups tab and the grouping workspace stay separate surfaces
 
 Date: 2026-10-21
-Status: Accepted
+Status: Accepted (the "read-mostly" characterisation of the Groups tab
+is amended by ADR 0026)
 
 ## Context
 

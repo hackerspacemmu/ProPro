@@ -13,7 +13,17 @@ class GroupsController < ApplicationController
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
-    @group_list = @course.project_groups.includes(project_group_members: :user).to_a
+    all_groups = @course.project_groups.includes(project_group_members: :user).to_a
+    @grouping_window_open = @course.grouping_window_open?
+    @grouping_enabled = @course.grouping_enabled?
+    @unconfirmed_group_count = all_groups.count { |g| !g.confirmed? }
+    @ungrouped_student_count = @course.ungrouped_students.count
+
+    @group_list = if @grouping_window_open
+                    all_groups.select(&:confirmed?)
+                  else
+                    all_groups
+                  end
 
     @filtered_group_list = filtered_group_list
     @show_all = params[:show_all] == 'true'
@@ -22,6 +32,7 @@ class GroupsController < ApplicationController
 
     @group_list_state = list_state(@group_list, @filtered_group_list)
     @filters_active = filters_active?(PARTICIPANT_FILTER_KEYS)
+    @coordinator_banner_active = policy(@course).manage_groups? && !@grouping_window_open && (@unconfirmed_group_count.positive? || @ungrouped_student_count.positive?)
 
     return unless request.headers['HX-Request']
 
@@ -34,7 +45,8 @@ class GroupsController < ApplicationController
              displayed_count: @filtered_group_list.count,
              show_all: @show_all,
              state: @group_list_state,
-             filters_active: @filters_active
+             filters_active: @filters_active,
+             coordinator_banner_active: @coordinator_banner_active
            }
     nil
   end
@@ -87,7 +99,8 @@ class GroupsController < ApplicationController
       return
     end
 
-    redirect_to course_group_formation_path(@course), **(result.blocked? ? { alert: result.message } : { notice: result.message })
+    target = url_from(params[:return_to]) || course_group_formation_path(@course)
+    redirect_to target, **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private

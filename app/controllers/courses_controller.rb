@@ -61,7 +61,10 @@ class CoursesController < ApplicationController
       file_link: @course.file_link,
       submission_state: submission_state_for(@current_user_enrolment),
       submission: @project,
-      toggle_topics: @course.toggle_topics
+      toggle_topics: @course.toggle_topics,
+      course: @course,
+      group: @group,
+      current_user: current_user
     )
   end
 
@@ -739,7 +742,7 @@ class CoursesController < ApplicationController
   def submission_state_for(enrolment)
     return nil unless enrolment&.student?
 
-    if @course.grouped? && @course.grouping_enabled? && @group.nil?
+    if @course.grouped? && @group.nil?
       :no_group
     elsif @project.nil? || @current_status == 'not_submitted'
       :no_proposal

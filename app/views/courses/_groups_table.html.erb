@@ -1,4 +1,5 @@
-<%# --- locals: course, groups, projects_by_owner, total_count, displayed_count, show_all, state, filters_active %>
+<%# --- locals: course, groups, projects_by_owner, total_count, displayed_count, show_all, state, filters_active, coordinator_banner_active %>
+<% manage_groups = policy(course).manage_groups? %>
 <%# htmx re-render target on the Groups tab, rendered from BOTH the page path and
     the GroupsController#index htmx branch, so it only ever uses locals. `state` is the
     controller's :matched / :no_matches / :empty verdict (ADR 0018); the copy
@@ -8,11 +9,11 @@
      class="overflow-x-auto pb-8 border border-gray-200 rounded-lg"
      data-controller="expandable-rows"
      data-action="turbo:before-morph-element->expandable-rows#preserveExpansion turbo:morph@document->expandable-rows#syncToggleAll">
-  <table class="w-full min-w-[650px] table-fixed">
+  <table class="w-full min-w-[760px] table-fixed">
     <thead class="bg-white">
       <tr>
-        <%= render "courses/sort_header", course: course, column: 'group_name', label: 'Group', width: 'w-[15%]' %>
-        <th class="w-[30%] px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider cursor-pointer select-none"
+        <%= render "courses/sort_header", course: course, column: 'group_name', label: 'Group', width: manage_groups ? 'w-[13%]' : 'w-[15%]' %>
+        <th class="<%= manage_groups ? 'w-[25%]' : 'w-[30%]' %> px-4 py-3 border-b border-gray-200 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider cursor-pointer select-none"
             data-expandable-toggle-all>
           <div class="flex items-center gap-1">
             Members
@@ -20,8 +21,13 @@
           </div>
         </th>
         <%= render "courses/sort_header", course: course, column: 'project_title', label: 'Project Title', width: 'w-[20%]' %>
-        <%= render "courses/sort_header", course: course, column: 'status', label: 'Status', width: 'w-[15%]' %>
-        <%= render "courses/sort_header", course: course, column: 'supervisor', label: 'Supervisor', width: 'w-[20%]' %>
+        <%= render "courses/sort_header", course: course, column: 'status', label: 'Status', width: manage_groups ? 'w-[13%]' : 'w-[15%]' %>
+        <%= render "courses/sort_header", course: course, column: 'supervisor', label: 'Supervisor', width: manage_groups ? 'w-[17%]' : 'w-[20%]' %>
+        <% if manage_groups %>
+          <th class="w-[104px] bg-white border-b border-gray-200 px-4 py-3 text-right select-none">
+            <span class="sr-only">Manage</span>
+          </th>
+        <% end %>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-200">
@@ -36,11 +42,12 @@
                      project: group_project,
                      status: group_status,
                      supervisor: supervisor,
-                     expanded: filters_active %>
+                     expanded: filters_active,
+                     coordinator_banner_active: local_assigns[:coordinator_banner_active] %>
         <% end %>
       <% else %>
         <%= render "shared/table_empty_state",
-                   colspan: 5,
+                   colspan: manage_groups ? 6 : 5,
                    heading: state == :no_matches ? "No groups match your current filters." : "No groups have been created yet.",
                    hint: state == :no_matches ? "Try adjusting your search or filters." : nil %>
       <% end %>

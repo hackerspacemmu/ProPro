@@ -1,18 +1,24 @@
-<%# --- locals: course, group, project, status, supervisor, expanded %>
+<%# --- locals: course, group, project, status, supervisor, expanded, coordinator_banner_active %>
 <%# project/status/supervisor arrive as locals computed once above (table-side
     map lookup) — this partial never looks them up itself (plan §5).
     expanded: when true, the detail row renders open (search/filter active). %>
-<% badge_classes, badge_color =
-     case status.to_s
-     when "approved"      then ["bg-success-container text-success", "bg-success"]
-     when "pending"       then ["bg-primary-container text-primary-soft", "bg-primary-soft"]
-     when "redo"          then ["bg-warning-container-alt text-warning-strong", "bg-warning-strong"]
-     when "rejected"      then ["bg-error-container text-error", "bg-error"]
-     else                      ["bg-gray-100 text-gray-600", "bg-gray-500"]
+<% manage_groups = policy(course).manage_groups? %>
+<% badge_classes, badge_color, badge_label =
+     if !group.confirmed?
+       ["bg-surface-variant text-on-surface-variant", "bg-gray-500", "Not confirmed"]
+     else
+       case status.to_s
+       when "approved"      then ["bg-success-container text-success", "bg-success", "Approved"]
+       when "pending"       then ["bg-primary-container text-primary-soft", "bg-primary-soft", "Pending"]
+       when "redo"          then ["bg-warning-container-alt text-warning-strong", "bg-warning-strong", "Redo"]
+       when "rejected"      then ["bg-error-container text-error", "bg-error", "Rejected"]
+       else                      ["bg-gray-100 text-gray-600", "bg-gray-500", "Not Submitted"]
+       end
      end %>
 
 <% invalid = group_size_state(group, course) != :ok %>
-<tr id="<%= dom_id(group) %>" class="<%= invalid ? 'bg-warning-container-alt' : 'hover:bg-gray-50' %> transition-colors cursor-pointer group" data-row-id="<%= group.id %>">
+<% banner_highlight = local_assigns[:coordinator_banner_active] && !group.confirmed? %>
+<tr id="<%= dom_id(group) %>" class="<%= (invalid || banner_highlight) ? 'bg-warning-container-alt' : 'hover:bg-gray-50' %> transition-colors cursor-pointer group" data-row-id="<%= group.id %>">
   <td class="px-4 py-4 text-sm align-middle">
     <%= link_to course_group_path(course, group.id),
                 title: group.group_name || "Group #{group.id}",
@@ -51,7 +57,7 @@
   <td class="px-4 py-4 align-middle">
     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium <%= badge_classes %>">
       <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= badge_color %>"></span>
-      <%= status.to_s.titleize %>
+      <%= badge_label %>
     </span>
   </td>
   <td class="px-4 py-4 text-sm text-gray-600 align-middle">
@@ -60,9 +66,14 @@
       <span data-row-chevron class="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200 shrink-0<%= expanded ? ' rotate-180' : '' %>">expand_more</span>
     </div>
   </td>
+  <% if manage_groups %>
+    <td class="sticky right-0 w-[104px] bg-inherit px-3 py-4 text-right" data-expandable-ignore>
+      <%= render "group_formations/manage_dialog", group: group, course: course, return_to: request.fullpath %>
+    </td>
+  <% end %>
 </tr>
-<tr id="<%= dom_id(group, :detail) %>" class="<%= expanded ? '' : 'hidden' %> <%= invalid ? 'bg-warning-container-alt' : 'bg-gray-50/30' %>" data-detail-row-id="<%= group.id %>">
-  <td colspan="5" class="px-4 py-4 border-t border-gray-100">
+<tr id="<%= dom_id(group, :detail) %>" class="<%= expanded ? '' : 'hidden' %> <%= (invalid || banner_highlight) ? 'bg-warning-container-alt' : 'bg-gray-50/30' %>" data-detail-row-id="<%= group.id %>">
+  <td colspan="<%= manage_groups ? 6 : 5 %>" class="px-4 py-4 border-t border-gray-100">
     <div class="pl-[10%]">
       <div class="flex flex-col gap-4">
         <% group.project_group_members.each do |member| %>

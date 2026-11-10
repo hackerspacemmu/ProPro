@@ -188,12 +188,14 @@ class Course < ApplicationRecord
 
   def groups_with_status(status, group_list)
     case status
+    when 'draft'
+      group_list.reject(&:confirmed?)
     when 'not_submitted'
       existing_ids = projects.where(owner_type: 'ProjectGroup').pluck(:owner_id)
-      group_list.reject { |g| existing_ids.include?(g.id) }
+      group_list.select { |g| g.confirmed? && !existing_ids.include?(g.id) }
     when 'approved', 'pending', 'redo', 'rejected'
       group_list.select do |g|
-        projects.find_by(owner_type: 'ProjectGroup', owner_id: g.id)&.current_status == status
+        g.confirmed? && projects.find_by(owner_type: 'ProjectGroup', owner_id: g.id)&.current_status == status
       end
     else
       []

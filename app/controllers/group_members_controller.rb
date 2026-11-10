@@ -17,15 +17,15 @@ class GroupMembersController < ApplicationController
       flash[result.added? ? :notice : :alert] = result.message
     end
 
-    redirect_to course_group_formation_path(@course), status: :see_other
+    redirect_to return_target, status: :see_other
   end
 
   def destroy
     member = @group.project_group_members.find_by(id: params[:id])
 
     if member.nil?
-      redirect_to course_group_formation_path(@course), status: :see_other,
-                                                        alert: 'This member has already been removed.'
+      redirect_to return_target, status: :see_other,
+                                 alert: 'This member has already been removed.'
       return
     end
 
@@ -42,11 +42,15 @@ class GroupMembersController < ApplicationController
       return
     end
 
-    redirect_to course_group_formation_path(@course), status: :see_other,
-                                                      **(result.blocked? ? { alert: result.message } : { notice: result.message })
+    redirect_to return_target, status: :see_other,
+                               **(result.blocked? ? { alert: result.message } : { notice: result.message })
   end
 
   private
+
+  def return_target
+    url_from(params[:return_to]) || course_group_formation_path(@course)
+  end
 
   def remove_member(member)
     if coordinator?

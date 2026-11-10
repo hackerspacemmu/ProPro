@@ -18,6 +18,15 @@ definitions.
 - **solo supervisor course** — a course with fewer than three lecturer+coordinator enrolments. No lecturer choice exists; proposals default to the single lecturer (`Course#solo_supervisor?`).
 - **toggle topics** — `Course#toggle_topics`; gates whether "Base on a Topic" exists at all.
 
+## Grouping
+
+- **formation window** — whether group formation is currently open (`Course#grouping_window_open?`: grouping enabled, past `grouping_opens_at`, before `grouping_closes_at`). "Not open" covers closed-by-date, grouping disabled and before the opens date. Several group surfaces branch on it.
+- **not confirmed** — a `project_group` still forming; membership can still change. The user-facing replacement for "draft" (the old `status_filter=draft` param value renames to `not_confirmed` with the vocabulary pass). Holds a **Tmp number**.
+- **confirmed** — a `project_group` whose members are final: no student membership writes, may own the proposal. Takes its **G number** on confirm.
+- **reopen** — returning a confirmed group to not confirmed (replaces "revert"). Blocked when the group owns a proposal or was imported.
+- **G number** — the `G###` name a group takes when confirmed; the lowest free one in its course. Display only: URLs, invites and tokens use the group id.
+- **Tmp number** — the `Tmp###` name a not-confirmed group holds; the lowest free one in its course. Swapped for a G number on confirm, a new Tmp number on reopen.
+
 ## Course settings
 
 - **course settings** — the coordinator's settings page for a course: a takeover-layout form (`no_sidebar` + sticky top nav, Save inside the form) whose section cards are Class Details · General · Permissions and Rules · Grouping. General holds the **coursecode widget** and the Supervisor Capacity subsections.

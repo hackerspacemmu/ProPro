@@ -77,6 +77,8 @@ module ParticipantBrowsing
     project = participant_project(group, 'ProjectGroup')
     case params[:sort_by]
     when 'status'
+      return 100 unless group.confirmed?
+
       Project::STATUS_SORT_ORDER.fetch(project&.current_status || 'not_submitted', 99)
     when 'project_title'
       participant_project_title(project)&.downcase || ''
@@ -128,7 +130,11 @@ module ParticipantBrowsing
       group_list = group_list.select { |g| ids.include?(g.id) }
     end
 
-    group_list = @course.groups_with_status(params[:status_filter], group_list) if params[:status_filter].present? && params[:status_filter] != 'all'
+    if params[:status_filter].present? && params[:status_filter] != 'all'
+      unless @course.grouping_window_open? && params[:status_filter] == 'draft'
+        group_list = @course.groups_with_status(params[:status_filter], group_list)
+      end
+    end
 
     group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
 

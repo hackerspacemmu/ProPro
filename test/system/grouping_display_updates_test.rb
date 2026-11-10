@@ -40,7 +40,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
   test 'joining refreshes both pages and clears the warning when the group reaches its minimum' do
     @group.project_group_members.find_by!(user: @students.third).destroy!
-    watch_groups_tab
+    watch_groups_tab_without_drafts
     Capybara.using_session(:formation_observer) do
       open_formation(@students.first)
       select 'Invalid size', from: 'formation-status-filter'
@@ -55,7 +55,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
     assert_text 'Joined the group.'
     assert_selector "#project_group_#{@group.id}", text: '3 of 4 members'
     assert_no_selector '[data-group-size-warning]'
-    assert_monitor_count(3, warning: false)
+    assert_groups_monitor_without_drafts
     Capybara.using_session(:formation_observer) do
       assert_selector '#formation-groups', text: 'No groups match your current filters.'
       assert_selector '#formation-status-filter option:checked', text: /Invalid size/
@@ -66,7 +66,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
   test 'a student leaving updates both pages and warns the remaining group members' do
     @course.update!(student_list_finalised: true)
-    watch_groups_tab
+    watch_groups_tab_without_drafts
     Capybara.using_session(:formation_observer) { open_formation(@students.first) }
     open_formation(@students.third)
 
@@ -79,7 +79,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
     assert_no_selector '#my-group-panel'
     assert_selector "#project_group_#{@group.id}", text: '2 of 4 members'
-    assert_monitor_count(2, warning: true)
+    assert_groups_monitor_without_drafts
     Capybara.using_session(:formation_observer) do
       assert_selector '#my-group-panel', text: '2 of 4'
       assert_selector '#my-group-panel', text: warning_for(2)
@@ -88,6 +88,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
   test 'removing the last member removes the group and its open dialog from both pages' do
     @group.project_group_members.where.not(user: @students.first).destroy_all
+    @group.update!(confirmed: true)
     watch_groups_tab
     open_formation(@coordinator)
     open_management
@@ -122,6 +123,25 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
       assert_selector 'turbo-cable-stream-source[connected]', visible: :all
       count = @group.project_group_members.count
       assert_selector "#project_group_#{@group.id}", text: "#{count} #{count == 1 ? 'member' : 'members'}"
+    end
+  end
+
+  # D30 (ADR 0026): while the window is open the Groups tab hides not-confirmed
+  # groups entirely, so the coordinator's monitor session asserts their absence
+  # instead of watching their rows update.
+  def watch_groups_tab_without_drafts
+    Capybara.using_session(:groups_monitor) do
+      login_as(@coordinator)
+      visit course_groups_path(@course)
+      wait_for_turbo
+      assert_selector 'turbo-cable-stream-source[connected]', visible: :all
+      assert_no_selector "#project_group_#{@group.id}"
+    end
+  end
+
+  def assert_groups_monitor_without_drafts
+    Capybara.using_session(:groups_monitor) do
+      assert_no_selector "#project_group_#{@group.id}"
     end
   end
 

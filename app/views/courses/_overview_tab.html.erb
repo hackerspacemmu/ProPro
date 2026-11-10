@@ -15,6 +15,202 @@
 <div class="max-w-[800px] mx-auto">
   <%= render "courses/project_details_card" %>
 
+<% if @presenter.show_group_formation? %>
+  <div class="mb-12" id="group-formation">
+    <div class="flex flex-row items-center justify-between p-6 box-border border-b border-outline-variant">
+      <h2 class="text-[22px] font-normal text-on-surface-strong">Group formation</h2>
+      <div class="flex shrink-0 items-center gap-3">
+        <% if @presenter.grouping_window_open? %>
+          <span class="inline-flex whitespace-nowrap rounded px-2.5 py-0.5 text-[12px] font-medium tracking-wide bg-success-container text-success">Open</span>
+        <% else %>
+          <span class="inline-flex whitespace-nowrap rounded px-2.5 py-0.5 text-[12px] font-medium tracking-wide bg-surface-variant text-on-surface-variant">Closed</span>
+        <% end %>
+        <% if @presenter.coordinator? %>
+          <%= link_to "Settings", settings_course_path(@course, anchor: "grouping"), class: GroupFormationsHelper::GROUP_SECONDARY_BUTTON %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if !@presenter.grouping_window_open? && @presenter.total_groups_count.zero? %>
+      <div class="flex flex-col gap-3 border-b border-outline-variant px-4 py-3 text-[14px] leading-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <p class="text-on-surface-variant">Group formation is closed.</p>
+        <% if @presenter.coordinator? %>
+          <%= link_to "Open settings", settings_course_path(@course, anchor: "grouping"), class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start sm:self-center" %>
+        <% end %>
+      </div>
+    <% elsif @presenter.show_formation_attention_banner? %>
+      <div class="flex flex-col gap-3 border-b border-warning-border bg-warning-container-alt px-4 py-4 text-[14px] leading-5 text-warning-on-container sm:flex-row sm:items-center" role="status">
+        <span class="material-symbols-outlined shrink-0 text-[20px] text-warning" aria-hidden="true">warning</span>
+        <div class="min-w-0 flex-1">
+          <strong class="font-medium">Group formation is closed.</strong>
+          <% if @presenter.unconfirmed_groups_count.positive? %>
+            <%= @presenter.unconfirmed_groups_count > 1 ? "#{@presenter.unconfirmed_groups_count} groups are" : "1 group is" %> not confirmed, so their members cannot submit a proposal. Review and confirm them.
+          <% end %>
+          <% if @presenter.ungrouped_students_count.positive? %>
+            <%= @presenter.unconfirmed_groups_count.positive? ? tag.br : " " %>
+            <%= pluralize(@presenter.ungrouped_students_count, "student") %> <%= @presenter.ungrouped_students_count > 1 ? "are" : "is" %> not in a group.
+          <% end %>
+        </div>
+        <% if @presenter.unconfirmed_groups_count.positive? %>
+          <%= link_to "Review groups", course_groups_path(@course, status_filter: "draft"),
+                class: "#{GroupFormationsHelper::GROUP_WARNING_BUTTON} shrink-0 self-start sm:self-center" %>
+        <% end %>
+      </div>
+    <% else %>
+      <%
+        is_lecturer_open = @presenter.lecturer? && !@presenter.coordinator? && @presenter.grouping_window_open?
+        empty = @presenter.total_groups_count.zero?
+        conf = @presenter.confirmed_groups_count
+        total = @presenter.total_groups_count
+        ug = @presenter.ungrouped_students_count
+        nc = @presenter.unconfirmed_groups_count
+        closes_at = @presenter.grouping_closes_at
+      %>
+      <div class="flex flex-col gap-3 border-b border-outline-variant px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div class="min-w-0 flex-1">
+          <p class="font-['DM_Sans',Roboto,Arial,sans-serif] text-[16px] leading-6 text-on-surface-strong">
+            <% if is_lecturer_open %>
+              Students are forming groups.
+            <% elsif empty %>
+              No groups yet
+            <% elsif nc.zero? %>
+              <% if total == 1 %>
+                <strong class="font-medium">1</strong> group, confirmed
+              <% else %>
+                All <strong class="font-medium"><%= total %></strong> groups confirmed
+              <% end %>
+            <% else %>
+              <strong class="font-medium"><%= conf %></strong> of <strong class="font-medium"><%= total %></strong> groups confirmed
+            <% end %>
+          </p>
+
+          <% if !is_lecturer_open && !empty %>
+            <% pct = (conf.to_f / total * 100).round %>
+            <div class="mt-3 h-1.5 w-full max-w-[360px] overflow-hidden rounded-full bg-surface-variant" role="progressbar" aria-label="Confirmed groups" aria-valuemin="0" aria-valuemax="<%= total %>" aria-valuenow="<%= conf %>">
+              <div class="h-full rounded-full bg-primary-strong" style="width: <%= pct %>%"></div>
+            </div>
+          <% end %>
+
+          <%
+            meta_parts = []
+            if !is_lecturer_open
+              if ug.positive?
+                meta_parts << "#{tag.strong(ug, class: 'font-medium')} #{ug == 1 ? "student isn't" : "students aren't"} in a group yet"
+              elsif !empty
+                meta_parts << "Every student is in a group"
+              end
+            end
+            if @presenter.grouping_window_open? && closes_at.present?
+              meta_parts << "Open until #{l(closes_at.to_date, format: :short)}"
+            end
+          %>
+          <% if meta_parts.any? %>
+            <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-on-surface-muted">
+              <% meta_parts.each_with_index do |part, idx| %>
+                <% if idx.positive? %><span aria-hidden="true">•</span><% end %>
+                <span><%= sanitize(part, tags: %w[strong], attributes: %w[class]) %></span>
+              <% end %>
+            </p>
+          <% end %>
+        </div>
+
+        <% if @presenter.grouping_window_open? %>
+          <%= link_to "Open group formation", course_group_formation_path(@course), class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start sm:self-center" %>
+        <% else %>
+          <%= link_to "View groups", course_groups_path(@course), class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start sm:self-center" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @presenter.show_my_group? %>
+  <% group = @presenter.group %>
+  <% members = group.project_group_members.includes(:user).to_a.sort_by { |m| m.user_id == group.leader_id ? 0 : 1 } %>
+  <% if @presenter.my_group_confirmed? %>
+    <div class="mb-4 flex flex-col gap-3 border-b border-outline-variant px-4 pb-4 sm:flex-row sm:items-start sm:justify-between" id="my-group" data-testid="my-group-line">
+      <div class="min-w-0">
+        <div class="mb-2 text-[11px] font-medium uppercase tracking-wider text-on-surface-variant">
+          My group <span class="text-on-surface-muted">· <%= group.group_name %></span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <% members.each do |member| %>
+            <span class="inline-flex max-w-full items-center gap-2 rounded-full border border-outline-variant bg-surface py-1 pl-1 pr-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-variant-deep text-[11px] font-medium text-on-surface">
+                <%= member.user.name.first.upcase %>
+              </span>
+              <span class="min-w-0 truncate text-[13px] text-on-surface"><%= member.user.name %></span>
+            </span>
+          <% end %>
+        </div>
+      </div>
+      <% view_group_path = @presenter.grouping_window_open? ? course_group_formation_path(@course) : course_group_path(@course, group) %>
+      <%= link_to "View group", view_group_path, class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start" %>
+    </div>
+  <% else %>
+    <% is_leader = @presenter.my_group_leader? %>
+    <% is_open = @presenter.grouping_window_open? %>
+    <% hint = if is_open
+                if is_leader
+                  "Confirm the group once its members are final. Only a confirmed group can start a proposal."
+                else
+                  "Waiting for your leader to confirm. Only a confirmed group can start a proposal."
+                end
+              else
+                "Group formation is closed, so #{group.group_name} can't be confirmed by its members. Contact your coordinator."
+              end %>
+    <div class="mb-12" id="my-group">
+      <div class="flex flex-row items-center justify-between p-6 box-border border-b border-outline-variant">
+        <h2 class="text-[22px] font-normal text-on-surface-strong">My Group</h2>
+      </div>
+      <section data-testid="my-group-panel" class="mt-5 rounded-lg border border-outline-variant bg-primary-container/40 p-4 sm:p-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div class="min-w-0 md:flex-1">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h3 class="font-['DM_Sans',Roboto,Arial,sans-serif] text-xl font-medium text-on-surface-strong"><%= group.group_name %></h3>
+              <%= render "group_formations/status_pill", confirmed: false %>
+            </div>
+            <p class="mt-1.5 flex items-start gap-1.5 text-sm leading-5 text-on-surface-variant">
+              <% unless is_open %>
+                <span class="material-symbols-outlined mt-0.5 shrink-0 text-[14px] leading-none text-warning" aria-hidden="true">warning</span>
+              <% end %>
+              <span class="min-w-0"><%= hint %></span>
+            </p>
+            <div class="mt-4 sm:mt-5">
+              <div class="mb-2 flex items-baseline gap-2">
+                <span class="text-[11px] font-medium uppercase tracking-wider text-on-surface-variant">MEMBERS</span>
+                <span class="text-[13px] text-on-surface-muted"><%= @presenter.group_max.present? ? "#{members.size} of #{@presenter.group_max}" : members.size %></span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <% members.each_with_index do |member, idx| %>
+                  <div class="inline-flex max-w-full items-center gap-2 rounded-full border border-outline-variant bg-surface py-1 pl-1 pr-3">
+                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-variant-deep text-[11px] font-medium text-on-surface">
+                      <%= member.user.name.first.upcase %>
+                    </span>
+                    <span class="min-w-0 break-words py-0.5 text-[13px] leading-4 text-on-surface"><%= member.user.name %></span>
+                    <% if idx.zero? %>
+                      <span class="shrink-0 text-[11px] text-on-surface-muted">Leader</span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <% if is_open %>
+            <div class="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center md:shrink-0 md:flex-nowrap">
+              <% if is_leader %>
+                <%= link_to "Review and confirm", course_group_formation_path(@course), class: "#{GroupFormationsHelper::GROUP_FILL_BUTTON} max-sm:w-full" %>
+              <% else %>
+                <%= link_to "View group", course_group_formation_path(@course), class: "#{GroupFormationsHelper::GROUP_OUTLINE_BUTTON} max-sm:w-full" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    </div>
+  <% end %>
+<% end %>
+
 <%# My Submission — students only, single-item section (not collapsible). The
     static header mirrors _section_header styling; rows reuse shared/_list_item
     (E4: keeps the more_vert). Six possible submission_state values, resolved by
@@ -26,17 +222,26 @@
     </div>
     <% case @presenter.submission_state %>
     <% when :no_group %>
-      <%= render "shared/empty_state",
-            heading: "You're not in a group yet",
-            description: "Join or create a group before you can put together a project proposal.",
-            cta_label: "Browse groups",
-            cta_path: course_group_formation_path(@course) %>  <%# E2 %>
+      <% if @presenter.grouping_window_open? %>
+        <%= render "shared/empty_state",
+              heading: "You're not in a group yet",
+              description: "Join or create a group before you can put together a project proposal.",
+              cta_label: "Find or create a group",
+              cta_path: course_group_formation_path(@course),
+              illustration: "illustrations/scene_5.svg" %>
+      <% else %>
+        <%= render "shared/empty_state",
+              heading: "Group formation is closed",
+              description: "Contact your coordinator if you are not in a group yet.",
+              illustration: "illustrations/topics_disabled_banner.svg" %>
+      <% end %>
     <% when :no_proposal %>
       <%= render "shared/empty_state",
             heading: "No proposal submitted yet",
             description: "Your group hasn't submitted a project proposal. Once it's in, you'll see its review status here.",
             cta_label: "Create proposal",
-            cta_path: new_course_project_path(@course) %>
+            cta_path: new_course_project_path(@course),
+            illustration: "illustrations/submission_empty_banner.svg" %>
     <% else %>
       <div class="flex flex-col border-b border-outline-variant">
         <% icon, verb =

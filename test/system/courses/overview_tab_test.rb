@@ -72,24 +72,45 @@ class OverviewTabTest < ApplicationSystemTestCase
     assert_no_text 'My Submission'
   end
 
-  test 'student in a grouped course with grouping enabled and no group gets the browse CTA' do
-    @course.update!(grouped: true, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 5)
+  test 'student in a grouped course with grouping open and no group gets find-or-create CTA' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 5)
     login_as @student_user
     visit course_path(@course)
 
     assert_text "You're not in a group yet"
 
-    click_link 'Browse groups'
+    click_link 'Find or create a group'
     assert_current_path course_group_formation_path(@course)
   end
 
-  test 'student in a grouped course with grouping disabled and no group gets the create-proposal copy' do
-    @course.update!(grouped: true)
+  test 'student in a grouped course with grouping closed and no group gets closed copy' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 5)
+    login_as @student_user
+    visit course_path(@course)
+
+    assert_text 'Group formation is closed'
+    assert_text 'Contact your coordinator if you are not in a group yet.'
+    assert_no_link 'Find or create a group'
+    assert_no_link 'Create proposal'
+  end
+
+  test 'student in a grouped course with grouping disabled and no group gets closed copy' do
+    @course.update!(grouped: true, grouping_enabled: false)
+    login_as @student_user
+    visit course_path(@course)
+
+    assert_text 'Group formation is closed'
+    assert_text 'Contact your coordinator if you are not in a group yet.'
+    assert_no_link 'Find or create a group'
+    assert_no_link 'Create proposal'
+  end
+
+  test 'student in a non-grouped course gets create-proposal copy' do
+    @course.update!(grouped: false)
     login_as @student_user
     visit course_path(@course)
 
     assert_text 'No proposal submitted yet'
-    assert_no_text 'Browse groups'
     assert_link 'Create proposal', href: new_course_project_path(@course)
   end
 
@@ -147,6 +168,97 @@ class OverviewTabTest < ApplicationSystemTestCase
     within('#my-submission') do
       assert_text 'Rejected Proposal'
       assert_text 'Rejected'
+    end
+  end
+
+  test 'student in unconfirmed group sees My Group card and no My Submission' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+    group = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp001', leader_id: @student_user.id)
+    create(:project_group_member, user: @student_user, project_group: group)
+
+    login_as @student_user
+    visit course_path(@course)
+
+    assert_selector '#my-group[data-testid="my-group-panel"], #my-group section[data-testid="my-group-panel"]'
+    assert_text 'Tmp001'
+    assert_text 'Not confirmed'
+    assert_text 'Leader'
+    assert_text '1 of 4'
+    assert_link 'Review and confirm', href: course_group_formation_path(@course)
+    assert_no_selector '#my-submission'
+  end
+
+  test 'student My Group members count shows no maximum when none is set' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: nil)
+    group = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp001', leader_id: @student_user.id)
+    create(:project_group_member, user: @student_user, project_group: group)
+
+    login_as @student_user
+    visit course_path(@course)
+
+    within('#my-group') do
+      assert_text 'MEMBERS'
+      assert_no_text '1 of'
+    end
+  end
+
+  test 'student in confirmed group sees My Group line and My Submission' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+    group = create(:project_group, course: @course, confirmed: true, group_name: 'G001')
+    create(:project_group_member, user: @student_user, project_group: group)
+
+    login_as @student_user
+    visit course_path(@course)
+
+    assert_selector '#my-group[data-testid="my-group-line"]'
+    assert_text 'G001'
+    assert_link 'View group', href: course_group_formation_path(@course)
+    assert_selector '#my-submission'
+    assert_text 'No proposal submitted yet'
+  end
+
+  test 'coordinator sees Group formation block with settings link and status' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: true)
+    create(:project_group, course: @course, confirmed: true, group_name: 'G001')
+
+    login_as @coordinator_user
+    visit course_path(@course)
+
+    within('#group-formation') do
+      assert_text 'Group formation'
+      assert_text 'Open'
+      assert_link 'Settings', href: settings_course_path(@course, anchor: 'grouping')
+      assert_link 'Open group formation', href: course_group_formation_path(@course)
+    end
+  end
+
+  test 'coordinator sees closed attention banner when formation closed with unconfirmed groups' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: false)
+    create(:project_group, course: @course, confirmed: false, group_name: 'Tmp001')
+
+    login_as @coordinator_user
+    visit course_path(@course)
+
+    within('#group-formation') do
+      assert_text 'Group formation'
+      assert_text 'Closed'
+      assert_text 'Group formation is closed.'
+      assert_text '1 group is not confirmed, so their members cannot submit a proposal.'
+      assert_link 'Review groups', href: course_groups_path(@course, status_filter: 'draft')
+    end
+  end
+
+  test 'lecturer sees Group formation block without settings link or banner' do
+    @course.update!(grouped: true, grouping_enabled: true, grouping_open: true)
+
+    login_as @lecturer_user
+    visit course_path(@course)
+
+    within('#group-formation') do
+      assert_text 'Group formation'
+      assert_text 'Open'
+      assert_no_link 'Settings'
+      assert_text 'Students are forming groups.'
     end
   end
 

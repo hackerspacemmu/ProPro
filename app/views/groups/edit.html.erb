@@ -24,9 +24,47 @@
   <div class="<%= GroupFormationsHelper::GROUP_DIALOG_BODY %>">
     <%= render "group_formations/size_warning", group: @group, course: @course %>
     <% if staff %>
-      <div class="pb-2">
-        <%= render "group_formations/status_pill", confirmed: @group.confirmed? %>
-      </div>
+      <section class="<%= GroupFormationsHelper::GROUP_SECTION %>">
+        <h3 class="<%= GroupFormationsHelper::GROUP_SECTION_TITLE %>">Status</h3>
+        <% if @group.confirmed? %>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span class="flex items-center gap-2">
+              <%= render "group_formations/status_pill", confirmed: true %>
+            </span>
+            <% if @group.project.blank? && !@group.origin_import? %>
+              <% reopen_data = {
+                   confirm_submit: true,
+                   confirm_title: "Reopen #{@group.group_name}?",
+                   confirm_body: "The group becomes Not confirmed and is renamed to a Tmp number. Members can't start a proposal until it is confirmed again.",
+                   confirm_ok: "Reopen group"
+                 } %>
+              <%= button_to "Reopen group",
+                    course_group_confirmation_path(@course, @group, return_to: params[:return_to]),
+                    method: :delete,
+                    form: { class: "inline-flex", data: reopen_data },
+                    class: "#{GroupFormationsHelper::GROUP_SMALL_BUTTON} !px-5 !py-2 !text-sm" %>
+            <% end %>
+          </div>
+        <% else %>
+          <% size_state = group_size_state(@group, @course) %>
+          <% confirm_data = if size_state != :ok
+                              limit = size_state == :over ? "the maximum is #{@course.group_max}" : "the minimum is #{@course.effective_group_min}"
+                              body = "This group has #{pluralize(count, 'member')}; #{limit}.\n\nConfirming overrides the size limit. The group will be renamed to a G number."
+                              { confirm_submit: true, confirm_title: "Confirm #{@group.group_name} anyway?", confirm_body: body, confirm_ok: "Confirm anyway" }
+                            else
+                              {}
+                            end %>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <%= render "group_formations/status_pill", confirmed: false %>
+            <%= button_to "Confirm group",
+                  course_group_confirmation_path(@course, @group, return_to: params[:return_to]),
+                  method: :post,
+                  form: { class: "inline-flex", data: confirm_data },
+                  class: GroupFormationsHelper::GROUP_FILL_BUTTON %>
+          </div>
+          <p class="mt-2 text-[13px] text-on-surface-muted">Members can't start a proposal until the group is confirmed. Confirming renames it to a G number.</p>
+        <% end %>
+      </section>
     <% end %>
 
     <%# ----- Join requests (leader mode) ----- %>
@@ -79,7 +117,7 @@
                 end
             %>
             <%= button_to (staff ? "Remove" : "Remove from group"),
-                  course_group_member_path(@course, @group, member),
+                  course_group_member_path(@course, @group, member, return_to: params[:return_to]),
                   method: :delete,
                   form: { class: "shrink-0", data: remove_data },
                   class: GroupFormationsHelper::GROUP_DANGER_TEXT_SMALL_BUTTON %>
@@ -138,7 +176,7 @@
           <%= render "group_formations/student_picker",
                      students: @ungrouped_students,
                      verb: "Add",
-                     url: course_group_members_path(@course, @group),
+                     url: course_group_members_path(@course, @group, return_to: params[:return_to]),
                      limit: 6 %>
         <% end %>
       </section>
@@ -150,14 +188,14 @@
       <% if leader_edit %>
         <% if policy(@group).destroy? %>
           <%= button_to "Delete group",
-                course_group_path(@course, @group),
+                course_group_path(@course, @group, return_to: params[:return_to]),
                 method: :delete,
                 form: { class: "max-sm:flex-1", data: delete_data },
                 class: "#{GroupFormationsHelper::GROUP_DANGER_TEXT_BUTTON} max-sm:w-full" %>
         <% end %>
         <% if membership && policy(membership).destroy? %>
           <%= button_to "Leave group",
-                course_group_member_path(@course, @group, membership),
+                course_group_member_path(@course, @group, membership, return_to: params[:return_to]),
                 method: :delete,
                 form: { class: "max-sm:flex-1", data: last_with_project ? { turbo_stream: true } : { confirm_submit: true, confirm_title: "Leave #{group_name}?", confirm_body: leave_confirm_body(@group, leader: true, last: last), confirm_ok: "Leave group", confirm_danger: last } },
                 class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} max-sm:w-full" %>
@@ -165,7 +203,7 @@
       <% elsif staff %>
         <% if policy(@group).destroy? %>
           <%= button_to "Delete group",
-                course_group_path(@course, @group),
+                course_group_path(@course, @group, return_to: params[:return_to]),
                 method: :delete,
                 form: { class: "max-sm:flex-1", data: delete_data },
                 class: "#{GroupFormationsHelper::GROUP_DANGER_TEXT_BUTTON} max-sm:w-full" %>
