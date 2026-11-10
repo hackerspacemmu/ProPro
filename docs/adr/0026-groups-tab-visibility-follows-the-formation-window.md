@@ -26,10 +26,10 @@ Two facts forced D30 to be decided:
 **The Groups tab's base list is scoped by the formation window.** While
 `Course#grouping_window_open?` is true, the tab lists confirmed groups
 only; coordinators manage unconfirmed ones on the formation page. When
-the window is not open — closed by date, grouping disabled, or before
-it opens — the tab lists every group, including not-confirmed ones, with
-a quiet "Not confirmed" pill, an amber row, a "Not confirmed" filter
-option and the coordinator attention banner.
+the window is not open — closed by date or grouping disabled — the tab
+lists every group, including not-confirmed ones, with a quiet "Not
+confirmed" pill, an amber row, a "Not confirmed" filter option and the
+coordinator attention banner.
 
 The tab also stops being purely read-only for coordinators: its Manage
 dialog (the same lazy-loaded `groups#edit` frame the formation page

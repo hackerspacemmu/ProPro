@@ -61,7 +61,6 @@ class Course < ApplicationRecord
 
   # student_list_finalised cannot be true if grouping_enabled is false.
   validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
-  validate :grouping_window_dates_valid, if: -> { grouping_opens_at.present? && grouping_closes_at.present? }
 
   before_validation :null_number_of_updates_if_not_used
   before_validation :clear_grouping_fields_if_disabled
@@ -94,12 +93,7 @@ class Course < ApplicationRecord
   end
 
   def grouping_window_open?
-    return false unless grouping_enabled?
-    return false unless grouping_open?
-
-    opens_ok = grouping_opens_at.nil? || Time.current >= grouping_opens_at
-    closes_ok = grouping_closes_at.nil? || Time.current <= grouping_closes_at
-    opens_ok && closes_ok
+    grouping_enabled? && (grouping_closes_at.nil? || Time.current <= grouping_closes_at)
   end
 
   def with_no_key_update_lock(&)
@@ -224,18 +218,10 @@ class Course < ApplicationRecord
   def clear_grouping_fields_if_disabled
     return if grouping_enabled?
 
-    self.grouping_open          = false
     self.student_list_finalised = false
     self.group_min              = nil
     self.group_max              = nil
-    self.grouping_opens_at      = nil
     self.grouping_closes_at     = nil
-  end
-
-  def grouping_window_dates_valid
-    return unless grouping_closes_at <= grouping_opens_at
-
-    errors.add(:grouping_closes_at, 'must be after the grouping open time')
   end
 
   def group_min_for_validation

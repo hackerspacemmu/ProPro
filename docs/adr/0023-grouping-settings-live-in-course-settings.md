@@ -1,7 +1,7 @@
 # ADR 0023 — Grouping settings live only in Course Settings
 
 Date: 2026-10-21
-Status: Accepted
+Status: Accepted (superseded in part by ADR 0027)
 
 ## Context
 

@@ -201,122 +201,94 @@
           </div>
         </section>
 
-        <!-- SECTION 4: Grouping (Inlined and Restyled) -->
+        <!-- SECTION 4: Group Formation -->
         <section id="grouping" class="scroll-mt-6 bg-white border border-outline-variant rounded-[12px] p-8">
+          <div class="border-b border-outline-variant pb-4 mb-6 flex justify-between items-center">
+            <h2 class="text-3xl font-normal text-gray-800 tracking-tight">Group Formation <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800 align-middle ml-2">Beta</span></h2>
+          </div>
+
           <div class="space-y-8"
                data-controller="grouping-settings"
                data-grouping-settings-enabled-value="<%= @course.grouping_enabled? %>"
                data-grouping-settings-finalised-value="<%= @course.student_list_finalised? %>">
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-2">
+            <!-- Master toggle: Student self-grouping -->
+            <div class="flex items-start justify-between gap-4">
               <div>
-                <h2 class="text-3xl font-normal text-gray-800 tracking-tight">Student Self-Grouping <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800 align-middle">Beta</span></h2>
+                <span class="block text-[15px] font-medium text-on-surface">Student self-grouping</span>
+                <span class="block text-[13px] text-on-surface-variant mt-1 max-w-[600px] leading-relaxed">
+                  Allow students to form and manage their own groups.
+                </span>
               </div>
-            </div>
-
-            <!-- Toggle: Allow students to form their own groups -->
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border border-outline-variant rounded-lg hover:bg-surface-hover transition-colors">
-              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Allow students to form their own groups?</span>
-              <div class="flex items-center gap-6">
-                <label class="flex items-center text-sm text-on-surface cursor-pointer">
-                  <%= form.radio_button :grouping_enabled, true,
-                        class: "text-primary border-outline mr-2",
-                        data: { action: "change->grouping-settings#toggleEnabled" } %> Yes
-                </label>
-                <label class="flex items-center text-sm text-on-surface cursor-pointer">
-                  <%= form.radio_button :grouping_enabled, false,
-                        class: "text-primary border-outline mr-2",
-                        data: { action: "change->grouping-settings#toggleEnabled" } %> No
-                </label>
-              </div>
+              <label class="relative flex items-center cursor-pointer shrink-0 mt-1">
+                <%= form.check_box :grouping_enabled,
+                      { class: "sr-only peer", role: "switch", "aria-label": "Student self-grouping",
+                        data: { action: "change->grouping-settings#toggleEnabled" } },
+                      "true", "false" %>
+                <div class="w-11 h-6 bg-surface-variant-deep peer-focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
             </div>
 
             <!-- Options Section: hidden until grouping enabled -->
-            <div data-grouping-settings-target="groupingOptions" class="space-y-8">
+            <div data-grouping-settings-target="groupingOptions" class="space-y-8 border-t border-outline-variant pt-6 <%= 'hidden' unless @course.grouping_enabled? %>">
 
               <!-- Sub-block: Group Configuration -->
               <div class="space-y-6">
-                <span class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide">
-                  Group Configuration
-                </span>
 
-                <!-- Mode Selection -->
-                <div>
-                  <span class="block text-sm font-medium text-on-surface mb-1">Grouping mode</span>
-                  <p class="text-[13px] text-on-surface-variant mb-4">
-                    Choose whether the coordinator knows the exact final count of students.
-                  </p>
-
-                  <div class="space-y-3">
-                    <!-- Default Mode Card -->
-                    <label class="flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-colors <%= @course.student_list_finalised? ? 'border border-outline-variant bg-white hover:border-primary' : 'border border-primary bg-primary-container/40' %>">
-                      <%= form.radio_button :student_list_finalised, false,
-                            class: "mt-0.5 text-primary border-outline shrink-0",
-                            data: { action: "change->grouping-settings#toggleMode" } %>
-                      <div>
-                        <span class="block text-sm font-medium text-on-surface">Default mode</span>
-                        <span class="block text-xs text-on-surface-variant mt-1 leading-relaxed">
-                          Students join by code, or the student list may still change. Students form groups within the min/max limits — any leftover students will need lecturer intervention.
-                        </span>
-                      </div>
-                    </label>
-
-                    <!-- Fixed List Mode Card -->
-                    <% if @course.persisted? && @course.grouping_enabled? && !@course.student_list_finalised? %>
-                      <div class="flex items-start gap-3 p-4 border border-outline-variant rounded-lg bg-surface-hover opacity-60">
-                        <div class="mt-0.5 h-4 w-4 shrink-0"></div>
-                        <div>
-                          <span class="block text-sm font-medium text-on-surface-disabled">Auto-Confirmability mode</span>
-                          <span class="block text-xs text-on-surface-disabled mt-1 leading-relaxed">
-                            Auto-Confirmability mode cannot be enabled once Default mode has been saved.
-                          </span>
-                        </div>
-                      </div>
-                    <% else %>
-                      <label class="flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-colors <%= @course.student_list_finalised? ? 'border border-primary bg-primary-container/40' : 'border border-outline-variant bg-white hover:border-primary' %>">
-                        <%= form.radio_button :student_list_finalised, true,
-                              class: "mt-0.5 text-primary border-outline shrink-0",
-                              data: { action: "change->grouping-settings#toggleMode" } %>
-                        <div>
-                          <span class="block text-sm font-medium text-on-surface">Auto-Confirmability mode</span>
-                          <span class="block text-xs text-on-surface-variant mt-1 leading-relaxed">
-                            I will import students and the student list is final — no new students will be added. The system can automatically determine legal group sizes for every student.
-                          </span>
-                        </div>
-                      </label>
-                    <% end %>
+                <!-- Prevent leftover students toggle -->
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <span class="block text-[15px] font-medium text-on-surface">Prevent leftover students</span>
+                    <span class="block text-[13px] text-on-surface-variant mt-1 max-w-[600px] leading-relaxed">
+                      Enforces legal group sizes for every student based on expected counts. Uncheck if the student list may still change or students can form groups freely.
+                    </span>
                   </div>
+                  <label class="relative flex items-center cursor-pointer shrink-0 mt-1">
+                    <%= form.check_box :student_list_finalised,
+                          { class: "sr-only peer", role: "switch", "aria-label": "Prevent leftover students",
+                            data: { action: "change->grouping-settings#toggleMode" } },
+                          "true", "false" %>
+                    <div class="w-11 h-6 bg-surface-variant-deep peer-focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
                 </div>
 
                 <!-- Min / Max Group Sizes -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
-                    <%= form.label :group_min, "Minimum group size", class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" %>
-                    <%= form.number_field :group_min, min: 1, placeholder: "e.g. 3",
+                    <%= form.label :group_min, class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" do %>
+                      Minimum group size<span data-grouping-settings-target="optionalSuffix" class="<%= 'hidden' if @course.student_list_finalised? %>"> (optional)</span>
+                    <% end %>
+                    <%= form.number_field :group_min, min: 1, placeholder: "e.g. 2",
                           class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
                           data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
                   </div>
 
                   <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
-                    <%= form.label :group_max, "Maximum group size", class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" %>
+                    <%= form.label :group_max, class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" do %>
+                      Maximum group size<span data-grouping-settings-target="optionalSuffix" class="<%= 'hidden' if @course.student_list_finalised? %>"> (optional)</span>
+                    <% end %>
                     <%= form.number_field :group_max, min: 1, placeholder: "e.g. 4",
                           class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
                           data: { grouping_settings_target: "minMax", action: "input->grouping-settings#clearPreview" } %>
                   </div>
                 </div>
 
-                <!-- Preview Section -->
-                <div data-grouping-settings-target="previewSection" class="bg-surface-hover border border-outline-variant rounded-lg p-5 space-y-4">
-                  <div>
-                    <p class="text-sm font-medium text-on-surface">Preview group distribution</p>
-                    <p class="text-xs text-on-surface-variant mt-0.5">
-                      Enter an expected student count to see how legal groups would form. Actual numbers will come from enrolled students.
+                <!-- Distribution Preview -->
+                <div data-grouping-settings-target="previewSection" class="bg-primary-container-alt/30 border border-primary-container-alt rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6 <%= 'hidden' unless @course.student_list_finalised? %>">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="material-symbols-outlined text-[20px] text-primary">groups</span>
+                      <p class="text-[14px] font-medium text-on-surface-strong">Distribution preview</p>
+                    </div>
+                    <p class="text-[13px] text-on-surface-variant">
+                      Enter an expected student count to see how legal groups would form.
                     </p>
                   </div>
-                  <div class="flex items-center gap-3">
-                    <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors px-3 py-1 w-36">
-                      <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="e.g. 30" autocomplete="off"
-                             class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px]"
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+                    <div class="bg-white rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors px-3 py-1 w-24 shadow-sm">
+                      <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="Qty" autocomplete="off"
+                             aria-label="Expected student count"
+                             class="w-full bg-transparent border-none p-0 text-center text-on-surface focus:ring-0 focus:outline-none text-[14px]"
                              hx-get="<%= grouping_preview_course_path(@course) %>"
                              hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
                              hx-params="student_count,course[group_min],course[group_max]"
@@ -324,60 +296,31 @@
                              hx-trigger="input changed delay:400ms"
                              data-grouping-settings-target="previewInput">
                     </div>
-                    <span class="text-xs font-medium text-on-surface-variant">students</span>
+                    <div id="grouping_preview_result" class="text-[13px] text-on-surface font-medium min-w-[140px]"></div>
                   </div>
-                  <div id="grouping_preview_result" class="text-sm text-on-surface pt-1"></div>
                 </div>
               </div>
 
               <!-- Sub-block: Student Access -->
-              <div class="space-y-6 pt-4 border-t border-outline-variant">
-                <span class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide">
-                  Student Access
-                </span>
-
-                <!-- Allow Student Grouping Now Toggle -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-outline-variant rounded-lg bg-white gap-3">
-                  <div>
-                    <span class="block text-sm font-medium text-on-surface">Allow student grouping now</span>
-                    <span class="block text-xs text-on-surface-variant mt-0.5">
-                      Students can join, leave, and form groups only when this is on.
-                    </span>
-                  </div>
-                  <div class="flex items-center gap-6 shrink-0">
-                    <label class="flex items-center text-sm text-on-surface cursor-pointer">
-                      <%= form.radio_button :grouping_open, true, class: "text-primary border-outline mr-2" %> Open
-                    </label>
-                    <label class="flex items-center text-sm text-on-surface cursor-pointer">
-                      <%= form.radio_button :grouping_open, false, class: "text-primary border-outline mr-2" %> Closed
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Datetime Window -->
+              <div class="space-y-6 pt-6 border-t border-outline-variant">
+                <!-- End group formation date -->
                 <div class="space-y-4">
-                  <div class="flex items-center justify-between">
+                  <div class="flex items-start justify-between gap-4">
                     <div>
-                      <span class="block text-sm font-medium text-on-surface">Auto-close window (optional)</span>
-                      <span class="block text-xs text-on-surface-variant mt-0.5">
-                        Optionally set specific dates to open and close student access automatically.
+                      <span class="block text-[15px] font-medium text-on-surface">End group formation (optional)</span>
+                      <span class="block text-[13px] text-on-surface-variant mt-1 max-w-[600px] leading-relaxed">
+                        Automatically close student access on a specific date.
                       </span>
                     </div>
-                    <button type="button" class="text-[13px] text-primary font-medium hover:underline shrink-0"
+                    <button type="button" class="mt-1 px-4 py-1.5 rounded-full border border-outline text-primary hover:bg-surface-variant font-medium text-[13px] transition-colors shrink-0"
                             data-action="click->grouping-settings#toggleWindow"
                             data-grouping-settings-target="windowToggleBtn">
-                      <%= (@course.grouping_opens_at.present? || @course.grouping_closes_at.present?) ? 'Remove window' : 'Set a window' %>
+                      <%= @course.grouping_closes_at.present? ? 'Remove date' : 'Set date' %>
                     </button>
                   </div>
 
-                  <div data-grouping-settings-target="windowFields" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
-                    <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
-                      <%= form.label :grouping_opens_at, "Open from", class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" %>
-                      <%= form.datetime_local_field :grouping_opens_at,
-                            class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
-                            value: @course.grouping_opens_at&.strftime('%Y-%m-%dT%H:%M') %>
-                    </div>
-                    <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
+                  <div data-grouping-settings-target="windowFields" class="<%= 'hidden' unless @course.grouping_closes_at.present? %> mt-4">
+                    <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-[320px]">
                       <%= form.label :grouping_closes_at, "Close at", class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" %>
                       <%= form.datetime_local_field :grouping_closes_at,
                             class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
@@ -385,7 +328,6 @@
                     </div>
                   </div>
                 </div>
-
               </div>
 
             </div>

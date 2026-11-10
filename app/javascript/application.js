@@ -11,7 +11,10 @@ document.addEventListener("turbo:load", function () {
 // A morph must not strip `open` from a showModal() dialog: the dialog would stay
 // modal (page inert) while no longer rendering. Dialogs close themselves instead.
 document.addEventListener("turbo:before-morph-attribute", (event) => {
-  if (event.target instanceof HTMLDialogElement && event.detail.attributeName === "open") {
+  if (
+    event.target instanceof HTMLDialogElement &&
+    event.detail.attributeName === "open"
+  ) {
     event.preventDefault();
   }
 });

@@ -268,8 +268,6 @@ class CoursesController < ApplicationController
             student_list_finalised: student_list_param,
             group_min: params[:course][:group_min].presence,
             group_max: params[:course][:group_max].presence,
-            grouping_open: params[:course][:grouping_open] == 'true',
-            grouping_opens_at: params[:course][:grouping_opens_at].presence,
             grouping_closes_at: params[:course][:grouping_closes_at].presence
           )
             raise StandardError, @course.errors.full_messages.join(', ')
@@ -441,7 +439,7 @@ class CoursesController < ApplicationController
                  { error: result.message }
                end
 
-    render partial: 'courses/grouping_preview_result', locals: { preview: @preview, course: @course }
+    render partial: 'courses/grouping_preview_result', locals: { preview: @preview, student_count: student_count, course: @course }
   end
 
   private
