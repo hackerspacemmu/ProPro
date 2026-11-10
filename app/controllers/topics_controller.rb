@@ -181,6 +181,15 @@ class TopicsController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'topic_created',
+      properties: {
+        copied_from_topic: @topic.source_topic_id.present?,
+        initial_status: @topic.current_status
+      }
+    )
+
     redirect_to course_topic_path(@course, @topic), notice: 'Topic created!'
   end
 
@@ -234,6 +243,11 @@ class TopicsController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'topic_updated'
+    )
+
     redirect_to course_topic_path(@course, @topic), notice: 'Topic updated successfully.'
   end
 
@@ -253,6 +267,12 @@ class TopicsController < ApplicationController
       topic: @topic,
       supervisor_name: Current.user.name
     ).Topic_Status_Updated.deliver_later
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'topic_status_changed',
+      properties: { status: params[:status] }
+    )
 
     redirect_to course_topic_path(@course, @topic), notice: 'Status updated.'
   end

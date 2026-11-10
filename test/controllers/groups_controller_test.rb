@@ -40,8 +40,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
 
   test 'groups#index hides unconfirmed groups when formation window is open' do
     @course.update!(grouping_enabled: true, grouping_open: true)
-    unconfirmed = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
-    confirmed = create(:project_group, course: @course, confirmed: true, group_name: 'G999')
+    create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
+    create(:project_group, course: @course, confirmed: true, group_name: 'G999')
 
     sign_in @coordinator
     get course_groups_path(@course)
@@ -54,7 +54,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
 
   test 'groups#index shows unconfirmed groups when formation window is closed' do
     @course.update!(grouping_enabled: true, grouping_open: false)
-    unconfirmed = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
+    create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
 
     sign_in @coordinator
     get course_groups_path(@course)
@@ -67,8 +67,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
 
   test 'groups#index status filter for draft works when closed and is ignored when open' do
     @course.update!(grouping_enabled: true, grouping_open: false)
-    unconfirmed = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
-    confirmed = create(:project_group, course: @course, confirmed: true, group_name: 'G999')
+    create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
+    create(:project_group, course: @course, confirmed: true, group_name: 'G999')
 
     sign_in @coordinator
     get course_groups_path(@course, status_filter: 'draft')

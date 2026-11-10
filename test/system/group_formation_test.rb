@@ -85,6 +85,50 @@ class GroupFormationTest < BrowserSystemTestCase
     assert_no_selector '#confirm-dialog[open]'
   end
 
+  test 'creating a group from the Create group dialog leaves the page usable' do
+    login_as @coordinator
+    visit course_group_formation_path(@course)
+    wait_for_turbo
+
+    find_button('Create group', exact: true).execute_script('this.click()')
+    assert_selector 'dialog[open] h2', text: 'Create group'
+    within 'dialog[open]' do
+      find_button('Create', exact: true).execute_script('this.click()')
+    end
+
+    assert_text 'Group Tmp001 created.'
+    assert_equal 0, page.evaluate_script("document.querySelectorAll('dialog:modal').length")
+    fill_in 'formation-search', with: 'Alpha'
+  end
+
+  test 'deleting a group from the Manage dialog leaves the page usable' do
+    doomed_leader = create(:user, name: 'Doomed Leader')
+    create(:enrolment, user: doomed_leader, course: @course)
+    group = create(:project_group, course: @course, leader_id: doomed_leader.id, group_name: 'Doomed Group')
+    create(:project_group_member, project_group: group, user: doomed_leader)
+
+    login_as @coordinator
+    visit course_group_formation_path(@course)
+    wait_for_turbo
+
+    within "#project_group_#{group.id}" do
+      find_link('Manage').execute_script('this.click()')
+    end
+    assert_selector 'dialog[open] h3', text: 'MEMBERS'
+
+    within 'dialog[open]' do
+      find_button('Delete group').execute_script('this.click()')
+    end
+    within '#confirm-dialog[open]' do
+      find_button('Delete group').execute_script('this.click()')
+    end
+
+    assert_no_selector "#project_group_#{group.id}"
+    assert_text 'Group deleted.'
+    assert_equal 0, page.evaluate_script("document.querySelectorAll('dialog:modal').length")
+    fill_in 'formation-search', with: 'Alpha'
+  end
+
   private
 
   def search_for(query)

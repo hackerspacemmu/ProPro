@@ -113,8 +113,8 @@ class OverviewPresenterTest < ActiveSupport::TestCase
   end
 
   test 'formation counts and attention banner helper' do
-    group1 = create(:project_group, course: @course, confirmed: true)
-    group2 = create(:project_group, course: @course, confirmed: false)
+    create(:project_group, course: @course, confirmed: true)
+    create(:project_group, course: @course, confirmed: false)
     ungrouped_student = create(:user)
     create(:enrolment, :student, user: ungrouped_student, course: @course)
 

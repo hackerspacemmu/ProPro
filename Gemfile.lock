@@ -219,6 +219,11 @@ GEM
     pg (1.6.3-arm64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
+    posthog-rails (3.22.0)
+      posthog-ruby (= 3.32.1)
+      railties (>= 5.2.0)
+    posthog-ruby (3.32.1)
+      concurrent-ruby (~> 1)
     pp (0.6.2)
       prettyprint
     prettier_print (1.2.1)
@@ -409,6 +414,8 @@ DEPENDENCIES
   jbuilder
   ostruct
   pg
+  posthog-rails (~> 3.22)
+  posthog-ruby (~> 3.32)
   propshaft
   puma (>= 5.0)
   pundit (~> 2.5)

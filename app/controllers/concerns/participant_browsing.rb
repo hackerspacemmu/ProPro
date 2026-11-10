@@ -130,11 +130,9 @@ module ParticipantBrowsing
       group_list = group_list.select { |g| ids.include?(g.id) }
     end
 
-    if params[:status_filter].present? && params[:status_filter] != 'all'
-      unless @course.grouping_window_open? && params[:status_filter] == 'draft'
-        group_list = @course.groups_with_status(params[:status_filter], group_list)
-      end
-    end
+    status = params[:status_filter]
+    stale_draft = @course.grouping_window_open? && status == 'draft'
+    group_list = @course.groups_with_status(status, group_list) if status.present? && status != 'all' && !stale_draft
 
     group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
 

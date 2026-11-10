@@ -67,8 +67,10 @@
     </div>
   </td>
   <% if manage_groups %>
-    <td class="sticky right-0 w-[104px] bg-inherit px-3 py-4 text-right" data-expandable-ignore>
-      <%= render "group_formations/manage_dialog", group: group, course: course, return_to: request.fullpath %>
+    <td class="sticky right-0 w-[104px] bg-inherit px-3 py-4" data-expandable-ignore>
+      <div class="flex justify-end">
+        <%= render "group_formations/manage_dialog", group: group, course: course, return_to: request.fullpath %>
+      </div>
     </td>
   <% end %>
 </tr>

@@ -38,7 +38,7 @@ class OverviewPresenter
   # Staff Group Formation: coordinator or lecturer, grouped + grouping enabled + not before opens
   def show_group_formation?
     return false unless coordinator? || lecturer?
-    return false unless @course&.grouped? && @course&.grouping_enabled?
+    return false unless @course&.grouped? && @course.grouping_enabled?
 
     opens_at = @course.grouping_opens_at
     opens_at.nil? || Time.current >= opens_at
@@ -94,7 +94,7 @@ class OverviewPresenter
     @group.leader_id == @current_user.id
   end
 
-  # nil means no maximum (D3: "no limit" default); the view prints the bare count
+  # nil means no maximum ("no limit" default); the view prints the bare count
   def group_max
     @course&.group_max
   end

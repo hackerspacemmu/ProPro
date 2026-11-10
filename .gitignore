@@ -109,3 +109,4 @@ STUDENT_GROUPING_REFERENCE.md
 
 # Ignore opencode config files
 .opencode
+.env

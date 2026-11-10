@@ -96,6 +96,12 @@ class CoursesController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'lecturers_added',
+      properties: { invitation_count: lecturer_emails.compact_blank.size }
+    )
+
     redirect_to course_path(@course)
   end
 
@@ -151,6 +157,12 @@ class CoursesController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'students_imported',
+      properties: { grouped_course: @course.grouped?, row_count: csv_obj.size }
+    )
+
     if import_result&.skipped?
       redirect_to course_path(@course), alert: skipped_import_summary(import_result)
     else
@@ -200,6 +212,12 @@ class CoursesController < ApplicationController
       render :new, status: :unprocessable_entity
       return
     end
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'course_created',
+      properties: { grouped_course: @new_course.grouped? }
+    )
 
     redirect_to course_path(@new_course), notice: 'Course successfully created'
   end
@@ -265,6 +283,17 @@ class CoursesController < ApplicationController
       render :settings, status: :unprocessable_entity
       return
     end
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'course_settings_updated',
+      properties: {
+        grouped_course: @course.grouped?,
+        grouping_enabled: @course.grouping_enabled?,
+        topics_enabled: @course.toggle_topics?,
+        progress_updates_enabled: @course.use_progress_updates?
+      }
+    )
 
     redirect_to settings_course_path(@course), notice: 'Course successfully updated'
   end
@@ -383,6 +412,12 @@ class CoursesController < ApplicationController
   def enroll_via_coursecode
     new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
     if new_enrolment
+      PostHog.capture(
+        distinct_id: current_user.posthog_distinct_id,
+        event: 'course_joined',
+        properties: { enrollment_method: 'course_code' }
+      )
+
       redirect_back_or_to dashboard_path, notice: 'Successfully joined the course'
     else
       redirect_back_or_to dashboard_path, notice: 'You already joined the course'

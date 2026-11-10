@@ -3,7 +3,7 @@
   <button type="button" data-action="modal#open" class="<%= GroupFormationsHelper::GROUP_TONAL_BUTTON %> w-full md:w-auto">Create group</button>
 
   <dialog data-modal-target="dialog"
-          data-action="click->modal#backdropClose"
+          data-action="click->modal#backdropClose turbo:submit-end->modal#closeOnSuccess"
           aria-labelledby="create-group-dialog-title"
           class="<%= GroupFormationsHelper::GROUP_DIALOG %>">
     <div class="<%= GroupFormationsHelper::GROUP_DIALOG_PANEL %>">

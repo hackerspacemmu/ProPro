@@ -18,6 +18,12 @@ class CommentsController < ApplicationController
 
     comment.save!
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'comment_created',
+      properties: { commentable_type: params[:comment][:source_type] }
+    )
+
     notify_project_comment(comment, location) if params[:comment][:source_type] == 'ProjectInstance'
 
     case params[:comment][:source_type]

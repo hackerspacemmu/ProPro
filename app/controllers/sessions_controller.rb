@@ -16,6 +16,18 @@ class SessionsController < ApplicationController
 
     if (user = User.authenticate_by(params.permit(:email_address, :password)))
       start_new_session_for user
+
+      PostHog.identify(
+        distinct_id: user.posthog_distinct_id,
+        properties: user.posthog_properties
+      )
+
+      PostHog.capture(
+        distinct_id: user.posthog_distinct_id,
+        event: 'user_logged_in',
+        properties: { authentication_method: 'password' }
+      )
+
       redirect_to after_authentication_url
     else
       redirect_to login_path, alert: 'Invalid email address or password.'

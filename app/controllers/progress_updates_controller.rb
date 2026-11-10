@@ -9,7 +9,15 @@ class ProgressUpdatesController < ApplicationController
       date: params[:progress_update][:date]
     )
 
-    flash[:alert] = @progress_update.errors.full_messages.to_sentence unless @progress_update.save
+    if @progress_update.save
+      PostHog.capture(
+        distinct_id: current_user.posthog_distinct_id,
+        event: 'progress_update_recorded',
+        properties: { rating: @progress_update.rating }
+      )
+    else
+      flash[:alert] = @progress_update.errors.full_messages.to_sentence
+    end
 
     redirect_to course_project_path(@course, @project)
   end

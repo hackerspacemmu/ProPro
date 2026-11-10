@@ -11,9 +11,9 @@
         <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Groups</h2>
         <span class="text-sm font-medium text-gray-500"><%= pluralize(@group_list.size, "group") %></span>
       </div>
-      <% if @course.grouping_window_open? %>
+      <% if @grouping_window_open %>
         <%= link_to course_group_formation_path(@course),
-              class: "inline-flex h-10 items-center gap-2 rounded-full bg-primary-strong px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 max-sm:w-full max-sm:justify-center no-underline" do %>
+              class: "#{GroupFormationsHelper::GROUP_FILL_BUTTON} gap-2 max-sm:w-full" do %>
           <span class="material-symbols-outlined text-[18px]">groups</span>
           Group formation
         <% end %>
@@ -62,7 +62,7 @@
                 hx-trigger="change"
                 hx-include="#groups-search, #groups-status-filter, #lecturer-filter">
           <option value="all" <%= params[:status_filter].blank? || params[:status_filter] == 'all' ? 'selected' : '' %>>All Statuses</option>
-          <% unless @course.grouping_window_open? %>
+          <% unless @grouping_window_open %>
             <option value="draft" <%= params[:status_filter] == 'draft' ? 'selected' : '' %>>Not confirmed</option>
           <% end %>
           <% %w[approved pending redo rejected not_submitted].each do |group_status| %>

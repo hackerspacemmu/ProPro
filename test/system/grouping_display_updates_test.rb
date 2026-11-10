@@ -126,7 +126,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
     end
   end
 
-  # D30 (ADR 0026): while the window is open the Groups tab hides not-confirmed
+  # While the window is open the Groups tab hides not-confirmed
   # groups entirely, so the coordinator's monitor session asserts their absence
   # instead of watching their rows update.
   def watch_groups_tab_without_drafts

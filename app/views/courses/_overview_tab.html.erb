@@ -95,7 +95,8 @@
             meta_parts = []
             if !is_lecturer_open
               if ug.positive?
-                meta_parts << "#{tag.strong(ug, class: 'font-medium')} #{ug == 1 ? "student isn't" : "students aren't"} in a group yet"
+                meta_parts << safe_join([tag.strong(ug, class: 'font-medium'),
+                                         "#{ug == 1 ? "student isn't" : "students aren't"} in a group yet"], " ")
               elsif !empty
                 meta_parts << "Every student is in a group"
               end
@@ -108,7 +109,7 @@
             <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-on-surface-muted">
               <% meta_parts.each_with_index do |part, idx| %>
                 <% if idx.positive? %><span aria-hidden="true">•</span><% end %>
-                <span><%= sanitize(part, tags: %w[strong], attributes: %w[class]) %></span>
+                <span><%= part %></span>
               <% end %>
             </p>
           <% end %>
@@ -126,7 +127,7 @@
 
 <% if @presenter.show_my_group? %>
   <% group = @presenter.group %>
-  <% members = group.project_group_members.includes(:user).to_a.sort_by { |m| m.user_id == group.leader_id ? 0 : 1 } %>
+  <% members = leader_first(group.project_group_members.includes(:user).to_a, group) %>
   <% if @presenter.my_group_confirmed? %>
     <div class="mb-4 flex flex-col gap-3 border-b border-outline-variant px-4 pb-4 sm:flex-row sm:items-start sm:justify-between" id="my-group" data-testid="my-group-line">
       <div class="min-w-0">
@@ -182,13 +183,13 @@
                 <span class="text-[13px] text-on-surface-muted"><%= @presenter.group_max.present? ? "#{members.size} of #{@presenter.group_max}" : members.size %></span>
               </div>
               <div class="flex flex-wrap gap-2">
-                <% members.each_with_index do |member, idx| %>
+                <% members.each do |member| %>
                   <div class="inline-flex max-w-full items-center gap-2 rounded-full border border-outline-variant bg-surface py-1 pl-1 pr-3">
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-variant-deep text-[11px] font-medium text-on-surface">
                       <%= member.user.name.first.upcase %>
                     </span>
                     <span class="min-w-0 break-words py-0.5 text-[13px] leading-4 text-on-surface"><%= member.user.name %></span>
-                    <% if idx.zero? %>
+                    <% if member.user_id == group.leader_id %>
                       <span class="shrink-0 text-[11px] text-on-surface-muted">Leader</span>
                     <% end %>
                   </div>

@@ -12,6 +12,12 @@ class InviteLinkRedemptionsController < ApplicationController
     result = GroupInviteLinkRedeemer.new(@invite_link, current_user: current_user).redeem!
 
     if result.redeemed?
+      PostHog.capture(
+        distinct_id: current_user.posthog_distinct_id,
+        event: 'group_invite_redeemed',
+        properties: { enrollment_method: 'invite_link' }
+      )
+
       redirect_to course_group_formation_path(result.group.course), notice: result.message
     else
       redirect_to invite_link_path(@invite_link.token), alert: result.message

@@ -16,7 +16,7 @@ module GroupFormationsHelper
   # Filled red: confirm / dissolve dialog OK only
   GROUP_DANGER_BUTTON = "#{BTN} bg-error px-5 py-2 text-sm text-white hover:bg-error-hover".freeze
 
-  GROUP_DIALOG = 'm-auto w-[calc(100vw-2rem)] max-w-lg overflow-hidden rounded-lg border-0 bg-surface p-0 shadow-xl backdrop:bg-black/30 max-sm:m-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-screen max-sm:max-w-none max-sm:rounded-none'.freeze
+  GROUP_DIALOG = 'cursor-auto text-left m-auto w-[calc(100vw-2rem)] max-w-lg overflow-hidden rounded-lg border-0 bg-surface p-0 shadow-xl backdrop:bg-black/30 max-sm:m-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-screen max-sm:max-w-none max-sm:rounded-none'.freeze
   GROUP_DIALOG_PANEL = 'flex max-h-[85vh] min-h-0 flex-col max-sm:h-dvh max-sm:max-h-none'.freeze
   GROUP_DIALOG_HEADER = 'flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-3 sm:px-6 sm:pb-3 sm:pt-5'.freeze
   GROUP_DIALOG_TITLE = "min-w-0 break-words font-['DM_Sans'] text-xl font-medium text-on-surface-strong".freeze
@@ -48,7 +48,8 @@ module GroupFormationsHelper
   end
 
   def leader_first(members, group)
-    members.sort_by { |member| member.user_id == group.leader_id ? 0 : 1 }
+    leader, others = members.partition { |member| member.user_id == group.leader_id }
+    leader + others
   end
 
   def group_member_names(group)

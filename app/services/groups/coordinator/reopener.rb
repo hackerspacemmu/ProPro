@@ -56,7 +56,7 @@ module Groups
           return "#{old_name} is reopened as #{new_name}." if reopened?
 
           case blocked_reason
-          when :already_not_confirmed, :already_draft then 'This group is already a Not Confirmed Group.'
+          when :already_not_confirmed then 'This group is already not confirmed.'
           when :imported_group then 'This group was imported, so it cannot be reopened.'
           when :has_project then 'This group already has a proposal, so it cannot be reopened.'
           when :group_gone then 'This group no longer exists.'

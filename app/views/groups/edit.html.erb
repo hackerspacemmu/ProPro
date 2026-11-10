@@ -11,7 +11,7 @@
   <% delete_data = if @group.project.present?
                      { turbo_stream: true }
                    else
-                     { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true }
+                      { confirm_submit: true, confirm_title: "Delete #{group_name}?", confirm_body: delete_confirm_body(@group), confirm_ok: "Delete group", confirm_danger: true, action: "turbo:submit-end->modal#closeOnSuccess" }
                    end %>
 
   <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
@@ -42,7 +42,7 @@
                     course_group_confirmation_path(@course, @group, return_to: params[:return_to]),
                     method: :delete,
                     form: { class: "inline-flex", data: reopen_data },
-                    class: "#{GroupFormationsHelper::GROUP_SMALL_BUTTON} !px-5 !py-2 !text-sm" %>
+                    class: GroupFormationsHelper::GROUP_OUTLINE_BUTTON %>
             <% end %>
           </div>
         <% else %>
@@ -62,7 +62,7 @@
                   form: { class: "inline-flex", data: confirm_data },
                   class: GroupFormationsHelper::GROUP_FILL_BUTTON %>
           </div>
-          <p class="mt-2 text-[13px] text-on-surface-muted">Members can't start a proposal until the group is confirmed. Confirming renames it to a G number.</p>
+          <p class="mt-2 text-[13px] text-on-surface-muted">Confirming renames Tmp to G number.</p>
         <% end %>
       </section>
     <% end %>

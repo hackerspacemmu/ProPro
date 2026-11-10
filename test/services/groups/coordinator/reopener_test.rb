@@ -46,7 +46,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
 
     assert_not result.reopened?
     assert_equal :already_not_confirmed, result.blocked_reason
-    assert_equal 'This group is already a Not Confirmed Group.', result.message
+    assert_equal 'This group is already not confirmed.', result.message
   end
 
   test 'blocks reopening an imported group' do

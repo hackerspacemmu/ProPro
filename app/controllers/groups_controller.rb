@@ -15,7 +15,6 @@ class GroupsController < ApplicationController
 
     all_groups = @course.project_groups.includes(project_group_members: :user).to_a
     @grouping_window_open = @course.grouping_window_open?
-    @grouping_enabled = @course.grouping_enabled?
     @unconfirmed_group_count = all_groups.count { |g| !g.confirmed? }
     @ungrouped_student_count = @course.ungrouped_students.count
 
@@ -79,6 +78,12 @@ class GroupsController < ApplicationController
     result = GroupCreator.new(@course, leader: leader, current_user: current_user).create!
 
     if result.created?
+      PostHog.capture(
+        distinct_id: current_user.posthog_distinct_id,
+        event: 'group_created',
+        properties: { created_by_coordinator: leader != current_user }
+      )
+
       redirect_to course_group_formation_path(@course), notice: result.message
     else
       redirect_to course_group_formation_path(@course), alert: result.message

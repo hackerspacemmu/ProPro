@@ -74,6 +74,12 @@ class ProjectsController < ApplicationController
       supervisor_name: Current.user.name
     ).Project_Status_Updated.deliver_later
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'project_status_changed',
+      properties: { status: new_status }
+    )
+
     redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
   end
 
@@ -291,6 +297,15 @@ class ProjectsController < ApplicationController
       project: @project
     ).New_Student_Submission.deliver_later
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'project_proposal_created',
+      properties: {
+        grouped_course: @course.grouped?,
+        proposal_source: topic ? 'topic' : 'own_proposal'
+      }
+    )
+
     redirect_to course_project_path(@course, @project), notice: 'Project created!'
   end
 
@@ -388,6 +403,16 @@ class ProjectsController < ApplicationController
         project: @project
       ).New_Student_Submission.deliver_later
     end
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'project_proposal_updated',
+      properties: {
+        grouped_course: @course.grouped?,
+        new_version_created: new_instance_created,
+        supervisor_changed: previous_supervisor_id != @project.supervisor.id
+      }
+    )
 
     redirect_to course_project_path(@course, @project), notice: 'Project updated successfully.'
   end
