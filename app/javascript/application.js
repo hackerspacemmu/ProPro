@@ -16,6 +16,6 @@ document.addEventListener("turbo:before-morph-attribute", (event) => {
   }
 });
 
-Turbo.config.drive.confirmationMethod = (message, element, submitter) => {
+window.Turbo.config.drive.confirmationMethod = (message) => {
   return Promise.resolve(window.confirm(message));
 };
