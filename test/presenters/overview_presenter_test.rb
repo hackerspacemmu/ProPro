@@ -2,7 +2,7 @@ require 'test_helper'
 
 class OverviewPresenterTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true, grouping_open: true)
+    @course = create(:course, :grouped, grouping_enabled: true)
     @student = create(:user)
     @coordinator = create(:user)
     @lecturer = create(:user)
@@ -79,7 +79,7 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     assert presenter(enrolment: @coordinator_enrolment, toggle_topics: true).show_pending_topics?
   end
 
-  test 'show_group_formation? is visible for coordinator and lecturer when grouped, enabled and window not before open' do
+  test 'show_group_formation? is visible for coordinator and lecturer when grouped and enabled' do
     assert presenter(enrolment: @coordinator_enrolment).show_group_formation?
     assert presenter(enrolment: @lecturer_enrolment).show_group_formation?
     assert_not presenter(enrolment: @student_enrolment).show_group_formation?
@@ -93,11 +93,6 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     disabled_course = create(:course, :grouped, grouping_enabled: false)
     coord_disabled = create(:enrolment, :coordinator, user: @coordinator, course: disabled_course)
     assert_not presenter(enrolment: coord_disabled, course: disabled_course).show_group_formation?
-
-    # Before opens_at hides group formation
-    future_course = create(:course, :grouped, grouping_enabled: true, grouping_opens_at: 1.day.from_now)
-    coord_future = create(:enrolment, :coordinator, user: @coordinator, course: future_course)
-    assert_not presenter(enrolment: coord_future, course: future_course).show_group_formation?
   end
 
   test 'show_my_group? is true only for student in a grouped course with group present' do
@@ -128,7 +123,7 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     assert_not p.show_formation_attention_banner?
 
     # Window closed -> banner shows for coordinator
-    @course.update!(grouping_open: false)
+    @course.update!(grouping_closes_at: 1.hour.ago)
     p_closed = presenter(enrolment: @coordinator_enrolment, course: @course)
     assert p_closed.show_formation_attention_banner?
 

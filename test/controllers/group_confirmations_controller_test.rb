@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupConfirmationsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 4)
+    @course = create(:course, :grouped, grouping_enabled: true, grouping_closes_at: 1.hour.ago, group_min: 2, group_max: 4)
     @coordinator = create(:user)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
     @leader = create(:user)

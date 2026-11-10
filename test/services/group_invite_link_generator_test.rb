@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 2, group_max: 4, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
@@ -44,7 +44,7 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
   end
 
   test 'blocked when window closed' do
-    @course.update!(grouping_open: false)
+    @course.update!(grouping_closes_at: 1.hour.ago)
 
     result = GroupInviteLinkGenerator.new(@group, current_user: @leader).generate!
 
@@ -80,7 +80,7 @@ end
 
 class GroupInviteLinkGeneratorRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 2, group_max: 4, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
@@ -94,7 +94,7 @@ class GroupInviteLinkGeneratorRaceTest < NonTransactionalTestCase
     thread = generator_thread
 
     wait_for_lock_wait
-    @course.update_column(:grouping_open, false)
+    @course.update_column(:grouping_closes_at, 1.hour.ago)
     release << true
 
     result = Timeout.timeout(10) { thread.value }

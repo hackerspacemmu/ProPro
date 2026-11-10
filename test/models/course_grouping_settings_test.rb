@@ -41,23 +41,11 @@ class CourseGroupingSettingsTest < ActiveSupport::TestCase
     assert course.valid?
   end
 
-  test 'grouping_closes_at must be after grouping_opens_at' do
+  test 'grouping window dates are valid when closes_at is in the future' do
     course = build(:course,
                    grouping_enabled: true,
                    group_min: 2,
                    group_max: 4,
-                   grouping_opens_at: 1.day.from_now,
-                   grouping_closes_at: 1.hour.from_now)
-    assert_not course.valid?
-    assert course.errors[:grouping_closes_at].any?
-  end
-
-  test 'grouping window dates are valid when closes_at is after opens_at' do
-    course = build(:course,
-                   grouping_enabled: true,
-                   group_min: 2,
-                   group_max: 4,
-                   grouping_opens_at: 1.hour.from_now,
                    grouping_closes_at: 1.day.from_now)
     assert course.valid?
   end
@@ -69,52 +57,26 @@ class CourseGroupingSettingsTest < ActiveSupport::TestCase
     assert_not course.grouping_window_open?
   end
 
-  test 'grouping_window_open? returns true when grouping is enabled and no window is set' do
-    course = create(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+  test 'grouping_window_open? returns true when grouping is enabled and no end date is set' do
+    course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
     assert course.grouping_window_open?
   end
 
-  test 'grouping_window_open? returns true when current time is within the window' do
+  test 'grouping_window_open? returns true when the end date is in the future' do
     course = create(:course,
                     grouping_enabled: true,
-                    grouping_open: true,
                     group_min: 2,
                     group_max: 4,
-                    grouping_opens_at: 1.hour.ago,
                     grouping_closes_at: 1.hour.from_now)
     assert course.grouping_window_open?
   end
 
-  test 'grouping_window_open? returns false when window has closed' do
+  test 'grouping_window_open? returns false when the end date has passed' do
     course = create(:course,
                     grouping_enabled: true,
-                    grouping_open: true,
                     group_min: 2,
                     group_max: 4,
-                    grouping_opens_at: 2.hours.ago,
                     grouping_closes_at: 1.hour.ago)
     assert_not course.grouping_window_open?
-  end
-
-  test 'grouping_window_open? returns false when window has not opened yet' do
-    course = create(:course,
-                    grouping_enabled: true,
-                    grouping_open: true,
-                    group_min: 2,
-                    group_max: 4,
-                    grouping_opens_at: 1.hour.from_now,
-                    grouping_closes_at: 2.hours.from_now)
-    assert_not course.grouping_window_open?
-  end
-
-  test 'grouping_window_open? returns false when grouping_open is false' do
-    course = build(:course, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 4)
-    assert_not course.grouping_window_open?
-  end
-
-  test 'grouping_window_open? returns true when grouping_enabled and grouping_open with no dates' do
-    course = build(:course, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4,
-                            grouping_opens_at: nil, grouping_closes_at: nil)
-    assert course.grouping_window_open?
   end
 end

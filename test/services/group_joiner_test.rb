@@ -4,7 +4,7 @@ require 'test_helper'
 class GroupJoinerTest < ActiveSupport::TestCase
   setup do
     @course = FactoryBot.create(:course,
-                                grouped: true, grouping_enabled: true, grouping_open: true,
+                                grouped: true, grouping_enabled: true,
                                 group_min: 2, group_max: 3, student_list_finalised: false)
     @leader  = FactoryBot.create(:user)
     @student = FactoryBot.create(:user)
@@ -66,7 +66,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
   end
 
   test 'blocked when window closed' do
-    @course.update!(grouping_open: false)
+    @course.update!(grouping_closes_at: 1.hour.ago)
 
     result = GroupJoiner.new(@group, current_user: @student).join!
 
@@ -121,7 +121,7 @@ end
 
 class GroupJoinerRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouped: true, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouped: true, grouping_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)

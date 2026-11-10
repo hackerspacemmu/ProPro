@@ -4,7 +4,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
   include ActiveSupport::Testing::TimeHelpers
 
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
@@ -56,7 +56,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
   end
 
   test 'blocked when window closed' do
-    @course.update!(grouping_open: false)
+    @course.update!(grouping_closes_at: 1.hour.ago)
 
     result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
 
@@ -151,7 +151,7 @@ end
 
 class GroupInviteLinkRedeemerRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)

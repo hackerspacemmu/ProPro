@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
   test 'reopens a confirmed group to unconfirmed and renames to lowest free Tmp number' do
-    course = create(:course, grouping_enabled: true, grouping_open: true)
+    course = create(:course, grouping_enabled: true)
     group = create(:project_group, course: course, confirmed: true, group_name: 'G001')
 
     result = Groups::Coordinator::Reopener.new(group).reopen!
@@ -14,7 +14,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
   end
 
   test 'reopens a confirmed group when the grouping window is closed' do
-    course = create(:course, grouping_enabled: true, grouping_open: false)
+    course = create(:course, grouping_enabled: true, grouping_closes_at: 1.hour.ago)
     group = create(:project_group, course: course, confirmed: true, group_name: 'G001')
 
     result = Groups::Coordinator::Reopener.new(group).reopen!
@@ -24,7 +24,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
   end
 
   test 'deletes pending join requests when reopening' do
-    course = create(:course, grouping_enabled: true, grouping_open: true)
+    course = create(:course, grouping_enabled: true)
     group = create(:project_group, course: course, confirmed: true, group_name: 'G001')
     student = create(:user)
     create(:enrolment, :student, course: course, user: student)
@@ -39,7 +39,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
   end
 
   test 'blocks reopening when already not confirmed' do
-    course = create(:course, grouping_enabled: true, grouping_open: true)
+    course = create(:course, grouping_enabled: true)
     group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')
 
     result = Groups::Coordinator::Reopener.new(group).reopen!
@@ -50,7 +50,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
   end
 
   test 'blocks reopening an imported group' do
-    course = create(:course, grouping_enabled: true, grouping_open: true)
+    course = create(:course, grouping_enabled: true)
     group = create(:project_group, :imported, course: course, confirmed: true, group_name: 'Team Import')
 
     result = Groups::Coordinator::Reopener.new(group).reopen!
@@ -61,7 +61,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
   end
 
   test 'blocks reopening a group with a project' do
-    course = create(:course, grouping_enabled: true, grouping_open: true)
+    course = create(:course, grouping_enabled: true)
     group = create(:project_group, course: course, confirmed: true, group_name: 'G001')
     supervisor = create(:enrolment, :lecturer, course: course)
     Project.create!(course: course, owner: group, supervisor_enrolment: supervisor)

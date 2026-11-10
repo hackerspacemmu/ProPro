@@ -22,7 +22,7 @@ class SettingsSaveTest < ApplicationSystemTestCase
       assert_text 'Class Details'
       assert_text 'General'
       assert_text 'Permissions and Rules'
-      assert_text 'Student Self-Grouping'
+      assert_text 'Group Formation'
     end
 
     # The coursecode widget lives inside the General section of the settings

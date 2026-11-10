@@ -3,7 +3,7 @@ require 'test_helper'
 class GroupDirectRequesterTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
@@ -37,7 +37,7 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
   end
 
   test 'blocked when window closed' do
-    @course.update!(grouping_open: false)
+    @course.update!(grouping_closes_at: 1.hour.ago)
 
     result = GroupDirectRequester.new(@group, current_user: @student).request!
 
@@ -98,7 +98,7 @@ end
 
 class GroupDirectRequesterRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)

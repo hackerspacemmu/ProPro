@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupFormationPageTest < ActionDispatch::IntegrationTest
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, :grouped, grouping_enabled: true,
                                         group_min: 2, group_max: 4, student_list_finalised: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
@@ -36,7 +36,7 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     sign_in @coordinator
 
     [false, true].each do |automatic|
-      @course.update!(group_min: 3, student_list_finalised: automatic, grouping_open: true)
+      @course.update!(group_min: 3, student_list_finalised: automatic, grouping_closes_at: nil)
       get course_group_formation_path(@course)
 
       assert_response :success
@@ -47,7 +47,7 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_select '[data-group-size-warning] span:last-child', text: 'Warning: Alpha Group has 2 members; the allowed size is 3–4 members.'
 
-      @course.update!(grouping_open: false)
+      @course.update!(grouping_closes_at: 1.hour.ago)
       get course_groups_path(@course)
 
       assert_response :success
@@ -70,7 +70,7 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     assert_select '[data-group-size-warning][role="img"]', count: 1
     assert_select '[data-group-size-warning]', text: /Warning:/, count: 0
 
-    @course.update!(grouping_open: false)
+    @course.update!(grouping_closes_at: 1.hour.ago)
     get course_groups_path(@course)
 
     assert_response :success

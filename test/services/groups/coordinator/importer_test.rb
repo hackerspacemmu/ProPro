@@ -4,7 +4,7 @@ module Groups
   module Coordinator
     class ImporterTest < ActiveSupport::TestCase
       setup do
-        @course = create(:course, :grouped, grouping_enabled: false, grouping_open: false)
+        @course = create(:course, :grouped, grouping_enabled: false, grouping_closes_at: 1.hour.ago)
         @alice = create(:user)
         @bob = create(:user)
         @carol = create(:user)

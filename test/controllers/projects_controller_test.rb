@@ -38,7 +38,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
   test 'creating a group project clears the group pending invites and requests' do
     course = create(:course, grouped: true, group_min: 2, group_max: 4,
-                             grouping_enabled: true, grouping_open: true, student_list_finalised: false)
+                             grouping_enabled: true, student_list_finalised: false)
     leader = create(:user)
     create(:enrolment, :student, user: leader, course: course)
     group = create(:project_group, course: course, confirmed: true, leader_id: leader.id)

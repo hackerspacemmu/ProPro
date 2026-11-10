@@ -708,25 +708,24 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test 'handle_settings saves a mode switch and field edits in one save' do
     course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
-                                       group_min: 2, group_max: 4, grouping_open: true)
+                                       group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
          params: { course: settings_params(course, student_list_finalised: 'false', group_min: '3',
-                                                   group_max: '5', grouping_open: 'false') }
+                                                   group_max: '5') }
 
     assert_redirected_to settings_course_path(course)
     course.reload
     assert_not course.student_list_finalised?
     assert_equal 3, course.group_min
     assert_equal 5, course.group_max
-    assert_not course.grouping_open?
   end
 
   test 'handle_settings re-renders with errors and changes nothing when the save is invalid' do
     course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
-                                       group_min: 2, group_max: 4, grouping_open: true)
+                                       group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
@@ -742,22 +741,22 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 4, course.group_max
   end
 
-  test 'handle_settings disabling grouping keeps every group and clears the grouping window' do
+  test 'handle_settings disabling grouping keeps every group and clears the end date' do
     course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
-                                       group_min: 2, group_max: 4, grouping_open: true)
+                                       group_min: 2, group_max: 4, grouping_closes_at: 1.day.from_now)
     not_confirmed = create(:project_group, course: course, confirmed: false)
     confirmed = create(:project_group, course: course, confirmed: true)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
-         params: { course: settings_params(course, grouping_enabled: 'false', grouping_open: 'false',
+         params: { course: settings_params(course, grouping_enabled: 'false',
                                                    group_min: '', group_max: '') }
 
     assert_redirected_to settings_course_path(course)
     course.reload
     assert_not course.grouping_enabled?
-    assert_not course.grouping_open?
+    assert_nil course.grouping_closes_at
     assert_not course.student_list_finalised?
     assert ProjectGroup.exists?(not_confirmed.id)
     assert ProjectGroup.exists?(confirmed.id)
@@ -847,8 +846,6 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       student_list_finalised: course.student_list_finalised?.to_s,
       group_min: course.group_min.to_s,
       group_max: course.group_max.to_s,
-      grouping_open: course.grouping_open?.to_s,
-      grouping_opens_at: course.grouping_opens_at&.strftime('%Y-%m-%dT%H:%M'),
       grouping_closes_at: course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M')
     }.merge(overrides)
   end

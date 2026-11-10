@@ -4,7 +4,7 @@ module Groups
   module Coordinator
     class GroupDeleterTest < ActiveSupport::TestCase
       setup do
-        @course = create(:course, :grouped, grouping_enabled: true, grouping_open: false, group_min: 2, group_max: 4)
+        @course = create(:course, :grouped, grouping_enabled: true, grouping_closes_at: 1.hour.ago, group_min: 2, group_max: 4)
         @leader = create(:user)
         @group = create(:project_group, course: @course, leader_id: @leader.id, confirmed: true)
         create(:project_group_member, project_group: @group, user: @leader)

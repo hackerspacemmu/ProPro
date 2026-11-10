@@ -3,7 +3,7 @@ require 'test_helper'
 class ProjectGroupInviteTest < ActiveSupport::TestCase
   def setup
     @course  = create(:course, grouping_enabled: true, student_list_finalised: true,
-                               group_min: 2, group_max: 4, grouping_open: true)
+                               group_min: 2, group_max: 4)
     @group   = create(:project_group, course: @course)
     @sender  = create(:user)
     @invite  = build(:project_group_invite, project_group: @group, sender: @sender)

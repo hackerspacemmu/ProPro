@@ -6,8 +6,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
                      grouping_enabled: true,
                      student_list_finalised: false,
                      group_min: 2,
-                     group_max: 4,
-                     grouping_open: true)
+                     group_max: 4)
     @alice = create(:user)
     @bob   = create(:user)
     @carol = create(:user)

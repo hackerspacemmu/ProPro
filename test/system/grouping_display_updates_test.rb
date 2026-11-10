@@ -2,7 +2,7 @@ require 'application_system_test_case'
 
 class GroupingDisplayUpdatesTest < BrowserSystemTestCase
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, :grouped, grouping_enabled: true,
                                         group_min: 3, group_max: 4, student_list_finalised: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, course: @course, user: @coordinator)

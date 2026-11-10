@@ -5,7 +5,7 @@ module Groups
     include TestSupport::NonTransactional
 
     setup do
-      @course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+      @course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
       @leader = create(:user)
       @member = create(:user)
       @joiner = create(:user)
@@ -97,7 +97,7 @@ module Groups
     private
 
     def with_group
-      course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+      course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
       leader = create(:user)
       member = create(:user)
       group = create(:project_group, course: course, leader_id: leader.id)
@@ -107,7 +107,7 @@ module Groups
     end
 
     def with_course
-      course = create(:course, :grouped, grouping_enabled: true, grouping_open: true, group_min: 2, group_max: 4)
+      course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
       user = create(:user)
       create(:enrolment, :student, course: course, user: user)
       yield course, user

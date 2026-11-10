@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupMemberAdderTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, grouping_enabled: true, grouping_open: true,
+    @course = create(:course, grouping_enabled: true,
                               group_min: 3, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
