@@ -73,6 +73,17 @@ module Groups
           GroupMemberAdder.new(group, user: student, current_user: leader).add!
         end
       end
+      assert_locks_course_then_group do
+        with_group do |group, _leader, _membership|
+          group.update!(confirmed: true)
+          Coordinator::Reopener.new(group).reopen!
+        end
+      end
+      assert_locks_course do
+        with_course do |course, user|
+          Coordinator::EnrolmentRemover.new(create(:enrolment, :student, course: course, user: user)).remove!
+        end
+      end
     end
 
     test 'confirmers lock the course before the group' do

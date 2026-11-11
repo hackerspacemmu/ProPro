@@ -813,6 +813,22 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_operator lock, :<, update, "expected the course lock before the course update, got:\n#{statements.join("\n")}"
   end
 
+  test 'handle_settings does not swallow an unexpected error from the capacity updater' do
+    course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
+    lecturer = create(:enrolment, :lecturer, course: course)
+    create(:enrolment, :coordinator, user: @coordinator_user, course: course)
+
+    sign_in @coordinator_user
+
+    SupervisorCapacityUpdater.stub(:new, ->(_course) { raise 'exploded' }) do
+      assert_raises RuntimeError do
+        post handle_settings_course_path(course),
+             params: { course: settings_params(course),
+                       supervisor_capacity_offsets: { lecturer.id.to_s => '1' } }
+      end
+    end
+  end
+
   private
 
   def capture_sql(&)

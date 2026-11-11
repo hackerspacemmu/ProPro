@@ -89,7 +89,7 @@ class ProjectsController < ApplicationController
       if group.nil?
         redirect_to course_path(@course), alert: 'Join or create a group before you can put together a project proposal.'
         return
-      elsif @course.grouping_enabled? && !group.confirmed?
+      elsif !group.confirmed?
         redirect_to course_path(@course), alert: 'Your group must be confirmed before creating a proposal.'
         return
       end
@@ -215,7 +215,7 @@ class ProjectsController < ApplicationController
           group = @course.group_for(current_user)
 
           raise StandardError, "You're not part of a project group." unless group
-          raise StandardError, 'Your group must be confirmed before creating a proposal.' if @course.grouping_enabled? && !group.confirmed?
+          raise StandardError, 'Your group must be confirmed before creating a proposal.' unless group.confirmed?
 
           # Serialises concurrent creates and a reopen. The reload also refreshes group.project.
           group.lock!

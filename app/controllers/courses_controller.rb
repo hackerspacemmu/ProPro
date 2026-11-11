@@ -235,9 +235,11 @@ class CoursesController < ApplicationController
     student_list_param     = params[:course][:student_list_finalised] == 'true'
     supervisor_auto_calculate_enabled_param = params[:course][:supervisor_auto_calculate_enabled] == '1'
 
+    capacity_errors = nil
+
     begin
       ActiveRecord::Base.transaction do
-        raise StandardError, @course.errors.full_messages.join(', ') unless @course.update(
+        @course.update!(
           course_name: params[:course][:course_name],
           course_description: params[:course][:course_description],
           supervisor_projects_limit: params[:course][:supervisor_projects_limit],
@@ -258,27 +260,30 @@ class CoursesController < ApplicationController
             offsets: params[:supervisor_capacity_offsets],
             excluded_ids: params[:supervisor_capacity_excluded] || []
           )
-          raise StandardError, result.errors.join("\n") unless result.updated?
+          unless result.updated?
+            capacity_errors = result.errors.join("\n")
+            raise ActiveRecord::Rollback
+          end
         end
 
         # Lock prevents any race conditions for any group enrolment changes
         @course.with_no_key_update_lock do
-          unless @course.update(
+          @course.update!(
             grouping_enabled: grouping_enabled_param,
             student_list_finalised: student_list_param,
             group_min: params[:course][:group_min].presence,
             group_max: params[:course][:group_max].presence,
             grouping_closes_at: params[:course][:grouping_closes_at].presence
           )
-            raise StandardError, @course.errors.full_messages.join(', ')
-          end
         end
       end
-    rescue StandardError => e
-      flash.now[:alert] = e.message
-      @course.reload
-      load_capacity_result
-      render :settings, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render_invalid_settings(e.record.errors.full_messages.join(', '))
+      return
+    end
+
+    if capacity_errors
+      render_invalid_settings(capacity_errors)
       return
     end
 
@@ -458,6 +463,13 @@ class CoursesController < ApplicationController
 
   def load_capacity_result
     @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
+  end
+
+  def render_invalid_settings(alert)
+    flash.now[:alert] = alert
+    @course.reload
+    load_capacity_result
+    render :settings, status: :unprocessable_entity
   end
 
   def create_db_entries_grouped(hash_map, parent_course)

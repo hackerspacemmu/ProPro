@@ -143,6 +143,39 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'Your group must be confirmed before creating a proposal.', flash[:alert]
   end
 
+  test 'new redirects to course overview when grouping is off and the student group is not confirmed' do
+    course = create(:course, grouped: true, grouping_enabled: false)
+    student = create(:user)
+    create(:enrolment, :student, user: student, course: course)
+    group = create(:project_group, course: course, confirmed: false, leader_id: student.id)
+    create(:project_group_member, project_group: group, user: student)
+
+    sign_in student
+    get new_course_project_path(course)
+
+    assert_redirected_to course_path(course)
+    assert_equal 'Your group must be confirmed before creating a proposal.', flash[:alert]
+  end
+
+  test 'create blocks proposal when grouping is off and the student group is not confirmed' do
+    course = create(:course, grouped: true, grouping_enabled: false)
+    student = create(:user)
+    create(:enrolment, :student, user: student, course: course)
+    group = create(:project_group, course: course, confirmed: false, leader_id: student.id)
+    create(:project_group_member, project_group: group, user: student)
+    lecturer = create(:enrolment, :lecturer, course: course)
+    field = course.project_template.project_template_fields.find_by!(is_project_title: true)
+
+    sign_in student
+    post course_projects_path(course), params: {
+      based_on_topic: "own_proposal_#{lecturer.id}",
+      fields: { field.id.to_s => 'Illegal Proposal' }
+    }
+
+    assert_not Project.exists?(owner: group)
+    assert_equal 'Your group must be confirmed before creating a proposal.', flash[:alert]
+  end
+
   private
 
   def build_project
