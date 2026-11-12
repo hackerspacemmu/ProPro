@@ -476,6 +476,20 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'This invite link is invalid or has expired.'
   end
 
+  test 'redeeming a deleted invite link shows the invalid page instead of 404ing' do
+    link = create(:project_group_invite_link, project_group: @group, sender: @leader)
+    token = link.token
+    link.destroy!
+    sign_in @other_student
+
+    post invite_link_redemption_path(token)
+
+    assert_redirected_to invite_link_path(token)
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, 'This invite link is invalid or has expired.'
+  end
+
   test 'the leader cannot reopen a group that has a project' do
     @group.update!(confirmed: true)
     supervisor = create(:enrolment, :lecturer, course: @course)

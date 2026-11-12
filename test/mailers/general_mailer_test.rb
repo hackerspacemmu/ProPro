@@ -41,4 +41,65 @@ class GeneralMailerTest < ActionMailer::TestCase
     assert_includes mail.text_part.body.to_s, 'Group reopened because Ada Lovelace was removed.'
     assert_includes mail.html_part.body.to_s, 'was removed'
   end
+
+  test 'the direct request notification delivers with its subject' do
+    leader = create(:user)
+    group = create(:project_group, group_name: 'Alpha Group', leader_id: leader.id)
+    invite = create(:project_group_invite, project_group: group, kind: :direct_request)
+
+    mail = GeneralMailer.with(invite: invite).Group_Direct_Request_Notification.deliver_now
+
+    assert_equal [leader.email_address], mail.to
+    assert_equal 'New join request for Alpha Group', mail.subject
+  end
+
+  test 'the direct request accepted mail delivers with its subject' do
+    group = create(:project_group, group_name: 'Alpha Group')
+    invite = create(:project_group_invite, project_group: group, kind: :direct_request)
+
+    mail = GeneralMailer.with(invite: invite).Group_Direct_Request_Accepted.deliver_now
+
+    assert_equal [invite.sender.email_address], mail.to
+    assert_equal 'Your request to join Alpha Group was accepted', mail.subject
+  end
+
+  test 'the direct request declined mail delivers with its subject' do
+    group = create(:project_group, group_name: 'Alpha Group')
+    invite = create(:project_group_invite, project_group: group, kind: :direct_request)
+
+    mail = GeneralMailer.with(invite: invite).Group_Direct_Request_Declined.deliver_now
+
+    assert_equal [invite.sender.email_address], mail.to
+    assert_equal 'Your request to join Alpha Group was declined', mail.subject
+  end
+
+  test 'the direct invite notification delivers with its subject' do
+    group = create(:project_group, group_name: 'Alpha Group')
+    invite = create(:project_group_invite, project_group: group, kind: :direct_invite)
+
+    mail = GeneralMailer.with(invite: invite).Group_Direct_Invite_Notification.deliver_now
+
+    assert_equal [invite.recipient.email_address], mail.to
+    assert_equal "You've been invited to join Alpha Group", mail.subject
+  end
+
+  test 'the direct invite accepted mail delivers with its subject' do
+    group = create(:project_group, group_name: 'Alpha Group')
+    invite = create(:project_group_invite, project_group: group, kind: :direct_invite)
+
+    mail = GeneralMailer.with(invite: invite).Group_Direct_Invite_Accepted.deliver_now
+
+    assert_equal [invite.sender.email_address], mail.to
+    assert_equal "#{invite.recipient.name} accepted your invite to Alpha Group", mail.subject
+  end
+
+  test 'the direct invite declined mail delivers with its subject' do
+    group = create(:project_group, group_name: 'Alpha Group')
+    invite = create(:project_group_invite, project_group: group, kind: :direct_invite)
+
+    mail = GeneralMailer.with(invite: invite).Group_Direct_Invite_Declined.deliver_now
+
+    assert_equal [invite.sender.email_address], mail.to
+    assert_equal "#{invite.recipient.name} declined your invite to Alpha Group", mail.subject
+  end
 end

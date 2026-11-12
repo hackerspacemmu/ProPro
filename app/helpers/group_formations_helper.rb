@@ -104,7 +104,11 @@ module GroupFormationsHelper
   end
 
   def remove_confirm_body(group, member_name, manager:)
-    return "#{member_name} will have no group." unless manager
+    unless manager
+      return "The group will be reopened and renamed to a Tmp number, and you'll need to confirm it again." if group.confirmed?
+
+      return "#{member_name} will have no group."
+    end
 
     size = group.project_group_members.size
     paras = ["#{group.group_name.presence || 'This group'} goes from #{size} to #{size - 1} members."]

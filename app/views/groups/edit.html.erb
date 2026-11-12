@@ -1,6 +1,6 @@
 <%= turbo_frame_tag dom_id(@group, :manage), target: "_top", refresh: "morph", class: "flex min-h-0 flex-1 flex-col" do %>
   <% staff = policy(@course).manage_groups? %>
-  <% leader_edit = !staff && !@group.confirmed? %>
+  <% leader_edit = !staff && policy(@group).update? %>
   <% members = leader_first(@group.project_group_members.to_a, @group) %>
   <% count = members.size %>
   <% group_name = @group.group_name.presence || "Unnamed group" %>
@@ -141,6 +141,11 @@
                      data-invite-link-target="linkField"
                      class="min-w-0 flex-1 rounded-md border border-outline-variant bg-surface-tint px-3 py-2 text-sm text-on-surface-variant max-sm:min-h-11 max-sm:text-base">
               <button type="button" data-invite-link-target="button" data-action="click->invite-link#copy" class="<%= GroupFormationsHelper::GROUP_SMALL_BUTTON %> shrink-0">Copy</button>
+              <%= button_to "Disable link",
+                    course_group_invite_link_path(@course, @group),
+                    method: :delete,
+                    form: { class: "shrink-0" },
+                    class: GroupFormationsHelper::GROUP_TEXT_SMALL_BUTTON %>
             </div>
             <p class="mt-1.5 text-[13px] text-on-surface-muted">Link expires 24 hours after it's generated.</p>
           <% end %>

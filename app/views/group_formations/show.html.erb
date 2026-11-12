@@ -162,12 +162,17 @@
               <% if policy(group).edit? %>
                 <%= render "group_formations/manage_dialog", group: group, course: @course, leader: true %>
               <% end %>
-            <% elsif leads_my_group && group.confirmed? && policy(group).revert? %>
-              <%= button_to "Reopen group",
-                    course_group_confirmation_path(@course, group),
-                    method: :delete,
-                    form: { class: "max-sm:w-full", data: { confirm_submit: true, confirm_title: "Reopen #{group_name}?", confirm_body: "Your group will lose confirmed status.", confirm_ok: "Reopen group", confirm_danger: false } },
-                    class: "#{GroupFormationsHelper::GROUP_OUTLINE_BUTTON} max-sm:w-full" %>
+            <% elsif leads_my_group && group.confirmed? %>
+              <% if policy(group).edit? %>
+                <%= render "group_formations/manage_dialog", group: group, course: @course, leader: true, filled: true %>
+              <% end %>
+              <% if policy(group).revert? %>
+                <%= button_to "Reopen group",
+                      course_group_confirmation_path(@course, group),
+                      method: :delete,
+                      form: { class: "max-sm:w-full", data: { confirm_submit: true, confirm_title: "Reopen #{group_name}?", confirm_body: "Your group will lose confirmed status.", confirm_ok: "Reopen group", confirm_danger: false } },
+                      class: "#{GroupFormationsHelper::GROUP_OUTLINE_BUTTON} max-sm:w-full" %>
+              <% end %>
             <% elsif !leads_my_group && membership && policy(membership).destroy? %>
               <%= button_to "Leave group",
                     course_group_member_path(@course, group, membership),

@@ -218,6 +218,172 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
 
   private
 
+  test 'the formation table offers a request to join a confirmed group' do
+    @group.update!(confirmed: true)
+
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select "#project_group_#{@group.id}" do
+      assert_select "form[action='#{course_group_join_requests_path(@course, @group)}'] button", text: 'Request to join'
+    end
+  end
+
+  test 'a full group shows Full instead of a request button' do
+    @course.update!(group_max: 2)
+    @group.update!(confirmed: true)
+
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select "#project_group_#{@group.id}", text: /Full/
+    assert_select "form[action='#{course_group_join_requests_path(@course, @group)}']", count: 0
+  end
+
+  test 'a pending request shows Request sent instead of the request button' do
+    @group.update!(confirmed: true)
+    create(:project_group_invite, project_group: @group, sender: @student,
+                                  recipient: @leader, kind: :direct_request, status: :pending)
+
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select "#project_group_#{@group.id}", text: /Request sent/
+    assert_select "form[action='#{course_group_join_requests_path(@course, @group)}']", count: 0
+  end
+
+  test 'a confirmed group with a project offers no request action' do
+    @group.update!(confirmed: true)
+    create(:project, course: @course, owner: @group, owner_type: 'ProjectGroup',
+                     supervisor_enrolment: create(:enrolment, :lecturer, course: @course))
+
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select "#project_group_#{@group.id}", text: /Request to join/, count: 0
+    assert_select "form[action='#{course_group_join_requests_path(@course, @group)}']", count: 0
+  end
+
+  test 'an imported group offers no request action' do
+    @group.update!(confirmed: true, origin: :import)
+
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select "#project_group_#{@group.id}", text: /Request to join/, count: 0
+    assert_select "form[action='#{course_group_join_requests_path(@course, @group)}']", count: 0
+  end
+
+  test 'a closed formation offers no request action' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+
+    sign_in @student
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_no_match(/Request to join/, response.body)
+  end
+
+  test 'the leader of a confirmed group sees Manage beside Reopen' do
+    @group.update!(confirmed: true)
+
+    sign_in @leader
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select 'a.bg-primary-strong', text: 'Manage group'
+    assert_select "form[action='#{course_group_confirmation_path(@course, @group)}'] button.border-outline",
+                  text: 'Reopen group'
+  end
+
+  test 'the leader of a confirmed group gets the full management dialog' do
+    @group.update!(confirmed: true)
+    create(:project_group_invite, project_group: @group, sender: @student,
+                                  recipient: @leader, kind: :direct_request)
+    create(:project_group_invite_link, project_group: @group, sender: @leader)
+
+    sign_in @leader
+    get edit_course_group_path(@course, @group)
+
+    assert_response :success
+    assert_select 'h3', text: 'Join requests'
+    assert_select 'h3', text: 'Invite link'
+    assert_select 'h3', text: 'Invite student'
+    assert_select 'button', text: 'Remove from group'
+    assert_select 'button', text: 'Disable link'
+    assert_select 'button', text: 'Delete group', count: 0
+    assert_select 'button', text: 'Leave group', count: 0
+    assert_match @student.name, response.body
+  end
+
+  test 'a confirmed group with a project hides leader management actions' do
+    @group.update!(confirmed: true)
+    create(:project, course: @course, owner: @group, owner_type: 'ProjectGroup',
+                     supervisor_enrolment: create(:enrolment, :lecturer, course: @course))
+
+    sign_in @leader
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select 'a', text: 'Manage group', count: 0
+    assert_select 'button', text: 'Reopen group', count: 0
+
+    get edit_course_group_path(@course, @group)
+    assert_redirected_to dashboard_path
+  end
+
+  test 'an imported group hides leader management actions' do
+    imported_leader = create(:user, name: 'Imported Leader')
+    create(:enrolment, user: imported_leader, course: @course)
+    imported = create(:project_group, :imported, course: @course,
+                                                 leader_id: imported_leader.id,
+                                                 group_name: 'Imported Group')
+    create(:project_group_member, project_group: imported, user: imported_leader)
+
+    sign_in imported_leader
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select 'a', text: 'Manage group', count: 0
+    assert_select 'button', text: 'Reopen group', count: 0
+
+    get edit_course_group_path(@course, imported)
+    assert_redirected_to dashboard_path
+  end
+
+  test 'a closed formation hides leader management actions' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+
+    sign_in @leader
+    get course_group_formation_path(@course)
+
+    assert_response :success
+    assert_select 'a', text: 'Manage group', count: 0
+    assert_select 'button', text: 'Reopen group', count: 0
+
+    get edit_course_group_path(@course, @group)
+    assert_redirected_to dashboard_path
+  end
+
+  test 'the notification bell renders for students only' do
+    sign_in @student
+    get course_group_formation_path(@course)
+    assert_response :success
+    assert_select 'button[aria-label="Notifications"]', count: 1
+
+    sign_in @coordinator
+    get course_group_formation_path(@course)
+    assert_response :success
+    assert_select 'button[aria-label="Notifications"]', count: 0
+  end
+
   def sign_in(user)
     post session_path, params: { email_address: user.email_address, password: 'password' }
   end

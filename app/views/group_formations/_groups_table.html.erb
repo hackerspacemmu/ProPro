@@ -42,13 +42,17 @@
         <% own = my_group&.id == group.id %>
 
         <% action = capture do %>
-          <% if my_group.nil? && policy(group).join? %>
-            <% if group.confirmed? %>
-              <button type="button" disabled class="<%= GroupFormationsHelper::GROUP_ROW_DISABLED_BUTTON %>">Join</button>
-            <% elsif group_full?(group, course) %>
+          <% group_policy = policy(group) %>
+          <% if my_group.nil? && group_policy.join? %>
+            <% if group_full?(group, course) %>
               <span class="text-[13px] text-on-surface-muted">Full</span>
-            <% elsif requested_group_ids.include?(group.id) %>
-              <span class="text-[13px] text-on-surface-muted">Request sent</span>
+            <% elsif group.confirmed? %>
+              <% if requested_group_ids.include?(group.id) %>
+                <span class="text-[13px] text-on-surface-muted">Request sent</span>
+              <% elsif group_policy.request_to_join? %>
+                <%= button_to "Request to join", course_group_join_requests_path(course, group), method: :post,
+                      form: { class: "max-sm:w-full" }, class: GroupFormationsHelper::GROUP_ROW_BUTTON %>
+              <% end %>
             <% else %>
               <%= button_to "Join", course_group_members_path(course, group), method: :post,
                     form: { class: "max-sm:w-full" }, class: GroupFormationsHelper::GROUP_ROW_BUTTON %>

@@ -70,42 +70,42 @@ class GeneralMailer < ApplicationMailer
 
     @leader = User.find(@group.leader_id)
 
-    mail(to: @leader.email_address, Subject: "New join request for #{@group.group_name}")
+    mail(to: @leader.email_address, subject: "New join request for #{@group.group_name}")
   end
 
   def Group_Direct_Request_Accepted
     @invite = params[:invite]
     @group = @invite.project_group
 
-    mail(to: @invite.sender.email_address, Subject: "Your request to join #{@group.group_name} was accepted")
+    mail(to: @invite.sender.email_address, subject: "Your request to join #{@group.group_name} was accepted")
   end
 
   def Group_Direct_Request_Declined
     @invite = params[:invite]
     @group = @invite.project_group
 
-    mail(to: @invite.sender.email_address, Subject: "Your request to join #{@group.group_name} was declined")
+    mail(to: @invite.sender.email_address, subject: "Your request to join #{@group.group_name} was declined")
   end
 
   def Group_Direct_Invite_Notification
     @invite = params[:invite]
     @group = @invite.project_group
 
-    mail(to: @invite.recipient.email_address, Subject: "You've been invited to join #{@group.group_name}")
+    mail(to: @invite.recipient.email_address, subject: "You've been invited to join #{@group.group_name}")
   end
 
   def Group_Direct_Invite_Accepted
     @invite = params[:invite]
     @group = @invite.project_group
 
-    mail(to: @invite.sender.email_address, Subject: "#{@invite.recipient.name} accepted your invite to #{@group.group_name}")
+    mail(to: @invite.sender.email_address, subject: "#{@invite.recipient.name} accepted your invite to #{@group.group_name}")
   end
 
   def Group_Direct_Invite_Declined
     @invite = params[:invite]
     @group = @invite.project_group
 
-    mail(to: @invite.sender.email_address, Subject: "#{@invite.recipient.name} declined your invite to #{@group.group_name}")
+    mail(to: @invite.sender.email_address, subject: "#{@invite.recipient.name} declined your invite to #{@group.group_name}")
   end
 
   def Group_Reopened_Notification

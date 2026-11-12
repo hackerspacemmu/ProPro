@@ -1,9 +1,16 @@
-<%# locals: (group:, course:, leader: false, label: nil, return_to: nil) %>
+<%# locals: (group:, course:, leader: false, filled: false, label: nil, return_to: nil) %>
 <% group_name = group.group_name.presence || "Unnamed group" %>
+<% button_class = if filled
+                    GroupFormationsHelper::GROUP_FILL_BUTTON
+                  elsif leader
+                    GroupFormationsHelper::GROUP_TEXT_BUTTON
+                  else
+                    GroupFormationsHelper::GROUP_SMALL_BUTTON
+                  end %>
 <div data-controller="modal" class="max-sm:w-full">
   <%= link_to edit_course_group_path(course, group, return_to: return_to),
         data: { turbo_frame: dom_id(group, :manage), action: "modal#open" },
-        class: "#{leader ? GroupFormationsHelper::GROUP_TEXT_BUTTON : GroupFormationsHelper::GROUP_SMALL_BUTTON} max-sm:w-full" do %>
+        class: "#{button_class} max-sm:w-full" do %>
     <%= label || (leader ? "Manage group" : "Manage") %>
   <% end %>
 
