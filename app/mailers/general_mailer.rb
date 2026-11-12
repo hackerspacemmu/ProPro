@@ -107,4 +107,12 @@ class GeneralMailer < ApplicationMailer
 
     mail(to: @invite.sender.email_address, Subject: "#{@invite.recipient.name} declined your invite to #{@group.group_name}")
   end
+
+  def Group_Reopened_Notification
+    @group = params[:group]
+    @joiner = params[:joiner]
+    @recipient = params[:recipient]
+
+    mail(to: @recipient.email_address, subject: "Group reopened because #{@joiner.name} joined")
+  end
 end

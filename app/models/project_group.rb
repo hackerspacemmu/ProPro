@@ -29,6 +29,15 @@ class ProjectGroup < ApplicationRecord
       .confirmable_size?(count)
   end
 
+  # Reopens a confirmed group as not confirmed with a fresh Tmp number.
+  # Callers hold the course and group locks. Pending join requests are dropped
+  # because a request only makes sense on a confirmed group.
+  def reopen!
+    project_group_invites.direct_request.pending.delete_all
+    update!(confirmed: false, group_name: course.lowest_free_tmp_group_name)
+    group_name
+  end
+
   private
 
   def refresh_grouping_displays

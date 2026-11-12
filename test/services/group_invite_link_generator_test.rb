@@ -52,14 +52,34 @@ class GroupInviteLinkGeneratorTest < ActiveSupport::TestCase
     assert_equal :window_closed, result.blocked_reason
   end
 
-  test 'blocked when group already confirmed' do
+  test 'blocked for an imported group' do
+    @group.update!(confirmed: true, origin: :import)
+
+    result = GroupInviteLinkGenerator.new(@group, current_user: @leader).generate!
+
+    assert result.blocked?
+    assert_equal :imported_group, result.blocked_reason
+  end
+
+  test 'generates a link for a confirmed group' do
     create(:project_group_member, project_group: @group)
     @group.update!(confirmed: true)
 
     result = GroupInviteLinkGenerator.new(@group, current_user: @leader).generate!
 
+    assert result.generated?
+    assert_equal 1, @group.project_group_invite_links.count
+  end
+
+  test 'blocked when the group has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+
+    result = GroupInviteLinkGenerator.new(@group, current_user: @leader).generate!
+
     assert result.blocked?
-    assert_equal :group_confirmed, result.blocked_reason
+    assert_equal :has_project, result.blocked_reason
   end
 
   # ── Edge: leadership transfer doesn't revoke the ex-leader's existing link ────
@@ -110,7 +130,7 @@ class GroupInviteLinkGeneratorRaceTest < NonTransactionalTestCase
     holder&.kill
   end
 
-  test 'the group becoming confirmed while the generator waits blocks it' do
+  test 'the group becoming confirmed while the generator waits still generates a link' do
     release = Queue.new
     mutation = Queue.new
     holder = hold_group_lock(release) do
@@ -125,9 +145,8 @@ class GroupInviteLinkGeneratorRaceTest < NonTransactionalTestCase
 
     result = Timeout.timeout(10) { thread.value }
 
-    assert result.blocked?
-    assert_equal :group_confirmed, result.blocked_reason
-    assert_equal 0, @group.project_group_invite_links.count
+    assert result.generated?
+    assert_equal 1, @group.project_group_invite_links.count
   ensure
     release << true if release
     thread&.join(1)

@@ -64,7 +64,7 @@ class GroupsController < ApplicationController
   def edit
     authorize @group, :edit?
 
-    @incoming_join_requests = @group.project_group_invites.pending_for_group(@group).where(kind: :direct_request)
+    @incoming_join_requests = @group.project_group_invites.pending_for_group(@group).where(kind: :direct_request).unexpired
     @my_group_invite_token = @group.project_group_invite_links.find_by(sender: current_user)&.token
     @my_invited_student_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_invite).pluck(:recipient_id)
     @ungrouped_students = @course.ungrouped_students

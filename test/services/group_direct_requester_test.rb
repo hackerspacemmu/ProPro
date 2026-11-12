@@ -64,6 +64,30 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
     assert_equal :group_not_confirmed, result.blocked_reason
   end
 
+  test 'blocked for an imported group' do
+    @group.update!(origin: :import)
+
+    assert_no_difference('ProjectGroupInvite.count') do
+      result = GroupDirectRequester.new(@group, current_user: @student).request!
+
+      assert result.blocked?
+      assert_equal :imported_group, result.blocked_reason
+    end
+  end
+
+  test 'blocked when the group has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+
+    assert_no_difference('ProjectGroupInvite.count') do
+      result = GroupDirectRequester.new(@group, current_user: @student).request!
+
+      assert result.blocked?
+      assert_equal :has_project, result.blocked_reason
+    end
+  end
+
   test 'blocked when group has no leader' do
     @group.update!(leader_id: nil)
 

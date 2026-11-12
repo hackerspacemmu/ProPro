@@ -12,10 +12,28 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
     create(:project_group_member, project_group: @group, user: @leader)
   end
 
-  test 'request_to_join? is false for a student, a leader and a coordinator' do
+  test 'a student can request to join a confirmed group' do
+    @group.update!(confirmed: true)
+
+    assert ProjectGroupPolicy.new(@student, @group).request_to_join?
+  end
+
+  test 'request_to_join? is false for a not-confirmed group, an imported group and non-students' do
     assert_not ProjectGroupPolicy.new(@student, @group).request_to_join?
-    assert_not ProjectGroupPolicy.new(@leader, @group).request_to_join?
+
+    @group.update!(confirmed: true, origin: :import)
+    assert_not ProjectGroupPolicy.new(@student, @group).request_to_join?
+
+    @group.update!(origin: :formation)
     assert_not ProjectGroupPolicy.new(@coordinator, @group).request_to_join?
+    assert_not ProjectGroupPolicy.new(@leader, @group).request_to_join?
+  end
+
+  test 'an imported group takes no student leader actions' do
+    @group.update!(confirmed: true, origin: :import)
+
+    assert_not ProjectGroupPolicy.new(@leader, @group).direct_invite?
+    assert_not ProjectGroupPolicy.new(@leader, @group).generate_invite_link?
   end
 
   test 'the leader can delete a not-confirmed group while formation is open' do

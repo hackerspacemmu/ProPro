@@ -88,6 +88,31 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     assert_equal :already_responded, result.blocked_reason
   end
 
+  test 'accept blocked when the pending request is older than 24 hours' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+
+    travel_to(25.hours.from_now) do
+      result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+      assert result.blocked?
+      assert_equal :expired, result.blocked_reason
+      assert invite.reload.pending?
+      assert_not @group.project_group_members.exists?(user_id: @student.id)
+    end
+  end
+
+  test 'accept is not blocked by age for a direct invite' do
+    invite = create(:project_group_invite, project_group: @group, sender: @leader, recipient: @student,
+                                           kind: :direct_invite, status: :pending)
+
+    travel_to(25.hours.from_now) do
+      result = GroupInviteResponder.new(invite, current_user: @student).accept!
+
+      assert result.accepted?
+    end
+  end
+
   test 'accept blocked when window closed' do
     invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
                                            kind: :direct_request, status: :pending)
@@ -111,16 +136,94 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  test 'accept blocked when group already confirmed' do
+  test 'accepting a request into a confirmed group reopens it' do
     invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
                                            kind: :direct_request, status: :pending)
-    create(:project_group_member, project_group: @group)
+    @group.update!(confirmed: true, group_name: 'G001')
+
+    result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+    assert result.accepted?
+    assert result.reopened?
+    assert_not @group.reload.confirmed?
+    assert_equal 'Tmp001', @group.group_name
+    assert @group.project_group_members.exists?(user_id: @student.id)
+    assert invite.reload.accepted?
+  end
+
+  test 'accepting an invite into a confirmed group reopens it too' do
+    invite = create(:project_group_invite, project_group: @group, sender: @leader, recipient: @student,
+                                           kind: :direct_invite, status: :pending)
     @group.update!(confirmed: true)
+
+    result = GroupInviteResponder.new(invite, current_user: @student).accept!
+
+    assert result.accepted?
+    assert result.reopened?
+    assert_not @group.reload.confirmed?
+    assert @group.project_group_members.exists?(user_id: @student.id)
+  end
+
+  test 'reopening a confirmed group queues the accepted mail plus one notification per member' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+    @group.update!(confirmed: true)
+
+    assert_enqueued_jobs 3 do
+      result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+      assert result.accepted?
+      assert result.reopened?
+    end
+  end
+
+  test 'accepting into a not-confirmed group sends no reopened notification' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+
+    assert_enqueued_jobs 1 do
+      result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+      assert result.accepted?
+      assert_not result.reopened?
+    end
+  end
+
+  test 'accept blocked when the group has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
 
     result = GroupInviteResponder.new(invite, current_user: @leader).accept!
 
     assert result.blocked?
-    assert_equal :group_confirmed, result.blocked_reason
+    assert_equal :has_project, result.blocked_reason
+    assert invite.reload.pending?
+    assert_not @group.project_group_members.exists?(user_id: @student.id)
+  end
+
+  test 'accept blocked for an imported group' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+    @group.update!(confirmed: true, origin: :import)
+
+    result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+    assert result.blocked?
+    assert_equal :imported_group, result.blocked_reason
+  end
+
+  test 'accept blocked when the request was cleared before it was handled' do
+    invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
+                                           kind: :direct_request, status: :pending)
+    ProjectGroupInvite.where(id: invite.id).delete_all
+
+    result = GroupInviteResponder.new(invite, current_user: @leader).accept!
+
+    assert result.blocked?
+    assert_equal :invite_gone, result.blocked_reason
   end
 
   test 'accept blocked when group is full' do

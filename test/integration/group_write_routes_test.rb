@@ -246,6 +246,31 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert invite.reload.accepted?
   end
 
+  test 'a student can post a join request to a confirmed group' do
+    @group.update!(confirmed: true)
+    sign_in @other_student
+
+    assert_difference 'ProjectGroupInvite.count', 1 do
+      post course_group_join_requests_path(@course, @group)
+    end
+
+    assert_redirected_to course_group_formation_path(@course)
+  end
+
+  test 'the leader accepting a request on a confirmed group reopens it' do
+    @group.update!(confirmed: true, group_name: 'G001')
+    invite = create(:project_group_invite, project_group: @group, sender: @other_student,
+                                           recipient: @leader, kind: :direct_request)
+    sign_in @leader
+
+    patch course_group_join_request_path(@course, @group, invite), params: { status: 'accepted' }
+
+    assert_redirected_to course_group_formation_path(@course)
+    assert invite.reload.accepted?
+    assert_not @group.reload.confirmed?
+    assert_equal 'Tmp001', @group.group_name
+  end
+
   test 'another student cannot accept a join request' do
     invite = create(:project_group_invite, project_group: @group, sender: @other_student,
                                            recipient: @leader, kind: :direct_request)

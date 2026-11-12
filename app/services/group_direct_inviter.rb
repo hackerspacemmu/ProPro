@@ -12,9 +12,10 @@ class GroupDirectInviter
     course = @group.course
     recipient_enrolment = course.enrolments.find_by(user: @recipient)
 
+    return blocked(:imported_group) if @group.origin_import?
+    return blocked(:has_project) if @group.project.present?
     return blocked(:invalid_recipient) unless recipient_enrolment&.student?
     return blocked(:window_closed) unless course.grouping_window_open?
-    return blocked(:group_confirmed) if @group.confirmed?
     return blocked(:group_full) if course.group_full?(@group.project_group_members.count)
     return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @recipient.id)
 
@@ -59,9 +60,10 @@ class GroupDirectInviter
       return 'Invite sent.' if invited?
 
       case blocked_reason
+      when :imported_group then 'This group was imported, so it cannot take new members.'
+      when :has_project then 'This group already has a proposal, so it cannot take new members.'
       when :invalid_recipient then 'This user cannot be invited to a group.'
       when :window_closed then 'The grouping window is closed.'
-      when :group_confirmed then 'Group already confirmed, not accepting members.'
       when :group_full then 'Group has reached its maximum size.'
       when :already_grouped then 'This student already joined another group.'
       when :already_invited then 'This student already has a pending invite for this group.'

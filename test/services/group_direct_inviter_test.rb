@@ -54,14 +54,35 @@ class GroupDirectInviterTest < ActiveSupport::TestCase
     assert_equal :window_closed, result.blocked_reason
   end
 
-  test 'blocked when group already confirmed' do
+  test 'blocked for an imported group' do
+    @group.update!(confirmed: true, origin: :import)
+
+    result = GroupDirectInviter.new(@group, current_user: @leader, recipient: @recipient).invite!
+
+    assert result.blocked?
+    assert_equal :imported_group, result.blocked_reason
+  end
+
+  test 'invites a student into a confirmed group' do
     create_list(:project_group_member, 1, project_group: @group) # bring size to 2 (min)
     @group.update!(confirmed: true)
 
     result = GroupDirectInviter.new(@group, current_user: @leader, recipient: @recipient).invite!
 
+    assert result.invited?
+    assert ProjectGroupInvite.exists?(project_group: @group, recipient: @recipient,
+                                      kind: :direct_invite, status: :pending)
+  end
+
+  test 'blocked when the group has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+
+    result = GroupDirectInviter.new(@group, current_user: @leader, recipient: @recipient).invite!
+
     assert result.blocked?
-    assert_equal :group_confirmed, result.blocked_reason
+    assert_equal :has_project, result.blocked_reason
   end
 
   test 'blocked when group is full' do

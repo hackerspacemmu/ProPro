@@ -51,16 +51,21 @@ class ProjectGroupPolicy < ApplicationPolicy
     enrolment.present? && enrolment.student?
   end
 
-  # Requests stay closed until confirmed groups can accept them.
+  # Requests are for confirmed formation groups only (D28); the service
+  # re-checks enrolment, grouping state and the window.
   def request_to_join?
-    false
+    enrolment.present? && enrolment.student? && !record.origin_import? && record.confirmed?
   end
 
   def generate_invite_link?
+    return false if record.origin_import?
+
     record.leader_id == user.id
   end
 
   def direct_invite?
+    return false if record.origin_import?
+
     record.leader_id == user.id
   end
 

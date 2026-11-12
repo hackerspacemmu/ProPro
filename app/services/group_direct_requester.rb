@@ -10,6 +10,8 @@ class GroupDirectRequester
   def request!
     course = @group.course
 
+    return blocked(:imported_group) if @group.origin_import?
+    return blocked(:has_project) if @group.project.present?
     return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: @current_user.id, role: :student)
     return blocked(:window_closed) unless course.grouping_window_open?
     return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
@@ -57,6 +59,8 @@ class GroupDirectRequester
       return 'Join request sent.' if requested?
 
       case blocked_reason
+      when :imported_group then 'This group was imported, so you cannot request to join it.'
+      when :has_project then 'This group already has a proposal, so it cannot take new members.'
       when :not_enrolled then 'You are not enrolled in this course.'
       when :window_closed then 'The grouping window is closed.'
       when :already_grouped then 'Already in a group for this course.'

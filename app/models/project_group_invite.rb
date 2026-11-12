@@ -1,4 +1,6 @@
 class ProjectGroupInvite < ApplicationRecord
+  REQUEST_TTL = 24.hours
+
   belongs_to :project_group
   belongs_to :sender, class_name: 'User'
   belongs_to :recipient, class_name: 'User'
@@ -27,8 +29,14 @@ class ProjectGroupInvite < ApplicationRecord
   validates :kind,   presence: true
   validates :status, presence: true
 
+  # Only pending requests expire; decided rows and direct invites never do.
+  def expired?
+    pending? && direct_request? && created_at <= REQUEST_TTL.ago
+  end
+
   scope :pending_for_group, ->(group)   { where(project_group: group, status: :pending) }
   scope :for_course,        ->(course)  { joins(:project_group).where(project_groups: { course_id: course.id }) }
+  scope :unexpired,         ->          { where(arel_table[:created_at].gt(REQUEST_TTL.ago)) }
   # Deletes every pending invite/request involving the user in the course.
   def self.clear_pending_for!(user, course)
     pending

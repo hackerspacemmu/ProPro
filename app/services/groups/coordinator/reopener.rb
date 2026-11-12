@@ -18,12 +18,9 @@ module Groups
             return blocked(:imported_group) if @group.origin_import?
             return blocked(:has_project) if @group.project.present?
 
-            @group.project_group_invites.direct_request.pending.delete_all
-
             old_name = @group.group_name.presence || "Group #{@group.id}"
-            new_name = course.lowest_free_tmp_group_name
+            new_name = @group.reopen!
 
-            @group.update!(confirmed: false, group_name: new_name)
             Result.new(reopened: true, old_name: old_name, new_name: new_name)
           end
         end

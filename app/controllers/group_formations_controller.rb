@@ -13,9 +13,9 @@ class GroupFormationsController < ApplicationController
     @my_group_can_confirm = @my_group.present? && !@my_group.confirmed? && @my_group.confirmable?
 
     @my_group_invite_token = @my_group.project_group_invite_links.find_by(sender: current_user)&.token if @my_group
-    @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :direct_request) : []
+    @incoming_join_requests = @my_group.present? ? @my_group.project_group_invites.pending_for_group(@my_group).where(kind: :direct_request).unexpired : []
     @incoming_direct_invites = ProjectGroupInvite.for_course(@course).sent_to(current_user).pending.where(kind: :direct_invite)
-    @my_requested_group_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_request).pluck(:project_group_id)
+    @my_requested_group_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_request).unexpired.pluck(:project_group_id)
     @my_invited_student_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_invite).pluck(:recipient_id)
 
     @groups = @course.project_groups

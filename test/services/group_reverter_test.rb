@@ -82,4 +82,18 @@ class GroupReverterTest < ActiveSupport::TestCase
     assert result.confirmed?
     assert_equal 'G002', group.reload.group_name
   end
+
+  test 'reopening clears the group\'s pending join requests but keeps pending invites' do
+    course = create(:course, :grouped, grouping_enabled: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    group = create(:project_group, course: course, confirmed: true)
+    request = create(:project_group_invite, project_group: group, kind: :direct_request, status: :pending)
+    invite  = create(:project_group_invite, project_group: group, kind: :direct_invite, status: :pending)
+
+    result = GroupReverter.new(group).revert!
+
+    assert result.reverted?
+    assert_not ProjectGroupInvite.exists?(request.id)
+    assert ProjectGroupInvite.exists?(invite.id)
+  end
 end

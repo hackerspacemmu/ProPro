@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
   include ActiveSupport::Testing::TimeHelpers
 
   setup do
@@ -64,14 +65,49 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
     assert_equal :window_closed, result.blocked_reason
   end
 
-  test 'blocked when group already confirmed' do
-    create(:project_group_member, project_group: @group)
+  test 'redeeming a link into a confirmed group reopens it and notifies every member' do
+    @group.update!(confirmed: true, group_name: 'G001')
+
+    assert_enqueued_jobs 2 do
+      result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
+
+      assert result.redeemed?
+      assert result.reopened?
+    end
+
+    assert_not @group.reload.confirmed?
+    assert_equal 'Tmp001', @group.group_name
+    assert @group.project_group_members.exists?(user_id: @redeemer_user.id)
+  end
+
+  test 'redeeming a link into a not-confirmed group sends no reopened notification' do
+    assert_enqueued_jobs 0 do
+      result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
+
+      assert result.redeemed?
+      assert_not result.reopened?
+    end
+  end
+
+  test 'blocked when the group has a project' do
     @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
 
     result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
 
     assert result.blocked?
-    assert_equal :group_confirmed, result.blocked_reason
+    assert_equal :has_project, result.blocked_reason
+    assert_not @group.project_group_members.exists?(user_id: @redeemer_user.id)
+  end
+
+  test 'blocked for an imported group' do
+    @group.update!(confirmed: true, origin: :import)
+
+    result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
+
+    assert result.blocked?
+    assert_equal :imported_group, result.blocked_reason
   end
 
   test 'blocked when group is full' do

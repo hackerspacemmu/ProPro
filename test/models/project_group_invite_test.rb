@@ -73,6 +73,34 @@ class ProjectGroupInviteTest < ActiveSupport::TestCase
     assert ProjectGroupInvite.exists?(other_course_invite.id)
   end
 
+  test 'a pending request expires 24 hours after it was created' do
+    @invite.save!
+
+    travel_to(23.hours.from_now) { assert_not @invite.reload.expired? }
+    travel_to(25.hours.from_now) { assert @invite.reload.expired? }
+  end
+
+  test 'expiry is only for pending requests, never for decided rows or direct invites' do
+    @invite.save!
+    invite = create(:project_group_invite, project_group: @group, kind: :direct_invite, status: :pending)
+    declined = create(:project_group_invite, project_group: @group, kind: :direct_request, status: :declined)
+
+    travel_to(25.hours.from_now) do
+      assert @invite.reload.expired?
+      assert_not invite.reload.expired?
+      assert_not declined.reload.expired?
+    end
+  end
+
+  test 'unexpired scope drops stale rows' do
+    @invite.save!
+
+    assert_includes ProjectGroupInvite.unexpired, @invite
+    travel_to(25.hours.from_now) do
+      assert_not_includes ProjectGroupInvite.unexpired, @invite
+    end
+  end
+
   test 'for_course scope returns invites scoped to course' do
     @invite.save!
     other_course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
