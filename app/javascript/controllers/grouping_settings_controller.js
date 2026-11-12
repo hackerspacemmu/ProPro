@@ -81,7 +81,9 @@ export default class extends Controller {
   applyFormationState() {
     if (!this.hasFormationFieldsTarget) return;
     const hasValues = Array.from(
-      this.formationFieldsTarget.querySelectorAll("input[type='datetime-local']"),
+      this.formationFieldsTarget.querySelectorAll(
+        "input[type='datetime-local']",
+      ),
     ).some((input) => input.value.trim() !== "");
 
     this.formationFieldsTarget.classList.toggle("hidden", !hasValues);
