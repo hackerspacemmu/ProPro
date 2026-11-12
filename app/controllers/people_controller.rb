@@ -24,7 +24,7 @@ class PeopleController < ApplicationController
     @student_list = @course.students
 
     # One map lookup, computed once: user_id => project_group for the Students
-    # section's Group column. Includes draft groups (students in a draft group
+    # section's Group column. Includes not-confirmed groups (students in one
     # still belong to it); excludes nothing that is an actual membership.
     @student_group_map = {}
     if @course.grouped?

@@ -3,7 +3,7 @@ require 'test_helper'
 class GroupMemberAdderTest < ActiveSupport::TestCase
   setup do
     @course = create(:course, group_formation_enabled: true,
-                              group_min: 3, group_max: 3, student_list_finalised: false)
+                              group_min: 3, group_max: 3, prevent_leftover_students: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
     @group = create(:project_group, course: @course, leader_id: @leader.id)
@@ -16,7 +16,7 @@ class GroupMemberAdderTest < ActiveSupport::TestCase
     create(:enrolment, course: @course, user: @student, role: :student)
   end
 
-  test 'coordinator adds a student directly, bypassing draft-size legality' do
+  test 'coordinator adds a student directly, bypassing size legality for a not-confirmed group' do
     result = GroupMemberAdder.new(@group, user: @student, current_user: @coordinator).add!
 
     assert result.added?

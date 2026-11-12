@@ -13,7 +13,7 @@ module GroupFormationsHelper
   GROUP_TEXT_SMALL_BUTTON = "#{BTN} px-3 py-1.5 text-[13px] text-primary-strong hover:bg-primary-container".freeze
   GROUP_DANGER_TEXT_BUTTON = "#{BTN} px-3 py-2 text-sm text-error hover:bg-error-container".freeze
   GROUP_DANGER_TEXT_SMALL_BUTTON = "#{BTN} px-3 py-1 text-[13px] text-error hover:bg-error-container".freeze
-  # Filled red: confirm / dissolve dialog OK only
+  # Filled red: confirm / delete dialog OK only
   GROUP_DANGER_BUTTON = "#{BTN} bg-error px-5 py-2 text-sm text-white hover:bg-error-hover".freeze
 
   GROUP_DIALOG = 'cursor-auto text-left m-auto w-[calc(100vw-2rem)] max-w-lg overflow-hidden rounded-lg border-0 bg-surface p-0 shadow-xl backdrop:bg-black/30 max-sm:m-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-screen max-sm:max-w-none max-sm:rounded-none'.freeze

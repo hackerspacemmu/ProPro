@@ -8,7 +8,7 @@ class GroupingSettingsTogglesTest < BrowserSystemTestCase
   end
 
   test 'the prevent-leftover switch shows and hides the distribution preview' do
-    @course.update!(student_list_finalised: false)
+    @course.update!(prevent_leftover_students: false)
     login_as @coordinator
     visit settings_course_path(@course)
     wait_for_turbo

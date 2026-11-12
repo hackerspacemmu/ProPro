@@ -3,7 +3,7 @@ require 'application_system_test_case'
 class GroupFormationLeaveActionTest < ApplicationSystemTestCase
   setup do
     @course = create(:course, :grouped, group_formation_enabled: true,
-                                        group_min: 2, group_max: 4, student_list_finalised: false)
+                                        group_min: 2, group_max: 4, prevent_leftover_students: false)
     @leader = create(:user)
     create(:enrolment, user: @leader, course: @course)
     @member = create(:user)

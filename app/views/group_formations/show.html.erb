@@ -230,7 +230,7 @@
                     class="block w-full cursor-pointer rounded-md border border-outline-variant bg-surface-tint px-4 py-2 text-sm text-on-surface outline-none transition-all focus:border-transparent focus:bg-surface focus:ring-2 focus:ring-primary sm:w-[190px] max-sm:min-h-11 max-sm:text-base">
               <option value="all" <%= "selected" if params[:status_filter].blank? || params[:status_filter] == "all" %>>All statuses</option>
               <option value="confirmed" <%= "selected" if params[:status_filter] == "confirmed" %>>Confirmed (<%= confirmed_count %>)</option>
-              <option value="draft" <%= "selected" if params[:status_filter] == "draft" %>>Not confirmed (<%= all_groups.size - confirmed_count %>)</option>
+              <option value="not_confirmed" <%= "selected" if params[:status_filter] == "not_confirmed" %>>Not confirmed (<%= all_groups.size - confirmed_count %>)</option>
               <option value="invalid" <%= "selected" if params[:status_filter] == "invalid" %>>Invalid size (<%= invalid_count %>)</option>
             </select>
 

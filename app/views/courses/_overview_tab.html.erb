@@ -52,7 +52,7 @@
           <% end %>
         </div>
         <% if @presenter.unconfirmed_groups_count.positive? %>
-          <%= link_to "Review groups", course_groups_path(@course, status_filter: "draft"),
+          <%= link_to "Review groups", course_groups_path(@course, status_filter: "not_confirmed"),
                 class: "#{GroupFormationsHelper::GROUP_WARNING_BUTTON} shrink-0 self-start sm:self-center" %>
         <% end %>
       </div>

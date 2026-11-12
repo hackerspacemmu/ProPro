@@ -1,12 +1,12 @@
 <dialog
-  id="dissolve-warning-modal"
+  id="last-member-warning-modal"
   data-controller="warning-modal"
   data-action="click->warning-modal#closeOnBackdrop"
-  aria-labelledby="dissolve-warning-modal-title"
+  aria-labelledby="last-member-warning-modal-title"
   class="m-auto w-[420px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-outline-variant bg-surface p-0 backdrop:bg-black/40"
 >
   <div class="flex items-center justify-between border-b border-outline-variant px-5 py-4">
-    <p class="text-sm font-semibold text-on-surface-strong" id="dissolve-warning-modal-title">Remove last member?</p>
+    <p class="text-sm font-semibold text-on-surface-strong" id="last-member-warning-modal-title">Remove last member?</p>
     <button type="button" data-action="click->warning-modal#close" class="text-on-surface-variant transition-colors hover:text-on-surface" aria-label="Close">
       <span class="material-symbols-outlined text-[18px]">close</span>
     </button>

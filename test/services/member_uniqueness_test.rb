@@ -5,7 +5,7 @@ require 'test_helper'
 class MemberUniquenessTest < ActiveSupport::TestCase
   setup do
     @course = create(:course, grouped: true, group_formation_enabled: true,
-                              group_min: 2, group_max: 4, student_list_finalised: false)
+                              group_min: 2, group_max: 4, prevent_leftover_students: false)
     @leader = create(:user)
     @student = create(:user)
     @coordinator = create(:user)

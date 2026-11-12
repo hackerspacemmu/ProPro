@@ -58,9 +58,9 @@ class GroupFormationsController < ApplicationController
     query = params[:search_query].to_s.strip.downcase
 
     groups = case status
-             when 'confirmed' then groups.select(&:confirmed?)
-             when 'draft'     then groups.reject(&:confirmed?)
-             when 'invalid'   then groups.select { |group| helpers.group_size_state(group, @course) != :ok }
+             when 'confirmed'     then groups.select(&:confirmed?)
+             when 'not_confirmed' then groups.reject(&:confirmed?)
+             when 'invalid'       then groups.select { |group| helpers.group_size_state(group, @course) != :ok }
              else groups
              end
 

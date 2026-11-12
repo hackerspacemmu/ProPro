@@ -1,6 +1,6 @@
 # Leader generates/regenerates the group's shareable invite link.
 # Regenation deletes the old record and creates a new one.
-# draft groups, no email notifications
+# not-confirmed groups, no email notifications
 class GroupInviteLinkGenerator
   include Groups::GroupLocking
 

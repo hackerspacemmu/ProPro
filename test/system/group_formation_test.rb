@@ -3,7 +3,7 @@ require 'application_system_test_case'
 class GroupFormationTest < BrowserSystemTestCase
   setup do
     @course = create(:course, :grouped, group_formation_enabled: true,
-                                        group_min: 2, group_max: 4, student_list_finalised: false)
+                                        group_min: 2, group_max: 4, prevent_leftover_students: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
     @viewer = create(:user)

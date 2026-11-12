@@ -244,7 +244,7 @@ class OverviewTabTest < ApplicationSystemTestCase
       assert_text 'Closed'
       assert_text 'Group formation is closed.'
       assert_text '1 group is not confirmed, so their members cannot submit a proposal.'
-      assert_link 'Review groups', href: course_groups_path(@course, status_filter: 'draft')
+      assert_link 'Review groups', href: course_groups_path(@course, status_filter: 'not_confirmed')
     end
   end
 

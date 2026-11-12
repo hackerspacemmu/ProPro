@@ -63,7 +63,7 @@
                 hx-include="#groups-search, #groups-status-filter, #lecturer-filter">
           <option value="all" <%= params[:status_filter].blank? || params[:status_filter] == 'all' ? 'selected' : '' %>>All Statuses</option>
           <% unless @group_formation_open %>
-            <option value="draft" <%= params[:status_filter] == 'draft' ? 'selected' : '' %>>Not confirmed</option>
+            <option value="not_confirmed" <%= params[:status_filter] == 'not_confirmed' ? 'selected' : '' %>>Not confirmed</option>
           <% end %>
           <% %w[approved pending redo rejected not_submitted].each do |group_status| %>
             <option value="<%= group_status %>" <%= params[:status_filter] == group_status ? 'selected' : '' %>><%= group_status.titleize %></option>
@@ -105,7 +105,7 @@
         <% end %>
       </div>
       <% if @unconfirmed_group_count.positive? %>
-        <%= link_to "Show not confirmed", course_groups_path(@course, status_filter: "draft"),
+        <%= link_to "Show not confirmed", course_groups_path(@course, status_filter: "not_confirmed"),
               class: "#{GroupFormationsHelper::GROUP_WARNING_BUTTON} shrink-0 self-start sm:self-center" %>
       <% end %>
     </div>

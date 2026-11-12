@@ -5,7 +5,7 @@ class GroupCreatorTest < ActiveSupport::TestCase
   setup do
     @course = FactoryBot.create(:course,
                                 grouped: true, group_formation_enabled: true,
-                                group_min: 2, group_max: 4, student_list_finalised: false)
+                                group_min: 2, group_max: 4, prevent_leftover_students: false)
     @student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: @student, role: :student)
     @coordinator = FactoryBot.create(:user)
@@ -145,7 +145,7 @@ end
 class GroupCreatorRaceTest < NonTransactionalTestCase
   setup do
     @course = create(:course, grouped: true, group_formation_enabled: true,
-                              group_min: 2, group_max: 4, student_list_finalised: false)
+                              group_min: 2, group_max: 4, prevent_leftover_students: false)
     @students = [create(:user), create(:user)]
     @students.each { |user| create(:enrolment, course: @course, user: user, role: :student) }
   end

@@ -36,7 +36,7 @@ class GroupMembersController < ApplicationController
     if result.needs_confirmation?
       render turbo_stream: turbo_stream.append(
         'modals',
-        partial: 'group_members/dissolve_warning_modal',
+        partial: 'group_members/last_member_warning_modal',
         locals: { member: member, result: result }
       )
       return

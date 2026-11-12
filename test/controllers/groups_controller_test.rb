@@ -65,20 +65,20 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'div[role="status"]', text: /Group formation is closed/
   end
 
-  test 'groups#index status filter for draft works when closed and is ignored when open' do
+  test 'groups#index status filter for not confirmed works when closed and is ignored when open' do
     @course.update!(group_formation_enabled: true, group_formation_closes_at: 1.hour.ago)
     create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
     create(:project_group, course: @course, confirmed: true, group_name: 'G999')
 
     sign_in @coordinator
-    get course_groups_path(@course, status_filter: 'draft')
+    get course_groups_path(@course, status_filter: 'not_confirmed')
     assert_response :success
     assert_select 'table', text: /Tmp999/
     assert_select 'table', text: /G999/, count: 0
 
-    # Stale draft filter ignored when formation is open
+    # Stale not-confirmed filter ignored when formation is open
     @course.update!(group_formation_closes_at: nil)
-    get course_groups_path(@course, status_filter: 'draft')
+    get course_groups_path(@course, status_filter: 'not_confirmed')
     assert_response :success
     assert_select 'table', text: /G999/
     assert_select 'table', text: /Tmp999/, count: 0

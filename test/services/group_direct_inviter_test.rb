@@ -4,7 +4,7 @@ class GroupDirectInviterTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   setup do
     @course = create(:course, group_formation_enabled: true,
-                              group_min: 2, group_max: 3, student_list_finalised: false)
+                              group_min: 2, group_max: 3, prevent_leftover_students: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
     @group = create(:project_group, course: @course, leader_id: @leader.id)

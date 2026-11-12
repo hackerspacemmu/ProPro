@@ -3,7 +3,7 @@ require 'application_system_test_case'
 class GroupingDisplayUpdatesTest < BrowserSystemTestCase
   setup do
     @course = create(:course, :grouped, group_formation_enabled: true,
-                                        group_min: 3, group_max: 4, student_list_finalised: false)
+                                        group_min: 3, group_max: 4, prevent_leftover_students: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, course: @course, user: @coordinator)
     @students = Array.new(4) do
@@ -15,7 +15,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
   [false, true].each do |automatic|
     test "coordinator removal updates both pages and the open dialog in #{automatic ? 'automatic' : 'default'} mode" do
-      @course.update!(student_list_finalised: automatic)
+      @course.update!(prevent_leftover_students: automatic)
       @group.update!(confirmed: true)
       watch_groups_tab
       open_formation(@coordinator)
@@ -40,7 +40,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
   test 'joining refreshes both pages and clears the warning when the group reaches its minimum' do
     @group.project_group_members.find_by!(user: @students.third).destroy!
-    watch_groups_tab_without_drafts
+    watch_groups_tab_without_not_confirmed
     Capybara.using_session(:formation_observer) do
       open_formation(@students.first)
       select 'Invalid size', from: 'formation-status-filter'
@@ -55,7 +55,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
     assert_text 'Joined the group.'
     assert_selector "#project_group_#{@group.id}", text: '3 of 4 members'
     assert_no_selector '[data-group-size-warning]'
-    assert_groups_monitor_without_drafts
+    assert_groups_monitor_without_not_confirmed
     Capybara.using_session(:formation_observer) do
       assert_selector '#formation-groups', text: 'No groups match your current filters.'
       assert_selector '#formation-status-filter option:checked', text: /Invalid size/
@@ -65,8 +65,8 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
   end
 
   test 'a student leaving updates both pages and warns the remaining group members' do
-    @course.update!(student_list_finalised: true)
-    watch_groups_tab_without_drafts
+    @course.update!(prevent_leftover_students: true)
+    watch_groups_tab_without_not_confirmed
     Capybara.using_session(:formation_observer) { open_formation(@students.first) }
     open_formation(@students.third)
 
@@ -79,7 +79,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
 
     assert_no_selector '#my-group-panel'
     assert_selector "#project_group_#{@group.id}", text: '2 of 4 members'
-    assert_groups_monitor_without_drafts
+    assert_groups_monitor_without_not_confirmed
     Capybara.using_session(:formation_observer) do
       assert_selector '#my-group-panel', text: '2 of 4'
       assert_selector '#my-group-panel', text: warning_for(2)
@@ -129,7 +129,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
   # While formation is open the Groups tab hides not-confirmed
   # groups entirely, so the coordinator's monitor session asserts their absence
   # instead of watching their rows update.
-  def watch_groups_tab_without_drafts
+  def watch_groups_tab_without_not_confirmed
     Capybara.using_session(:groups_monitor) do
       login_as(@coordinator)
       visit course_groups_path(@course)
@@ -139,7 +139,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
     end
   end
 
-  def assert_groups_monitor_without_drafts
+  def assert_groups_monitor_without_not_confirmed
     Capybara.using_session(:groups_monitor) do
       assert_no_selector "#project_group_#{@group.id}"
     end

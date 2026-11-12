@@ -131,8 +131,8 @@ module ParticipantBrowsing
     end
 
     status = params[:status_filter]
-    stale_draft = @course.group_formation_open? && status == 'draft'
-    group_list = @course.groups_with_status(status, group_list) if status.present? && status != 'all' && !stale_draft
+    stale_not_confirmed = @course.group_formation_open? && status == 'not_confirmed'
+    group_list = @course.groups_with_status(status, group_list) if status.present? && status != 'all' && !stale_not_confirmed
 
     group_list = search_groups(group_list, params[:search_query]) if params[:search_query].present?
 
