@@ -26,4 +26,19 @@ class GeneralMailerTest < ActionMailer::TestCase
     assert_includes mail.text_part.body.to_s, 'Tmp001'
     assert_includes mail.html_part.body.to_s, 'Group reopened because'
   end
+
+  test 'the reopened notification can name the removed member' do
+    course = create(:course, group_formation_enabled: true)
+    group = create(:project_group, course: course, group_name: 'Tmp001')
+    removed = create(:user, name: 'Ada Lovelace')
+    recipient = create(:user)
+
+    mail = GeneralMailer.with(group: group, removed_user: removed, recipient: recipient)
+                        .Group_Reopened_Notification.deliver_now
+
+    assert_equal [recipient.email_address], mail.to
+    assert_includes mail.subject, 'Group reopened because Ada Lovelace was removed'
+    assert_includes mail.text_part.body.to_s, 'Group reopened because Ada Lovelace was removed.'
+    assert_includes mail.html_part.body.to_s, 'was removed'
+  end
 end

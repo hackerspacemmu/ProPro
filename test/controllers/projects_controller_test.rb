@@ -51,6 +51,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
                                            kind: :direct_invite, status: :pending)
     request = create(:project_group_invite, project_group: group, sender: requester, recipient: leader,
                                             kind: :direct_request, status: :pending)
+    link = create(:project_group_invite_link, project_group: group, sender: leader)
 
     sign_in leader
     post course_projects_path(course), params: {
@@ -61,6 +62,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert Project.exists?(owner: group)
     assert_not ProjectGroupInvite.exists?(invite.id)
     assert_not ProjectGroupInvite.exists?(request.id)
+    assert_not ProjectGroupInviteLink.exists?(link.id)
   end
 
   test 'creating an own proposal redirects and records the chosen supervisor' do

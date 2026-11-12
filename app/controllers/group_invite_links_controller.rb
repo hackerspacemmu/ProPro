@@ -17,6 +17,15 @@ class GroupInviteLinksController < ApplicationController
     end
   end
 
+  def destroy
+    authorize @group, :generate_invite_link?
+
+    result = Groups::InviteLinkDisabler.new(@group).disable!
+
+    redirect_to course_group_formation_path(@course),
+                **(result.disabled? ? { notice: result.message } : { alert: result.message })
+  end
+
   private
 
   def set_course

@@ -26,7 +26,7 @@ class ProjectGroupPolicy < ApplicationPolicy
     return false if record.origin_import?
     return true if manage_groups_policy.manage_groups?
 
-    record.leader_id == user.id
+    group_formation_open? && record.leader_id == user.id
   end
 
   def destroy?
@@ -42,19 +42,20 @@ class ProjectGroupPolicy < ApplicationPolicy
 
   def update?
     return true if coordinator?
+    return false if record.origin_import?
+    return false if record.project.present?
 
-    group_formation_open? &&
-      record.leader_id == user.id && !record.confirmed?
+    group_formation_open? && record.leader_id == user.id
   end
 
   def join?
     enrolment.present? && enrolment.student?
   end
 
-  # Requests are for confirmed formation groups only (D28); the service
-  # re-checks enrolment, origin and formation state.
+  # Requests are for confirmed formation groups only;
   def request_to_join?
-    enrolment.present? && enrolment.student? && !record.origin_import? && record.confirmed?
+    enrolment.present? && enrolment.student? && !record.origin_import? &&
+      record.confirmed? && record.project.blank? && group_formation_open?
   end
 
   def generate_invite_link?

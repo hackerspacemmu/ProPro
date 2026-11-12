@@ -227,6 +227,34 @@ class GroupInviteLinkRedeemerRaceTest < NonTransactionalTestCase
     holder&.kill
   end
 
+  test 'a link cleared by a concurrent confirmation is refused' do
+    release = Queue.new
+    mutation = Queue.new
+    holder = hold_group_lock(release) do
+      mutation.pop
+      # The confirmer's critical section: links die, then the group confirms.
+      @group.clear_invite_links!
+      @group.update!(confirmed: true, group_name: 'G001')
+    end
+    thread = redeemer_thread(@redeemer_user)
+
+    wait_for_lock_wait
+    mutation << true
+    release << true
+
+    result = Timeout.timeout(10) { thread.value }
+
+    assert result.blocked?
+    assert_equal :expired, result.blocked_reason
+    assert_not @group.project_group_members.exists?(user_id: @redeemer_user.id)
+  ensure
+    release << true if release
+    thread&.join(1)
+    thread&.kill
+    holder&.join(1)
+    holder&.kill
+  end
+
   test 'a link replaced while the redeemer waits is refused' do
     release = Queue.new
     mutation = Queue.new

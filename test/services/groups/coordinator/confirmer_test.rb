@@ -49,6 +49,18 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
     assert group.reload.confirmed?
   end
 
+  test 'confirming clears the group invite links' do
+    course = create(:course, group_formation_enabled: true, group_min: 2, group_max: 4)
+    group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')
+    create_list(:project_group_member, 2, project_group: group)
+    link = create(:project_group_invite_link, project_group: group)
+
+    result = Groups::Coordinator::Confirmer.new(group).confirm!
+
+    assert result.confirmed?
+    assert_not ProjectGroupInviteLink.exists?(link.id)
+  end
+
   test 'blocks when already confirmed' do
     course = create(:course, group_formation_enabled: true)
     group = create(:project_group, course: course, confirmed: true, group_name: 'G001')

@@ -29,6 +29,21 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
     assert_not ProjectGroupPolicy.new(@leader, @group).request_to_join?
   end
 
+  test 'request_to_join? is false when the group has a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+
+    assert_not ProjectGroupPolicy.new(@student, @group).request_to_join?
+  end
+
+  test 'request_to_join? is false when formation is closed' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+
+    assert_not ProjectGroupPolicy.new(@student, @group).request_to_join?
+  end
+
   test 'an imported group takes no student leader actions' do
     @group.update!(confirmed: true, origin: :import)
 
@@ -74,6 +89,39 @@ class ProjectGroupPolicyTest < ActiveSupport::TestCase
 
     assert_not ProjectGroupPolicy.new(@leader, @group).revert?
     assert_not ProjectGroupPolicy.new(@coordinator, @group).revert?
+  end
+
+  test 'the leader can edit and update a confirmed group while formation is open' do
+    @group.update!(confirmed: true)
+
+    assert ProjectGroupPolicy.new(@leader, @group).edit?
+    assert ProjectGroupPolicy.new(@leader, @group).update?
+  end
+
+  test 'the leader cannot edit a confirmed group when formation is closed' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+
+    assert_not ProjectGroupPolicy.new(@leader, @group).edit?
+    assert_not ProjectGroupPolicy.new(@leader, @group).update?
+  end
+
+  test 'the leader cannot edit an imported group or one with a project' do
+    @group.update!(confirmed: true, origin: :import)
+    assert_not ProjectGroupPolicy.new(@leader, @group).edit?
+
+    @group.update!(origin: :formation)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+    assert_not ProjectGroupPolicy.new(@leader, @group).edit?
+  end
+
+  test 'a leader cannot revert a confirmed group when formation is closed' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+
+    assert_not ProjectGroupPolicy.new(@leader, @group).revert?
+    assert ProjectGroupPolicy.new(@coordinator, @group).revert?
   end
 
   test 'a lecturer cannot create, confirm, revert or edit a group' do

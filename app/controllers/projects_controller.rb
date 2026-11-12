@@ -252,7 +252,10 @@ class ProjectsController < ApplicationController
           supervisor_enrolment: supervisor_enrolment
         )
 
-        ProjectGroupInvite.pending_for_group(group).delete_all if @course.grouped?
+        if @course.grouped?
+          ProjectGroupInvite.pending_for_group(group).delete_all
+          group.clear_invite_links!
+        end
 
         # Get title
         title_value = nil

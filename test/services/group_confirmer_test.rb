@@ -83,6 +83,19 @@ class GroupConfirmerTest < ActiveSupport::TestCase
     assert_equal 'G002', group.reload.group_name
   end
 
+  test 'confirming clears the group invite links' do
+    course = create(:course, :grouped, group_formation_enabled: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    group = create(:project_group, course: course, confirmed: false)
+    create_list(:project_group_member, 3, project_group: group)
+    link = create(:project_group_invite_link, project_group: group)
+
+    result = GroupConfirmer.new(group).confirm!
+
+    assert result.confirmed?
+    assert_not ProjectGroupInviteLink.exists?(link.id)
+  end
+
   test 'a not-confirmed group with a confirmed-style name ignores its own name' do
     course = create(:course, :grouped, group_formation_enabled: true,
                                        student_list_finalised: false, group_min: 2, group_max: 4)

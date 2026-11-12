@@ -20,6 +20,7 @@ module Groups
             new_name = course.lowest_free_confirmed_group_name(excluding: @group)
 
             @group.update!(confirmed: true, group_name: new_name)
+            @group.clear_invite_links!
             Result.new(confirmed: true, old_name: old_name, new_name: new_name)
           end
         end

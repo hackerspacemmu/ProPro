@@ -111,8 +111,11 @@ class GeneralMailer < ApplicationMailer
   def Group_Reopened_Notification
     @group = params[:group]
     @joiner = params[:joiner]
+    @removed_user = params[:removed_user]
     @recipient = params[:recipient]
 
-    mail(to: @recipient.email_address, subject: "Group reopened because #{@joiner.name} joined")
+    who = @removed_user || @joiner
+    action = @removed_user ? 'was removed' : 'joined'
+    mail(to: @recipient.email_address, subject: "Group reopened because #{who.name} #{action}")
   end
 end

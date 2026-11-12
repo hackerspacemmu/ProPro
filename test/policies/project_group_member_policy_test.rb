@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ProjectGroupMemberPolicyTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, :grouped)
+    @course = create(:course, :grouped, group_formation_enabled: true)
     @leader = create(:user)
     @member = create(:user)
     @coordinator = create(:user, :staff)
@@ -17,11 +17,44 @@ class ProjectGroupMemberPolicyTest < ActiveSupport::TestCase
     assert ProjectGroupMemberPolicy.new(@leader, @membership).destroy?
   end
 
-  test 'the member and leader cannot remove members from a confirmed group' do
+  test 'a member cannot leave a confirmed group' do
     @group.update!(confirmed: true)
 
     assert_not ProjectGroupMemberPolicy.new(@member, @membership).destroy?
+  end
+
+  test 'the leader can remove another member from a confirmed group while formation is open' do
+    @group.update!(confirmed: true)
+
+    assert ProjectGroupMemberPolicy.new(@leader, @membership).destroy?
+  end
+
+  test 'the leader cannot remove a member from a confirmed group when formation is closed' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+
     assert_not ProjectGroupMemberPolicy.new(@leader, @membership).destroy?
+  end
+
+  test 'the leader cannot remove a member from a confirmed imported group' do
+    @group.update!(confirmed: true, origin: :import)
+
+    assert_not ProjectGroupMemberPolicy.new(@leader, @membership).destroy?
+  end
+
+  test 'the leader cannot remove a member from a confirmed group with a project' do
+    @group.update!(confirmed: true)
+    supervisor = create(:enrolment, :lecturer, course: @course)
+    Project.create!(course: @course, owner: @group, supervisor_enrolment: supervisor)
+
+    assert_not ProjectGroupMemberPolicy.new(@leader, @membership).destroy?
+  end
+
+  test 'the leader cannot remove their own membership from a confirmed group' do
+    @group.update!(confirmed: true)
+    leader_membership = @group.project_group_members.find_by!(user: @leader)
+
+    assert_not ProjectGroupMemberPolicy.new(@leader, leader_membership).destroy?
   end
 
   test 'a coordinator can remove members in any state' do

@@ -86,6 +86,25 @@ module Groups
       end
     end
 
+    test 'the direct requester locks the group row' do
+      assert_locks_group do
+        with_group do |group, _leader, _membership|
+          group.update!(confirmed: true)
+          student = create(:user)
+          create(:enrolment, :student, course: group.course, user: student)
+          GroupDirectRequester.new(group, current_user: student).request!
+        end
+      end
+    end
+
+    test 'the invite-link disabler locks the group row' do
+      assert_locks_group { with_group { |group, _leader, _membership| InviteLinkDisabler.new(group).disable! } }
+    end
+
+    test 'the kicker locks the course before the group' do
+      assert_locks_course_then_group { with_group { |_group, leader, membership| Kicker.new(membership, current_user: leader).kick! } }
+    end
+
     test 'confirmers lock the course before the group' do
       assert_locks_course_then_group { with_group { |group, _leader, _membership| GroupConfirmer.new(group).confirm! } }
       assert_locks_course_then_group do

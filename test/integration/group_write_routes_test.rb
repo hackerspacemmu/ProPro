@@ -74,6 +74,42 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test 'the Manage page hides expired join requests' do
+    fresh = create(:user)
+    stale = create(:user)
+    [fresh, stale].each { |user| create(:enrolment, :student, user: user, course: @course) }
+    create(:project_group_invite, project_group: @group, sender: fresh, recipient: @leader,
+                                  kind: :direct_request, status: :pending)
+    create(:project_group_invite, project_group: @group, sender: stale, recipient: @leader,
+                                  kind: :direct_request, status: :pending, created_at: 25.hours.ago)
+
+    sign_in @leader
+    get edit_course_group_path(@course, @group)
+
+    html = Nokogiri::HTML(response.body)
+    section = html.css('section').find { |node| node.at_css('h3')&.text == 'Join requests' }
+    assert section, 'expected the Join requests section'
+    assert_includes section.text, fresh.name
+    assert_not_includes section.text, stale.name
+  end
+
+  test 'the leader can open the Manage page for a confirmed group while formation is open' do
+    @group.update!(confirmed: true)
+    sign_in @leader
+
+    get edit_course_group_path(@course, @group)
+    assert_response :success
+  end
+
+  test 'the leader cannot open the Manage page for a confirmed group when formation is closed' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+    sign_in @leader
+
+    get edit_course_group_path(@course, @group)
+    assert_redirected_to dashboard_path
+  end
+
   test 'a lecturer cannot open the Manage page' do
     sign_in @lecturer
 
@@ -358,6 +394,86 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to dashboard_path
+  end
+
+  test 'the leader can remove a member from a confirmed group, reopening it' do
+    @group.update!(confirmed: true, group_name: 'G001')
+    membership = @group.project_group_members.find_by!(user: @member)
+    sign_in @leader
+
+    delete course_group_member_path(@course, @group, membership)
+
+    assert_redirected_to course_group_formation_path(@course)
+    assert_not @group.reload.confirmed?
+    assert_equal 'Tmp001', @group.group_name
+    assert_not @group.project_group_members.exists?(user: @member)
+  end
+
+  test 'the leader cannot remove a member from a confirmed group when formation is closed' do
+    @group.update!(confirmed: true)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
+    membership = @group.project_group_members.find_by!(user: @member)
+    sign_in @leader
+
+    assert_no_difference '@group.project_group_members.count' do
+      delete course_group_member_path(@course, @group, membership)
+    end
+
+    assert_redirected_to dashboard_path
+  end
+
+  test 'the leader can disable the group invite link' do
+    link = create(:project_group_invite_link, project_group: @group, sender: @leader)
+    sign_in @leader
+
+    delete course_group_invite_link_path(@course, @group)
+
+    assert_redirected_to course_group_formation_path(@course)
+    assert_not ProjectGroupInviteLink.exists?(link.id)
+  end
+
+  test 'a member and another group leader cannot disable the invite link' do
+    link = create(:project_group_invite_link, project_group: @group, sender: @leader)
+    other_group = create(:project_group, course: @course, leader_id: @other_student.id)
+    create(:project_group_member, project_group: other_group, user: @other_student)
+
+    sign_in @member
+    delete course_group_invite_link_path(@course, @group)
+
+    assert_redirected_to dashboard_path
+    assert ProjectGroupInviteLink.exists?(link.id)
+
+    sign_in @other_student
+    delete course_group_invite_link_path(@course, @group)
+
+    assert_redirected_to dashboard_path
+    assert ProjectGroupInviteLink.exists?(link.id)
+  end
+
+  test 'a disabled invite link cannot be redeemed' do
+    link = create(:project_group_invite_link, project_group: @group, sender: @leader)
+    token = link.token
+    sign_in @leader
+    delete course_group_invite_link_path(@course, @group)
+
+    sign_in @other_student
+    assert_no_difference '@group.project_group_members.count' do
+      post invite_link_redemption_path(token)
+    end
+
+    assert_redirected_to invite_link_path(token)
+  end
+
+  test 'a deleted invite link shows the invalid page instead of 404ing' do
+    link = create(:project_group_invite_link, project_group: @group, sender: @leader)
+    token = link.token
+    link.destroy!
+    sign_in @other_student
+
+    get invite_link_path(token)
+
+    assert_response :success
+    assert_includes response.body, 'This invite link is invalid or has expired.'
   end
 
   test 'the leader cannot reopen a group that has a project' do

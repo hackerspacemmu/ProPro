@@ -38,6 +38,17 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
     assert_equal 0, group.project_group_invites.direct_request.pending.count
   end
 
+  test 'deletes invite links when reopening' do
+    course = create(:course, group_formation_enabled: true)
+    group = create(:project_group, course: course, confirmed: true, group_name: 'G001')
+    link = create(:project_group_invite_link, project_group: group)
+
+    result = Groups::Coordinator::Reopener.new(group).reopen!
+
+    assert result.reopened?
+    assert_not ProjectGroupInviteLink.exists?(link.id)
+  end
+
   test 'blocks reopening when already not confirmed' do
     course = create(:course, group_formation_enabled: true)
     group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')

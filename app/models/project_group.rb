@@ -34,8 +34,14 @@ class ProjectGroup < ApplicationRecord
   # because a request only makes sense on a confirmed group.
   def reopen!
     project_group_invites.direct_request.pending.delete_all
+    clear_invite_links!
     update!(confirmed: false, group_name: course.lowest_free_tmp_group_name)
     group_name
+  end
+
+  # A shareable link only makes sense while the group is open for new members.
+  def clear_invite_links!
+    project_group_invite_links.delete_all
   end
 
   private

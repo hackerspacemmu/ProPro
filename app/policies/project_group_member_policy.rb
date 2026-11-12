@@ -3,9 +3,14 @@ class ProjectGroupMemberPolicy < ApplicationPolicy
     group = record.project_group
 
     return true if coordinator?
-    return false if group.confirmed?
+    return false if group.confirmed? && record.user_id == user.id
 
-    record.user_id == user.id || group.leader?(user)
+    if group.confirmed?
+      group.leader?(user) && !group.origin_import? && group.project.blank? &&
+        group.course.group_formation_open?
+    else
+      record.user_id == user.id || group.leader?(user)
+    end
   end
 
   private

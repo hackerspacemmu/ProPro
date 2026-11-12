@@ -97,6 +97,31 @@ class GroupDirectRequesterTest < ActiveSupport::TestCase
     assert_equal :no_leader_assigned, result.blocked_reason
   end
 
+  test 'blocked when the group is full' do
+    @course.update!(group_min: 1, group_max: 1)
+
+    assert_no_difference('ProjectGroupInvite.count') do
+      result = GroupDirectRequester.new(@group, current_user: @student).request!
+
+      assert result.blocked?
+      assert_equal :group_full, result.blocked_reason
+    end
+  end
+
+  test 'an expired pending request is replaced by a new one' do
+    GroupDirectRequester.new(@group, current_user: @student).request!
+    old = ProjectGroupInvite.find_by!(project_group: @group, sender: @student)
+
+    result = travel_to(25.hours.from_now) do
+      GroupDirectRequester.new(@group, current_user: @student).request!
+    end
+
+    assert result.requested?
+    assert_not ProjectGroupInvite.exists?(old.id)
+    assert_equal 1, ProjectGroupInvite.where(project_group: @group, sender: @student,
+                                             kind: :direct_request, status: :pending).count
+  end
+
   test 'duplicate pending request is rescued into already_requested' do
     GroupDirectRequester.new(@group, current_user: @student).request!
 
@@ -133,43 +158,20 @@ class GroupDirectRequesterRaceTest < NonTransactionalTestCase
     create(:enrolment, course: @course, user: @student, role: :student)
   end
 
-  test 'concurrent duplicate requests — DB unique index catches the race, not app logic' do
+  test 'concurrent duplicate requests are serialised by the group lock' do
     start = Queue.new
-    passed_validation = Queue.new
-    resume = Queue.new
-    threads = []
-
-    subscriber = lambda do |*args|
-      sql = args.last[:sql]
-      next unless sql.include?('FROM "project_group_invites"') && sql.include?('LIMIT')
-
-      passed_validation << true
-      resume.pop
-    end
-
-    ActiveSupport::Notifications.subscribed(subscriber, 'sql.active_record') do
-      threads = Array.new(2) do
-        Thread.new do
-          with_connection do
-            start.pop
-            GroupDirectRequester.new(ProjectGroup.find(@group.id), current_user: @student).request!
-          end
+    threads = Array.new(2) do
+      Thread.new do
+        with_connection do
+          start.pop
+          GroupDirectRequester.new(ProjectGroup.find(@group.id), current_user: @student).request!
         end
       end
-
-      2.times { start << true }
-      2.times { passed_validation.pop }
-      2.times { resume << true }
-      results = Timeout.timeout(10) { threads.map(&:value) }
-      run_assertions(results)
     end
-  ensure
-    (threads || []).each { |thread| thread.join(1) || thread.kill }
-  end
 
-  private
+    2.times { start << true }
+    results = Timeout.timeout(10) { threads.map(&:value) }
 
-  def run_assertions(results)
     requested = results.select(&:requested?)
     blocked   = results.select(&:blocked?)
 
@@ -177,5 +179,7 @@ class GroupDirectRequesterRaceTest < NonTransactionalTestCase
     assert_equal 1, blocked.length
     assert_equal :already_requested, blocked.first.blocked_reason
     assert_equal 1, ProjectGroupInvite.where(project_group: @group, sender: @student).count
+  ensure
+    (threads || []).each { |thread| thread.join(1) || thread.kill }
   end
 end

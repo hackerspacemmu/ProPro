@@ -81,7 +81,7 @@ Rails.application.routes.draw do
     resource :group_formation, only: :show
     resources :groups, only: %i[index show create edit destroy] do
       resource  :confirmation,  only: %i[create destroy], controller: 'group_confirmations'
-      resource  :invite_link,   only: :create,            controller: 'group_invite_links'
+      resource  :invite_link,   only: %i[create destroy], controller: 'group_invite_links'
       resources :members,       only: %i[create destroy], controller: 'group_members'
       resources :join_requests, only: %i[create update],  controller: 'group_join_requests'
       resources :invitations,   only: %i[create update],  controller: 'group_invitations'

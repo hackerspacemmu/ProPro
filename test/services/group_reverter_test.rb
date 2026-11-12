@@ -96,4 +96,16 @@ class GroupReverterTest < ActiveSupport::TestCase
     assert_not ProjectGroupInvite.exists?(request.id)
     assert ProjectGroupInvite.exists?(invite.id)
   end
+
+  test 'reopening clears the group invite links' do
+    course = create(:course, :grouped, group_formation_enabled: true,
+                                       student_list_finalised: false, group_min: 2, group_max: 4)
+    group = create(:project_group, course: course, confirmed: true)
+    link = create(:project_group_invite_link, project_group: group)
+
+    result = GroupReverter.new(group).revert!
+
+    assert result.reverted?
+    assert_not ProjectGroupInviteLink.exists?(link.id)
+  end
 end

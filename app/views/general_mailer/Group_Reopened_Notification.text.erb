@@ -1,4 +1,8 @@
+<% if @removed_user %>
+Group reopened because <%= @removed_user.name %> was removed.
+<% else %>
 Group reopened because <%= @joiner.name %> joined.
+<% end %>
 
 <%= @group.group_name %> is no longer confirmed. Visit <%= course_group_formation_url(@group.course) %> to review it.
 
