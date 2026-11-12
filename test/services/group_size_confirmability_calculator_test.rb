@@ -80,4 +80,73 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
 
     assert result.confirmable_size?(4)
   end
+
+  test 'feasible_count? matches an exhaustive search for a legal number of groups' do
+    (1..8).each do |group_min|
+      (group_min..12).each do |group_max|
+        (0..100).each do |count|
+          expected = feasible?(count, group_min, group_max)
+
+          assert_equal expected,
+                       Queries::GroupSizeConfirmabilityCalculator.feasible_count?(count, group_min, group_max),
+                       "count=#{count}, min=#{group_min}, max=#{group_max}"
+        end
+      end
+    end
+  end
+
+  test 'random confirm orders never leave an ungroupable remainder' do
+    confirm_order_configs.each do |group_min, group_max, count, seed|
+      course = build(:course, group_formation_enabled: true, student_list_finalised: true,
+                              group_min: group_min, group_max: group_max)
+      random = Random.new(seed)
+      remaining = count
+
+      assert feasible?(remaining, group_min, group_max),
+             "initial count #{count} is infeasible (min=#{group_min}, max=#{group_max})"
+
+      while remaining.positive?
+        result = Queries::GroupSizeConfirmabilityCalculator.new(course, students_to_group: remaining).execute
+        confirmable_sizes = (group_min..group_max).select { |size| result.confirmable_size?(size) }
+
+        assert_not_empty confirmable_sizes,
+                         "#{remaining} students left with no confirmable size (min=#{group_min}, max=#{group_max}, seed=#{seed})"
+
+        remaining -= confirmable_sizes.sample(random: random)
+
+        assert remaining.zero? || Queries::GroupSizeConfirmabilityCalculator.feasible_count?(remaining, group_min, group_max),
+               "confirming left #{remaining} students ungroupable (min=#{group_min}, max=#{group_max}, seed=#{seed})"
+      end
+
+      assert_equal 0, remaining
+    end
+  end
+
+  test 'an infeasible student count has no confirmable size' do
+    [[4, 4, 7], [3, 5, 1], [4, 4, 6]].each do |group_min, group_max, count|
+      course = build(:course, group_formation_enabled: true, student_list_finalised: true,
+                              group_min: group_min, group_max: group_max)
+      result = Queries::GroupSizeConfirmabilityCalculator.new(course, students_to_group: count).execute
+
+      assert_not result.found?, "#{count} students should have no legal distribution (min=#{group_min}, max=#{group_max})"
+      (group_min..group_max).each { |size| assert_not result.confirmable_size?(size) }
+    end
+  end
+
+  private
+
+  def confirm_order_configs
+    [
+      [1, 12, 100, 42],
+      [2, 5, 10, 2026],
+      [3, 4, 7, 7],
+      [4, 8, 37, 1_234],
+      [4, 4, 12, 99],
+      [2, 3, 99, 12_345]
+    ]
+  end
+
+  def feasible?(count, group_min, group_max)
+    count.zero? || (1..count).any? { |groups| count.between?(groups * group_min, groups * group_max) }
+  end
 end
