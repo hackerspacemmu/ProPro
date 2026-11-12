@@ -2,7 +2,7 @@ require 'application_system_test_case'
 
 class GroupingDisplayUpdatesTest < BrowserSystemTestCase
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true,
+    @course = create(:course, :grouped, group_formation_enabled: true,
                                         group_min: 3, group_max: 4, student_list_finalised: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, course: @course, user: @coordinator)
@@ -126,7 +126,7 @@ class GroupingDisplayUpdatesTest < BrowserSystemTestCase
     end
   end
 
-  # While the window is open the Groups tab hides not-confirmed
+  # While formation is open the Groups tab hides not-confirmed
   # groups entirely, so the coordinator's monitor session asserts their absence
   # instead of watching their rows update.
   def watch_groups_tab_without_drafts

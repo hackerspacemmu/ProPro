@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true,
+    @course = create(:course, :grouped, group_formation_enabled: true,
                                         group_min: 2, group_max: 4, student_list_finalised: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)

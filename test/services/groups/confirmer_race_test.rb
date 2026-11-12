@@ -3,7 +3,7 @@ require 'test_helper'
 module Groups
   class ConfirmerRaceTest < NonTransactionalTestCase
     setup do
-      @course = create(:course, grouped: true, grouping_enabled: true,
+      @course = create(:course, grouped: true, group_formation_enabled: true,
                                 group_min: 2, group_max: 3, student_list_finalised: true)
       students = Array.new(5) do
         create(:user).tap { |user| create(:enrolment, :student, course: @course, user: user) }

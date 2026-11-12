@@ -20,7 +20,7 @@
     <div class="flex flex-row items-center justify-between p-6 box-border border-b border-outline-variant">
       <h2 class="text-[22px] font-normal text-on-surface-strong">Group formation</h2>
       <div class="flex shrink-0 items-center gap-3">
-        <% if @presenter.grouping_window_open? %>
+        <% if @presenter.group_formation_open? %>
           <span class="inline-flex whitespace-nowrap rounded px-2.5 py-0.5 text-[12px] font-medium tracking-wide bg-success-container text-success">Open</span>
         <% else %>
           <span class="inline-flex whitespace-nowrap rounded px-2.5 py-0.5 text-[12px] font-medium tracking-wide bg-surface-variant text-on-surface-variant">Closed</span>
@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <% if !@presenter.grouping_window_open? && @presenter.total_groups_count.zero? %>
+    <% if !@presenter.group_formation_open? && @presenter.total_groups_count.zero? %>
       <div class="flex flex-col gap-3 border-b border-outline-variant px-4 py-3 text-[14px] leading-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <p class="text-on-surface-variant">Group formation is closed.</p>
         <% if @presenter.coordinator? %>
@@ -58,13 +58,13 @@
       </div>
     <% else %>
       <%
-        is_lecturer_open = @presenter.lecturer? && !@presenter.coordinator? && @presenter.grouping_window_open?
+        is_lecturer_open = @presenter.lecturer? && !@presenter.coordinator? && @presenter.group_formation_open?
         empty = @presenter.total_groups_count.zero?
         conf = @presenter.confirmed_groups_count
         total = @presenter.total_groups_count
         ug = @presenter.ungrouped_students_count
         nc = @presenter.unconfirmed_groups_count
-        closes_at = @presenter.grouping_closes_at
+        closes_at = @presenter.group_formation_closes_at
       %>
       <div class="flex flex-col gap-3 border-b border-outline-variant px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div class="min-w-0 flex-1">
@@ -101,7 +101,7 @@
                 meta_parts << "Every student is in a group"
               end
             end
-            if @presenter.grouping_window_open? && closes_at.present?
+            if @presenter.group_formation_open? && closes_at.present?
               meta_parts << "Open until #{l(closes_at.to_date, format: :short)}"
             end
           %>
@@ -115,7 +115,7 @@
           <% end %>
         </div>
 
-        <% if @presenter.grouping_window_open? %>
+        <% if @presenter.group_formation_open? %>
           <%= link_to "Open group formation", course_group_formation_path(@course), class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start sm:self-center" %>
         <% else %>
           <%= link_to "View groups", course_groups_path(@course), class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start sm:self-center" %>
@@ -145,12 +145,12 @@
           <% end %>
         </div>
       </div>
-      <% view_group_path = @presenter.grouping_window_open? ? course_group_formation_path(@course) : course_group_path(@course, group) %>
+      <% view_group_path = @presenter.group_formation_open? ? course_group_formation_path(@course) : course_group_path(@course, group) %>
       <%= link_to "View group", view_group_path, class: "#{GroupFormationsHelper::GROUP_TEXT_BUTTON} shrink-0 self-start" %>
     </div>
   <% else %>
     <% is_leader = @presenter.my_group_leader? %>
-    <% is_open = @presenter.grouping_window_open? %>
+    <% is_open = @presenter.group_formation_open? %>
     <% hint = if is_open
                 if is_leader
                   "Confirm the group once its members are final. Only a confirmed group can start a proposal."
@@ -223,7 +223,7 @@
     </div>
     <% case @presenter.submission_state %>
     <% when :no_group %>
-      <% if @presenter.grouping_window_open? %>
+      <% if @presenter.group_formation_open? %>
         <%= render "shared/empty_state",
               heading: "You're not in a group yet",
               description: "Join or create a group before you can put together a project proposal.",

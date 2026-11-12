@@ -209,7 +209,7 @@
 
           <div class="space-y-8"
                data-controller="grouping-settings"
-               data-grouping-settings-enabled-value="<%= @course.grouping_enabled? %>"
+               data-grouping-settings-enabled-value="<%= @course.group_formation_enabled? %>"
                data-grouping-settings-finalised-value="<%= @course.student_list_finalised? %>">
 
             <!-- Master toggle: Student self-grouping -->
@@ -221,7 +221,7 @@
                 </span>
               </div>
               <label class="relative flex items-center cursor-pointer shrink-0 mt-1">
-                <%= form.check_box :grouping_enabled,
+                <%= form.check_box :group_formation_enabled,
                       { class: "sr-only peer", role: "switch", "aria-label": "Student self-grouping",
                         data: { action: "change->grouping-settings#toggleEnabled" } },
                       "true", "false" %>
@@ -230,7 +230,7 @@
             </div>
 
             <!-- Options Section: hidden until grouping enabled -->
-            <div data-grouping-settings-target="groupingOptions" class="space-y-8 border-t border-outline-variant pt-6 <%= 'hidden' unless @course.grouping_enabled? %>">
+            <div data-grouping-settings-target="groupingOptions" class="space-y-8 border-t border-outline-variant pt-6 <%= 'hidden' unless @course.group_formation_enabled? %>">
 
               <!-- Sub-block: Group Configuration -->
               <div class="space-y-6">
@@ -313,18 +313,18 @@
                       </span>
                     </div>
                     <button type="button" class="mt-1 px-4 py-1.5 rounded-full border border-outline text-primary hover:bg-surface-variant font-medium text-[13px] transition-colors shrink-0"
-                            data-action="click->grouping-settings#toggleWindow"
-                            data-grouping-settings-target="windowToggleBtn">
-                      <%= @course.grouping_closes_at.present? ? 'Remove date' : 'Set date' %>
+                            data-action="click->grouping-settings#toggleFormation"
+                            data-grouping-settings-target="formationToggleBtn">
+                      <%= @course.group_formation_closes_at.present? ? 'Remove date' : 'Set date' %>
                     </button>
                   </div>
 
-                  <div data-grouping-settings-target="windowFields" class="<%= 'hidden' unless @course.grouping_closes_at.present? %> mt-4">
+                  <div data-grouping-settings-target="formationFields" class="<%= 'hidden' unless @course.group_formation_closes_at.present? %> mt-4">
                     <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-[320px]">
-                      <%= form.label :grouping_closes_at, "Close at", class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" %>
-                      <%= form.datetime_local_field :grouping_closes_at,
+                      <%= form.label :group_formation_closes_at, "Close at", class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" %>
+                      <%= form.datetime_local_field :group_formation_closes_at,
                             class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
-                            value: @course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M') %>
+                            value: @course.group_formation_closes_at&.strftime('%Y-%m-%dT%H:%M') %>
                     </div>
                   </div>
                 </div>

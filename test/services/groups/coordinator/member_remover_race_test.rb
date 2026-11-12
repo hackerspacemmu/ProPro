@@ -4,7 +4,7 @@ module Groups
   module Coordinator
     class MemberRemoverRaceTest < NonTransactionalTestCase
       setup do
-        @course = create(:course, :grouped, grouping_enabled: true, grouping_closes_at: 1.hour.ago, group_min: 2, group_max: 4)
+        @course = create(:course, :grouped, group_formation_enabled: true, group_formation_closes_at: 1.hour.ago, group_min: 2, group_max: 4)
         @leader = create(:user)
         @member = create(:user)
         [@leader, @member].each { |user| create(:enrolment, :student, course: @course, user: user) }

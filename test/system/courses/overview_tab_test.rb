@@ -73,7 +73,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'student in a grouped course with grouping open and no group gets find-or-create CTA' do
-    @course.update!(grouped: true, grouping_enabled: true, group_min: 2, group_max: 5)
+    @course.update!(grouped: true, group_formation_enabled: true, group_min: 2, group_max: 5)
     login_as @student_user
     visit course_path(@course)
 
@@ -84,7 +84,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'student in a grouped course with grouping closed and no group gets closed copy' do
-    @course.update!(grouped: true, grouping_enabled: true, grouping_closes_at: 1.hour.ago, group_min: 2, group_max: 5)
+    @course.update!(grouped: true, group_formation_enabled: true, group_formation_closes_at: 1.hour.ago, group_min: 2, group_max: 5)
     login_as @student_user
     visit course_path(@course)
 
@@ -95,7 +95,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'student in a grouped course with grouping disabled and no group gets closed copy' do
-    @course.update!(grouped: true, grouping_enabled: false)
+    @course.update!(grouped: true, group_formation_enabled: false)
     login_as @student_user
     visit course_path(@course)
 
@@ -172,7 +172,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'student in unconfirmed group sees My Group card and no My Submission' do
-    @course.update!(grouped: true, grouping_enabled: true, group_min: 2, group_max: 4)
+    @course.update!(grouped: true, group_formation_enabled: true, group_min: 2, group_max: 4)
     group = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp001', leader_id: @student_user.id)
     create(:project_group_member, user: @student_user, project_group: group)
 
@@ -189,7 +189,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'student My Group members count shows no maximum when none is set' do
-    @course.update!(grouped: true, grouping_enabled: true, group_min: 2, group_max: nil)
+    @course.update!(grouped: true, group_formation_enabled: true, group_min: 2, group_max: nil)
     group = create(:project_group, course: @course, confirmed: false, group_name: 'Tmp001', leader_id: @student_user.id)
     create(:project_group_member, user: @student_user, project_group: group)
 
@@ -203,7 +203,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'student in confirmed group sees My Group line and My Submission' do
-    @course.update!(grouped: true, grouping_enabled: true, group_min: 2, group_max: 4)
+    @course.update!(grouped: true, group_formation_enabled: true, group_min: 2, group_max: 4)
     group = create(:project_group, course: @course, confirmed: true, group_name: 'G001')
     create(:project_group_member, user: @student_user, project_group: group)
 
@@ -218,7 +218,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'coordinator sees Group formation block with settings link and status' do
-    @course.update!(grouped: true, grouping_enabled: true)
+    @course.update!(grouped: true, group_formation_enabled: true)
     create(:project_group, course: @course, confirmed: true, group_name: 'G001')
 
     login_as @coordinator_user
@@ -233,7 +233,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'coordinator sees closed attention banner when formation closed with unconfirmed groups' do
-    @course.update!(grouped: true, grouping_enabled: true, grouping_closes_at: 1.hour.ago)
+    @course.update!(grouped: true, group_formation_enabled: true, group_formation_closes_at: 1.hour.ago)
     create(:project_group, course: @course, confirmed: false, group_name: 'Tmp001')
 
     login_as @coordinator_user
@@ -249,7 +249,7 @@ class OverviewTabTest < ApplicationSystemTestCase
   end
 
   test 'lecturer sees Group formation block without settings link or banner' do
-    @course.update!(grouped: true, grouping_enabled: true)
+    @course.update!(grouped: true, group_formation_enabled: true)
 
     login_as @lecturer_user
     visit course_path(@course)

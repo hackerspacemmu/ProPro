@@ -707,7 +707,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   # --- Course settings save ------------------------------------------------
 
   test 'handle_settings saves a mode switch and field edits in one save' do
-    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
+    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
@@ -724,7 +724,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'handle_settings re-renders with errors and changes nothing when the save is invalid' do
-    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
+    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
@@ -742,28 +742,28 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'handle_settings disabling grouping keeps every group and clears the end date' do
-    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
-                                       group_min: 2, group_max: 4, grouping_closes_at: 1.day.from_now)
+    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false,
+                                       group_min: 2, group_max: 4, group_formation_closes_at: 1.day.from_now)
     not_confirmed = create(:project_group, course: course, confirmed: false)
     confirmed = create(:project_group, course: course, confirmed: true)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
-         params: { course: settings_params(course, grouping_enabled: 'false',
+         params: { course: settings_params(course, group_formation_enabled: 'false',
                                                    group_min: '', group_max: '') }
 
     assert_redirected_to settings_course_path(course)
     course.reload
-    assert_not course.grouping_enabled?
-    assert_nil course.grouping_closes_at
+    assert_not course.group_formation_enabled?
+    assert_nil course.group_formation_closes_at
     assert_not course.student_list_finalised?
     assert ProjectGroup.exists?(not_confirmed.id)
     assert ProjectGroup.exists?(confirmed.id)
   end
 
   test 'handle_settings leaving Prevent leftover students keeps every group' do
-    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: true,
+    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
                                        group_min: 2, group_max: 4)
     not_confirmed = create(:project_group, course: course, confirmed: false)
     confirmed = create(:project_group, course: course, confirmed: true)
@@ -776,13 +776,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to settings_course_path(course)
     course.reload
     assert_not course.student_list_finalised?
-    assert course.grouping_enabled?
+    assert course.group_formation_enabled?
     assert ProjectGroup.exists?(not_confirmed.id)
     assert ProjectGroup.exists?(confirmed.id)
   end
 
   test 'handle_settings can switch Prevent leftover students back on' do
-    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
+    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
@@ -795,7 +795,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'handle_settings locks the course before saving grouping settings' do
-    course = create(:course, :grouped, grouping_enabled: true, student_list_finalised: false,
+    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
@@ -814,7 +814,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'handle_settings does not swallow an unexpected error from the capacity updater' do
-    course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
+    course = create(:course, :grouped, group_formation_enabled: true, group_min: 2, group_max: 4)
     lecturer = create(:enrolment, :lecturer, course: course)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
@@ -858,11 +858,11 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       file_link: course.file_link,
       toggle_topics: course.toggle_topics.to_s,
       supervisor_auto_calculate_enabled: '0',
-      grouping_enabled: course.grouping_enabled?.to_s,
+      group_formation_enabled: course.group_formation_enabled?.to_s,
       student_list_finalised: course.student_list_finalised?.to_s,
       group_min: course.group_min.to_s,
       group_max: course.group_max.to_s,
-      grouping_closes_at: course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M')
+      group_formation_closes_at: course.group_formation_closes_at&.strftime('%Y-%m-%dT%H:%M')
     }.merge(overrides)
   end
 

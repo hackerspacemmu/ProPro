@@ -5,7 +5,7 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
   include ActiveSupport::Testing::TimeHelpers
 
   setup do
-    @course = create(:course, grouping_enabled: true,
+    @course = create(:course, group_formation_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
@@ -56,13 +56,13 @@ class GroupInviteLinkRedeemerTest < ActiveSupport::TestCase
     assert_equal :expired, result.blocked_reason
   end
 
-  test 'blocked when window closed' do
-    @course.update!(grouping_closes_at: 1.hour.ago)
+  test 'blocked when formation closed' do
+    @course.update!(group_formation_closes_at: 1.hour.ago)
 
     result = GroupInviteLinkRedeemer.new(@link, current_user: @redeemer_user).redeem!
 
     assert result.blocked?
-    assert_equal :window_closed, result.blocked_reason
+    assert_equal :formation_closed, result.blocked_reason
   end
 
   test 'redeeming a link into a confirmed group reopens it and notifies every member' do
@@ -187,7 +187,7 @@ end
 
 class GroupInviteLinkRedeemerRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouping_enabled: true,
+    @course = create(:course, group_formation_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)

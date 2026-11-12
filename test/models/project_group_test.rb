@@ -15,7 +15,7 @@ class ProjectGroupTest < ActiveSupport::TestCase
   end
 
   test 'is confirmable at any non-zero size when the course has no limits' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: false, group_min: nil, group_max: nil)
+    course = create(:course, group_formation_enabled: true, student_list_finalised: false, group_min: nil, group_max: nil)
     group = create(:project_group, course: course)
     create(:project_group_member, project_group: group)
     assert group.confirmable?
@@ -25,14 +25,14 @@ class ProjectGroupTest < ActiveSupport::TestCase
   end
 
   test 'is not confirmable when the group is empty' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: false, group_min: nil, group_max: nil)
+    course = create(:course, group_formation_enabled: true, student_list_finalised: false, group_min: nil, group_max: nil)
     group = create(:project_group, course: course)
 
     assert_not group.confirmable?
   end
 
   test 'is confirmable within set limits' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    course = create(:course, group_formation_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
     group = create(:project_group, course: course)
     create_list(:project_group_member, 1, project_group: group)
     assert_not group.confirmable?
@@ -48,7 +48,7 @@ class ProjectGroupTest < ActiveSupport::TestCase
   end
 
   test 'uses the calculator in prevent-leftover mode' do
-    course = create(:course, grouping_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
+    course = create(:course, group_formation_enabled: true, student_list_finalised: true, group_min: 2, group_max: 4)
     group = create(:project_group, course: course)
     create_list(:project_group_member, 2, project_group: group)
 

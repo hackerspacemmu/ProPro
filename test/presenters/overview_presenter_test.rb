@@ -2,7 +2,7 @@ require 'test_helper'
 
 class OverviewPresenterTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true)
+    @course = create(:course, :grouped, group_formation_enabled: true)
     @student = create(:user)
     @coordinator = create(:user)
     @lecturer = create(:user)
@@ -90,7 +90,7 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     assert_not presenter(enrolment: coord_non_grouped, course: non_grouped).show_group_formation?
 
     # Grouping disabled hides group formation
-    disabled_course = create(:course, :grouped, grouping_enabled: false)
+    disabled_course = create(:course, :grouped, group_formation_enabled: false)
     coord_disabled = create(:enrolment, :coordinator, user: @coordinator, course: disabled_course)
     assert_not presenter(enrolment: coord_disabled, course: disabled_course).show_group_formation?
   end
@@ -119,11 +119,11 @@ class OverviewPresenterTest < ActiveSupport::TestCase
     assert_equal 1, p.confirmed_groups_count
     assert_equal 2, p.ungrouped_students_count
 
-    # Window is open -> no banner
+    # Formation is open -> no banner
     assert_not p.show_formation_attention_banner?
 
-    # Window closed -> banner shows for coordinator
-    @course.update!(grouping_closes_at: 1.hour.ago)
+    # Formation closed -> banner shows for coordinator
+    @course.update!(group_formation_closes_at: 1.hour.ago)
     p_closed = presenter(enrolment: @coordinator_enrolment, course: @course)
     assert p_closed.show_formation_attention_banner?
 

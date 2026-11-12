@@ -76,7 +76,7 @@ class CoursePolicy < ApplicationPolicy
     enrolment = record.enrolments.find_by(user:)
     return true if enrolment&.coordinator?
 
-    enrolment.present? && record.grouping_enabled?
+    enrolment.present? && record.group_formation_enabled?
   end
 
   private

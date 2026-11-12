@@ -37,7 +37,7 @@ Rules held throughout (spec §0): no `gray-*`, `blue-*`, `amber-*`, `red-*`, `gr
 
   <%
     is_student = @current_user_enrolment&.student?
-    grouping_open = @course.grouping_window_open?
+    formation_open = @course.group_formation_open?
     manage = policy(@course).manage_groups?
     my_group = @my_group
     leads_my_group = my_group.present? && my_group.leader_id == current_user.id
@@ -51,7 +51,7 @@ Rules held throughout (spec §0): no `gray-*`, `blue-*`, `amber-*`, `red-*`, `gr
   %>
 
   <%# ===== Bell (rendered into shared/_header via the :header_actions slot) ===== %>
-  <% if is_student && grouping_open %>
+  <% if is_student && formation_open %>
     <% content_for :header_actions do %>
       <div class="relative" data-controller="dropdown" data-action="keydown.esc@window->dropdown#close">
         <button type="button"
@@ -119,16 +119,16 @@ Rules held throughout (spec §0): no `gray-*`, `blue-*`, `amber-*`, `red-*`, `gr
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">group</span>
           <%= @course.group_min %>&ndash;<%= @course.group_max %> members per group
         </span>
-        <% if @course.grouping_closes_at.present? %>
+        <% if @course.group_formation_closes_at.present? %>
           <span class="inline-flex items-center gap-1.5">
             <span class="material-symbols-outlined text-[18px]" aria-hidden="true">event</span>
-            <span>Closes <span class="font-medium text-on-surface-strong"><%= @course.grouping_closes_at.strftime("%a, %-d %b %Y, %-I:%M %p") %></span></span>
+            <span>Closes <span class="font-medium text-on-surface-strong"><%= @course.group_formation_closes_at.strftime("%a, %-d %b %Y, %-I:%M %p") %></span></span>
           </span>
         <% end %>
       </div>
     </div>
 
-    <% if grouping_open %>
+    <% if formation_open %>
       <%# ===== BEGIN inlined group_formations/ungrouped_dialog | locals: students: @ungrouped_students,
                  invited_ids: @my_invited_student_ids,
                  manage: manage ===== %>
@@ -213,7 +213,7 @@ Rules held throughout (spec §0): no `gray-*`, `blue-*`, `amber-*`, `red-*`, `gr
     <% end %>
   </div>
 
-  <% unless grouping_open %>
+  <% unless formation_open %>
     <%# ===== BEGIN inlined shared/empty_state | locals: heading: "Grouping is closed by your coordinator",
                description: "Your existing groups are still visible on the Groups tab." ===== %>
 <%# locals: (heading:, description:, cta_label: nil, cta_path: nil, illustration: "illustrations/submission_empty_banner.svg") %>
@@ -1288,7 +1288,7 @@ Each file's raw source is the text between its `BEGIN` / `END` banners in sectio
 - **Token check (spec §3) was not run.** It needs the repo: `grep -nE "surface-variant-deep|primary-container-alt|primary-container-ring|on-surface-muted|on-surface-disabled|on-surface-strong|warning-container-alt|warning-border|--color-warning|--color-error-hover|--color-success|--radius-card" app/assets/tailwind/application.css`. Also confirm `error-container`, `success-container`, `surface-hover`, `outline` and `--spacing-header`. Add anything missing to `@theme` using the plan §6.1 mapping. Add the new button variants (tonal, row, row-disabled, small outline, text, danger text) to `/styleguide` §5. `primary-container-hover` must have no remaining uses (it was in the old helper only).
 - **`shared/_header.html.erb` was not visible.** Only the one-line `yield :header_actions` edit is specified (section 4).
 - **Nothing has been executed.** There was no Rails app, no test run and no browser pass. Behaviour is by construction against the plan's contracts (§4.5 DOM ids, `turbo_stream` branches, `_top` frame).
-- **Likely test churn:** labels changed ("Request" → "Request to join", filter "Draft" → "Not confirmed (n)", bell now always renders for students in an open window). Leaders of a confirmed group no longer have Manage (Reopen only). Assertions that relied on the old "Leave" button for leaders must move to the Manage footer.
+- **Likely test churn:** labels changed ("Request" → "Request to join", filter "Draft" → "Not confirmed (n)", bell now always renders for students in an open formation). Leaders of a confirmed group no longer have Manage (Reopen only). Assertions that relied on the old "Leave" button for leaders must move to the Manage footer.
 - **Dead ivar:** `@my_group_can_confirm` is still set and unused. It stays until the backend pass.
 
 ### Delete in the same PR

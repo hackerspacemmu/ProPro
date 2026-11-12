@@ -18,7 +18,7 @@ module Groups
         # Re-check inside the lock: a concurrent removal can replace the leader.
         return blocked(:not_leader) unless @group.leader?(@current_user)
         return blocked(:self_kick) if member.user_id == @current_user.id
-        return blocked(:window_closed) unless @group.course.grouping_window_open?
+        return blocked(:formation_closed) unless @group.course.group_formation_open?
         return blocked(:group_confirmed) if @group.confirmed?
 
         member.destroy!
@@ -55,7 +55,7 @@ module Groups
         when :already_removed then 'This member has already been removed.'
         when :not_leader then 'Only the group leader can remove members.'
         when :self_kick then 'You cannot remove yourself from the group.'
-        when :window_closed then 'Group formation is closed.'
+        when :formation_closed then 'Group formation is closed.'
         when :group_confirmed then 'The leader can only remove members while the group is not confirmed.'
         when :group_gone then 'This group no longer exists.'
         end

@@ -5,13 +5,13 @@ class GroupReverter
     @group = group
   end
 
-  # Leader reverts a confirmed group to not confirmed if the grouping window is open.
+  # Leader reverts a confirmed group to not confirmed if formation is open.
   def revert!
     course = @group.course
 
     result = course.with_no_key_update_lock do
       with_group_lock(@group) do
-        return blocked(:window_closed) unless course.grouping_window_open?
+        return blocked(:formation_closed) unless course.group_formation_open?
         return blocked(:already_draft) unless @group.confirmed?
         return blocked(:imported_group) if @group.origin_import?
         return blocked(:has_project) if @group.project.present?
@@ -44,7 +44,7 @@ class GroupReverter
 
     def message
       case blocked_reason
-      when :window_closed then 'The grouping window is closed.'
+      when :formation_closed then 'Group formation is closed.'
       when :already_draft then 'This group is already a Not Confirmed Group.'
       when :imported_group then 'This group was imported, so it cannot be reopened.'
       when :has_project then 'This group already has a proposal, so it cannot be reopened.'

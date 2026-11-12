@@ -4,7 +4,7 @@ module Groups
   module Coordinator
     class ImporterTest < ActiveSupport::TestCase
       setup do
-        @course = create(:course, :grouped, grouping_enabled: false)
+        @course = create(:course, :grouped, group_formation_enabled: false)
         @alice = create(:user)
         @bob = create(:user)
         @carol = create(:user)
@@ -38,8 +38,8 @@ module Groups
                "expected a SELECT ... FOR NO KEY UPDATE on courses, got:\n#{statements.join("\n")}"
       end
 
-      test 'works with the grouping window closed' do
-        assert_not @course.grouping_window_open?
+      test 'works with formation closed' do
+        assert_not @course.group_formation_open?
 
         assert_not Importer.new(@course).import!('Team A' => [@alice]).blocked?
       end

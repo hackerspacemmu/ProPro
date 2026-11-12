@@ -3,7 +3,7 @@ require 'test_helper'
 module Groups
   class GroupGoneTest < NonTransactionalTestCase
     setup do
-      @course = create(:course, grouped: true, grouping_enabled: true,
+      @course = create(:course, grouped: true, group_formation_enabled: true,
                                 group_min: 2, group_max: 4, student_list_finalised: false)
       @leader = create(:user)
       create(:enrolment, course: @course, user: @leader, role: :student)

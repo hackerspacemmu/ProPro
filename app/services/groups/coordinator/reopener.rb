@@ -1,7 +1,7 @@
 module Groups
   module Coordinator
     # Reopens a confirmed group to not confirmed on behalf of a coordinator,
-    # bypassing the grouping window while preserving imported and project guards.
+    # bypassing formation being closed while preserving imported and project guards.
     class Reopener
       include Groups::GroupLocking
 

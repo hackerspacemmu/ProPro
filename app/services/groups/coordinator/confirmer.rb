@@ -1,7 +1,7 @@
 module Groups
   module Coordinator
     # Confirms an unconfirmed group on behalf of a coordinator, bypassing the
-    # grouping window state and overriding size limits.
+    # formation open/closed state and overriding size limits.
     class Confirmer
       include Groups::GroupLocking
 

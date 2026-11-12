@@ -3,7 +3,7 @@ require 'test_helper'
 class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
   def setup
     @course = create(:course,
-                     grouping_enabled: true,
+                     group_formation_enabled: true,
                      student_list_finalised: false,
                      group_min: 2,
                      group_max: 4)

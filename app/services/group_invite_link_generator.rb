@@ -15,7 +15,7 @@ class GroupInviteLinkGenerator
 
       return blocked(:imported_group) if @group.origin_import?
       return blocked(:has_project) if @group.project.present?
-      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:formation_closed) unless course.group_formation_open?
 
       @group.project_group_invite_links.destroy_all
 
@@ -59,7 +59,7 @@ class GroupInviteLinkGenerator
       case blocked_reason
       when :imported_group then 'This group was imported, so it cannot take new members.'
       when :has_project then 'This group already has a proposal, so it cannot take new members.'
-      when :window_closed then 'The grouping window is closed.'
+      when :formation_closed then 'Group formation is closed.'
       when :group_gone then 'This group no longer exists.'
       end
     end

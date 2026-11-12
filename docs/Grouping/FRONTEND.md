@@ -113,8 +113,8 @@ Status: D1–D7 are **decided by the owner** (text below is final). D8–D12 hav
 The formation page renders `courses/tab_shell` with a tab strip that has **only one tab, "Group formation"**, active. It is deliberately different from the four course tabs (it is one route deeper than them). `_tab_strip` gets an optional `tabs:` local; `_tab_shell` gets optional `tabs:` and `breadcrumb:` locals, both defaulting to today's course behaviour. Formation passes a single tab entry and `breadcrumb: :group_formation`. The four normal tabs are not shown here (breadcrumb + sidebar get you back). Coordinator icons follow the real shell (`lg`, gear in the header below `sm`), not the mockup's `sm`.
 
 **D2. Closed or disabled grouping. DECIDED.**
-When `!@course.grouping_window_open?` the page keeps its shell, h1 and rules line, and replaces the toolbar, my-group card and table with `shared/_empty_state` (styleguide §8: illustration + heading + description, no CTA). Heading: **"Grouping is closed by your coordinator"**; description is the agent's wording (one short sentence, e.g. where to see existing groups: the Groups tab). No policy change (`CoursePolicy#grouping?` stays as is). Consequences to be aware of:
-- `grouping_window_open?` is also false **before** `grouping_opens_at` and when the coordinator has `grouping_open` off, so the same copy shows in those cases; "by your coordinator" is slightly off for a not-yet-open date window. Leave it, note it in the PR.
+When `!@course.group_formation_open?` the page keeps its shell, h1 and rules line, and replaces the toolbar, my-group card and table with `shared/_empty_state` (styleguide §8: illustration + heading + description, no CTA). Heading: **"Grouping is closed by your coordinator"**; description is the agent's wording (one short sentence, e.g. where to see existing groups: the Groups tab). No policy change (`CoursePolicy#grouping?` stays as is). Consequences to be aware of:
+- `group_formation_open?` is also false **before** `grouping_opens_at` and when the coordinator has `grouping_open` off, so the same copy shows in those cases; "by your coordinator" is slightly off for a not-yet-open date. Leave it, note it in the PR.
 - Students lose sight of their own group on this page once closed; it remains visible on the Overview and Groups tab.
 - The ungrouped-students button and notifications bell are not rendered while closed.
 
@@ -128,7 +128,7 @@ When `!@course.grouping_window_open?` the page keeps its shell, h1 and rules lin
 The table filters server-side with htmx, following the Groups tab's structure (`hx-get` + debounce + `HX-Request` branch + re-rendered table partial + pagination threshold). The implementation is **copied and adapted into formation-specific code**, not extracted from `GroupsController`/`ParticipantBrowsing` and not shared with `courses/_groups_table`. `GroupsController#index`, `ParticipantBrowsing`, `courses/_groups_tab` and `courses/_groups_table` stay untouched. Search matches **group name and member names only** (no project title or supervisor), and the status filter is **All / Draft / Confirmed** (the group's confirmed state, not the project's status). The controller gains a small formation-only filter branch (see §4.4); `list_filter` stays only for the ungrouped dialog and pickers.
 
 **D5. Manage dialog and student pickers. DECIDED: lazy frame on `groups#edit`.**
-Each group row's action cell holds `<div data-controller="modal">` containing: a link to `edit_course_group_path(course, group)` with `data-turbo-frame="<%= dom_id(group, :manage) %>"` and `data-action="modal#open"`; a `<dialog>` (§2.2 structure); and, inside the dialog, an **empty placeholder** `turbo_frame_tag dom_id(group, :manage)` (same id as the one `groups/edit.html.erb` already renders). Clicking the link opens the dialog and fetches `groups#edit`, so the content is fresh on every open (the routes brief requires a reload on every open). The **table-row** Manage link is staff-only: rendered only when `policy(@course).manage_groups?` (coordinator, or lecturer with `lecturers_can_manage_groups`). **Leaders never see Manage on their row**; their "Manage group" button lives in the my-group card (separate partial, same lazy frame in leader mode, rendered only when `policy(group).edit?` is true for them, i.e. draft group inside the window). Never render the link when `edit?` is false: Pundit would redirect the frame request to the dashboard and the frame would show "Content missing".
+Each group row's action cell holds `<div data-controller="modal">` containing: a link to `edit_course_group_path(course, group)` with `data-turbo-frame="<%= dom_id(group, :manage) %>"` and `data-action="modal#open"`; a `<dialog>` (§2.2 structure); and, inside the dialog, an **empty placeholder** `turbo_frame_tag dom_id(group, :manage)` (same id as the one `groups/edit.html.erb` already renders). Clicking the link opens the dialog and fetches `groups#edit`, so the content is fresh on every open (the routes brief requires a reload on every open). The **table-row** Manage link is staff-only: rendered only when `policy(@course).manage_groups?` (coordinator, or lecturer with `lecturers_can_manage_groups`). **Leaders never see Manage on their row**; their "Manage group" button lives in the my-group card (separate partial, same lazy frame in leader mode, rendered only when `policy(group).edit?` is true for them, i.e. draft group while formation is open). Never render the link when `edit?` is false: Pundit would redirect the frame request to the dashboard and the frame would show "Content missing".
 
 Frame requirements:
 1. `groups/edit.html.erb` must declare `turbo_frame_tag dom_id(@group, :manage), target: "_top"`. Every form inside it (Remove, Delete, Invite, Add, Confirm for leader, Generate link) then performs a **full-page Turbo visit**. Without `_top`, the controllers' `redirect_to course_group_formation_path` would load the formation page into the frame, which contains the *empty* placeholder frame with the same id, so the dialog would blank out and the flash would never show.
@@ -154,14 +154,14 @@ The entire row is clickable (except `[data-expandable-ignore]` cells, i.e. the a
 **D8. Member detail layout.** ✱ Use the mockup's 2-column grid in the formation table. Leave the Groups tab (`courses/_group_row`, single column, truncated names) alone this pass; the two will visibly differ. Align the Groups tab in a later pass. Collapsed summary: cap the avatar stack at 3 + "+n" (matches the Groups tab) instead of the mockup's all-members stack. Drop the "Pending / Resend invite" badge in the formation table (not a user-management surface).
 
 **D9. Staff actions follow policy, not the mockup.**
-The mockup shows "Delete group" to every coordinator and lecturer and "Confirm for leader…" to coordinators only. Policies (kept as is by the routes brief, D5/D7) say: `destroy?` lets a coordinator destroy only **confirmed** groups, a leader destroy a draft inside the window, and never a lecturer; `confirm?` is `manage_groups?` or the leader; `update?` is coordinator or draft-leader-in-window and now only backs `edit?`; `edit?` (Manage dialog, new) also allows `manage_groups?` (Q1).
+The mockup shows "Delete group" to every coordinator and lecturer and "Confirm for leader…" to coordinators only. Policies (kept as is by the routes brief, D5/D7) say: `destroy?` lets a coordinator destroy only **confirmed** groups, a leader destroy a draft while formation is open, and never a lecturer; `confirm?` is `manage_groups?` or the leader; `update?` is coordinator or draft leader while formation is open and now only backs `edit?`; `edit?` (Manage dialog, new) also allows `manage_groups?` (Q1).
 ✱ Gate every button with `policy(group).<action>?` (`update?`, `destroy?`, `confirm?`, `revert?`, `generate_invite_link?`, `direct_invite?`) and `policy(@course).manage_groups?` for staff Add student. In practice a coordinator sees Delete only on confirmed groups. If the owner wants coordinators to delete drafts, that is a policy change for the backend pass.
 
 **D10. Message styling.** ✱ Reuse `courses/_flash` unchanged (alert/notice only). The mockup's `warn` and `info` variants have no Rails flash key behind them; adding `flash[:warning]` is a controller change (backend pass). Known visual difference: the shared flash still uses raw red/green classes.
 
 **D11. Student IDs in pickers.** Old coordinator pickers showed `name (instid)`; the mockup shows names only. ✱ Names only for everyone in the lists; show `instid` (mono, muted) only inside pickers when `policy(@course).manage_groups?`, to disambiguate duplicate names. Never show `instid` to students.
 
-**D12. "No size limit" mockup variant.** ✱ Do not build. `Course` validates `group_min` and `group_max` as required whenever grouping is enabled, so unlimited does not exist. Drop the `nolimit` branches ("n members" text, "No size limit", skipping size validation). The "Min/max, no end date" variant **is** real (`grouping_closes_at` is nullable; `grouping_window_open?` handles nil): render "Closes …" only when `grouping_closes_at` is present.
+**D12. "No size limit" mockup variant.** ✱ Do not build. `Course` validates `group_min` and `group_max` as required whenever grouping is enabled, so unlimited does not exist. Drop the `nolimit` branches ("n members" text, "No size limit", skipping size validation). The "Min/max, no end date" variant **is** real (`group_formation_closes_at` is nullable; `group_formation_open?` handles nil): render "Closes …" only when `group_formation_closes_at` is present.
 
 ---
 
@@ -171,7 +171,7 @@ The mockup shows "Delete group" to every coordinator and lecturer and "Confirm f
 
 | Ivar | Old use | New use in mockup |
 |---|---|---|
-| `@course` | everywhere | rules line (`group_min`, `group_max`, `grouping_closes_at`), `grouping_window_open?` |
+| `@course` | everywhere | rules line (`group_min`, `group_max`, `group_formation_closes_at`), `group_formation_open?` |
 | `@current_user_enrolment` | hides my-group panel for coordinator/lecturer | `@current_user_enrolment&.student?` decides student vs staff surfaces, bell visibility |
 | `@my_group` | panel, card (hide join when present) | my-group card; "Your group" tag; hide Join/Request in all rows |
 | `@my_group_can_confirm` | disabled state of Confirm | unused after D6a (keep set) |
@@ -202,7 +202,7 @@ These htmx ivars are the only additions to the contract. Everything else in the 
 | Surface | Route | Gate |
 |---|---|---|
 | Open page | GET `course_group_formation_path(c)` | `authorize @course, :grouping?` |
-| Create group (student) | POST `course_groups_path(c)` | `create?` = `staff? \|\| student?`; student's `user_id` ignored. Old display rule: only when `@my_group.nil?` and window open |
+| Create group (student) | POST `course_groups_path(c)` | `create?` = `staff? \|\| student?`; student's `user_id` ignored. Old display rule: only when `@my_group.nil?` and formation open |
 | Create group for a student (staff) | POST `course_groups_path(c)` + `user_id` | `policy(@course).manage_groups?`; missing `user_id` = 400 (D3) |
 | Join | POST `course_group_members_path(c, g)` (no `user_id`) | `join?` (student enrolment). Display rule kept: nothing when `@my_group.present?`; greyed out when `confirmed?` (services block `group_confirmed`) |
 | Request to join | POST `course_group_join_requests_path(c, g)` | `request_to_join?` |
@@ -216,7 +216,7 @@ These htmx ivars are the only additions to the contract. Everything else in the 
 | Generate invite link | POST `course_group_invite_link_path(c, g)` | `generate_invite_link?` (leader) |
 | Invite link URL to copy | `join_url(token)` | n/a |
 | Add student (staff) | POST `course_group_members_path(c, g)` + `user_id` | `policy(@course).manage_groups?` (a student sending `user_id` is denied) |
-| Remove / Kick / Leave | DELETE `course_group_member_path(c, g, m)` | `ProjectGroupMemberPolicy#destroy?` (self, leader, `manage_groups?`); services block a leader kick on a confirmed group and removals outside the window. Only grouping action with a Turbo Stream branch |
+| Remove / Kick / Leave | DELETE `course_group_member_path(c, g, m)` | `ProjectGroupMemberPolicy#destroy?` (self, leader, `manage_groups?`); services block a leader kick on a confirmed group and removals when formation is closed. Only grouping action with a Turbo Stream branch |
 | Public invite page / redeem | GET `invite_link_path(token)` / POST `invite_link_redemption_path(token)` | `redeem?` |
 | Staff Manage entry | n/a | `policy(@course).manage_groups?` (coordinator, lecturers who can manage) |
 
@@ -227,7 +227,7 @@ These htmx ivars are the only additions to the contract. Everything else in the 
 - R3. Unlimited group size (D12).
 - R4. Invite without page reload / in-place "Invite sent" (needs a turbo_stream response; Q2).
 - R5. Server-side picker search with `limit 6` (replaced in this pass by a per-open lazy frame + client-side filter).
-- R6. Specific confirm-failure messages ("Needs 1 more member", "would leave 1 student without a group"). `GroupConfirmer` only returns `window_closed`, `already_confirmed`, `size_illegal` messages.
+- R6. Specific confirm-failure messages ("Needs 1 more member", "would leave 1 student without a group"). `GroupConfirmer` only returns `formation_closed`, `already_confirmed`, `size_illegal` messages.
 - R7. Succession copy "`{members[1]}` becomes the leader". Succession picks the oldest remaining membership (`order(:created_at, :id).first`), which is not necessarily the second name on screen. Use generic copy: **"Another member becomes the leader."** Do not recompute the rule in the view.
 - R8. Mockup remove-dialog text "becomes Not confirmed because it falls below the minimum". The service reverts a confirmed group when the member **self-leaves** (any size) or when `!confirmable?` (quota-aware in Auto-Confirmability mode). Copy must say "may become Not confirmed" for kicks, and "will become Not confirmed" for a member leaving a confirmed group. The mockup's member Leave dialog omits this entirely; add it.
 - R9. "Accepting clears your other invites and requests" **is real** (`GroupInviteResponder#clear_conflicting_invites!`), so that copy stays.
@@ -432,13 +432,13 @@ Regression: Topics directory (expand/collapse, "Collapse all"), Groups tab (row 
 | Coordinator | `@current_user_enrolment.coordinator?` (`grouping_coordinator?` was deleted by the routes PR) | coordinator enrolment |
 | Lecturer (can manage) | `policy(@course).manage_groups? && !@current_user_enrolment.coordinator?`. Gets staff Create group and the table Manage link (`manage_groups?`); dialog is staff mode | lecturer + `lecturers_can_manage_groups: true` (schema default) |
 | Lecturer (read-only) | lecturer enrolment `&& !manage_groups?` | `lecturers_can_manage_groups: false` |
-| Leader (any state) on the table | never a row Manage link; own-group card has "Manage group" only when `edit?` (draft, in window) | |
-| Rules: min/max + end date | `grouping_closes_at.present?` | |
-| Rules: min/max, no end date | `grouping_closes_at.nil?` | |
+| Leader (any state) on the table | never a row Manage link; own-group card has "Manage group" only when `edit?` (draft, formation open) | |
+| Rules: min/max + end date | `group_formation_closes_at.present?` | |
+| Rules: min/max, no end date | `group_formation_closes_at.nil?` | |
 | Rules: no size limit | **not built (D12)** | |
 | Table: empty | `@groups.empty?` | |
 
-Also test: window closed (D2), Auto-Confirmability mode (`student_list_finalised?`), group with a project (delete / last-member flows), group at max (action cell shows "Full"), student with pending request (`@my_requested_group_ids`), student with pending invite (bell badge), leader with pending request (bell + Manage).
+Also test: formation closed (D2), Auto-Confirmability mode (`student_list_finalised?`), group with a project (delete / last-member flows), group at max (action cell shows "Full"), student with pending request (`@my_requested_group_ids`), student with pending invite (bell badge), leader with pending request (bell + Manage).
 
 ---
 
@@ -461,11 +461,11 @@ Sources: [R] routes brief (`docs/Grouping/GROUPING_ROUTES_REFACTOR.md`, things i
 **Missing backend for UI**
 9. [F] Cancel join request: `join_requests#destroy`, a sender-only policy query, service (mockup's "Cancel request"; UI shows "Request sent" only, no link).
 10. [F] `flash[:warning]` / `info` variants (mockup message styles; shared flash is alert/notice only).
-11. [F] Richer `GroupConfirmer` messages ("Needs 1 more member", "would leave 1 student without a group"); today only `window_closed`, `already_confirmed`, `size_illegal`.
+11. [F] Richer `GroupConfirmer` messages ("Needs 1 more member", "would leave 1 student without a group"); today only `formation_closed`, `already_confirmed`, `size_illegal`.
 12. [F] Leader succession message: succession picks the oldest remaining membership; the UI uses generic copy because the rule is not exposed.
 13. [F] Self-leave of a confirmed group reverts it; expose that in the Result so the Leave dialog can say so precisely (UI copy is generic: "may become Not confirmed").
 14. [F] Nullable/unlimited group max (`group_min`/`group_max` are required when grouping is enabled; the mockup's "No size limit" variant is not built).
-15. [F] Closed-state wording: `grouping_window_open?` is also false before the open date and when `grouping_open` is off, but the empty state says "closed by your coordinator". Optional: split copy by cause.
+15. [F] Closed-state wording: `group_formation_open?` is also false before the open date and when `grouping_open` is off, but the empty state says "closed by your coordinator". Optional: split copy by cause.
 16. [F] `@my_group_invite_token` ignores `expires_at`: an expired token still renders as copyable (UI says "expires 24 hours after it's generated").
 
 **Refactors (no behaviour change)**

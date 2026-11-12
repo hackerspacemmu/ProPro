@@ -38,7 +38,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
   test 'creating a group project clears the group pending invites and requests' do
     course = create(:course, grouped: true, group_min: 2, group_max: 4,
-                             grouping_enabled: true, student_list_finalised: false)
+                             group_formation_enabled: true, student_list_finalised: false)
     leader = create(:user)
     create(:enrolment, :student, user: leader, course: course)
     group = create(:project_group, course: course, confirmed: true, leader_id: leader.id)
@@ -99,7 +99,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'new redirects to course overview when student in a grouped course has no group' do
-    course = create(:course, grouped: true, grouping_enabled: true)
+    course = create(:course, grouped: true, group_formation_enabled: true)
     student = create(:user)
     create(:enrolment, :student, user: student, course: course)
 
@@ -111,7 +111,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'new redirects to course overview when student group is not confirmed' do
-    course = create(:course, grouped: true, grouping_enabled: true)
+    course = create(:course, grouped: true, group_formation_enabled: true)
     student = create(:user)
     create(:enrolment, :student, user: student, course: course)
     group = create(:project_group, course: course, confirmed: false, leader_id: student.id)
@@ -125,7 +125,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'create blocks proposal when student group is not confirmed' do
-    course = create(:course, grouped: true, grouping_enabled: true)
+    course = create(:course, grouped: true, group_formation_enabled: true)
     student = create(:user)
     create(:enrolment, :student, user: student, course: course)
     group = create(:project_group, course: course, confirmed: false, leader_id: student.id)
@@ -144,7 +144,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'new redirects to course overview when grouping is off and the student group is not confirmed' do
-    course = create(:course, grouped: true, grouping_enabled: false)
+    course = create(:course, grouped: true, group_formation_enabled: false)
     student = create(:user)
     create(:enrolment, :student, user: student, course: course)
     group = create(:project_group, course: course, confirmed: false, leader_id: student.id)
@@ -158,7 +158,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'create blocks proposal when grouping is off and the student group is not confirmed' do
-    course = create(:course, grouped: true, grouping_enabled: false)
+    course = create(:course, grouped: true, group_formation_enabled: false)
     student = create(:user)
     create(:enrolment, :student, user: student, course: course)
     group = create(:project_group, course: course, confirmed: false, leader_id: student.id)

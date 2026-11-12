@@ -4,7 +4,7 @@ class ProjectGroupRaceTest < ActionDispatch::IntegrationTest
   include TestSupport::NonTransactional
 
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true,
+    @course = create(:course, :grouped, group_formation_enabled: true,
                                         group_min: 2, group_max: 4, student_list_finalised: false)
     @leader = create(:user)
     @member = create(:user)

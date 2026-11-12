@@ -2,7 +2,7 @@ require 'application_system_test_case'
 
 class GroupingSettingsTogglesTest < BrowserSystemTestCase
   setup do
-    @course = create(:course, grouping_enabled: true)
+    @course = create(:course, group_formation_enabled: true)
     @coordinator = create(:user)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
   end
@@ -37,26 +37,26 @@ class GroupingSettingsTogglesTest < BrowserSystemTestCase
   end
 
   test 'setting and removing the end date persists through save' do
-    @course.update!(grouping_closes_at: nil)
+    @course.update!(group_formation_closes_at: nil)
     login_as @coordinator
     visit settings_course_path(@course)
     wait_for_turbo
 
     click_date_toggle 'Set date'
-    assert_selector 'input#course_grouping_closes_at'
+    assert_selector 'input#course_group_formation_closes_at'
     fill_in 'Close at', with: 1.month.from_now.strftime('%Y-%m-%dT%H:%M')
 
     click_save
 
     assert_text 'Course successfully updated'
-    assert @course.reload.grouping_closes_at.present?
+    assert @course.reload.group_formation_closes_at.present?
 
     wait_for_turbo
     click_date_toggle 'Remove date'
     click_save
 
     assert_text 'Course successfully updated'
-    assert_nil @course.reload.grouping_closes_at
+    assert_nil @course.reload.group_formation_closes_at
   end
 
   private

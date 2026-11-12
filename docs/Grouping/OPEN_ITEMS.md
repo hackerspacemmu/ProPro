@@ -16,11 +16,11 @@ Policies
 Missing backend for UI
 9. [F] Cancel join request: join_requests#destroy, a sender-only policy query, and a service. The UI shows “Request sent” with no cancel link until then.
 10. [F] flash[:warning] and info variants. The shared flash only has alert and notice.
-11. [F] Richer GroupConfirmer messages (“Needs 1 more member”, “would leave 1 student without a group”). Today it returns only window_closed, already_confirmed and size_illegal.
+11. [F] Richer GroupConfirmer messages (“Needs 1 more member”, “would leave 1 student without a group”). Today it returns only formation_closed, already_confirmed and size_illegal.
 12. [F] Expose leader succession. promote_next_leader! picks the oldest membership, so the UI uses generic copy.
 13. [F] Expose “self-leave reverts a confirmed group” in the Result. The Leave dialog copy is generic until then.
 14. [F] Nullable or unlimited group max. The mockup’s “No size limit” variant isn’t built.
-15. [F] Closed-state copy says “closed by your coordinator”, but grouping_window_open? is also false before the open date. Optionally split the copy by cause.
+15. [F] Closed-state copy says “closed by your coordinator”, but group_formation_open? is also false before the open date. Optionally split the copy by cause.
 16. [F] @my_group_invite_token ignores expires_at, so an expired token still renders as copyable.
 
 Refactors (no behaviour change)

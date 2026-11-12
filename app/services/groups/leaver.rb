@@ -14,7 +14,7 @@ module Groups
         member = @group.project_group_members.find_by(id: @member.id)
 
         return blocked(:already_removed) unless member
-        return blocked(:window_closed) unless @group.course.grouping_window_open?
+        return blocked(:formation_closed) unless @group.course.group_formation_open?
         return blocked(:group_confirmed) if @group.confirmed?
         return blocked(:has_project) if @group.project.present?
 
@@ -74,7 +74,7 @@ module Groups
       def blocked_message
         case blocked_reason
         when :already_removed then 'This member has already been removed.'
-        when :window_closed then 'Group formation is closed.'
+        when :formation_closed then 'Group formation is closed.'
         when :group_confirmed then 'You cannot leave a confirmed group.'
         when :has_project then 'This group has a proposal, so only a coordinator can remove members.'
         when :group_gone then 'This group no longer exists.'

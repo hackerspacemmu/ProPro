@@ -7,8 +7,8 @@ class ProjectGroupPolicy < ApplicationPolicy
     record.course.enrolments.exists?(user_id: user.id, role: :coordinator)
   end
 
-  def grouping_window_open?
-    record.course.grouping_window_open?
+  def group_formation_open?
+    record.course.group_formation_open?
   end
 
   def create?
@@ -33,7 +33,7 @@ class ProjectGroupPolicy < ApplicationPolicy
     return true if coordinator?
     return false if record.confirmed?
 
-    grouping_window_open? && record.leader_id == user.id
+    group_formation_open? && record.leader_id == user.id
   end
 
   def edit?
@@ -43,7 +43,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   def update?
     return true if coordinator?
 
-    grouping_window_open? &&
+    group_formation_open? &&
       record.leader_id == user.id && !record.confirmed?
   end
 
@@ -52,7 +52,7 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   # Requests are for confirmed formation groups only (D28); the service
-  # re-checks enrolment, grouping state and the window.
+  # re-checks enrolment, origin and formation state.
   def request_to_join?
     enrolment.present? && enrolment.student? && !record.origin_import? && record.confirmed?
   end

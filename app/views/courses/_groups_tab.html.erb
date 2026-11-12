@@ -11,7 +11,7 @@
         <h2 class="text-3xl font-normal text-gray-900 tracking-tight" style="font-family: 'DM Sans', Roboto, Arial, sans-serif;">Groups</h2>
         <span class="text-sm font-medium text-gray-500"><%= pluralize(@group_list.size, "group") %></span>
       </div>
-      <% if @grouping_window_open %>
+      <% if @group_formation_open %>
         <%= link_to course_group_formation_path(@course),
               class: "#{GroupFormationsHelper::GROUP_FILL_BUTTON} gap-2 max-sm:w-full" do %>
           <span class="material-symbols-outlined text-[18px]">groups</span>
@@ -62,7 +62,7 @@
                 hx-trigger="change"
                 hx-include="#groups-search, #groups-status-filter, #lecturer-filter">
           <option value="all" <%= params[:status_filter].blank? || params[:status_filter] == 'all' ? 'selected' : '' %>>All Statuses</option>
-          <% unless @grouping_window_open %>
+          <% unless @group_formation_open %>
             <option value="draft" <%= params[:status_filter] == 'draft' ? 'selected' : '' %>>Not confirmed</option>
           <% end %>
           <% %w[approved pending redo rejected not_submitted].each do |group_status| %>

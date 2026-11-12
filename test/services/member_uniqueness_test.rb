@@ -4,7 +4,7 @@ require 'test_helper'
 # second insert, and each service reports it as already_grouped.
 class MemberUniquenessTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, grouped: true, grouping_enabled: true,
+    @course = create(:course, grouped: true, group_formation_enabled: true,
                               group_min: 2, group_max: 4, student_list_finalised: false)
     @leader = create(:user)
     @student = create(:user)

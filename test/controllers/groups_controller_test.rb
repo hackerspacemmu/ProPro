@@ -38,8 +38,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test 'groups#index hides unconfirmed groups when formation window is open' do
-    @course.update!(grouping_enabled: true)
+  test 'groups#index hides unconfirmed groups when formation is open' do
+    @course.update!(group_formation_enabled: true)
     create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
     create(:project_group, course: @course, confirmed: true, group_name: 'G999')
 
@@ -52,8 +52,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'a', text: /Group formation/
   end
 
-  test 'groups#index shows unconfirmed groups when formation window is closed' do
-    @course.update!(grouping_enabled: true, grouping_closes_at: 1.hour.ago)
+  test 'groups#index shows unconfirmed groups when formation is closed' do
+    @course.update!(group_formation_enabled: true, group_formation_closes_at: 1.hour.ago)
     create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
 
     sign_in @coordinator
@@ -66,7 +66,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'groups#index status filter for draft works when closed and is ignored when open' do
-    @course.update!(grouping_enabled: true, grouping_closes_at: 1.hour.ago)
+    @course.update!(group_formation_enabled: true, group_formation_closes_at: 1.hour.ago)
     create(:project_group, course: @course, confirmed: false, group_name: 'Tmp999')
     create(:project_group, course: @course, confirmed: true, group_name: 'G999')
 
@@ -76,8 +76,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'table', text: /Tmp999/
     assert_select 'table', text: /G999/, count: 0
 
-    # Stale draft filter ignored when window is open
-    @course.update!(grouping_closes_at: nil)
+    # Stale draft filter ignored when formation is open
+    @course.update!(group_formation_closes_at: nil)
     get course_groups_path(@course, status_filter: 'draft')
     assert_response :success
     assert_select 'table', text: /G999/
@@ -85,7 +85,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'coordinator sees manage column on groups table' do
-    @course.update!(grouping_enabled: true)
+    @course.update!(group_formation_enabled: true)
     sign_in @coordinator
     get course_groups_path(@course)
     assert_response :success

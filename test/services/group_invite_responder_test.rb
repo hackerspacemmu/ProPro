@@ -4,7 +4,7 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @course = create(:course, grouping_enabled: true,
+    @course = create(:course, group_formation_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
@@ -113,15 +113,15 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     end
   end
 
-  test 'accept blocked when window closed' do
+  test 'accept blocked when formation closed' do
     invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
                                            kind: :direct_request, status: :pending)
-    @course.update!(grouping_closes_at: 1.hour.ago)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
 
     result = GroupInviteResponder.new(invite, current_user: @leader).accept!
 
     assert result.blocked?
-    assert_equal :window_closed, result.blocked_reason
+    assert_equal :formation_closed, result.blocked_reason
   end
 
   test 'accept blocked when joining user is already grouped elsewhere' do
@@ -251,12 +251,12 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     assert_equal :already_responded, result.blocked_reason
   end
 
-  # ── Edge: decline! has no with_lock, no window/confirmed gate at all ─────────
+  # ── Edge: decline! has no with_lock, no formation/confirmed gate at all ─────────
 
-  test 'declining is allowed even after the grouping window has closed' do
+  test 'declining is allowed even after formation has closed' do
     invite = create(:project_group_invite, project_group: @group, sender: @student, recipient: @leader,
                                            kind: :direct_request, status: :pending)
-    @course.update!(grouping_closes_at: 1.hour.ago)
+    @course.update!(group_formation_closes_at: 1.hour.ago)
 
     result = GroupInviteResponder.new(invite, current_user: @leader).decline!
 
@@ -292,7 +292,7 @@ end
 
 class GroupInviteResponderRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouping_enabled: true,
+    @course = create(:course, group_formation_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)

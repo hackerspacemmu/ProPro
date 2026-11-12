@@ -4,7 +4,7 @@ require 'test_helper'
 class GroupJoinerTest < ActiveSupport::TestCase
   setup do
     @course = FactoryBot.create(:course,
-                                grouped: true, grouping_enabled: true,
+                                grouped: true, group_formation_enabled: true,
                                 group_min: 2, group_max: 3, student_list_finalised: false)
     @leader  = FactoryBot.create(:user)
     @student = FactoryBot.create(:user)
@@ -74,13 +74,13 @@ class GroupJoinerTest < ActiveSupport::TestCase
     assert unrelated_invite.reload.persisted?
   end
 
-  test 'blocked when window closed' do
-    @course.update!(grouping_closes_at: 1.hour.ago)
+  test 'blocked when formation closed' do
+    @course.update!(group_formation_closes_at: 1.hour.ago)
 
     result = GroupJoiner.new(@group, current_user: @student).join!
 
     assert result.blocked?
-    assert_equal :window_closed, result.blocked_reason
+    assert_equal :formation_closed, result.blocked_reason
   end
 
   test 'blocked when already grouped elsewhere in course' do
@@ -130,7 +130,7 @@ end
 
 class GroupJoinerRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouped: true, grouping_enabled: true,
+    @course = create(:course, grouped: true, group_formation_enabled: true,
                               group_min: 2, group_max: 3, student_list_finalised: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)

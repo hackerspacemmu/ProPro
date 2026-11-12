@@ -13,7 +13,7 @@ class GroupJoiner
 
       return blocked(:imported_group) if @group.origin_import?
       return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: @current_user.id, role: :student)
-      return blocked(:window_closed) unless course.grouping_window_open?
+      return blocked(:formation_closed) unless course.group_formation_open?
       return blocked(:already_grouped) if course.project_group_members.exists?(user_id: @current_user.id)
       return blocked(:group_confirmed) if @group.confirmed?
       return blocked(:group_full) if course.group_full?(@group.project_group_members.count)
@@ -53,7 +53,7 @@ class GroupJoiner
       case blocked_reason
       when :imported_group then 'This group was imported, so it cannot take new members.'
       when :not_enrolled then 'You are not enrolled in this course.'
-      when :window_closed then 'The grouping window is closed.'
+      when :formation_closed then 'Group formation is closed.'
       when :already_grouped then 'Already in a group for this course.'
       when :group_confirmed then 'Group already confirmed, not accepting members.'
       when :group_full then 'Group has reached its maximum size.'

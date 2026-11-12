@@ -11,7 +11,7 @@ class GroupCreator
     @course.with_no_key_update_lock do
       return blocked(:not_grouped) unless @course.grouped?
       return blocked(:already_grouped) if already_grouped?
-      return blocked(:window_closed) if self_create? && !@course.grouping_window_open?
+      return blocked(:formation_closed) if self_create? && !@course.group_formation_open?
 
       group = build_group!
       return blocked(:already_grouped) unless group
@@ -65,7 +65,7 @@ class GroupCreator
 
       case blocked_reason
       when :not_grouped then 'This course does not use groups.'
-      when :window_closed then 'The grouping window is closed.'
+      when :formation_closed then 'Group formation is closed.'
       when :already_grouped then 'Already in a group for this course.'
       end
     end

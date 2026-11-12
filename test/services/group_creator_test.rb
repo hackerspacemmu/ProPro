@@ -4,7 +4,7 @@ require 'test_helper'
 class GroupCreatorTest < ActiveSupport::TestCase
   setup do
     @course = FactoryBot.create(:course,
-                                grouped: true, grouping_enabled: true,
+                                grouped: true, group_formation_enabled: true,
                                 group_min: 2, group_max: 4, student_list_finalised: false)
     @student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: @student, role: :student)
@@ -63,17 +63,17 @@ class GroupCreatorTest < ActiveSupport::TestCase
     assert_equal :already_grouped, result.blocked_reason
   end
 
-  test 'self-create blocked when window closed' do
-    @course.update!(grouping_closes_at: 1.hour.ago)
+  test 'self-create blocked when formation closed' do
+    @course.update!(group_formation_closes_at: 1.hour.ago)
 
     result = GroupCreator.new(@course, leader: @student, current_user: @student).create!
 
     assert result.blocked?
-    assert_equal :window_closed, result.blocked_reason
+    assert_equal :formation_closed, result.blocked_reason
   end
 
-  test 'coordinator-create bypasses window_closed' do
-    @course.update!(grouping_closes_at: 1.hour.ago)
+  test 'coordinator-create bypasses formation_closed' do
+    @course.update!(group_formation_closes_at: 1.hour.ago)
 
     result = GroupCreator.new(@course, leader: @student, current_user: @coordinator).create!
 
@@ -144,7 +144,7 @@ end
 
 class GroupCreatorRaceTest < NonTransactionalTestCase
   setup do
-    @course = create(:course, grouped: true, grouping_enabled: true,
+    @course = create(:course, grouped: true, group_formation_enabled: true,
                               group_min: 2, group_max: 4, student_list_finalised: false)
     @students = [create(:user), create(:user)]
     @students.each { |user| create(:enrolment, course: @course, user: user, role: :student) }

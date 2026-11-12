@@ -59,8 +59,8 @@ class Course < ApplicationRecord
             allow_nil: true,
             if: -> { group_min.present? && group_max.present? }
 
-  # student_list_finalised cannot be true if grouping_enabled is false.
-  validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
+  # student_list_finalised cannot be true if group_formation_enabled is false.
+  validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :group_formation_enabled?
 
   before_validation :null_number_of_updates_if_not_used
   before_validation :clear_grouping_fields_if_disabled
@@ -92,8 +92,8 @@ class Course < ApplicationRecord
     students.where.not(id: project_group_members.select(:user_id)).order(:name)
   end
 
-  def grouping_window_open?
-    grouping_enabled? && (grouping_closes_at.nil? || Time.current <= grouping_closes_at)
+  def group_formation_open?
+    group_formation_enabled? && (group_formation_closes_at.nil? || Time.current <= group_formation_closes_at)
   end
 
   def with_no_key_update_lock(&)
@@ -216,12 +216,12 @@ class Course < ApplicationRecord
   end
 
   def clear_grouping_fields_if_disabled
-    return if grouping_enabled?
+    return if group_formation_enabled?
 
-    self.student_list_finalised = false
-    self.group_min              = nil
-    self.group_max              = nil
-    self.grouping_closes_at     = nil
+    self.student_list_finalised    = false
+    self.group_min                 = nil
+    self.group_max                 = nil
+    self.group_formation_closes_at = nil
   end
 
   def group_min_for_validation

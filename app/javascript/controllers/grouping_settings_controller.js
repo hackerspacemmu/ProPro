@@ -2,11 +2,11 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = [
-    "groupingOptions", // the block shown when grouping_enabled = true
+    "groupingOptions", // the block shown when group_formation_enabled = true
     "previewSection", // the preview block shown in prevent-leftover mode
     "optionalSuffix", // the "(optional)" label suffixes hidden in prevent-leftover mode
-    "windowFields", // the end-date field
-    "windowToggleBtn", // the "Set date / Remove date" button
+    "formationFields", // the formation close-date field
+    "formationToggleBtn", // the "Set date / Remove date" button
     "previewInput", // the student count number input
     "minMax", // group_min and group_max inputs
   ];
@@ -19,10 +19,10 @@ export default class extends Controller {
   connect() {
     this.applyEnabledState(this.enabledValue);
     this.applyFinalisedState(this.finalisedValue);
-    this.applyWindowState();
+    this.applyFormationState();
   }
 
-  // Called when the grouping_enabled switch changes.
+  // Called when the group_formation_enabled switch changes.
   toggleEnabled(event) {
     this.applyEnabledState(event.target.checked);
   }
@@ -33,12 +33,12 @@ export default class extends Controller {
   }
 
   // Called by the "Set date / Remove date" button.
-  toggleWindow(event) {
+  toggleFormation(event) {
     event.preventDefault();
-    const fields = this.windowFieldsTarget;
+    const fields = this.formationFieldsTarget;
     const hidden = fields.classList.contains("hidden");
     fields.classList.toggle("hidden", !hidden);
-    this.windowToggleBtnTarget.textContent = hidden
+    this.formationToggleBtnTarget.textContent = hidden
       ? "Remove date"
       : "Set date";
 
@@ -78,15 +78,15 @@ export default class extends Controller {
     });
   }
 
-  applyWindowState() {
-    if (!this.hasWindowFieldsTarget) return;
+  applyFormationState() {
+    if (!this.hasFormationFieldsTarget) return;
     const hasValues = Array.from(
-      this.windowFieldsTarget.querySelectorAll("input[type='datetime-local']"),
+      this.formationFieldsTarget.querySelectorAll("input[type='datetime-local']"),
     ).some((input) => input.value.trim() !== "");
 
-    this.windowFieldsTarget.classList.toggle("hidden", !hasValues);
-    if (this.hasWindowToggleBtnTarget) {
-      this.windowToggleBtnTarget.textContent = hasValues
+    this.formationFieldsTarget.classList.toggle("hidden", !hasValues);
+    if (this.hasFormationToggleBtnTarget) {
+      this.formationToggleBtnTarget.textContent = hasValues
         ? "Remove date"
         : "Set date";
     }

@@ -34,7 +34,7 @@ class GroupInviteResponder
 
         return blocked(:imported_group) if @group.origin_import?
         return blocked(:not_enrolled) unless course.enrolments.exists?(user_id: joining_user.id, role: :student)
-        return blocked(:window_closed) unless course.grouping_window_open?
+        return blocked(:formation_closed) unless course.group_formation_open?
         return blocked(:already_grouped) if course.project_group_members.exists?(user_id: joining_user.id)
         return blocked(:has_project) if @group.project.present?
         return blocked(:group_full) if course.group_full?(@group.project_group_members.count)
@@ -127,7 +127,7 @@ class GroupInviteResponder
       case blocked_reason
       when :imported_group then 'This group was imported, so it cannot take new members.'
       when :not_enrolled then 'This student is no longer enrolled in this course.'
-      when :window_closed then 'The grouping window is closed.'
+      when :formation_closed then 'Group formation is closed.'
       when :already_grouped then 'This student already joined another group.'
       when :has_project then 'This group already has a proposal, so it cannot take new members.'
       when :group_full then 'Group has reached its maximum size.'

@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
   test 'confirms unconfirmed group and renames to lowest free G number' do
-    course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
+    course = create(:course, group_formation_enabled: true, group_min: 2, group_max: 4)
     group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')
     create_list(:project_group_member, 3, project_group: group)
 
@@ -15,7 +15,7 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
   end
 
   test 'confirms an undersized group bypassing size limits' do
-    course = create(:course, grouping_enabled: true, group_min: 3, group_max: 5)
+    course = create(:course, group_formation_enabled: true, group_min: 3, group_max: 5)
     group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')
     create_list(:project_group_member, 1, project_group: group)
 
@@ -27,7 +27,7 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
   end
 
   test 'confirms an oversized group bypassing size limits' do
-    course = create(:course, grouping_enabled: true, group_min: 2, group_max: 3)
+    course = create(:course, group_formation_enabled: true, group_min: 2, group_max: 3)
     group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')
     create_list(:project_group_member, 4, project_group: group)
 
@@ -38,8 +38,8 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
     assert_equal 'G001', group.group_name
   end
 
-  test 'confirms a group when the grouping window is closed' do
-    course = create(:course, grouping_enabled: true, grouping_closes_at: 1.hour.ago, group_min: 2, group_max: 4)
+  test 'confirms a group when formation is closed' do
+    course = create(:course, group_formation_enabled: true, group_formation_closes_at: 1.hour.ago, group_min: 2, group_max: 4)
     group = create(:project_group, course: course, confirmed: false, group_name: 'Tmp001')
     create_list(:project_group_member, 2, project_group: group)
 
@@ -50,7 +50,7 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
   end
 
   test 'blocks when already confirmed' do
-    course = create(:course, grouping_enabled: true)
+    course = create(:course, group_formation_enabled: true)
     group = create(:project_group, course: course, confirmed: true, group_name: 'G001')
 
     result = Groups::Coordinator::Confirmer.new(group).confirm!

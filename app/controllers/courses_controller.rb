@@ -231,8 +231,8 @@ class CoursesController < ApplicationController
   def handle_settings
     authorize @course, :update?
 
-    grouping_enabled_param = params[:course][:grouping_enabled] == 'true'
-    student_list_param     = params[:course][:student_list_finalised] == 'true'
+    group_formation_enabled_param = params[:course][:group_formation_enabled] == 'true'
+    student_list_param = params[:course][:student_list_finalised] == 'true'
     supervisor_auto_calculate_enabled_param = params[:course][:supervisor_auto_calculate_enabled] == '1'
 
     capacity_errors = nil
@@ -269,11 +269,11 @@ class CoursesController < ApplicationController
         # Lock prevents any race conditions for any group enrolment changes
         @course.with_no_key_update_lock do
           @course.update!(
-            grouping_enabled: grouping_enabled_param,
+            group_formation_enabled: group_formation_enabled_param,
             student_list_finalised: student_list_param,
             group_min: params[:course][:group_min].presence,
             group_max: params[:course][:group_max].presence,
-            grouping_closes_at: params[:course][:grouping_closes_at].presence
+            group_formation_closes_at: params[:course][:group_formation_closes_at].presence
           )
         end
       end
@@ -292,7 +292,7 @@ class CoursesController < ApplicationController
       event: 'course_settings_updated',
       properties: {
         grouped_course: @course.grouped?,
-        grouping_enabled: @course.grouping_enabled?,
+        group_formation_enabled: @course.group_formation_enabled?,
         topics_enabled: @course.toggle_topics?,
         progress_updates_enabled: @course.use_progress_updates?
       }

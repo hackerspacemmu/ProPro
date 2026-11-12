@@ -38,7 +38,7 @@ class OverviewPresenter
   def show_group_formation?
     return false unless coordinator? || lecturer?
 
-    @course.present? && @course.grouped? && @course.grouping_enabled?
+    @course.present? && @course.grouped? && @course.group_formation_enabled?
   end
 
   # Student My Group: student in a grouped course with group present
@@ -51,13 +51,13 @@ class OverviewPresenter
     student? && (@group.nil? || @group.confirmed?)
   end
 
-  # Group formation window and count helpers
-  def grouping_window_open?
-    @course&.grouping_window_open? || false
+  # Group formation open/closed and count helpers
+  def group_formation_open?
+    @course&.group_formation_open? || false
   end
 
-  def grouping_closes_at
-    @course&.grouping_closes_at
+  def group_formation_closes_at
+    @course&.group_formation_closes_at
   end
 
   def total_groups_count
@@ -77,7 +77,7 @@ class OverviewPresenter
   end
 
   def show_formation_attention_banner?
-    coordinator? && !grouping_window_open? && (unconfirmed_groups_count.positive? || ungrouped_students_count.positive?)
+    coordinator? && !group_formation_open? && (unconfirmed_groups_count.positive? || ungrouped_students_count.positive?)
   end
 
   # My group helpers

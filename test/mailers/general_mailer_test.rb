@@ -12,7 +12,7 @@ class GeneralMailerTest < ActionMailer::TestCase
   end
 
   test 'the reopened notification names the joiner and the reopened group' do
-    course = create(:course, grouping_enabled: true)
+    course = create(:course, group_formation_enabled: true)
     group = create(:project_group, course: course, group_name: 'Tmp001')
     joiner = create(:user, name: 'Ada Lovelace')
     recipient = create(:user)

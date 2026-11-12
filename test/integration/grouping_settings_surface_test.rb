@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
+    @course = create(:course, :grouped, group_formation_enabled: true, group_min: 2, group_max: 4)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
     @student = create(:user)
@@ -29,7 +29,7 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     assert_no_match 'Auto-Confirmability', response.body
     assert_no_match 'Allow student grouping now', response.body
     assert_no_match 'Open from', response.body
-    assert_no_match 'Set a window', response.body
+    assert_match 'Set date', response.body
   end
 
   test 'settings renders both grouping switches with hidden false fallbacks' do
@@ -38,42 +38,42 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'input[type="hidden"][name="course[student_list_finalised]"][value="false"]'
     assert_select 'input[type="checkbox"][name="course[student_list_finalised]"]'
-    assert_select 'input[type="hidden"][name="course[grouping_enabled]"][value="false"]'
-    assert_select 'input[type="checkbox"][name="course[grouping_enabled]"]'
+    assert_select 'input[type="hidden"][name="course[group_formation_enabled]"][value="false"]'
+    assert_select 'input[type="checkbox"][name="course[group_formation_enabled]"]'
   end
 
   test 'coordinator saves both grouping switch values' do
     post handle_settings_course_path(@course),
-         params: { course: settings_params(@course, grouping_enabled: 'true',
+         params: { course: settings_params(@course, group_formation_enabled: 'true',
                                                     student_list_finalised: 'true',
                                                     group_min: '2', group_max: '4') }
 
     assert_redirected_to settings_course_path(@course)
     @course.reload
-    assert @course.grouping_enabled?
+    assert @course.group_formation_enabled?
     assert @course.student_list_finalised?
   end
 
   test 'saving settings does not change whether formation is open' do
-    @course.update!(grouping_enabled: true, grouping_closes_at: 1.day.from_now)
-    assert @course.grouping_window_open?
+    @course.update!(group_formation_enabled: true, group_formation_closes_at: 1.day.from_now)
+    assert @course.group_formation_open?
 
     post handle_settings_course_path(@course), params: { course: settings_params(@course) }
 
     assert_redirected_to settings_course_path(@course)
-    assert @course.reload.grouping_window_open?
+    assert @course.reload.group_formation_open?
   end
 
-  test 'settings shows the stored end date and remove control when the window has closed' do
+  test 'settings shows the stored end date and remove control when formation has closed' do
     closes_at = 1.day.ago.change(sec: 0)
-    @course.update!(grouping_closes_at: closes_at)
+    @course.update!(group_formation_closes_at: closes_at)
 
     get settings_course_path(@course)
 
     assert_response :success
     assert_match 'Remove date', response.body
-    assert_select '[data-grouping-settings-target="windowFields"].hidden', count: 0
-    assert_select "input#course_grouping_closes_at[value='#{closes_at.strftime('%Y-%m-%dT%H:%M')}']"
+    assert_select '[data-grouping-settings-target="formationFields"].hidden', count: 0
+    assert_select "input#course_group_formation_closes_at[value='#{closes_at.strftime('%Y-%m-%dT%H:%M')}']"
   end
 
   test 'the workspace explains an unlimited group size' do
@@ -112,11 +112,11 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
       toggle_topics: course.toggle_topics.to_s,
       file_link: course.file_link,
       supervisor_auto_calculate_enabled: '0',
-      grouping_enabled: course.grouping_enabled?.to_s,
+      group_formation_enabled: course.group_formation_enabled?.to_s,
       student_list_finalised: course.student_list_finalised?.to_s,
       group_min: course.group_min.to_s,
       group_max: course.group_max.to_s,
-      grouping_closes_at: course.grouping_closes_at&.strftime('%Y-%m-%dT%H:%M')
+      group_formation_closes_at: course.group_formation_closes_at&.strftime('%Y-%m-%dT%H:%M')
     }.merge(overrides)
   end
 

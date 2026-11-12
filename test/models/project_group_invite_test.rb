@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ProjectGroupInviteTest < ActiveSupport::TestCase
   def setup
-    @course  = create(:course, grouping_enabled: true, student_list_finalised: true,
+    @course  = create(:course, group_formation_enabled: true, student_list_finalised: true,
                                group_min: 2, group_max: 4)
     @group   = create(:project_group, course: @course)
     @sender  = create(:user)
@@ -60,7 +60,7 @@ class ProjectGroupInviteTest < ActiveSupport::TestCase
                                              recipient: create(:user), kind: :direct_request, status: :accepted)
     other_user = create(:project_group_invite, project_group: @group, sender: create(:user),
                                                recipient: create(:user), kind: :direct_request, status: :pending)
-    other_course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
+    other_course = create(:course, group_formation_enabled: true, group_min: 2, group_max: 4)
     other_group = create(:project_group, course: other_course)
     other_course_invite = create(:project_group_invite, project_group: other_group, sender: @sender,
                                                         recipient: create(:user), kind: :direct_request,
@@ -103,7 +103,7 @@ class ProjectGroupInviteTest < ActiveSupport::TestCase
 
   test 'for_course scope returns invites scoped to course' do
     @invite.save!
-    other_course = create(:course, grouping_enabled: true, group_min: 2, group_max: 4)
+    other_course = create(:course, group_formation_enabled: true, group_min: 2, group_max: 4)
     other_group  = create(:project_group, course: other_course)
     other_invite = create(:project_group_invite, project_group: other_group, sender: create(:user))
 

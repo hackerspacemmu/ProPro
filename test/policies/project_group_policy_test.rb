@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ProjectGroupPolicyTest < ActiveSupport::TestCase
   setup do
-    @course = create(:course, :grouped, grouping_enabled: true, group_min: 2, group_max: 4)
+    @course = create(:course, :grouped, group_formation_enabled: true, group_min: 2, group_max: 4)
     @leader = create(:user)
     @coordinator = create(:user, :staff)
     @student = create(:user)
