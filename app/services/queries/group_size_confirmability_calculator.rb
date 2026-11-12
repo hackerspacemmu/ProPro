@@ -23,12 +23,12 @@ module Queries
       end
     end
 
-    def self.feasible_count?(count, group_min, group_max)
+    def feasible_count?(count)
       return true if count.zero?
       return false if count.negative?
 
-      k = (count.to_f / group_max).ceil
-      (count / k) >= group_min
+      k = (count.to_f / @course.group_max).ceil
+      (count / k) >= @course.group_min
     end
 
     private
@@ -52,7 +52,7 @@ module Queries
 
       Result.new(found: true, breakdown: breakdown, group_count: k, error: nil,
                  group_min: group_min, group_max: group_max,
-                 students_to_group: @students_to_group, finalised: true)
+                 students_to_group: @students_to_group, finalised: true, calculator: self)
     end
 
     # Default mode
@@ -60,14 +60,15 @@ module Queries
       breakdown = (group_min..group_max).map { |size| { group_size: size, number_of_groups: nil } }
       Result.new(found: true, breakdown: breakdown, group_count: nil, error: nil,
                  group_min: group_min, group_max: group_max,
-                 students_to_group: @students_to_group, finalised: false)
+                 students_to_group: @students_to_group, finalised: false, calculator: self)
     end
 
     class Result
       attr_reader :breakdown, :group_count, :error
 
       def initialize(found:, breakdown:, group_count:, error:,
-                     group_min: nil, group_max: nil, students_to_group: nil, finalised: nil)
+                     group_min: nil, group_max: nil, students_to_group: nil, finalised: nil,
+                     calculator: nil)
         @found = found
         @breakdown = breakdown
         @group_count = group_count
@@ -76,6 +77,8 @@ module Queries
         @group_max = group_max
         @students_to_group = students_to_group
         @finalised = finalised
+        # confirmable_size? re-checks a partial remainder through the calculator.
+        @calculator = calculator
       end
 
       def found? = @found
@@ -88,7 +91,7 @@ module Queries
         return true unless @finalised
 
         remainder = @students_to_group - size
-        GroupSizeConfirmabilityCalculator.feasible_count?(remainder, @group_min, @group_max)
+        @calculator.feasible_count?(remainder)
       end
 
       def message

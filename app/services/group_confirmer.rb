@@ -42,6 +42,7 @@ class GroupConfirmer
     end
 
     def confirmed? = @confirmed
+    def blocked? = !confirmed?
 
     def message
       case blocked_reason

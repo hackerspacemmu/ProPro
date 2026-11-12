@@ -64,32 +64,38 @@ SupervisorCapacityUpdater.new(course, offsets: offsets, excluded_ids: excluded_i
 
 If a return value is needed, the service should return its result via a `Result` object — never a bare `true`/`false`, and never an ActiveRecord instance on its own.
 
-- A `Result` object can carry a success/failure state, an error list, and whatever data the caller actually needs — named and typed, not a generic hash the caller has to know the shape of.
-- `success?`/`error?` are only required on a `Result` that has a genuine second outcome — a `blocked_reason`, an `errors` array, or equivalent. Don't add them to a `Result` that always succeeds; that's aliasing nothing.
+The `Result` is an inner class of the service that returns it. It is per-service, not shared and not generic: each result carries only the state and data its own callers need (Copeland, *Sustainable Web Development with Rails*, 15.2.3). A result usually exposes:
+
+- a success predicate named for the action — `created?`, `joined?`, `confirmed?`, `redeemed?`;
+- `blocked?` plus a `blocked_reason` Symbol when the service has a second outcome;
+- named readers for the data callers need, such as `group`, `invite`, `old_name` or `new_name`;
+- `message` holding the user-facing flash text, as a Ruby string;
+- `needs_confirmation?` where a controller dispatches between services on the outcome.
+
+Don't add a predicate that always returns the same value. Don't build a shared result class or module up front: extract shared result code only once related services show real duplication.
 
 ```ruby
-class SupervisorCapacityUpdater
+class GroupJoiner
   class Result
-    include ServiceResult # provides success?/error? from `errors.empty?`
+    attr_reader :blocked_reason
 
-    attr_reader :course, :errors
-
-    def initialize(updated:, course:, errors: [])
-      @updated = updated
-      @course = course
-      @errors = errors
+    def initialize(joined:, blocked_reason:)
+      @joined = joined
+      @blocked_reason = blocked_reason
     end
 
-    def updated? = @updated
-  end
-end
-```
+    def joined? = @joined
+    def blocked? = !joined?
 
-```ruby
-# ServiceResult — shared module, mixed into a Result class that has a real failure mode
-module ServiceResult
-  def success? = errors.empty?
-  def error? = !success?
+    def message
+      return 'Joined the group.' if joined?
+
+      case blocked_reason
+      when :group_full then 'This group has reached its maximum size.'
+      when :group_gone then 'This group no longer exists.'
+      end
+    end
+  end
 end
 ```
 

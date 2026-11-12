@@ -8,6 +8,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
     result = Groups::Coordinator::Reopener.new(group).reopen!
 
     assert result.reopened?
+    assert_not result.blocked?
     assert_not group.reload.confirmed?
     assert_equal 'Tmp001', group.group_name
     assert_equal 'G001 is reopened as Tmp001.', result.message
@@ -56,6 +57,7 @@ class GroupsCoordinatorReopenerTest < ActiveSupport::TestCase
     result = Groups::Coordinator::Reopener.new(group).reopen!
 
     assert_not result.reopened?
+    assert result.blocked?
     assert_equal :already_not_confirmed, result.blocked_reason
     assert_equal 'This group is already not confirmed.', result.message
   end

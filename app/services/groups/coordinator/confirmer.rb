@@ -47,6 +47,7 @@ module Groups
         end
 
         def confirmed? = @confirmed
+        def blocked? = !confirmed?
 
         def message
           return "#{old_name} is now confirmed as #{new_name}." if confirmed?

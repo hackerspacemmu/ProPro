@@ -41,6 +41,7 @@ class GroupReverter
     end
 
     def reverted? = @reverted
+    def blocked? = !reverted?
 
     def message
       case blocked_reason

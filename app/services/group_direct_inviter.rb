@@ -64,7 +64,7 @@ class GroupDirectInviter
       when :has_project then 'This group already has a proposal, so it cannot take new members.'
       when :invalid_recipient then 'This user cannot be invited to a group.'
       when :formation_closed then 'Group formation is closed.'
-      when :group_full then 'Group has reached its maximum size.'
+      when :group_full then 'This group has reached its maximum size.'
       when :already_grouped then 'This student already joined another group.'
       when :already_invited then 'This student already has a pending invite for this group.'
       end

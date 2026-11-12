@@ -67,11 +67,15 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
   end
 
   test 'feasible_count? is true for a zero remainder' do
-    assert Queries::GroupSizeConfirmabilityCalculator.feasible_count?(0, 2, 4)
+    calculator = Queries::GroupSizeConfirmabilityCalculator.new(Course.new(group_min: 2, group_max: 4), students_to_group: 0)
+
+    assert calculator.feasible_count?(0)
   end
 
   test 'feasible_count? is false for a negative remainder' do
-    assert_not Queries::GroupSizeConfirmabilityCalculator.feasible_count?(-1, 2, 4)
+    calculator = Queries::GroupSizeConfirmabilityCalculator.new(Course.new(group_min: 2, group_max: 4), students_to_group: 0)
+
+    assert_not calculator.feasible_count?(-1)
   end
 
   test 'default mode allows a confirmable size even when the course has far fewer students than that' do
@@ -84,11 +88,14 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
   test 'feasible_count? matches an exhaustive search for a legal number of groups' do
     (1..8).each do |group_min|
       (group_min..12).each do |group_max|
+        calculator = Queries::GroupSizeConfirmabilityCalculator.new(
+          Course.new(group_min: group_min, group_max: group_max), students_to_group: 0
+        )
+
         (0..100).each do |count|
           expected = feasible?(count, group_min, group_max)
 
-          assert_equal expected,
-                       Queries::GroupSizeConfirmabilityCalculator.feasible_count?(count, group_min, group_max),
+          assert_equal expected, calculator.feasible_count?(count),
                        "count=#{count}, min=#{group_min}, max=#{group_max}"
         end
       end
@@ -101,6 +108,7 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
                               group_min: group_min, group_max: group_max)
       random = Random.new(seed)
       remaining = count
+      feasibility = Queries::GroupSizeConfirmabilityCalculator.new(course, students_to_group: 0)
 
       assert feasible?(remaining, group_min, group_max),
              "initial count #{count} is infeasible (min=#{group_min}, max=#{group_max})"
@@ -114,7 +122,7 @@ class GroupSizeConfirmabilityCalculatorTest < ActiveSupport::TestCase
 
         remaining -= confirmable_sizes.sample(random: random)
 
-        assert remaining.zero? || Queries::GroupSizeConfirmabilityCalculator.feasible_count?(remaining, group_min, group_max),
+        assert remaining.zero? || feasibility.feasible_count?(remaining),
                "confirming left #{remaining} students ungroupable (min=#{group_min}, max=#{group_max}, seed=#{seed})"
       end
 

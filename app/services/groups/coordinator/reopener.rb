@@ -48,6 +48,7 @@ module Groups
 
         def reopened? = @reopened
         def reverted? = @reopened
+        def blocked? = !reopened?
 
         def message
           return "#{old_name} is reopened as #{new_name}." if reopened?

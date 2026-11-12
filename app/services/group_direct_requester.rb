@@ -84,6 +84,7 @@ class GroupDirectRequester
       when :already_requested then 'Already have a pending request for this group.'
       when :group_full then 'This group has reached its maximum size.'
       when :no_leader_assigned then "This group hasn't been assigned a leader yet."
+      when :group_gone then 'This group no longer exists.'
       end
     end
   end

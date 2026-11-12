@@ -24,6 +24,7 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
     result = GroupInviteResponder.new(invite, current_user: @leader).accept!
 
     assert result.accepted?
+    assert_equal 'Accepted. Member added to the group.', result.message
     assert @group.project_group_members.exists?(user_id: @student.id)
     assert invite.reload.accepted?
   end
@@ -145,6 +146,7 @@ class GroupInviteResponderTest < ActiveSupport::TestCase
 
     assert result.accepted?
     assert result.reopened?
+    assert_equal "Group reopened because #{@student.name} joined.", result.message
     assert_not @group.reload.confirmed?
     assert_equal 'Tmp001', @group.group_name
     assert @group.project_group_members.exists?(user_id: @student.id)

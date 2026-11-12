@@ -8,6 +8,7 @@ class GroupReverterTest < ActiveSupport::TestCase
     result = GroupReverter.new(group).revert!
 
     assert result.reverted?
+    assert_not result.blocked?
     assert_not group.reload.confirmed?
   end
 
@@ -18,6 +19,7 @@ class GroupReverterTest < ActiveSupport::TestCase
     result = GroupReverter.new(group).revert!
 
     assert_not result.reverted?
+    assert result.blocked?
     assert_equal :formation_closed, result.blocked_reason
   end
 

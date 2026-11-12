@@ -17,8 +17,8 @@ class GroupInviteResponder
     course = @group.course
 
     # Accepting into a confirmed group reopens it, which changes the course's
-    # student count, so the course lock comes first (D21). Not-confirmed
-    # groups take the same path for one lock order.
+    # student count, so the course lock comes first. Not-confirmed groups take
+    # the same path for one lock order.
     result = course.with_no_key_update_lock do
       with_group_lock(@group) do
         # A project created (or a competing accept) while we waited can clear
@@ -116,7 +116,10 @@ class GroupInviteResponder
       return blocked_message if blocked?
 
       case outcome
-      when :accepted then 'Accepted. Member added to the group.'
+      when :accepted
+        return "Group reopened because #{joining_user.name} joined." if reopened?
+
+        'Accepted. Member added to the group.'
       when :declined then 'Declined.'
       end
     end
@@ -130,7 +133,7 @@ class GroupInviteResponder
       when :formation_closed then 'Group formation is closed.'
       when :already_grouped then 'This student already joined another group.'
       when :has_project then 'This group already has a proposal, so it cannot take new members.'
-      when :group_full then 'Group has reached its maximum size.'
+      when :group_full then 'This group has reached its maximum size.'
       when :already_responded then 'This has already been responded to.'
       when :expired then 'This request has expired.'
       when :invite_gone then 'This request is no longer available.'

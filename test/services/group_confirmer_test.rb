@@ -9,6 +9,7 @@ class GroupConfirmerTest < ActiveSupport::TestCase
     result = GroupConfirmer.new(group).confirm!
 
     assert result.confirmed?
+    assert_not result.blocked?
     assert group.reload.confirmed?
   end
 
@@ -20,6 +21,7 @@ class GroupConfirmerTest < ActiveSupport::TestCase
     result = GroupConfirmer.new(group).confirm!
 
     assert_not result.confirmed?
+    assert result.blocked?
     assert_equal :size_illegal, result.blocked_reason
     assert_not group.reload.confirmed?
   end

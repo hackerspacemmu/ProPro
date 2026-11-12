@@ -41,6 +41,10 @@ module Groups
       holder&.kill
     end
 
+    test 'requesting to join a group deleted while waiting is blocked as group_gone' do
+      assert_group_gone { GroupDirectRequester.new(@group, current_user: @joiner).request! }
+    end
+
     test 'member removal is blocked as group_gone when the group is deleted while waiting' do
       assert_group_gone { Groups::Coordinator::MemberRemover.new(@membership).remove! }
     end

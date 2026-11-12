@@ -9,6 +9,7 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
     result = Groups::Coordinator::Confirmer.new(group).confirm!
 
     assert result.confirmed?
+    assert_not result.blocked?
     assert group.reload.confirmed?
     assert_equal 'G001', group.group_name
     assert_equal 'Tmp001 is now confirmed as G001.', result.message
@@ -68,6 +69,7 @@ class GroupsCoordinatorConfirmerTest < ActiveSupport::TestCase
     result = Groups::Coordinator::Confirmer.new(group).confirm!
 
     assert_not result.confirmed?
+    assert result.blocked?
     assert_equal :already_confirmed, result.blocked_reason
     assert_equal 'This group has already been confirmed.', result.message
   end

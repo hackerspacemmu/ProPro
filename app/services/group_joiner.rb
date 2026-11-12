@@ -56,7 +56,7 @@ class GroupJoiner
       when :formation_closed then 'Group formation is closed.'
       when :already_grouped then 'Already in a group for this course.'
       when :group_confirmed then 'Group already confirmed, not accepting members.'
-      when :group_full then 'Group has reached its maximum size.'
+      when :group_full then 'This group has reached its maximum size.'
       when :group_gone then 'This group no longer exists.'
       end
     end
