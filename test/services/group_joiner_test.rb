@@ -5,7 +5,7 @@ class GroupJoinerTest < ActiveSupport::TestCase
   setup do
     @course = FactoryBot.create(:course,
                                 grouped: true, group_formation_enabled: true,
-                                group_min: 2, group_max: 3, student_list_finalised: false)
+                                group_min: 2, group_max: 3, prevent_leftover_students: false)
     @leader  = FactoryBot.create(:user)
     @student = FactoryBot.create(:user)
     FactoryBot.create(:enrolment, course: @course, user: @leader,  role: :student)
@@ -131,7 +131,7 @@ end
 class GroupJoinerRaceTest < NonTransactionalTestCase
   setup do
     @course = create(:course, grouped: true, group_formation_enabled: true,
-                              group_min: 2, group_max: 3, student_list_finalised: false)
+                              group_min: 2, group_max: 3, prevent_leftover_students: false)
     @leader = create(:user)
     create(:enrolment, course: @course, user: @leader, role: :student)
     @group = create(:project_group, course: @course, leader_id: @leader.id)

@@ -13,12 +13,12 @@ export default class extends Controller {
 
   static values = {
     enabled: Boolean,
-    finalised: Boolean,
+    preventLeftover: Boolean,
   };
 
   connect() {
     this.applyEnabledState(this.enabledValue);
-    this.applyFinalisedState(this.finalisedValue);
+    this.applyPreventLeftoverState(this.preventLeftoverValue);
     this.applyFormationState();
   }
 
@@ -27,9 +27,9 @@ export default class extends Controller {
     this.applyEnabledState(event.target.checked);
   }
 
-  // Called when the student_list_finalised switch changes.
+  // Called when the prevent_leftover_students switch changes.
   toggleMode(event) {
-    this.applyFinalisedState(event.target.checked);
+    this.applyPreventLeftoverState(event.target.checked);
   }
 
   // Called by the "Set date / Remove date" button.
@@ -68,13 +68,13 @@ export default class extends Controller {
     this.groupingOptionsTarget.classList.toggle("hidden", !isEnabledNow);
   }
 
-  applyFinalisedState(finalised) {
+  applyPreventLeftoverState(preventLeftover) {
     if (this.hasPreviewSectionTarget) {
-      this.previewSectionTarget.classList.toggle("hidden", !finalised);
+      this.previewSectionTarget.classList.toggle("hidden", !preventLeftover);
     }
 
     this.optionalSuffixTargets.forEach((suffix) => {
-      suffix.classList.toggle("hidden", finalised);
+      suffix.classList.toggle("hidden", preventLeftover);
     });
   }
 

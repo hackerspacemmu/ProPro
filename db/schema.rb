@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_12_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_12_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,7 +44,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_12_090000) do
     t.boolean "coursecode_enabled", default: false, null: false
     t.boolean "toggle_topics", default: true
     t.boolean "group_formation_enabled", default: false, null: false
-    t.boolean "student_list_finalised", default: false, null: false
+    t.boolean "prevent_leftover_students", default: false, null: false
     t.integer "group_min"
     t.integer "group_max"
     t.datetime "group_formation_closes_at"

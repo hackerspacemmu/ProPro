@@ -210,7 +210,7 @@
           <div class="space-y-8"
                data-controller="grouping-settings"
                data-grouping-settings-enabled-value="<%= @course.group_formation_enabled? %>"
-               data-grouping-settings-finalised-value="<%= @course.student_list_finalised? %>">
+               data-grouping-settings-prevent-leftover-value="<%= @course.prevent_leftover_students? %>">
 
             <!-- Master toggle: Student self-grouping -->
             <div class="flex items-start justify-between gap-4">
@@ -244,7 +244,7 @@
                     </span>
                   </div>
                   <label class="relative flex items-center cursor-pointer shrink-0 mt-1">
-                    <%= form.check_box :student_list_finalised,
+                    <%= form.check_box :prevent_leftover_students,
                           { class: "sr-only peer", role: "switch", "aria-label": "Prevent leftover students",
                             data: { action: "change->grouping-settings#toggleMode" } },
                           "true", "false" %>
@@ -256,7 +256,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
                     <%= form.label :group_min, class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" do %>
-                      Minimum group size<span data-grouping-settings-target="optionalSuffix" class="<%= 'hidden' if @course.student_list_finalised? %>"> (optional)</span>
+                      Minimum group size<span data-grouping-settings-target="optionalSuffix" class="<%= 'hidden' if @course.prevent_leftover_students? %>"> (optional)</span>
                     <% end %>
                     <%= form.number_field :group_min, min: 1, placeholder: "e.g. 2",
                           class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
@@ -265,7 +265,7 @@
 
                   <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
                     <%= form.label :group_max, class: "absolute top-2 left-4 text-xs font-medium text-on-surface-variant" do %>
-                      Maximum group size<span data-grouping-settings-target="optionalSuffix" class="<%= 'hidden' if @course.student_list_finalised? %>"> (optional)</span>
+                      Maximum group size<span data-grouping-settings-target="optionalSuffix" class="<%= 'hidden' if @course.prevent_leftover_students? %>"> (optional)</span>
                     <% end %>
                     <%= form.number_field :group_max, min: 1, placeholder: "e.g. 4",
                           class: "w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1",
@@ -274,7 +274,7 @@
                 </div>
 
                 <!-- Distribution Preview -->
-                <div data-grouping-settings-target="previewSection" class="bg-primary-container-alt/30 border border-primary-container-alt rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6 <%= 'hidden' unless @course.student_list_finalised? %>">
+                <div data-grouping-settings-target="previewSection" class="bg-primary-container-alt/30 border border-primary-container-alt rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6 <%= 'hidden' unless @course.prevent_leftover_students? %>">
                   <div class="flex-1">
                     <div class="flex items-center gap-2 mb-1">
                       <span class="material-symbols-outlined text-[20px] text-primary">groups</span>

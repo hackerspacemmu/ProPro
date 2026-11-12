@@ -1,7 +1,7 @@
 module Queries
-  # (student_list_finalized) uses quota model to determine the confirmability of group size
+  # With prevent leftover students on, uses the quota model to determine the confirmability of group size
   # SEE https://docs.google.com/document/d/1RZAhO7-9Al2Ak3rKhHmnLZyvXfej_J7hyZw7ZYmmXng/edit?usp=sharing for more context
-  # OR (default mode) group size within min/max.
+  # With prevent leftover students off, uses group size within min/max.
   class GroupSizeConfirmabilityCalculator
     def initialize(course, students_to_group:)
       @course = course
@@ -14,7 +14,7 @@ module Queries
 
       return blank_result(:group_size_limits_not_configured) if group_min.blank? || group_max.blank?
 
-      if @course.student_list_finalised?
+      if @course.prevent_leftover_students?
         return blank_result(:no_students_to_group) if @students_to_group <= 0
 
         execute_quota(group_min, group_max)
@@ -37,7 +37,7 @@ module Queries
       Result.new(found: false, breakdown: [], group_count: 0, error: error)
     end
 
-    # Auto-Confirmability mode
+    # Prevent leftover students on
     def execute_quota(group_min, group_max)
       k = (@students_to_group.to_f / group_max).ceil
       base = @students_to_group / k
@@ -52,22 +52,22 @@ module Queries
 
       Result.new(found: true, breakdown: breakdown, group_count: k, error: nil,
                  group_min: group_min, group_max: group_max,
-                 students_to_group: @students_to_group, finalised: true, calculator: self)
+                 students_to_group: @students_to_group, prevent_leftover: true, calculator: self)
     end
 
-    # Default mode
+    # Prevent leftover students off
     def execute_min_max(group_min, group_max)
       breakdown = (group_min..group_max).map { |size| { group_size: size, number_of_groups: nil } }
       Result.new(found: true, breakdown: breakdown, group_count: nil, error: nil,
                  group_min: group_min, group_max: group_max,
-                 students_to_group: @students_to_group, finalised: false, calculator: self)
+                 students_to_group: @students_to_group, prevent_leftover: false, calculator: self)
     end
 
     class Result
       attr_reader :breakdown, :group_count, :error
 
       def initialize(found:, breakdown:, group_count:, error:,
-                     group_min: nil, group_max: nil, students_to_group: nil, finalised: nil,
+                     group_min: nil, group_max: nil, students_to_group: nil, prevent_leftover: nil,
                      calculator: nil)
         @found = found
         @breakdown = breakdown
@@ -76,7 +76,7 @@ module Queries
         @group_min = group_min
         @group_max = group_max
         @students_to_group = students_to_group
-        @finalised = finalised
+        @prevent_leftover = prevent_leftover
         # confirmable_size? re-checks a partial remainder through the calculator.
         @calculator = calculator
       end
@@ -88,7 +88,7 @@ module Queries
       def confirmable_size?(size)
         return false unless found?
         return false unless (@group_min..@group_max).cover?(size)
-        return true unless @finalised
+        return true unless @prevent_leftover
 
         remainder = @students_to_group - size
         @calculator.feasible_count?(remainder)

@@ -3,7 +3,7 @@ require 'test_helper'
 class GroupConfirmabilityPropertyTest < ActiveSupport::TestCase
   test 'random group confirmation orders keep the unconfirmed students confirmable' do
     confirmability_configs.each do |group_min, group_max, student_count, seed|
-      course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
+      course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: true,
                                          group_min: group_min, group_max: group_max)
       create_list(:enrolment, student_count, course: course, role: :student)
       students = course.students.to_a

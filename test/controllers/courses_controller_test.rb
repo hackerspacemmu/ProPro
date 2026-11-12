@@ -282,19 +282,19 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match 'Other Group', response.body
   end
 
-  test 'groups tab shows confirmed and draft groups' do
+  test 'groups tab shows confirmed and not-confirmed groups' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     create(:enrolment, :lecturer, user: create(:user, :staff), course: course)
     create(:project_group, course: course, confirmed: true, group_name: 'Visible Group')
-    create(:project_group, course: course, confirmed: false, group_name: 'Draft Group')
+    create(:project_group, course: course, confirmed: false, group_name: 'Tmp Group')
 
     sign_in @coordinator_user
     get course_groups_path(course)
     assert_response :success
     assert_match 'Visible Group', response.body
-    assert_match 'Draft Group', response.body
+    assert_match 'Tmp Group', response.body
   end
 
   test 'htmx students search reuses filtered_student_list' do
@@ -306,17 +306,17 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_match ERB::Util.html_escape(@student_user.name), response.body
   end
 
-  test 'htmx groups section renders confirmed and draft groups' do
+  test 'htmx groups section renders confirmed and not-confirmed groups' do
     course = create(:course, :grouped)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
     create(:project_group, course: course, confirmed: true, group_name: 'Visible Group')
-    create(:project_group, course: course, confirmed: false, group_name: 'Draft Group')
+    create(:project_group, course: course, confirmed: false, group_name: 'Tmp Group')
 
     sign_in @coordinator_user
     get course_groups_path(course), headers: { 'HTTP_HX_REQUEST' => 'true' }
     assert_response :success
     assert_match 'Visible Group', response.body
-    assert_match 'Draft Group', response.body
+    assert_match 'Tmp Group', response.body
   end
 
   test 'group name links to the group profile page' do
@@ -707,42 +707,42 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   # --- Course settings save ------------------------------------------------
 
   test 'handle_settings saves a mode switch and field edits in one save' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: true,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
-         params: { course: settings_params(course, student_list_finalised: 'false', group_min: '3',
+         params: { course: settings_params(course, prevent_leftover_students: 'false', group_min: '3',
                                                    group_max: '5') }
 
     assert_redirected_to settings_course_path(course)
     course.reload
-    assert_not course.student_list_finalised?
+    assert_not course.prevent_leftover_students?
     assert_equal 3, course.group_min
     assert_equal 5, course.group_max
   end
 
   test 'handle_settings re-renders with errors and changes nothing when the save is invalid' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: true,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
-         params: { course: settings_params(course, student_list_finalised: 'false', group_min: '5',
+         params: { course: settings_params(course, prevent_leftover_students: 'false', group_min: '5',
                                                    group_max: '3') }
 
     assert_response :unprocessable_entity
     assert_match 'must be greater than or equal to minimum', response.body
     course.reload
-    assert course.student_list_finalised?
+    assert course.prevent_leftover_students?
     assert_equal 2, course.group_min
     assert_equal 4, course.group_max
   end
 
   test 'handle_settings disabling grouping keeps every group and clears the end date' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false,
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: false,
                                        group_min: 2, group_max: 4, group_formation_closes_at: 1.day.from_now)
     not_confirmed = create(:project_group, course: course, confirmed: false)
     confirmed = create(:project_group, course: course, confirmed: true)
@@ -757,13 +757,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     course.reload
     assert_not course.group_formation_enabled?
     assert_nil course.group_formation_closes_at
-    assert_not course.student_list_finalised?
+    assert_not course.prevent_leftover_students?
     assert ProjectGroup.exists?(not_confirmed.id)
     assert ProjectGroup.exists?(confirmed.id)
   end
 
   test 'handle_settings leaving Prevent leftover students keeps every group' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: true,
                                        group_min: 2, group_max: 4)
     not_confirmed = create(:project_group, course: course, confirmed: false)
     confirmed = create(:project_group, course: course, confirmed: true)
@@ -771,31 +771,31 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
-         params: { course: settings_params(course, student_list_finalised: 'false') }
+         params: { course: settings_params(course, prevent_leftover_students: 'false') }
 
     assert_redirected_to settings_course_path(course)
     course.reload
-    assert_not course.student_list_finalised?
+    assert_not course.prevent_leftover_students?
     assert course.group_formation_enabled?
     assert ProjectGroup.exists?(not_confirmed.id)
     assert ProjectGroup.exists?(confirmed.id)
   end
 
   test 'handle_settings can switch Prevent leftover students back on' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false,
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: false,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
     sign_in @coordinator_user
     post handle_settings_course_path(course),
-         params: { course: settings_params(course, student_list_finalised: 'true') }
+         params: { course: settings_params(course, prevent_leftover_students: 'true') }
 
     assert_redirected_to settings_course_path(course)
-    assert course.reload.student_list_finalised?
+    assert course.reload.prevent_leftover_students?
   end
 
   test 'handle_settings locks the course before saving grouping settings' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false,
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: false,
                                        group_min: 2, group_max: 4)
     create(:enrolment, :coordinator, user: @coordinator_user, course: course)
 
@@ -859,7 +859,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       toggle_topics: course.toggle_topics.to_s,
       supervisor_auto_calculate_enabled: '0',
       group_formation_enabled: course.group_formation_enabled?.to_s,
-      student_list_finalised: course.student_list_finalised?.to_s,
+      prevent_leftover_students: course.prevent_leftover_students?.to_s,
       group_min: course.group_min.to_s,
       group_max: course.group_max.to_s,
       group_formation_closes_at: course.group_formation_closes_at&.strftime('%Y-%m-%dT%H:%M')

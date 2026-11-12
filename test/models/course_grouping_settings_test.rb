@@ -11,14 +11,14 @@ class CourseGroupingSettingsTest < ActiveSupport::TestCase
   end
 
   test 'prevent leftover students requires a group_min' do
-    course = build(:course, group_formation_enabled: true, student_list_finalised: true,
+    course = build(:course, group_formation_enabled: true, prevent_leftover_students: true,
                             group_min: nil, group_max: 4)
     assert_not course.valid?
     assert course.errors[:group_min].any?
   end
 
   test 'prevent leftover students requires a group_max' do
-    course = build(:course, group_formation_enabled: true, student_list_finalised: true,
+    course = build(:course, group_formation_enabled: true, prevent_leftover_students: true,
                             group_min: 2, group_max: nil)
     assert_not course.valid?
     assert course.errors[:group_max].any?

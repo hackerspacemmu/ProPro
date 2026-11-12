@@ -50,8 +50,8 @@ class Course < ApplicationRecord
   validates :auto_approve_copied_topics_without_changes, inclusion: { in: [true, false], message: 'must be true or false' }
 
   # Prevent leftover students needs both limits to build a legal distribution.
-  validates :group_min, presence: { message: 'is required when Prevent leftover students is on' }, if: :student_list_finalised?
-  validates :group_max, presence: { message: 'is required when Prevent leftover students is on' }, if: :student_list_finalised?
+  validates :group_min, presence: { message: 'is required when Prevent leftover students is on' }, if: :prevent_leftover_students?
+  validates :group_max, presence: { message: 'is required when Prevent leftover students is on' }, if: :prevent_leftover_students?
   validates :group_min, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }, allow_nil: true
 
   validates :group_max,
@@ -59,8 +59,8 @@ class Course < ApplicationRecord
             allow_nil: true,
             if: -> { group_min.present? && group_max.present? }
 
-  # student_list_finalised cannot be true if group_formation_enabled is false.
-  validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :group_formation_enabled?
+  # prevent_leftover_students cannot be true if group_formation_enabled is false.
+  validates :prevent_leftover_students, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :group_formation_enabled?
 
   before_validation :null_number_of_updates_if_not_used
   before_validation :clear_grouping_fields_if_disabled
@@ -182,7 +182,7 @@ class Course < ApplicationRecord
 
   def groups_with_status(status, group_list)
     case status
-    when 'draft'
+    when 'not_confirmed'
       group_list.reject(&:confirmed?)
     when 'not_submitted'
       existing_ids = projects.where(owner_type: 'ProjectGroup').pluck(:owner_id)
@@ -218,7 +218,7 @@ class Course < ApplicationRecord
   def clear_grouping_fields_if_disabled
     return if group_formation_enabled?
 
-    self.student_list_finalised    = false
+    self.prevent_leftover_students = false
     self.group_min                 = nil
     self.group_max                 = nil
     self.group_formation_closes_at = nil

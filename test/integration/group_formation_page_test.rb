@@ -3,7 +3,7 @@ require 'test_helper'
 class GroupFormationPageTest < ActionDispatch::IntegrationTest
   setup do
     @course = create(:course, :grouped, group_formation_enabled: true,
-                                        group_min: 2, group_max: 4, student_list_finalised: false)
+                                        group_min: 2, group_max: 4, prevent_leftover_students: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
     @lecturer = create(:user, :staff)
@@ -36,7 +36,7 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     sign_in @coordinator
 
     [false, true].each do |automatic|
-      @course.update!(group_min: 3, student_list_finalised: automatic, group_formation_closes_at: nil)
+      @course.update!(group_min: 3, prevent_leftover_students: automatic, group_formation_closes_at: nil)
       get course_group_formation_path(@course)
 
       assert_response :success
@@ -142,7 +142,7 @@ class GroupFormationPageTest < ActionDispatch::IntegrationTest
     assert_match 'No groups match your current filters.', response.body
   end
 
-  test 'htmx status filter separates draft and confirmed groups' do
+  test 'htmx status filter separates not-confirmed and confirmed groups' do
     confirmed = create(:project_group, course: @course, leader_id: @student.id,
                                        group_name: 'Confirmed Group', confirmed: true)
     create(:project_group_member, project_group: confirmed, user: @student)

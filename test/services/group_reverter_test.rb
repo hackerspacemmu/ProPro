@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupReverterTest < ActiveSupport::TestCase
   test 'reverts a confirmed group to draft' do
-    course = create(:course, group_formation_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    course = create(:course, group_formation_enabled: true, prevent_leftover_students: false, group_min: 2, group_max: 4)
     group  = create(:project_group, course: course, confirmed: true)
 
     result = GroupReverter.new(group).revert!
@@ -13,7 +13,7 @@ class GroupReverterTest < ActiveSupport::TestCase
   end
 
   test 'blocks with formation_closed when formation is closed' do
-    course = create(:course, group_formation_enabled: true, group_formation_closes_at: 1.hour.ago, student_list_finalised: false, group_min: 2, group_max: 4)
+    course = create(:course, group_formation_enabled: true, group_formation_closes_at: 1.hour.ago, prevent_leftover_students: false, group_min: 2, group_max: 4)
     group  = create(:project_group, course: course, confirmed: true)
 
     result = GroupReverter.new(group).revert!
@@ -24,7 +24,7 @@ class GroupReverterTest < ActiveSupport::TestCase
   end
 
   test 'blocks with already_draft when group is already draft' do
-    course = create(:course, group_formation_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    course = create(:course, group_formation_enabled: true, prevent_leftover_students: false, group_min: 2, group_max: 4)
     group  = create(:project_group, course: course, confirmed: false)
 
     result = GroupReverter.new(group).revert!
@@ -34,7 +34,7 @@ class GroupReverterTest < ActiveSupport::TestCase
   end
 
   test 'blocks with imported_group when the group was imported' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: false, group_min: 2, group_max: 4)
     group  = create(:project_group, :imported, course: course)
 
     result = GroupReverter.new(group).revert!
@@ -46,7 +46,7 @@ class GroupReverterTest < ActiveSupport::TestCase
   end
 
   test 'blocks with has_project when the group already has a project' do
-    course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: false, group_min: 2, group_max: 4)
+    course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: false, group_min: 2, group_max: 4)
     group  = create(:project_group, course: course, confirmed: true)
     supervisor = create(:enrolment, :lecturer, course: course)
     Project.create!(course: course, owner: group, supervisor_enrolment: supervisor)
@@ -60,7 +60,7 @@ class GroupReverterTest < ActiveSupport::TestCase
 
   test 'reopening gives the group the lowest free temporary number' do
     course = create(:course, :grouped, group_formation_enabled: true,
-                                       student_list_finalised: false, group_min: 2, group_max: 4)
+                                       prevent_leftover_students: false, group_min: 2, group_max: 4)
     group = create(:project_group, course: course, group_name: 'G002', confirmed: true)
 
     result = GroupReverter.new(group).revert!
@@ -71,7 +71,7 @@ class GroupReverterTest < ActiveSupport::TestCase
 
   test 'reopening frees the confirmed number for the next confirmation' do
     course = create(:course, :grouped, group_formation_enabled: true,
-                                       student_list_finalised: false, group_min: 2, group_max: 4)
+                                       prevent_leftover_students: false, group_min: 2, group_max: 4)
     create(:project_group, course: course, group_name: 'G001', confirmed: true)
     group = create(:project_group, course: course, group_name: 'G002', confirmed: true)
     create_list(:project_group_member, 3, project_group: group)
@@ -87,7 +87,7 @@ class GroupReverterTest < ActiveSupport::TestCase
 
   test 'reopening clears the group\'s pending join requests but keeps pending invites' do
     course = create(:course, :grouped, group_formation_enabled: true,
-                                       student_list_finalised: false, group_min: 2, group_max: 4)
+                                       prevent_leftover_students: false, group_min: 2, group_max: 4)
     group = create(:project_group, course: course, confirmed: true)
     request = create(:project_group_invite, project_group: group, kind: :direct_request, status: :pending)
     invite  = create(:project_group_invite, project_group: group, kind: :direct_invite, status: :pending)
@@ -101,7 +101,7 @@ class GroupReverterTest < ActiveSupport::TestCase
 
   test 'reopening clears the group invite links' do
     course = create(:course, :grouped, group_formation_enabled: true,
-                                       student_list_finalised: false, group_min: 2, group_max: 4)
+                                       prevent_leftover_students: false, group_min: 2, group_max: 4)
     group = create(:project_group, course: course, confirmed: true)
     link = create(:project_group_invite_link, project_group: group)
 

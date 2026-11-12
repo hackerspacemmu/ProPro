@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ProjectGroupInviteTest < ActiveSupport::TestCase
   def setup
-    @course  = create(:course, group_formation_enabled: true, student_list_finalised: true,
+    @course  = create(:course, group_formation_enabled: true, prevent_leftover_students: true,
                                group_min: 2, group_max: 4)
     @group   = create(:project_group, course: @course)
     @sender  = create(:user)

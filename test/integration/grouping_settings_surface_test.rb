@@ -25,8 +25,6 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match 'Group Formation', response.body
     assert_match 'Prevent leftover students', response.body
-    assert_no_match 'Default mode', response.body
-    assert_no_match 'Auto-Confirmability', response.body
     assert_no_match 'Allow student grouping now', response.body
     assert_no_match 'Open from', response.body
     assert_match 'Set date', response.body
@@ -36,8 +34,8 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
     get settings_course_path(@course)
 
     assert_response :success
-    assert_select 'input[type="hidden"][name="course[student_list_finalised]"][value="false"]'
-    assert_select 'input[type="checkbox"][name="course[student_list_finalised]"]'
+    assert_select 'input[type="hidden"][name="course[prevent_leftover_students]"][value="false"]'
+    assert_select 'input[type="checkbox"][name="course[prevent_leftover_students]"]'
     assert_select 'input[type="hidden"][name="course[group_formation_enabled]"][value="false"]'
     assert_select 'input[type="checkbox"][name="course[group_formation_enabled]"]'
   end
@@ -45,13 +43,13 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
   test 'coordinator saves both grouping switch values' do
     post handle_settings_course_path(@course),
          params: { course: settings_params(@course, group_formation_enabled: 'true',
-                                                    student_list_finalised: 'true',
+                                                    prevent_leftover_students: 'true',
                                                     group_min: '2', group_max: '4') }
 
     assert_redirected_to settings_course_path(@course)
     @course.reload
     assert @course.group_formation_enabled?
-    assert @course.student_list_finalised?
+    assert @course.prevent_leftover_students?
   end
 
   test 'saving settings does not change whether formation is open' do
@@ -113,7 +111,7 @@ class GroupingSettingsSurfaceTest < ActionDispatch::IntegrationTest
       file_link: course.file_link,
       supervisor_auto_calculate_enabled: '0',
       group_formation_enabled: course.group_formation_enabled?.to_s,
-      student_list_finalised: course.student_list_finalised?.to_s,
+      prevent_leftover_students: course.prevent_leftover_students?.to_s,
       group_min: course.group_min.to_s,
       group_max: course.group_max.to_s,
       group_formation_closes_at: course.group_formation_closes_at&.strftime('%Y-%m-%dT%H:%M')

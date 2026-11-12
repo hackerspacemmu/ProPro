@@ -3,7 +3,7 @@ require 'test_helper'
 class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
   setup do
     @course = create(:course, :grouped, group_formation_enabled: true,
-                                        group_min: 2, group_max: 4, student_list_finalised: false)
+                                        group_min: 2, group_max: 4, prevent_leftover_students: false)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
     @lecturer = create(:user, :staff)
@@ -134,7 +134,7 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test 'the leader can dissolve an unconfirmed group' do
+  test 'the leader can delete a not-confirmed group' do
     sign_in @leader
 
     assert_difference 'ProjectGroup.count', -1 do
@@ -144,7 +144,7 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert_redirected_to course_group_formation_path(@course)
   end
 
-  test 'another student cannot dissolve the group' do
+  test 'another student cannot delete the group' do
     sign_in @other_student
 
     assert_no_difference 'ProjectGroup.count' do
@@ -514,7 +514,7 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     assert @group.reload.confirmed?
   end
 
-  test 'dissolve_confirmed no longer lets a student delete a group with a proposal' do
+  test 'the legacy delete flag no longer lets a student delete a group with a proposal' do
     project_group = @group
     project_group.update!(confirmed: true)
     project = create(:project, course: @course, owner: project_group, owner_type: 'ProjectGroup',
@@ -523,7 +523,7 @@ class GroupWriteRoutesTest < ActionDispatch::IntegrationTest
     membership = project_group.project_group_members.find_by!(user: @member)
     sign_in @member
 
-    %w[dissolve_confirmed confirm].each do |flag|
+    %w[legacy_delete_flag confirm].each do |flag|
       assert_no_difference ['ProjectGroup.count', 'Project.count', 'ProjectGroupMember.count'] do
         delete course_group_member_path(@course, project_group, membership), params: { flag => true }
       end

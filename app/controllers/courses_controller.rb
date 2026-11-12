@@ -232,7 +232,7 @@ class CoursesController < ApplicationController
     authorize @course, :update?
 
     group_formation_enabled_param = params[:course][:group_formation_enabled] == 'true'
-    student_list_param = params[:course][:student_list_finalised] == 'true'
+    prevent_leftover_param = params[:course][:prevent_leftover_students] == 'true'
     supervisor_auto_calculate_enabled_param = params[:course][:supervisor_auto_calculate_enabled] == '1'
 
     capacity_errors = nil
@@ -270,7 +270,7 @@ class CoursesController < ApplicationController
         @course.with_no_key_update_lock do
           @course.update!(
             group_formation_enabled: group_formation_enabled_param,
-            student_list_finalised: student_list_param,
+            prevent_leftover_students: prevent_leftover_param,
             group_min: params[:course][:group_min].presence,
             group_max: params[:course][:group_max].presence,
             group_formation_closes_at: params[:course][:group_formation_closes_at].presence

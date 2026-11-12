@@ -4,7 +4,7 @@ class ProjectGroupStudentActionsTest < ActiveSupport::TestCase
   def setup
     @course = create(:course,
                      group_formation_enabled: true,
-                     student_list_finalised: false,
+                     prevent_leftover_students: false,
                      group_min: 2,
                      group_max: 4)
     @alice = create(:user)

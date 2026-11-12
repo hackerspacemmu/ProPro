@@ -21,7 +21,7 @@ class ProjectGroup < ApplicationRecord
 
   def confirmable?
     count = project_group_members.count
-    return course.size_within_limits?(count) unless course.student_list_finalised?
+    return course.size_within_limits?(count) unless course.prevent_leftover_students?
 
     Queries::GroupSizeConfirmabilityCalculator
       .new(course, students_to_group: course.unconfirmed_students_count)

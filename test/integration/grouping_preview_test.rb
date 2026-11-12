@@ -2,7 +2,7 @@ require 'test_helper'
 
 class GroupingPreviewTest < ActionDispatch::IntegrationTest
   setup do
-    @course = create(:course, :grouped, group_formation_enabled: true, student_list_finalised: true,
+    @course = create(:course, :grouped, group_formation_enabled: true, prevent_leftover_students: true,
                                         group_min: 2, group_max: 4)
     @coordinator = create(:user, :staff)
     create(:enrolment, :coordinator, user: @coordinator, course: @course)
