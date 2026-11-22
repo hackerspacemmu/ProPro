@@ -1,11 +1,14 @@
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require 'minitest/mock'
+require 'support/non_transactional_test_case'
 
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    # limit local workers to avoid running out of memory and crashing
+    parallelize(workers: ENV['CI'] ? :number_of_processors : 2)
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all

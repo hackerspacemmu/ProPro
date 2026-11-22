@@ -57,7 +57,7 @@
 
                   <% if @course.coordinators.include?(Current.user) && @student_enrolment %>
                     <%= link_to "Remove From Course",
-                        enrolment_path(coordinator_id: Current.user, course_id: @course, id: @student_enrolment),
+                        enrolment_path(course_id: @course, id: @student_enrolment),
                         data: { turbo_method: :delete, turbo_confirm: "Are you sure?\nThe user will be removed from the COURSE.\nTheir associated PROJECT HISTORY and COMMENTS will be DELETED if they're the last member." },
                         class: "shrink-0 self-start inline-flex items-center justify-center px-5 py-2.5 bg-surface border border-outline rounded-full text-error text-[14px] font-medium whitespace-nowrap hover:bg-error-container transition-colors no-underline shadow-none" %>
                   <% end %>

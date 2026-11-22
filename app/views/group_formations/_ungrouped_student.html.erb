@@ -1,0 +1,12 @@
+<%# locals: (student:, invited: false) %>
+<div id="<%= dom_id(student, :ungrouped) %>"
+     data-list-filter-target="item"
+     data-list-filter-text="<%= student.name.to_s.downcase %>"
+     class="flex items-center justify-between gap-3 border-b border-outline-variant py-2 last:border-0">
+  <div class="min-w-0 flex-1">
+    <%= render "shared/person", name: student.name.presence || student.email_address %>
+  </div>
+  <% if invited %>
+    <span class="shrink-0 text-[13px] text-success">Invite sent</span>
+  <% end %>
+</div>

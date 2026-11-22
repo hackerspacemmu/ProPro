@@ -74,10 +74,27 @@ class ProjectsController < ApplicationController
       supervisor_name: Current.user.name
     ).Project_Status_Updated.deliver_later
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'project_status_changed',
+      properties: { status: new_status }
+    )
+
     redirect_to course_project_path(@course, @project), notice: "Status updated to #{new_status.humanize}."
   end
 
   def new
+    if @course.grouped?
+      group = @course.group_for(Current.user)
+      if group.nil?
+        redirect_to course_path(@course), alert: 'Join or create a group before you can put together a project proposal.'
+        return
+      elsif !group.confirmed?
+        redirect_to course_path(@course), alert: 'Your group must be confirmed before creating a proposal.'
+        return
+      end
+    end
+
     has_project = if @course.grouped?
                     Current.user.group_projects.find_by(course: @course).present?
                   else
@@ -95,7 +112,7 @@ class ProjectsController < ApplicationController
 
     # Show Supervisors
     @lecturer_capacity_info = {}
-    SupervisorCapacityCalculator.new(@course).calculate.lecturer_capacities.each do |lc|
+    Queries::SupervisorCapacityCalculator.new(@course).execute.lecturer_capacities.each do |lc|
       @lecturer_capacity_info[lc.enrolment.user_id] = lc
     end
 
@@ -138,7 +155,7 @@ class ProjectsController < ApplicationController
 
     # Show Supervisors
     @lecturers = @course.lecturers
-    capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
     @lecturer_capacity_info = capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     @topic_pick_values = build_topic_pick_values(@template_fields)
@@ -195,9 +212,13 @@ class ProjectsController < ApplicationController
     begin
       ActiveRecord::Base.transaction do
         if @course.grouped?
-          group = current_user.project_groups.find_by(course: @course)
+          group = @course.group_for(current_user)
 
           raise StandardError, "You're not part of a project group." unless group
+          raise StandardError, 'Your group must be confirmed before creating a proposal.' unless group.confirmed?
+
+          # Serialises concurrent creates and a reopen. The reload also refreshes group.project.
+          group.lock!
 
           raise StandardError, 'Your group already has a project' if group.project
         else
@@ -231,6 +252,11 @@ class ProjectsController < ApplicationController
           supervisor_enrolment: supervisor_enrolment
         )
 
+        if @course.grouped?
+          ProjectGroupInvite.pending_for_group(group).delete_all
+          group.clear_invite_links!
+        end
+
         # Get title
         title_value = nil
         params[:fields]&.each do |field_id, value|
@@ -255,6 +281,12 @@ class ProjectsController < ApplicationController
           )
         end
       end
+    rescue ActiveRecord::RecordNotUnique => e
+      if e.message.include?('index_projects_on_group_owner')
+        redirect_to course_path(@course), alert: 'Your group already has a project'
+        return
+      end
+      raise
     rescue StandardError => e
       redirect_to course_path(@course), alert: e.message
       return
@@ -267,6 +299,15 @@ class ProjectsController < ApplicationController
       course: @course,
       project: @project
     ).New_Student_Submission.deliver_later
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'project_proposal_created',
+      properties: {
+        grouped_course: @course.grouped?,
+        proposal_source: @instance.source_topic_id ? 'topic' : 'own_proposal'
+      }
+    )
 
     redirect_to course_project_path(@course, @project), notice: 'Project created!'
   end
@@ -365,6 +406,16 @@ class ProjectsController < ApplicationController
         project: @project
       ).New_Student_Submission.deliver_later
     end
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'project_proposal_updated',
+      properties: {
+        grouped_course: @course.grouped?,
+        new_version_created: new_instance_created,
+        supervisor_changed: previous_supervisor_id != @project.supervisor.id
+      }
+    )
 
     redirect_to course_project_path(@course, @project), notice: 'Project updated successfully.'
   end

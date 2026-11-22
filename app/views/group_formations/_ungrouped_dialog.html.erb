@@ -1,0 +1,52 @@
+<%# locals: (students:, invited_ids:, manage: false) %>
+<div data-controller="modal" class="w-full sm:w-auto">
+  <button type="button" data-action="modal#open" class="<%= GroupFormationsHelper::GROUP_TONAL_BUTTON %> w-full gap-2 sm:w-auto">
+    <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person_search</span>
+    <%= pluralize(students.size, "student") %> without a group
+  </button>
+
+  <dialog data-modal-target="dialog"
+          data-action="click->modal#backdropClose"
+          aria-labelledby="ungrouped-dialog-title"
+          class="<%= GroupFormationsHelper::GROUP_DIALOG %>">
+    <div class="<%= GroupFormationsHelper::GROUP_DIALOG_PANEL %>">
+      <div class="<%= GroupFormationsHelper::GROUP_DIALOG_HEADER %>">
+        <h2 id="ungrouped-dialog-title" class="<%= GroupFormationsHelper::GROUP_DIALOG_TITLE %>">Students without a group (<%= students.size %>)</h2>
+        <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_DIALOG_CLOSE %>" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="<%= GroupFormationsHelper::GROUP_DIALOG_BODY %>" data-controller="list-filter">
+        <div class="pb-4">
+          <% if manage %>
+            <p class="mb-2 text-[13px] text-on-surface-muted">To place someone, open a group with Manage and add them there.</p>
+          <% end %>
+
+          <div class="sticky top-0 z-10 bg-surface pb-2">
+            <input type="search"
+                   placeholder="Search students"
+                   autocomplete="off"
+                   data-list-filter-target="input"
+                   data-action="input->list-filter#filter"
+                   class="<%= GroupFormationsHelper::GROUP_INPUT %>">
+          </div>
+
+          <%# DOM contract (plan 4.5): group_members#destroy turbo_stream.appends into this id. %>
+          <div id="ungrouped-students-list">
+            <% students.each do |student| %>
+              <%= render "group_formations/ungrouped_student", student: student, invited: invited_ids.include?(student.id) %>
+            <% end %>
+          </div>
+
+          <p data-list-filter-target="noMatch" class="hidden py-6 text-center text-sm text-on-surface-muted">No matching students.</p>
+          <p data-list-filter-target="empty" class="<%= "hidden" if students.any? %> py-6 text-center text-sm text-on-surface-muted">All students are in a group.</p>
+        </div>
+      </div>
+
+      <div class="<%= GroupFormationsHelper::GROUP_DIALOG_FOOTER %>">
+        <button type="button" data-action="click->modal#close" class="<%= GroupFormationsHelper::GROUP_OUTLINE_BUTTON %> w-full sm:ml-auto sm:w-auto">Close</button>
+      </div>
+    </div>
+  </dialog>
+</div>

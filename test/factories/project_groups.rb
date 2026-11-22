@@ -3,6 +3,10 @@ FactoryBot.define do
     association :course
     group_name { Faker::Lorem.unique.word }
     confirmed { false }
-    locked { false }
+
+    trait :imported do
+      origin { :import }
+      confirmed { true }
+    end
   end
 end

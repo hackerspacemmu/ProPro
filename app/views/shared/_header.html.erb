@@ -29,6 +29,7 @@
   </div>
 
   <div class="flex items-center gap-1 shrink-0">
+    <%= yield :header_actions %>
     <%# Desktop only: text log-out link %>
     <%= button_to "Log out", session_path, method: :delete,
           form: { class: "hidden sm:block m-0", data: { turbo_confirm: nil } },

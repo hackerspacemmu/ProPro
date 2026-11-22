@@ -1,88 +1,96 @@
-// app/javascript/controllers/grouping_settings_controller.js
-//
-// Controls show/hide behaviour for the grouping settings section in
-// courses/settings.html.erb. No business logic lives here — only UI state.
-
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = [
-    "groupingOptions",   // the block shown when grouping_enabled = true
-    "previewSection",    // the preview block shown in student_list_finalised mode
-    "windowFields",      // the open/close datetime fields
-    "windowToggleBtn",   // the "Set a window / Remove window" button
-    "previewInput",      // the student count number input
-    "minMax"             // group_min and group_max inputs
-  ]
+    "groupingOptions", // the block shown when group_formation_enabled = true
+    "previewSection", // the preview block shown in prevent-leftover mode
+    "optionalSuffix", // the "(optional)" label suffixes hidden in prevent-leftover mode
+    "formationFields", // the formation close-date field
+    "formationToggleBtn", // the "Set date / Remove date" button
+    "previewInput", // the student count number input
+    "minMax", // group_min and group_max inputs
+  ];
 
   static values = {
-    enabled:   Boolean,
-    finalised: Boolean
-  }
+    enabled: Boolean,
+    preventLeftover: Boolean,
+  };
 
   connect() {
-    this.applyEnabledState(this.enabledValue)
-    this.applyFinalisedState(this.finalisedValue)
-    this.applyWindowState()
+    this.applyEnabledState(this.enabledValue);
+    this.applyPreventLeftoverState(this.preventLeftoverValue);
+    this.applyFormationState();
   }
 
-  // Called when the grouping_enabled radio buttons change.
+  // Called when the group_formation_enabled switch changes.
   toggleEnabled(event) {
-    const enabled = event.target.value === "true"
-    this.applyEnabledState(enabled)
+    this.applyEnabledState(event.target.checked);
   }
 
-  // Called when the student_list_finalised radio buttons change.
+  // Called when the prevent_leftover_students switch changes.
   toggleMode(event) {
-    const finalised = event.target.value === "true"
-    this.applyFinalisedState(finalised)
+    this.applyPreventLeftoverState(event.target.checked);
   }
 
-  // Called by the "Set a window / Remove window" button.
-  toggleWindow(event) {
-    event.preventDefault()
-    const fields = this.windowFieldsTarget
-    const hidden = fields.classList.contains("hidden")
-    fields.classList.toggle("hidden", !hidden)
-    this.windowToggleBtnTarget.textContent = hidden ? "Remove window" : "Set a window"
+  // Called by the "Set date / Remove date" button.
+  toggleFormation(event) {
+    event.preventDefault();
+    const fields = this.formationFieldsTarget;
+    const hidden = fields.classList.contains("hidden");
+    fields.classList.toggle("hidden", !hidden);
+    this.formationToggleBtnTarget.textContent = hidden
+      ? "Remove date"
+      : "Set date";
 
-    // Clear the datetime fields when the window is hidden so they are not
-    // submitted with stale values.
+    // Clear the end date when the field is hidden so it is not submitted with a
+    // stale value.
     if (!hidden) {
-      fields.querySelectorAll("input[type='datetime-local']").forEach(input => {
-        input.value = ""
-      })
+      fields
+        .querySelectorAll("input[type='datetime-local']")
+        .forEach((input) => {
+          input.value = "";
+        });
     }
   }
 
   // Called when group_min or group_max changes — clears the preview result so
   // stale numbers are not shown until the user triggers a new HTMX request.
   clearPreview() {
-    const resultDiv = this.element.querySelector("#grouping_preview_result")
-    if (resultDiv) resultDiv.innerHTML = ""
+    const resultDiv = this.element.querySelector("#grouping_preview_result");
+    if (resultDiv) resultDiv.innerHTML = "";
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
-  applyEnabledState(enabled) {
-    if (!this.hasGroupingOptionsTarget) return
-    this.groupingOptionsTarget.classList.toggle("hidden", !enabled)
+  applyEnabledState(isEnabledNow) {
+    if (!this.hasGroupingOptionsTarget) return;
+
+    this.groupingOptionsTarget.classList.toggle("hidden", !isEnabledNow);
   }
 
-  applyFinalisedState(finalised) {
-    if (!this.hasPreviewSectionTarget) return
-    this.previewSectionTarget.classList.toggle("hidden", !finalised)
+  applyPreventLeftoverState(preventLeftover) {
+    if (this.hasPreviewSectionTarget) {
+      this.previewSectionTarget.classList.toggle("hidden", !preventLeftover);
+    }
+
+    this.optionalSuffixTargets.forEach((suffix) => {
+      suffix.classList.toggle("hidden", preventLeftover);
+    });
   }
 
-  applyWindowState() {
-    if (!this.hasWindowFieldsTarget) return
+  applyFormationState() {
+    if (!this.hasFormationFieldsTarget) return;
     const hasValues = Array.from(
-      this.windowFieldsTarget.querySelectorAll("input[type='datetime-local']")
-    ).some(input => input.value.trim() !== "")
+      this.formationFieldsTarget.querySelectorAll(
+        "input[type='datetime-local']",
+      ),
+    ).some((input) => input.value.trim() !== "");
 
-    this.windowFieldsTarget.classList.toggle("hidden", !hasValues)
-    if (this.hasWindowToggleBtnTarget) {
-      this.windowToggleBtnTarget.textContent = hasValues ? "Remove window" : "Set a window"
+    this.formationFieldsTarget.classList.toggle("hidden", !hasValues);
+    if (this.hasFormationToggleBtnTarget) {
+      this.formationToggleBtnTarget.textContent = hasValues
+        ? "Remove date"
+        : "Set date";
     }
   }
 }

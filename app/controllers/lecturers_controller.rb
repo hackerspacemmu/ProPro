@@ -3,7 +3,7 @@ class LecturersController < ApplicationController
 
   def index
     @lecturers = @course.lecturers
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
     @from_new_project = params[:from_new_project].present?
   end
@@ -22,7 +22,7 @@ class LecturersController < ApplicationController
     @is_student = @current_user_enrolment&.student?
     @is_lecturer = @current_user_enrolment&.lecturer?
 
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
     @lecturer_capacity_info = @capacity_result.lecturer_capacities.index_by { |lc| lc.enrolment.user_id }
 
     unless @enrolment&.role.in?(%w[lecturer coordinator])
@@ -32,7 +32,7 @@ class LecturersController < ApplicationController
 
     # set current user's projects for Propose to Lecturer
     @project = if @course.grouped?
-                 group = current_user.project_groups.find_by(course: @course)
+                 group = @course.group_for(current_user)
                  @course.projects.find_by(owner: group) if group
                else
                  @course.projects.find_by(owner: current_user)

@@ -24,6 +24,10 @@ class CoursePolicy < ApplicationPolicy
     coordinator
   end
 
+  def manage_groups?
+    coordinator
+  end
+
   def export_csv?
     coordinator
   end
@@ -33,7 +37,7 @@ class CoursePolicy < ApplicationPolicy
   end
 
   def demote_to_lecturer?
-    coordinator && record.coordinators.count > 1
+    coordinator && record.coordinators.many?
   end
 
   # LECTURER PROFILE ACCESS
@@ -72,7 +76,7 @@ class CoursePolicy < ApplicationPolicy
     enrolment = record.enrolments.find_by(user:)
     return true if enrolment&.coordinator?
 
-    enrolment.present? && record.grouping_enabled?
+    enrolment.present? && record.group_formation_enabled?
   end
 
   private

@@ -6,10 +6,6 @@ class CoursesController < ApplicationController
   before_action :set_course, only: %i[show add_students handle_add_students add_lecturers handle_add_lecturers settings handle_settings destroy export_csv update_coursecode update_email_domain grouping_preview]
   before_action :set_lecturer_enrolments, only: %i[settings handle_settings]
 
-  # The Overview tab — the only course tab page that lives on courses#show;
-  # Topics/People/Groups are their own routes (route-per-tab, ADR 0019), so
-  # this action loads only what the Overview content needs: the presenter and
-  # the viewer's own submission.
   def show
     authorize @course
 
@@ -18,7 +14,7 @@ class CoursesController < ApplicationController
     @current_user_enrolment = @course.enrolments.find_by(user: current_user)
 
     if @course.grouped?
-      @group = current_user.project_groups.find_by(course: @course)
+      @group = @course.group_for(current_user)
       @project = @course.projects.find_by(owner_type: 'ProjectGroup', owner_id: @group.id) if @group
     else
       @group = nil
@@ -52,7 +48,7 @@ class CoursesController < ApplicationController
                         []
                       end
 
-    # For Supervised Projects tab (Ticket 6)
+    # For Supervised Projects tab
     @approved_projects = @my_student_projects.select(&:approved?)
 
     @presenter = OverviewPresenter.new(
@@ -65,7 +61,10 @@ class CoursesController < ApplicationController
       file_link: @course.file_link,
       submission_state: submission_state_for(@current_user_enrolment),
       submission: @project,
-      toggle_topics: @course.toggle_topics
+      toggle_topics: @course.toggle_topics,
+      course: @course,
+      group: @group,
+      current_user: current_user
     )
   end
 
@@ -96,6 +95,12 @@ class CoursesController < ApplicationController
       redirect_back_or_to dashboard_path, alert: e.message
       return
     end
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'lecturers_added',
+      properties: { invitation_count: lecturer_emails.compact_blank.size }
+    )
 
     redirect_to course_path(@course)
   end
@@ -129,6 +134,8 @@ class CoursesController < ApplicationController
       return
     end
 
+    import_result = nil
+
     begin
       ActiveRecord::Base.transaction do
         # Remove the leading 'S-' from student IDs if present
@@ -139,7 +146,7 @@ class CoursesController < ApplicationController
 
         if @course.grouped
           student_hashmap = @course.parse_csv_grouped(csv_obj)
-          create_db_entries_grouped(student_hashmap, @course)
+          import_result = create_db_entries_grouped(student_hashmap, @course)
         else
           student_set = @course.parse_csv_solo(csv_obj)
           create_db_entries_solo(student_set, @course)
@@ -150,7 +157,17 @@ class CoursesController < ApplicationController
       return
     end
 
-    redirect_to course_path(@course)
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'students_imported',
+      properties: { grouped_course: @course.grouped?, row_count: csv_obj.size }
+    )
+
+    if import_result&.skipped?
+      redirect_to course_path(@course), alert: skipped_import_summary(import_result)
+    else
+      redirect_to course_path(@course)
+    end
   end
 
   def new
@@ -196,6 +213,12 @@ class CoursesController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'course_created',
+      properties: { grouped_course: @new_course.grouped? }
+    )
+
     redirect_to course_path(@new_course), notice: 'Course successfully created'
   end
 
@@ -208,13 +231,15 @@ class CoursesController < ApplicationController
   def handle_settings
     authorize @course, :update?
 
-    grouping_enabled_param = params[:course][:grouping_enabled] == 'true'
-    student_list_param     = params[:course][:student_list_finalised] == 'true'
+    group_formation_enabled_param = params[:course][:group_formation_enabled] == 'true'
+    prevent_leftover_param = params[:course][:prevent_leftover_students] == 'true'
     supervisor_auto_calculate_enabled_param = params[:course][:supervisor_auto_calculate_enabled] == '1'
+
+    capacity_errors = nil
 
     begin
       ActiveRecord::Base.transaction do
-        raise StandardError, @course.errors.full_messages.join(', ') unless @course.update(
+        @course.update!(
           course_name: params[:course][:course_name],
           course_description: params[:course][:course_description],
           supervisor_projects_limit: params[:course][:supervisor_projects_limit],
@@ -231,36 +256,47 @@ class CoursesController < ApplicationController
         )
 
         if params[:supervisor_capacity_offsets].present?
-          result = SupervisorCapacityUpdater.new(@course).update_capacities(
+          result = SupervisorCapacityUpdater.new(@course).update!(
             offsets: params[:supervisor_capacity_offsets],
             excluded_ids: params[:supervisor_capacity_excluded] || []
           )
-          raise StandardError, result.errors.join("\n") unless result.updated?
+          unless result.updated?
+            capacity_errors = result.errors.join("\n")
+            raise ActiveRecord::Rollback
+          end
         end
 
-        if @course.grouping_enabled? && !grouping_enabled_param
-          @course.disable_grouping!
-        elsif @course.grouping_enabled? && @course.student_list_finalised? && !student_list_param
-          @course.revert_to_default_mode!
-        else
+        # Lock prevents any race conditions for any group enrolment changes
+        @course.with_no_key_update_lock do
           @course.update!(
-            grouping_enabled: grouping_enabled_param,
-            student_list_finalised: student_list_param,
+            group_formation_enabled: group_formation_enabled_param,
+            prevent_leftover_students: prevent_leftover_param,
             group_min: params[:course][:group_min].presence,
             group_max: params[:course][:group_max].presence,
-            grouping_open: params[:course][:grouping_open] == 'true',
-            grouping_opens_at: params[:course][:grouping_opens_at].presence,
-            grouping_closes_at: params[:course][:grouping_closes_at].presence
+            group_formation_closes_at: params[:course][:group_formation_closes_at].presence
           )
         end
       end
-    rescue StandardError => e
-      flash.now[:alert] = e.message
-      @course.reload
-      load_capacity_result
-      render :settings, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render_invalid_settings(e.record.errors.full_messages.join(', '))
       return
     end
+
+    if capacity_errors
+      render_invalid_settings(capacity_errors)
+      return
+    end
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'course_settings_updated',
+      properties: {
+        grouped_course: @course.grouped?,
+        group_formation_enabled: @course.group_formation_enabled?,
+        topics_enabled: @course.toggle_topics?,
+        progress_updates_enabled: @course.use_progress_updates?
+      }
+    )
 
     redirect_to settings_course_path(@course), notice: 'Course successfully updated'
   end
@@ -379,6 +415,12 @@ class CoursesController < ApplicationController
   def enroll_via_coursecode
     new_enrolment = Enrolment.enroll_via_coursecode(current_user, params[:coursecode])
     if new_enrolment
+      PostHog.capture(
+        distinct_id: current_user.posthog_distinct_id,
+        event: 'course_joined',
+        properties: { enrollment_method: 'course_code' }
+      )
+
       redirect_back_or_to dashboard_path, notice: 'Successfully joined the course'
     else
       redirect_back_or_to dashboard_path, notice: 'You already joined the course'
@@ -391,9 +433,18 @@ class CoursesController < ApplicationController
     authorize @course, :update?
 
     student_count = params[:student_count].to_i
-    @preview = @course.group_size_distribution(student_count)
+    result = Queries::GroupSizeConfirmabilityCalculator.new(@course, students_to_group: student_count).execute
 
-    render partial: 'courses/grouping_preview_result', locals: { preview: @preview, course: @course }
+    @preview = if result.success?
+                 {
+                   groups: result.breakdown.map { |entry| { size: entry[:group_size], count: entry[:number_of_groups] } },
+                   total_groups: result.group_count
+                 }
+               else
+                 { error: result.message }
+               end
+
+    render partial: 'courses/grouping_preview_result', locals: { preview: @preview, student_count: student_count, course: @course }
   end
 
   private
@@ -411,18 +462,23 @@ class CoursesController < ApplicationController
   end
 
   def load_capacity_result
-    @capacity_result = SupervisorCapacityCalculator.new(@course).calculate
+    @capacity_result = Queries::SupervisorCapacityCalculator.new(@course).execute
+  end
+
+  def render_invalid_settings(alert)
+    flash.now[:alert] = alert
+    @course.reload
+    load_capacity_result
+    render :settings, status: :unprocessable_entity
   end
 
   def create_db_entries_grouped(hash_map, parent_course)
-    hash_map.keys.each do |group|
-      new_group = ProjectGroup.find_or_create_by!(group_name: group, course: parent_course)
-
-      hash_map[group].each do |group_member|
+    users_by_group = hash_map.transform_values do |members|
+      members.map do |group_member|
         new_user = User.find_by(email_address: group_member[:email_address])
 
         if new_user
-          new_user.update!(instid: group_member[:instid])
+          new_user.update!(instid: group_member[:instid]) if group_member[:instid].present?
 
           if new_user.enrolments.where(course: parent_course).empty?
             GeneralMailer.with(
@@ -453,19 +509,18 @@ class CoursesController < ApplicationController
           role: :student
         )
 
-        ProjectGroupMember.where(user: new_user).pluck(:project_group_id)
-        new_group_member = ProjectGroupMember.joins(:project_group).find_by(user: new_user, project_groups: { course: parent_course })
-
-        if new_group_member
-          new_group_member.update!(project_group: new_group)
-        else
-          ProjectGroupMember.create!(
-            user: new_user,
-            project_group: new_group
-          )
-        end
+        new_user
       end
     end
+
+    Groups::Coordinator::Importer.new(parent_course).import!(users_by_group)
+  end
+
+  def skipped_import_summary(result)
+    messages = result.skipped_messages
+    shown = messages.first(5)
+    shown << "and #{messages.size - shown.size} more." if messages.size > shown.size
+    shown.join(' ')
   end
 
   def create_db_entries_solo(student_set, parent_course)
@@ -684,7 +739,7 @@ class CoursesController < ApplicationController
   # Filter Project by status helpers
 
   def students_by_status(status, student_list, students_with_projects, students_without_projects, course)
-    return [] unless student_list.present?
+    return [] if student_list.blank?
 
     case status
     when 'approved'
@@ -703,7 +758,7 @@ class CoursesController < ApplicationController
   end
 
   def groups_by_status(status, group_list, course)
-    return [] unless group_list.present?
+    return [] if group_list.blank?
 
     case status
     when 'approved'
@@ -729,21 +784,10 @@ class CoursesController < ApplicationController
     end
   end
 
-  # :no_group only applies to grouped courses where self-grouping is live
-  # (@course.grouped? && @course.grouping_enabled?) — in an ungrouped course a
-  # student submits individually with no group step, so @group being nil there is
-  # expected, not an empty state. The grouping_enabled? guard also keeps the
-  # "Browse groups" CTA out of reach of students who could not actually open the
-  # page: ProjectGroupsController#index authorizes with CoursePolicy#grouping?,
-  # which requires grouping_enabled? == true for a non-coordinator. A grouped
-  # course with self-grouping disabled (groups arrive only via CSV/Moodle import
-  # coordinated by staff) would otherwise render the CTA and let a student hit a
-  # Pundit::NotAuthorizedError (redirect to root with alert). In that state a
-  # group-less student instead gets the plain :no_proposal copy below.
   def submission_state_for(enrolment)
     return nil unless enrolment&.student?
 
-    if @course.grouped? && @course.grouping_enabled? && @group.nil?
+    if @course.grouped? && @group.nil?
       :no_group
     elsif @project.nil? || @current_status == 'not_submitted'
       :no_proposal

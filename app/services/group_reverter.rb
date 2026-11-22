@@ -1,0 +1,57 @@
+class GroupReverter
+  include Groups::GroupLocking
+
+  def initialize(group)
+    @group = group
+  end
+
+  # Leader reverts a confirmed group to not confirmed if formation is open.
+  def revert!
+    course = @group.course
+
+    result = course.with_no_key_update_lock do
+      with_group_lock(@group) do
+        return blocked(:formation_closed) unless course.group_formation_open?
+        return blocked(:already_draft) unless @group.confirmed?
+        return blocked(:imported_group) if @group.origin_import?
+        return blocked(:has_project) if @group.project.present?
+
+        @group.reopen!
+        Result.new(reverted: true, blocked_reason: nil)
+      end
+    end
+
+    return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+    result
+  end
+
+  private
+
+  def blocked(reason)
+    Result.new(reverted: false, blocked_reason: reason)
+  end
+
+  class Result
+    attr_reader :blocked_reason
+
+    def initialize(reverted:, blocked_reason:)
+      @reverted = reverted
+      @blocked_reason = blocked_reason
+    end
+
+    def reverted? = @reverted
+    def blocked? = !reverted?
+
+    def message
+      case blocked_reason
+      when :formation_closed then 'Group formation is closed.'
+      when :already_draft then 'This group is already a Not Confirmed Group.'
+      when :imported_group then 'This group was imported, so it cannot be reopened.'
+      when :has_project then 'This group already has a proposal, so it cannot be reopened.'
+      when :group_gone then 'This group no longer exists.'
+      when nil then 'Group status changed to not confirmed.'
+      end
+    end
+  end
+end

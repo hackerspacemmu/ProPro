@@ -29,6 +29,9 @@ class Course < ApplicationRecord
 
   enum :student_access, { owner_only: 0, own_lecturer_only: 1, no_restriction: 2 }
 
+  TMP_GROUP_PREFIX = 'Tmp'.freeze
+  CONFIRMED_GROUP_PREFIX = 'G'.freeze
+
   scope :managed_by, ->(user) { joins(:enrolments).where(enrolments: { user_id: user.id, role: %i[lecturer coordinator] }).distinct }
   scope :by_coursecode, ->(code) { where(coursecode: code) }
 
@@ -46,9 +49,9 @@ class Course < ApplicationRecord
   validates :coursecode, uniqueness: { message: 'has already been taken' }, allow_nil: true
   validates :auto_approve_copied_topics_without_changes, inclusion: { in: [true, false], message: 'must be true or false' }
 
-  # group_min and group_max are required whenever grouping is enabled
-  validates :group_min, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
-  validates :group_max, presence: { message: 'is required when self-grouping is enabled' }, if: :grouping_enabled?
+  # Prevent leftover students needs both limits to build a legal distribution.
+  validates :group_min, presence: { message: 'is required when Prevent leftover students is on' }, if: :prevent_leftover_students?
+  validates :group_max, presence: { message: 'is required when Prevent leftover students is on' }, if: :prevent_leftover_students?
   validates :group_min, numericality: { only_integer: true, greater_than: 0, message: 'must be a positive whole number' }, allow_nil: true
 
   validates :group_max,
@@ -56,9 +59,8 @@ class Course < ApplicationRecord
             allow_nil: true,
             if: -> { group_min.present? && group_max.present? }
 
-  # student_list_finalised cannot be true if grouping_enabled is false.
-  validates :student_list_finalised, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :grouping_enabled?
-  validate :grouping_window_dates_valid, if: -> { grouping_opens_at.present? && grouping_closes_at.present? }
+  # prevent_leftover_students cannot be true if group_formation_enabled is false.
+  validates :prevent_leftover_students, inclusion: { in: [false], message: 'cannot be set without self-grouping enabled' }, unless: :group_formation_enabled?
 
   before_validation :null_number_of_updates_if_not_used
   before_validation :clear_grouping_fields_if_disabled
@@ -71,75 +73,52 @@ class Course < ApplicationRecord
     save!
   end
 
-  def grouping_window_open?
-    return false unless grouping_enabled?
-    return false unless grouping_open?
+  def effective_group_min = group_min || 1
 
-    opens_ok = grouping_opens_at.nil? || Time.current >= grouping_opens_at
-    closes_ok = grouping_closes_at.nil? || Time.current <= grouping_closes_at
-    opens_ok && closes_ok
+  def group_full?(member_count)
+    group_max.present? && member_count >= group_max
   end
 
-  def disable_grouping!
+  def size_within_limits?(member_count)
+    member_count >= effective_group_min && (group_max.nil? || member_count <= group_max)
+  end
+
+  def group_for(user)
+    project_groups.joins(:project_group_members)
+                  .find_by(project_group_members: { user_id: user.id })
+  end
+
+  def ungrouped_students
+    students.where.not(id: project_group_members.select(:user_id)).order(:name)
+  end
+
+  def group_formation_open?
+    group_formation_enabled? && (group_formation_closes_at.nil? || Time.current <= group_formation_closes_at)
+  end
+
+  def with_no_key_update_lock(&)
     transaction do
-      project_groups.where(confirmed: false).destroy_all
-      update!(grouping_enabled: false, grouping_open: false, student_list_finalised: false)
+      lock!('FOR NO KEY UPDATE')
+      yield
     end
   end
 
-  # NOTE: Called when coordinator switches from student_list_finalised mode back to default mode.
-  # Confirmed groups stay. Draft groups are destroyed.
-  def revert_to_default_mode!
-    transaction do
-      project_groups.where(confirmed: false).destroy_all
-      update!(student_list_finalised: false)
-    end
+  # Callers hold the course lock, so two writers cannot pick the same number.
+  def lowest_free_tmp_group_name
+    lowest_free_group_name(TMP_GROUP_PREFIX)
   end
 
-  # NOTE: Finds the Largest legal group size combination
-  def group_size_distribution(student_count = students.count)
-    return { error: 'Group limits are not set' } if group_min.blank? || group_max.blank?
-    return { error: 'Student count must be greater than 0' } if student_count <= 0
-
-    cache = {}
-    group_size_chosen = find_group_size_for(student_count, group_max.downto(group_min).to_a, cache)
-
-    if group_size_chosen.nil?
-      return {
-        error: 'No legal combination can be found.'
-      }
-    end
-
-    size_counts = []
-    remaining_students = student_count
-    while remaining_students.positive?
-      chosen_size = cache[remaining_students]
-      size_counts << chosen_size
-      remaining_students -= chosen_size
-    end
-
-    breakdown = size_counts.tally.map { |size, count| { size: size, count: count } }.sort_by { |entry| -entry[:size] }
-    { groups: breakdown, total_groups: size_counts.length }
+  def lowest_free_confirmed_group_name(excluding: nil)
+    lowest_free_group_name(CONFIRMED_GROUP_PREFIX, excluding: excluding)
   end
 
-  def find_group_size_for(ungrouped_students, allowed_sizes, cache)
-    return 0 if ungrouped_students.zero?
-    return cache[ungrouped_students] if cache.key?(ungrouped_students)
+  def unconfirmed_students_count
+    confirmed_member_count = ProjectGroupMember
+                             .joins(:project_group)
+                             .where(project_groups: { course_id: id, confirmed: true })
+                             .count
 
-    allowed_sizes.each do |size|
-      next if size > ungrouped_students
-
-      remaining_students = ungrouped_students - size
-      result = find_group_size_for(remaining_students, allowed_sizes, cache)
-
-      unless result.nil?
-        cache[ungrouped_students] = size
-        return size
-      end
-    end
-
-    cache[ungrouped_students] = nil
-    nil
+    students.count - confirmed_member_count
   end
 
   STUDENT_CSV_COLUMNS = ['Last name', 'ID number', 'Email address'].freeze
@@ -203,12 +182,14 @@ class Course < ApplicationRecord
 
   def groups_with_status(status, group_list)
     case status
+    when 'not_confirmed'
+      group_list.reject(&:confirmed?)
     when 'not_submitted'
       existing_ids = projects.where(owner_type: 'ProjectGroup').pluck(:owner_id)
-      group_list.reject { |g| existing_ids.include?(g.id) }
+      group_list.select { |g| g.confirmed? && !existing_ids.include?(g.id) }
     when 'approved', 'pending', 'redo', 'rejected'
       group_list.select do |g|
-        projects.find_by(owner_type: 'ProjectGroup', owner_id: g.id)&.current_status == status
+        g.confirmed? && projects.find_by(owner_type: 'ProjectGroup', owner_id: g.id)&.current_status == status
       end
     else
       []
@@ -221,6 +202,13 @@ class Course < ApplicationRecord
 
   private
 
+  def lowest_free_group_name(prefix, excluding: nil)
+    taken = project_groups.where.not(id: excluding&.id).pluck(:group_name).to_set
+    number = 1
+    number += 1 while taken.include?(format("#{prefix}%03d", number))
+    format("#{prefix}%03d", number)
+  end
+
   def null_number_of_updates_if_not_used
     return if use_progress_updates
 
@@ -228,20 +216,12 @@ class Course < ApplicationRecord
   end
 
   def clear_grouping_fields_if_disabled
-    return if grouping_enabled?
+    return if group_formation_enabled?
 
-    self.grouping_open          = false
-    self.student_list_finalised = false
-    self.group_min              = nil
-    self.group_max              = nil
-    self.grouping_opens_at      = nil
-    self.grouping_closes_at     = nil
-  end
-
-  def grouping_window_dates_valid
-    return unless grouping_closes_at <= grouping_opens_at
-
-    errors.add(:grouping_closes_at, 'must be after the grouping open time')
+    self.prevent_leftover_students = false
+    self.group_min                 = nil
+    self.group_max                 = nil
+    self.group_formation_closes_at = nil
   end
 
   def group_min_for_validation

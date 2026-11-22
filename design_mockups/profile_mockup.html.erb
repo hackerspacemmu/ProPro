@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+  <!--
+    ============================================================================
+    DESIGN MOCKUP ONLY — hardcoded, not wired up.
+
+    Layout matched to courses/show:
+    - Full-width sticky Header at the top.
+    - Flex container for Sidebar (left) and Main content (right).
+    - Main content gets bg-white, rounded-tl-panel, and scrolls internally.
+    - Hero panels get bg-surface-tint and strictly NO SHADOWS to contrast
+      against the white main background.
+
+    Profile layout (Google Classroom-inspired):
+    - Content is a centered column (max-w-5xl) instead of edge-to-edge.
+    - Hero = banner band (primary-container-alt) + identity row. For a student
+      the avatar overlaps the band edge; "Remove From Course" sits top-right of
+      the identity row instead of floating in a 3-column grid.
+    - Status + Supervisor are a compact facts strip under the identity, split
+      by a hairline (no more 3-col grid).
+    - Group Members is its own section (heading + hairline rule) rendered as a
+      single divided list, Classroom "People" style, not nested cards in the hero.
+    - Section headings use the styleguide scale (DM Sans 22/400/28).
+    - Project card is full-width with the header/body/footer separated by
+      spacing instead of three stacked borders.
+    - Status pill, outline button and card title weight follow /styleguide.
+    ============================================================================
+  -->
+  <head>
+    <title>Student &amp; Group Profile | ProPro</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+    <!-- Loaded Tailwind v4 Browser Build to support your @theme tokens -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <!-- Injected Styleguide Theme -->
+    <style type="text/tailwindcss">
+      @theme {
+        --color-on-surface: #3c4043;
+        --color-on-surface-strong: #1f1f1f;
+        --color-on-surface-variant: #5f6368;
+        --color-on-surface-disabled: #9aa0a6;
+        --color-on-surface-muted: #747775;
+        --color-surface: #ffffff;
+        --color-surface-tint: #f8fafd;
+        --color-surface-variant: #f1f3f4;
+        --color-surface-hover: #f8f9fa;
+        --color-surface-variant-deep: #e1e3e1;
+
+        --color-outline: #dadce0;
+        --color-outline-variant: #e0e0e0;
+        --color-outline-soft: #c4c7c5;
+        --color-outline-strong: #c4c4c4;
+
+        --color-primary: #1a73e8;
+        --color-primary-strong: #0b57d0;
+        --color-primary-container-alt: #d3e3fd;
+
+        --color-success: #137333;
+        --color-success-container: #e6f4ea;
+        --color-error: #c5221f;
+        --color-error-hover: #a50e0e;
+        --color-error-container: #fce8e6;
+
+        --radius-panel: 28px;
+        --radius-card: 8px;
+        --spacing-header: 3.5rem;
+      }
+
+      #app-sidebar[data-collapsed="true"] {
+        overflow: visible;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen flex flex-col bg-surface-tint text-on-surface font-['Roboto',sans-serif]" data-controller="sidebar">
+
+    <!-- ============================================================== -->
+    <!-- HEADER (Full width, sticky at top)                             -->
+    <!-- ============================================================== -->
+    <header class="sticky top-0 z-40 bg-surface-tint flex items-center justify-between gap-3 px-4 py-2 min-h-header">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <button type="button"
+                data-sidebar-target="toggleButton"
+                data-action="sidebar#toggle"
+                aria-label="Toggle sidebar"
+                aria-controls="app-sidebar"
+                class="shrink-0 h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors cursor-pointer">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+
+        <div class="hidden sm:flex sm:items-center sm:min-w-0">
+          <a href="/"
+             class="shrink-0 text-[1.5rem] leading-8 font-normal text-on-surface-variant hover:text-on-surface transition-colors no-underline whitespace-nowrap"
+             style="font-family: 'DM Sans',Roboto,Arial,sans-serif">ProPro</a>
+
+          <!-- Breadcrumbs -->
+          <nav class="flex flex-wrap items-center text-on-surface-variant w-full min-w-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.25rem" height="1.25rem" fill="currentColor" class="mx-2 shrink-0 select-none text-on-surface-disabled" aria-hidden="true"><path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7a.996.996 0 0 0-1.41 0z"/></svg>
+            <a href="/courses/1"
+               class="whitespace-nowrap text-[1rem] leading-6 font-medium text-on-surface-variant hover:text-on-surface transition-colors no-underline"
+               style="font-family: 'DM Sans',Roboto,Arial,sans-serif">Grouped TopicApprovalEnabled</a>
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.25rem" height="1.25rem" fill="currentColor" class="mx-2 shrink-0 select-none text-on-surface-disabled" aria-hidden="true"><path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7a.996.996 0 0 0-1.41 0z"/></svg>
+            <span class="text-on-surface-strong font-medium text-[1rem] leading-6 break-all"
+                  style="font-family: 'DM Sans',Roboto,Arial,sans-serif">student1</span>
+          </nav>
+        </div>
+
+        <!-- Mobile only: course name, truncated -->
+        <span class="sm:hidden truncate text-[17px] text-on-surface-strong font-medium min-w-0">student1</span>
+      </div>
+
+      <div class="flex items-center gap-1 shrink-0">
+        <form class="hidden sm:block m-0" action="/session" method="post">
+          <button type="submit" class="text-[15px] font-medium text-on-surface-variant hover:text-on-surface transition-colors pr-2 bg-transparent border-0 cursor-pointer">Log out</button>
+        </form>
+        <a href="/courses/1/settings" class="sm:hidden p-2 rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors" aria-label="Course settings">
+          <span class="material-symbols-outlined">settings</span>
+        </a>
+        <a href="/courses/1/project_template/edit" class="sm:hidden p-2 rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors" aria-label="Edit Project Templates">
+          <span class="material-symbols-outlined">edit_note</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- App Shell Body -->
+    <div class="flex relative">
+
+      <!-- ============================================================== -->
+      <!-- SIDEBAR                                                        -->
+      <!-- ============================================================== -->
+      <aside id="app-sidebar"
+             class="group/sidebar w-[280px] shrink-0 py-3 bg-surface-tint fixed top-0 left-0 h-full z-50 -translate-x-full transition-[transform,width] duration-200 ease-out lg:sticky lg:top-header lg:translate-x-0 lg:h-[calc(100vh-var(--spacing-header))] lg:self-start lg:overflow-y-auto data-[collapsed=true]:lg:overflow-visible data-[collapsed=true]:lg:w-[72px]"
+             data-sidebar-target="container"
+             data-collapsed="false">
+        <nav class="flex flex-col gap-1 pr-3">
+
+          <a href="/"
+             class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors group-data-[collapsed=true]/sidebar:lg:justify-center group-data-[collapsed=true]/sidebar:lg:px-0 rounded-r-full text-on-surface hover:bg-white/60"
+             style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
+             aria-label="Home">
+            <span class="material-symbols-outlined">home</span>
+            <span class="group-data-[collapsed=true]/sidebar:lg:hidden">Home</span>
+            <span class="hidden group-data-[collapsed=true]/sidebar:lg:group-hover/item:block absolute z-50 left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap rounded-md bg-black text-white px-2 py-1 text-xs shadow-lg pointer-events-none" aria-hidden="true">Home</span>
+          </a>
+
+          <div class="group-data-[collapsed=true]/sidebar:lg:hidden">
+            <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer">
+              <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+              <span class="material-symbols-outlined text-sm">expand_less</span>
+            </div>
+
+            <a href="/courses/1"
+               class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors group-data-[collapsed=true]/sidebar:lg:justify-center group-data-[collapsed=true]/sidebar:lg:px-0 truncate lg:group-data-[collapsed=false]/sidebar:mx-3 lg:group-data-[collapsed=false]/sidebar:rounded-full lg:group-data-[collapsed=false]/sidebar:bg-primary-container-alt lg:group-data-[collapsed=false]/sidebar:text-primary-strong lg:group-data-[collapsed=false]/sidebar:font-semibold"
+               style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
+               aria-label="Grouped TopicApprovalEnabled">
+              <div class="w-9 h-9 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-sm font-bold shrink-0">G</div>
+              <span class="truncate group-data-[collapsed=true]/sidebar:lg:hidden">Grouped TopicApprovalEnabled</span>
+              <span class="hidden group-data-[collapsed=true]/sidebar:lg:group-hover/item:block absolute z-50 left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap rounded-md bg-black text-white px-2 py-1 text-xs shadow-lg pointer-events-none" aria-hidden="true">Grouped TopicApprovalEnabled</span>
+            </a>
+
+            <a href="/courses/2"
+               class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors group-data-[collapsed=true]/sidebar:lg:justify-center group-data-[collapsed=true]/sidebar:lg:px-0 truncate rounded-r-full text-on-surface hover:bg-white/60"
+               style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
+               aria-label="Solo Subject">
+              <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold shrink-0">S</div>
+              <span class="truncate group-data-[collapsed=true]/sidebar:lg:hidden">Solo Subject</span>
+              <span class="hidden group-data-[collapsed=true]/sidebar:lg:group-hover/item:block absolute z-50 left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap rounded-md bg-black text-white px-2 py-1 text-xs shadow-lg pointer-events-none" aria-hidden="true">Solo Subject</span>
+            </a>
+
+            <div class="py-2">
+              <div class="border-t border-outline"></div>
+            </div>
+          </div>
+
+          <a href="/user/profile"
+             class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors group-data-[collapsed=true]/sidebar:lg:justify-center group-data-[collapsed=true]/sidebar:lg:px-0 rounded-r-full text-on-surface hover:bg-white/60"
+             style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
+             aria-label="Edit profile">
+            <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            <span class="group-data-[collapsed=true]/sidebar:lg:hidden">Edit profile</span>
+            <span class="hidden group-data-[collapsed=true]/sidebar:lg:group-hover/item:block absolute z-50 left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap rounded-md bg-black text-white px-2 py-1 text-xs shadow-lg pointer-events-none" aria-hidden="true">Edit profile</span>
+          </a>
+
+          <form class="m-0 w-full" action="/session" method="post">
+            <button type="submit"
+                    class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors group-data-[collapsed=true]/sidebar:lg:justify-center group-data-[collapsed=true]/sidebar:lg:px-0 rounded-r-full text-on-surface hover:bg-white/60 w-full text-left bg-transparent border-0 cursor-pointer"
+                    style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;"
+                    aria-label="Log out">
+              <span class="material-symbols-outlined text-on-surface-variant">logout</span>
+              <span class="group-data-[collapsed=true]/sidebar:lg:hidden">Log out</span>
+              <span class="hidden group-data-[collapsed=true]/sidebar:lg:group-hover/item:block absolute z-50 left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap rounded-md bg-black text-white px-2 py-1 text-xs shadow-lg pointer-events-none" aria-hidden="true">Log out</span>
+            </button>
+          </form>
+
+        </nav>
+      </aside>
+
+      <div class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"
+           data-sidebar-target="backdrop"
+           data-action="click->sidebar#close"></div>
+
+      <!-- ============================================================== -->
+      <!-- MAIN CONTENT (Internal scroll, top-left radius, white bg)      -->
+      <!-- ============================================================== -->
+      <main class="flex-1 bg-white rounded-tl-panel border-t border-l border-outline-variant overflow-x-hidden overflow-y-auto h-[calc(100vh-var(--spacing-header))]">
+
+        <!-- Centered reading column (Classroom-style) inside the scrollable panel -->
+        <div class="w-[95%] max-w-5xl mx-auto pt-8 pb-16 flex flex-col min-h-full">
+
+          <div class="space-y-12 flex-grow">
+
+            <!-- ╔══════════════════════════════════════════════════════════╗ -->
+            <!-- ║  STUDENT PROFILE  (participant_type == 'student')        ║ -->
+            <!-- ╚══════════════════════════════════════════════════════════╝ -->
+            <div>
+              <span class="block mb-4 text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">View Student</span>
+
+              <!-- Hero: banner band + overlapping avatar + identity + facts -->
+              <section aria-labelledby="student-name"
+                       class="bg-surface-tint border border-outline-variant rounded-panel overflow-hidden shadow-none">
+
+                <div class="h-24 sm:h-28 bg-primary-container-alt" aria-hidden="true"></div>
+
+                <div class="px-6 sm:px-8 pb-8">
+
+                  <!-- Identity row: avatar overlaps the band; name/meta sit below it; action top-right -->
+                  <div class="-mt-12 flex flex-col gap-4 sm:flex-row sm:gap-6">
+                    <div class="w-24 h-24 bg-surface-variant-deep text-on-surface-strong border-4 border-surface-tint rounded-full flex items-center justify-center text-4xl font-bold shrink-0 shadow-none">
+                      S
+                    </div>
+
+                    <div class="min-w-0 flex-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:pt-14">
+                      <div class="min-w-0">
+                        <h1 id="student-name" class="text-[28px] leading-9 sm:text-[36px] sm:leading-[44px] font-normal text-on-surface-strong tracking-tight font-['DM_Sans'] break-words">student1</h1>
+                        <div class="text-on-surface-variant text-[14px] mt-1 font-medium break-words">
+                          student1@test.com
+                        </div>
+                      </div>
+
+                      <a href="/enrolments/101"
+                         class="shrink-0 self-start inline-flex items-center justify-center px-5 py-2.5 bg-surface border border-outline rounded-full text-error text-[14px] font-medium whitespace-nowrap hover:bg-error-container transition-colors no-underline shadow-none">
+                        Remove From Course
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Facts strip: Project Status | Supervisor -->
+                  <div class="mt-8 pt-6 border-t border-outline-variant flex flex-col gap-6 sm:flex-row sm:gap-0">
+                    <div class="flex flex-col gap-2 sm:pr-10 sm:w-1/2">
+                      <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Project Status</span>
+                      <div class="flex items-center min-h-8">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-success-container text-success">Approved</span>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 sm:pl-10 sm:w-1/2 relative before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-outline-variant max-sm:before:hidden">
+                      <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Supervisor</span>
+                      <div class="flex items-center gap-3 min-h-8">
+                        <div class="w-8 h-8 rounded-full bg-surface-variant-deep flex items-center justify-center text-[12px] font-bold text-on-surface-strong shrink-0 border border-outline-variant">
+                          L
+                        </div>
+                        <span class="text-on-surface text-[14px] font-medium">lecturer2</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Current Project -->
+              <section id="current-project-student" aria-labelledby="current-project-student-heading" class="mt-10">
+                <h2 id="current-project-student-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Current Project</h2>
+
+                <a href="/courses/1/projects/3?from_participant=student1&amp;participant_type=student"
+                   class="group block bg-surface border border-outline-variant rounded-card hover:border-outline-strong transition-colors no-underline overflow-hidden shadow-none">
+
+                  <div class="p-5 sm:p-6">
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="min-w-0">
+                        <h3 class="text-[16px] leading-6 font-medium text-on-surface-strong group-hover:underline underline-offset-2 decoration-outline-strong font-['DM_Sans']">Difficult Group Project 4</h3>
+                        <p class="text-[12px] text-on-surface-variant uppercase font-medium mt-1 tracking-wide">student1</p>
+                      </div>
+                      <span class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-success-container text-success">Approved</span>
+                    </div>
+
+                    <div class="mt-4 max-w-2xl text-[14px] text-on-surface-variant font-normal leading-relaxed line-clamp-3">
+                      Phasellus orci ante, bibendum a maximus et, suscipit quis quam. Sed a vehicula mauris, sit amet sodales ex. Ut justo dolor, aliquet non nisi ac, porta sodales arcu.
+                    </div>
+                  </div>
+
+                  <div class="px-5 sm:px-6 py-3 border-t border-outline-variant flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[13px] text-on-surface-muted bg-surface-hover">
+                    <div class="flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[16px]">update</span>
+                      <span>Updated recently</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span>4 updates</span>
+                      <span class="font-mono text-[12px] font-medium bg-surface-variant-deep px-1.5 py-0.5 rounded text-on-surface-strong border border-outline-variant">v4</span>
+                    </div>
+                  </div>
+                </a>
+              </section>
+
+              <!-- Back to Course -->
+              <footer class="mt-10 flex justify-start">
+                <a href="/courses/1" class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-variant hover:text-on-surface-strong text-[14px] font-medium transition-colors duration-150 no-underline">
+                  <span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1">arrow_back</span>
+                  Back to Course
+                </a>
+              </footer>
+            </div>
+
+
+            <!-- ══════════════════════════════════════════════════════════════ -->
+            <!-- DIVIDER — styles the two scenario blocks apart.                -->
+            <!-- ══════════════════════════════════════════════════════════════ -->
+            <div class="flex items-center gap-4 py-8" aria-hidden="true">
+              <span class="text-[12px] font-bold uppercase tracking-wider text-on-surface-disabled">Group scenario</span>
+              <div class="h-px border-t border-dashed border-outline-variant flex-grow"></div>
+            </div>
+
+
+            <!-- ╔══════════════════════════════════════════════════════════╗ -->
+            <!-- ║  GROUP PROFILE  (participant_type == 'group')            ║ -->
+            <!-- ╚══════════════════════════════════════════════════════════╝ -->
+            <div>
+              <span class="block mb-4 text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">View Group</span>
+
+              <!-- Hero: banner band + name + facts -->
+              <section aria-labelledby="group-name"
+                       class="bg-surface-tint border border-outline-variant rounded-panel overflow-hidden shadow-none">
+
+                <div class="h-16 sm:h-20 bg-primary-container-alt" aria-hidden="true"></div>
+
+                <div class="px-6 sm:px-8 pt-6 pb-8">
+                  <h1 id="group-name" class="text-[28px] leading-9 sm:text-[36px] sm:leading-[44px] font-normal text-on-surface-strong tracking-tight font-['DM_Sans'] break-words">group_1</h1>
+
+                  <!-- Facts strip: Project Status | Supervisor -->
+                  <div class="mt-8 pt-6 border-t border-outline-variant flex flex-col gap-6 sm:flex-row sm:gap-0">
+                    <div class="flex flex-col gap-2 sm:pr-10 sm:w-1/2">
+                      <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Project Status</span>
+                      <div class="flex items-center min-h-8">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-success-container text-success">Approved</span>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 sm:pl-10 sm:w-1/2 relative before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-outline-variant max-sm:before:hidden">
+                      <span class="text-[12px] font-medium text-on-surface-variant uppercase tracking-wide">Supervisor</span>
+                      <div class="flex items-center gap-3 min-h-8">
+                        <div class="w-8 h-8 rounded-full bg-surface-variant-deep flex items-center justify-center text-[12px] font-bold text-on-surface-strong shrink-0 border border-outline-variant">
+                          L
+                        </div>
+                        <span class="text-on-surface text-[14px] font-medium">lecturer2</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Group Members: one divided list (Classroom "People" style) -->
+              <section id="group-members" aria-labelledby="group-members-heading" class="mt-10">
+                <h2 id="group-members-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Group Members</h2>
+
+                <ul class="bg-surface border border-outline-variant rounded-card divide-y divide-outline-variant overflow-hidden shadow-none">
+
+                  <!-- Member 1 -->
+                  <li class="flex items-center gap-4 px-4 sm:px-5 py-3.5 hover:bg-surface-hover transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-surface-variant-deep text-on-surface-strong flex items-center justify-center text-[14px] font-bold shrink-0 border border-outline-variant">
+                      S
+                    </div>
+                    <div class="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:justify-between md:gap-4">
+                      <span class="text-[14px] font-medium text-on-surface-strong">student1</span>
+                      <span class="text-[13px] text-on-surface-variant mt-1 md:mt-0 break-all">student1@test.com</span>
+                    </div>
+                  </li>
+
+                  <!-- Member 2 -->
+                  <li class="flex items-center gap-4 px-4 sm:px-5 py-3.5 hover:bg-surface-hover transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-surface-variant-deep text-on-surface-strong flex items-center justify-center text-[14px] font-bold shrink-0 border border-outline-variant">
+                      S
+                    </div>
+                    <div class="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:justify-between md:gap-4">
+                      <span class="text-[14px] font-medium text-on-surface-strong">student2</span>
+                      <span class="text-[13px] text-on-surface-variant mt-1 md:mt-0 break-all">student2@test.com</span>
+                    </div>
+                  </li>
+
+                  <!-- Member 3 -->
+                  <li class="flex items-center gap-4 px-4 sm:px-5 py-3.5 hover:bg-surface-hover transition-colors">
+                    <div class="w-10 h-10 rounded-full bg-surface-variant-deep text-on-surface-strong flex items-center justify-center text-[14px] font-bold shrink-0 border border-outline-variant">
+                      S
+                    </div>
+                    <div class="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:justify-between md:gap-4">
+                      <span class="text-[14px] font-medium text-on-surface-strong">student3</span>
+                      <span class="text-[13px] text-on-surface-variant mt-1 md:mt-0 break-all">student3@test.com</span>
+                    </div>
+                  </li>
+
+                </ul>
+              </section>
+
+              <!-- Current Project -->
+              <section id="current-project-group" aria-labelledby="current-project-group-heading" class="mt-10">
+                <h2 id="current-project-group-heading" class="pb-3 mb-5 border-b border-outline-variant text-[22px] leading-7 font-normal text-on-surface-strong font-['DM_Sans']">Current Project</h2>
+
+                <a href="/courses/1/projects/3?from_participant=group_1&amp;participant_type=group"
+                   class="group block bg-surface border border-outline-variant rounded-card hover:border-outline-strong transition-colors no-underline overflow-hidden shadow-none">
+
+                  <div class="p-5 sm:p-6">
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="min-w-0">
+                        <h3 class="text-[16px] leading-6 font-medium text-on-surface-strong group-hover:underline underline-offset-2 decoration-outline-strong font-['DM_Sans']">Difficult Group Project 4</h3>
+                        <p class="text-[12px] text-on-surface-variant uppercase font-medium mt-1 tracking-wide">group_1</p>
+                      </div>
+                      <span class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded text-[12px] font-medium tracking-wide bg-success-container text-success">Approved</span>
+                    </div>
+
+                    <div class="mt-4 max-w-2xl text-[14px] text-on-surface-variant font-normal leading-relaxed line-clamp-3">
+                      Phasellus orci ante, bibendum a maximus et, suscipit quis quam. Sed a vehicula mauris, sit amet sodales ex. Ut justo dolor, aliquet non nisi ac, porta sodales arcu.
+                    </div>
+                  </div>
+
+                  <div class="px-5 sm:px-6 py-3 border-t border-outline-variant flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[13px] text-on-surface-muted bg-surface-hover">
+                    <div class="flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[16px]">update</span>
+                      <span>Updated recently</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span>4 updates</span>
+                      <span class="font-mono text-[12px] font-medium bg-surface-variant-deep px-1.5 py-0.5 rounded text-on-surface-strong border border-outline-variant">v4</span>
+                    </div>
+                  </div>
+                </a>
+              </section>
+
+              <!-- Back to Course -->
+              <footer class="mt-10 flex justify-start">
+                <a href="/courses/1" class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-variant hover:text-on-surface-strong text-[14px] font-medium transition-colors duration-150 no-underline">
+                  <span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1">arrow_back</span>
+                  Back to Course
+                </a>
+              </footer>
+            </div>
+
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

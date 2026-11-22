@@ -29,7 +29,7 @@ linter:
 
   # Patterns to exclude from linting
   exclude:
-    - 'ProPro_Design/**/*'
+    - 'design_mockups/**/*'
 
   # # Exit with error code when diagnostics of this severity or higher are present
   # # Valid values: error (default), warning, info, hint

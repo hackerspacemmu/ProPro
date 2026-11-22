@@ -1,42 +1,48 @@
+# Removes student enrolments, confirming first when a proposal would be deleted.
 class EnrolmentsController < ApplicationController
+  before_action :set_course_and_enrolment
+  before_action :require_coordinator
+
   def destroy
-    params.require(%i[course_id id])
+    result = Groups::Coordinator::EnrolmentRemover.new(
+      @enrolment,
+      confirm: params[:confirm] == 'true'
+    ).remove!
 
-    current_course = Course.find(params[:course_id])
-
-    # Authorization is on the authenticated user, never on a client-submitted id.
-    unless current_course.coordinator_ids.include?(current_user.id)
-      redirect_back_or_to dashboard_path
-      return
+    if result.needs_confirmation?
+      redirect_to confirm_removal_enrolment_path(@enrolment, course_id: @course.id)
+    else
+      redirect_to course_path(@course), notice: result.message
     end
+  end
 
-    enrolment = current_course.enrolments.find(params[:id])
-    user_id = enrolment.user_id
+  def confirm_removal
+    @student = @enrolment.user
+    @membership = @course.project_group_members.find_by(user_id: @student.id)
+    @project_title = project_title_for_confirmation
+  end
 
-    begin
-      ActiveRecord::Base.transaction do
-        if current_course.grouped
-          project_group = ProjectGroup.includes(:project_group_members).find_by!(
-            course_id: params[:course_id], project_group_members: { user_id: user_id }
-          )
+  private
 
-          group_member = project_group.project_group_members.find_by!(user_id: user_id)
+  def set_course_and_enrolment
+    @course = Course.find(params[:course_id])
+    @enrolment = @course.enrolments.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_back_or_to dashboard_path, alert: 'Record not found.'
+  end
 
-          group_member.destroy!
+  def require_coordinator
+    return if performed?
+    return if @course.coordinator_ids.include?(current_user.id)
 
-          if project_group.project_group_members.count <= 0
-            project_group.destroy!
-            true
-          end
-        end
+    redirect_back_or_to dashboard_path, alert: 'You are not authorized to perform this action.'
+  end
 
-        enrolment.destroy!
-      end
-    rescue StandardError
-      redirect_to course_person_path(params[:course_id], user_id)
-      return
-    end
+  def project_title_for_confirmation
+    group = @membership&.project_group
+    return unless group
+    return unless group.project_group_members.one?
 
-    redirect_to course_path(params[:course_id])
+    group.project&.current_title
   end
 end

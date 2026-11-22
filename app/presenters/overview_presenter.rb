@@ -2,10 +2,12 @@
 # Wraps the current user's enrolment and data collections to expose
 # intention-revealing methods for section visibility in the view.
 class OverviewPresenter
-  attr_reader :pending_proposals, :reviewed_proposals, :pending_topics, :submission, :submission_state
+  attr_reader :pending_proposals, :reviewed_proposals, :pending_topics, :submission, :submission_state,
+              :course, :group, :current_user
 
   def initialize(enrolment:, approved_projects:, pending_proposals:, reviewed_proposals:, pending_topics:,
-                 course_description:, file_link:, submission_state:, submission:, toggle_topics: true)
+                 course_description:, file_link:, submission_state:, submission:, toggle_topics: true,
+                 course: nil, group: nil, current_user: nil)
     @enrolment = enrolment
     @approved_projects = approved_projects
     @pending_proposals = pending_proposals
@@ -16,6 +18,9 @@ class OverviewPresenter
     @submission_state = submission_state
     @submission = submission
     @toggle_topics = toggle_topics
+    @course = course
+    @group = group
+    @current_user = current_user
   end
 
   def show_supervised_projects? = !student?
@@ -30,8 +35,66 @@ class OverviewPresenter
   def project_details_empty?        = @course_description.blank? && @file_link.blank?
   def show_project_details_add_cta? = coordinator? && project_details_empty?
 
-  # My Submission — students only; the state is resolved by the controller.
-  def show_my_submission? = student?
+  def show_group_formation?
+    return false unless coordinator? || lecturer?
+
+    @course.present? && @course.grouped? && @course.group_formation_enabled?
+  end
+
+  # Student My Group: student in a grouped course with group present
+  def show_my_group?
+    student? && @course&.grouped? && @group.present?
+  end
+
+  # My Submission — students only; hidden when student has an unconfirmed group
+  def show_my_submission?
+    student? && (@group.nil? || @group.confirmed?)
+  end
+
+  # Group formation open/closed and count helpers
+  def group_formation_open?
+    @course&.group_formation_open? || false
+  end
+
+  def group_formation_closes_at
+    @course&.group_formation_closes_at
+  end
+
+  def total_groups_count
+    @total_groups_count ||= @course ? @course.project_groups.count : 0
+  end
+
+  def unconfirmed_groups_count
+    @unconfirmed_groups_count ||= @course ? @course.project_groups.where(confirmed: false).count : 0
+  end
+
+  def confirmed_groups_count
+    total_groups_count - unconfirmed_groups_count
+  end
+
+  def ungrouped_students_count
+    @ungrouped_students_count ||= @course ? @course.ungrouped_students.count : 0
+  end
+
+  def show_formation_attention_banner?
+    coordinator? && !group_formation_open? && (unconfirmed_groups_count.positive? || ungrouped_students_count.positive?)
+  end
+
+  # My group helpers
+  def my_group_confirmed?
+    @group&.confirmed? || false
+  end
+
+  def my_group_leader?
+    return false unless @group && @current_user
+
+    @group.leader_id == @current_user.id
+  end
+
+  # nil means no maximum ("no limit" default); the view prints the bare count
+  def group_max
+    @course&.group_max
+  end
 
   def any_sections?
     (show_supervised_projects? && @approved_projects.any?) ||
@@ -40,8 +103,7 @@ class OverviewPresenter
       (show_pending_topics?      && @pending_topics.any?)
   end
 
-  private
-
   def student?     = @enrolment&.student?
   def coordinator? = @enrolment&.coordinator?
+  def lecturer?    = @enrolment&.lecturer?
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_12_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,13 +43,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.string "coursecode"
     t.boolean "coursecode_enabled", default: false, null: false
     t.boolean "toggle_topics", default: true
-    t.boolean "grouping_enabled", default: false, null: false
-    t.boolean "student_list_finalised", default: false, null: false
+    t.boolean "group_formation_enabled", default: false, null: false
+    t.boolean "prevent_leftover_students", default: false, null: false
     t.integer "group_min"
     t.integer "group_max"
-    t.boolean "grouping_open", default: false, null: false
-    t.datetime "grouping_opens_at"
-    t.datetime "grouping_closes_at"
+    t.datetime "group_formation_closes_at"
     t.boolean "auto_approve_copied_topics_without_changes", default: false, null: false
     t.boolean "supervisor_auto_calculate_enabled", default: false, null: false
     t.string "email_domain_restriction"
@@ -88,11 +86,40 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.index ["project_id"], name: "index_progress_updates_on_project_id"
   end
 
+  create_table "project_group_invite_links", force: :cascade do |t|
+    t.bigint "project_group_id", null: false
+    t.bigint "sender_id", null: false
+    t.string "token", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_group_id"], name: "index_project_group_invite_links_on_project_group_id"
+    t.index ["sender_id"], name: "index_project_group_invite_links_on_sender_id"
+    t.index ["token"], name: "index_project_group_invite_links_on_token", unique: true
+  end
+
+  create_table "project_group_invites", force: :cascade do |t|
+    t.bigint "project_group_id", null: false
+    t.bigint "sender_id", null: false
+    t.integer "kind", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "recipient_id", null: false
+    t.index ["project_group_id"], name: "index_project_group_invites_on_project_group_id"
+    t.index ["recipient_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_recipient_group_kind", unique: true, where: "((status = 0) AND (kind = 1))"
+    t.index ["recipient_id"], name: "index_project_group_invites_on_recipient_id"
+    t.index ["sender_id", "project_group_id", "kind"], name: "idx_pgi_unique_pending_sender_group_kind", unique: true, where: "((status = 0) AND (kind = 0))"
+    t.index ["sender_id"], name: "index_project_group_invites_on_sender_id"
+  end
+
   create_table "project_group_members", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "project_group_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "course_id", null: false
+    t.index ["course_id", "user_id"], name: "index_project_group_members_on_course_id_and_user_id", unique: true
     t.index ["project_group_id"], name: "index_project_group_members_on_project_group_id"
     t.index ["user_id"], name: "index_project_group_members_on_user_id"
   end
@@ -103,10 +130,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "confirmed", default: false, null: false
-    t.boolean "locked", default: false, null: false
     t.integer "leader_id"
-    t.integer "course_group_sequence"
-    t.index ["course_id", "course_group_sequence"], name: "index_project_groups_on_course_id_and_course_group_sequence", unique: true
+    t.string "origin", default: "formation", null: false
+    t.index ["course_id", "group_name"], name: "index_project_groups_on_course_id_and_group_name", unique: true
     t.index ["course_id"], name: "index_project_groups_on_course_id"
   end
 
@@ -186,6 +212,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
     t.integer "source_topic_id"
     t.index ["course_id"], name: "index_projects_on_course_id"
     t.index ["enrolment_id"], name: "index_projects_on_enrolment_id"
+    t.index ["owner_id"], name: "index_projects_on_group_owner", unique: true, where: "((owner_type)::text = 'ProjectGroup'::text)"
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner"
   end
 
@@ -337,6 +364,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_123305) do
   add_foreign_key "enrolments", "users"
   add_foreign_key "otps", "users"
   add_foreign_key "progress_updates", "projects"
+  add_foreign_key "project_group_invite_links", "project_groups"
+  add_foreign_key "project_group_invite_links", "users", column: "sender_id"
+  add_foreign_key "project_group_invites", "project_groups"
+  add_foreign_key "project_group_invites", "users", column: "recipient_id"
+  add_foreign_key "project_group_invites", "users", column: "sender_id"
+  add_foreign_key "project_group_members", "courses"
   add_foreign_key "project_group_members", "project_groups"
   add_foreign_key "project_group_members", "users"
   add_foreign_key "project_groups", "courses"

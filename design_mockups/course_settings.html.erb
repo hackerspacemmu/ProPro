@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Settings - COMP3000 Final Year Project | ProPro (mockup)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+<!--
+  ============================================================================
+  DESIGN MOCKUP ONLY — hardcoded baseline of app/views/courses/settings.html.erb
+  for the Grouping ("group formation") redesign. Nothing here is wired up.
+
+  1. Source: courses/settings.html.erb with ALL partials inlined
+     (_copy_course_overlay, _course_code_form, _course_email_domain_restrict_form,
+     _supervisor_capacity_settings, _flash). Ruby stripped; Tailwind classes,
+     data-controller / data-action / data-*-target hooks and hx-* attrs kept.
+     Field names are the real `course[...]` names so they map back 1:1.
+
+  2. Tailwind v4 (browser build) + the app's real @theme tokens, copied from
+     app/assets/tailwind/application.css, so classes paste straight back.
+
+  3. REDESIGN TARGET: SECTION 4 (<section id="grouping">). It is the current
+     design, unchanged, as the starting point.
+
+  4. State shown: grouping enabled=true, prevent_leftover_students=true
+     (Preview block is visible), no auto-close window set,
+     "Set date" label. Other states to design for:
+       - enabled=false           -> whole options block hidden (toggle "No")
+       - window set              -> windowFields visible, button "Remove date"
+
+  5. The tiny inline script at the bottom only imitates grouping-settings,
+     overlay and supervisor-capacity so the mockup is clickable. Delete it;
+     the real Stimulus controllers do this.
+  ============================================================================
+-->
+<style type="text/tailwindcss">
+@theme {
+  --color-on-surface: #3c4043; --color-on-surface-strong: #1f1f1f; --color-on-surface-variant: #5f6368; --color-on-surface-disabled: #9aa0a6;
+  --color-surface: #ffffff; --color-surface-tint: #f8fafd; --color-surface-variant: #f1f3f4;
+  --color-outline: #dadce0; --color-outline-variant: #e0e0e0;
+  --color-primary: #1a73e8; --color-primary-strong: #0b57d0; --color-primary-hover: #1b66c9; --color-primary-container: #e8f0fe; --color-primary-container-alt: #d3e3fd;
+  --color-success: #137333; --color-success-container: #e6f4ea;
+  --color-error: #c5221f; --color-error-container: #fce8e6; --color-error-container-border: #f9d2ce;
+  --color-warning: #f57f17; --color-warning-container: #fff8e1; --color-warning-strong: #e37400; --color-warning-container-alt: #fef7e0; --color-warning-border: #f2de8a; --color-warning-on-container: #b06000;
+  --color-surface-hover: #f8f9fa; --color-surface-variant-deep: #e1e3e1; --color-on-surface-muted: #747775;
+  --radius-panel: 28px; --radius-card: 8px; --spacing-header: 3.5rem;
+}
+</style>
+<style>
+  body { font-family: 'Roboto', Arial, sans-serif; }
+  turbo-frame { display: block; }
+  input[type=radio], input[type=checkbox] { accent-color: #1a73e8; }
+  input[type=number], input[type=datetime-local], input[type=text] { font-family: inherit; }
+  details > summary::-webkit-details-marker { display: none; }
+</style>
+</head>
+
+<body class="bg-surface-tint">
+<div class="min-h-screen bg-surface-tint text-on-surface font-['Roboto',sans-serif] flex flex-col">
+
+<form id="course-settings-form" onsubmit="return false" class="flex flex-col min-h-screen">
+
+  <!-- Sticky Top Navigation -->
+  <header class="sticky top-0 z-30 bg-white border-b border-outline-variant px-4 sm:px-6 py-3 flex items-center justify-between shadow-xs">
+    <div class="flex items-center gap-6">
+      <a href="#" title="Close and return to course" class="p-2 -ml-2 rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center">
+        <span class="material-symbols-outlined text-[24px]">close</span>
+      </a>
+      <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-xl font-medium text-on-surface-strong tracking-tight">Course Settings</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#" class="px-5 py-2 rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface font-medium text-[14px] transition-colors">Discard Changes</a>
+      <input type="submit" value="Save" class="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-full font-medium text-[14px] transition-all shadow-sm cursor-pointer">
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 py-10 px-4 sm:px-6 overflow-y-auto">
+    <div class="max-w-4xl mx-auto space-y-8 pb-8">
+
+      <div id="flash"><!-- flash banners render here --></div>
+
+      <!-- INLINED: courses/_copy_course_overlay (mode: settings) -->
+      <div data-controller="overlay" data-overlay-target-course-id-value="1" data-overlay-mode-value="settings" class="relative">
+        <div class="flex justify-end">
+          <button type="button" data-action="click->overlay#open" id="mock-overlay-open" class="inline-flex items-center gap-2 px-4 py-2.5 border border-dashed border-outline text-[13.5px] font-medium rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+            Reuse details from another course
+          </button>
+        </div>
+
+        <div id="mock-overlay" data-overlay-target="menu" data-action="click->overlay#closeOnBackdrop"
+             class="fixed inset-0 z-[60] flex items-start justify-center pt-20 bg-black/50 transition-opacity duration-150 opacity-0 pointer-events-none">
+          <turbo-frame id="overlay_content" data-overlay-target="container" class="bg-white rounded-[28px] shadow-xl w-9/12 min-h-[85vh] max-h-[85vh] flex flex-col p-10 relative">
+            <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+              <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-on-surface-strong">Select a Course to Copy</h3>
+              <button type="button" data-action="click->overlay#close" class="mock-overlay-close p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-[24px]">close</span>
+              </button>
+            </div>
+            <div data-overlay-target="content" class="flex-grow max-h-[60vh] overflow-y-auto pr-2 px-6 py-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div data-overlay-target="card" data-action="click->overlay#selectSetting" data-overlay-source-id-param="2" class="h-full min-h-[240px] bg-white rounded-[10px] border border-outline-variant p-6 transition-all duration-200 ease-in-out hover:border-primary hover:shadow-md flex flex-col justify-between cursor-pointer">
+                  <div>
+                    <h4 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-semibold text-on-surface-strong mb-2">COMP3000 Final Year Project (2025)</h4>
+                    <p class="text-[13px] text-on-surface-variant leading-relaxed line-clamp-3 mb-4">Final year capstone project. Students propose, plan and deliver a software project under lecturer supervision.</p>
+                  </div>
+                  <div class="pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-xs font-bold shrink-0">A</div>
+                    <span class="text-xs font-medium text-on-surface-variant">Coordinator: <span class="text-on-surface">Dr. Aisha Rahman</span></span>
+                  </div>
+                </div>
+                <div data-overlay-target="card" data-action="click->overlay#selectSetting" data-overlay-source-id-param="3" class="h-full min-h-[240px] bg-white rounded-[10px] border border-outline-variant p-6 transition-all duration-200 ease-in-out hover:border-primary hover:shadow-md flex flex-col justify-between cursor-pointer">
+                  <div>
+                    <h4 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[15px] font-semibold text-on-surface-strong mb-2">COMP2000 Software Engineering Studio</h4>
+                    <p class="text-[13px] text-on-surface-variant leading-relaxed line-clamp-3 mb-4">No description available for this course.</p>
+                  </div>
+                  <div class="pt-4 border-t border-outline-variant flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-xs font-bold shrink-0">A</div>
+                    <span class="text-xs font-medium text-on-surface-variant">Coordinator: <span class="text-on-surface">Dr. Aisha Rahman</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="px-6 py-6 flex justify-end">
+              <button type="button" data-action="click->overlay#close" class="mock-overlay-close text-primary hover:bg-surface-hover px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">Cancel</button>
+            </div>
+          </turbo-frame>
+        </div>
+      </div>
+
+      <!-- SECTION 1: Class Details -->
+      <section class="bg-white border border-outline-variant rounded-[12px] p-8">
+        <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">Class Details</h2>
+        <div class="space-y-6">
+          <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
+            <label for="course_course_name" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Course Name</label>
+            <input type="text" id="course_course_name" name="course[course_name]" required value="COMP3000 Final Year Project" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1">
+          </div>
+          <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
+            <label for="course_course_description" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Project Details</label>
+            <textarea id="course_course_description" name="course[course_description]" rows="2" data-controller="textarea-resize" data-action="input->textarea-resize#resize" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1 resize-none overflow-hidden">Final year capstone project. Students propose, plan and deliver a software project under lecturer supervision.</textarea>
+          </div>
+          <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
+            <label for="course_file_link" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Project File Link (URL)</label>
+            <input type="text" id="course_file_link" name="course[file_link]" value="https://drive.google.com/drive/folders/1AbCdEfGh" class="w-full bg-transparent border-none p-0 text-primary focus:ring-0 focus:outline-none text-[14px] mt-1 underline">
+          </div>
+          <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-1/2">
+            <label for="course_starting_week" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Starting Week</label>
+            <input type="text" id="course_starting_week" name="course[starting_week]" required value="Week 3" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1">
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: General -->
+      <section class="bg-white border border-outline-variant rounded-[12px] p-8">
+        <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">General</h2>
+
+        <!-- SUBSECTION: Coursecode (INLINED: courses/_course_code_form) -->
+        <div class="border-b border-gray-200 pb-8">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">Coursecode</h3>
+          <!-- top-level node must stay exactly <turbo-frame id="course_code_form"> (ADR-0010) -->
+          <turbo-frame id="course_code_form">
+            <div class="space-y-6" data-controller="coursecode-form-handler" data-coursecode-form-handler-url-value="#">
+              <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border border-outline-variant rounded-lg hover:bg-surface-hover transition-colors">
+                <div>
+                  <span class="block text-sm font-medium text-on-surface">
+                    Allow joining via course code
+                    <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-warning-container text-warning-on-container align-middle">Beta</span>
+                    <span class="ml-1 text-xs font-normal text-on-surface-variant align-middle">(only solo courses)</span>
+                  </span>
+                  <span class="block text-[13px] text-on-surface-variant mt-1 leading-relaxed">Use this only for individual projects. Group formation via code is coming in a future update.</span>
+                </div>
+                <div class="flex items-center gap-6 mt-4 sm:mt-0 shrink-0">
+                  <label class="flex items-center text-sm text-on-surface cursor-pointer">
+                    <input type="radio" name="coursecode_enabled" value="true" id="coursecode_enabled_true" checked class="text-primary border-outline mr-2" data-action="change->coursecode-form-handler#toggle"> Yes
+                  </label>
+                  <label class="flex items-center text-sm text-on-surface cursor-pointer">
+                    <input type="radio" name="coursecode_enabled" value="false" id="coursecode_enabled_false" class="text-primary border-outline mr-2" data-action="change->coursecode-form-handler#toggle"> No
+                  </label>
+                </div>
+              </div>
+
+              <!-- Code display & actions (only while coursecode_enabled) -->
+              <div class="flex flex-col sm:flex-row gap-4 items-end">
+                <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-64 opacity-80">
+                  <label for="coursecode" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Course Join Code</label>
+                  <input type="text" id="coursecode" disabled readonly data-coursecode-form-handler-target="codeInput" value="4hbs47di" placeholder="—" autocomplete="off" class="w-full bg-transparent border-none p-0 pr-8 text-on-surface font-mono focus:ring-0 focus:outline-none text-[15px] tracking-widest mt-1 cursor-default">
+                  <button type="button" id="copy-code-btn" data-action="click->coursecode-form-handler#copy" aria-label="Copy course join code" class="absolute right-2 bottom-1.5 flex items-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span data-coursecode-form-handler-target="copyIcon" class="material-symbols-outlined text-[18px]">content_copy</span>
+                  </button>
+                </div>
+                <button type="button" id="regenerate-code-btn" data-action="click->coursecode-form-handler#generate" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 border border-outline text-primary hover:bg-surface-hover px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors cursor-pointer">
+                  <span class="material-symbols-outlined text-[18px]">refresh</span>
+                  Re-Generate Join Code
+                </button>
+              </div>
+            </div>
+          </turbo-frame>
+        </div>
+
+        <!-- SUBSECTION: Email Domain Restriction (INLINED: courses/_course_email_domain_restrict_form) -->
+        <div class="border-b border-gray-200 pb-8 mt-8">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">Email Domain Restriction</h3>
+          <!-- top-level node must stay exactly <turbo-frame id="email_domain_restrict_form"> -->
+          <turbo-frame id="email_domain_restrict_form">
+            <div data-controller="email-domain-form-handler" data-email-domain-form-handler-url-value="#">
+              <label class="flex flex-wrap items-start cursor-pointer mt-4">
+                <input type="checkbox" class="sr-only peer" role="switch" autocomplete="off" data-email-domain-form-handler-target="enabledToggle" data-action="change->email-domain-form-handler#toggle" checked>
+                <div class="relative w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10%] after:left-[5%] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[80%] after:w-[45%] after:transition-all peer-checked:bg-green-500 flex-shrink-0"></div>
+                <span class="ml-3 text-sm font-medium text-gray-700">Only allow emails matching ***@ [    ] to join course.</span>
+                <span class="block w-full ml-14 text-xs font-normal text-gray-500 mt-0.5">Separate multiple emails using a comma (,)</span>
+              </label>
+              <div class="relative mt-3">
+                <input type="text" data-email-domain-form-handler-target="domainInput" value="student.mmu.edu.my, mmu.edu.my" placeholder="ex: gmail.com , outlook.com" autocomplete="off" class="appearance-none block w-full font-mono px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                <button type="button" data-action="click->email-domain-form-handler#submitDomain" class="absolute inset-y-0 right-0 flex items-center pr-3 text-green-500 hover:text-green-600 focus:outline-none text-lg font-bold transition-colors">✓</button>
+              </div>
+            </div>
+          </turbo-frame>
+        </div>
+
+        <!-- SUBSECTION: Supervisor Capacity (INLINED: courses/_supervisor_capacity_settings) -->
+        <div class="mt-8">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">Supervisor Capacity</h3>
+          <div class="space-y-6">
+            <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-1/2">
+              <label for="supervisor_projects_limit_visible" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Maximum Projects per Supervisor</label>
+              <input type="hidden" name="course[supervisor_projects_limit]" value="4">
+              <input type="number" id="supervisor_projects_limit_visible" name="course[supervisor_projects_limit]" required value="4" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1 disabled:opacity-60">
+            </div>
+
+            <div data-controller="supervisor-capacity" data-supervisor-capacity-base-value="4" class="space-y-6">
+              <details class="group rounded-lg border border-outline-variant bg-white shadow-sm">
+                <summary class="cursor-pointer px-5 py-4 flex items-center justify-between gap-4 text-left text-[14px] font-medium text-on-surface list-none">
+                  <span>Manage Project Allocations and Lecturer exclusions</span>
+                  <span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform group-open:rotate-180 shrink-0">expand_more</span>
+                </summary>
+                <div class="border-t border-outline-variant px-5 py-4 space-y-6">
+                  <p class="text-[14px] text-on-surface-variant">Maximum projects and variable project allocations affect display numbers in supervisor list only, serving as a guideline. Supervisors are free to accept projects beyond the listed number.</p>
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-5 items-center">
+                      <input type="checkbox" id="course_supervisor_auto_calculate_enabled" name="course[supervisor_auto_calculate_enabled]" data-action="change->supervisor-capacity#toggleAutoCalculate" class="h-4 w-4 rounded border-outline text-success focus:ring-success">
+                    </div>
+                    <div>
+                      <label for="course_supervisor_auto_calculate_enabled" class="text-[14px] font-medium text-on-surface">Auto-calculate based on number of groups and lecturers</label>
+                      <p class="text-[14px] text-on-surface-variant">Divides total projects by eligible supervisors. Disables the manual base limit input.</p>
+                    </div>
+                  </div>
+                  <div class="rounded-lg border border-outline-variant overflow-hidden">
+                    <table class="min-w-full divide-y divide-outline-variant text-[14px]">
+                      <thead class="bg-surface-hover">
+                        <tr>
+                          <th class="px-5 py-3 text-left font-medium text-on-surface-variant">Supervisor</th>
+                          <th class="px-5 py-3 text-center font-medium text-on-surface-variant whitespace-nowrap">Exclude</th>
+                          <th class="px-5 py-3 text-center font-medium text-on-surface-variant whitespace-nowrap">Offset</th>
+                          <th class="px-5 py-3 text-center font-medium text-on-surface-variant whitespace-nowrap">Relative Capacity</th>
+                        </tr>
+                      </thead>
+                      <tbody class="bg-white divide-y divide-outline-variant">
+                        <tr data-supervisor-capacity-target="row">
+                          <td class="px-5 py-3 text-on-surface">Dr. Aisha Rahman</td>
+                          <td class="px-5 py-3 text-center"><input type="checkbox" name="supervisor_capacity_excluded[]" value="11" data-action="change->supervisor-capacity#updateRow" data-excluded="true" class="h-4 w-4 rounded border-outline text-success focus:ring-success"></td>
+                          <td class="px-5 py-3 text-center"><input type="number" name="supervisor_capacity_offsets[11]" value="0" data-action="input->supervisor-capacity#updateRow" data-offset="true" class="w-20 text-center px-2 py-1.5 border border-outline rounded-[6px] text-[14px] text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></td>
+                          <td class="px-5 py-3 text-center"><span class="font-medium text-on-surface" data-result>4</span> <span class="text-xs text-on-surface-variant ml-1" data-formula>(4 + 0)</span></td>
+                        </tr>
+                        <tr data-supervisor-capacity-target="row">
+                          <td class="px-5 py-3 text-on-surface">Dr. Daniel Lim</td>
+                          <td class="px-5 py-3 text-center"><input type="checkbox" name="supervisor_capacity_excluded[]" value="12" data-action="change->supervisor-capacity#updateRow" data-excluded="true" class="h-4 w-4 rounded border-outline text-success focus:ring-success"></td>
+                          <td class="px-5 py-3 text-center"><input type="number" name="supervisor_capacity_offsets[12]" value="1" data-action="input->supervisor-capacity#updateRow" data-offset="true" class="w-20 text-center px-2 py-1.5 border border-outline rounded-[6px] text-[14px] text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></td>
+                          <td class="px-5 py-3 text-center"><span class="font-medium text-on-surface" data-result>5</span> <span class="text-xs text-on-surface-variant ml-1" data-formula>(4 + 1)</span></td>
+                        </tr>
+                        <tr data-supervisor-capacity-target="row" class="opacity-60">
+                          <td class="px-5 py-3 text-on-surface">Dr. Priya Nair</td>
+                          <td class="px-5 py-3 text-center"><input type="checkbox" name="supervisor_capacity_excluded[]" value="13" checked data-action="change->supervisor-capacity#updateRow" data-excluded="true" class="h-4 w-4 rounded border-outline text-success focus:ring-success"></td>
+                          <td class="px-5 py-3 text-center"><input type="number" name="supervisor_capacity_offsets[13]" value="0" disabled data-action="input->supervisor-capacity#updateRow" data-offset="true" class="w-20 text-center px-2 py-1.5 border border-outline rounded-[6px] text-[14px] text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"></td>
+                          <td class="px-5 py-3 text-center"><span class="font-medium text-on-surface" data-result>0</span> <span class="text-xs text-on-surface-variant ml-1" data-formula>(4 + 0)</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Permissions and Rules -->
+      <section class="bg-white border border-outline-variant rounded-[12px] p-8">
+        <h2 class="text-3xl font-normal text-gray-800 mb-6 tracking-tight">Permissions and Rules</h2>
+        <div class="space-y-8">
+          <div class="bg-white border border-outline-variant rounded-lg overflow-hidden">
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-outline-variant hover:bg-surface-hover transition-colors">
+              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Allow lecturers to add topics?</span>
+              <div class="flex items-center gap-6">
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[toggle_topics]" value="true" checked class="text-primary border-outline mr-2"> Yes</label>
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[toggle_topics]" value="false" class="text-primary border-outline mr-2"> No</label>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-outline-variant hover:bg-surface-hover transition-colors">
+              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Lecturer topics require approval?</span>
+              <div class="flex items-center gap-6">
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[require_coordinator_approval]" value="true" checked class="text-primary border-outline mr-2"> Yes</label>
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[require_coordinator_approval]" value="false" class="text-primary border-outline mr-2"> No</label>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-outline-variant hover:bg-surface-hover transition-colors">
+              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Auto-approve unchanged copied topics?</span>
+              <div class="flex items-center gap-6">
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[auto_approve_copied_topics_without_changes]" value="true" class="text-primary border-outline mr-2"> Yes</label>
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[auto_approve_copied_topics_without_changes]" value="false" checked class="text-primary border-outline mr-2"> No</label>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-outline-variant hover:bg-surface-hover transition-colors">
+              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Use progress updates?</span>
+              <div class="flex items-center gap-6">
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[use_progress_updates]" value="true" checked class="text-primary border-outline mr-2"> Yes</label>
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[use_progress_updates]" value="false" class="text-primary border-outline mr-2"> No</label>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 border-b border-outline-variant hover:bg-surface-hover transition-colors">
+              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Lecturer views public?</span>
+              <div class="flex items-center gap-6">
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[lecturer_access]" value="true" class="text-primary border-outline mr-2"> Yes</label>
+                <label class="flex items-center text-sm text-on-surface cursor-pointer"><input type="radio" name="course[lecturer_access]" value="false" checked class="text-primary border-outline mr-2"> No</label>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center p-4 hover:bg-surface-hover transition-colors">
+              <span class="text-sm font-medium text-on-surface mb-2 sm:mb-0">Number of progress updates</span>
+              <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors px-3 py-1 w-full sm:w-32 mt-2 sm:mt-0">
+                <input type="number" name="course[number_of_updates]" value="4" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] text-center">
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <span class="block text-sm font-medium text-on-surface mb-3">Student can see projects from:</span>
+            <div class="bg-surface-hover border border-outline-variant rounded-lg p-5 space-y-3">
+              <div class="flex items-center"><input type="radio" name="course[student_access]" value="own_projects" id="student_access_0" class="text-primary border-outline"><label for="student_access_0" class="ml-3 block text-sm text-on-surface cursor-pointer">Own projects</label></div>
+              <div class="flex items-center"><input type="radio" name="course[student_access]" value="all_projects" id="student_access_1" checked class="text-primary border-outline"><label for="student_access_1" class="ml-3 block text-sm text-on-surface cursor-pointer">All projects</label></div>
+              <div class="flex items-center"><input type="radio" name="course[student_access]" value="approved_projects" id="student_access_2" class="text-primary border-outline"><label for="student_access_2" class="ml-3 block text-sm text-on-surface cursor-pointer">Approved projects</label></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           SECTION 4: Grouping   <<<  REDESIGN TARGET  >>>
+           ================================================================== -->
+      <section id="grouping" class="scroll-mt-6 bg-white border border-outline-variant rounded-[12px] p-8">
+        <div class="border-b border-outline-variant pb-4 mb-6 flex justify-between items-center">
+          <h2 class="text-3xl font-normal text-gray-800 tracking-tight">Group Formation <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800 align-middle ml-2">Beta</span></h2>
+        </div>
+
+        <div class="space-y-8" data-controller="grouping-settings" data-grouping-settings-enabled-value="true" data-grouping-settings-finalised-value="true">
+
+          <!-- Master Toggle: Allow students to form their own groups -->
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <span class="block text-[15px] font-medium text-on-surface">Student self-grouping</span>
+              <span class="block text-[13px] text-on-surface-variant mt-1 max-w-[600px] leading-relaxed">Allow students to form and manage their own groups.</span>
+            </div>
+            <label class="relative flex items-center cursor-pointer shrink-0 mt-1">
+              <input type="hidden" name="course[grouping_enabled]" value="false">
+              <input type="checkbox" name="course[grouping_enabled]" value="true" checked class="sr-only peer" data-action="change->grouping-settings#toggleEnabled">
+              <div class="w-11 h-6 bg-surface-variant-deep peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+          </div>
+
+          <!-- Options Section: hidden until grouping enabled -->
+          <div data-grouping-settings-target="groupingOptions" class="space-y-8 border-t border-outline-variant pt-6">
+
+            <!-- Sub-block: Group Configuration -->
+            <div class="space-y-6">
+
+              <!-- Prevent Leftovers Toggle -->
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <span class="block text-[15px] font-medium text-on-surface">Prevent leftover students</span>
+                  <span class="block text-[13px] text-on-surface-variant mt-1 max-w-[600px] leading-relaxed">Enforces legal group sizes for every student based on expected counts. Uncheck if the student list may still change or students can form groups freely.</span>
+                </div>
+                <label class="relative flex items-center cursor-pointer shrink-0 mt-1">
+                  <input type="hidden" name="course[prevent_leftover_students]" value="false">
+                  <input type="checkbox" name="course[prevent_leftover_students]" value="true" checked class="sr-only peer" data-action="change->grouping-settings#toggleMode">
+                  <div class="w-11 h-6 bg-surface-variant-deep peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
+              <!-- Min / Max Group Sizes -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
+                  <label for="course_group_min" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Minimum group size (optional)</label>
+                  <input type="number" id="course_group_min" name="course[group_min]" min="1" value="3" placeholder="e.g. 3" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1" data-grouping-settings-target="minMax minInput" data-action="input->grouping-settings#clearPreview">
+                </div>
+                <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4">
+                  <label for="course_group_max" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Maximum group size (optional)</label>
+                  <input type="number" id="course_group_max" name="course[group_max]" min="1" value="4" placeholder="e.g. 4" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1" data-grouping-settings-target="minMax maxInput" data-action="input->grouping-settings#clearPreview">
+                </div>
+              </div>
+
+              <!-- Preview Section (visible only when prevent_leftover_students is true) -->
+              <div data-grouping-settings-target="previewSection" class="bg-primary-container-alt/30 border border-primary-container-alt rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-[20px] text-primary">groups</span>
+                    <p class="text-[14px] font-medium text-on-surface-strong">Distribution preview</p>
+                  </div>
+                  <p class="text-[13px] text-on-surface-variant">Enter an expected student count to see how legal groups would form.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+                  <div class="bg-white rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors px-3 py-1 w-24 shadow-sm">
+                    <input type="number" id="grouping_preview_count" name="student_count" min="1" placeholder="Qty" autocomplete="off"
+                           class="w-full bg-transparent border-none p-0 text-center text-on-surface focus:ring-0 focus:outline-none text-[14px]"
+                           hx-get="#" hx-include="[name='student_count'], [name='course[group_min]'], [name='course[group_max]']"
+                           hx-params="student_count,course[group_min],course[group_max]" hx-target="#grouping_preview_result"
+                           hx-trigger="input changed delay:400ms" data-grouping-settings-target="previewInput">
+                  </div>
+                  <div id="grouping_preview_result" class="text-[13px] text-on-surface font-medium min-w-[140px]">
+                    30 students &rarr; 8 groups<br>
+                    <span class="text-[12px] text-on-surface-variant font-normal">6 of 4, 2 of 3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sub-block: Student Access -->
+            <div class="space-y-6 pt-6 border-t border-outline-variant">
+              <!-- Datetime Window -->
+              <div class="space-y-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <span class="block text-[15px] font-medium text-on-surface">End group formation (optional)</span>
+                    <span class="block text-[13px] text-on-surface-variant mt-1 max-w-[600px] leading-relaxed">Automatically close student access on a specific date.</span>
+                  </div>
+                  <button type="button" class="mt-1 px-4 py-1.5 rounded-full border border-outline text-primary hover:bg-surface-variant font-medium text-[13px] transition-colors shrink-0" data-action="click->grouping-settings#toggleWindow" data-grouping-settings-target="windowToggleBtn">Set date</button>
+                </div>
+                <div data-grouping-settings-target="windowFields" class="hidden mt-4">
+                  <div class="bg-surface-variant rounded-t-[4px] border-b-2 border-on-surface-variant focus-within:border-primary transition-colors relative pt-5 pb-2 px-4 w-full sm:w-[320px]">
+                    <label for="course_grouping_closes_at" class="absolute top-2 left-4 text-xs font-medium text-on-surface-variant">Close at</label>
+                    <input type="datetime-local" id="course_grouping_closes_at" name="course[grouping_closes_at]" class="w-full bg-transparent border-none p-0 text-on-surface focus:ring-0 focus:outline-none text-[14px] mt-1">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+      <!-- ================= END REDESIGN TARGET ================= -->
+
+      <!-- Roster and Course Action Footers -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-outline-variant">
+        <div class="flex gap-3 w-full sm:w-auto">
+          <a href="#" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 border border-outline text-primary hover:bg-surface-hover px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+            <span class="material-symbols-outlined text-[18px]">person_add</span> Add Students
+          </a>
+          <a href="#" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 border border-outline text-primary hover:bg-surface-hover px-6 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+            <span class="material-symbols-outlined text-[18px]">group_add</span> Add Lecturers
+          </a>
+        </div>
+        <a href="#" data-turbo-method="delete" data-turbo-confirm="Are you sure? This cannot be undone." class="w-full sm:w-auto inline-flex justify-center items-center gap-2 text-error hover:bg-error-container px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">
+          <span class="material-symbols-outlined text-[18px]">delete</span> Delete Course
+        </a>
+      </div>
+
+    </div>
+  </main>
+</form>
+</div>
+
+<!-- MOCKUP-ONLY interactivity (imitates the Stimulus controllers). Delete when implementing. -->
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const root = $('[data-controller="grouping-settings"]');
+  const opts = $('[data-grouping-settings-target="groupingOptions"]', root);
+  const preview = $('[data-grouping-settings-target="previewSection"]', root);
+  const winFields = $('[data-grouping-settings-target="windowFields"]', root);
+  const winBtn = $('[data-grouping-settings-target="windowToggleBtn"]', root);
+  root.addEventListener('change', e => {
+    if (e.target.name === 'course[grouping_enabled]') opts.classList.toggle('hidden', !e.target.checked);
+    if (e.target.name === 'course[prevent_leftover_students]') preview.classList.toggle('hidden', !e.target.checked);
+  });
+  winBtn.addEventListener('click', () => {
+    const hidden = winFields.classList.toggle('hidden');
+    winBtn.textContent = hidden ? 'Set date' : 'Remove date';
+  });
+  const ov = $('#mock-overlay');
+  const show = on => { ov.classList.toggle('opacity-0', !on); ov.classList.toggle('pointer-events-none', !on); };
+  $('#mock-overlay-open').addEventListener('click', () => show(true));
+  document.querySelectorAll('.mock-overlay-close').forEach(b => b.addEventListener('click', () => show(false)));
+  ov.addEventListener('click', e => { if (e.target === ov) show(false); });
+})();
+</script>
+</body>
+</html>

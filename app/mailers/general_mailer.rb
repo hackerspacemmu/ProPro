@@ -8,7 +8,7 @@ class GeneralMailer < ApplicationMailer
   def Signup_Verification
     @otp_token = params[:otp_token]
     @email_address = params[:email_address]
-    mail(to: @email_address, Subject: "Verify Your Account on ProPro")
+    mail(to: @email_address, Subject: 'Verify Your Account on ProPro')
   end
 
   def Project_Status_Updated
@@ -59,5 +59,63 @@ class GeneralMailer < ApplicationMailer
     @comment_snippet = params[:comment_snippet]
 
     mail(to: params[:email_address], Subject: 'New Comment on Your Project')
+  end
+
+  def Group_Direct_Request_Notification
+    @invite = params[:invite]
+    @group = @invite.project_group
+    @sender = @invite.sender
+
+    raise ArgumentError, "Group_Direct_Request_Notification: group #{@group.id} has no leader_id" if @group.leader_id.blank?
+
+    @leader = User.find(@group.leader_id)
+
+    mail(to: @leader.email_address, subject: "New join request for #{@group.group_name}")
+  end
+
+  def Group_Direct_Request_Accepted
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.sender.email_address, subject: "Your request to join #{@group.group_name} was accepted")
+  end
+
+  def Group_Direct_Request_Declined
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.sender.email_address, subject: "Your request to join #{@group.group_name} was declined")
+  end
+
+  def Group_Direct_Invite_Notification
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.recipient.email_address, subject: "You've been invited to join #{@group.group_name}")
+  end
+
+  def Group_Direct_Invite_Accepted
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.sender.email_address, subject: "#{@invite.recipient.name} accepted your invite to #{@group.group_name}")
+  end
+
+  def Group_Direct_Invite_Declined
+    @invite = params[:invite]
+    @group = @invite.project_group
+
+    mail(to: @invite.sender.email_address, subject: "#{@invite.recipient.name} declined your invite to #{@group.group_name}")
+  end
+
+  def Group_Reopened_Notification
+    @group = params[:group]
+    @joiner = params[:joiner]
+    @removed_user = params[:removed_user]
+    @recipient = params[:recipient]
+
+    who = @removed_user || @joiner
+    action = @removed_user ? 'was removed' : 'joined'
+    mail(to: @recipient.email_address, subject: "Group reopened because #{who.name} #{action}")
   end
 end

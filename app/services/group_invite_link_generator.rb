@@ -1,0 +1,67 @@
+# Leader generates/regenerates the group's shareable invite link.
+# Regenation deletes the old record and creates a new one.
+# not-confirmed groups, no email notifications
+class GroupInviteLinkGenerator
+  include Groups::GroupLocking
+
+  def initialize(group, current_user:)
+    @group = group
+    @current_user = current_user
+  end
+
+  def generate!
+    result = with_group_lock(@group) do
+      course = @group.course
+
+      return blocked(:imported_group) if @group.origin_import?
+      return blocked(:has_project) if @group.project.present?
+      return blocked(:formation_closed) unless course.group_formation_open?
+
+      @group.project_group_invite_links.destroy_all
+
+      link = @group.project_group_invite_links.create!(
+        sender: @current_user,
+        token: SecureRandom.urlsafe_base64(16),
+        expires_at: 24.hours.from_now
+      )
+
+      Result.new(generated: true, blocked_reason: nil,
+                 token: link.token, expires_at: link.expires_at)
+    end
+
+    return blocked(:group_gone) if result.equal?(Groups::GroupLocking::GROUP_GONE)
+
+    result
+  end
+
+  private
+
+  def blocked(reason)
+    Result.new(generated: false, blocked_reason: reason, token: nil, expires_at: nil)
+  end
+
+  class Result
+    attr_reader :blocked_reason, :token, :expires_at
+
+    def initialize(generated:, blocked_reason:, token:, expires_at:)
+      @generated = generated
+      @blocked_reason = blocked_reason
+      @token = token
+      @expires_at = expires_at
+    end
+
+    def generated? = @generated
+    def blocked? = !generated?
+
+    def message
+      return 'Invite link generated.' if generated?
+
+      case blocked_reason
+      when :imported_group then 'This group was imported, so it cannot take new members.'
+      when :has_project then 'This group already has a proposal, so it cannot take new members.'
+      when :formation_closed then 'Group formation is closed.'
+      when :group_gone then 'This group no longer exists.'
+      end
+    end
+  end
+end

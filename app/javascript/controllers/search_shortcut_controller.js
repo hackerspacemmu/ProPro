@@ -5,20 +5,19 @@ import { Controller } from "@hotwired/stimulus";
 // own route now (route-per-tab, ADR 0019), so there is one content area per
 // page and at most one input target on it.
 //
-// Pages without a search input (Overview) fall back to the Groups tab's link
-// (the fallbackLink target, only present on grouped courses): clicking it
-// navigates via Turbo Drive, and the module-scope flag below survives the body
-// swap so the new page's controller focuses #groups-search after arrival. The
-// flag lives at module scope (not on the controller element) because Stimulus
-// re-connects a fresh controller instance after every Drive visit. On an
-// ungrouped course there is no fallback link — "/" is a no-op on Overview.
+// Pages without a search input (Overview) fall back to the course's directory
+// tab: Groups for grouped courses, Students for solo courses. Clicking that
+// link navigates via Turbo Drive, and the module-scope flag below survives the
+// body swap so the new page's controller focuses its search input after
+// arrival. The flag lives at module scope (not on the controller element)
+// because Stimulus re-connects a fresh instance after every Drive visit.
 //
 // Scoped to the same element as the tab shell's <main>, so every DOM query
 // below stays within this page's tab strip and content.
 //
 // Search inputs opt in with:
 //   data-search-shortcut-target="input"        <- any tab page's search box
-//   data-search-shortcut-target="fallbackLink" <- the Groups tab link only
+//   data-search-shortcut-target="fallbackLink" <- Groups or Students tab link
 let focusAfterNavigation = false;
 
 export default class extends Controller {

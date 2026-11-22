@@ -53,7 +53,7 @@ class TopicsController < ApplicationController
     @is_student = @course.enrolments.exists?(user: current_user, role: :student)
 
     @project = if @course.grouped?
-                 group = current_user.project_groups.find_by(course: @course)
+                 group = @course.group_for(current_user)
                  @course.projects.find_by(owner: group) if group
                else
                  @course.projects.find_by(owner: current_user)
@@ -181,6 +181,15 @@ class TopicsController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'topic_created',
+      properties: {
+        copied_from_topic: @topic.source_topic_id.present?,
+        initial_status: @topic.current_status
+      }
+    )
+
     redirect_to course_topic_path(@course, @topic), notice: 'Topic created!'
   end
 
@@ -201,7 +210,7 @@ class TopicsController < ApplicationController
           status: status
         )
 
-        raise StandardError unless params[:fields].present?
+        raise StandardError if params[:fields].blank?
 
         # Set Title
         title_field_id = params[:fields].keys.first
@@ -234,19 +243,22 @@ class TopicsController < ApplicationController
       return
     end
 
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'topic_updated'
+    )
+
     redirect_to course_topic_path(@course, @topic), notice: 'Topic updated successfully.'
   end
 
   def change_status
     authorize @topic, :change_status?
     current_instance = @topic.current_instance
-    if current_instance
-      current_instance.update!(
-        status: params[:status],
-        last_status_change_time: Time.current,
-        last_status_change_by: current_user.id
-      )
-    end
+    current_instance&.update!(
+      status: params[:status],
+      last_status_change_time: Time.current,
+      last_status_change_by: current_user.id
+    )
 
     GeneralMailer.with(
       name: @topic.owner.name,
@@ -255,6 +267,12 @@ class TopicsController < ApplicationController
       topic: @topic,
       supervisor_name: Current.user.name
     ).Topic_Status_Updated.deliver_later
+
+    PostHog.capture(
+      distinct_id: current_user.posthog_distinct_id,
+      event: 'topic_status_changed',
+      properties: { status: params[:status] }
+    )
 
     redirect_to course_topic_path(@course, @topic), notice: 'Status updated.'
   end

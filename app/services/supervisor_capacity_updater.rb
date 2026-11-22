@@ -15,7 +15,7 @@ class SupervisorCapacityUpdater
     @course = course
   end
 
-  def update_capacities(offsets:, excluded_ids:)
+  def update!(offsets:, excluded_ids:)
     excluded_ids = excluded_ids.map(&:to_s)
     errors = []
 
@@ -29,7 +29,7 @@ class SupervisorCapacityUpdater
       enrolment.supervisor_capacity_excluded = excluded_ids.include?(id)
     end
 
-    base = SupervisorCapacityCalculator.new(@course, lecturer_enrolments: all_lecturers).calculate.base
+    base = Queries::SupervisorCapacityCalculator.new(@course, lecturer_enrolments: all_lecturers).execute.base
 
     targets = all_lecturers.select { |e| offsets.key?(e.id.to_s) || excluded_ids.include?(e.id.to_s) }
     targets.each { |enrolment| errors.concat(check(enrolment, base)) }
@@ -46,12 +46,12 @@ class SupervisorCapacityUpdater
 
   def check(enrolment, base)
     return [] if enrolment.supervisor_capacity_excluded?
-    return [] if base + enrolment.supervisor_capacity_offset > 0
+    return [] if (base + enrolment.supervisor_capacity_offset).positive?
 
     ["#{enrolment.user.name}'s offset would result in negative or zero capacity."]
   end
 
   def persist(targets)
-    ActiveRecord::Base.transaction { targets.each { |e| e.save!(validate: false) } }
+    targets.each { |e| e.save!(validate: false) }
   end
 end

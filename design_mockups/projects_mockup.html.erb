@@ -1,0 +1,552 @@
+<% content_for :body_class, "bg-surface-tint" %>
+
+<% content_for :title do %>
+  Intelligent Traffic Management System - View Project | ProPro
+<% end %>
+
+<div class="text-on-surface font-['Roboto',sans-serif]">
+  <div class="flex">
+    <!-- INLINE SIDEBAR -->
+    <aside id="app-sidebar"
+           class="group/sidebar
+             w-[280px] shrink-0 py-3 bg-surface-tint
+             fixed top-0 left-0 h-full z-50 -translate-x-full transition-[transform,width] duration-200 ease-out
+             lg:sticky lg:top-header lg:translate-x-0 lg:h-[calc(100vh-var(--spacing-header))] lg:self-start lg:overflow-y-auto
+             data-[collapsed=true]:lg:overflow-visible
+             data-[collapsed=true]:lg:w-[72px]"
+           data-sidebar-target="container"
+           data-collapsed="false">
+      <nav class="flex flex-col gap-1 pr-3">
+
+        <a href="#" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="Home">
+          <span class="material-symbols-outlined">home</span>
+          <span class="">Home</span>
+        </a>
+
+        <div class="">
+          <div class="px-6 py-2 flex items-center justify-between text-on-surface-variant cursor-pointer">
+            <span style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;">Enrolled</span>
+            <span class="material-symbols-outlined text-sm">expand_less</span>
+          </div>
+
+          <a href="#" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="COMP3000 Final Year Project">
+            <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold shrink-0">C</div>
+            <span class="truncate">COMP3000 Final Year Project</span>
+          </a>
+
+          <div class="py-2">
+            <div class="border-t border-outline"></div>
+          </div>
+        </div>
+
+        <a href="#" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="Edit profile">
+          <span class="material-symbols-outlined text-on-surface-variant">person</span>
+          <span class="">Edit profile</span>
+        </a>
+
+        <form class="m-0 w-full" data-turbo-confirm="nil" action="#" method="post">
+          <button type="submit" class="group/item relative flex items-center gap-4 px-6 py-3.5 transition-colors rounded-r-full text-on-surface hover:bg-white/60 w-full text-left bg-transparent border-0 cursor-pointer" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.25rem;" aria-label="Log out">
+            <span class="material-symbols-outlined text-on-surface-variant">logout</span>
+            <span class="">Log out</span>
+          </button>
+        </form>
+
+      </nav>
+    </aside>
+
+    <div class="hidden fixed inset-0 bg-black/30 z-40 lg:hidden"></div>
+
+    <main
+      class="flex-1 bg-surface rounded-tl-panel flex overflow-hidden h-[calc(100vh-var(--spacing-header))]"
+      data-controller="tabs comments-drawer"
+      data-tabs-persist-key-value="propro_tab_project_123"
+      data-tabs-active-class="text-primary-strong"
+      data-tabs-inactive-class="text-on-surface-variant hover:bg-surface-hover hover:text-on-surface"
+    >
+
+      <%# ===== LEFT PANE ===== %>
+      <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative border-r border-outline-variant">
+
+        <!-- INLINE PROJECT HEADER -->
+        <div class="border-b border-outline-variant px-8 sticky top-0 bg-surface z-20">
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 min-w-0">
+              <div
+                role="tablist"
+                data-testid="content-tabs"
+                class="flex flex-nowrap gap-x-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+              >
+                <button type="button" id="tab-details" role="tab" aria-selected="true" aria-controls="panel-details" tabindex="0" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-primary-strong">Project Details<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-primary-strong"></div></button>
+                <button type="button" id="tab-compare" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">Compare Versions<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-primary-strong"></div></button>
+                <button type="button" id="tab-progress" role="tab" aria-selected="false" aria-controls="panel-progress" tabindex="-1" style="font-family: 'DM Sans', Roboto, Arial, sans-serif; font-size: .875rem; font-weight: 500;" class="group h-[3rem] pt-[0.125rem] px-3 sm:px-6 flex items-center justify-center relative box-border whitespace-nowrap tracking-wide antialiased transition-colors text-on-surface-variant hover:bg-surface-hover hover:text-on-surface">Progress Updates<div class="absolute bottom-0 left-0 w-full h-[3px] rounded-t-[3px] transition-colors bg-transparent group-aria-selected:bg-primary-strong"></div></button>
+              </div>
+              <div class="hidden pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-surface to-transparent"></div>
+            </div>
+
+            <button type="button" aria-expanded="false" aria-controls="comments-drawer" title="Comments" class="min-[1245px]:hidden shrink-0 relative w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors">
+              <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+              <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-primary text-white text-[10px] font-medium leading-4 flex items-center justify-center">3</span>
+            </button>
+          </div>
+        </div>
+
+        <%# Content Panels %>
+        <div class="p-8 max-w-5xl space-y-6 pb-28 min-[1245px]:pb-8">
+
+          <%# Panel 1: Project Details %>
+          <div id="panel-details" role="tabpanel" aria-labelledby="tab-details" class="space-y-6">
+
+            <!-- INLINE PROJECT OVERVIEW (title tier + people row on the same tinted shell as Project Details) -->
+            <div class="bg-primary-container/40 border border-outline-variant rounded-[8px] p-6">
+              <%# Title tier: status + supervisor timestamp + title %>
+              <div class="mb-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="bg-primary-container text-primary-soft px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium tracking-wide">
+                    Pending
+                  </span>
+                  <span class="text-[14px] text-on-surface-variant">
+                    2 days ago
+                  </span>
+                </div>
+                <h1 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[26px] text-on-surface-strong font-normal tracking-tight">
+                  Intelligent Traffic Management System
+                </h1>
+              </div>
+
+              <%# People row: sits directly on the card tint (no inset panel). Tint = container, white = content (chips). %>
+              <div class="space-y-5">
+
+                <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.6fr)] gap-x-6 gap-y-5">
+
+                  <!-- GROUP -->
+                  <div class="min-w-0">
+                    <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Group</div>
+                    <a href="#" title="group_1" class="group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors">
+                      <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface-variant flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">group</span>
+                      </span>
+                      <span class="min-w-0 truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors">group_1</span>
+                    </a>
+                  </div>
+
+                  <!-- SUPERVISOR -->
+                  <div class="min-w-0">
+                    <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Supervisor</div>
+                    <a href="#" title="Dr. Robert Smith" class="group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors">
+                      <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">
+                        DR
+                      </span>
+                      <span class="min-w-0 truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors">Dr. Robert Smith</span>
+                    </a>
+                  </div>
+
+                  <!-- SUBMITTED BY (version-specific) -->
+                  <div class="min-w-0">
+                    <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Submitted by</div>
+                    <a href="#" title="Muhammad Aiman Hakimi bin Abdul Rahman" class="group/person flex w-fit max-w-full items-center gap-3 min-h-10 -ml-2 pl-2 pr-3 py-1 rounded-lg hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors">
+                      <span class="w-8 h-8 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[13px] font-medium shrink-0">M</span>
+                      <span class="min-w-0">
+                        <span class="block truncate text-[14px] font-medium text-on-surface group-hover/person:text-primary transition-colors">Muhammad Aiman Hakimi bin Abdul Rahman</span>
+                        <span class="block text-[13px] text-on-surface-muted" title="15 Oct 2024, 10:42 AM">3 days ago</span>
+                      </span>
+                    </a>
+                  </div>
+
+                </div>
+
+                <!-- OWNERS (wrapping chips, only the name is a link) -->
+                <div>
+                  <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-2">Owners</div>
+                  <div class="flex flex-wrap gap-2">
+                    <div class="inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1">
+                      <span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0">M</span>
+                      <a href="#" class="min-w-0 truncate text-[13px] text-on-surface hover:text-primary transition-colors">Muhammad Aiman Hakimi bin Abdul Rahman</a>
+                    </div>
+                    <div class="inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1">
+                      <span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0">L</span>
+                      <a href="#" class="min-w-0 truncate text-[13px] text-on-surface hover:text-primary transition-colors">Lim Jia Wei</a>
+                    </div>
+                    <div class="inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1">
+                      <span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0">A</span>
+                      <a href="#" class="min-w-0 truncate text-[13px] text-on-surface hover:text-primary transition-colors">Ali</a>
+                    </div>
+                    <div class="inline-flex max-w-full items-center gap-2 rounded-full bg-surface border border-outline-variant pl-1 pr-3 py-1">
+                      <span class="w-6 h-6 rounded-full bg-surface-variant-deep text-on-surface flex items-center justify-center text-[11px] font-medium shrink-0">N</span>
+                      <a href="#" class="min-w-0 truncate text-[13px] text-on-surface hover:text-primary transition-colors">Nur Syafiqah Azzahra binti Mohd Zulkifli</a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- INLINE PROJECT DETAILS -->
+            <div class="w-full" data-controller="field-expand-modal">
+              <div class="bg-primary-container/40 border border-outline-variant rounded-[8px] overflow-hidden">
+                <div class="py-5 px-6 border-b border-outline-variant flex flex-col gap-3 hover:bg-white/60 transition-colors">
+                  <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider">
+                    Project Description
+                  </div>
+                  <div class="text-[15px] text-on-surface leading-relaxed bg-white/60 border border-outline-variant rounded-[4px] p-5 prose prose-sm max-w-none relative">
+                    <p>This project aims to develop an intelligent traffic management system using real-time data analysis and machine learning algorithms to optimize traffic flow in urban environments.</p>
+                    <p>The system will collect data from various sensors and cameras, analyze patterns, and provide dynamic routing recommendations to reduce congestion and travel time.</p>
+                    <button type="button" class="absolute top-3 right-3 text-on-surface-variant hover:text-on-surface transition-colors bg-white/80 rounded-md p-1" aria-label="Expand Project Description">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"></path></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="py-4 px-6 border-b border-outline-variant flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-white/60 transition-colors">
+                  <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider md:w-1/3 shrink-0 pt-1">
+                    Expected Outcomes
+                  </div>
+                  <div class="text-[14px] text-on-surface md:w-2/3">
+                    A functional prototype demonstrating improved traffic flow with 25% reduction in average wait times.
+                  </div>
+                </div>
+
+                <div class="py-4 px-6 border-b border-outline-variant flex flex-col md:flex-row md:items-start gap-2 md:gap-8 hover:bg-white/60 transition-colors">
+                  <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider md:w-1/3 shrink-0 pt-1">
+                    Technologies
+                  </div>
+                  <div class="text-[14px] text-on-surface md:w-2/3 flex flex-wrap gap-2">
+                    <span class="bg-surface-variant border border-outline text-on-surface px-3 py-1 rounded-[4px] text-[13px] font-medium">Python</span>
+                    <span class="bg-surface-variant border border-outline text-on-surface px-3 py-1 rounded-[4px] text-[13px] font-medium">TensorFlow</span>
+                    <span class="bg-surface-variant border border-outline text-on-surface px-3 py-1 rounded-[4px] text-[13px] font-medium">OpenCV</span>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-b-[8px]">
+                  <div class="flex items-center gap-2 text-[12px] text-on-surface-variant">
+                    <span class="material-symbols-outlined text-[16px]">info</span>
+                    <span>Based on Topic: <strong class="text-on-surface font-medium">Smart City Solutions</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <%# Panel 2: Compare Versions %>
+          <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" class="space-y-6 hidden">
+            <div class="flex justify-center mb-8">
+              <div class="inline-flex items-center gap-4">
+                <div class="bg-warning-container text-warning rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-warning/30">
+                  <div class="w-1.5 h-1.5 rounded-full bg-warning"></div>
+                  <span class="text-sm font-medium">Version 1</span>
+                </div>
+                <div class="text-on-surface-variant flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">sync_alt</span>
+                </div>
+                <div class="bg-success-container text-success rounded-full px-4 py-1.5 flex items-center gap-2 transition-colors cursor-pointer border border-transparent hover:border-success/30">
+                  <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+                  <span class="text-sm font-medium">Version 2 (Current)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+              <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-outline-variant -translate-x-1/2 hidden md:block"></div>
+              <div class="space-y-8 pr-2">
+                <div>
+                  <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Project Description</div>
+                  <div class="bg-surface-hover border border-outline-variant rounded-lg p-4 prose prose-sm max-w-none text-[14px] text-on-surface leading-relaxed">
+                    <p>This project aims to develop a traffic management system using sensor data to optimize traffic flow.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-8 pl-2">
+                <div>
+                  <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Project Description</div>
+                  <div class="bg-white border border-outline-variant shadow-sm rounded-lg p-4 prose prose-sm max-w-none text-[14px] text-on-surface leading-relaxed">
+                    <p>This project aims to develop an <ins class="bg-success-container text-success no-underline px-0.5 rounded">intelligent</ins> traffic management system using <ins class="bg-success-container text-success no-underline px-0.5 rounded">real-time</ins> data <ins class="bg-success-container text-success no-underline px-0.5 rounded">analysis and machine learning algorithms</ins> to optimize traffic flow <ins class="bg-success-container text-success no-underline px-0.5 rounded">in urban environments</ins>.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <%# Panel 3: Progress Updates %>
+          <div id="panel-progress" role="tabpanel" aria-labelledby="tab-progress" class="hidden" data-controller="record-update-modal">
+            <div class="w-full space-y-6">
+              <div class="mb-8">
+                <button class="bg-primary hover:bg-primary-hover text-white pl-4 pr-5 py-2.5 rounded-full font-medium text-[14px] transition-colors flex items-center gap-2 shadow-sm">
+                  <span class="material-symbols-outlined text-[20px]">add</span>
+                  Record Update
+                </button>
+              </div>
+
+              <div class="relative ml-4 mt-8">
+                <div class="absolute top-0 bottom-0 left-5 w-[1px] bg-outline-variant"></div>
+                <div class="space-y-8 relative">
+                  <div class="relative pl-16">
+                    <div class="absolute left-0 top-0 w-10 h-10 rounded-full bg-primary border-[3px] border-white text-white flex items-center justify-center font-medium z-10 text-xs">L1</div>
+                    <div class="bg-white border border-outline-variant rounded-xl transition-colors hover:bg-surface-hover/50">
+                      <div class="px-5 py-4 border-b border-outline-variant flex justify-between items-start bg-surface-hover rounded-t-xl">
+                        <div>
+                          <h3 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-on-surface-strong flex items-center gap-2">
+                            <span>Progress 2</span>
+                          </h3>
+                          <p class="text-[13px] text-on-surface-variant mt-1 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                            15 Oct 2024
+                          </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                          <span class="bg-primary-container text-primary-soft px-3 py-1 rounded-full text-xs font-medium tracking-wide capitalize">Satisfactory</span>
+                          <div class="relative">
+                            <button class="p-1.5 text-on-surface-variant hover:bg-outline-variant rounded-full transition-colors flex items-center justify-center">
+                              <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="p-6">
+                        <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">Feedback</div>
+                        <div class="text-[14px] text-on-surface leading-relaxed prose prose-sm max-w-none">
+                          <p>Good progress on data collection phase. Need to focus on preprocessing and feature extraction for the machine learning model.</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-outline-variant text-[12px] text-on-surface-variant">
+                          Last updated: 16-10-2024
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- INLINE RECORD UPDATE MODAL -->
+            <dialog class="rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden m-auto backdrop:bg-black/50" aria-label="Record Progress Update">
+              <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+                <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-on-surface-strong">Record Progress Update</h2>
+                <button class="text-on-surface-variant hover:bg-surface-variant rounded-full p-2 transition-colors flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[24px]">close</span>
+                </button>
+              </div>
+              <form class="flex flex-col h-full">
+                <div class="px-6 py-2 space-y-6">
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Status</label>
+                    <div class="relative">
+                      <select class="w-full bg-white border border-outline rounded-[4px] pl-4 pr-10 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer text-[14px]">
+                        <option value="">Select a rating</option>
+                        <option value="no_progress">No Progress</option>
+                        <option value="unsatisfactory">Unsatisfactory</option>
+                        <option value="satisfactory">Satisfactory</option>
+                        <option value="excellent">Excellent</option>
+                      </select>
+                      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Feedback</label>
+                    <textarea rows="5" class="w-full bg-white border border-outline rounded-[4px] px-4 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[14px]" placeholder="Provide details on the group's progress..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Date</label>
+                    <input type="date" value="2024-10-20" class="w-full bg-white border border-outline rounded-[4px] px-4 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[14px]">
+                  </div>
+                </div>
+                <div class="px-6 py-6 flex justify-end gap-2">
+                  <button type="button" class="text-primary hover:bg-surface-hover px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">Cancel</button>
+                  <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors shadow-sm">Save Update</button>
+                </div>
+              </form>
+            </dialog>
+
+            <!-- INLINE EDIT UPDATE MODAL -->
+            <dialog class="rounded-[28px] shadow-xl w-full max-w-lg overflow-hidden m-auto backdrop:bg-black/50" aria-label="Edit Progress Update">
+              <div class="px-6 pt-6 pb-4 flex items-center justify-between">
+                <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[22px] font-normal text-on-surface-strong">Edit Progress Update</h2>
+                <button type="button" class="text-on-surface-variant hover:bg-surface-variant rounded-full p-2 transition-colors flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[24px]">close</span>
+                </button>
+              </div>
+              <form class="flex flex-col h-full">
+                <div class="px-6 py-2 space-y-6">
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Status</label>
+                    <div class="relative">
+                      <select class="w-full bg-white border border-outline rounded-[4px] pl-4 pr-10 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer text-[14px]">
+                        <option value="no_progress">No Progress</option>
+                        <option value="unsatisfactory">Unsatisfactory</option>
+                        <option value="satisfactory" selected>Satisfactory</option>
+                        <option value="excellent">Excellent</option>
+                      </select>
+                      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Feedback</label>
+                    <textarea rows="5" class="w-full bg-white border border-outline rounded-[4px] px-4 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-[14px]">Good progress on data collection phase. Need to focus on preprocessing and feature extraction for the machine learning model.</textarea>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-2">Date</label>
+                    <input type="date" value="2024-10-15" class="w-full bg-white border border-outline rounded-[4px] px-4 py-3.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-[14px]">
+                  </div>
+                </div>
+                <div class="px-6 py-6 flex justify-end gap-2">
+                  <button type="button" class="text-primary hover:bg-surface-hover px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors">Cancel</button>
+                  <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-full font-medium text-[14px] transition-colors shadow-sm">Save Changes</button>
+                </div>
+              </form>
+            </dialog>
+          </div>
+
+        </div>
+
+      </div>
+
+      <%# ===== RIGHT PANE: review desktop-only, comments drawer ===== %>
+      <div
+        id="comments-drawer"
+        role="region"
+        aria-label="Comments"
+        class="
+          fixed top-0 right-0 bottom-0 z-50 w-[360px] max-w-[90vw] bg-surface p-6
+          flex flex-col gap-6 overflow-y-auto shrink-0
+          translate-x-full transition-transform duration-300 ease-out
+          min-[1245px]:static min-[1245px]:translate-x-0 min-[1245px]:shadow-none
+          min-[1245px]:transition-none min-[1245px]:border-l-0
+        "
+      >
+        <!-- INLINE PROJECT REVIEW CARD -->
+        <div class="hidden min-[1245px]:flex flex-col gap-5 shrink-0 bg-surface border border-outline-variant rounded-[8px] p-5">
+          <div class="flex items-center justify-between">
+            <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-on-surface-strong">Review Project</h2>
+          </div>
+
+          <!-- INLINE REVIEW ACTIONS -->
+          <div class="flex items-center gap-1">
+            <span class="text-sm font-medium text-on-surface-variant whitespace-nowrap mr-1">Version:</span>
+            <button type="button" aria-label="Previous version" title="Previous version" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors cursor-pointer disabled:text-on-surface-disabled disabled:hover:bg-transparent disabled:cursor-not-allowed">
+              <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+            </button>
+            <div class="relative flex-1 min-w-0">
+              <select class="w-full bg-surface border border-outline rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary cursor-pointer appearance-none">
+                <option value="1">1 of 2</option>
+                <option value="2" selected>2 of 2 (Current)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-on-surface-variant">
+                <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+              </div>
+            </div>
+            <button type="button" disabled aria-label="Next version" title="Next version" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors cursor-pointer disabled:text-on-surface-disabled disabled:hover:bg-transparent disabled:cursor-not-allowed">
+              <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-2 w-full">
+            <div class="relative group w-full">
+              <button type="button" aria-haspopup="true" class="w-full flex items-center gap-2.5 text-white pl-5 pr-3 py-3 rounded-full shadow-sm font-medium text-[15px] transition-colors cursor-pointer bg-primary-strong hover:bg-primary-hover">
+                <span class="material-symbols-outlined text-[20px]">schedule</span>
+                <span class="flex-1 text-left truncate">Pending</span>
+                <span class="material-symbols-outlined text-[22px]">arrow_drop_down</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full self-start h-[600px] min-[1245px]:h-[700px] min-[1245px]:sticky min-[1245px]:top-6 min-[1245px]:max-h-[calc(100vh-3rem)]">
+          <!-- INLINE PROJECT COMMENTS -->
+          <section id="project-comments" class="bg-surface border border-outline-variant rounded-[8px] flex flex-col shrink-0 h-full">
+            <div class="px-5 py-4 border-b border-outline-variant flex items-center justify-between">
+              <h2 style="font-family: 'DM Sans', Roboto, Arial, sans-serif;" class="text-[16px] font-medium text-on-surface-strong">Comments</h2>
+              <span class="bg-surface-variant text-on-surface px-2.5 py-0.5 rounded-[4px] text-[12px] font-medium border border-outline-variant">3</span>
+            </div>
+
+            <div class="flex-1 min-h-0 overflow-y-auto p-5 space-y-6">
+              <div class="space-y-6">
+                <div class="mb-4">
+                  <div class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-4 flex items-center justify-start">Comments for v2</div>
+                </div>
+                <div class="flex gap-3 group">
+                  <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">D</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-1">
+                      <span class="text-[14px] font-medium text-on-surface">Dr. Robert Smith</span>
+                      <span class="text-[12px] text-on-surface-variant">1 hour ago</span>
+                    </div>
+                    <div class="text-[14px] text-on-surface leading-relaxed break-words">
+                      <p>Great proposal! I think the machine learning approach is solid. Could you expand more on the data collection methodology in your next revision?</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex gap-3 group">
+                  <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">A</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-1">
+                      <span class="text-[14px] font-medium text-success">Alex Chen</span>
+                      <span class="text-[12px] text-on-surface-variant">45 min ago</span>
+                    </div>
+                    <div class="text-[14px] text-on-surface leading-relaxed break-words">
+                      <p>Thanks for the feedback! We'll add more details about the sensor network and data preprocessing steps.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex gap-3 group">
+                  <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[13px] font-medium shrink-0">D</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-1">
+                      <span class="text-[14px] font-medium text-on-surface">Dr. Robert Smith</span>
+                      <span class="text-[12px] text-on-surface-variant">30 min ago</span>
+                    </div>
+                    <div class="text-[14px] text-on-surface leading-relaxed break-words">
+                      <p>Looking forward to seeing the updated version.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-5 pt-0 shrink-0">
+              <form>
+                <div class="border border-outline rounded-[4px] focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all bg-surface flex items-center pr-1">
+                  <textarea class="w-full bg-transparent border-none pl-3 pr-2 py-2.5 text-on-surface focus:ring-0 text-[14px] resize-none outline-none" rows="1" placeholder="Write a comment..."></textarea>
+                  <button type="submit" class="p-2 text-primary hover:bg-surface-hover rounded-[4px] transition-colors flex items-center justify-center shrink-0" title="Send">
+                    <span class="material-symbols-outlined text-[20px]">send</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="hidden fixed inset-0 bg-black/40 z-40 min-[1245px]:hidden"></div>
+
+    </main>
+  </div>
+
+  <!-- INLINE REVIEW ACTION BAR (mobile) -->
+  <div class="fixed bottom-0 left-0 right-0 z-30 bg-surface border-t border-outline-variant px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-2px_12px_rgba(60,64,67,0.08)] min-[1245px]:hidden flex flex-col gap-3">
+    <div class="flex items-center gap-1">
+      <span class="text-sm font-medium text-on-surface-variant whitespace-nowrap mr-1">Version:</span>
+      <button type="button" aria-label="Previous version" title="Previous version" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors cursor-pointer disabled:text-on-surface-disabled disabled:hover:bg-transparent disabled:cursor-not-allowed">
+        <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+      </button>
+      <div class="relative flex-1 min-w-0">
+        <select class="w-full bg-surface border border-outline rounded-[4px] pl-3 pr-8 py-2 text-[14px] text-on-surface focus:outline-none focus:border-primary cursor-pointer appearance-none">
+          <option value="1">1 of 2</option>
+          <option value="2" selected>2 of 2 (Current)</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-on-surface-variant">
+          <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+        </div>
+      </div>
+      <button type="button" disabled aria-label="Next version" title="Next version" class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors cursor-pointer disabled:text-on-surface-disabled disabled:hover:bg-transparent disabled:cursor-not-allowed">
+        <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+      </button>
+    </div>
+    <div class="flex flex-col gap-2 w-full">
+      <div class="relative group w-full">
+        <button type="button" aria-haspopup="true" class="w-full flex items-center gap-2.5 text-white pl-5 pr-3 py-3 rounded-full shadow-sm font-medium text-[15px] transition-colors cursor-pointer bg-primary-strong hover:bg-primary-hover">
+          <span class="material-symbols-outlined text-[20px]">schedule</span>
+          <span class="flex-1 text-left truncate">Pending</span>
+          <span class="material-symbols-outlined text-[22px]">arrow_drop_down</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

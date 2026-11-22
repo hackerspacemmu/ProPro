@@ -1,0 +1,43 @@
+<% content_for :no_sidebar, true %>
+<% content_for :no_header, true %>
+<% content_for :no_footer, true %>
+<% content_for :body_class, "bg-surface-tint" %>
+
+<% content_for :title do %>
+  Remove <%= @student.name %> | ProPro
+<% end %>
+
+<div class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+  <section aria-labelledby="confirm-removal-title"
+           class="w-full max-w-lg bg-surface border border-outline-variant rounded-panel shadow-none">
+    <div class="px-6 pt-6">
+      <h1 id="confirm-removal-title" class="text-2xl font-normal text-on-surface-strong tracking-tight font-['DM_Sans']">
+        Remove student from course?
+      </h1>
+      <p class="mt-3 text-sm leading-relaxed text-on-surface-variant">
+        <span class="font-medium text-on-surface"><%= @student.name %></span>
+        will be removed from <span class="font-medium text-on-surface"><%= @course.course_name %></span>.
+        Their project history and comments will be deleted if they are the last member of their group.
+      </p>
+
+      <% if @project_title.present? %>
+        <div class="mt-4 rounded-lg bg-error-container px-4 py-3">
+          <p class="text-sm leading-relaxed text-error">
+            Removing this student will permanently delete the project
+            “<%= @project_title %>”. This can't be undone.
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex flex-col-reverse gap-2 px-6 py-6 sm:flex-row sm:justify-end">
+      <%= link_to "Cancel",
+            course_person_path(@course, @student),
+            class: "inline-flex items-center justify-center rounded-full border border-outline px-5 py-2 text-sm font-medium text-primary-strong no-underline transition-colors hover:bg-primary-container" %>
+      <%= button_to "Remove from course",
+            enrolment_path(@enrolment, course_id: @course.id, confirm: 'true'),
+            method: :delete,
+            class: "inline-flex items-center justify-center rounded-full bg-error px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-error-hover" %>
+    </div>
+  </section>
+</div>

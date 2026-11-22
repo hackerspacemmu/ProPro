@@ -35,12 +35,21 @@ class SearchShortcutTest < BrowserSystemTestCase
 
   test 'pressing slash focuses the search input on a tab that has one' do
     login_as @coordinator
-    visit course_people_path(@course)
+    visit course_students_path(@course)
     assert_selector '#students-search'
 
     press_slash_until do
       page.evaluate_script('document.activeElement && document.activeElement.id') == 'students-search'
     end
+    assert_eventually_active 'students-search'
+  end
+
+  test 'pressing slash on a solo overview jumps to the Students fallback' do
+    login_as @coordinator
+    visit course_path(@course)
+
+    press_slash_until { page.current_path == course_students_path(@course) }
+    assert_current_path course_students_path(@course)
     assert_eventually_active 'students-search'
   end
 

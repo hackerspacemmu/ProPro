@@ -1,0 +1,8 @@
+<%# locals: (group:, course:) %>
+<% if (warning = group_size_warning(group, course)).present? %>
+  <span class="material-symbols-outlined shrink-0 overflow-hidden text-[16px] leading-none text-warning"
+        role="img"
+        aria-label="<%= warning %>"
+        title="<%= warning %>"
+        data-group-size-warning>warning</span>
+<% end %>

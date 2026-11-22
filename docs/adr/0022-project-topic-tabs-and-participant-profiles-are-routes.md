@@ -102,6 +102,14 @@ Pundit), a global `ProgressUpdate.find`, and no flag check on writes;
 `set_project` / `set_topic` redirect with an alert rather than 404. New routes
 follow canonical resources; these are the backlog.
 
+## Addendum (2026-10-31)
+
+The grouping workspace's route now follows the same rule: it is the
+singular `course_group_formation_path`, with resourceful writes on
+`course_group_path` and its sub-resources (ADR 0025). The old
+`/courses/:course_id/project_groups` and
+`/project_group_invite_links/:token` GETs redirect for one release.
+
 ## References
 
 - ADR 0019 — course tabs are routes (the pattern this extends; its "what keeps

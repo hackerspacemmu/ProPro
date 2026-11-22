@@ -4,59 +4,89 @@ class ProjectGroupPolicy < ApplicationPolicy
   end
 
   def coordinator?
-    enrolment&.coordinator?
+    record.course.enrolments.exists?(user_id: user.id, role: :coordinator)
   end
 
-  def grouping_window_open?
-    record.course.grouping_window_open?
-  end
-
-  def index?
-    return true if coordinator?
-    enrolment.present? && record.course.grouping_enabled?
+  def group_formation_open?
+    record.course.group_formation_open?
   end
 
   def create?
-    return false if coordinator?
-    enrolment.present? &&
-      grouping_window_open? &&
-      !record.course.project_group_members.exists?(user:)
+    staff? || student?
   end
 
   def confirm?
-    return true if coordinator?
-    grouping_window_open? &&
-      record.leader_id == user.id &&
-      !record.confirmed?
+    return true if manage_groups_policy.manage_groups?
+
+    record.leader_id == user.id
   end
 
   def revert?
-    return true if coordinator?
-    grouping_window_open? &&
-      record.leader_id == user.id &&
-      record.confirmed?
+    return false if record.project.present?
+    return false if record.origin_import?
+    return true if manage_groups_policy.manage_groups?
+
+    group_formation_open? && record.leader_id == user.id
   end
 
   def destroy?
-    return coordinator? if record.confirmed?
-    grouping_window_open? && record.leader_id == user.id
+    return true if coordinator?
+    return false if record.confirmed?
+
+    group_formation_open? && record.leader_id == user.id
   end
 
-  def lock?
-    return true if coordinator?
-    grouping_window_open? &&
-      record.leader_id == user.id && !record.confirmed?
+  def edit?
+    manage_groups_policy.manage_groups? || update?
   end
 
-  def unlock?
+  def update?
     return true if coordinator?
-    grouping_window_open? &&
-      record.leader_id == user.id && !record.confirmed?
+    return false if record.origin_import?
+    return false if record.project.present?
+
+    group_formation_open? && record.leader_id == user.id
   end
 
-  def promote_leader?
-    return true if coordinator?
-    grouping_window_open? &&
-      record.leader_id == user.id && !record.confirmed?
+  def join?
+    enrolment.present? && enrolment.student?
+  end
+
+  # Requests are for confirmed formation groups only;
+  def request_to_join?
+    enrolment.present? && enrolment.student? && !record.origin_import? &&
+      record.confirmed? && record.project.blank? && group_formation_open?
+  end
+
+  def generate_invite_link?
+    return false if record.origin_import?
+
+    record.leader_id == user.id
+  end
+
+  def direct_invite?
+    return false if record.origin_import?
+
+    record.leader_id == user.id
+  end
+
+  private
+
+  def staff?
+    manage_groups_policy.manage_groups?
+  end
+
+  def student?
+    enrolment&.student?
+  end
+
+  def current_user_in_any_group?
+    ProjectGroupMember.joins(:project_group)
+                      .exists?(user_id: user.id,
+                               project_groups: { course_id: record.course_id })
+  end
+
+  def manage_groups_policy
+    Pundit.policy(user, record.course)
   end
 end

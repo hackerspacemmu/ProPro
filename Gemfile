@@ -110,3 +110,7 @@ gem "commonmarker", "~> 2.9"
 
 #For auto linking 
 gem "rinku", require: "rails_rinku"
+
+# PostHog analytics and Rails instrumentation
+gem "posthog-ruby", "~> 3.32"
+gem "posthog-rails", "~> 3.22"

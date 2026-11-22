@@ -1,0 +1,59 @@
+<%# locals: course, students, projects_by_owner, total_count, displayed_count,
+    show_all, state. This is also the htmx swap target. %>
+<div id="solo-students-table-container" class="overflow-x-auto border border-outline-variant rounded-lg">
+  <table class="w-full min-w-[650px] table-fixed">
+    <thead class="bg-surface">
+      <tr>
+        <%= render "courses/student_project_sort_header", course: course, column: "student_name", label: "Student", width: "w-[25%]" %>
+        <%= render "courses/student_project_sort_header", course: course, column: "project_title", label: "Project Title", width: "w-[35%]" %>
+        <%= render "courses/student_project_sort_header", course: course, column: "status", label: "Status", width: "w-[17%]" %>
+        <%= render "courses/student_project_sort_header", course: course, column: "supervisor", label: "Supervisor", width: "w-[23%]" %>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-outline-variant">
+      <% if students.present? %>
+        <% students.each do |student| %>
+          <% project = projects_by_owner[["User", student.id]]
+             current_instance = project&.project_instances&.max_by(&:version)
+             project_status = (current_instance&.status || project&.status || :not_submitted).to_s
+             supervisor = current_instance&.supervisor || project&.supervisor %>
+          <%= render "courses/solo_student_row",
+                     course: course,
+                     student: student,
+                     project: project,
+                     title: current_instance&.title,
+                     status: project_status,
+                     supervisor: supervisor %>
+        <% end %>
+      <% else %>
+        <%= render "shared/table_empty_state",
+                   colspan: 4,
+                   heading: state == :no_matches ? "No students match your current filters." : "No students have been enrolled yet.",
+                   hint: state == :no_matches ? "Try adjusting your search or filters." : nil %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if total_count.positive? %>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-4 py-3 border-t border-outline-variant bg-surface rounded-b-lg">
+      <span class="text-sm text-on-surface-muted">
+        Showing <span class="font-semibold text-on-surface"><%= displayed_count %></span>
+        of <span class="font-semibold text-on-surface"><%= total_count %></span> students
+      </span>
+
+      <% if !show_all && total_count > displayed_count %>
+        <button type="button"
+                class="text-sm font-medium text-primary hover:text-primary-hover hover:underline transition-colors cursor-pointer"
+                hx-get="<%= course_students_url(course) %>"
+                hx-target="#solo-students-table-container"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-include="#students-search, #students-status-filter, #students-lecturer-filter"
+                hx-vals='{"show_all": "true"}'
+                hx-indicator="#students-loading">
+          Show all <%= total_count %>
+        </button>
+      <% end %>
+    </div>
+  <% end %>
+</div>

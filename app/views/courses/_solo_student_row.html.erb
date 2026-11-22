@@ -1,0 +1,65 @@
+<%# locals: course, student, project, title, status, supervisor %>
+<% badge_classes, badge_color =
+     case status.to_s
+     when "approved" then ["bg-success-container text-success", "bg-success"]
+     when "pending"  then ["bg-primary-container text-primary-soft", "bg-primary-soft"]
+     when "redo"     then ["bg-warning-container text-warning", "bg-warning"]
+     when "rejected" then ["bg-error-container text-error", "bg-error"]
+     else                  ["bg-surface-variant text-on-surface-variant", "bg-on-surface-muted"]
+     end %>
+
+<tr class="hover:bg-surface-hover transition-colors">
+  <td class="px-4 py-4 align-middle min-w-0">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-8 h-8 rounded-full <%= student.has_registered ? "bg-primary-container text-primary" : "bg-surface-variant-deep text-on-surface-variant" %> flex items-center justify-center text-xs font-medium shrink-0">
+        <% if student.has_registered %>
+          <%= student.name.first.upcase %>
+        <% else %>
+          <span class="material-symbols-outlined text-[20px]">person</span>
+        <% end %>
+      </div>
+      <div class="flex items-center gap-1.5 min-w-0">
+        <%= link_to course_person_path(course, student),
+                    title: student.name,
+                    class: "text-sm font-medium text-on-surface hover:underline truncate min-w-0" do %>
+          <%= student.name %>
+        <% end %>
+        <% unless student.has_registered %>
+          <span class="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
+            <span class="bg-warning-container text-warning text-[10px] px-1.5 py-0.5 rounded leading-none">Invite pending</span>
+            <% if policy(course).manage_students? %>
+              <%= button_to resend_invite_path(student),
+                            method: :post,
+                            form: { class: "inline-flex items-center" },
+                            class: "inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer text-on-surface-muted hover:text-on-surface transition-colors",
+                            title: "Resend invitation email" do %>
+                <span class="material-symbols-outlined text-[16px]">mail</span>
+              <% end %>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </td>
+
+  <td class="px-4 py-4 text-sm align-middle min-w-0">
+    <% if project.present? && title.present? %>
+      <%= link_to course_project_path(course, project), title: title, class: "text-on-surface hover:underline truncate block w-full" do %>
+        <%= title %>
+      <% end %>
+    <% else %>
+      <span class="text-on-surface-muted italic">-</span>
+    <% end %>
+  </td>
+
+  <td class="px-4 py-4 align-middle">
+    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium tracking-wide <%= badge_classes %>">
+      <span class="w-1.5 h-1.5 rounded-full mr-1.5 <%= badge_color %>"></span>
+      <%= status.to_s.titleize %>
+    </span>
+  </td>
+
+  <td class="px-4 py-4 text-sm text-on-surface-variant align-middle">
+    <span class="truncate block" title="<%= supervisor&.name %>"><%= supervisor&.name || "-" %></span>
+  </td>
+</tr>

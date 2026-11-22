@@ -121,3 +121,8 @@ crumb :topic do |topic|
     parent :course, topic.course
   end
 end
+
+crumb :group_formation do |course|
+  link 'Group formation', course_group_formation_path(course)
+  parent :course, course
+end

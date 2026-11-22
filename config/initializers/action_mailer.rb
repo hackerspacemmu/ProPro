@@ -1,0 +1,1 @@
+ActionMailer::MailDeliveryJob.discard_on ActiveJob::DeserializationError

@@ -1,38 +1,37 @@
-# The Groups tab — /courses/:course_id/groups (route-per-tab, ADR 0019).
-# One page: the full Groups view for an enrolled user, plus the htmx branch
-# that used to be courses#show's `section=groups` dispatch (same partial, same
-# locals). 404s on an ungrouped course: the tab does not exist there, so the
-# route doesn't either.
+# Handles Groups Tab
 class GroupsController < ApplicationController
   include ParticipantBrowsing
   include CoursesHelper
+  include RequiresGroupedCourse
 
   before_action :set_course
-  before_action :authorize_course
+  before_action :authorize_course, only: %i[index show]
   before_action :ensure_grouped
+  before_action :set_group, only: %i[show edit destroy]
 
   def index
-    # Same preload the old courses#show carried: one query feeding the
-    # projects_by_owner map every row and the search/sort helpers read.
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
-    # Groups tab lists every project group, confirmed or draft — drafts are
-    # real memberships and must not vanish from the table.
-    @group_list = @course.project_groups.includes(project_group_members: :user).to_a
+    all_groups = @course.project_groups.includes(project_group_members: :user).to_a
+    @group_formation_open = @course.group_formation_open?
+    @unconfirmed_group_count = all_groups.count { |g| !g.confirmed? }
+    @ungrouped_student_count = @course.ungrouped_students.count
+
+    @group_list = if @group_formation_open
+                    all_groups.select(&:confirmed?)
+                  else
+                    all_groups
+                  end
 
     @filtered_group_list = filtered_group_list
     @show_all = params[:show_all] == 'true'
-    # Counts the matches, taken before the truncation below: the table footer's
-    # "Showing X of Y" is about the current criteria, not the course total.
     @total_group_count = @filtered_group_list.count
     @filtered_group_list = @filtered_group_list.first(Rails.application.config.participants_pagination_threshold) unless @show_all
 
-    # Empty vs no-matches, decided here rather than in the partials (ADR 0018).
     @group_list_state = list_state(@group_list, @filtered_group_list)
-    # The filter controls sit outside the htmx-swapped containers, so the
-    # partials are told a filter is active rather than re-deriving it from params.
     @filters_active = filters_active?(PARTICIPANT_FILTER_KEYS)
+    @coordinator_banner_active = policy(@course).manage_groups? && !@group_formation_open && (@unconfirmed_group_count.positive? || @ungrouped_student_count.positive?)
 
     return unless request.headers['HX-Request']
 
@@ -45,18 +44,16 @@ class GroupsController < ApplicationController
              displayed_count: @filtered_group_list.count,
              show_all: @show_all,
              state: @group_list_state,
-             filters_active: @filters_active
+             filters_active: @filters_active,
+             coordinator_banner_active: @coordinator_banner_active
            }
     nil
   end
 
-  # One group's participant profile (was the group branch of courses#profile,
-  # ADR 0022 phase 1). Course-scoped lookup: other-course groups 404.
   def show
     projects = @course.projects.includes(project_instances: { supervisor_enrolment: :user }).load
     @projects_by_owner = projects.index_by { |p| [p.owner_type, p.owner_id] }
 
-    @group = @course.project_groups.find(params[:id])
     @members = @group.project_group_members.includes(:user)
     @project = group_project_for(@group, @projects_by_owner)
     @status = group_status(@group, @projects_by_owner)
@@ -64,7 +61,66 @@ class GroupsController < ApplicationController
     @supervisor = @project&.supervisor if @project
   end
 
+  def edit
+    authorize @group, :edit?
+
+    @incoming_join_requests = @group.project_group_invites.pending_for_group(@group).where(kind: :direct_request).unexpired
+    @my_group_invite_token = @group.project_group_invite_links.find_by(sender: current_user)&.token
+    @my_invited_student_ids = ProjectGroupInvite.for_course(@course).sent_by(current_user).pending.where(kind: :direct_invite).pluck(:recipient_id)
+    @ungrouped_students = @course.ungrouped_students
+  end
+
+  def create
+    @group = @course.project_groups.build
+    authorize @group, :create?
+
+    leader = policy(@course).manage_groups? ? @course.students.find(params.expect(:user_id)) : current_user
+    result = GroupCreator.new(@course, leader: leader, current_user: current_user).create!
+
+    if result.created?
+      PostHog.capture(
+        distinct_id: current_user.posthog_distinct_id,
+        event: 'group_created',
+        properties: { created_by_coordinator: leader != current_user }
+      )
+
+      redirect_to course_group_formation_path(@course), notice: result.message
+    else
+      redirect_to course_group_formation_path(@course), alert: result.message
+    end
+  end
+
+  def destroy
+    authorize @group, :destroy?
+
+    result = delete_group
+
+    if result.needs_confirmation?
+      render turbo_stream: turbo_stream.append(
+        'modals',
+        partial: 'groups/delete_warning_modal',
+        locals: { group: @group, result: result }
+      )
+      return
+    end
+
+    target = url_from(params[:return_to]) || course_group_formation_path(@course)
+    redirect_to target, **(result.blocked? ? { alert: result.message } : { notice: result.message })
+  end
+
   private
+
+  def delete_group
+    if coordinator?
+      Groups::Coordinator::GroupDeleter.new(@group, confirm: params[:confirm] == 'true').delete!
+    else
+      Groups::Deleter.new(@group).delete!
+    end
+  end
+
+  def coordinator?
+    @course.enrolments.exists?(user_id: current_user.id, role: :coordinator)
+  end
 
   def set_course
     @course = Course.find(params[:course_id])
@@ -75,7 +131,7 @@ class GroupsController < ApplicationController
     authorize @course, :show?
   end
 
-  def ensure_grouped
-    raise ActiveRecord::RecordNotFound unless @course.grouped?
+  def set_group
+    @group = @course.project_groups.find(params[:id])
   end
 end

@@ -8,7 +8,7 @@ AllCops:
     - 'config/**/*'
     - 'script/**/*'
     - 'bin/{rails,rake}'
-    - 'ProPro_Design/**/*'
+    - 'design_mockups/**/*'
 
   # No need for frozen string literal comments in modern Ruby versions
   # See: https://www.jakeworth.com/posts/frozen-string-comment-yagni/
