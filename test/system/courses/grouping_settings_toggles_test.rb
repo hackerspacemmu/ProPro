@@ -44,7 +44,7 @@ class GroupingSettingsTogglesTest < BrowserSystemTestCase
 
     click_date_toggle 'Set date'
     assert_selector 'input#course_group_formation_closes_at'
-    fill_in 'Close at', with: 1.month.from_now.strftime('%Y-%m-%dT%H:%M')
+    fill_in 'Close at', with: 1.month.from_now
 
     click_save
 
